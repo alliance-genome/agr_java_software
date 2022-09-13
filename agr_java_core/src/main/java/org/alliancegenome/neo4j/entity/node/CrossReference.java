@@ -15,35 +15,35 @@ import lombok.*;
 @Schema(name="CrossReference", description="POJO that represents CrossReferences")
 public class CrossReference extends Neo4jEntity {
 
-    @JsonView({View.API.class, View.Interaction.class, View.Expression.class,View.AlleleVariantSequenceConverterForES.class})
-    private String crossRefCompleteUrl;
+	@JsonView({View.API.class, View.Interaction.class, View.Expression.class,View.AlleleVariantSequenceConverterForES.class})
+	private String crossRefCompleteUrl;
 
-    @JsonView({View.Interaction.class})
-    private String localId;
+	@JsonView({View.Interaction.class})
+	private String localId;
 
-    @JsonView({View.Interaction.class})
-    private String globalCrossRefId;
+	@JsonView({View.Interaction.class})
+	private String globalCrossRefId;
 
-    @JsonView({View.Interaction.class})
-    private String prefix;
+	@JsonView({View.Interaction.class})
+	private String prefix;
 
-    @JsonView({View.API.class, View.Interaction.class,View.AlleleVariantSequenceConverterForES.class})
-    private String name;
+	@JsonView({View.API.class, View.Interaction.class,View.AlleleVariantSequenceConverterForES.class})
+	private String name;
 
-    @JsonView({View.API.class, View.Interaction.class,View.AlleleVariantSequenceConverterForES.class})
-    private String displayName;
+	@JsonView({View.API.class, View.Interaction.class,View.AlleleVariantSequenceConverterForES.class})
+	private String displayName;
 
-    @JsonView({View.Interaction.class})
-    private String primaryKey;
+	@JsonView({View.Interaction.class})
+	private String primaryKey;
 
-    @JsonView({View.Interaction.class})
-    private String crossRefType;
+	@JsonView({View.Interaction.class})
+	private String crossRefType;
 
-    private Boolean loadedDB;
-    private Boolean curatedDB;
+	private Boolean loadedDB;
+	private Boolean curatedDB;
 
-    @Override
-    public String toString() {
-        return localId + ":" + displayName;
-    }
+	@Override
+	public String toString() {
+		return localId + ":" + displayName;
+	}
 }

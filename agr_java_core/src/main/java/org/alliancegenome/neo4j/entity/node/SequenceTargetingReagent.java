@@ -14,23 +14,23 @@ import lombok.*;
 @Schema(name="SequenceTargetingReagent", description="POJO that represents the STR")
 public class SequenceTargetingReagent extends GeneticEntity implements Comparable<SequenceTargetingReagent> {
 
-    public SequenceTargetingReagent() {
-        this.crossReferenceType = CrossReferenceType.FISH;
-    }
+	public SequenceTargetingReagent() {
+		this.crossReferenceType = CrossReferenceType.FISH;
+	}
 
-    private String release;
-    private String localId;
-    private String globalId;
-    @JsonView({View.Default.class})
-    private String name;
+	private String release;
+	private String localId;
+	private String globalId;
+	@JsonView({View.Default.class})
+	private String name;
 
-    @Relationship(type = "TARGETS")
-    @JsonView({View.API.class})
-    private Gene gene;
+	@Relationship(type = "TARGETS")
+	@JsonView({View.API.class})
+	private Gene gene;
 
-    @Override
-    public int compareTo(SequenceTargetingReagent o) {
-        return 0;
-    }
+	@Override
+	public int compareTo(SequenceTargetingReagent o) {
+		return 0;
+	}
 
 }

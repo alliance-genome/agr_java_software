@@ -14,13 +14,13 @@ import lombok.*;
 @Setter
 public class Reference implements Comparable<Reference>, Serializable {
 
-    @JsonView({View.DiseaseAnnotation.class})
-    private Publication publication;
-    @JsonView({View.DiseaseAnnotation.class})
-    private List<ECOTerm> evidenceCodes;
+	@JsonView({View.DiseaseAnnotation.class})
+	private Publication publication;
+	@JsonView({View.DiseaseAnnotation.class})
+	private List<ECOTerm> evidenceCodes;
 
-    @Override
-    public int compareTo(Reference o) {
-        return publication.compareTo(o.getPublication());
-    }
+	@Override
+	public int compareTo(Reference o) {
+		return publication.compareTo(o.getPublication());
+	}
 }

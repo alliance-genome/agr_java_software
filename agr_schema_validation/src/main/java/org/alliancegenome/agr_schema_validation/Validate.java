@@ -12,23 +12,23 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class Validate {
 
-    public static void main(String[] args) throws Exception {
+	public static void main(String[] args) throws Exception {
 
-        File file = new File(args[0]);
+		File file = new File(args[0]);
 
-        JsonSchema schemaNode = JsonSchemaFactory.byDefault().getJsonSchema(file.toURI().toString());
-        JsonNode jsonNode = JsonLoader.fromFile(new File(args[1]));
+		JsonSchema schemaNode = JsonSchemaFactory.byDefault().getJsonSchema(file.toURI().toString());
+		JsonNode jsonNode = JsonLoader.fromFile(new File(args[1]));
 
-        ProcessingReport report = schemaNode.validate(jsonNode);
+		ProcessingReport report = schemaNode.validate(jsonNode);
 
-        if(!report.isSuccess()) {
-            for(ProcessingMessage message: report) {
-                log.info(message.getMessage());
-            }
-        }
-        log.info("Validation Complete: " + report.isSuccess());
+		if(!report.isSuccess()) {
+			for(ProcessingMessage message: report) {
+				log.info(message.getMessage());
+			}
+		}
+		log.info("Validation Complete: " + report.isSuccess());
 
 
-    }
+	}
 
 }

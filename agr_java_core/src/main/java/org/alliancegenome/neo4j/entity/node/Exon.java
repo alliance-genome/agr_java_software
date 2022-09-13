@@ -16,20 +16,20 @@ import lombok.*;
 @Schema(name = "Exon", description = "POJO that represents the Exon")
 public class Exon extends Neo4jEntity implements Comparable<Exon> {
 
-        @JsonView({View.Default.class, View.API.class})
-    @JsonProperty(value = "id")
-    protected String primaryKey;
+		@JsonView({View.Default.class, View.API.class})
+	@JsonProperty(value = "id")
+	protected String primaryKey;
 
-    @JsonView({View.Default.class, View.API.class})
-    protected String name;
+	@JsonView({View.Default.class, View.API.class})
+	protected String name;
 
-    @Override
-    public int compareTo(Exon o) {
-        return name.compareTo(o.getName());
-    }
+	@Override
+	public int compareTo(Exon o) {
+		return name.compareTo(o.getName());
+	}
 
-    @JsonView({View.Default.class, View.API.class})
-    @Relationship(type = "ASSOCIATION")
-    private GenomeLocation location;
+	@JsonView({View.Default.class, View.API.class})
+	@Relationship(type = "ASSOCIATION")
+	private GenomeLocation location;
 
 }

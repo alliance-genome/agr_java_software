@@ -13,38 +13,38 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class SourceDocumentCreationManager extends Thread {
 
-    private DownloadFileSet downloadSet;
-    private RestHighLevelClient client;
+	private DownloadFileSet downloadSet;
+	private RestHighLevelClient client;
 
-    public SourceDocumentCreationManager(RestHighLevelClient client, DownloadFileSet downloadSet) {
-        this.client = client;
-        this.downloadSet = downloadSet;
-    }
+	public SourceDocumentCreationManager(RestHighLevelClient client, DownloadFileSet downloadSet) {
+		this.client = client;
+		this.downloadSet = downloadSet;
+	}
 
-    public void run() {
+	public void run() {
 
-        try {
+		try {
 
-            ExecutorService executor = Executors.newFixedThreadPool(VariantConfigHelper.getSourceDocumentCreatorThreads());
+			ExecutorService executor = Executors.newFixedThreadPool(VariantConfigHelper.getSourceDocumentCreatorThreads());
 
-            GeneIndexerRepository geneRepo = new GeneIndexerRepository();
-            GeneDocumentCache geneCache = geneRepo.getGeneCacheCrossReferencesSynonyms();
-            geneRepo.close();
+			GeneIndexerRepository geneRepo = new GeneIndexerRepository();
+			GeneDocumentCache geneCache = geneRepo.getGeneCacheCrossReferencesSynonyms();
+			geneRepo.close();
 
-            for(DownloadSource source: downloadSet.getDownloadFileSet()) {
-                SourceDocumentCreation creator = new SourceDocumentCreation(client, source, geneCache);
-                executor.execute(creator);
-            }
+			for(DownloadSource source: downloadSet.getDownloadFileSet()) {
+				SourceDocumentCreation creator = new SourceDocumentCreation(client, source, geneCache);
+				executor.execute(creator);
+			}
 
-            log.info("SourceDocumentCreationManager shuting down executor: ");
-            executor.shutdown();
-            while (!executor.isTerminated()) {
-                Thread.sleep(1000);
-            }
-            log.info("SourceDocumentCreationManager executor shut down: ");
+			log.info("SourceDocumentCreationManager shuting down executor: ");
+			executor.shutdown();
+			while (!executor.isTerminated()) {
+				Thread.sleep(1000);
+			}
+			log.info("SourceDocumentCreationManager executor shut down: ");
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }

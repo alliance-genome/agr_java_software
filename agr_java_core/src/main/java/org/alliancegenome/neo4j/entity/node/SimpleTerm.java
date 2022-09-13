@@ -15,11 +15,11 @@ import lombok.*;
 @Schema(name="SimpleTerm", description="POJO that represents a Simple Term")
 public class SimpleTerm extends Neo4jEntity {
 
-    @JsonView({View.DiseaseAPI.class, View.DiseaseAnnotation.class, View.API.class})
-    @JsonProperty(value = "id")
-    protected String primaryKey;
+	@JsonView({View.DiseaseAPI.class, View.DiseaseAnnotation.class, View.API.class})
+	@JsonProperty(value = "id")
+	protected String primaryKey;
 
-    @JsonView({View.DiseaseAPI.class, View.DiseaseAnnotation.class, View.API.class})
-    protected String name;
+	@JsonView({View.DiseaseAPI.class, View.DiseaseAnnotation.class, View.API.class})
+	protected String name;
 
 }

@@ -6,6 +6,6 @@ import lombok.*;
 @Getter
 public class PhenotypeFilter extends BaseFilter {
 
-    private String phenotype;
+	private String phenotype;
 
 }

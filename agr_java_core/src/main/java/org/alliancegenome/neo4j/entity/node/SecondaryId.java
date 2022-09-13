@@ -10,6 +10,6 @@ import lombok.*;
 @Schema(name="SecondaryId", description="POJO that represents the Secondary Id")
 public class SecondaryId extends Identifier {
 
-    private String primaryKey;
-    private String name;
+	private String primaryKey;
+	private String name;
 }

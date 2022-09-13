@@ -16,23 +16,23 @@ import lombok.*;
 @Setter
 @Schema(name="Phenotype", description="POJO that represents the Phenotype")
 public class Phenotype extends Neo4jEntity {
-    @JsonView({View.PhenotypeAPI.class, View.Interaction.class})
-    private String primaryKey;
-    @JsonView({View.AlleleAPI.class, View.Interaction.class})
-    private String phenotypeStatement;
+	@JsonView({View.PhenotypeAPI.class, View.Interaction.class})
+	private String primaryKey;
+	@JsonView({View.AlleleAPI.class, View.Interaction.class})
+	private String phenotypeStatement;
 
-    @Relationship(type = "IS_IMPLICATED_IN", direction = Relationship.INCOMING)
-    private List<Gene> genes;
+	@Relationship(type = "IS_IMPLICATED_IN", direction = Relationship.INCOMING)
+	private List<Gene> genes;
 
-    @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
-    private List<PhenotypeEntityJoin> phenotypeEntityJoins;
+	@Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
+	private List<PhenotypeEntityJoin> phenotypeEntityJoins;
 
-    @Override
-    public String toString() {
-        return phenotypeStatement;
-    }
+	@Override
+	public String toString() {
+		return phenotypeStatement;
+	}
 
-    public boolean equalsPhenotype(Phenotype phenotype) {
-        return phenotypeStatement.equals(phenotype.getPhenotypeStatement());
-    }
+	public boolean equalsPhenotype(Phenotype phenotype) {
+		return phenotypeStatement.equals(phenotype.getPhenotypeStatement());
+	}
 }

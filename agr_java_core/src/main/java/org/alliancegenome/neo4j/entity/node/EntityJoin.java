@@ -12,44 +12,44 @@ import lombok.*;
 @Setter
 public class EntityJoin extends Association {
 
-    protected String primaryKey;
-    protected String joinType;
+	protected String primaryKey;
+	protected String joinType;
 
-    @Relationship(type = "EVIDENCE", direction = Relationship.INCOMING)
-    private List<Publication> publications;
+	@Relationship(type = "EVIDENCE", direction = Relationship.INCOMING)
+	private List<Publication> publications;
 
-    @Relationship(type = "EVIDENCE")
-    private List<ECOTerm> evidenceCodes;
+	@Relationship(type = "EVIDENCE")
+	private List<ECOTerm> evidenceCodes;
 
-    @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
-    private Gene gene;
+	@Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
+	private Gene gene;
 
-    @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
-    private Allele allele;
+	@Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
+	private Allele allele;
 
-    // direct annotations
-    @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
-    private AffectedGenomicModel model;
+	// direct annotations
+	@Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
+	private AffectedGenomicModel model;
 
-    @Relationship(type = "EVIDENCE")
-    protected List<PublicationJoin> publicationJoins;
+	@Relationship(type = "EVIDENCE")
+	protected List<PublicationJoin> publicationJoins;
 
-    @Relationship(type = "INDUCES")
-    private List<ExperimentalCondition> inducerConditionList;
+	@Relationship(type = "INDUCES")
+	private List<ExperimentalCondition> inducerConditionList;
 
-    @Relationship(type = "HAS_CONDITION")
-    private List<ExperimentalCondition> hasConditionList;
+	@Relationship(type = "HAS_CONDITION")
+	private List<ExperimentalCondition> hasConditionList;
 
-    @Relationship(type = "AMELIORATES")
-    private List<ExperimentalCondition> ameliorateConditionList;
+	@Relationship(type = "AMELIORATES")
+	private List<ExperimentalCondition> ameliorateConditionList;
 
-    @Relationship(type = "EXACERBATES")
-    private List<ExperimentalCondition> exacerbateConditionList;
+	@Relationship(type = "EXACERBATES")
+	private List<ExperimentalCondition> exacerbateConditionList;
 
-    public boolean hasExperimentalConditions() {
-        return CollectionUtils.isNotEmpty(inducerConditionList) ||
-                CollectionUtils.isNotEmpty(hasConditionList) ||
-                CollectionUtils.isNotEmpty(ameliorateConditionList) ||
-                CollectionUtils.isNotEmpty(exacerbateConditionList);
-    }
+	public boolean hasExperimentalConditions() {
+		return CollectionUtils.isNotEmpty(inducerConditionList) ||
+				CollectionUtils.isNotEmpty(hasConditionList) ||
+				CollectionUtils.isNotEmpty(ameliorateConditionList) ||
+				CollectionUtils.isNotEmpty(exacerbateConditionList);
+	}
 }

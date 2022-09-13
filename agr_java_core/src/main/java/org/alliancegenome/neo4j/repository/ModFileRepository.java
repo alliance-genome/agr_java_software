@@ -7,8 +7,8 @@ import org.alliancegenome.neo4j.entity.node.ModFileMetadata;
 @RequestScoped
 public class ModFileRepository extends Neo4jRepository<ModFileMetadata> {
 
-    public ModFileRepository() {
-        super(ModFileMetadata.class);
-    }
+	public ModFileRepository() {
+		super(ModFileMetadata.class);
+	}
 
 }

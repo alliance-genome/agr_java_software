@@ -15,16 +15,16 @@ import lombok.*;
 @Schema(name="OrthoAlgorithm", description="POJO that represents the Ortho Algorithm")
 public class OrthoAlgorithm extends Neo4jEntity implements Comparable<OrthoAlgorithm> {
 
-    @JsonView({View.OrthologyMethod.class})
-    private String name;
+	@JsonView({View.OrthologyMethod.class})
+	private String name;
 
-    @Override
-    public int compareTo(OrthoAlgorithm o) {
-        return name.compareTo(o.getName());
-    }
+	@Override
+	public int compareTo(OrthoAlgorithm o) {
+		return name.compareTo(o.getName());
+	}
 
-    @Override
-    public String toString() {
-        return name;
-    }
+	@Override
+	public String toString() {
+		return name;
+	}
 }

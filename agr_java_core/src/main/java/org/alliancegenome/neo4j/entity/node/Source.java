@@ -17,29 +17,29 @@ import lombok.*;
 @Schema(name="Source", description="POJO that represents the Source")
 public class Source implements Serializable {
 
-    @JsonView(value = {View.Default.class, View.API.class})
-    private String name;
-    @JsonView(value = {View.Default.class, View.API.class})
-    private String url;
+	@JsonView(value = {View.Default.class, View.API.class})
+	private String name;
+	@JsonView(value = {View.Default.class, View.API.class})
+	private String url;
 
-    private SpeciesType speciesType;
+	private SpeciesType speciesType;
 
-    @Override
-    public String toString() {
-        return name + " : " + url;
-    }
+	@Override
+	public String toString() {
+		return name + " : " + url;
+	}
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Source source = (Source) o;
-        return Objects.equals(name, source.name) &&
-                Objects.equals(url, source.url);
-    }
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		Source source = (Source) o;
+		return Objects.equals(name, source.name) &&
+				Objects.equals(url, source.url);
+	}
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(name, url);
-    }
+	@Override
+	public int hashCode() {
+		return Objects.hash(name, url);
+	}
 }

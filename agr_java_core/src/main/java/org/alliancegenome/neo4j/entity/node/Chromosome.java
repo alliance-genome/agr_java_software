@@ -13,7 +13,7 @@ import lombok.*;
 @NodeEntity
 @Schema(name="Chromosome", description="POJO that represents the Chromosome")
 public class Chromosome extends Neo4jEntity {
-    
-    @JsonView({View.Default.class})
-    private String primaryKey;
+	
+	@JsonView({View.Default.class})
+	private String primaryKey;
 }

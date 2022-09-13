@@ -14,14 +14,14 @@ import lombok.*;
 @Schema(name="HTPDataset", description="POJO that represents a High Throughput Dataset")
 public class HTPDataset extends Neo4jEntity {
 
-    private String crossRefCompleteUrl;
-    private String dataProvider;
-    private String primaryKey;
-    private String summary;
-    private String title;
+	private String crossRefCompleteUrl;
+	private String dataProvider;
+	private String primaryKey;
+	private String summary;
+	private String title;
 
 
-    @Relationship(type = "CROSS_REFERENCE")
-    protected List<CrossReference> crossReferences = new ArrayList<>();
+	@Relationship(type = "CROSS_REFERENCE")
+	protected List<CrossReference> crossReferences = new ArrayList<>();
 
 }

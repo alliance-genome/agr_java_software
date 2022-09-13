@@ -16,27 +16,27 @@ import lombok.*;
 @Schema(name="MMOTerm", description="POJO that represents the MMO Term")
 public class MMOTerm extends Ontology {
 
-    private String primaryKey;
-    @JsonView(View.Expression.class)
-    private String name;
-    @JsonView(View.Expression.class)
-    private String displaySynonym;
+	private String primaryKey;
+	@JsonView(View.Expression.class)
+	private String name;
+	@JsonView(View.Expression.class)
+	private String displaySynonym;
 
-    @Override
-    public String toString() {
-        return displaySynonym + " [" + primaryKey + "]";
-    }
+	@Override
+	public String toString() {
+		return displaySynonym + " [" + primaryKey + "]";
+	}
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        MMOTerm mmoTerm = (MMOTerm) o;
-        return Objects.equals(primaryKey, mmoTerm.primaryKey);
-    }
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		MMOTerm mmoTerm = (MMOTerm) o;
+		return Objects.equals(primaryKey, mmoTerm.primaryKey);
+	}
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(primaryKey);
-    }
+	@Override
+	public int hashCode() {
+		return Objects.hash(primaryKey);
+	}
 }
