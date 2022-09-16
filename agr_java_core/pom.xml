@@ -28,7 +28,7 @@
 		<dependency>
 			<groupId>org.infinispan</groupId>
 			<artifactId>infinispan-commons</artifactId>
-			<version>13.0.10.Final</version>
+			<version>${infinispan.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.infinispan</groupId>
