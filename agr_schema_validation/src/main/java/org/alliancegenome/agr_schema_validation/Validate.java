@@ -4,8 +4,10 @@ import java.io.File;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.fge.jackson.JsonLoader;
-import com.github.fge.jsonschema.core.report.*;
-import com.github.fge.jsonschema.main.*;
+import com.github.fge.jsonschema.core.report.ProcessingMessage;
+import com.github.fge.jsonschema.core.report.ProcessingReport;
+import com.github.fge.jsonschema.main.JsonSchema;
+import com.github.fge.jsonschema.main.JsonSchemaFactory;
 
 import lombok.extern.log4j.Log4j2;
 

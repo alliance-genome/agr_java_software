@@ -2,7 +2,9 @@ package org.alliancegenome.indexer.variant.scripts;
 
 import java.io.File;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.data_extractor.extractors.fms.DataFile;
@@ -10,14 +12,19 @@ import org.alliancegenome.data_extractor.extractors.fms.interfaces.DataFileRESTI
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.apache.commons.io.FileUtils;
 
-import com.amazonaws.auth.*;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Regions;
-import com.amazonaws.services.s3.*;
-import com.amazonaws.services.s3.transfer.*;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.transfer.TransferManager;
+import com.amazonaws.services.s3.transfer.TransferManagerBuilder;
+import com.amazonaws.services.s3.transfer.Upload;
 
 import htsjdk.samtools.util.CloseableIterator;
 import htsjdk.variant.variantcontext.VariantContext;
-import htsjdk.variant.variantcontext.writer.*;
+import htsjdk.variant.variantcontext.writer.VariantContextWriter;
+import htsjdk.variant.variantcontext.writer.VariantContextWriterBuilder;
 import htsjdk.variant.vcf.VCFFileReader;
 import lombok.extern.jbosslog.JBossLog;
 import si.mazi.rescu.RestProxyFactory;

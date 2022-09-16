@@ -1,13 +1,13 @@
 package org.alliancegenome.cache;
 
+import java.util.List;
+
 import org.alliancegenome.neo4j.entity.ConditionAnnotation;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.CrossReference;
 import org.alliancegenome.neo4j.entity.node.EntityJoin;
 import org.alliancegenome.neo4j.entity.node.GeneticEntity;
 import org.apache.commons.collections.CollectionUtils;
-
-import java.util.List;
 
 public class ConditionService {
 

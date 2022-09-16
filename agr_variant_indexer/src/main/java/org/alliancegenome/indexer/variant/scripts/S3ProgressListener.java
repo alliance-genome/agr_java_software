@@ -2,7 +2,8 @@ package org.alliancegenome.indexer.variant.scripts;
 
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 
-import com.amazonaws.event.*;
+import com.amazonaws.event.ProgressEvent;
+import com.amazonaws.event.ProgressListener;
 import com.amazonaws.services.s3.transfer.Upload;
 
 public class S3ProgressListener implements ProgressListener {

@@ -1,10 +1,10 @@
 package org.alliancegenome.core.config;
 
 import org.alliancegenome.cache.CacheAlliance;
-import org.infinispan.client.hotrod.*;
+import org.infinispan.client.hotrod.RemoteCache;
+import org.infinispan.client.hotrod.RemoteCacheManager;
 import org.infinispan.client.hotrod.configuration.ConfigurationBuilder;
 import org.infinispan.configuration.cache.StorageType;
-import org.infinispan.eviction.EvictionType;
 
 import lombok.extern.log4j.Log4j2;
 

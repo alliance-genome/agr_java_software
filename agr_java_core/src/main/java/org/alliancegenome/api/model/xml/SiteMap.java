@@ -6,7 +6,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter @AllArgsConstructor @NoArgsConstructor
@@ -14,7 +17,7 @@ import lombok.*;
 @XmlRootElement(name = "sitemap")
 public class SiteMap {
 
-    private String loc;
-    private Date lastmod;
-    
+	private String loc;
+	private Date lastmod;
+	
 }

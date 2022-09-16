@@ -7,41 +7,42 @@ import org.alliancegenome.es.index.site.document.SearchableItemDocument;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.neo4j.entity.node.GOTerm;
 import org.alliancegenome.neo4j.repository.GoRepository;
-import org.apache.logging.log4j.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class GoIndexer extends Indexer<SearchableItemDocument> {
 
-    private final Logger log = LogManager.getLogger(getClass());
+	private final Logger log = LogManager.getLogger(getClass());
 
-    private final GoRepository goRepo = new GoRepository();
-    private final GoTranslator goTrans = new GoTranslator();
+	private final GoRepository goRepo = new GoRepository();
+	private final GoTranslator goTrans = new GoTranslator();
 
-    public GoIndexer(IndexerConfig config) {
-        super(config);
-    }
+	public GoIndexer(IndexerConfig config) {
+		super(config);
+	}
 
-    @Override
-    public void index() {
+	@Override
+	public void index() {
 
-        log.info("Pulling All Terms");
+		log.info("Pulling All Terms");
 
-        Iterable<GOTerm> terms = goRepo.getAllTerms();
+		Iterable<GOTerm> terms = goRepo.getAllTerms();
 
-        log.info("Pulling All Terms Finished");
+		log.info("Pulling All Terms Finished");
 
-        Iterable<SearchableItemDocument> docs = goTrans.translateEntities(terms);
-        docs.forEach(doc -> doc.setPopularity(popularityScore.get(doc.getPrimaryKey())));
+		Iterable<SearchableItemDocument> docs = goTrans.translateEntities(terms);
+		docs.forEach(doc -> doc.setPopularity(popularityScore.get(doc.getPrimaryKey())));
 
-        log.info("Translation Done");
+		log.info("Translation Done");
 
-        indexDocuments(docs);
-        goRepo.close();
-        log.info("saveDocuments Done");
+		indexDocuments(docs);
+		goRepo.close();
+		log.info("saveDocuments Done");
 
-    }
+	}
 
-    protected void startSingleThread(LinkedBlockingDeque<String> queue) {
-        // No need to multithread this
-    }
+	protected void startSingleThread(LinkedBlockingDeque<String> queue) {
+		// No need to multithread this
+	}
 
 }

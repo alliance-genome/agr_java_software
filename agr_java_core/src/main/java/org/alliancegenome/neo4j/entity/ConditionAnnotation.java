@@ -1,14 +1,20 @@
 package org.alliancegenome.neo4j.entity;
 
-import com.fasterxml.jackson.annotation.JsonView;
-import lombok.Getter;
-import lombok.Setter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.alliancegenome.neo4j.entity.node.ExperimentalCondition;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections.MapUtils;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
-import java.util.*;
+import com.fasterxml.jackson.annotation.JsonView;
+
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter

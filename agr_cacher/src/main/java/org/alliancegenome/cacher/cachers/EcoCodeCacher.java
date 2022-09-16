@@ -1,6 +1,7 @@
 package org.alliancegenome.cacher.cachers;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.cache.CacheAlliance;
@@ -13,33 +14,33 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class EcoCodeCacher extends Cacher {
 
-    private static DiseaseRepository diseaseRepository;
+	private static DiseaseRepository diseaseRepository;
 
-    @Override
-    protected void init() {
-        diseaseRepository = new DiseaseRepository();
-    }
-    
-    @Override
-    protected void cache() {
+	@Override
+	protected void init() {
+		diseaseRepository = new DiseaseRepository();
+	}
+	
+	@Override
+	protected void cache() {
 
-        // dej primary key, list of ECO terms
-        Map<String, List<ECOTerm>> allEcos = diseaseRepository.getEcoTermMap();
-        
-        final Class<View.DiseaseCacher> classView = View.DiseaseCacher.class;
+		// dej primary key, list of ECO terms
+		Map<String, List<ECOTerm>> allEcos = diseaseRepository.getEcoTermMap();
+		
+		final Class<View.DiseaseCacher> classView = View.DiseaseCacher.class;
 
-        allEcos.forEach((key, ecoTerms) -> cacheService.putCacheEntry(key, ecoTerms, classView, CacheAlliance.ECO_MAP));
-        log.info("Retrieved " + String.format("%,d", allEcos.size()) + " EcoTerm mappings");
+		allEcos.forEach((key, ecoTerms) -> cacheService.putCacheEntry(key, ecoTerms, classView, CacheAlliance.ECO_MAP));
+		log.info("Retrieved " + String.format("%,d", allEcos.size()) + " EcoTerm mappings");
 
-        CacheStatus status = new CacheStatus(CacheAlliance.ECO_MAP);
-        status.setNumberOfEntities(allEcos.size());
-        setCacheStatus(status);
+		CacheStatus status = new CacheStatus(CacheAlliance.ECO_MAP);
+		status.setNumberOfEntities(allEcos.size());
+		setCacheStatus(status);
 
-    }
+	}
 
-    @Override
-    public void close() {
-        diseaseRepository.close();
-    }
+	@Override
+	public void close() {
+		diseaseRepository.close();
+	}
 
 }

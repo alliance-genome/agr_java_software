@@ -11,7 +11,8 @@ import org.neo4j.ogm.annotation.typeconversion.Convert;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @NodeEntity
 @Getter

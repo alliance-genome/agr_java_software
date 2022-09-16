@@ -5,8 +5,8 @@ import java.util.List;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.index.ESDAO;
-import org.apache.logging.log4j.*;
-import org.elasticsearch.action.search.*;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
@@ -22,95 +22,95 @@ import lombok.extern.jbosslog.JBossLog;
 public class SearchDAO extends ESDAO {
 
 
-    public Long performCountQuery(QueryBuilder query) {
-        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+	public Long performCountQuery(QueryBuilder query) {
+		SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
 
-        searchSourceBuilder.query(query);
-        searchSourceBuilder.size(0);
+		searchSourceBuilder.query(query);
+		searchSourceBuilder.size(0);
 
-        SearchRequest searchRequest = new SearchRequest(ConfigHelper.getEsIndex());
-        searchRequest.source(searchSourceBuilder);
+		SearchRequest searchRequest = new SearchRequest(ConfigHelper.getEsIndex());
+		searchRequest.source(searchSourceBuilder);
 
-        SearchResponse response = null;
+		SearchResponse response = null;
 
-        try {
-            response = searchClient.search(searchRequest, RequestOptions.DEFAULT);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-
-        if (response != null && response.getHits() != null) {
-            return response.getHits().getTotalHits().value;
-        } else {
-            return 0l;
-        }
-
-    }
-
-    public SearchResponse performQuery(QueryBuilder query,
-            List<AggregationBuilder> aggBuilders,
-            QueryRescorerBuilder rescorerBuilder,
-            List<String> responseFields,
-            int limit, int offset,
-            HighlightBuilder highlighter,
-            String sort, Boolean debug) {
+		try {
+			response = searchClient.search(searchRequest, RequestOptions.DEFAULT);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
 
-        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+		if (response != null && response.getHits() != null) {
+			return response.getHits().getTotalHits().value;
+		} else {
+			return 0l;
+		}
+
+	}
+
+	public SearchResponse performQuery(QueryBuilder query,
+			List<AggregationBuilder> aggBuilders,
+			QueryRescorerBuilder rescorerBuilder,
+			List<String> responseFields,
+			int limit, int offset,
+			HighlightBuilder highlighter,
+			String sort, Boolean debug) {
 
 
-        searchSourceBuilder.fetchSource(responseFields.toArray(new String[responseFields.size()]), null);
-
-        if (debug != null && debug) {
-            searchSourceBuilder.explain(true);
-        }
-
-        if (rescorerBuilder != null) {
-            searchSourceBuilder.addRescorer(rescorerBuilder);
-        }
-
-        searchSourceBuilder.query(query);
-        searchSourceBuilder.size(limit);
-        searchSourceBuilder.from(offset);
-        searchSourceBuilder.trackTotalHits(true);
-
-        if(sort != null && sort.equals("alphabetical")) {
-            searchSourceBuilder.sort("name.keyword", SortOrder.ASC);
-        }
-        searchSourceBuilder.highlighter(highlighter);
+		SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
 
 
-        for(AggregationBuilder aggBuilder: aggBuilders) {
-            searchSourceBuilder.aggregation(aggBuilder);
-        }
+		searchSourceBuilder.fetchSource(responseFields.toArray(new String[responseFields.size()]), null);
 
-        if(debug != null && debug) {
-            log.info(searchSourceBuilder);
-        } else {
-            log.debug(searchSourceBuilder);
-        }
+		if (debug != null && debug) {
+			searchSourceBuilder.explain(true);
+		}
 
-        SearchRequest searchRequest = new SearchRequest(ConfigHelper.getEsIndex());
-        searchRequest.source(searchSourceBuilder);
-        // This request cache doesn't work 07/07/2021
-        //searchRequest.requestCache(true);
+		if (rescorerBuilder != null) {
+			searchSourceBuilder.addRescorer(rescorerBuilder);
+		}
 
-        if(debug != null && debug) {
-            log.info(searchRequest);
-        } else {
-            log.debug(searchRequest);
-        }
+		searchSourceBuilder.query(query);
+		searchSourceBuilder.size(limit);
+		searchSourceBuilder.from(offset);
+		searchSourceBuilder.trackTotalHits(true);
 
-        SearchResponse response = null;
+		if(sort != null && sort.equals("alphabetical")) {
+			searchSourceBuilder.sort("name.keyword", SortOrder.ASC);
+		}
+		searchSourceBuilder.highlighter(highlighter);
 
-        try {
-            response = searchClient.search(searchRequest, RequestOptions.DEFAULT);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
-        return response;
-    }
+		for(AggregationBuilder aggBuilder: aggBuilders) {
+			searchSourceBuilder.aggregation(aggBuilder);
+		}
+
+		if(debug != null && debug) {
+			log.info(searchSourceBuilder);
+		} else {
+			log.debug(searchSourceBuilder);
+		}
+
+		SearchRequest searchRequest = new SearchRequest(ConfigHelper.getEsIndex());
+		searchRequest.source(searchSourceBuilder);
+		// This request cache doesn't work 07/07/2021
+		//searchRequest.requestCache(true);
+
+		if(debug != null && debug) {
+			log.info(searchRequest);
+		} else {
+			log.debug(searchRequest);
+		}
+
+		SearchResponse response = null;
+
+		try {
+			response = searchClient.search(searchRequest, RequestOptions.DEFAULT);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return response;
+	}
 
 }

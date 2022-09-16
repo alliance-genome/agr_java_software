@@ -1,23 +1,31 @@
 package org.alliancegenome.indexer.variant.scripts;
 
-import java.io.*;
-import java.nio.file.*;
-import java.util.*;
-import java.util.concurrent.*;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 
 import com.amazonaws.AmazonClientException;
-import com.amazonaws.auth.*;
-import com.amazonaws.services.s3.*;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.amazonaws.services.s3.transfer.*;
+import com.amazonaws.services.s3.transfer.Download;
+import com.amazonaws.services.s3.transfer.TransferManager;
+import com.amazonaws.services.s3.transfer.TransferManagerBuilder;
+import com.amazonaws.services.s3.transfer.Upload;
 
 import htsjdk.samtools.util.CloseableIterator;
 import htsjdk.variant.variantcontext.VariantContext;
-import htsjdk.variant.variantcontext.writer.*;
-import htsjdk.variant.vcf.*;
+import htsjdk.variant.variantcontext.writer.VariantContextWriter;
+import htsjdk.variant.variantcontext.writer.VariantContextWriterBuilder;
+import htsjdk.variant.vcf.VCFFileReader;
+import htsjdk.variant.vcf.VCFHeader;
 import lombok.extern.jbosslog.JBossLog;
 
 @JBossLog

@@ -1,19 +1,25 @@
 package org.alliancegenome.neo4j.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.annotation.JsonView;
-import lombok.Getter;
-import lombok.Setter;
-import org.alliancegenome.neo4j.entity.node.*;
-import org.alliancegenome.neo4j.view.View;
-import org.eclipse.microprofile.openapi.annotations.media.Schema;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.alliancegenome.neo4j.entity.node.AffectedGenomicModel;
+import org.alliancegenome.neo4j.entity.node.Allele;
+import org.alliancegenome.neo4j.entity.node.Gene;
+import org.alliancegenome.neo4j.entity.node.Publication;
+import org.alliancegenome.neo4j.entity.node.Source;
+import org.alliancegenome.neo4j.view.View;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonView;
+
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter

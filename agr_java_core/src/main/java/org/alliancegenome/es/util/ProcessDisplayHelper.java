@@ -2,9 +2,9 @@ package org.alliancegenome.es.util;
 
 import java.text.DecimalFormat;
 import java.util.Date;
-import java.util.concurrent.*;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.logging.log4j.Logger;
 

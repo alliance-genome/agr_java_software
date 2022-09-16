@@ -2,12 +2,16 @@ package org.alliancegenome.neo4j.entity.relationship;
 
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
 import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.view.*;
-import org.neo4j.ogm.annotation.*;
+import org.alliancegenome.neo4j.view.OrthologyFilter;
+import org.alliancegenome.neo4j.view.View;
+import org.neo4j.ogm.annotation.EndNode;
+import org.neo4j.ogm.annotation.RelationshipEntity;
+import org.neo4j.ogm.annotation.StartNode;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter

@@ -7,7 +7,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import htsjdk.samtools.util.CloseableIterator;
 import htsjdk.variant.variantcontext.VariantContext;
-import htsjdk.variant.vcf.*;
+import htsjdk.variant.vcf.VCFFileReader;
+import htsjdk.variant.vcf.VCFInfoHeaderLine;
 
 public class TestLineConvert {
 

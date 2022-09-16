@@ -9,71 +9,72 @@ import org.alliancegenome.es.index.site.document.SearchableItemDocument;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.neo4j.entity.node.AffectedGenomicModel;
 import org.alliancegenome.neo4j.repository.indexer.ModelIndexerRepository;
-import org.apache.logging.log4j.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class ModelIndexer extends Indexer<SearchableItemDocument> {
 
-    private final Logger log = LogManager.getLogger(getClass());
-    private ModelDocumentCache cache;
-    private ModelIndexerRepository repo;
+	private final Logger log = LogManager.getLogger(getClass());
+	private ModelDocumentCache cache;
+	private ModelIndexerRepository repo;
 
-    public ModelIndexer(IndexerConfig config) {
-        super(config);
-    }
+	public ModelIndexer(IndexerConfig config) {
+		super(config);
+	}
 
-    @Override
-    protected void index() {
-        try {
-            repo = new ModelIndexerRepository();
-            cache = repo.getModelDocumentCache();
+	@Override
+	protected void index() {
+		try {
+			repo = new ModelIndexerRepository();
+			cache = repo.getModelDocumentCache();
 
-            LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>(cache.getModelMap().keySet());
+			LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>(cache.getModelMap().keySet());
 
-            initiateThreading(queue);
-            repo.close();
-        } catch (Exception e) {
-            log.error("Error while indexing...", e);
-            System.exit(-1);
-        }
-    }
+			initiateThreading(queue);
+			repo.close();
+		} catch (Exception e) {
+			log.error("Error while indexing...", e);
+			System.exit(-1);
+		}
+	}
 
-    @Override
-    protected void startSingleThread(LinkedBlockingDeque<String> queue) {
-        ArrayList<AffectedGenomicModel> list = new ArrayList<>();
-        ModelTranslator translator = new ModelTranslator();
+	@Override
+	protected void startSingleThread(LinkedBlockingDeque<String> queue) {
+		ArrayList<AffectedGenomicModel> list = new ArrayList<>();
+		ModelTranslator translator = new ModelTranslator();
 
 
-        while (true) {
-            try {
-                if (list.size() >= indexerConfig.getBufferSize()) {
-                    Iterable <SearchableItemDocument> documents = translator.translateEntities(list);
-                    cache.addCachedFields(documents);
-                    indexDocuments(documents);
-                    list.clear();
-                }
-                if (queue.isEmpty()) {
-                    if (list.size() > 0) {
-                        Iterable <SearchableItemDocument> documents = translator.translateEntities(list);
-                        cache.addCachedFields(documents);
-                        indexDocuments(documents);
-                        repo.clearCache();
-                        list.clear();
-                    }
-                    return;
-                }
+		while (true) {
+			try {
+				if (list.size() >= indexerConfig.getBufferSize()) {
+					Iterable <SearchableItemDocument> documents = translator.translateEntities(list);
+					cache.addCachedFields(documents);
+					indexDocuments(documents);
+					list.clear();
+				}
+				if (queue.isEmpty()) {
+					if (list.size() > 0) {
+						Iterable <SearchableItemDocument> documents = translator.translateEntities(list);
+						cache.addCachedFields(documents);
+						indexDocuments(documents);
+						repo.clearCache();
+						list.clear();
+					}
+					return;
+				}
 
-                String key = queue.takeFirst();
-                AffectedGenomicModel model = cache.getModelMap().get(key);
-                if (model != null)
-                    list.add(model);
-                else
-                    log.debug("No AffectedGenomicModel found for " + key);
-            } catch (Exception e) {
-                log.error("Error while indexing...", e);
-                System.exit(-1);
-                return;
-            }
-        }
-    }
+				String key = queue.takeFirst();
+				AffectedGenomicModel model = cache.getModelMap().get(key);
+				if (model != null)
+					list.add(model);
+				else
+					log.debug("No AffectedGenomicModel found for " + key);
+			} catch (Exception e) {
+				log.error("Error while indexing...", e);
+				System.exit(-1);
+				return;
+			}
+		}
+	}
 
 }
