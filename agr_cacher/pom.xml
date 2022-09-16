@@ -21,21 +21,6 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>org.infinispan</groupId>
-			<artifactId>infinispan-core</artifactId>
-			<version>13.0.10.Final</version>
-		</dependency>
-		<dependency>
-			<groupId>org.infinispan</groupId>
-			<artifactId>infinispan-commons</artifactId>
-			<version>13.0.10.Final</version>
-		</dependency>
-		<dependency>
-			<groupId>org.infinispan</groupId>
-			<artifactId>infinispan-client-hotrod</artifactId>
-			<version>13.0.10.Final</version>
-		</dependency>
-		<dependency>
 			<groupId>org.alliancegenome</groupId>
 			<artifactId>agr_java_core</artifactId>
 			<version>${project.version}</version>
