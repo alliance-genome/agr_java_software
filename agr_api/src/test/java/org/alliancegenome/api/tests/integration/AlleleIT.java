@@ -116,7 +116,7 @@ public class AlleleIT {
         assertNotNull("No Genome location found on associated gene", genomeLocations);
         assertThat(genomeLocations.size(), greaterThanOrEqualTo(1));
         GenomeLocation location = genomeLocations.get(0);
-        assertThat(location.getChromosome().getPrimaryKey(), equalTo("22"));
+        assertThat(location.getChromosome(), equalTo("22"));
         assertTrue(location.getStart() > 0);
         assertTrue(location.getEnd() > 0);
     }
