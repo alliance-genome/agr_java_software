@@ -1,6 +1,7 @@
 package org.alliancegenome.es.model.search;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;

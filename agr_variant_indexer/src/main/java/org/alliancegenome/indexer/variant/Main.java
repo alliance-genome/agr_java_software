@@ -6,8 +6,10 @@ import org.alliancegenome.core.filedownload.process.FileDownloadManager;
 import org.alliancegenome.core.variant.config.VariantConfigHelper;
 import org.alliancegenome.es.index.site.schema.VariantMapping;
 import org.alliancegenome.es.index.site.schema.settings.VariantIndexSettings;
-import org.alliancegenome.es.util.*;
-import org.alliancegenome.indexer.variant.es.managers.*;
+import org.alliancegenome.es.util.EsClientFactory;
+import org.alliancegenome.es.util.IndexManager;
+import org.alliancegenome.indexer.variant.es.managers.SourceDocumentCreation;
+import org.alliancegenome.indexer.variant.es.managers.SourceDocumentCreationManager;
 import org.elasticsearch.client.RestHighLevelClient;
 
 import com.fasterxml.jackson.databind.ObjectMapper;

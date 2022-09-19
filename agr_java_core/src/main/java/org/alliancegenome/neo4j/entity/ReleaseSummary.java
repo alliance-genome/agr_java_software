@@ -2,12 +2,15 @@ package org.alliancegenome.neo4j.entity;
 
 import java.util.List;
 
-import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.neo4j.entity.node.AllianceReleaseInfo;
+import org.alliancegenome.neo4j.entity.node.ModFileMetadata;
+import org.alliancegenome.neo4j.entity.node.OntologyFileMetadata;
 import org.alliancegenome.neo4j.view.View;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter @Setter
 public class ReleaseSummary {

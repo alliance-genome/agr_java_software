@@ -1,14 +1,16 @@
 package org.alliancegenome.es.util;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.apache.http.HttpHost;
-import org.apache.http.client.config.RequestConfig.Builder;
-import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
-import org.elasticsearch.client.*;
-import org.elasticsearch.client.RestClientBuilder.HttpClientConfigCallback;
+import org.elasticsearch.client.HttpAsyncResponseConsumerFactory;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestHighLevelClient;
 
 import com.google.common.collect.Multimap;
 

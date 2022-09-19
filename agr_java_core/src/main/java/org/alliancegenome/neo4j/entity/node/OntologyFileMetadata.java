@@ -1,7 +1,7 @@
 package org.alliancegenome.neo4j.entity.node;
 
 import java.util.Date;
-import java.util.*;
+import java.util.List;
 
 import org.alliancegenome.es.util.DateConverter;
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
@@ -13,9 +13,8 @@ import org.neo4j.ogm.annotation.typeconversion.Convert;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 
-import com.fasterxml.jackson.annotation.JsonView;
-
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter

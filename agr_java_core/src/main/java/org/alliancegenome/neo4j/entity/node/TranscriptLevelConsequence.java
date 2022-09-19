@@ -1,19 +1,22 @@
 package org.alliancegenome.neo4j.entity.node;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import org.alliancegenome.core.helpers.VariantServiceHelper;
 import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
-import org.alliancegenome.neo4j.entity.*;
+import org.alliancegenome.neo4j.entity.Neo4jEntity;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
-import org.neo4j.ogm.annotation.*;
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Relationship;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2

@@ -1,16 +1,20 @@
 package org.alliancegenome.indexer.variant.scripts;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 
-import org.alliancegenome.core.variant.converters.*;
+import org.alliancegenome.core.variant.converters.AlleleVariantSequenceConverter;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
-import org.alliancegenome.neo4j.entity.SpeciesType;
 
 import htsjdk.samtools.util.CloseableIterator;
 import htsjdk.variant.variantcontext.VariantContext;
-import htsjdk.variant.vcf.*;
+import htsjdk.variant.vcf.VCFFileReader;
+import htsjdk.variant.vcf.VCFInfoHeaderLine;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2

@@ -1,8 +1,10 @@
 package org.alliancegenome.indexer.variant.es.managers;
 
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-import org.alliancegenome.core.filedownload.model.*;
+import org.alliancegenome.core.filedownload.model.DownloadFileSet;
+import org.alliancegenome.core.filedownload.model.DownloadSource;
 import org.alliancegenome.core.variant.config.VariantConfigHelper;
 import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.neo4j.repository.indexer.GeneIndexerRepository;

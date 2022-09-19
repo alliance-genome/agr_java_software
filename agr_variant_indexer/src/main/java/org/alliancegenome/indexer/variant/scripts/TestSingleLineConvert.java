@@ -1,7 +1,8 @@
 package org.alliancegenome.indexer.variant.scripts;
 
 import java.io.File;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
 
 import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.core.variant.converters.AlleleVariantSequenceConverter;
@@ -12,7 +13,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import htsjdk.samtools.util.CloseableIterator;
 import htsjdk.variant.variantcontext.VariantContext;
-import htsjdk.variant.vcf.*;
+import htsjdk.variant.vcf.VCFFileReader;
+import htsjdk.variant.vcf.VCFInfoHeaderLine;
 
 public class TestSingleLineConvert {
 	public static void main(String[] args) {

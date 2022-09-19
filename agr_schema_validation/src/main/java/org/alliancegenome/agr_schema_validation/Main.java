@@ -1,12 +1,15 @@
 package org.alliancegenome.agr_schema_validation;
 
 import java.io.File;
-import java.nio.file.*;
-import java.util.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.fge.jackson.JsonLoader;
-import com.github.fge.jsonschema.core.report.*;
+import com.github.fge.jsonschema.core.report.ListProcessingReport;
+import com.github.fge.jsonschema.core.report.ProcessingMessage;
 import com.github.fge.jsonschema.main.JsonSchemaFactory;
 
 import lombok.extern.log4j.Log4j2;

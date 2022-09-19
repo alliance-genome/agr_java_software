@@ -1,14 +1,17 @@
 package org.alliancegenome.indexer.variant.scripts;
 
 import java.io.File;
-import java.util.concurrent.TimeUnit;
 
 import org.alliancegenome.core.config.ConfigHelper;
 
-import com.amazonaws.auth.*;
-import com.amazonaws.services.s3.*;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.amazonaws.services.s3.transfer.*;
+import com.amazonaws.services.s3.transfer.TransferManager;
+import com.amazonaws.services.s3.transfer.TransferManagerBuilder;
+import com.amazonaws.services.s3.transfer.Upload;
 
 import lombok.extern.jbosslog.JBossLog;
 

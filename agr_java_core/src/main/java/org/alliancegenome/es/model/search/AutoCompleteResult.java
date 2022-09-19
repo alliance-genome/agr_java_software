@@ -1,6 +1,7 @@
 package org.alliancegenome.es.model.search;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Map;
 
 public class AutoCompleteResult {
 

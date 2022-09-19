@@ -1,33 +1,33 @@
 package org.alliancegenome.es.index;
 
+import java.io.IOException;
+
 import org.alliancegenome.es.util.EsClientFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.elasticsearch.client.RestHighLevelClient;
 
-import java.io.IOException;
-
 public class ESDAO {
 
-    private Log log = LogFactory.getLog(getClass());
+	private Log log = LogFactory.getLog(getClass());
 
-    protected static RestHighLevelClient searchClient = null; // Make sure to only have 1 of these clients to save on resources
+	protected static RestHighLevelClient searchClient = null; // Make sure to only have 1 of these clients to save on resources
 
-    public ESDAO() {
-        init();
-    }
+	public ESDAO() {
+		init();
+	}
 
-    public void init() {
-        searchClient = EsClientFactory.getDefaultEsClient();
-    }
+	public void init() {
+		searchClient = EsClientFactory.getDefaultEsClient();
+	}
 
-    public void close() {
-        log.info("Closing Down ES Client");
-        try {
-            searchClient.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+	public void close() {
+		log.info("Closing Down ES Client");
+		try {
+			searchClient.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
 }
