@@ -58,9 +58,7 @@ public class AlleleVariantSequenceConverter {
 		GenomeLocation location = new GenomeLocation();
 		location.setStart((long) ctx.getStart());
 		location.setEnd((long) ctx.getEnd());
-		Chromosome chromosome = new Chromosome();
-		chromosome.setPrimaryKey(ctx.getContig());
-		location.setChromosome(chromosome);
+		location.setChromosome(ctx.getContig());
 
 		for (htsjdk.variant.variantcontext.Allele vcfAllele : ctx.getAlternateAlleles()) {
 			Allele agrAllele = new Allele(null, GeneticEntity.CrossReferenceType.VARIANT);
@@ -113,7 +111,7 @@ public class AlleleVariantSequenceConverter {
 				variantName.append('(')
 						.append(speciesType.getAssembly())
 						.append(')')
-						.append(chromosome.getPrimaryKey())
+						.append(ctx.getContig())
 						.append(':')
 						.append(hgvsNomenclature.split(":")[1].substring(2));
 			}
