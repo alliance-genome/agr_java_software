@@ -61,7 +61,7 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
 		query += " OPTIONAL MATCH expNonBgiCCRegulation=(con:Construct)-[:IS_REGULATED_BY]-(:NonBGIConstructComponent)";
 		query += " OPTIONAL MATCH expNonBgiCCTarget=(con:Construct)-[:TARGETS]-(:NonBGIConstructComponent)";
 		query += " OPTIONAL MATCH targetGene=(con:Construct)-[:TARGETS]-(:Gene)-[:FROM_SPECIES]->(:Species)";
-		query += " OPTIONAL MATCH p2=(gene:Gene)-[:ASSOCIATION]->(:GenomicLocation)-[:ASSOCIATION]->(:Chromosome)";
+		query += " OPTIONAL MATCH p2=(gene:Gene)-[:ASSOCIATION]->(:GenomicLocation)";
 		query += " RETURN p1, p2, p3, p4, crossRef, construct, regGene, vari, expGene, targetGene, crossRefCon, expNonBgiCC, expNonBgiCCRegulation, expNonBgiCCTarget";
 
 		Iterable<Allele> alleles = query(query, map);
@@ -104,7 +104,7 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
 			return transcriptMap;
 		String query = "";
 		// get Transcript - Exon relationships
-		query += " MATCH p1=(t:Transcript)-[:ASSOCIATION]->(:GenomicLocation)-[:ASSOCIATION]->(:Chromosome) ";
+		query += " MATCH p1=(t:Transcript)-[:ASSOCIATION]->(:GenomicLocation) ";
 		query += " OPTIONAL MATCH p2=(:GenomicLocation)<-[:ASSOCIATION]-(:Exon)-[:EXON]->(t:Transcript) ";
 		query += " RETURN p1, p2";
 		Iterable<Transcript> transcriptExonsIter = query(Transcript.class, query);
@@ -243,7 +243,7 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
 
 			query += " OPTIONAL MATCH consequence = (t:Transcript)--(:TranscriptLevelConsequence)--(variant:Variant)<-[:ASSOCIATION]-(t:Transcript)--(:SOTerm) ";
 			query += " OPTIONAL MATCH geneLevelConsequence=(variant:Variant)-[:ASSOCIATION]->(:GeneLevelConsequence)";
-			query += " OPTIONAL MATCH loc=(variant:Variant)-[:ASSOCIATION]->(:GenomicLocation)-[:ASSOCIATION]->(:Chromosome)";
+			query += " OPTIONAL MATCH loc=(variant:Variant)-[:ASSOCIATION]->(:GenomicLocation)";
 			query += " OPTIONAL MATCH p2=(a:Allele)-[:ALSO_KNOWN_AS]->(synonym:Synonym)";
 			query += " OPTIONAL MATCH crossRef=(a:Allele)-[:CROSS_REFERENCE]->(c:CrossReference)";
 			query += " RETURN p0, p1, p2, consequence, loc, crossRef, geneLevelConsequence ";
@@ -365,7 +365,7 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
 
 
 		query += " OPTIONAL MATCH consequence = (t:Transcript)--(:TranscriptLevelConsequence)--(v:Variant)<-[:ASSOCIATION]-(t:Transcript)--(:SOTerm) ";
-		query += " OPTIONAL MATCH loc=(v:Variant)-[:ASSOCIATION]->(:GenomicLocation)-[:ASSOCIATION]->(:Chromosome)";
+		query += " OPTIONAL MATCH loc=(v:Variant)-[:ASSOCIATION]->(:GenomicLocation)";
 		query += " OPTIONAL MATCH p2=(a:Allele)-[:ALSO_KNOWN_AS]->(synonym:Synonym)";
 		query += " OPTIONAL MATCH crossRef=(a:Allele)-[:CROSS_REFERENCE]->(c:CrossReference)";
 		query += " RETURN p1, p2, consequence, loc, crossRef ";
@@ -418,7 +418,7 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
 		 */
 		query += " OPTIONAL MATCH vari=(a:Allele)<-[:VARIATION]-(variant:Variant)-[:VARIATION_TYPE]->(soTerm:SOTerm)";
 		query += " OPTIONAL MATCH consequence=(variant:Variant)-[:ASSOCIATION]->(:GeneLevelConsequence)";
-		query += " OPTIONAL MATCH loc=(variant:Variant)-[:ASSOCIATION]->(:GenomicLocation)-[:ASSOCIATION]->(:Chromosome)";
+		query += " OPTIONAL MATCH loc=(variant:Variant)-[:ASSOCIATION]->(:GenomicLocation)";
 		query += " OPTIONAL MATCH p2=(a:Allele)-[:ALSO_KNOWN_AS]->(synonym:Synonym)";
 		query += " OPTIONAL MATCH crossRef=(a:Allele)-[:CROSS_REFERENCE]->(c:CrossReference)";
 		query += " OPTIONAL MATCH variantPub=(a:Allele)<-[:VARIATION]-(variant:Variant)-[:ASSOCIATION]->(:Publication)";
@@ -428,7 +428,7 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
 		 */
 		query += " OPTIONAL MATCH transcript=(a:Allele)<-[:VARIATION]-(variant:Variant)<-[:ASSOCIATION]-(:Transcript)--(:TranscriptLevelConsequence)--(variant:Variant)";
 		query += " OPTIONAL MATCH transcriptType=(a:Allele)<-[:VARIATION]-(variant:Variant)<-[:ASSOCIATION]-(:Transcript)--(:SOTerm)";
-		query += " OPTIONAL MATCH transcriptLocation=(:GenomicLocation)<-[:ASSOCIATION]-(:Exon)-[:EXON]->(t:Transcript)-[:ASSOCIATION]->(:GenomicLocation)-[:ASSOCIATION]->(:Chromosome), (a:Allele)<-[:VARIATION]-(:Variant)<-[:ASSOCIATION]-(t:Transcript)";
+		query += " OPTIONAL MATCH transcriptLocation=(:GenomicLocation)<-[:ASSOCIATION]-(:Exon)-[:EXON]->(t:Transcript)-[:ASSOCIATION]->(:GenomicLocation), (a:Allele)<-[:VARIATION]-(:Variant)<-[:ASSOCIATION]-(t:Transcript)";
 		query += " RETURN p1, p2, vari, crossRef, loc, consequence, transcript, variantPub, transcriptLocation, transcriptType ";
 
 		Iterable<Allele> alleles = query(query, map);
@@ -449,6 +449,7 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
 		}
 		return allAllelicHgvsGNames;
 	}
+	
 	public Map<String, Allele> getAllAlleleVariants() {
 //{primaryKey:'RGD:728326'}
 		String query = "MATCH path1=(:Species)<-[:FROM_SPECIES]-(a:Allele)";
@@ -459,26 +460,24 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
 		query += " OPTIONAL MATCH path6=(a:Allele)<-[:VARIATION]-(variant:Variant)-[:VARIATION_TYPE]->(soTerm:SOTerm)";
 		query += " OPTIONAL MATCH path7=(a:Allele)-[:ALSO_KNOWN_AS]->(synonym:Synonym)";
 		query += " OPTIONAL MATCH path8=(variant:Variant)-[:ASSOCIATION]->(:GeneLevelConsequence)";
-		query += " OPTIONAL MATCH path9=(variant:Variant)-[:ASSOCIATION]->(:GenomicLocation)-[:ASSOCIATION]->(:Chromosome)";
+		query += " OPTIONAL MATCH path9=(variant:Variant)-[:ASSOCIATION]->(:GenomicLocation)";
 
 		query += " RETURN  path1,path2,path3,path4,path5,path6,path7,path8,path9";
 
 		Iterable<Allele> allelesWithVariantsIter = query(query, new HashMap<>());
-		Set<Allele> allelesWithVariants = StreamSupport.stream(allelesWithVariantsIter.spliterator(), false)
-				.collect(Collectors.toSet());
-		Map<String, Allele> alleleVariantsMap=new HashMap<>();
-		for(Allele a: allelesWithVariants){
-			if(a.getVariants()!=null && a.getVariants().size()>0){
-				for(Variant v:a.getVariants()){
-					if(v.getTranscriptLevelConsequence()!=null && v.getTranscriptLevelConsequence().size()>0){
-						for(TranscriptLevelConsequence c:v.getTranscriptLevelConsequence()){
-							Transcript t=c.getTranscript();
-							Transcript transcript=getTranscriptWithExonInfo().get(t.getPrimaryKey());
-							if(transcript.getExons()!=null){
+		Set<Allele> allelesWithVariants = StreamSupport.stream(allelesWithVariantsIter.spliterator(), false).collect(Collectors.toSet());
+		Map<String, Allele> alleleVariantsMap = new HashMap<>();
+		for (Allele a: allelesWithVariants) {
+			if (a.getVariants() != null && a.getVariants().size() > 0) {
+				for (Variant v: a.getVariants()) {
+					if (v.getTranscriptLevelConsequence() != null && v.getTranscriptLevelConsequence().size() > 0) {
+						for (TranscriptLevelConsequence c: v.getTranscriptLevelConsequence()) {
+							Transcript t = c.getTranscript();
+							Transcript transcript = getTranscriptWithExonInfo().get(t.getPrimaryKey());
+							if (transcript.getExons() != null) {
 								t.setExons(transcript.getExons());
-							   // System.out.println("EXONS SIZE: "+ transcript.getExons().size());
+								// System.out.println("EXONS SIZE: "+ transcript.getExons().size());
 							}
-
 						}
 					}
 				}
