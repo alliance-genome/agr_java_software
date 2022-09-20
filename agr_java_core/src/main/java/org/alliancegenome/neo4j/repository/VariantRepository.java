@@ -29,7 +29,7 @@ public class VariantRepository extends Neo4jRepository<Variant> {
 		query += " OPTIONAL MATCH consequence=(:GeneLevelConsequence)<-[:ASSOCIATION]-(variant:Variant)";
 		query += " OPTIONAL MATCH transcripts=(:GenomicLocation)--(variant:Variant)-[:ASSOCIATION]-(t:Transcript)<-[:TRANSCRIPT_TYPE]-(:SOTerm)";
 		query += " OPTIONAL MATCH transcriptConsequence=(variant:Variant)--(tlc:TranscriptLevelConsequence)<-[:ASSOCIATION]-(t:Transcript)--(variant:Variant)";
-		query += " OPTIONAL MATCH loc=(variant:Variant)-[:ASSOCIATION]->(:GenomicLocation)-[:ASSOCIATION]->(:Chromosome)";
+		query += " OPTIONAL MATCH loc=(variant:Variant)-[:ASSOCIATION]->(:GenomicLocation)";
 		query += " OPTIONAL MATCH p2=(variant:Variant)<-[:COMPUTED_GENE]-(:Gene)-[:ASSOCIATION]->(:GenomicLocation)";
 		query += " RETURN p1, p2, loc, consequence, synonyms, transcripts, transcriptConsequence, notes, crossRefs, pubs ";
 
