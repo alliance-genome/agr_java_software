@@ -29,8 +29,8 @@ public class VariantRepository extends Neo4jRepository<Variant> {
 		query += " OPTIONAL MATCH consequence=(:GeneLevelConsequence)<-[:ASSOCIATION]-(variant:Variant)";
 		query += " OPTIONAL MATCH transcripts=(:GenomicLocation)--(variant:Variant)-[:ASSOCIATION]-(t:Transcript)<-[:TRANSCRIPT_TYPE]-(:SOTerm)";
 		query += " OPTIONAL MATCH transcriptConsequence=(variant:Variant)--(tlc:TranscriptLevelConsequence)<-[:ASSOCIATION]-(t:Transcript)--(variant:Variant)";
-		query += " OPTIONAL MATCH loc=(variant:Variant)-[:ASSOCIATION]->(:GenomicLocation)-[:ASSOCIATION]->(:Chromosome)";
-		query += " OPTIONAL MATCH p2=(variant:Variant)<-[:COMPUTED_GENE]-(:Gene)-[:ASSOCIATION]->(:GenomicLocation)-[:ASSOCIATION]->(:Chromosome)";
+		query += " OPTIONAL MATCH loc=(variant:Variant)-[:ASSOCIATION]->(:GenomicLocation)";
+		query += " OPTIONAL MATCH p2=(variant:Variant)<-[:COMPUTED_GENE]-(:Gene)-[:ASSOCIATION]->(:GenomicLocation)";
 		query += " RETURN p1, p2, loc, consequence, synonyms, transcripts, transcriptConsequence, notes, crossRefs, pubs ";
 
 		Iterable<Variant> alleles = query(query, map);
@@ -48,8 +48,8 @@ public class VariantRepository extends Neo4jRepository<Variant> {
 		query += " WHERE variant.primaryKey = {" + paramName + "}";
 		query += " OPTIONAL MATCH consequence=(:GenomicLocation)--(variant:Variant)-[:ASSOCIATION]->(:TranscriptLevelConsequence)" +
 				"<-[:ASSOCIATION]-(t:Transcript)<-[:TRANSCRIPT_TYPE]-(:SOTerm)";
-		query += " OPTIONAL MATCH gene=(t:Transcript)-[:TRANSCRIPT]-(:Gene)--(:GenomicLocation)--(:Chromosome)";
-		query += " OPTIONAL MATCH transcriptLocation=(t:Transcript)-[:ASSOCIATION]-(:GenomicLocation)--(:Chromosome)";
+		query += " OPTIONAL MATCH gene=(t:Transcript)-[:TRANSCRIPT]-(:Gene)--(:GenomicLocation)";
+		query += " OPTIONAL MATCH transcriptLocation=(t:Transcript)-[:ASSOCIATION]-(:GenomicLocation)";
 		query += " OPTIONAL MATCH exons=(:GenomicLocation)--(:Exon)-[:EXON]->(t:Transcript)";
 		query += " RETURN p1, consequence, gene, exons, transcriptLocation ";
 
@@ -73,16 +73,4 @@ public class VariantRepository extends Neo4jRepository<Variant> {
 				.collect(Collectors.toList());
 	}
 
-	public GenomeLocation getGenomeLocation(String geneID) {
-		String query = "";
-		query += " MATCH p1=(gene:Gene)--(location:GenomicLocation)--(:Chromosome) ";
-		query += " WHERE gene.primaryKey = '" + geneID + "'";
-		query += " RETURN p1  ";
-
-		Iterable<GenomeLocation> locations = query(GenomeLocation.class, query);
-		if (locations == null)
-			return null;
-		// return first location
-		return locations.iterator().next();
-	}
 }
