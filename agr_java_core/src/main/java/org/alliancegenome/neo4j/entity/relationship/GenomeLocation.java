@@ -17,22 +17,8 @@ import lombok.Setter;
 @Setter
 public class GenomeLocation extends Neo4jEntity {
 
-	@Relationship(type = "ASSOCIATION")
-	private Chromosome chromosome;
-
 	@JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
-	@JsonProperty(value = "chromosome")
-	public String getChromosomeName() {
-		if(chromosome == null)
-			return null;
-		return chromosome.getPrimaryKey();
-	}
-
-	@JsonProperty(value = "chromosome")
-	public void setChromosomeName(String name) {
-		chromosome = new Chromosome();
-		chromosome.setPrimaryKey(name);
-	}
+	private String chromosome;
 
 	@JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
 	private Long start;
@@ -47,7 +33,7 @@ public class GenomeLocation extends Neo4jEntity {
 	private String strand;
 
 	public String getChromosomeAndPosition() {
-		String response = chromosome.getPrimaryKey();
+		String response = chromosome;
 		response += ":";
 		if (start != null) {
 			response += start;
