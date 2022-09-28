@@ -7,10 +7,7 @@ import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 import org.alliancegenome.api.entity.AlleleVariantSequence;
-import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.Construct;
-import org.alliancegenome.neo4j.entity.node.Publication;
-import org.alliancegenome.neo4j.entity.node.Variant;
+import org.alliancegenome.neo4j.entity.node.*;
 import org.apache.commons.collections.CollectionUtils;
 
 public class AlleleToTdfTranslator {
@@ -84,12 +81,15 @@ public class AlleleToTdfTranslator {
 		if (join != null) {
 			row.setVariantSymbol(join.getHgvsNomenclature());
 			row.setVariantType(join.getVariantType().getName());
-			String consequence=join.getTranscriptLevelConsequence().stream()
+			String consequence = "";
+			if(CollectionUtils.isNotEmpty(join.getTranscriptLevelConsequence())) {
+				consequence = join.getTranscriptLevelConsequence().stream()
 					.filter(Objects::nonNull)
-					.map(t->t.getMolecularConsequences())
+					.map(TranscriptLevelConsequence::getMolecularConsequences)
 					.filter(Objects::nonNull)
 					.flatMap(List::stream).distinct()
 					.collect(Collectors.joining("|"));
+			}
 			row.setVariantConsequence (consequence);
 		}
 		row.setHasPhenotype(annotation.hasPhenotype().toString());
