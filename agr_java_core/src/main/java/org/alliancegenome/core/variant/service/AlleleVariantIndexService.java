@@ -263,7 +263,8 @@ public class AlleleVariantIndexService {
 
 			if(pagination.getSortBy().equalsIgnoreCase("transcript"))
 				sortField[0]=new SortField("allele.variants.transcriptLevelConsequence.transcript.name.keyword", SortField.Type.STRING);
-			if(pagination.getSortBy().equalsIgnoreCase("VariantHgvsName"))
+			if(pagination.getSortBy().equalsIgnoreCase("VariantHgvsName") ||
+				pagination.getSortBy().equalsIgnoreCase("symbol"))
 				sortField[0]=new SortField("allele.variants.hgvsG.keyword", SortField.Type.STRING);
 		}else{
 			sortField[0]=  new SortField("alterationType.keyword", SortField.Type.STRING);
