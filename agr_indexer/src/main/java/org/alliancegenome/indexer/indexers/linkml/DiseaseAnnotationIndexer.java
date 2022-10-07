@@ -1,6 +1,5 @@
 package org.alliancegenome.indexer.indexers.linkml;
 
-import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
@@ -31,10 +30,6 @@ public class DiseaseAnnotationIndexer {
     }
 
     public static void main(String[] args) {
-/*
-        DiseaseAnnotationRESTInterface api = RestManager.getDiseaseAnnotationEndpoints();
-        JsonResultResponse<AGMDiseaseAnnotation> annotation = api.getAgmDiseaseAnnotation("Bearer fb0d3a42-aac6-4470-8d66-da2777117598");
-*/
         DiseaseAnnotationIndexer indexer = new DiseaseAnnotationIndexer();
         SearchResponse<AGMDiseaseAnnotation> response = indexer.api.getAgmDiseaseAnnotation("", 10);
         SearchResponse<GeneDiseaseAnnotation> response1 = indexer.api.getGeneDiseaseAnnotation("", 10);
