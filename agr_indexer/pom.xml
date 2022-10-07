@@ -26,6 +26,16 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>org.alliancegenome</groupId>
+			<artifactId>agr_curation_api</artifactId>
+			<version>v0.11.0-rc1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.wildfly.common</groupId>
+			<artifactId>wildfly-common</artifactId>
+			<version>1.6.0.Final</version>
+		</dependency>
+		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
 			<version>${jackson.version}</version>
