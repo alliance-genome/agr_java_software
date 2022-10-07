@@ -1,35 +1,5 @@
 package org.alliancegenome.core.config;
 
-import static org.alliancegenome.core.config.Constants.ALLIANCE_RELEASE;
-import static org.alliancegenome.core.config.Constants.AO_TERM_LIST;
-import static org.alliancegenome.core.config.Constants.API_HOST;
-import static org.alliancegenome.core.config.Constants.API_PORT;
-import static org.alliancegenome.core.config.Constants.API_SECURE;
-import static org.alliancegenome.core.config.Constants.AWS_BUCKET_NAME;
-import static org.alliancegenome.core.config.Constants.CACHE_HOST;
-import static org.alliancegenome.core.config.Constants.CACHE_PORT;
-import static org.alliancegenome.core.config.Constants.DEBUG;
-import static org.alliancegenome.core.config.Constants.ES_BULK_ACTION_SIZE;
-import static org.alliancegenome.core.config.Constants.ES_BULK_CONCURRENT_REQUESTS;
-import static org.alliancegenome.core.config.Constants.ES_BULK_REQUEST_SIZE;
-import static org.alliancegenome.core.config.Constants.ES_HOST;
-import static org.alliancegenome.core.config.Constants.ES_INDEX;
-import static org.alliancegenome.core.config.Constants.ES_INDEX_PREFIX;
-import static org.alliancegenome.core.config.Constants.ES_INDEX_SUFFIX;
-import static org.alliancegenome.core.config.Constants.ES_PORT;
-import static org.alliancegenome.core.config.Constants.EXTRACTOR_OUTPUTDIR;
-import static org.alliancegenome.core.config.Constants.FMS_URL;
-import static org.alliancegenome.core.config.Constants.GO_TERM_LIST;
-import static org.alliancegenome.core.config.Constants.INDEX_VARIANTS;
-import static org.alliancegenome.core.config.Constants.NEO4J_HOST;
-import static org.alliancegenome.core.config.Constants.NEO4J_PORT;
-import static org.alliancegenome.core.config.Constants.POPULARITY_DOWNLOAD_URL;
-import static org.alliancegenome.core.config.Constants.POPULARITY_FILE_NAME;
-import static org.alliancegenome.core.config.Constants.RIBBON_TERM_SPECIES_APPLICABILITY;
-import static org.alliancegenome.core.config.Constants.THREADED;
-import static org.alliancegenome.core.config.Constants.VARIANT_CACHER_CONFIG_FILE;
-import static org.alliancegenome.core.config.Constants.VARIANT_DOWNLOAD_PATH;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Properties;
@@ -41,6 +11,8 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
 import lombok.extern.log4j.Log4j2;
+
+import static org.alliancegenome.core.config.Constants.*;
 
 @Log4j2
 public class ConfigHelper {
@@ -87,6 +59,8 @@ public class ConfigHelper {
 		defaults.put(INDEX_VARIANTS, "false");
 
 		defaults.put(API_HOST, "localhost");
+		defaults.put(CURATION_API_PORT, "8080");
+		defaults.put(CURATION_API_HOST, "localhost");
 		defaults.put(API_PORT, "8080");
 		defaults.put(API_SECURE, "false");
 
@@ -248,10 +222,24 @@ public class ConfigHelper {
 		return config.get(API_HOST);
 	}
 
+	public static String getCurationApiHost() {
+		if (!init) init();
+		return config.get(CURATION_API_HOST);
+	}
+
 	public static int getApiPort() {
 		if (!init) init();
 		try {
 			return Integer.parseInt(config.get(API_PORT));
+		} catch (NumberFormatException e) {
+			return 443;
+		}
+	}
+
+	public static int getCurationApiPort() {
+		if (!init) init();
+		try {
+			return Integer.parseInt(config.get(CURATION_API_PORT));
 		} catch (NumberFormatException e) {
 			return 443;
 		}
@@ -280,6 +268,26 @@ public class ConfigHelper {
 		}
 
 		return url + "/api";
+	}
+
+	public static String getCurationApiBaseUrl() {
+		String url = "";
+
+		if (isApiSecure()) {
+			url = "https://";
+			url += getCurationApiHost();
+			if (getCurationApiPort() != 443) {
+				url += ":" + getCurationApiPort();
+			}
+		} else {
+			url = "http://";
+			url += getCurationApiHost();
+			if (getCurationApiPort() != 80) {
+				url += ":" + getCurationApiPort();
+			}
+		}
+
+		return url;
 	}
 
 	public static String getNeo4jHost() {

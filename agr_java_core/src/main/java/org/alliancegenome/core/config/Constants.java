@@ -20,7 +20,11 @@ public class Constants {
     public static final String INDEX_VARIANTS = "INDEX_VARIANTS";
 
     public static final String API_HOST = "API_HOST";
+
+    public static final String CURATION_API_HOST = "CURATION_API_HOST";
     public static final String API_PORT = "API_PORT";
+
+    public static final String CURATION_API_PORT = "CURATION_API_PORT";
     public static final String API_SECURE = "API_SECURE";
 
     public static final String CACHE_HOST = "CACHE_HOST";
