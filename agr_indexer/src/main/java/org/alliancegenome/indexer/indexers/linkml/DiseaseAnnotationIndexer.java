@@ -1,27 +1,27 @@
 package org.alliancegenome.indexer.indexers.linkml;
 
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.GeneDiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.DiseaseAnnotation;
 import org.alliancegenome.curation_api.response.SearchResponse;
-import org.alliancegenome.indexer.DiseaseAnnotationRESTInterface;
 import org.alliancegenome.indexer.RestConfig;
 import org.jboss.logging.Logger;
 import si.mazi.rescu.RestProxyFactory;
+
+import java.util.HashMap;
 
 
 public class DiseaseAnnotationIndexer {
 
     private Logger log = Logger.getLogger(getClass());
-    private DiseaseAnnotationRESTInterface api = RestProxyFactory.createProxy(DiseaseAnnotationRESTInterface.class, ConfigHelper.getCurationApiBaseUrl(), RestConfig.config);
+    private DiseaseAnnotationInterface api = RestProxyFactory.createProxy(DiseaseAnnotationInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 
     public DiseaseAnnotationIndexer() {
     }
 
     public void index() {
         try {
-            SearchResponse<AGMDiseaseAnnotation> response = api.getAgmDiseaseAnnotation("", 100);
+            HashMap<String, Object> params = new HashMap<>();
+            SearchResponse<DiseaseAnnotation> response = api.find(0, 10, params);
             log.info("Number of Disease Annotation: " + response.getTotalResults());
         } catch (Exception e) {
             log.error("Error while indexing...", e);
@@ -31,21 +31,10 @@ public class DiseaseAnnotationIndexer {
 
     public static void main(String[] args) {
         DiseaseAnnotationIndexer indexer = new DiseaseAnnotationIndexer();
-        SearchResponse<AGMDiseaseAnnotation> response = indexer.api.getAgmDiseaseAnnotation("", 10);
-        SearchResponse<GeneDiseaseAnnotation> response1 = indexer.api.getGeneDiseaseAnnotation("", 10);
-        SearchResponse<AlleleDiseaseAnnotation> response2 = indexer.api.getAlleleDiseaseAnnotation("", 10);
+        SearchResponse<DiseaseAnnotation> response = indexer.api.find(0, 10, new HashMap<>());
 
 
-
-/*
-        ResteasyClient client = new ResteasyClientBuilder().register(resteasyJacksonProvider).build();
-        //ResteasyClient client = new ResteasyClientBuilder().build();
-        ResteasyWebTarget target = client.target(UriBuilder.fromPath(path));
-        DiseaseAnnotationRESTInterfaceAlliance proxy = target.proxy(DiseaseAnnotationRESTInterfaceAlliance.class);
-
-        AllianceDiseaseAnnotation annotation = proxy.getDiseaseAnnotation(4491701);
-*/
-        System.out.println("HTTP code: ");
+        System.out.println("HTTP code: " + response);
     }
 
 }
