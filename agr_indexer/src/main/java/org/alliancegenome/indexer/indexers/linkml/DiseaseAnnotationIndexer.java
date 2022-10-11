@@ -1,18 +1,18 @@
 package org.alliancegenome.indexer.indexers.linkml;
 
+import java.util.HashMap;
+
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.model.entities.DiseaseAnnotation;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.indexer.RestConfig;
-import org.jboss.logging.Logger;
+
+import lombok.extern.jbosslog.JBossLog;
 import si.mazi.rescu.RestProxyFactory;
 
-import java.util.HashMap;
-
-
+@JBossLog
 public class DiseaseAnnotationIndexer {
 
-	private Logger log = Logger.getLogger(getClass());
 	private DiseaseAnnotationInterface api = RestProxyFactory.createProxy(DiseaseAnnotationInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 
 	public DiseaseAnnotationIndexer() {
