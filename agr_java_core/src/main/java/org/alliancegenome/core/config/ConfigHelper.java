@@ -1,46 +1,16 @@
 package org.alliancegenome.core.config;
 
-import static org.alliancegenome.core.config.Constants.ALLIANCE_RELEASE;
-import static org.alliancegenome.core.config.Constants.AO_TERM_LIST;
-import static org.alliancegenome.core.config.Constants.API_HOST;
-import static org.alliancegenome.core.config.Constants.API_PORT;
-import static org.alliancegenome.core.config.Constants.API_SECURE;
-import static org.alliancegenome.core.config.Constants.AWS_BUCKET_NAME;
-import static org.alliancegenome.core.config.Constants.CACHE_HOST;
-import static org.alliancegenome.core.config.Constants.CACHE_PORT;
-import static org.alliancegenome.core.config.Constants.DEBUG;
-import static org.alliancegenome.core.config.Constants.ES_BULK_ACTION_SIZE;
-import static org.alliancegenome.core.config.Constants.ES_BULK_CONCURRENT_REQUESTS;
-import static org.alliancegenome.core.config.Constants.ES_BULK_REQUEST_SIZE;
-import static org.alliancegenome.core.config.Constants.ES_HOST;
-import static org.alliancegenome.core.config.Constants.ES_INDEX;
-import static org.alliancegenome.core.config.Constants.ES_INDEX_PREFIX;
-import static org.alliancegenome.core.config.Constants.ES_INDEX_SUFFIX;
-import static org.alliancegenome.core.config.Constants.ES_PORT;
-import static org.alliancegenome.core.config.Constants.EXTRACTOR_OUTPUTDIR;
-import static org.alliancegenome.core.config.Constants.FMS_URL;
-import static org.alliancegenome.core.config.Constants.GO_TERM_LIST;
-import static org.alliancegenome.core.config.Constants.INDEX_VARIANTS;
-import static org.alliancegenome.core.config.Constants.NEO4J_HOST;
-import static org.alliancegenome.core.config.Constants.NEO4J_PORT;
-import static org.alliancegenome.core.config.Constants.POPULARITY_DOWNLOAD_URL;
-import static org.alliancegenome.core.config.Constants.POPULARITY_FILE_NAME;
-import static org.alliancegenome.core.config.Constants.RIBBON_TERM_SPECIES_APPLICABILITY;
-import static org.alliancegenome.core.config.Constants.THREADED;
-import static org.alliancegenome.core.config.Constants.VARIANT_CACHER_CONFIG_FILE;
-import static org.alliancegenome.core.config.Constants.VARIANT_DOWNLOAD_PATH;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+import lombok.extern.log4j.Log4j2;
+import org.alliancegenome.core.util.FileHelper;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Properties;
 import java.util.Set;
 
-import org.alliancegenome.core.util.FileHelper;
-
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
-
-import lombok.extern.log4j.Log4j2;
+import static org.alliancegenome.core.config.Constants.*;
 
 @Log4j2
 public class ConfigHelper {
@@ -78,7 +48,7 @@ public class ConfigHelper {
 		// If both are used then the resulting index name is: {ES_INDEX_PREFIX}_{ES_INDEX}_{ES_INDEX_SUFFIX}_{TIMESTAMP}"
 		defaults.put(ES_HOST, "localhost");
 		defaults.put(ES_PORT, "9200");
-		
+
 		// ES Bulk Processing defaults
 		defaults.put(ES_BULK_ACTION_SIZE, "400");
 		defaults.put(ES_BULK_REQUEST_SIZE, "4");
@@ -87,6 +57,8 @@ public class ConfigHelper {
 		defaults.put(INDEX_VARIANTS, "false");
 
 		defaults.put(API_HOST, "localhost");
+		defaults.put(CURATION_API_URL, "http://localhost:8080/api");
+		defaults.put(CURATION_API_TOKEN, "");
 		defaults.put(API_PORT, "8080");
 		defaults.put(API_SECURE, "false");
 
@@ -112,7 +84,7 @@ public class ConfigHelper {
 		defaults.put(ALLIANCE_RELEASE, "0.0.0");
 		defaults.put(FMS_URL, "https://fms.alliancegenome.org/api");
 
-		// This next item needs to be set in order to prevent the 
+		// This next item needs to be set in order to prevent the
 		// Caused by: java.lang.IllegalStateException: availableProcessors is already set to [16], rejecting [16]
 		// error from happening.
 		System.setProperty("es.set.netty.runtime.available.processors", "false");
@@ -175,7 +147,7 @@ public class ConfigHelper {
 			return 11222;
 		}
 	}
-	
+
 	public static int getEsBulkActionSize() {
 		if (!init) init();
 		try {
@@ -193,7 +165,7 @@ public class ConfigHelper {
 			return 0;
 		}
 	}
-	
+
 	public static int getEsBulkConcurrentRequests() {
 		if (!init) init();
 		try {
@@ -207,16 +179,16 @@ public class ConfigHelper {
 		if (!init) init();
 		return config.get(ES_HOST);
 	}
-	
+
 	public static Multimap<String, Integer> getEsHostMap() {
-		
+
 		Multimap<String, Integer> hostMap = ArrayListMultimap.create();
 
 		String esHostConfig = getEsHost();
-		if(esHostConfig.contains(",")) {
+		if (esHostConfig.contains(",")) {
 			String[] hosts = esHostConfig.split(",");
-			for(String host: hosts) {
-				if(host.contains(":")) {
+			for (String host : hosts) {
+				if (host.contains(":")) {
 					String[] array = host.split(":");
 					hostMap.put(array[0], Integer.parseInt(array[1]));
 				} else {
@@ -224,7 +196,7 @@ public class ConfigHelper {
 				}
 			}
 		} else {
-			if(esHostConfig.contains(":")) {
+			if (esHostConfig.contains(":")) {
 				String[] array = esHostConfig.split(":");
 				hostMap.put(array[0], Integer.parseInt(array[1]));
 			} else {
@@ -246,6 +218,11 @@ public class ConfigHelper {
 	public static String getApiHost() {
 		if (!init) init();
 		return config.get(API_HOST);
+	}
+
+	public static String getCurationApiUrl() {
+		if (!init) init();
+		return config.get(CURATION_API_URL);
 	}
 
 	public static int getApiPort() {
@@ -305,7 +282,7 @@ public class ConfigHelper {
 		if (!init) init();
 		return config.get(ES_INDEX_PREFIX);
 	}
-	
+
 	public static String getEsIndexSuffix() {
 		if (!init) init();
 		return config.get(ES_INDEX_SUFFIX);
@@ -360,12 +337,12 @@ public class ConfigHelper {
 		if (!init) init();
 		return getJavaTmpDir();
 	}
-	
+
 	public static boolean hasEsIndexPrefix() {
 		if (!init) init();
 		return (ConfigHelper.getEsIndexPrefix() != null && !ConfigHelper.getEsIndexPrefix().equals("") && ConfigHelper.getEsIndexPrefix().length() > 0);
 	}
-	
+
 	public static boolean hasEsIndexSuffix() {
 		if (!init) init();
 		return (ConfigHelper.getEsIndexSuffix() != null && !ConfigHelper.getEsIndexSuffix().equals("") && ConfigHelper.getEsIndexSuffix().length() > 0);
@@ -400,12 +377,12 @@ public class ConfigHelper {
 		if (!init) init();
 		return config.get(FMS_URL);
 	}
-	
+
 	public static String getAllianceRelease() {
 		if (!init) init();
 		return config.get(ALLIANCE_RELEASE);
 	}
-	
+
 	public static void setNameValue(String key, String value) {
 		config.put(key, value);
 	}
@@ -416,7 +393,7 @@ public class ConfigHelper {
 			log.info("\t" + key + ": " + config.get(key));
 		}
 	}
-	
+
 	public static String getStringParam(String configParam) {
 		if (!init) init();
 		return config.get(configParam);
@@ -426,4 +403,8 @@ public class ConfigHelper {
 		return getNeo4jHost().contains("production");
 	}
 
+	public static String getCurationApiToken() {
+		if (!init) init();
+		return "Bearer " + config.get(CURATION_API_TOKEN);
+	}
 }
