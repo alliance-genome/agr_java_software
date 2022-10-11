@@ -11,24 +11,24 @@ import javax.ws.rs.HeaderParam;
 
 public class RestConfig {
 
-    public static ClientConfig config = new ClientConfig();
+	public static ClientConfig config = new ClientConfig();
 
-    static {
-        JacksonObjectMapperFactory objectMapperFactory = new JacksonObjectMapperFactory() {
-            @Override
-            public ObjectMapper createObjectMapper() {
-                RestDefaultObjectMapper mappedProducer = new RestDefaultObjectMapper();
-                return mappedProducer.getMapper();
-            }
+	static {
+		JacksonObjectMapperFactory objectMapperFactory = new JacksonObjectMapperFactory() {
+			@Override
+			public ObjectMapper createObjectMapper() {
+				RestDefaultObjectMapper mappedProducer = new RestDefaultObjectMapper();
+				return mappedProducer.getMapper();
+			}
 
-            @Override
-            public void configureObjectMapper(ObjectMapper mapper) {
-            }
-        };
-        config.setJacksonObjectMapperFactory(objectMapperFactory);
-        config.addDefaultParam(HeaderParam.class, "Content-Type", "application/json");
-        if (ConfigHelper.getCurationApiToken() != null)
-            config.addDefaultParam(HeaderParam.class, "Authorization", ConfigHelper.getCurationApiToken());
-    }
+			@Override
+			public void configureObjectMapper(ObjectMapper mapper) {
+			}
+		};
+		config.setJacksonObjectMapperFactory(objectMapperFactory);
+		config.addDefaultParam(HeaderParam.class, "Content-Type", "application/json");
+		if (ConfigHelper.getCurationApiToken() != null)
+			config.addDefaultParam(HeaderParam.class, "Authorization", ConfigHelper.getCurationApiToken());
+	}
 
 }

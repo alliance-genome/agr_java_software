@@ -24,18 +24,18 @@ import java.util.HashMap;
 
 @Path("/disease-annotation")
 @Tag(
-    name = "CRUD - Disease Annotations"
+	name = "CRUD - Disease Annotations"
 )
 @Produces({"application/json"})
 @Consumes({"application/json"})
 public interface DiseaseAnnotationInterface extends BaseIdCrudInterface<DiseaseAnnotation> {
 
-    @POST
-    @Path("/find")
-    @Tag(
-        name = "Database Search Endpoints"
-    )
-    @JsonView({View.FieldsAndLists.class})
-    SearchResponse<DiseaseAnnotation> find(@DefaultValue("0") @QueryParam("page") Integer page, @DefaultValue("10") @QueryParam("limit") Integer limit, @RequestBody HashMap<String, Object> params);
+	@POST
+	@Path("/find")
+	@Tag(
+		name = "Database Search Endpoints"
+	)
+	@JsonView({View.FieldsAndLists.class})
+	SearchResponse<DiseaseAnnotation> find(@DefaultValue("0") @QueryParam("page") Integer page, @DefaultValue("10") @QueryParam("limit") Integer limit, @RequestBody HashMap<String, Object> params);
 
 }
