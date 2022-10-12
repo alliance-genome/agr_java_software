@@ -40,7 +40,7 @@ public class DiseaseAnnotationMLIndexer extends Indexer<SearchableItemDocument> 
 
 
     public static void main(String[] args) {
-        DiseaseAnnotationMLIndexer indexer = new DiseaseAnnotationMLIndexer(IndexerConfig.DISEASEAnnotationMLIndexer);
+        DiseaseAnnotationMLIndexer indexer = new DiseaseAnnotationMLIndexer(IndexerConfig.DiseaseAnnotationMlIndexer);
         SearchResponse<DiseaseAnnotation> response = indexer.api.find(0, 10, new HashMap<>());
 
 
