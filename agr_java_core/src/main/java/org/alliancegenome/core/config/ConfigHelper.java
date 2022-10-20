@@ -405,6 +405,8 @@ public class ConfigHelper {
 
 	public static String getCurationApiToken() {
 		if (!init) init();
-		return "Bearer " + config.get(CURATION_API_TOKEN);
+		if (config.get(CURATION_API_TOKEN) != null)
+			return "Bearer " + config.get(CURATION_API_TOKEN);
+		return null;
 	}
 }
