@@ -34,7 +34,7 @@ public class EsClientFactory {
 		Date current = new Date();
 		if(client == null) {
 			client = createClient();
-		} else if(current.getTime() - lastClientChange.getTime() > 60000) {
+		} else if(current.getTime() - lastClientChange.getTime() > 180000) {
 			RestHighLevelClient currentClient = client;
 			client = createClient();
 			if(currentClient != null) {
@@ -44,6 +44,7 @@ public class EsClientFactory {
 					e.printStackTrace();
 				}
 			}
+			lastClientChange = current;
 		}
 		return client;
 	}
