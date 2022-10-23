@@ -67,7 +67,7 @@ public class ConfigHelper {
 
 		defaults.put(EXTRACTOR_OUTPUTDIR, "data");
 
-		defaults.put(NEO4J_HOST, "localhost");
+		defaults.put(NEO4J_HOST, "build.alliancegenome.org");
 		defaults.put(NEO4J_PORT, "7687");
 
 		defaults.put(AWS_BUCKET_NAME, "mod-datadumps-dev"); // This needs to always be a dev bucket unless running in production
