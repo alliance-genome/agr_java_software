@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.index.ESDAO;
+import org.alliancegenome.es.util.EsClientFactory;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
@@ -17,7 +18,6 @@ import org.elasticsearch.search.sort.SortOrder;
 
 import lombok.extern.jbosslog.JBossLog;
 
-@SuppressWarnings("serial")
 @JBossLog
 public class SearchDAO extends ESDAO {
 
@@ -34,7 +34,7 @@ public class SearchDAO extends ESDAO {
 		SearchResponse response = null;
 
 		try {
-			response = searchClient.search(searchRequest, RequestOptions.DEFAULT);
+			response = EsClientFactory.getDefaultEsClient().search(searchRequest, RequestOptions.DEFAULT);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -105,7 +105,7 @@ public class SearchDAO extends ESDAO {
 		SearchResponse response = null;
 
 		try {
-			response = searchClient.search(searchRequest, RequestOptions.DEFAULT);
+			response = EsClientFactory.getDefaultEsClient().search(searchRequest, RequestOptions.DEFAULT);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

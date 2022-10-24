@@ -1,4 +1,4 @@
-package org.alliancegenome.es.util;
+ package org.alliancegenome.es.util;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -54,19 +54,20 @@ public class IndexManager {
 	private Settings settings;
 	private Mapping mapping;
 	
+	RestHighLevelClient closableSearchClient;
+	
 	public IndexManager(Settings settings, Mapping mapping) {
 		this.settings = settings;
 		this.mapping = mapping;
+		closableSearchClient = EsClientFactory.getMustCloseSearchClient();
 	}
 
 	public IndexManager(Settings settings) {
-		this.settings = settings;
-		this.mapping = null;
+		this(settings, null);
 	}
 
 	public IndexManager() {
-		settings = new SiteIndexSettings(true);
-		mapping = new Mapping(true);
+		this(new SiteIndexSettings(true), new Mapping(true));
 	}
 
 	public void createAlias(String alias, String index) { // ES Util
@@ -77,7 +78,7 @@ public class IndexManager {
 		request.addAliasAction(aliasAction);
 
 		try {
-			getClient().indices().updateAliases(request, RequestOptions.DEFAULT);
+			closableSearchClient.indices().updateAliases(request, RequestOptions.DEFAULT);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -92,7 +93,7 @@ public class IndexManager {
 		request.addAliasAction(removeAction);
 
 		try {
-			getClient().indices().updateAliases(request, RequestOptions.DEFAULT);
+			closableSearchClient.indices().updateAliases(request, RequestOptions.DEFAULT);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -112,12 +113,12 @@ public class IndexManager {
 				mapping.buildMapping();
 				createIndexRequest.mapping(mapping.getBuilder());
 			}
-			getClient().indices().create(createIndexRequest, RequestOptions.DEFAULT);
+			closableSearchClient.indices().create(createIndexRequest, RequestOptions.DEFAULT);
 		} catch (Exception e) {
 			e.printStackTrace();
 			RefreshRequest refreshRequest = new RefreshRequest(index);
 			try {
-				getClient().indices().refresh(refreshRequest, RequestOptions.DEFAULT);
+				closableSearchClient.indices().refresh(refreshRequest, RequestOptions.DEFAULT);
 			} catch (IOException ex) {
 				ex.printStackTrace();
 			}
@@ -134,7 +135,7 @@ public class IndexManager {
 		GetAliasesResponse response = null;
 		try {
 			GetAliasesRequest request = new GetAliasesRequest();
-			response = getClient().indices().getAlias(request, RequestOptions.DEFAULT);
+			response = closableSearchClient.indices().getAlias(request, RequestOptions.DEFAULT);
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -154,7 +155,7 @@ public class IndexManager {
 		GetAliasesResponse response = null;
 		try {
 			GetAliasesRequest request = new GetAliasesRequest();
-			response = getClient().indices().getAlias(request, RequestOptions.DEFAULT);
+			response = closableSearchClient.indices().getAlias(request, RequestOptions.DEFAULT);
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -179,7 +180,7 @@ public class IndexManager {
 		log.info("Deleting Index: " + index);
 		DeleteIndexRequest request = new DeleteIndexRequest(index);
 		try {
-			getClient().indices().delete(request, RequestOptions.DEFAULT);
+			closableSearchClient.indices().delete(request, RequestOptions.DEFAULT);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -196,7 +197,7 @@ public class IndexManager {
 		try {
 			DeleteRepositoryRequest request = new DeleteRepositoryRequest();
 			request.name(repoName);
-			AcknowledgedResponse res = getClient().snapshot().deleteRepository(request, RequestOptions.DEFAULT);
+			AcknowledgedResponse res = closableSearchClient.snapshot().deleteRepository(request, RequestOptions.DEFAULT);
 			if(res.isAcknowledged()) {
 				log.info("Deleted Repo: " + repoName);
 			} else {
@@ -210,7 +211,7 @@ public class IndexManager {
 	public String getCreateRepo(String repoName) { // ES Util
 		try {
 			GetRepositoriesRequest request = new GetRepositoriesRequest();
-			GetRepositoriesResponse response = getClient().snapshot().getRepository(request, RequestOptions.DEFAULT);
+			GetRepositoriesResponse response = closableSearchClient.snapshot().getRepository(request, RequestOptions.DEFAULT);
 			List<RepositoryMetadata> repositories = response.repositories();
 
 			if(repositories.size() == 0) {
@@ -234,7 +235,7 @@ public class IndexManager {
 	public List<RepositoryMetadata> listRepos() { // ES Util
 		try {
 			GetRepositoriesRequest request = new GetRepositoriesRequest();
-			GetRepositoriesResponse response = getClient().snapshot().getRepository(request, RequestOptions.DEFAULT);
+			GetRepositoriesResponse response = closableSearchClient.snapshot().getRepository(request, RequestOptions.DEFAULT);
 			List<RepositoryMetadata> repositories = response.repositories();
 
 			return repositories;
@@ -271,7 +272,7 @@ public class IndexManager {
 			for(int i = 0; i < array.length; i++) {
 				log.info("Deleting Snapshot: " + array[i] + " in: " + repo);
 				DeleteSnapshotRequest request = new DeleteSnapshotRequest(repo, array[i]);
-				getClient().snapshot().delete(request, RequestOptions.DEFAULT);
+				closableSearchClient.snapshot().delete(request, RequestOptions.DEFAULT);
 			}
 		} catch (Exception ex) {
 			log.error("Exception in deleteSnapShot method: " + ex.toString());
@@ -289,7 +290,7 @@ public class IndexManager {
 			request.indices(indices);
 			// request.includeAliases(false); TODO investigate this use then we can always create indexes with aliases
 			request.waitForCompletion(true);
-			getClient().snapshot().restore(request, RequestOptions.DEFAULT);
+			closableSearchClient.snapshot().restore(request, RequestOptions.DEFAULT);
 
 		} catch (Exception ex) {
 			log.error("Exception in restoreSnapShot method: " + ex.toString());
@@ -312,7 +313,7 @@ public class IndexManager {
 			request.indices(indices);
 			request.waitForCompletion(true);
 			
-			getClient().snapshot().create(request, RequestOptions.DEFAULT);
+			closableSearchClient.snapshot().create(request, RequestOptions.DEFAULT);
 
 			log.info("Snapshot " + snapShotName + " was created for indices: " + indices);
 		} catch (Exception ex) {
@@ -337,7 +338,7 @@ public class IndexManager {
 
 				log.info(repoName + " -> " + settings.toString());
 
-				AcknowledgedResponse response = getClient().snapshot().createRepository(request, RequestOptions.DEFAULT);
+				AcknowledgedResponse response = closableSearchClient.snapshot().createRepository(request, RequestOptions.DEFAULT);
 
 				log.info("Repository was created: " + response.toString());
 				return repoName;
@@ -359,7 +360,7 @@ public class IndexManager {
 		GetSnapshotsResponse response = null;
 
 		try {
-			response = getClient().snapshot().get(request, RequestOptions.DEFAULT);
+			response = closableSearchClient.snapshot().get(request, RequestOptions.DEFAULT);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -372,7 +373,7 @@ public class IndexManager {
 	public List<String> getIndexList() { // ES Util
 		try {
 			GetIndexRequest request = new GetIndexRequest("*");
-			GetIndexResponse response = getClient().indices().get(request, RequestOptions.DEFAULT);
+			GetIndexResponse response = closableSearchClient.indices().get(request, RequestOptions.DEFAULT);
 			String[] indices = response.getIndices();
 			return new ArrayList<String>(Arrays.asList(indices));
 
@@ -429,28 +430,31 @@ public class IndexManager {
 		log.debug("Main Index Finished: ");
 		RefreshRequest request = new RefreshRequest(newIndexName);
 		try {
-			getClient().indices().refresh(request, RequestOptions.DEFAULT);
+			closableSearchClient.indices().refresh(request, RequestOptions.DEFAULT);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
 		takeSnapShot();
-		EsClientFactory.closeClient();
+		
+		try {
+			closableSearchClient.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
 		log.debug(baseIndexName + " Finished: ");
 	}
 
-
-	private RestHighLevelClient getClient() {
-		return EsClientFactory.getDefaultEsClient();
+	public void closeClient() throws IOException { // ES Util
+		closableSearchClient.close();
 	}
 
-	public void closeClient() { // ES Util
-		EsClientFactory.closeClient();
-	}
-
-	public void resetClient() { // ES Util
-		EsClientFactory.createNewClient();
+	public void resetClient() throws IOException { // ES Util
+		if(closableSearchClient != null) {
+			closableSearchClient.close();
+		}
+		closableSearchClient = EsClientFactory.getMustCloseSearchClient();
 	}
 
 	public void listRepo(String repo) { // ES Util

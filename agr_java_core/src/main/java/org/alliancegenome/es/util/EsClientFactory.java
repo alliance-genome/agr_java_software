@@ -3,6 +3,7 @@ package org.alliancegenome.es.util;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import org.alliancegenome.core.config.ConfigHelper;
@@ -19,7 +20,7 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class EsClientFactory {
 
-
+	private static Date lastClientChange = new Date();
 	private static RestHighLevelClient client = null;
 	public static RequestOptions LARGE_RESPONSE_REQUEST_OPTIONS;
 
@@ -30,13 +31,25 @@ public class EsClientFactory {
 	}
 
 	public static RestHighLevelClient getDefaultEsClient() {
+		Date current = new Date();
 		if(client == null) {
 			client = createClient();
+		} else if(current.getTime() - lastClientChange.getTime() > 180000) {
+			RestHighLevelClient currentClient = client;
+			client = createClient();
+			if(currentClient != null) {
+				try {
+					currentClient.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			lastClientChange = current;
 		}
 		return client;
 	}
-
-	public static RestHighLevelClient createNewClient() {
+	
+	public static RestHighLevelClient getMustCloseSearchClient() {
 		return createClient();
 	}
 
@@ -73,14 +86,5 @@ public class EsClientFactory {
 		return client;
 	}
 
-	public static void closeClient() {
-		log.info("Closing ES Client: ");
-		try {
-			client.close();
-			client = null;
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
 
 }

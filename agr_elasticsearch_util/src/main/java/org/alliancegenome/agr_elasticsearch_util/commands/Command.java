@@ -6,18 +6,18 @@ import org.alliancegenome.es.util.IndexManager;
 
 public abstract class Command {
 
-    protected ArrayList<String> args;
-    public static IndexManager im = new IndexManager();
+	protected ArrayList<String> args;
+	public static IndexManager im = new IndexManager();
 
-    public Command(ArrayList<String> args) {
-        this.args = args;
-    }
-    
-    protected void resetIndexManager() {
-        im.resetClient();
-    }
-    
-    public static void close() throws Exception {
-        im.closeClient();
-    }
+	public Command(ArrayList<String> args) {
+		this.args = args;
+	}
+	
+	protected static void resetIndexManager() throws Exception {
+		im.resetClient();
+	}
+	
+	public static void close() throws Exception {
+		im.closeClient();
+	}
 }
