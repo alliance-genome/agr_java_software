@@ -31,6 +31,9 @@ import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.stream.Collectors;
 
+import static org.alliancegenome.core.config.Constants.CURATION_API_TOKEN;
+import static org.alliancegenome.core.config.Constants.CURATION_API_URL;
+
 @Log4j2
 public class DiseaseAnnotationMLIndexer extends Indexer<SearchableItemDocument> {
 
@@ -61,23 +64,33 @@ public class DiseaseAnnotationMLIndexer extends Indexer<SearchableItemDocument> 
 		log.info("Allele DA after expansion: " + alleleDiseaseAnnotations.size());
 		log.info("Gene DA after expansion: " + geneDiseaseAnnotations.size());
 
+		createJsonFiles();
+	}
+
+	private void createJsonFiles() {
 		RestDefaultObjectMapper restDefaultObjectMapper = new RestDefaultObjectMapper();
 		ObjectMapper mapper = restDefaultObjectMapper.getMapper();
 		mapper.writerWithView(View.FieldsAndLists.class);
 		ObjectWriter writer = mapper.writer(new DefaultPrettyPrinter());
 		String jsonInString = null;
-		try {
-			jsonInString = writer.writeValueAsString(alleleDiseaseAnnotations);
-		} catch (JsonProcessingException e) {
-			throw new RuntimeException(e);
-		}
 		try (PrintStream out = new PrintStream(new FileOutputStream("/data/all-disease-annotation.json"))) {
-			//try (PrintStream out = new PrintStream(new FileOutputStream("all-disease-annotation.json"))) {
+			jsonInString = writer.writeValueAsString(alleleDiseaseAnnotations);
 			out.print(jsonInString);
-		} catch (FileNotFoundException e) {
+		} catch (FileNotFoundException | JsonProcessingException e) {
 			throw new RuntimeException(e);
 		}
-
+		try (PrintStream out = new PrintStream(new FileOutputStream("/data/all-gene-annotation.json"))) {
+			jsonInString = writer.writeValueAsString(geneDiseaseAnnotations);
+			out.print(jsonInString);
+		} catch (FileNotFoundException | JsonProcessingException e) {
+			throw new RuntimeException(e);
+		}
+		try (PrintStream out = new PrintStream(new FileOutputStream("/data/all-agm-annotation.json"))) {
+			jsonInString = writer.writeValueAsString(agmDiseaseAnnotations);
+			out.print(jsonInString);
+		} catch (FileNotFoundException | JsonProcessingException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	private void expandAlleleAnnotations() {
@@ -220,7 +233,6 @@ public class DiseaseAnnotationMLIndexer extends Indexer<SearchableItemDocument> 
 		log.info("Total Allele annotations from persistent store: " + String.format("%,d", total));
 		int pages = (int) (total / batchSize);
 		display.startProcess("Starting Allele indexing", total);
-		pages = 0;
 		for (int page = 1; page < pages + 1; page++) {
 			response = alleleApi.find(page, batchSize, params);
 			display.progressProcess((long) response.getReturnedRecords());
@@ -252,11 +264,26 @@ public class DiseaseAnnotationMLIndexer extends Indexer<SearchableItemDocument> 
 
 	public static void main(String[] args) {
 		DiseaseAnnotationMLIndexer indexer = new DiseaseAnnotationMLIndexer(IndexerConfig.DiseaseAnnotationMlIndexer);
-		//SearchResponse<GeneDiseaseAnnotation> response = indexer.geneApi.find(0, 100, new HashMap<>());
-		indexer.index();
+		SearchResponse<AlleleDiseaseAnnotation> response = indexer.alleleApi.find(0, 1, new HashMap<>());
+		//indexer.index();
 		//indexer.indexAllele();
 		//indexer.indexGenes();
 
+		RestDefaultObjectMapper restDefaultObjectMapper = new RestDefaultObjectMapper();
+		ObjectMapper mapper = restDefaultObjectMapper.getMapper();
+		mapper.writerWithView(View.FieldsAndLists.class);
+		ObjectWriter writer = mapper.writer(new DefaultPrettyPrinter());
+		String jsonInString = null;
+		try {
+			jsonInString = writer.writeValueAsString(response.getResults().get(0));
+		} catch (JsonProcessingException e) {
+			throw new RuntimeException(e);
+		}
+		try (PrintStream out = new PrintStream(new FileOutputStream("all-disease-annotation.json"))) {
+			out.print(jsonInString);
+		} catch (FileNotFoundException e) {
+			throw new RuntimeException(e);
+		}
 
 		log.info("HTTP code: ");
 		System.exit(0);
