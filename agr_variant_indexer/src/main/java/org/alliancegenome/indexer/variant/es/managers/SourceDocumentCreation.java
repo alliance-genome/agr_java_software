@@ -48,7 +48,6 @@ public class SourceDocumentCreation extends Thread {
 	private SpeciesType speciesType;
 	private String[] header = null;
 	public static String indexName;
-	private RestHighLevelClient client;
 	
 	private BulkProcessor.Builder builder1;
 	private BulkProcessor.Builder builder2;
@@ -90,14 +89,11 @@ public class SourceDocumentCreation extends Thread {
 	private StatsCollector statsCollector = new StatsCollector();
 	private String message_header = "";
 	
-	public SourceDocumentCreation(RestHighLevelClient client, DownloadSource source, GeneDocumentCache geneCache) {
-		this.client = client;
+	public SourceDocumentCreation(DownloadSource source, GeneDocumentCache geneCache) {
 		this.source = source;
 		this.geneCache = geneCache;
 		speciesType = SpeciesType.getTypeByID(source.getTaxonId());
 		aVSConverter = new AlleleVariantSequenceConverter();
-		if(indexing) client = EsClientFactory.getDefaultEsClient();
-		
 		message_header = speciesType.getModName() + " ";
 	}
 
@@ -110,7 +106,7 @@ public class SourceDocumentCreation extends Thread {
 
 		if(indexing) {
 			log.info(message_header + "Creating Bulk Processor 0 - 10K");
-			builder1 = BulkProcessor.builder((request, bulkListener) -> client.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), new BulkProcessor.Listener() {
+			builder1 = BulkProcessor.builder((request, bulkListener) -> EsClientFactory.getMustCloseSearchClient().bulkAsync(request, RequestOptions.DEFAULT, bulkListener), new BulkProcessor.Listener() {
 				@Override
 				public void beforeBulk(long executionId, BulkRequest request) {
 				}
@@ -131,7 +127,7 @@ public class SourceDocumentCreation extends Thread {
 			});
 	
 			log.info(message_header + "Creating Bulk Processor 10K - 75K");
-			builder2 = BulkProcessor.builder((request, bulkListener) -> client.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), new BulkProcessor.Listener() {
+			builder2 = BulkProcessor.builder((request, bulkListener) -> EsClientFactory.getMustCloseSearchClient().bulkAsync(request, RequestOptions.DEFAULT, bulkListener), new BulkProcessor.Listener() {
 				@Override
 				public void beforeBulk(long executionId, BulkRequest request) {
 				}
@@ -152,7 +148,7 @@ public class SourceDocumentCreation extends Thread {
 			});
 	
 			log.info(message_header + "Creating Bulk Processor 75K - 100K");
-			builder3 = BulkProcessor.builder((request, bulkListener) -> client.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), new BulkProcessor.Listener() {
+			builder3 = BulkProcessor.builder((request, bulkListener) -> EsClientFactory.getMustCloseSearchClient().bulkAsync(request, RequestOptions.DEFAULT, bulkListener), new BulkProcessor.Listener() {
 				@Override
 				public void beforeBulk(long executionId, BulkRequest request) {
 				}
@@ -173,7 +169,7 @@ public class SourceDocumentCreation extends Thread {
 			});
 	
 			log.info(message_header + "Creating Bulk Processor 100K - 200K");
-			builder4 = BulkProcessor.builder((request, bulkListener) -> client.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), new BulkProcessor.Listener() {
+			builder4 = BulkProcessor.builder((request, bulkListener) -> EsClientFactory.getMustCloseSearchClient().bulkAsync(request, RequestOptions.DEFAULT, bulkListener), new BulkProcessor.Listener() {
 				@Override
 				public void beforeBulk(long executionId, BulkRequest request) {
 				}
