@@ -342,9 +342,14 @@ public class SourceDocumentCreation extends Thread {
 				bulkProcessor2.awaitClose(10, TimeUnit.DAYS);
 				bulkProcessor3.awaitClose(10, TimeUnit.DAYS);
 				bulkProcessor4.awaitClose(10, TimeUnit.DAYS);
+				
+				client1.close();
+				client2.close();
+				client3.close();
+				client4.close();
 			}
 			
-		} catch (InterruptedException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
