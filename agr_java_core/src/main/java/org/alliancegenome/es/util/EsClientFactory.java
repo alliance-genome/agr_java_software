@@ -44,8 +44,8 @@ public class EsClientFactory {
 					e.printStackTrace();
 				}
 			}
-			lastClientChange = current;
 		}
+		lastClientChange = current;
 		return client;
 	}
 	
