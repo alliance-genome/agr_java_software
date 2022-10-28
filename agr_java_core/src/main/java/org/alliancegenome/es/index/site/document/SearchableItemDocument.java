@@ -66,7 +66,6 @@ public class SearchableItemDocument extends ESDocument {
 	String symbolText;
 	@JsonView({View.AlleleVariantSequenceConverterForES.class})
 	String variantName;
-
 	Set<String> age;
 	Set<String> anatomicalExpression;
 	Set<String> anatomicalExpressionWithParents;
@@ -114,7 +113,6 @@ public class SearchableItemDocument extends ESDocument {
 	Set<String> geneCrossReferences;
 	Set<String> go_genes;
 	Set<String> go_species;
-
 	Set<String> models;
 	@JsonView({View.AlleleVariantSequenceConverterForES.class})
 	Set<String> molecularConsequence;

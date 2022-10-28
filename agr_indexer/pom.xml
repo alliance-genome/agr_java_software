@@ -16,7 +16,7 @@
 	<properties>
 		<failOnMissingWebXml>false</failOnMissingWebXml>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<jackson.version>2.13.4</jackson.version>
+		<jackson.version>2.13.4.1</jackson.version>
 	</properties>
 
 	<dependencies>
@@ -24,6 +24,16 @@
 			<groupId>org.alliancegenome</groupId>
 			<artifactId>agr_java_core</artifactId>
 			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.alliancegenome</groupId>
+			<artifactId>agr_curation_api</artifactId>
+			<version>v0.11.0-rc1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.wildfly.common</groupId>
+			<artifactId>wildfly-common</artifactId>
+			<version>1.6.0.Final</version>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>

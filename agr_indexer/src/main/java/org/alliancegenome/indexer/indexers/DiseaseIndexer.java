@@ -3,7 +3,6 @@ package org.alliancegenome.indexer.indexers;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
-import java.util.stream.Collectors;
 
 import org.alliancegenome.core.translators.document.DiseaseTranslator;
 import org.alliancegenome.es.index.site.cache.DiseaseDocumentCache;
@@ -30,9 +29,8 @@ public class DiseaseIndexer extends Indexer<SearchableItemDocument> {
 			DiseaseIndexerRepository diseaseIndexerRepository = new DiseaseIndexerRepository();
 			diseaseDocumentCache = diseaseIndexerRepository.getDiseaseDocumentCache();
 			diseaseDocumentCache.setPopularity(popularityScore);
-			LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
-			List<String> allDiseaseIDs = diseaseDocumentCache.getDiseaseMap().keySet().stream().collect(Collectors.toList());
-			queue.addAll(allDiseaseIDs);
+			List<String> allDiseaseIDs = new ArrayList<>(diseaseDocumentCache.getDiseaseMap().keySet());
+			LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>(allDiseaseIDs);
 			diseaseIndexerRepository.clearCache();
 			initiateThreading(queue);
 			diseaseIndexerRepository.close();

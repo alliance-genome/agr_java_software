@@ -353,6 +353,19 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 		return list;
 	}
 
+	public List<String> getAllAgmKeys() {
+		String query = "MATCH (g:AffectedGenomicModel) RETURN distinct g.primaryKey";
+		Result r = queryForResult(query);
+		Iterator<Map<String, Object>> i = r.iterator();
+		ArrayList<String> list = new ArrayList<>();
+
+		while (i.hasNext()) {
+			Map<String, Object> map2 = i.next();
+			list.add((String) map2.get("g.primaryKey"));
+		}
+		return list;
+	}
+
 	public List<String> getAllGeneKeys(String species) {
 		String query = "MATCH (g:Gene)-[:FROM_SPECIES]-(species:Species) WHERE species.name = {species} RETURN distinct g.primaryKey";
 
