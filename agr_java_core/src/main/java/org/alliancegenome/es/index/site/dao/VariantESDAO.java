@@ -13,6 +13,7 @@ import java.util.Map;
 import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.es.index.ESDAO;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.es.util.EsClientFactory;
@@ -39,28 +40,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
-public class VariantESDAO {
+public class VariantESDAO extends ESDAO {
 
 	public static final String SITE_INDEX = ConfigHelper.getEsIndex();
-
-	protected static RestHighLevelClient searchClient = null; // Make sure to only have 1 of these clients to save on resources
-
-	public VariantESDAO() {
-		init();
-	}
-
-	public void init() {
-		searchClient = EsClientFactory.getDefaultEsClient();
-	}
-
-	public void close() {
-		log.info("Closing Down ES Client");
-		try {
-			searchClient.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
 
 	public static ObjectMapper mapper = new ObjectMapper();
 
@@ -73,7 +55,7 @@ public class VariantESDAO {
 
 		CountResponse response = null;
 		try {
-			response = searchClient.count(countRequest, RequestOptions.DEFAULT);
+			response = EsClientFactory.getDefaultEsClient().count(countRequest, RequestOptions.DEFAULT);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -101,7 +83,7 @@ public class VariantESDAO {
 		SearchResponse response = null;
 
 		try {
-			response = searchClient.search(searchRequest, RequestOptions.DEFAULT);
+			response = EsClientFactory.getDefaultEsClient().search(searchRequest, RequestOptions.DEFAULT);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -163,7 +145,7 @@ public class VariantESDAO {
 		distinctFields.forEach((fieldFilter, esFieldName) -> searchSourceBuilder.aggregation(AggregationBuilders.terms(fieldFilter.getName()).field(esFieldName)));
 
 		try {
-			response = searchClient.search(searchRequest, RequestOptions.DEFAULT);
+			response = EsClientFactory.getDefaultEsClient().search(searchRequest, RequestOptions.DEFAULT);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -199,7 +181,7 @@ public class VariantESDAO {
 		distinctFields.forEach((fieldFilter, esFieldName) -> searchSourceBuilder.aggregation(AggregationBuilders.terms(fieldFilter.getName()).field(esFieldName)));
 
 		try {
-			response = searchClient.search(searchRequest, RequestOptions.DEFAULT);
+			response = EsClientFactory.getDefaultEsClient().search(searchRequest, RequestOptions.DEFAULT);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -239,7 +221,7 @@ public class VariantESDAO {
 		SearchResponse response = null;
 
 		try {
-			response = searchClient.search(searchRequest, RequestOptions.DEFAULT);
+			response = EsClientFactory.getDefaultEsClient().search(searchRequest, RequestOptions.DEFAULT);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

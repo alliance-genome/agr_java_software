@@ -16,10 +16,8 @@ import lombok.extern.log4j.Log4j2;
 public class SourceDocumentCreationManager extends Thread {
 
 	private DownloadFileSet downloadSet;
-	private RestHighLevelClient client;
 
-	public SourceDocumentCreationManager(RestHighLevelClient client, DownloadFileSet downloadSet) {
-		this.client = client;
+	public SourceDocumentCreationManager(DownloadFileSet downloadSet) {
 		this.downloadSet = downloadSet;
 	}
 
@@ -34,7 +32,7 @@ public class SourceDocumentCreationManager extends Thread {
 			geneRepo.close();
 
 			for(DownloadSource source: downloadSet.getDownloadFileSet()) {
-				SourceDocumentCreation creator = new SourceDocumentCreation(client, source, geneCache);
+				SourceDocumentCreation creator = new SourceDocumentCreation(source, geneCache);
 				executor.execute(creator);
 			}
 

@@ -45,7 +45,7 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 	public static String indexName;
 	private Logger log = LogManager.getLogger(getClass());
 	protected IndexerConfig indexerConfig;
-	private RestHighLevelClient client;
+	private RestHighLevelClient searchClient;
 	protected Runtime runtime = Runtime.getRuntime();
 	protected DecimalFormat df = new DecimalFormat("#");
 	protected ObjectMapper om = new ObjectMapper();
@@ -64,7 +64,7 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 
 		loadPopularityScore();
 
-		client = EsClientFactory.getDefaultEsClient();
+		searchClient = EsClientFactory.getDefaultEsClient();
 
 		BulkProcessor.Listener listener = new BulkProcessor.Listener() {
 			@Override
@@ -87,13 +87,13 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 			}
 		};
 
-		BulkProcessor.Builder builder = BulkProcessor.builder((request, bulkListener) -> client.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), listener);
+		BulkProcessor.Builder builder = BulkProcessor.builder((request, bulkListener) -> searchClient.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), listener);
 		builder.setBulkActions(indexerConfig.getBulkActions());
 		builder.setBulkSize(new ByteSizeValue(indexerConfig.getBulkSize(), ByteSizeUnit.MB));
 		builder.setConcurrentRequests(indexerConfig.getConcurrentRequests());
 		builder.setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(1L), 60));
 
-		bulkProcessor = BulkProcessor.builder((request, bulkListener) -> client.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), listener).build();
+		bulkProcessor = BulkProcessor.builder((request, bulkListener) -> searchClient.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), listener).build();
 
 	}
 
