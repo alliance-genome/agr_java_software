@@ -1,4 +1,4 @@
-package org.alliancegenome.indexer.indexers.linkml;
+package org.alliancegenome.indexer.indexers.curation.interfaces;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import org.alliancegenome.curation_api.interfaces.base.BaseIdCrudInterface;
