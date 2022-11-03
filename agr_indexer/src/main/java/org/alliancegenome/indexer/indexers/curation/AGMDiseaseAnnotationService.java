@@ -17,7 +17,7 @@ public class AGMDiseaseAnnotationService {
 
 	private AgmDiseaseAnnotationInterface agmApi = RestProxyFactory.createProxy(AgmDiseaseAnnotationInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 
-	public List<AGMDiseaseAnnotation> getAll() {
+	public List<AGMDiseaseAnnotation> getFiltered() {
 
 		ProcessDisplayHelper display = new ProcessDisplayHelper(10000);
 		

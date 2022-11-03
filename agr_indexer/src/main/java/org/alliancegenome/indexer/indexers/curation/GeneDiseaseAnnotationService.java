@@ -20,7 +20,7 @@ public class GeneDiseaseAnnotationService {
 	
 	private static GeneRepository geneRepository = new GeneRepository();
 
-	public List<GeneDiseaseAnnotation> getAll() {
+	public List<GeneDiseaseAnnotation> getFiltered() {
 		ProcessDisplayHelper display = new ProcessDisplayHelper(10000);
 		
 		List<GeneDiseaseAnnotation> ret = new ArrayList<>();
