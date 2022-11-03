@@ -59,13 +59,13 @@ public abstract class DiseaseAnnotationCurationIndexer extends Indexer<Searchabl
 		
 		List<AlleleDiseaseAnnotation> alleleDiseaseAnnotations = new ArrayList<>();
 		agmDiseaseAnnotations.forEach(agmDiseaseAnnotation -> {
-			if (agmDiseaseAnnotation.getInferredAllele() != null) {
+			if (agmDiseaseAnnotation.getInferredAllele() != null && !agmDiseaseAnnotation.getInferredAllele().getInternal()) {
 				AlleleDiseaseAnnotation alleleDiseaseAnnotation = new AlleleDiseaseAnnotation();
 				createDA(agmDiseaseAnnotation, alleleDiseaseAnnotation);
 				alleleDiseaseAnnotation.setSubject(agmDiseaseAnnotation.getInferredAllele());
 				alleleDiseaseAnnotations.add(alleleDiseaseAnnotation);
 			}
-			if (agmDiseaseAnnotation.getAssertedAllele() != null) {
+			if (agmDiseaseAnnotation.getAssertedAllele() != null && !agmDiseaseAnnotation.getAssertedAllele().getInternal()) {
 				AlleleDiseaseAnnotation alleleDiseaseAnnotation = new AlleleDiseaseAnnotation();
 				createDA(agmDiseaseAnnotation, alleleDiseaseAnnotation);
 				alleleDiseaseAnnotation.setSubject(agmDiseaseAnnotation.getAssertedAllele());
@@ -78,7 +78,7 @@ public abstract class DiseaseAnnotationCurationIndexer extends Indexer<Searchabl
 	protected List<GeneDiseaseAnnotation> expandGeneDiseaseAnnotationsFromAGMDiseaseAnnotations(List<AGMDiseaseAnnotation> agmDiseaseAnnotations) {
 		List<GeneDiseaseAnnotation> geneDiseaseAnnotations = new ArrayList<>();
 		agmDiseaseAnnotations.forEach(agmDiseaseAnnotation -> {
-			if (agmDiseaseAnnotation.getInferredGene() != null) {
+			if (agmDiseaseAnnotation.getInferredGene() != null && !agmDiseaseAnnotation.getInferredGene().getInternal()) {
 				GeneDiseaseAnnotation geneAnnotation = new GeneDiseaseAnnotation();
 				createDA(agmDiseaseAnnotation, geneAnnotation);
 				geneAnnotation.setSubject(agmDiseaseAnnotation.getInferredGene());
@@ -86,10 +86,12 @@ public abstract class DiseaseAnnotationCurationIndexer extends Indexer<Searchabl
 			}
 			if (agmDiseaseAnnotation.getAssertedGenes() != null) {
 				for(Gene gene: agmDiseaseAnnotation.getAssertedGenes()) {
-					GeneDiseaseAnnotation geneDiseaseAnnotation = new GeneDiseaseAnnotation();
-					createDA(agmDiseaseAnnotation, geneDiseaseAnnotation);
-					geneDiseaseAnnotation.setSubject(gene);
-					geneDiseaseAnnotations.add(geneDiseaseAnnotation);
+					if(!gene.getInternal()) {
+						GeneDiseaseAnnotation geneDiseaseAnnotation = new GeneDiseaseAnnotation();
+						createDA(agmDiseaseAnnotation, geneDiseaseAnnotation);
+						geneDiseaseAnnotation.setSubject(gene);
+						geneDiseaseAnnotations.add(geneDiseaseAnnotation);
+					}
 				}
 			}
 		});
@@ -101,7 +103,7 @@ public abstract class DiseaseAnnotationCurationIndexer extends Indexer<Searchabl
 		List<GeneDiseaseAnnotation> geneDiseaseAnnotations = new ArrayList<>();
 		
 		annotations.forEach(alleleDiseaseAnnotation -> {
-			if (alleleDiseaseAnnotation.getInferredGene() != null) {
+			if (alleleDiseaseAnnotation.getInferredGene() != null && !alleleDiseaseAnnotation.getInferredGene().getInternal()) {
 				GeneDiseaseAnnotation geneDiseaseAnnotation = new GeneDiseaseAnnotation();
 				createDA(alleleDiseaseAnnotation, geneDiseaseAnnotation);
 				geneDiseaseAnnotation.setSubject(alleleDiseaseAnnotation.getInferredGene());
@@ -109,10 +111,12 @@ public abstract class DiseaseAnnotationCurationIndexer extends Indexer<Searchabl
 			}
 			if (alleleDiseaseAnnotation.getAssertedGenes() != null) {
 				for(Gene gene: alleleDiseaseAnnotation.getAssertedGenes()) {
-					GeneDiseaseAnnotation geneDiseaseAnnotation = new GeneDiseaseAnnotation();
-					createDA(alleleDiseaseAnnotation, geneDiseaseAnnotation);
-					geneDiseaseAnnotation.setSubject(gene);
-					geneDiseaseAnnotations.add(geneDiseaseAnnotation);
+					if(!gene.getInternal()) {
+						GeneDiseaseAnnotation geneDiseaseAnnotation = new GeneDiseaseAnnotation();
+						createDA(alleleDiseaseAnnotation, geneDiseaseAnnotation);
+						geneDiseaseAnnotation.setSubject(gene);
+						geneDiseaseAnnotations.add(geneDiseaseAnnotation);
+					}
 				}
 			}
 		});
@@ -134,9 +138,10 @@ public abstract class DiseaseAnnotationCurationIndexer extends Indexer<Searchabl
 		}
 		log.info("Output files finished");
 	}
-	
+
 	@Override
 	protected void startSingleThread(LinkedBlockingDeque<String> queue) {
 
 	}
+
 }

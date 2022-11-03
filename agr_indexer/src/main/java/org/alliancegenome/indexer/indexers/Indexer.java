@@ -175,7 +175,7 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 		}
 	}
 	
-	void initiateThreading(LinkedBlockingDeque<String> queue) throws InterruptedException {
+	public void initiateThreading(LinkedBlockingDeque<String> queue) throws InterruptedException {
 		Integer numberOfThreads = indexerConfig.getThreadCount();
 
 		List<Thread> threads = new ArrayList<Thread>();

@@ -1,16 +1,11 @@
 package org.alliancegenome.core.translators;
 
-import java.util.ArrayList;
-
 import org.alliancegenome.es.index.ESDocument;
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
 
-public abstract class EntityDocumentTranslator<E extends Neo4jEntity, D extends ESDocument> {
+public abstract class EntityDocumentTranslator<E extends Neo4jEntity, D extends ESDocument> extends Translator<E, D> {
 
-	public D translate(E entity) {
-		return translate(entity, 1);
-	}
-
+	@Override
 	public D translate(E entity, int depth) {
 		return entityToDocument(entity, depth);
 	}
