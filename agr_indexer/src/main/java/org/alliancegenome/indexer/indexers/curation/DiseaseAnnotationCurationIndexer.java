@@ -80,7 +80,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer<SearchableItemDocu
 
 	private void indexGenes() {
 
-		List<GeneDiseaseAnnotation> geneDiseaseAnnotations = geneService.getAll();
+		List<GeneDiseaseAnnotation> geneDiseaseAnnotations = geneService.getFiltered();
 
 		for(GeneDiseaseAnnotation da: geneDiseaseAnnotations) {
 			Pair<Gene, ArrayList<DiseaseAnnotation>> pair = geneMap.get(da.getSubject().getCurie());
@@ -95,7 +95,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer<SearchableItemDocu
 
 	private void indexAlleles() {
 
-		List<AlleleDiseaseAnnotation> alleleDiseaseAnnotations = alleleService.getAll();
+		List<AlleleDiseaseAnnotation> alleleDiseaseAnnotations = alleleService.getFiltered();
 
 		for(AlleleDiseaseAnnotation da: alleleDiseaseAnnotations) {
 
@@ -124,7 +124,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer<SearchableItemDocu
 
 	private void indexAGMs() {
 
-		List<AGMDiseaseAnnotation> agmDiseaseAnnotations = agmService.getAll();
+		List<AGMDiseaseAnnotation> agmDiseaseAnnotations = agmService.getFiltered();
 
 		for(AGMDiseaseAnnotation da: agmDiseaseAnnotations) {
 

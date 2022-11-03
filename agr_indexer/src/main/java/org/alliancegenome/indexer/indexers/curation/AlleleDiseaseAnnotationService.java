@@ -19,7 +19,7 @@ public class AlleleDiseaseAnnotationService {
 	private AlleleDiseaseAnnotationInterface alleleApi = RestProxyFactory.createProxy(AlleleDiseaseAnnotationInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 	private static AlleleRepository alleleRepository = new AlleleRepository();
 
-	public List<AlleleDiseaseAnnotation> getAll() {
+	public List<AlleleDiseaseAnnotation> getFiltered() {
 
 		ProcessDisplayHelper display = new ProcessDisplayHelper(10000);
 		
