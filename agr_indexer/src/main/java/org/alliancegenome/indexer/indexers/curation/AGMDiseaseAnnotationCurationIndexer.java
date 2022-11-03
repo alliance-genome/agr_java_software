@@ -3,7 +3,6 @@ package org.alliancegenome.indexer.indexers.curation;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.LinkedBlockingDeque;
 import java.util.stream.Collectors;
 
 import org.alliancegenome.core.config.ConfigHelper;
@@ -71,7 +70,6 @@ public class AGMDiseaseAnnotationCurationIndexer extends DiseaseAnnotationCurati
 		createJsonFile(geneDiseaseAnnotations, "expanded-gene-annotations-from-agm-disease-annotations.json");
 		createJsonFile(alleleDiseaseAnnotations, "expanded-allele-annotations-from-agm-disease-annotations.json");
 	}
-
 
 	public static void main(String[] args) {
 		AGMDiseaseAnnotationCurationIndexer indexer = new AGMDiseaseAnnotationCurationIndexer(IndexerConfig.DiseaseAnnotationMlIndexer);
