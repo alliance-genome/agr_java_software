@@ -19,7 +19,7 @@ import java.util.HashMap;
 )
 @Produces({"application/json"})
 @Consumes({"application/json"})
-public interface AgmDiseaseAnnotationInterface extends BaseIdCrudInterface<AGMDiseaseAnnotation> {
+public interface AGMDiseaseAnnotationInterface extends BaseIdCrudInterface<AGMDiseaseAnnotation> {
 
 	@POST
 	@Path("/find")

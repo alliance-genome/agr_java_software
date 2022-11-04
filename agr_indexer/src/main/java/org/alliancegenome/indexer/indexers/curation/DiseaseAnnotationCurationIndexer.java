@@ -1,12 +1,13 @@
 package org.alliancegenome.indexer.indexers.curation;
 
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import org.alliancegenome.curation_api.config.RestDefaultObjectMapper;
@@ -19,10 +20,12 @@ import org.alliancegenome.curation_api.view.View;
 import org.alliancegenome.es.index.site.document.SearchableItemDocument;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
+import org.alliancegenome.indexer.indexers.curation.document.GeneDiseaseAnnotationDocument;
+import org.alliancegenome.indexer.indexers.curation.service.AGMDiseaseAnnotationService;
+import org.alliancegenome.indexer.indexers.curation.service.AlleleDiseaseAnnotationService;
+import org.alliancegenome.indexer.indexers.curation.service.GeneDiseaseAnnotationService;
 import org.apache.commons.lang3.tuple.Pair;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
@@ -47,13 +50,13 @@ public class DiseaseAnnotationCurationIndexer extends Indexer<SearchableItemDocu
 		super(indexerConfig);
 	}
 
-	protected void createJsonFile(Map<String, Pair<Gene, ArrayList<DiseaseAnnotation>>> geneMap, String fileName) {
+	protected void createJsonFile(List<GeneDiseaseAnnotationDocument> gdaList, String fileName) {
 		RestDefaultObjectMapper restDefaultObjectMapper = new RestDefaultObjectMapper();
 		ObjectMapper mapper = restDefaultObjectMapper.getMapper();
 		mapper.writerWithView(View.FieldsAndLists.class);
-
+		ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();
 		try (PrintStream out = new PrintStream(new FileOutputStream(fileName))) {
-			out.print(mapper.writeValueAsString(geneMap));
+			out.print(writer.writeValueAsString(gdaList));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -66,16 +69,52 @@ public class DiseaseAnnotationCurationIndexer extends Indexer<SearchableItemDocu
 
 	@Override
 	protected void index() {
-		indexGenes();
+		//indexGenes();
 		indexAlleles();
-		indexAGMs();
+		//indexAGMs();
 
-		createJsonFile(geneMap, "geneMap.json");
+		List<GeneDiseaseAnnotationDocument> list = createGeneDiseaseAnnotationDocuments();
 		
-		//createGeneDiseaseAnnotationDocuments();
+		createJsonFile(list, "gdaList.json");
+		
 		//createAlleleDiseaseAnnotationDocuments();
 		//createAGMDiseaseAnnotationDocuments();
 
+	}
+
+	private List<GeneDiseaseAnnotationDocument> createGeneDiseaseAnnotationDocuments() {
+
+		List<GeneDiseaseAnnotationDocument> ret = new ArrayList<>();
+		
+		for(Entry<String, Pair<Gene, ArrayList<DiseaseAnnotation>>> entry: geneMap.entrySet()) {
+			HashMap<String, GeneDiseaseAnnotationDocument> lookup = new HashMap<>();
+			
+			for(DiseaseAnnotation da: entry.getValue().getRight()) {
+				String key = da.getDiseaseRelation().getName() + "_" + da.getObject().getName();
+				System.out.println(key);
+				GeneDiseaseAnnotationDocument gda = lookup.get(key);
+				
+				if(gda == null) {
+					gda = new GeneDiseaseAnnotationDocument();
+					gda.setSubject(entry.getValue().getLeft());
+					gda.setDiseaseRelation(da.getDiseaseRelation());
+					gda.setObject(da.getObject());
+					List<DiseaseAnnotation> list = new ArrayList<>();
+					list.add(da);
+					gda.setPrimaryAnnotations(list);
+					//gda.setEvidenceCodes(da.getEvidenceCodes());
+					//gda.setDataProvider(da.getDataProvider());
+					//gda.setSingleReference(da.getSingleReference());
+					lookup.put(key, gda);
+				} else {
+					gda.getPrimaryAnnotations().add(da);
+				}
+			}
+			ret.addAll(lookup.values());
+			lookup.clear();
+		}
+		
+		return ret;
 	}
 
 	private void indexGenes() {
