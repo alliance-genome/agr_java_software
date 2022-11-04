@@ -1,4 +1,4 @@
-package org.alliancegenome.indexer.indexers.curation;
+package org.alliancegenome.indexer.indexers.curation.service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,13 +9,13 @@ import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.RestConfig;
-import org.alliancegenome.indexer.indexers.curation.interfaces.AgmDiseaseAnnotationInterface;
+import org.alliancegenome.indexer.indexers.curation.interfaces.AGMDiseaseAnnotationInterface;
 
 import si.mazi.rescu.RestProxyFactory;
 
 public class AGMDiseaseAnnotationService {
 
-	private AgmDiseaseAnnotationInterface agmApi = RestProxyFactory.createProxy(AgmDiseaseAnnotationInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
+	private AGMDiseaseAnnotationInterface agmApi = RestProxyFactory.createProxy(AGMDiseaseAnnotationInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 
 	public List<AGMDiseaseAnnotation> getFiltered() {
 

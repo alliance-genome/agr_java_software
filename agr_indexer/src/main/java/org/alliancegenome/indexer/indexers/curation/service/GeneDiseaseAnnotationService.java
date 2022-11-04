@@ -1,4 +1,4 @@
-package org.alliancegenome.indexer.indexers.curation;
+package org.alliancegenome.indexer.indexers.curation.service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
