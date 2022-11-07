@@ -14,7 +14,7 @@ import org.alliancegenome.neo4j.repository.indexer.DiseaseIndexerRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class DiseaseIndexer extends Indexer<SearchableItemDocument> {
+public class DiseaseIndexer extends Indexer {
 
 	private final Logger log = LogManager.getLogger(getClass());
 	private DiseaseDocumentCache diseaseDocumentCache;

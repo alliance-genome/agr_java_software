@@ -1,22 +1,5 @@
 package org.alliancegenome.indexer.indexers.curation;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import lombok.extern.log4j.Log4j2;
-import org.alliancegenome.curation_api.config.RestDefaultObjectMapper;
-import org.alliancegenome.curation_api.model.entities.*;
-import org.alliancegenome.curation_api.view.View;
-import org.alliancegenome.es.index.site.document.SearchableItemDocument;
-import org.alliancegenome.indexer.config.IndexerConfig;
-import org.alliancegenome.indexer.indexers.Indexer;
-import org.alliancegenome.indexer.indexers.curation.document.AGMDiseaseAnnotationDocument;
-import org.alliancegenome.indexer.indexers.curation.document.AlleleDiseaseAnnotationDocument;
-import org.alliancegenome.indexer.indexers.curation.document.GeneDiseaseAnnotationDocument;
-import org.alliancegenome.indexer.indexers.curation.service.AGMDiseaseAnnotationService;
-import org.alliancegenome.indexer.indexers.curation.service.AlleleDiseaseAnnotationService;
-import org.alliancegenome.indexer.indexers.curation.service.GeneDiseaseAnnotationService;
-import org.apache.commons.lang3.tuple.Pair;
-
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -26,8 +9,30 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.LinkedBlockingDeque;
 
-@Log4j2
-public class DiseaseAnnotationCurationIndexer extends Indexer<SearchableItemDocument> {
+import org.alliancegenome.curation_api.config.RestDefaultObjectMapper;
+import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.AffectedGenomicModel;
+import org.alliancegenome.curation_api.model.entities.Allele;
+import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.DiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.Gene;
+import org.alliancegenome.curation_api.model.entities.GeneDiseaseAnnotation;
+import org.alliancegenome.curation_api.view.View;
+import org.alliancegenome.indexer.config.IndexerConfig;
+import org.alliancegenome.indexer.indexers.Indexer;
+import org.alliancegenome.indexer.indexers.curation.document.AGMDiseaseAnnotationDocument;
+import org.alliancegenome.indexer.indexers.curation.document.AlleleDiseaseAnnotationDocument;
+import org.alliancegenome.indexer.indexers.curation.document.DiseaseAnnotationDocument;
+import org.alliancegenome.indexer.indexers.curation.document.GeneDiseaseAnnotationDocument;
+import org.alliancegenome.indexer.indexers.curation.service.AGMDiseaseAnnotationService;
+import org.alliancegenome.indexer.indexers.curation.service.AlleleDiseaseAnnotationService;
+import org.alliancegenome.indexer.indexers.curation.service.GeneDiseaseAnnotationService;
+import org.apache.commons.lang3.tuple.Pair;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+
+public class DiseaseAnnotationCurationIndexer extends Indexer {
 
 	private GeneDiseaseAnnotationService geneService = new GeneDiseaseAnnotationService();
 	private AlleleDiseaseAnnotationService alleleService = new AlleleDiseaseAnnotationService();
@@ -38,16 +43,11 @@ public class DiseaseAnnotationCurationIndexer extends Indexer<SearchableItemDocu
 	private Map<String, Pair<Allele, ArrayList<DiseaseAnnotation>>> alleleMap = new HashMap<>();
 	private Map<String, Pair<AffectedGenomicModel, ArrayList<DiseaseAnnotation>>> agmMap = new HashMap<>();
 
-	// TODO implement these in the future when we switch to the other tables.
-	//private Map<String, Pair<Allele, ArrayList<DiseaseAnnotation>>> alleleMap = new HashMap<String, Pair<Allele, ArrayList<DiseaseAnnotation>>>();
-	//private Map<String, Pair<AffectedGenomicModel, ArrayList<DiseaseAnnotation>>> agmMap = new HashMap<String, Pair<AffectedGenomicModel, ArrayList<DiseaseAnnotation>>>();
-
-
 	public DiseaseAnnotationCurationIndexer(IndexerConfig indexerConfig) {
 		super(indexerConfig);
 	}
 
-	protected void createJsonFile(List<GeneDiseaseAnnotationDocument> gdaList, String fileName) {
+	protected <D extends DiseaseAnnotationDocument> void createJsonFile(List<D> gdaList, String fileName) {
 		RestDefaultObjectMapper restDefaultObjectMapper = new RestDefaultObjectMapper();
 		ObjectMapper mapper = restDefaultObjectMapper.getMapper();
 		mapper.writerWithView(View.FieldsAndLists.class);
@@ -57,6 +57,11 @@ public class DiseaseAnnotationCurationIndexer extends Indexer<SearchableItemDocu
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	protected ObjectMapper customizeObjectMapper(ObjectMapper objectMapper) {
+		return (new RestDefaultObjectMapper()).getMapper();
 	}
 
 	@Override
@@ -71,16 +76,16 @@ public class DiseaseAnnotationCurationIndexer extends Indexer<SearchableItemDocu
 		indexAGMs();
 
 		List<GeneDiseaseAnnotationDocument> list = createGeneDiseaseAnnotationDocuments();
-
 		createJsonFile(list, "gdaList.json");
+		indexDocuments(list);
 
-		List<AlleleDiseaseAnnotationDocument> alleleList = createAlleleDiseaseAnnotationDocuments();
-		createJsonFile(list, "adaList.json");
+		//List<AlleleDiseaseAnnotationDocument> alleleList = createAlleleDiseaseAnnotationDocuments();
+		//createJsonFile(alleleList, "alleleList.json");
+		//indexDocuments(alleleList);
 
-		List<AGMDiseaseAnnotationDocument> agmList = createAGMDiseaseAnnotationDocuments();
-		createJsonFile(list, "agmaList.json");
-
-		//createAGMDiseaseAnnotationDocuments();
+		//List<AGMDiseaseAnnotationDocument> agmList = createAGMDiseaseAnnotationDocuments();
+		//createJsonFile(agmList, "agmList.json");
+		//indexDocuments(agmList);
 
 	}
 
@@ -232,12 +237,5 @@ public class DiseaseAnnotationCurationIndexer extends Indexer<SearchableItemDocu
 			}
 		}
 	}
-
-	public static void main(String[] args) {
-		DiseaseAnnotationCurationIndexer indexer = new DiseaseAnnotationCurationIndexer(IndexerConfig.DiseaseAnnotationMlIndexer);
-		indexer.indexGenes();
-		System.exit(0);
-	}
-
 
 }

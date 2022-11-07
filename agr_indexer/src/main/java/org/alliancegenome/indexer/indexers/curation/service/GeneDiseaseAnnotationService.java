@@ -17,13 +17,13 @@ import si.mazi.rescu.RestProxyFactory;
 public class GeneDiseaseAnnotationService {
 
 	private GeneDiseaseAnnotationInterface geneApi = RestProxyFactory.createProxy(GeneDiseaseAnnotationInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
-	
-	private static GeneRepository geneRepository = new GeneRepository();
 
 	public List<GeneDiseaseAnnotation> getFiltered() {
 		ProcessDisplayHelper display = new ProcessDisplayHelper(10000);
 		
 		List<GeneDiseaseAnnotation> ret = new ArrayList<>();
+		
+		GeneRepository geneRepository = new GeneRepository();
 		
 		List<String> geneIds = geneRepository.getAllGeneKeys();
 		
@@ -52,6 +52,7 @@ public class GeneDiseaseAnnotationService {
 			page++;
 		} while(page <= pages);
 		display.finishProcess();
+		geneRepository.close();
 		
 		return ret;
 	}

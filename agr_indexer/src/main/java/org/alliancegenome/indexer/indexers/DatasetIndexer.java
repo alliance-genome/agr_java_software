@@ -12,7 +12,7 @@ import org.alliancegenome.neo4j.repository.indexer.DatasetIndexerRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class DatasetIndexer extends Indexer<SearchableItemDocument> {
+public class DatasetIndexer extends Indexer {
 
 	private final Logger log = LogManager.getLogger(getClass());
 	private DatasetDocumentCache cache;

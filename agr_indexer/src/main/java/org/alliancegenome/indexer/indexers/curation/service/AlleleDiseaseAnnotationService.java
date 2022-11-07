@@ -17,7 +17,6 @@ import si.mazi.rescu.RestProxyFactory;
 public class AlleleDiseaseAnnotationService {
 
 	private AlleleDiseaseAnnotationInterface alleleApi = RestProxyFactory.createProxy(AlleleDiseaseAnnotationInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
-	private static AlleleRepository alleleRepository = new AlleleRepository();
 
 	public List<AlleleDiseaseAnnotation> getFiltered() {
 
@@ -25,6 +24,8 @@ public class AlleleDiseaseAnnotationService {
 		
 		List<AlleleDiseaseAnnotation> ret = new ArrayList<>();
 
+		AlleleRepository alleleRepository = new AlleleRepository();
+		
 		List<String> alleleIDs = alleleRepository.getAllAlleleIDs();
 
 		int batchSize = 1000;
@@ -52,6 +53,7 @@ public class AlleleDiseaseAnnotationService {
 			page++;
 		} while(page <= pages);
 		display.finishProcess();
+		alleleRepository.close();
 		
 		return ret;
 	}
