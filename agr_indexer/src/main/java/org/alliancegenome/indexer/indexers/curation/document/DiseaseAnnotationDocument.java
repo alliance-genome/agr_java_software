@@ -21,30 +21,30 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper = true)
 public class DiseaseAnnotationDocument extends SearchableItemDocument {
 
-    private VocabularyTerm diseaseRelation;
-    private DOTerm object;
-    private List<ECOTerm> evidenceCodes;
-    private String dataProvider;
-    private Reference singleReference;
-    private Set<Reference> references;
+	private VocabularyTerm diseaseRelation;
+	private DOTerm object;
+	private List<ECOTerm> evidenceCodes;
+	private String dataProvider;
+	private Reference singleReference;
+	private Set<Reference> references;
 
-    private List<DiseaseAnnotation> primaryAnnotations;
+	private List<DiseaseAnnotation> primaryAnnotations;
 
-    public DiseaseAnnotationDocument() {
-        primaryAnnotations = new ArrayList<>();
-    }
+	public DiseaseAnnotationDocument() {
+		primaryAnnotations = new ArrayList<>();
+	}
 
-    public void addReference(Reference singleReference) {
-        if (references == null) {
-            references = new HashSet<>();
-        }
-        references.add(singleReference);
-    }
+	public void addReference(Reference singleReference) {
+		if (references == null) {
+			references = new HashSet<>();
+		}
+		references.add(singleReference);
+	}
 
-    public void addPrimaryAnnotation(DiseaseAnnotation da) {
-        if(primaryAnnotations == null){
-            primaryAnnotations = new ArrayList<>();
-        }
-        primaryAnnotations.add(da);
-    }
+	public void addPrimaryAnnotation(DiseaseAnnotation da) {
+		if(primaryAnnotations == null){
+			primaryAnnotations = new ArrayList<>();
+		}
+		primaryAnnotations.add(da);
+	}
 }
