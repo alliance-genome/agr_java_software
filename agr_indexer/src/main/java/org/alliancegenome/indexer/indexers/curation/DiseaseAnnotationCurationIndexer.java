@@ -69,9 +69,9 @@ public class DiseaseAnnotationCurationIndexer extends Indexer<SearchableItemDocu
 
 	@Override
 	protected void index() {
-		//indexGenes();
+		indexGenes();
 		indexAlleles();
-		//indexAGMs();
+		indexAGMs();
 
 		List<GeneDiseaseAnnotationDocument> list = createGeneDiseaseAnnotationDocuments();
 		
@@ -91,7 +91,6 @@ public class DiseaseAnnotationCurationIndexer extends Indexer<SearchableItemDocu
 			
 			for(DiseaseAnnotation da: entry.getValue().getRight()) {
 				String key = da.getDiseaseRelation().getName() + "_" + da.getObject().getName();
-				System.out.println(key);
 				GeneDiseaseAnnotationDocument gda = lookup.get(key);
 				
 				if(gda == null) {
