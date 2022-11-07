@@ -1,8 +1,8 @@
 package org.alliancegenome.indexer.indexers.curation.document;
 
+import lombok.EqualsAndHashCode;
 import org.alliancegenome.curation_api.model.entities.Allele;
 
-import groovy.transform.EqualsAndHashCode;
 import lombok.Data;
 
 @Data @EqualsAndHashCode(callSuper = true)
