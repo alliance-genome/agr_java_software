@@ -16,7 +16,8 @@
 	<properties>
 		<failOnMissingWebXml>false</failOnMissingWebXml>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<jackson.version>2.13.4</jackson.version>
+		<jackson.version>2.14.0</jackson.version>
+>>>>>>> 25d2ebd0a7fca0b06b93faad7d646214ea990eda
 	</properties>
 
 	<dependencies>

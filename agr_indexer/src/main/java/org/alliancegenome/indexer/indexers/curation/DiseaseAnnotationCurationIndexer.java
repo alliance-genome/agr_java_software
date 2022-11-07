@@ -94,7 +94,6 @@ public class DiseaseAnnotationCurationIndexer extends Indexer<SearchableItemDocu
 			for (DiseaseAnnotation da : entry.getValue().getRight()) {
 				String key = da.getDiseaseRelation().getName() + "_" + da.getObject().getName();
 				GeneDiseaseAnnotationDocument gdad = lookup.get(key);
-				GeneDiseaseAnnotationDocument gdad = lookup.get(key);
 
 				if (gdad == null) {
 					gdad = new GeneDiseaseAnnotationDocument();

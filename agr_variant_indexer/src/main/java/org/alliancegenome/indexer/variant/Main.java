@@ -26,14 +26,10 @@ public class Main {
 		VariantConfigHelper.init();
 		ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
-		RestHighLevelClient client = null;
-		
 		boolean downloading = VariantConfigHelper.isDownloading();
 		boolean creating = VariantConfigHelper.isCreating();
 		boolean indexing = VariantConfigHelper.isIndexing();
-		
-		if(indexing) client = EsClientFactory.getDefaultEsClient();
-		
+
 		try {
 			// need to set VARIANTS_TO_INDEX = "HUMAN" or "MOD" to choose between which variants to index
 			DownloadFileSet downloadSet = mapper.readValue(getClass().getClassLoader().getResourceAsStream(VariantConfigHelper.getDownloadSetFile()), DownloadFileSet.class);
@@ -51,14 +47,13 @@ public class Main {
 				
 				if(indexing) SourceDocumentCreation.indexName = im.startSiteIndex();
 
-				SourceDocumentCreationManager vdm = new SourceDocumentCreationManager(client, downloadSet);
+				SourceDocumentCreationManager vdm = new SourceDocumentCreationManager(downloadSet);
 				vdm.start();
 				vdm.join();
 
 				if(indexing) im.finishIndex();
 			}
 
-			if(indexing) client.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

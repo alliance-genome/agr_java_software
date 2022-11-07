@@ -1,9 +1,9 @@
 package org.alliancegenome.indexer.indexers.curation.document;
 
+import lombok.EqualsAndHashCode;
 import org.alliancegenome.curation_api.model.entities.DiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.Gene;
 
-import groovy.transform.EqualsAndHashCode;
 import lombok.Data;
 
 import java.util.List;

@@ -21,7 +21,7 @@ public class ConfigCommand extends Command implements CommandInterface {
 	}
 
 	@Override
-	public void execute() {
+	public void execute() throws Exception {
 		if(args.size() > 0) {
 			String command = args.remove(0);
 
