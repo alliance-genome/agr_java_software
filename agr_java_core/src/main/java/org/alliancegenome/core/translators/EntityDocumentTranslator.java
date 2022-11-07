@@ -11,11 +11,7 @@ public abstract class EntityDocumentTranslator<E extends Neo4jEntity, D extends 
 	}
 
 	public Iterable<D> translateEntities(Iterable<E> entities) {
-		ArrayList<D> douments = new ArrayList<D>();
-		for (E entity : entities) {
-			douments.add(translate(entity, 1));
-		}
-		return douments;
+		return translate(entities);
 	}
 
 	protected abstract D entityToDocument(E entity, int translationDepth);

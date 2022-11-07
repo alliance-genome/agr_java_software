@@ -7,7 +7,7 @@ public abstract class Translator<I, O> {
 	public Iterable<O> translate(Iterable<I> inputObjects) {
 		ArrayList<O> outputObjects = new ArrayList<O>();
 		for (I inputObject: inputObjects) {
-			outputObjects.add(translate(inputObject, 1));
+			outputObjects.add(translate(inputObject));
 		}
 		return outputObjects;
 	}
