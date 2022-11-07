@@ -29,7 +29,7 @@ public class GeneDiseaseAnnotationService {
 		
 		int batchSize = 1000;
 		int page = 0;
-		int pages = 0;
+		int pages;
 
 		HashMap<String, Object> params = new HashMap<>();
 		params.put("internal", false);
