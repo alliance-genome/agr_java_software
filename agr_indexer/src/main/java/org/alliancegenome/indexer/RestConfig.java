@@ -30,7 +30,7 @@ public class RestConfig {
 		};
 		config.setJacksonObjectMapperFactory(objectMapperFactory);
 		config.addDefaultParam(HeaderParam.class, "Content-Type", "application/json");
-		if (ConfigHelper.getCurationApiToken() != null) {
+		if (ConfigHelper.getCurationApiToken() != null && ConfigHelper.getCurationApiToken().length() > 0) {
 			config.addDefaultParam(HeaderParam.class, "Authorization", ConfigHelper.getCurationApiToken());
 			log.info("Using Authorization token");
 		}
