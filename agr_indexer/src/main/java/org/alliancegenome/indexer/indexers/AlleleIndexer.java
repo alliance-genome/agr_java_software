@@ -15,7 +15,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.fasterxml.jackson.databind.MapperFeature;
 
-public class AlleleIndexer extends Indexer<AlleleVariantSequence> {
+public class AlleleIndexer extends Indexer {
 
 	private final Logger log = LogManager.getLogger(getClass());
 	private AlleleDocumentCache alleleDocumentCache;

@@ -1,8 +1,8 @@
-package org.alliancegenome.indexer.indexers.linkml;
+package org.alliancegenome.indexer.indexers.curation.interfaces;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import org.alliancegenome.curation_api.interfaces.base.BaseIdCrudInterface;
-import org.alliancegenome.curation_api.model.entities.DiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.GeneDiseaseAnnotation;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.curation_api.view.View;
@@ -13,13 +13,13 @@ import javax.ws.rs.*;
 import java.util.HashMap;
 
 
-@Path("/gene-disease-annotation")
+@Path("/allele-disease-annotation")
 @Tag(
 	name = "CRUD - Disease Annotations"
 )
 @Produces({"application/json"})
 @Consumes({"application/json"})
-public interface GeneDiseaseAnnotationInterface extends BaseIdCrudInterface<GeneDiseaseAnnotation> {
+public interface AlleleDiseaseAnnotationInterface extends BaseIdCrudInterface<AlleleDiseaseAnnotation> {
 
 	@POST
 	@Path("/find")
@@ -27,6 +27,6 @@ public interface GeneDiseaseAnnotationInterface extends BaseIdCrudInterface<Gene
 		name = "Database Search Endpoints"
 	)
 	@JsonView({View.FieldsAndLists.class})
-	SearchResponse<GeneDiseaseAnnotation> find(@DefaultValue("0") @QueryParam("page") Integer page, @DefaultValue("10") @QueryParam("limit") Integer limit, @RequestBody HashMap<String, Object> params);
+	SearchResponse<AlleleDiseaseAnnotation> find(@DefaultValue("0") @QueryParam("page") Integer page, @DefaultValue("10") @QueryParam("limit") Integer limit, @RequestBody HashMap<String, Object> params);
 
 }

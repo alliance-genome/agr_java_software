@@ -97,28 +97,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 		super(DOTerm.class);
 	}
 
-	public DOTerm getDiseaseTermWithAnnotations(String primaryKey) {
-		String cypher = "match p0=(root:DOTerm)--(join:DiseaseEntityJoin)-[:EVIDENCE]-(pe),"
-				+ " p1=(join)-[:ASSOCIATION]-(gene:Gene)-[:FROM_SPECIES]-(species:Species),"
-				+ " p2=(root)-[:IS_A*]->(p:DOTerm) "
-				+ " WHERE root.primaryKey = {primaryKey}"
-				+ " OPTIONAL MATCH p3=(join)-[:ASSOCIATION]-(feature:Feature) "
-				+ " RETURN p0, p1, p2, p3";
 
-		HashMap<String, String> map = new HashMap<>();
-		map.put("primaryKey", primaryKey);
-
-
-		Iterable<DOTerm> terms = query(cypher, map);
-		for (DOTerm d : terms) {
-			if (d.getPrimaryKey().equals(primaryKey)) {
-				return d;
-			}
-		}
-
-		return null;
-
-	}
 
 	public Set<String> getAllDiseaseWithAnnotationsKeys() {
 		String query = "MATCH (term:DOTerm)-[q:ASSOCIATION]-(dej:DiseaseEntityJoin) WHERE term.isObsolete='false' " +
@@ -534,130 +513,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 		return dejAgmMap;
 	}
 
-	public Result getDiseaseAssociation(String geneID, String diseaseID, Pagination pagination, Boolean
-			diseaseViaEmpiricalData) {
-		boolean isGene = geneID != null && diseaseID == null;
-		HashMap<String, String> bindingValueMap = new HashMap<>();
-		if (isGene)
-			bindingValueMap.put("geneID", geneID);
-		else
-			bindingValueMap.put("diseaseID", diseaseID);
 
-
-		String cypher = getCypherSelectPart(pagination, diseaseViaEmpiricalData, isGene, bindingValueMap);
-
-		if (diseaseViaEmpiricalData == null || diseaseViaEmpiricalData) {
-			if (isGene) {
-				cypher += "return distinct (disease.name + diseaseEntityJoin.joinType) as nameJoin, ";
-			} else {
-				cypher += "return distinct (";
-				cypher += createReturnListToOrder(pagination.getSortByList(), FieldFilter.GENE_NAME, FieldFilter.SPECIES, FieldFilter.DISEASE, FieldFilter.ASSOCIATION_TYPE);
-				cypher += ") as nameJoin, ";
-			}
-		} else {
-			if (isGene)
-				cypher += "return distinct (disease.name + diseaseEntityJoin.joinType + orthoGene.primaryKey) as nameJoin, ";
-			else {
-				cypher += "return distinct (";
-				cypher += createReturnListToOrder(pagination.getSortByList(), FieldFilter.GENE_NAME, FieldFilter.SPECIES, FieldFilter.DISEASE);
-				cypher += ") as nameJoin, ";
-			}
-		}
-
-		cypher += "		gene.symbol,  " +
-				"		disease.name as diseaseName, " +
-				"		disease as disease, " +
-				"		gene as gene, " +
-				"		species as species, " +
-				"		diseaseEntityJoin as diseaseEntityJoin, " +
-//				  "		  geneCrossRef as geneCrossReference, " +
-				"		feature.symbol, " +
-				"		feature as feature, " +
-				"		max(diseaseEntityJoin.sortOrder) as associationSortOrder, " +
-				"		collect(crossReference) as crossReferences, " +
-				"		collect(evidence) as evidences, ";
-		if (diseaseViaEmpiricalData != null && !diseaseViaEmpiricalData) {
-			cypher += "		  collect(orthoGene) as orthoGenes, " +
-					"		  collect(orthoSpecies) as orthoSpecies, ";
-		}
-
-		cypher += "		  count(publications),		   " +
-				"		collect(publications.pubModId) ";
-		cypher += "order by associationSortOrder ASC, species.phylogeneticOrder ASC, LOWER(nameJoin) " + pagination.getAscending() + ", LOWER(feature.symbol)";
-		cypher += " SKIP " + pagination.getStart();
-		if (pagination.getLimit() != null && pagination.getLimit() > -1)
-			cypher += " LIMIT " + pagination.getLimit();
-
-		return queryForResult(cypher, bindingValueMap);
-	}
-
-	private String getCypherSelectPart(Pagination pagination, Boolean diseaseViaEmpiricalData,
-									   boolean isGene, HashMap<String, String> bindingValueMap) {
-		String cypher = "MATCH p0=";
-		if (isGene) {
-			cypher += "(disease:DOTerm)";
-		} else {
-			cypher += DISEASE_INCLUDING_CHILDREN;
-		}
-		cypher += "--(diseaseEntityJoin:DiseaseEntityJoin)-[:EVIDENCE]-(pubEvCode:PublicationJoin), " +
-				"			   p1=(publications:Publication)--(pubEvCode)--(evidence:ECOTerm), " +
-				"			   p2=(diseaseEntityJoin)-[:ASSOCIATION]-(gene:Gene)--(species:Species) ";
-/*
-		"			   p2=(diseaseEntityJoin)-[:ASSOCIATION]-(gene:Gene)--(species:Species), " +
-				"			   p3=(gene:Gene)--(geneCrossRef:CrossReference {crossRefType:'gene'}) ";
-*/
-
-		if (diseaseViaEmpiricalData != null && !diseaseViaEmpiricalData) {
-			cypher += cypherViaOrthology;
-		}
-
-		String cypherFeatureOptional = "OPTIONAL MATCH p4=(diseaseEntityJoin)--(feature:Feature)--(crossReference:CrossReference) ";
-		String entityType = pagination.getFieldFilterValueMap().get(FieldFilter.GENETIC_ENTITY_TYPE);
-		if (entityType != null && entityType.equals("allele")) {
-			cypher += ", p4=(diseaseEntityJoin)--(feature:Feature)--(crossReference:CrossReference) ";
-			cypherFeatureOptional = "";
-		}
-
-		String cypherWhereClause = " where ";
-		if (isGene) {
-			cypherWhereClause += "gene.primaryKey = {geneID} ";
-		} else {
-			cypherWhereClause += "diseaseParent.primaryKey = {diseaseID} ";
-		}
-
-		if (entityType != null && entityType.equals("gene")) {
-			cypherWhereClause += "AND NOT (diseaseEntityJoin)--(:Feature) ";
-		}
-		if (diseaseViaEmpiricalData != null && diseaseViaEmpiricalData) {
-			cypherWhereClause += cypherEmpirical;
-		}
-		cypherWhereClause += getFilterClauses(pagination, false);
-
-		String geneticEntityFilterClause = addAndWhereClauseString("feature.symbol", FieldFilter.GENETIC_ENTITY, pagination.getFieldFilterValueMap());
-		if (geneticEntityFilterClause != null) {
-			cypherWhereClause += geneticEntityFilterClause;
-			bindingValueMap.put("feature", pagination.getFieldFilterValueMap().get(FieldFilter.GENETIC_ENTITY));
-			cypher += ", " + FEATURE_JOIN;
-		}
-		cypher += cypherWhereClause;
-		if (geneticEntityFilterClause == null) {
-			cypher += cypherFeatureOptional;
-		}
-		return cypher;
-	}
-
-	private String createReturnListToOrder(List<FieldFilter> sortingFields, FieldFilter... defaultFields) {
-		if (CollectionUtils.isEmpty(sortingFields))
-			sortingFields = Arrays.asList(defaultFields);
-		StringJoiner joiner = new StringJoiner(" + ");
-		sortingFields.forEach(fieldFilter -> joiner.add(sortByMapping.get(fieldFilter)));
-		final List<FieldFilter> filterElements = sortingFields;
-		sortByMapping.forEach((fieldFilter, s) -> {
-			if (!filterElements.contains(fieldFilter))
-				joiner.add(s);
-		});
-		return joiner.toString();
-	}
 
 	private String getFilterClauses(Pagination pagination, boolean filterForCounting) {
 		String cypherWhereClause = "";
@@ -790,42 +646,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 		return (Long) queryForResult(cypher, bindingValueMap).iterator().next().get(TOTAL_COUNT);
 	}
 
-	public Long getTotalDiseaseCount(String diseaseID, Pagination pagination) {
-		HashMap<String, String> bindingValueMap = new HashMap<>();
-		bindingValueMap.put("diseaseID", diseaseID);
 
-		// get feature-less diseases
-		String filterClauses = getFilterClauses(pagination, true);
-
-
-		//String cypherAll = getCypherSelectPart(pagination, null, false, bindingValueMap);
-		String cypherAll = "MATCH " + DISEASE_INCLUDING_CHILDREN + "--" +
-				"(diseaseEntityJoin:DiseaseEntityJoin), " +
-				"(diseaseEntityJoin)-[:ASSOCIATION]-(gene:Gene)	 " +
-				"where diseaseParent.primaryKey = {diseaseID} ";
-		cypherAll += AND_NOT_DISEASE_ENTITY_JOIN_FEATURE;
-		cypherAll += "return count(distinct diseaseEntityJoin) as " + TOTAL_COUNT;
-
-		String geneticEntityFilterClause = addWhereClauseString("feature.symbol", FieldFilter.GENETIC_ENTITY, pagination.getFieldFilterValueMap(), "WHERE");
-		Long featureLessPhenotype = 0L;
-		if (geneticEntityFilterClause == null) {
-			featureLessPhenotype = (Long) queryForResult(cypherAll, bindingValueMap).iterator().next().get(TOTAL_COUNT);
-		}
-
-		// feature-related phenotypes
-		cypherAll = "MATCH " + DISEASE_INCLUDING_CHILDREN + "--" +
-				"(diseaseEntityJoin:DiseaseEntityJoin), " +
-				"(diseaseEntityJoin)-[:ASSOCIATION]-(gene:Gene),  ";
-		cypherAll += FEATURE_JOIN +
-				" where diseaseParent.primaryKey = {diseaseID} ";
-		cypherAll += "return count(distinct diseaseEntityJoin) as " + TOTAL_COUNT;
-
-		Long featurePhenotype = 0L;
-		if (geneticEntityFilterClause == null) {
-			featurePhenotype = (Long) queryForResult(cypherAll, bindingValueMap).iterator().next().get(TOTAL_COUNT);
-		}
-		return featureLessPhenotype + featurePhenotype;
-	}
 
 	public DiseaseSummary getDiseaseSummary(String geneId, DiseaseSummary.Type type) {
 		DiseaseSummary summary = new DiseaseSummary();
@@ -835,19 +656,4 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 		return summary;
 	}
 
-	public DiseaseEntityJoin getDiseaseEntityJoinByID(String diseaseEntityJoinID) {
-
-		String cypher = "MATCH p0=(diseaseEntityJoin:DiseaseEntityJoin)-[:ASSOCIATION]-(gene:Gene), " +
-				"p1=(disease:DOTerm)--(diseaseEntityJoin:DiseaseEntityJoin)--(pubEvJoin:PublicationJoin), " +
-				"p2=(evidence:ECOTerm)--(pubEvJoin:PublicationJoin)--(publications:Publication) " +
-				"WHERE diseaseEntityJoin.primaryKey = {diseaseEntityJoinID} " +
-				"OPTIONAL MATCH p3=(diseaseEntityJoin:DiseaseEntityJoin)--(feature:Feature)--(crossReference:CrossReference) " +
-				"RETURN p0, p1, p3, p2 ";
-
-		HashMap<String, String> bindingValueMap = new HashMap<>();
-		bindingValueMap.put("diseaseEntityJoinID", diseaseEntityJoinID);
-
-		Iterable<DiseaseEntityJoin> joins = query(DiseaseEntityJoin.class, cypher, bindingValueMap);
-		return joins.iterator().next();
-	}
 }
