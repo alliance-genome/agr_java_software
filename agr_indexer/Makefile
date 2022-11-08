@@ -53,7 +53,7 @@ docker-pull-es: registry-docker-login
 	docker pull ${REG}/agr_elasticsearch_env:${DOCKER_PULL_TAG}
 
 docker-run-es: docker-pull-es
-	docker run -p 9200:9200 -p 9300:9300 -e http.host=0.0.0.0 -e transport.host=0.0.0.0 -e xpack.security.enabled=false -e JAVA_OPTS="-Djava.net.preferIPv4Stack=true" ${REG}/agr_elasticsearch_env:${DOCKER_PULL_TAG}
+	docker run -p 9200:9200 -p 9300:9300 -e http.host=0.0.0.0 -e transport.host=0.0.0.0 -e discovery.type=single-node -e xpack.security.enabled=false -e JAVA_OPTS="-Djava.net.preferIPv4Stack=true" ${REG}/agr_elasticsearch_env:${DOCKER_PULL_TAG}
 
 docker-pull-neo: registry-docker-login
 	docker pull ${REG}/agr_neo4j_data_image:${DOCKER_PULL_TAG}
