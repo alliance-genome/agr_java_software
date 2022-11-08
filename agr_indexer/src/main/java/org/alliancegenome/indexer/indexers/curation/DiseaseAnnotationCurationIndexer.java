@@ -110,9 +110,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 				gdad.setEvidenceCodes(da.getEvidenceCodes());
 				//gdad.setDataProvider(da.getDataProvider());
 				gdad.addReference(da.getSingleReference());
-				if (da instanceof AlleleDiseaseAnnotation || da instanceof AGMDiseaseAnnotation) {
-					gdad.addPrimaryAnnotation(da);
-				}
+				gdad.addPrimaryAnnotation(da);
 			}
 			ret.addAll(lookup.values());
 			lookup.clear();
