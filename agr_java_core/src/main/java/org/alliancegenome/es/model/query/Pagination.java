@@ -205,7 +205,7 @@ public class Pagination {
 		}
 	}
 
-	public int getIndexOfFirstElement() {
+	public int getOffset() {
 		return (page - 1) * limit;
 	}
 

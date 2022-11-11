@@ -20,6 +20,7 @@ import javax.ws.rs.core.Response;
 
 import org.alliancegenome.api.application.RestDefaultObjectMapper;
 import org.alliancegenome.api.rest.interfaces.DiseaseRESTInterface;
+import org.alliancegenome.api.service.DiseaseESService;
 import org.alliancegenome.api.service.DiseaseService;
 import org.alliancegenome.api.service.EntityType;
 import org.alliancegenome.api.service.helper.APIServiceHelper;
@@ -38,6 +39,8 @@ import org.alliancegenome.neo4j.view.BaseFilter;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.search.SearchHit;
+import org.jose4j.json.internal.json_simple.JSONObject;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -55,6 +58,10 @@ public class DiseaseController implements DiseaseRESTInterface {
 
 	@Inject
 	private DiseaseService diseaseService;
+	
+	@Inject
+	private DiseaseESService diseaseESService;
+	
 	private final DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();
 
 
@@ -427,7 +434,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 	}
 
 	@Override
-	public JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotationsRibbonDetails(List<String> geneIDs,
+	public JsonResultResponse<JSONObject> getDiseaseAnnotationsRibbonDetails(List<String> geneIDs,
 																					String termID,
 																					String filterSpecies,
 																					String filterGene,
@@ -468,7 +475,8 @@ public class DiseaseController implements DiseaseRESTInterface {
 			throw new RestErrorException(message);
 		}
 		try {
-			JsonResultResponse<DiseaseAnnotation> response = diseaseService.getRibbonDiseaseAnnotations(geneIDs, termID, pagination);
+			// TODO
+			JsonResultResponse<JSONObject> response = diseaseESService.getRibbonDiseaseAnnotations(geneIDs, termID, pagination);
 			response.setHttpServletRequest(request);
 			response.calculateRequestDuration(startDate);
 			return response;
