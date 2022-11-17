@@ -27,12 +27,10 @@ public class Main {
 
 		Indexer.indexName = im.startSiteIndex();
 
-		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-			@Override public void uncaughtException(Thread t, Throwable e) {
-				log.error("Thread: " + t.getId() + " has uncaught exceptions");
-				e.printStackTrace();
-				System.exit(-1);
-			}
+		Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
+			log.error("Thread: " + t.getId() + " has uncaught exceptions");
+			e.printStackTrace();
+			System.exit(-1);
 		});
 
 		HashMap<String, Indexer> indexers = new HashMap<>();

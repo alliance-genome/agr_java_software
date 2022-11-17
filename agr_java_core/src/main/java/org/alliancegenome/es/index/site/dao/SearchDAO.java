@@ -78,6 +78,11 @@ public class SearchDAO extends ESDAO {
 		if(sort != null && sort.equals("alphabetical")) {
 			searchSourceBuilder.sort("name.keyword", SortOrder.ASC);
 		}
+		if(sort != null && sort.equals("diseaseAnnotation")) {
+			searchSourceBuilder.sort("subject.taxon.name.keyword", SortOrder.ASC);
+			searchSourceBuilder.sort("object.name.keyword", SortOrder.ASC);
+		}
+
 		searchSourceBuilder.highlighter(highlighter);
 
 

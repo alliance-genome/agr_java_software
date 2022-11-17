@@ -359,14 +359,16 @@ public interface DiseaseRESTInterface {
 			@QueryParam("geneID") List<String> geneIDs,
 			@Parameter(in = ParameterIn.QUERY, name = "termID", description = "Term ID by which rollup should happen")
 			@QueryParam("termID") String termID,
-			@Parameter(in = ParameterIn.QUERY, name = "filter.species", description = "Species by taxon ID", schema = @Schema(type = SchemaType.STRING))
-			@QueryParam("filter.species") String filterSpecies,
+			@Parameter(in = ParameterIn.QUERY, name = "filterOptions", description = "All filter key-value pairs", schema = @Schema(type = SchemaType.STRING))
+			@QueryParam("filterOptions") String filterOptions,
+			@Parameter(in = ParameterIn.QUERY, name = "filter.subject.taxon", description = "Species by taxon ID", schema = @Schema(type = SchemaType.STRING))
+			@QueryParam("filter.subject.taxon") String filterSpecies,
 			@Parameter(in = ParameterIn.QUERY, name = "filter.gene", description = "Gene symbol", schema = @Schema(type = SchemaType.STRING))
 			@QueryParam("filter.gene") String filterGene,
 			@Parameter(in = ParameterIn.QUERY, name = "filter.reference", description = "Reference", schema = @Schema(type = SchemaType.STRING))
 			@QueryParam("filter.reference") String filterReference,
 			@Parameter(in = ParameterIn.QUERY, name = "filter.disease", description = "Ontology term name", schema = @Schema(type = SchemaType.STRING))
-			@QueryParam("filter.disease") String diseaseTerm,
+			@QueryParam("filter.object") String diseaseTerm,
 			@Parameter(in = ParameterIn.QUERY, name = "filter.source", description = "Source", schema = @Schema(type = SchemaType.STRING))
 			@QueryParam("filter.provider") String filterSource,
 			@Parameter(in = ParameterIn.QUERY, name = "filter.geneticEntity", description = "geneticEntity", schema = @Schema(type = SchemaType.STRING))
@@ -374,7 +376,7 @@ public interface DiseaseRESTInterface {
 			@Parameter(in = ParameterIn.QUERY, name = "filter.geneticEntityType", description = "geneticEntityType", schema = @Schema(type = SchemaType.STRING))
 			@QueryParam("filter.geneticEntityType") String geneticEntityType,
 			@Parameter(in = ParameterIn.QUERY, name = "filter.associationType", description = "associationType", schema = @Schema(type = SchemaType.STRING))
-			@QueryParam("filter.associationType") String associationType,
+			@QueryParam("filter.diseaseRelation.name") String associationType,
 			@Parameter(in = ParameterIn.QUERY, name = "filter.evidenceCode", description = "evidenceCode", schema = @Schema(type = SchemaType.STRING))
 			@QueryParam("filter.evidenceCode") String evidenceCode,
 			@Parameter(in = ParameterIn.QUERY, name = "filter.basedOnGeneSymbol", description = "basedOnGeneSymbol", schema = @Schema(type = SchemaType.STRING))

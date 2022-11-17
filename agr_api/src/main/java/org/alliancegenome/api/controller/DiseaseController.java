@@ -436,6 +436,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 	@Override
 	public JsonResultResponse<JSONObject> getDiseaseAnnotationsRibbonDetails(List<String> geneIDs,
 																					String termID,
+		    	      															    String filterOptions,
 																					String filterSpecies,
 																					String filterGene,
 																					String filterReference,
@@ -454,17 +455,14 @@ public class DiseaseController implements DiseaseRESTInterface {
 
 		LocalDateTime startDate = LocalDateTime.now();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
+		pagination.addFilterOptions(filterOptions);
+		pagination.addFilterOption("object.name", diseaseTerm);
+		pagination.addFilterOption("evidenceCodes.abbreviation", evidenceCode);
+		pagination.addFilterOption("diseaseRelation.name", associationType);
+		pagination.addFilterOption("subject.symbol", filterGene);
+		pagination.addFilterOption("subject.taxon.name", filterSpecies);
+		pagination.addFilterOption("references.crossReferences.curie", filterReference);
 		BaseFilter filterMap = new BaseFilter();
-		filterMap.put(FieldFilter.SPECIES, filterSpecies);
-		filterMap.put(FieldFilter.GENE_NAME, filterGene);
-		filterMap.put(FieldFilter.FREFERENCE, filterReference);
-		filterMap.put(FieldFilter.SOURCE, filterSource);
-		filterMap.put(FieldFilter.DISEASE, diseaseTerm);
-		filterMap.put(FieldFilter.GENETIC_ENTITY_TYPE, geneticEntityType);
-		filterMap.put(FieldFilter.GENETIC_ENTITY, geneticEntity);
-		filterMap.put(FieldFilter.ASSOCIATION_TYPE, associationType);
-		filterMap.put(FieldFilter.EVIDENCE_CODE, evidenceCode);
-		filterMap.put(FieldFilter.BASED_ON_GENE, basedOnGeneSymbol);
 		filterMap.put(FieldFilter.INCLUDE_NEGATION, includeNegation);
 		filterMap.values().removeIf(Objects::isNull);
 		pagination.setFieldFilterValueMap(filterMap);
