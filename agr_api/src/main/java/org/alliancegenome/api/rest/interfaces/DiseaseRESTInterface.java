@@ -363,19 +363,19 @@ public interface DiseaseRESTInterface {
 			@QueryParam("filterOptions") String filterOptions,
 			@Parameter(in = ParameterIn.QUERY, name = "filter.subject.taxon", description = "Species by taxon ID", schema = @Schema(type = SchemaType.STRING))
 			@QueryParam("filter.subject.taxon") String filterSpecies,
-			@Parameter(in = ParameterIn.QUERY, name = "filter.gene", description = "Gene symbol", schema = @Schema(type = SchemaType.STRING))
-			@QueryParam("filter.gene") String filterGene,
+			@Parameter(in = ParameterIn.QUERY, name = "filter.subject.curie", description = "Gene symbol", schema = @Schema(type = SchemaType.STRING))
+			@QueryParam("filter.subject.curie") String filterGene,
 			@Parameter(in = ParameterIn.QUERY, name = "filter.reference", description = "Reference", schema = @Schema(type = SchemaType.STRING))
 			@QueryParam("filter.reference") String filterReference,
-			@Parameter(in = ParameterIn.QUERY, name = "filter.disease", description = "Ontology term name", schema = @Schema(type = SchemaType.STRING))
-			@QueryParam("filter.object") String diseaseTerm,
+			@Parameter(in = ParameterIn.QUERY, name = "filter.object.curie", description = "Ontology term name", schema = @Schema(type = SchemaType.STRING))
+			@QueryParam("filter.object.curie") String diseaseTerm,
 			@Parameter(in = ParameterIn.QUERY, name = "filter.source", description = "Source", schema = @Schema(type = SchemaType.STRING))
 			@QueryParam("filter.provider") String filterSource,
 			@Parameter(in = ParameterIn.QUERY, name = "filter.geneticEntity", description = "geneticEntity", schema = @Schema(type = SchemaType.STRING))
 			@QueryParam("filter.geneticEntity") String geneticEntity,
 			@Parameter(in = ParameterIn.QUERY, name = "filter.geneticEntityType", description = "geneticEntityType", schema = @Schema(type = SchemaType.STRING))
 			@QueryParam("filter.geneticEntityType") String geneticEntityType,
-			@Parameter(in = ParameterIn.QUERY, name = "filter.associationType", description = "associationType", schema = @Schema(type = SchemaType.STRING))
+			@Parameter(in = ParameterIn.QUERY, name = "filter.diseaseRelation.name", description = "associationType", schema = @Schema(type = SchemaType.STRING))
 			@QueryParam("filter.diseaseRelation.name") String associationType,
 			@Parameter(in = ParameterIn.QUERY, name = "filter.evidenceCode", description = "evidenceCode", schema = @Schema(type = SchemaType.STRING))
 			@QueryParam("filter.evidenceCode") String evidenceCode,
