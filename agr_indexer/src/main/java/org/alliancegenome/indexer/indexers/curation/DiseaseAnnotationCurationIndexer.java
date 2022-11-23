@@ -1,22 +1,9 @@
 package org.alliancegenome.indexer.indexers.curation;
 
-import java.io.FileOutputStream;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.LinkedBlockingDeque;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import org.alliancegenome.curation_api.config.RestDefaultObjectMapper;
-import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.AffectedGenomicModel;
-import org.alliancegenome.curation_api.model.entities.Allele;
-import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.DiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.Gene;
-import org.alliancegenome.curation_api.model.entities.GeneDiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.*;
 import org.alliancegenome.curation_api.view.View;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
@@ -27,16 +14,24 @@ import org.alliancegenome.indexer.indexers.curation.document.GeneDiseaseAnnotati
 import org.alliancegenome.indexer.indexers.curation.service.AGMDiseaseAnnotationService;
 import org.alliancegenome.indexer.indexers.curation.service.AlleleDiseaseAnnotationService;
 import org.alliancegenome.indexer.indexers.curation.service.GeneDiseaseAnnotationService;
+import org.alliancegenome.indexer.indexers.curation.service.VocabularyService;
 import org.apache.commons.lang3.tuple.Pair;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.LinkedBlockingDeque;
 
 public class DiseaseAnnotationCurationIndexer extends Indexer {
 
 	private GeneDiseaseAnnotationService geneService = new GeneDiseaseAnnotationService();
 	private AlleleDiseaseAnnotationService alleleService = new AlleleDiseaseAnnotationService();
 	private AGMDiseaseAnnotationService agmService = new AGMDiseaseAnnotationService();
+	private VocabularyService vocabService = new VocabularyService();
 
 
 	private Map<String, Pair<Gene, ArrayList<DiseaseAnnotation>>> geneMap = new HashMap<>();
@@ -103,7 +98,11 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 				if (gdad == null) {
 					gdad = new GeneDiseaseAnnotationDocument();
 					gdad.setSubject(entry.getValue().getLeft());
-					gdad.setDiseaseRelation(da.getDiseaseRelation());
+					if (da instanceof AGMDiseaseAnnotation || da instanceof AlleleDiseaseAnnotation) {
+						gdad.setDiseaseRelation(vocabService.getVocabularyTerm("is_implicated_in"));
+					} else {
+						gdad.setDiseaseRelation(da.getDiseaseRelation());
+					}
 					gdad.setObject(da.getObject());
 					lookup.put(key, gdad);
 				}
@@ -215,6 +214,22 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 			pair.getRight().add(da);
 		}
 
+	}
+
+	private DiseaseAnnotation getGeneDiseaseAnnotation(Gene gene, DiseaseAnnotation da) {
+		GeneDiseaseAnnotation annotation = new GeneDiseaseAnnotation();
+		annotation.setSubject(gene);
+		annotation.setWith(da.getWith());
+		annotation.setInternal(da.getInternal());
+		annotation.setSingleReference(da.getSingleReference());
+		annotation.setDataProvider(da.getDataProvider());
+		annotation.setSecondaryDataProvider(da.getSecondaryDataProvider());
+		annotation.setObject(da.getObject());
+		annotation.setEvidenceCodes(da.getEvidenceCodes());
+		annotation.setConditionRelations(da.getConditionRelations());
+		annotation.setDiseaseGeneticModifier(da.getDiseaseGeneticModifier());
+		annotation.setDiseaseRelation(vocabService.getVocabularyTerm("is_implicated_in"));
+		return annotation;
 	}
 
 	private void indexAGMs() {
