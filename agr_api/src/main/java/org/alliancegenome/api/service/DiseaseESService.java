@@ -58,7 +58,14 @@ public class DiseaseESService {
 		HashMap<String, String> filterOptionMap = pagination.getFilterOptionMap();
 		if (MapUtils.isNotEmpty(filterOptionMap)) {
 			filterOptionMap.forEach((filterName, filterValue) -> {
-				bool.must(QueryBuilders.wildcardQuery(filterName, "*" + filterValue + "*"));
+				if (filterValue.contains("|")) {
+					BoolQueryBuilder orClause = boolQuery();
+					String[] elements = filterValue.split("\\|");
+					Arrays.stream(elements).forEach(element -> orClause.should(QueryBuilders.termQuery(filterName, element)));
+					bool.must(orClause);
+				} else {
+					bool.must(QueryBuilders.wildcardQuery(filterName, "*" + filterValue + "*"));
+				}
 			});
 		}
 
