@@ -15,7 +15,7 @@ cacherrun:
 	java -jar agr_cacher/target/agr_cacher-jar-with-dependencies.jar
 
 apirun:
-	make -C agr_api run
+	mvn compile quarkus:dev -pl agr_api -am
 
 apitesterrun:
 	make -C agr_api_tester run
