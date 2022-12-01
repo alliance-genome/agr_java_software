@@ -17,8 +17,7 @@ import lombok.extern.log4j.Log4j2;
 @RequestScoped
 public class GeneCacheRepository {
 
-	@Inject
-	private CacheService cacheService;
+	@Inject CacheService cacheService;
 
 	public List<OrthologView> getAllOrthologyGenes(List<String> geneIDs) {
 		List<OrthologView> fullOrthologyList = new ArrayList<>();

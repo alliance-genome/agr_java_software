@@ -92,7 +92,7 @@ public class ConfigHelper {
 		allKeys = defaults.keySet();
 
 		if (configProperties.size() == 0) {
-			final String configPropertiesFileName = "config.properties";
+			final String configPropertiesFileName = "application.properties";
 			configProperties = FileHelper.getPropertiesFromFile(configPropertiesFileName);
 		}
 

@@ -22,8 +22,7 @@ import lombok.extern.log4j.Log4j2;
 @RequestScoped
 public class SiteMapController implements SiteMapRESTInterface {
 
-	@Inject
-	private SiteMapCacheManager manager;
+	@Inject SiteMapCacheManager manager;
 	//private final Logger log = Logger.getLogger(getClass());
 
 	@Override

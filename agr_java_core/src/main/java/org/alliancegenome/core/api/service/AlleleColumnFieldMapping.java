@@ -1,11 +1,11 @@
-package org.alliancegenome.api.service;
+package org.alliancegenome.core.api.service;
 
 import static java.util.stream.Collectors.toSet;
-import static org.alliancegenome.api.service.Column.GENE_ALLELE_CATEGORY;
-import static org.alliancegenome.api.service.Column.GENE_ALLELE_HAS_DISEASE;
-import static org.alliancegenome.api.service.Column.GENE_ALLELE_HAS_PHENOTYPE;
-import static org.alliancegenome.api.service.Column.GENE_ALLELE_VARIANT_CONSEQUENCE;
-import static org.alliancegenome.api.service.Column.GENE_ALLELE_VARIANT_TYPE;
+import static org.alliancegenome.core.api.service.Column.GENE_ALLELE_CATEGORY;
+import static org.alliancegenome.core.api.service.Column.GENE_ALLELE_HAS_DISEASE;
+import static org.alliancegenome.core.api.service.Column.GENE_ALLELE_HAS_PHENOTYPE;
+import static org.alliancegenome.core.api.service.Column.GENE_ALLELE_VARIANT_CONSEQUENCE;
+import static org.alliancegenome.core.api.service.Column.GENE_ALLELE_VARIANT_TYPE;
 
 import java.util.Collection;
 import java.util.HashMap;

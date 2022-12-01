@@ -26,8 +26,7 @@ import org.alliancegenome.es.model.query.Pagination;
 @Consumes(MediaType.APPLICATION_JSON)
 public class CacheController implements CacheRESTInterface {
 
-	@Inject
-	private CacheStatusService service;
+	@Inject CacheStatusService service;
 
 	@Override
 	public JsonResultResponse<CacheStatus> getCacheStatus(

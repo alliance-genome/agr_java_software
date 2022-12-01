@@ -18,12 +18,12 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
-import org.alliancegenome.api.entity.EntitySubgroupSlim;
-import org.alliancegenome.api.entity.ExpressionSummary;
-import org.alliancegenome.api.entity.ExpressionSummaryGroup;
-import org.alliancegenome.api.entity.ExpressionSummaryGroupTerm;
-import org.alliancegenome.api.entity.RibbonEntity;
-import org.alliancegenome.api.entity.RibbonSummary;
+import org.alliancegenome.api.dto.EntitySubgroupSlim;
+import org.alliancegenome.api.dto.ExpressionSummary;
+import org.alliancegenome.api.dto.ExpressionSummaryGroup;
+import org.alliancegenome.api.dto.ExpressionSummaryGroupTerm;
+import org.alliancegenome.api.dto.RibbonEntity;
+import org.alliancegenome.api.dto.RibbonSummary;
 import org.alliancegenome.cache.repository.ExpressionCacheRepository;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.cache.repository.helper.PaginationResult;
@@ -49,11 +49,9 @@ public class ExpressionService {
 
 	private static GeneRepository geneRepository = new GeneRepository();
 	
-	@Inject
-	private ExpressionCacheRepository expressionCacheRepository;
+	@Inject ExpressionCacheRepository expressionCacheRepository;
 
-	@Inject
-	private ExpressionRibbonService service;
+	@Inject ExpressionRibbonService service;
 
 	public static final String CELLULAR_COMPONENT = "Subcellular";
 

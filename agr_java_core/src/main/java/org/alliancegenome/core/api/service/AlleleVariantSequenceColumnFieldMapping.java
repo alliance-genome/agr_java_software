@@ -1,15 +1,15 @@
-package org.alliancegenome.api.service;
+package org.alliancegenome.core.api.service;
 
-import static org.alliancegenome.api.service.Column.GENE_ALLELE_VARIANT_SEQUENCE_ASSOCIATED_GENE;
-import static org.alliancegenome.api.service.Column.GENE_ALLELE_VARIANT_SEQUENCE_CATEGORY;
-import static org.alliancegenome.api.service.Column.GENE_ALLELE_VARIANT_SEQUENCE_CONSEQUENCE;
-import static org.alliancegenome.api.service.Column.GENE_ALLELE_VARIANT_SEQUENCE_HAS_DISEASE;
-import static org.alliancegenome.api.service.Column.GENE_ALLELE_VARIANT_SEQUENCE_HAS_PHENOTYPE;
-import static org.alliancegenome.api.service.Column.GENE_ALLELE_VARIANT_SEQUENCE_IMPACT;
-import static org.alliancegenome.api.service.Column.GENE_ALLELE_VARIANT_SEQUENCE_TYPE;
-import static org.alliancegenome.api.service.Column.GENE_ALLELE_VARIANT_SEQUENCE_VARIANT_POLYPHEN;
-import static org.alliancegenome.api.service.Column.GENE_ALLELE_VARIANT_SEQUENCE_VARIANT_SIFT;
-import static org.alliancegenome.api.service.Column.GENE_ALLELE_VARIANT_SEQUENCE_VARIANT_TYPE;
+import static org.alliancegenome.core.api.service.Column.GENE_ALLELE_VARIANT_SEQUENCE_ASSOCIATED_GENE;
+import static org.alliancegenome.core.api.service.Column.GENE_ALLELE_VARIANT_SEQUENCE_CATEGORY;
+import static org.alliancegenome.core.api.service.Column.GENE_ALLELE_VARIANT_SEQUENCE_CONSEQUENCE;
+import static org.alliancegenome.core.api.service.Column.GENE_ALLELE_VARIANT_SEQUENCE_HAS_DISEASE;
+import static org.alliancegenome.core.api.service.Column.GENE_ALLELE_VARIANT_SEQUENCE_HAS_PHENOTYPE;
+import static org.alliancegenome.core.api.service.Column.GENE_ALLELE_VARIANT_SEQUENCE_IMPACT;
+import static org.alliancegenome.core.api.service.Column.GENE_ALLELE_VARIANT_SEQUENCE_TYPE;
+import static org.alliancegenome.core.api.service.Column.GENE_ALLELE_VARIANT_SEQUENCE_VARIANT_POLYPHEN;
+import static org.alliancegenome.core.api.service.Column.GENE_ALLELE_VARIANT_SEQUENCE_VARIANT_SIFT;
+import static org.alliancegenome.core.api.service.Column.GENE_ALLELE_VARIANT_SEQUENCE_VARIANT_TYPE;
 
 import java.util.HashMap;
 import java.util.HashSet;

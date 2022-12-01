@@ -2,7 +2,7 @@ package org.alliancegenome.es.index.site.schema;
 
 import java.io.IOException;
 
-import org.elasticsearch.xcontent.XContentBuilder;
+import org.elasticsearch.common.xcontent.XContentBuilder;
 
 public class Mapping extends Builder {
 	

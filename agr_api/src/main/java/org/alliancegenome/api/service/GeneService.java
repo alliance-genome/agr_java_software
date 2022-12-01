@@ -34,17 +34,13 @@ public class GeneService {
 	private static InteractionRepository interRepo = new InteractionRepository();
 	private static PhenotypeRepository phenoRepo = new PhenotypeRepository();
 	
-	@Inject
-	private AlleleVariantIndexService alleleVariantIndexService;
+	@Inject AlleleVariantIndexService alleleVariantIndexService;
 	
-	@Inject
-	private AlleleCacheRepository alleleCacheRepository;
+	@Inject AlleleCacheRepository alleleCacheRepository;
 
-	@Inject
-	private InteractionCacheRepository interCacheRepo;
+	@Inject InteractionCacheRepository interCacheRepo;
 
-	@Inject
-	private PhenotypeCacheRepository phenoCacheRepo;
+	@Inject PhenotypeCacheRepository phenoCacheRepo;
 
 	public Gene getById(String id) {
 		Gene gene = geneRepo.getOneGene(id);

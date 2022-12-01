@@ -1,4 +1,4 @@
-package org.alliancegenome.api.entity;
+package org.alliancegenome.api.dto;
 
 import org.alliancegenome.neo4j.view.View;
 

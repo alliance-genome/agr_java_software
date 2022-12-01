@@ -19,7 +19,7 @@ import lombok.extern.log4j.Log4j2;
 public class SiteMapCacheManager {
 
 	@Inject
-	private CacheService cacheService;
+	CacheService cacheService;
 
 	public List<XMLURL> getGenes(String key) {
 
@@ -30,9 +30,9 @@ public class SiteMapCacheManager {
 		for (String id : allIds) {
 			Date date = null;
 
-			//if(hit.getSource().get("dateProduced") != null) {
-			//	date = new Date((long)hit.getSource().get("dateProduced"));
-			//}
+			// if(hit.getSource().get("dateProduced") != null) {
+			// date = new Date((long)hit.getSource().get("dateProduced"));
+			// }
 
 			urls.add(new XMLURL("gene/" + id, ConfigHelper.getAppStart(), "monthly", "0.6"));
 		}
@@ -49,16 +49,15 @@ public class SiteMapCacheManager {
 		for (String id : allIds) {
 			Date date = null;
 
-			//if(hit.getSource().get("dateProduced") != null) {
-			//	date = new Date((long)hit.getSource().get("dateProduced"));
-			//}
+			// if(hit.getSource().get("dateProduced") != null) {
+			// date = new Date((long)hit.getSource().get("dateProduced"));
+			// }
 
 			urls.add(new XMLURL("disease/" + id, ConfigHelper.getAppStart(), "monthly", "0.6"));
 		}
 
 		return urls;
 	}
-
 
 	public List<String> getGenesKeys() {
 		return cacheService.getAllKeys(CacheAlliance.SITEMAP_GENE);
@@ -67,7 +66,7 @@ public class SiteMapCacheManager {
 	public List<String> getDiseaseKeys() {
 		return cacheService.getAllKeys(CacheAlliance.SITEMAP_DISEASE);
 	}
-	
+
 	public List<String> getAlleleKeys() {
 		return cacheService.getAllKeys(CacheAlliance.SITEMAP_ALLELE);
 	}

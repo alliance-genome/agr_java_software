@@ -1,0 +1,42 @@
+
+DEBUG=false
+ES_HOST=build.alliancegenome.org
+NEO4J_HOST=build.alliancegenome.org
+CACHE_HOST=build.alliancegenome.org
+
+AWS_BUCKET_NAME=
+AWS_ACCESS_KEY=
+AWS_SECRET_KEY=
+
+
+API_HOST = localhost
+ES_INDEX_PREFIX = 
+
+ES_BULK_CONCURRENT_REQUESTS = 4
+VARIANT_DOWNLOAD_PATH = data
+ES_BULK_REQUEST_SIZE = 4
+
+ES_INDEX_SUFFIX = 
+THREADED = true
+
+CURATION_API_URL = http://localhost:8080/api
+AO_TERM_LIST = anatomy-term-order.csv
+POPULARITY_DOWNLOAD_URL = https://raw.githubusercontent.com/alliance-genome/agr_pageview_popularity_calculator/master/alliance_popularity.tsv
+CACHE_PORT = 11222
+RIBBON_TERM_SPECIES_APPLICABILITY = ribbon-term-species-applicability.csv
+API_SECURE = false
+ES_PORT = 9200
+VARIANT_CACHER_CONFIG_FILE = variantDownloadFiles.yaml
+CURATION_API_TOKEN =
+POPULARITY_FILE_NAME = alliance_popularity.tsv
+AWS_BUCKET_NAME = mod-datadumps-dev
+NEO4J_PORT = 7687
+FMS_URL = https://fms.alliancegenome.org/api
+
+ALLIANCE_RELEASE = 0.0.0
+EXTRACTOR_OUTPUTDIR = data
+ES_BULK_ACTION_SIZE = 400
+INDEX_VARIANTS = false
+API_PORT = 8080
+ES_INDEX = site_index
+GO_TERM_LIST = go-term-order.csv

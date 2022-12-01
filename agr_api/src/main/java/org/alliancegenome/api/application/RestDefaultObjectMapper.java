@@ -4,7 +4,6 @@ import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Provider;
 
 import org.alliancegenome.api.json.APIBeanSerializerModifier;
-import org.alliancegenome.core.config.ConfigHelper;
 
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,20 +15,17 @@ public class RestDefaultObjectMapper implements ContextResolver<ObjectMapper> {
 	private final ObjectMapper mapper;
 
 	public RestDefaultObjectMapper() {
+		//Log.error("Does this happen? 1");
 		mapper = new ObjectMapper();
 		mapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false);
 		mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-		if (!ConfigHelper.isProduction())
-			mapper.enable(SerializationFeature.INDENT_OUTPUT);
 		mapper.setSerializerFactory(mapper.getSerializerFactory().withSerializerModifier(new APIBeanSerializerModifier()));
 	}
 
 	@Override
 	public ObjectMapper getContext(Class<?> type) {
+		//Log.error("Does this happen? 2");
 		return mapper;
 	}
 
-	public ObjectMapper getMapper() {
-		return mapper;
-	}
 }

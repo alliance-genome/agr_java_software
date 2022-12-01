@@ -11,6 +11,7 @@ import javax.enterprise.context.RequestScoped;
 import org.alliancegenome.cache.repository.helper.AlleleFiltering;
 import org.alliancegenome.cache.repository.helper.AlleleSorting;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
+import org.alliancegenome.core.api.service.FilterService;
 import org.alliancegenome.es.index.site.dao.VariantESDAO;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.node.Allele;

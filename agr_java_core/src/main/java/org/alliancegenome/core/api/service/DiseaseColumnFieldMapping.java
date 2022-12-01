@@ -1,13 +1,13 @@
-package org.alliancegenome.api.service;
+package org.alliancegenome.core.api.service;
 
-import static org.alliancegenome.api.service.Column.ALLELE_ASSOCIATION;
-import static org.alliancegenome.api.service.Column.ALLELE_SPECIES;
-import static org.alliancegenome.api.service.Column.ASSOCIATES_GENES_ASSOCIATION;
-import static org.alliancegenome.api.service.Column.ASSOCIATES_GENES_SPECIES;
-import static org.alliancegenome.api.service.Column.DISEASE_ASSOCIATION;
-import static org.alliancegenome.api.service.Column.DISEASE_SPECIES;
-import static org.alliancegenome.api.service.Column.MODEL_ASSOCIATION_TYPE;
-import static org.alliancegenome.api.service.Column.MODEL_SPECIES;
+import static org.alliancegenome.core.api.service.Column.ALLELE_ASSOCIATION;
+import static org.alliancegenome.core.api.service.Column.ALLELE_SPECIES;
+import static org.alliancegenome.core.api.service.Column.ASSOCIATES_GENES_ASSOCIATION;
+import static org.alliancegenome.core.api.service.Column.ASSOCIATES_GENES_SPECIES;
+import static org.alliancegenome.core.api.service.Column.DISEASE_ASSOCIATION;
+import static org.alliancegenome.core.api.service.Column.DISEASE_SPECIES;
+import static org.alliancegenome.core.api.service.Column.MODEL_ASSOCIATION_TYPE;
+import static org.alliancegenome.core.api.service.Column.MODEL_SPECIES;
 
 import java.util.HashMap;
 import java.util.Map;

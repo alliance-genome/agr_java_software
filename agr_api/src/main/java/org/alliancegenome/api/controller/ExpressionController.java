@@ -7,11 +7,9 @@ import java.util.Objects;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
-import org.alliancegenome.api.entity.RibbonSummary;
+import org.alliancegenome.api.dto.RibbonSummary;
 import org.alliancegenome.api.rest.interfaces.ExpressionRESTInterface;
 import org.alliancegenome.api.service.EntityType;
 import org.alliancegenome.api.service.ExpressionService;
@@ -39,14 +37,12 @@ import lombok.extern.log4j.Log4j2;
 @RequestScoped
 public class ExpressionController implements ExpressionRESTInterface {
 
-	@Context
-	private HttpServletRequest request;
+	//@Context
+	//private HttpRequest request;
 
-	@Inject
-	private ExpressionService expressionService;
+	@Inject ExpressionService expressionService;
 
-	@Inject
-	private GeneService geneService;
+	@Inject GeneService geneService;
 	
 	private static final ExpressionToTdfTranslator expressionTranslator = new ExpressionToTdfTranslator();
 
@@ -82,7 +78,7 @@ public class ExpressionController implements ExpressionRESTInterface {
 					sortBy,
 					asc);
 			response.calculateRequestDuration(startDate);
-			response.setHttpServletRequest(request);
+			response.setHttpServletRequest(null);
 			return response;
 		} catch (Exception e) {
 			log.error("Error while retrieving expression data", e);
@@ -125,7 +121,7 @@ public class ExpressionController implements ExpressionRESTInterface {
 
 		LocalDateTime startDate = LocalDateTime.now();
 		JsonResultResponse<ExpressionDetail> response = new JsonResultResponse<>();
-		response.setHttpServletRequest(request);
+		response.setHttpServletRequest(null);
 
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);

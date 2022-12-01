@@ -1,4 +1,4 @@
-package org.alliancegenome.api.entity;
+package org.alliancegenome.api.dto;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

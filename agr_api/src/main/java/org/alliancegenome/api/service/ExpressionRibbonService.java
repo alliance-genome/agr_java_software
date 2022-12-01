@@ -8,8 +8,8 @@ import java.util.Map;
 
 import javax.enterprise.context.RequestScoped;
 
-import org.alliancegenome.api.entity.RibbonSection;
-import org.alliancegenome.api.entity.RibbonSummary;
+import org.alliancegenome.api.dto.RibbonSection;
+import org.alliancegenome.api.dto.RibbonSummary;
 import org.alliancegenome.api.entity.SectionSlim;
 import org.alliancegenome.cache.repository.ExpressionCacheRepository;
 import org.alliancegenome.neo4j.entity.node.GOTerm;

@@ -10,12 +10,11 @@ import org.alliancegenome.neo4j.entity.node.GOTerm;
 @RequestScoped
 public class GoController implements GoRESTInterface {
 
-    @Inject
-    private GoService goService;
+	@Inject GoService goService;
 
-    @Override
-    public GOTerm getGo(String id) {
-        return goService.getById(id);
-    }
+	@Override
+	public GOTerm getGo(String id) {
+		return goService.getById(id);
+	}
 
 }

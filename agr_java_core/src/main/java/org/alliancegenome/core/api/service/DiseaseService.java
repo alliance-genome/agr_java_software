@@ -1,4 +1,4 @@
-package org.alliancegenome.api.service;
+package org.alliancegenome.core.api.service;
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
@@ -53,11 +53,9 @@ public class DiseaseService {
 	private static DiseaseRepository diseaseRepository = new DiseaseRepository();
 	private static GeneRepository geneRepository = new GeneRepository();
 
-	@Inject
-	private DiseaseCacheRepository diseaseCacheRepository;
+	@Inject DiseaseCacheRepository diseaseCacheRepository;
 
-	@Inject
-	private PhenotypeCacheRepository phenotypeCacheRepository;
+	@Inject PhenotypeCacheRepository phenotypeCacheRepository;
 
 	private DiseaseRibbonService diseaseRibbonService = new DiseaseRibbonService(diseaseRepository);
 

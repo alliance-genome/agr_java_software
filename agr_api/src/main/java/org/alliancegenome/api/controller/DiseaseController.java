@@ -3,6 +3,7 @@ package org.alliancegenome.api.controller;
 import static org.alliancegenome.api.service.EntityType.DISEASE;
 import static org.alliancegenome.api.service.EntityType.GENE;
 
+import java.net.http.HttpRequest;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -14,11 +15,9 @@ import java.util.stream.Collectors;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.alliancegenome.api.application.RestDefaultObjectMapper;
 import org.alliancegenome.api.rest.interfaces.DiseaseRESTInterface;
 import org.alliancegenome.api.service.DiseaseESService;
 import org.alliancegenome.api.service.DiseaseService;
@@ -26,6 +25,7 @@ import org.alliancegenome.api.service.EntityType;
 import org.alliancegenome.api.service.helper.APIServiceHelper;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.cache.repository.helper.SortingField;
+import org.alliancegenome.core.api.service.DiseaseService;
 import org.alliancegenome.core.exceptions.RestErrorException;
 import org.alliancegenome.core.exceptions.RestErrorMessage;
 import org.alliancegenome.core.translators.tdf.DiseaseAnnotationToTdfTranslator;
@@ -43,6 +43,7 @@ import org.elasticsearch.search.SearchHit;
 import org.jose4j.json.internal.json_simple.JSONObject;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.log4j.Log4j2;
 
@@ -50,17 +51,14 @@ import lombok.extern.log4j.Log4j2;
 @RequestScoped
 public class DiseaseController implements DiseaseRESTInterface {
 
-	@Inject
-	private HttpServletRequest request;
+	//@Inject
+	//private HttpRequest request;
 
-	@Inject
-	RestDefaultObjectMapper mapper;
+	@Inject ObjectMapper mapper;
 
-	@Inject
-	private DiseaseService diseaseService;
+	@Inject DiseaseService diseaseService;
 	
-	@Inject
-	private DiseaseESService diseaseESService;
+	@Inject DiseaseESService diseaseESService;
 	
 	private final DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();
 
@@ -111,7 +109,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 		}
 		try {
 			JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotationsByDisease(id, pagination);
-			response.setHttpServletRequest(request);
+			response.setHttpServletRequest(null);
 			response.calculateRequestDuration(startTime);
 
 			return response;
@@ -158,7 +156,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 		}
 		try {
 			JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotationsWithAlleles(id, pagination);
-			response.setHttpServletRequest(request);
+			response.setHttpServletRequest(null);
 			response.calculateRequestDuration(startTime);
 
 			return response;
@@ -247,7 +245,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 				APIServiceHelper.setDownloadHeader(id, EntityType.DISEASE, EntityType.GENE, responseBuilder);
 			} else if (downloadFileType.equalsIgnoreCase("JSON")) {
 				try {
-					String data = mapper.getMapper().writerWithView(View.DiseaseAnnotationSummary.class).writeValueAsString(response);
+					String data = mapper.writerWithView(View.DiseaseAnnotationSummary.class).writeValueAsString(response);
 					responseBuilder = Response.ok(data);
 					APIServiceHelper.setDownloadHeader(id, EntityType.DISEASE, EntityType.GENE, responseBuilder);
 				} catch (JsonProcessingException e) {
@@ -296,7 +294,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 		}
 		try {
 			JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotationsWithGenes(id, pagination);
-			response.setHttpServletRequest(request);
+			response.setHttpServletRequest(null);
 			response.calculateRequestDuration(startTime);
 
 			return response;
@@ -339,7 +337,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 		}
 		try {
 			JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotationsWithAGM(id, pagination);
-			response.setHttpServletRequest(request);
+			response.setHttpServletRequest(null);
 			response.calculateRequestDuration(startTime);
 
 			return response;
@@ -436,7 +434,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 	@Override
 	public JsonResultResponse<JSONObject> getDiseaseAnnotationsRibbonDetails(List<String> geneIDs,
 																					String termID,
-		    	      															    String filterOptions,
+																					String filterOptions,
 																					String filterSpecies,
 																					String filterGene,
 																					String filterReference,
@@ -473,9 +471,8 @@ public class DiseaseController implements DiseaseRESTInterface {
 			throw new RestErrorException(message);
 		}
 		try {
-			// TODO
 			JsonResultResponse<JSONObject> response = diseaseESService.getRibbonDiseaseAnnotations(geneIDs, termID, pagination);
-			response.setHttpServletRequest(request);
+			response.setHttpServletRequest(null);
 			response.calculateRequestDuration(startDate);
 			return response;
 		} catch (Exception e) {
@@ -527,7 +524,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 		}
 		try {
 			JsonResultResponse<DiseaseAnnotation> response = diseaseService.getRibbonDiseaseAnnotations(geneIDs, termID, pagination);
-			response.setHttpServletRequest(request);
+			response.setHttpServletRequest(null);
 			response.calculateRequestDuration(startDate);
 			// translate all records
 			responseBuilder = Response.ok(translator.getAllRowsForGenes(response.getResults()));

@@ -1,6 +1,6 @@
-package org.alliancegenome.api.service;
+package org.alliancegenome.core.api.service;
 
-import static org.alliancegenome.api.service.Column.EXPRESSION_SPECIES;
+import static org.alliancegenome.core.api.service.Column.EXPRESSION_SPECIES;
 
 import java.util.HashMap;
 import java.util.Map;

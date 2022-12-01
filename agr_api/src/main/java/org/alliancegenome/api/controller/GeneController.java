@@ -1,6 +1,7 @@
 package org.alliancegenome.api.controller;
 
 
+import java.net.http.HttpRequest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -10,28 +11,27 @@ import java.util.stream.Collectors;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.alliancegenome.api.dto.ExpressionSummary;
+import org.alliancegenome.api.dto.JoinTypeValue;
 import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
-import org.alliancegenome.api.entity.ExpressionSummary;
-import org.alliancegenome.api.entity.JoinTypeValue;
 import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
 import org.alliancegenome.api.service.AlleleService;
-import org.alliancegenome.api.service.DiseaseService;
 import org.alliancegenome.api.service.EntityType;
 import org.alliancegenome.api.service.ExpressionService;
 import org.alliancegenome.api.service.GeneService;
-import org.alliancegenome.api.service.InteractionColumnFieldMapping;
 import org.alliancegenome.api.service.helper.APIServiceHelper;
 import org.alliancegenome.cache.repository.ExpressionCacheRepository;
 import org.alliancegenome.cache.repository.OrthologyCacheRepository;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
+import org.alliancegenome.core.api.service.DiseaseService;
+import org.alliancegenome.core.api.service.InteractionColumnFieldMapping;
 import org.alliancegenome.core.exceptions.RestErrorException;
 import org.alliancegenome.core.exceptions.RestErrorMessage;
 import org.alliancegenome.core.translators.tdf.AlleleToTdfTranslator;
@@ -58,29 +58,22 @@ import lombok.extern.log4j.Log4j2;
 @RequestScoped
 public class GeneController implements GeneRESTInterface {
 
-	@Inject
-	private GeneService geneService;
+	@Inject GeneService geneService;
 
-	@Inject
-	private AlleleService alleleService;
+	@Inject AlleleService alleleService;
 
-	@Inject
-	private OrthologyCacheRepository orthologyService;
+	@Inject OrthologyCacheRepository orthologyService;
 
-	@Inject
-	private ExpressionCacheRepository expressionCacheRepository;
+	@Inject ExpressionCacheRepository expressionCacheRepository;
 
-	@Inject
-	private DiseaseService diseaseService;
+	@Inject DiseaseService diseaseService;
 
-	@Inject
-	private OrthologyCacheRepository orthologyCacheService;
+	@Inject OrthologyCacheRepository orthologyCacheService;
 
-	@Inject
-	private HttpServletRequest request;
+	//@Inject
+	//private HttpRequest request;
 
-	@Inject
-	private ExpressionService service;
+	@Inject ExpressionService service;
 
 	private static final PhenotypeAnnotationToTdfTranslator translator = new PhenotypeAnnotationToTdfTranslator();
 	private static final AlleleToTdfTranslator alleleTanslator = new AlleleToTdfTranslator();
@@ -128,7 +121,7 @@ public class GeneController implements GeneRESTInterface {
 
 		try {
 			JsonResultResponse<Allele> alleles = geneService.getAlleles(id, pagination);
-			alleles.setHttpServletRequest(request);
+			alleles.setHttpServletRequest(null);
 			alleles.calculateRequestDuration(startTime);
 			return alleles;
 		} catch (Exception e) {
@@ -188,7 +181,7 @@ public class GeneController implements GeneRESTInterface {
 
 		try {
 			JsonResultResponse<AlleleVariantSequence> alleles = geneService.getAllelesAndVariantInfo(id, pagination);
-			alleles.setHttpServletRequest(request);
+			alleles.setHttpServletRequest(null);
 			alleles.calculateRequestDuration(startTime);
 			return alleles;
 		} catch (Exception e) {
@@ -322,7 +315,7 @@ public class GeneController implements GeneRESTInterface {
 		}
 		try {
 			JsonResultResponse<InteractionGeneJoin> interactions = geneService.getInteractions(id, pagination, joinType.getName());
-			interactions.setHttpServletRequest(request);
+			interactions.setHttpServletRequest(null);
 			interactions.calculateRequestDuration(startTime);
 			return interactions;
 		} catch (Exception e) {
@@ -383,7 +376,7 @@ public class GeneController implements GeneRESTInterface {
 		long startTime = System.currentTimeMillis();
 		try {
 			JsonResultResponse<PhenotypeAnnotation> phenotypes = getPhenotypeAnnotationDocumentJsonResultResponse(id, limit, page, sortBy, geneticEntity, geneticEntityType, phenotype, reference, asc);
-			phenotypes.setHttpServletRequest(request);
+			phenotypes.setHttpServletRequest(null);
 			phenotypes.calculateRequestDuration(startTime);
 			return phenotypes;
 		} catch (Exception e) {
@@ -427,7 +420,7 @@ public class GeneController implements GeneRESTInterface {
 		long startTime = System.currentTimeMillis();
 		try {
 			JsonResultResponse<DiseaseAnnotation> diseases = getDiseaseAnnotationDocumentJsonResultResponse(id, limit, page, sortBy, geneticEntity, geneticEntityType, disease, reference, asc);
-			diseases.setHttpServletRequest(request);
+			diseases.setHttpServletRequest(null);
 			diseases.calculateRequestDuration(startTime);
 			return diseases;
 		} catch (Exception e) {
@@ -486,7 +479,7 @@ public class GeneController implements GeneRESTInterface {
 		}
 		try {
 			JsonResultResponse<PrimaryAnnotatedEntity> response = diseaseService.getDiseaseAnnotationsWithGeneAndAGM(id, pagination);
-			response.setHttpServletRequest(request);
+			response.setHttpServletRequest(null);
 			response.calculateRequestDuration(startTime);
 			return response;
 		} catch (Exception e) {
@@ -579,7 +572,7 @@ public class GeneController implements GeneRESTInterface {
 		pagination.addFieldFilter(FieldFilter.ORTHOLOGY_METHOD, method);
 		pagination.addFieldFilter(FieldFilter.ORTHOLOGY_TAXON, taxonID);
 		final JsonResultResponse<OrthologView> response = orthologyService.getOrthologyMultiGeneJson(geneList, pagination);
-		response.setHttpServletRequest(request);
+		response.setHttpServletRequest(null);
 		return response;
 	}
 
@@ -602,7 +595,7 @@ public class GeneController implements GeneRESTInterface {
 				.collect(Collectors.toList());
 		orthologs.setResults(filteredList);
 		orthologs.setTotal(filteredList.size());
-		orthologs.setHttpServletRequest(request);
+		orthologs.setHttpServletRequest(null);
 		orthologs.calculateRequestDuration(startTime);
 		return orthologs;
 	}
@@ -741,7 +734,7 @@ public class GeneController implements GeneRESTInterface {
 		}
 		try {
 			JsonResultResponse<Allele> response = alleleService.getTransgenicAlleles(geneID, pagination);
-			response.setHttpServletRequest(request);
+			response.setHttpServletRequest(null);
 			return response;
 		} catch (Exception e) {
 			log.error("Error while retrieving transgenic allele info", e);

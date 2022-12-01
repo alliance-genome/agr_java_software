@@ -1,20 +1,20 @@
-package org.alliancegenome.api.service;
+package org.alliancegenome.core.api.service;
 
-import static org.alliancegenome.api.service.Column.GENETIC_PERTURBATION;
-import static org.alliancegenome.api.service.Column.INERACTION_SOURCE;
-import static org.alliancegenome.api.service.Column.INTERACTION_TYPE;
-import static org.alliancegenome.api.service.Column.INTERACTOR_DETECTION_METHOD;
-import static org.alliancegenome.api.service.Column.INTERACTOR_GENETIC_PERTURBATION;
-import static org.alliancegenome.api.service.Column.INTERACTOR_GENE_SYMBOL;
-import static org.alliancegenome.api.service.Column.INTERACTOR_MOLECULE_TYPE;
-import static org.alliancegenome.api.service.Column.INTERACTOR_REFERENCE;
-import static org.alliancegenome.api.service.Column.INTERACTOR_ROLE;
-import static org.alliancegenome.api.service.Column.INTERACTOR_SOURCE;
-import static org.alliancegenome.api.service.Column.INTERACTOR_SPECIES;
-import static org.alliancegenome.api.service.Column.JOIN_TYPE;
-import static org.alliancegenome.api.service.Column.MOLECULE_TYPE;
-import static org.alliancegenome.api.service.Column.PHENOTYPES;
-import static org.alliancegenome.api.service.Column.ROLE;
+import static org.alliancegenome.core.api.service.Column.GENETIC_PERTURBATION;
+import static org.alliancegenome.core.api.service.Column.INERACTION_SOURCE;
+import static org.alliancegenome.core.api.service.Column.INTERACTION_TYPE;
+import static org.alliancegenome.core.api.service.Column.INTERACTOR_DETECTION_METHOD;
+import static org.alliancegenome.core.api.service.Column.INTERACTOR_GENETIC_PERTURBATION;
+import static org.alliancegenome.core.api.service.Column.INTERACTOR_GENE_SYMBOL;
+import static org.alliancegenome.core.api.service.Column.INTERACTOR_MOLECULE_TYPE;
+import static org.alliancegenome.core.api.service.Column.INTERACTOR_REFERENCE;
+import static org.alliancegenome.core.api.service.Column.INTERACTOR_ROLE;
+import static org.alliancegenome.core.api.service.Column.INTERACTOR_SOURCE;
+import static org.alliancegenome.core.api.service.Column.INTERACTOR_SPECIES;
+import static org.alliancegenome.core.api.service.Column.JOIN_TYPE;
+import static org.alliancegenome.core.api.service.Column.MOLECULE_TYPE;
+import static org.alliancegenome.core.api.service.Column.PHENOTYPES;
+import static org.alliancegenome.core.api.service.Column.ROLE;
 
 import java.util.HashMap;
 import java.util.HashSet;

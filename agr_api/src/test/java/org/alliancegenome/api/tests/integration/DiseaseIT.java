@@ -8,8 +8,8 @@ import java.util.stream.Collectors;
 
 import org.alliancegenome.api.controller.DiseaseController;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
-import org.alliancegenome.api.service.DiseaseService;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
+import org.alliancegenome.core.api.service.DiseaseService;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.translators.tdf.DiseaseAnnotationToTdfTranslator;
 import org.alliancegenome.es.model.query.*;

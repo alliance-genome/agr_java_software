@@ -1,4 +1,4 @@
-package org.alliancegenome.api.service;
+package org.alliancegenome.core.api.service;
 
 import static org.alliancegenome.api.entity.DiseaseRibbonSummary.DOID_OTHER;
 

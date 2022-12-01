@@ -16,6 +16,8 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import javax.enterprise.context.RequestScoped;
+
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseSummary;
@@ -35,6 +37,7 @@ import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
+@RequestScoped
 public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 
 	public static final String DISEASE_INCLUDING_CHILDREN = "(diseaseParent:DOTerm)<-[:IS_A_PART_OF_CLOSURE]-(disease:DOTerm)";

@@ -1,8 +1,9 @@
-package org.alliancegenome.api.entity;
+package org.alliancegenome.api.dto;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.neo4j.view.View;
 
 import com.fasterxml.jackson.annotation.JsonView;

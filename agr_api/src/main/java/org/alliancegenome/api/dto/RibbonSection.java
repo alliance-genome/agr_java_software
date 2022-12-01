@@ -1,9 +1,10 @@
-package org.alliancegenome.api.entity;
+package org.alliancegenome.api.dto;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.alliancegenome.api.entity.SectionSlim;
 import org.alliancegenome.neo4j.view.View;
 
 import com.fasterxml.jackson.annotation.JsonProperty;

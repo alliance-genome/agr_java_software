@@ -39,7 +39,7 @@ import org.elasticsearch.client.indices.GetIndexResponse;
 import org.elasticsearch.cluster.metadata.AliasMetadata;
 import org.elasticsearch.cluster.metadata.RepositoryMetadata;
 import org.elasticsearch.common.Strings;
-import org.elasticsearch.core.TimeValue;
+import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.snapshots.SnapshotInfo;
 
 import lombok.extern.log4j.Log4j2;

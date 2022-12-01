@@ -10,9 +10,13 @@ import javax.inject.Inject;
 
 import org.alliancegenome.api.controller.GeneController;
 import org.alliancegenome.api.entity.CacheStatus;
-import org.alliancegenome.api.service.*;
+import org.alliancegenome.api.service.AlleleService;
+import org.alliancegenome.api.service.CacheStatusService;
+import org.alliancegenome.api.service.GeneService;
+import org.alliancegenome.api.service.VariantService;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
+import org.alliancegenome.core.api.service.*;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.model.query.*;
 import org.alliancegenome.es.util.EsClientFactory;

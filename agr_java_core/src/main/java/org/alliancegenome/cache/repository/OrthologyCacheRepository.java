@@ -10,10 +10,10 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
-import org.alliancegenome.api.service.FilterService;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.cache.repository.helper.OrthologyFiltering;
 import org.alliancegenome.cache.repository.helper.OrthologySorting;
+import org.alliancegenome.core.api.service.FilterService;
 import org.alliancegenome.es.index.site.doclet.OrthologyDoclet;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.SpeciesType;
@@ -36,14 +36,11 @@ import lombok.Setter;
 @RequestScoped
 public class OrthologyCacheRepository {
 
-	@Inject
-	private GeneCacheRepository repo;
+	@Inject GeneCacheRepository repo;
 	
-	@Inject
-	private ExpressionCacheRepository expressionCacheRepository;
+	@Inject ExpressionCacheRepository expressionCacheRepository;
 	
-	@Inject
-	private DiseaseCacheRepository diseaseCacheRepository;
+	@Inject DiseaseCacheRepository diseaseCacheRepository;
 
 	public static List<OrthologyDoclet> getOrthologyDoclets(Gene gene) {
 		if (gene.getOrthologyGeneJoins().size() > 0) {

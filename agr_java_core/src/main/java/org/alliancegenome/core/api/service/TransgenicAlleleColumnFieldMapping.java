@@ -1,6 +1,6 @@
-package org.alliancegenome.api.service;
+package org.alliancegenome.core.api.service;
 
-import static org.alliancegenome.api.service.Column.TG_ALLELE_SPECIES;
+import static org.alliancegenome.core.api.service.Column.TG_ALLELE_SPECIES;
 
 import java.util.HashMap;
 import java.util.Map;

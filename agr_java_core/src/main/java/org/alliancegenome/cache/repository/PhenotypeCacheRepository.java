@@ -9,13 +9,13 @@ import java.util.Optional;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
-import org.alliancegenome.api.service.FilterService;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.CacheService;
 import org.alliancegenome.cache.repository.helper.PaginationResult;
 import org.alliancegenome.cache.repository.helper.PhenotypeAnnotationFiltering;
 import org.alliancegenome.cache.repository.helper.PhenotypeAnnotationSorting;
 import org.alliancegenome.cache.repository.helper.SortingField;
+import org.alliancegenome.core.api.service.FilterService;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
@@ -28,14 +28,14 @@ import lombok.extern.log4j.Log4j2;
 public class PhenotypeCacheRepository {
 
 	@Inject
-	private CacheService cacheService;
+	CacheService cacheService;
 
 	public PaginationResult<PhenotypeAnnotation> getPhenotypeAnnotationList(String geneID, Pagination pagination) {
 
 		List<PhenotypeAnnotation> fullPhenotypeAnnotationList = getPhenotypeAnnotationList(geneID);
 
 		// remove GENE annotations from PAE list
-		//filtering
+		// filtering
 		PaginationResult<PhenotypeAnnotation> result = new PaginationResult<>();
 		FilterService<PhenotypeAnnotation> filterService = new FilterService<>(new PhenotypeAnnotationFiltering());
 		if (CollectionUtils.isNotEmpty(fullPhenotypeAnnotationList)) {
@@ -58,10 +58,7 @@ public class PhenotypeCacheRepository {
 		fullDiseaseAnnotationList.sort(sorting.getComparator(sortingField, pagination.getAsc()));
 
 		// paginating
-		return fullDiseaseAnnotationList.stream()
-				.skip(pagination.getStart())
-				.limit(pagination.getLimit())
-				.collect(toList());
+		return fullDiseaseAnnotationList.stream().skip(pagination.getStart()).limit(pagination.getLimit()).collect(toList());
 	}
 
 	public List<PhenotypeAnnotation> getPhenotypeAnnotationList(String geneID) {

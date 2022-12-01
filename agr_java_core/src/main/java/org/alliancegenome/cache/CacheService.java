@@ -28,7 +28,7 @@ import lombok.extern.log4j.Log4j2;
 public class CacheService {
 
 	@Inject
-	private RemoteCacheManager manager;
+	RemoteCacheManager manager;
 
 	public static ObjectMapper mapper = new ObjectMapper();
 
@@ -40,7 +40,7 @@ public class CacheService {
 
 	static {
 		mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
-		//mapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false);
+		// mapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false);
 		mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 		mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
 		mapper.enable(SerializationFeature.INDENT_OUTPUT);
@@ -52,7 +52,7 @@ public class CacheService {
 	}
 
 	private RemoteCache<String, String> getCacheSpace(CacheAlliance cache) {
-		//log.info("Getting Cache Space: " + cache.getCacheName());
+		// log.info("Getting Cache Space: " + cache.getCacheName());
 		RemoteCache<String, String> remoteCache = manager.getCache(cache.getCacheName());
 
 		if (remoteCache == null) {
@@ -107,7 +107,7 @@ public class CacheService {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	public <O> String getCacheEntryString(String entityId, CacheAlliance cacheSpace, Class<O> clazz) {
 		return getCacheSpace(cacheSpace).get(entityId);
 	}
@@ -137,7 +137,3 @@ public class CacheService {
 	}
 
 }
-
-
-
-
