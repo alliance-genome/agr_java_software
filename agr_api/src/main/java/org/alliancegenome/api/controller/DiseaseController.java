@@ -3,7 +3,6 @@ package org.alliancegenome.api.controller;
 import static org.alliancegenome.api.service.EntityType.DISEASE;
 import static org.alliancegenome.api.service.EntityType.GENE;
 
-import java.net.http.HttpRequest;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -20,7 +19,6 @@ import javax.ws.rs.core.Response;
 
 import org.alliancegenome.api.rest.interfaces.DiseaseRESTInterface;
 import org.alliancegenome.api.service.DiseaseESService;
-import org.alliancegenome.api.service.DiseaseService;
 import org.alliancegenome.api.service.EntityType;
 import org.alliancegenome.api.service.helper.APIServiceHelper;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
@@ -39,7 +37,6 @@ import org.alliancegenome.neo4j.view.BaseFilter;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.elasticsearch.search.SearchHit;
 import org.jose4j.json.internal.json_simple.JSONObject;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
