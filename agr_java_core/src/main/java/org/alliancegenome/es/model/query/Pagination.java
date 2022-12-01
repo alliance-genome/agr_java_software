@@ -1,12 +1,10 @@
 package org.alliancegenome.es.model.query;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.alliancegenome.api.service.ColumnFieldMapping;
 import static org.alliancegenome.es.model.query.FieldFilter.FILTER_PREFIX;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
@@ -17,11 +15,8 @@ import org.alliancegenome.core.api.service.ColumnFieldMapping;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.ws.rs.core.MultivaluedMap;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static org.alliancegenome.es.model.query.FieldFilter.FILTER_PREFIX;
+import lombok.Getter;
+import lombok.Setter;
 
 @Setter
 @Getter
