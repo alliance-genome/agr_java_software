@@ -1,4 +1,4 @@
-package org.alliancegenome.indexer.indexers.curation.document;
+package org.alliancegenome.api.entity;
 
 
 import java.util.ArrayList;
@@ -20,6 +20,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class DiseaseAnnotationDocument extends SearchableItemDocument {
 
+	private String uniqueId;
 	private VocabularyTerm diseaseRelation;
 	private DOTerm object;
 	private List<ECOTerm> evidenceCodes;

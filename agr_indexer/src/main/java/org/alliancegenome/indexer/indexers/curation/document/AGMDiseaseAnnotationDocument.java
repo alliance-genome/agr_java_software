@@ -1,6 +1,7 @@
 package org.alliancegenome.indexer.indexers.curation.document;
 
 import lombok.EqualsAndHashCode;
+import org.alliancegenome.api.entity.DiseaseAnnotationDocument;
 import org.alliancegenome.curation_api.model.entities.AffectedGenomicModel;
 
 import lombok.Data;

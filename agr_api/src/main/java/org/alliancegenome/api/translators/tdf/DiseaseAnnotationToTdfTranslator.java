@@ -1,4 +1,4 @@
-package org.alliancegenome.core.translators.tdf;
+package org.alliancegenome.api.translators.tdf;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -8,7 +8,10 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
+import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.core.translators.tdf.DiseaseDownloadRow;
+import org.alliancegenome.core.translators.tdf.DownloadHeader;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.CrossReference;
@@ -19,6 +22,34 @@ import org.alliancegenome.neo4j.entity.node.PublicationJoin;
 import org.apache.commons.collections.CollectionUtils;
 
 public class DiseaseAnnotationToTdfTranslator {
+
+	public String getAllRowsForGeneDiseaseAnnotations(List<GeneDiseaseAnnotationDocument> diseaseAnnotations) {
+
+		// convert collection of DiseaseAnnotation records to DiseaseDownloadRow records
+		List<DiseaseDownloadRow> list = getDownloadRowsFromGeneDiseaseAnnotations(diseaseAnnotations);
+
+		List<DownloadHeader> headers = List.of(
+				new DownloadHeader<>("Species ID", (DiseaseDownloadRow::getSpeciesID)),
+				new DownloadHeader<>("Species Name", (DiseaseDownloadRow::getSpeciesName)),
+				new DownloadHeader<>("Gene ID", (DiseaseDownloadRow::getMainEntityID)),
+				new DownloadHeader<>("Gene Symbol", (DiseaseDownloadRow::getMainEntitySymbol)),
+				new DownloadHeader<>("Genetic Entity ID", (DiseaseDownloadRow::getGeneticEntityID)),
+				new DownloadHeader<>("Genetic Entity Name", (DiseaseDownloadRow::getGeneticEntityName)),
+				new DownloadHeader<>("Genetic Entity Type", (DiseaseDownloadRow::getGeneticEntityType)),
+				new DownloadHeader<>("Association", (DiseaseDownloadRow::getAssociation)),
+				new DownloadHeader<>("Disease ID", (DiseaseDownloadRow::getDiseaseID)),
+				new DownloadHeader<>("Disease Name", (DiseaseDownloadRow::getDiseaseName)),
+				new DownloadHeader<>("Evidence Code", (DiseaseDownloadRow::getEvidenceCode)),
+				new DownloadHeader<>("Evidence Code Name", (DiseaseDownloadRow::getEvidenceCodeName)),
+				new DownloadHeader<>("Based On ID", (DiseaseDownloadRow::getBasedOnID)),
+				new DownloadHeader<>("Based On Name", (DiseaseDownloadRow::getBasedOnName)),
+				new DownloadHeader<>("Source", (DiseaseDownloadRow::getSource)),
+				new DownloadHeader<>("Reference", (DiseaseDownloadRow::getReference)),
+				new DownloadHeader<>("Date", (DiseaseDownloadRow::getDateAssigned))
+		);
+
+		return DownloadHeader.getDownloadOutput(list, headers);
+	}
 
 	public String getAllRowsForGenes(List<DiseaseAnnotation> diseaseAnnotations) {
 
@@ -83,6 +114,30 @@ public class DiseaseAnnotationToTdfTranslator {
 		);
 
 		return DownloadHeader.getDownloadOutput(list, headers);
+	}
+
+	public List<DiseaseDownloadRow> getDownloadRowsFromGeneDiseaseAnnotations(List<GeneDiseaseAnnotationDocument> diseaseAnnotations) {
+		denormalizeGeneDiseaseAnnotations(diseaseAnnotations);
+		return null;
+/*
+		return diseaseAnnotations.stream()
+				.map(annotation -> annotation.getPrimaryAnnotatedEntities().stream()
+						.map(entity -> entity.getPublicationEvidenceCodes().stream()
+								.map(join -> {
+									if (CollectionUtils.isNotEmpty(annotation.getOrthologyGenes()))
+										return annotation.getOrthologyGenes().stream()
+												.map(gene -> getDiseaseDownloadRow(annotation, entity, join, gene))
+												.collect(Collectors.toList());
+									else
+										return List.of(getDiseaseDownloadRow(annotation, entity, join, null));
+								})
+								.flatMap(Collection::stream)
+								.collect(Collectors.toList()))
+						.flatMap(Collection::stream)
+						.collect(Collectors.toList()))
+				.flatMap(Collection::stream)
+				.collect(Collectors.toList());
+*/
 	}
 
 	public List<DiseaseDownloadRow> getDownloadRowsFromGenes(List<DiseaseAnnotation> diseaseAnnotations) {
@@ -257,6 +312,28 @@ public class DiseaseAnnotationToTdfTranslator {
 				.collect(Collectors.toList());
 	}
 
+	private void denormalizeGeneDiseaseAnnotations(List<GeneDiseaseAnnotationDocument> diseaseAnnotations) {
+		// add genetic entity info for annotations with pure genes
+		diseaseAnnotations.stream()
+				.filter(annotation -> CollectionUtils.isEmpty(annotation.getPrimaryAnnotations()))
+				.forEach(annotation -> {
+					org.alliancegenome.curation_api.model.entities.DiseaseAnnotation entity = createNewPrimaryDiseaseAnnotatedEntity(annotation, null);
+					annotation.addPrimaryAnnotation(entity);
+				});
+
+		// add genetic entity info for annotations that are not accounted in PAE
+/*
+		diseaseAnnotations.forEach(annotation -> annotation.getPublicationJoins().stream()
+				// filter out the ones that are not found in an individual PAE
+				.filter(join -> annotation.getPrimaryAnnotatedEntities().stream()
+						.noneMatch(entity -> String.join(":", entity.getPublicationEvidenceCodes().stream()
+								.map(PublicationJoin::toString).collect(Collectors.toList())).contains(join.toString())))
+				.forEach(join -> {
+					PrimaryAnnotatedEntity entity = createNewPrimaryAnnotatedEntity(annotation, join);
+					annotation.addPrimaryAnnotatedEntityDuplicate(entity);
+				}));
+*/
+	}
 	private void denormalizeAnnotations(List<DiseaseAnnotation> diseaseAnnotations) {
 		// add genetic entity info for annotations with pure genes
 		diseaseAnnotations.stream()
@@ -276,6 +353,28 @@ public class DiseaseAnnotationToTdfTranslator {
 					PrimaryAnnotatedEntity entity = createNewPrimaryAnnotatedEntity(annotation, join);
 					annotation.addPrimaryAnnotatedEntityDuplicate(entity);
 				}));
+	}
+
+	private org.alliancegenome.curation_api.model.entities.DiseaseAnnotation createNewPrimaryDiseaseAnnotatedEntity(GeneDiseaseAnnotationDocument annotation, PublicationJoin join) {
+/*
+		org.alliancegenome.curation_api.model.entities.DiseaseAnnotation entity = new org.alliancegenome.curation_api.model.entities.DiseaseAnnotation();
+		if (annotation.getGene() != null) {
+			entity.setId(annotation.getGene().getPrimaryKey());
+			entity.setName(annotation.getGene().getSymbol());
+			entity.setType(GeneticEntity.CrossReferenceType.GENE);
+		} else {
+			entity.setId(annotation.getFeature().getPrimaryKey());
+			entity.setName(annotation.getFeature().getSymbolText());
+			entity.setType(GeneticEntity.CrossReferenceType.ALLELE);
+		}
+		if (join == null)
+			entity.setPublicationEvidenceCodes(annotation.getPublicationJoins());
+		else {
+			entity.addPublicationEvidenceCode(join);
+		}
+		return entity;
+*/
+		return null;
 	}
 
 	private PrimaryAnnotatedEntity createNewPrimaryAnnotatedEntity(DiseaseAnnotation annotation, PublicationJoin join) {

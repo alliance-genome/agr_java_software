@@ -12,6 +12,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
@@ -25,7 +26,6 @@ import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
-import org.jose4j.json.internal.json_simple.JSONObject;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -352,9 +352,8 @@ public interface DiseaseRESTInterface {
 
 	@GET
 	@Path("")
-	@JsonView(value = {View.DiseaseAnnotation.class})
 	@Operation(summary = "Retrieve all disease annotations of a given set of genes")
-	JsonResultResponse<JSONObject> getDiseaseAnnotationsRibbonDetails(
+	JsonResultResponse<GeneDiseaseAnnotationDocument> getDiseaseAnnotationsRibbonDetails(
 			@Parameter(in = ParameterIn.QUERY, name = "geneID", description = "Gene by ID", required = true)
 			@QueryParam("geneID") List<String> geneIDs,
 			@Parameter(in = ParameterIn.QUERY, name = "termID", description = "Term ID by which rollup should happen")

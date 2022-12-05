@@ -1,6 +1,12 @@
 package org.alliancegenome.api.service;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.jbosslog.JBossLog;
+import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.api.service.helper.GeneDiseaseSearchHelper;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.es.index.site.dao.SearchDAO;
@@ -18,26 +24,31 @@ import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
-import org.jose4j.json.internal.json_simple.JSONObject;
-import org.jose4j.json.internal.json_simple.parser.JSONParser;
-import org.jose4j.json.internal.json_simple.parser.ParseException;
 
 import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.alliancegenome.cache.repository.helper.JsonResultResponse.DISTINCT_FIELD_VALUES;
+import static org.alliancegenome.cache.repository.helper.JsonResultResponse.getEmptyInstance;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 
 @JBossLog
 @RequestScoped
 public class DiseaseESService {
 
+	@Inject
+	ObjectMapper mapper;
 	private static SearchDAO searchDAO = new SearchDAO();
 
 	private GeneDiseaseSearchHelper geneDiseaseSearchHelper = new GeneDiseaseSearchHelper();
 
-	public JsonResultResponse<JSONObject> getRibbonDiseaseAnnotations(List<String> geneIDs, String termID, Pagination pagination) {
+	public JsonResultResponse<GeneDiseaseAnnotationDocument> getRibbonDiseaseAnnotationDocuments(List<String> geneIDs, String termID, Pagination pagination) {
+		return getEmptyInstance();
+	}
+
+	public JsonResultResponse<GeneDiseaseAnnotationDocument> getRibbonDiseaseAnnotations(List<String> geneIDs, String termID, Pagination pagination) {
 
 		BoolQueryBuilder bool = boolQuery();
 		BoolQueryBuilder bool2 = boolQuery();
@@ -64,12 +75,12 @@ public class DiseaseESService {
 					Arrays.stream(elements).forEach(element -> orClause.should(QueryBuilders.termQuery(filterName, element)));
 					bool.must(orClause);
 				} else {
-					if(filterName.contains("|")){
+					if (filterName.contains("|")) {
 						BoolQueryBuilder orClause = boolQuery();
 						String[] elements = filterName.split("\\|");
 						Arrays.stream(elements).forEach(element -> orClause.should(QueryBuilders.wildcardQuery(element, "*" + filterValue + "*")));
 						bool.must(orClause);
-					}else {
+					} else {
 						bool.must(QueryBuilders.wildcardQuery(filterName, "*" + filterValue + "*"));
 					}
 				}
@@ -86,25 +97,33 @@ public class DiseaseESService {
 		log.info(geneIDs);
 		log.info(termID);
 		log.info(pagination);
-		JsonResultResponse<JSONObject> ret = new JsonResultResponse<>();
+		JsonResultResponse<GeneDiseaseAnnotationDocument> ret = new JsonResultResponse<>();
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
 		Map<String, Object> supplementalData = new LinkedHashMap<>();
 		supplementalData.put(DISTINCT_FIELD_VALUES, distinctFieldValueMap);
 		ret.setSupplementalData(supplementalData);
 
-		JSONParser parser = new JSONParser();
-		ArrayList<JSONObject> list = new ArrayList<>();
+		List<GeneDiseaseAnnotationDocument> list = new ArrayList<>();
+		ObjectMapper mapper2 = new ObjectMapper();
+		JavaTimeModule module = new JavaTimeModule();
+		mapper2.registerModule(module);
+		mapper2.registerModule(new Jdk8Module());
+
+//		mapper2.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+		mapper2.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+		mapper2.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+		mapper2.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+
 		for (SearchHit searchHit : searchResponse.getHits().getHits()) {
 			try {
-				JSONObject object = (JSONObject) parser.parse(searchHit.getSourceAsString());
-				object.put("id", searchHit.getId());
+				GeneDiseaseAnnotationDocument object = mapper.readValue(searchHit.getSourceAsString(), GeneDiseaseAnnotationDocument.class);
+				object.setUniqueId(searchHit.getId());
 				list.add(object);
-			} catch (ParseException e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 		ret.setResults(list);
-
 		return ret;
 	}
 

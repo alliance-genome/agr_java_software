@@ -2,6 +2,7 @@ package org.alliancegenome.indexer.indexers.curation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.curation_api.config.RestDefaultObjectMapper;
 import org.alliancegenome.curation_api.model.entities.*;
 import org.alliancegenome.curation_api.view.View;
@@ -9,8 +10,7 @@ import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
 import org.alliancegenome.indexer.indexers.curation.document.AGMDiseaseAnnotationDocument;
 import org.alliancegenome.indexer.indexers.curation.document.AlleleDiseaseAnnotationDocument;
-import org.alliancegenome.indexer.indexers.curation.document.DiseaseAnnotationDocument;
-import org.alliancegenome.indexer.indexers.curation.document.GeneDiseaseAnnotationDocument;
+import org.alliancegenome.api.entity.DiseaseAnnotationDocument;
 import org.alliancegenome.indexer.indexers.curation.service.AGMDiseaseAnnotationService;
 import org.alliancegenome.indexer.indexers.curation.service.AlleleDiseaseAnnotationService;
 import org.alliancegenome.indexer.indexers.curation.service.GeneDiseaseAnnotationService;
