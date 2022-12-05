@@ -64,7 +64,14 @@ public class DiseaseESService {
 					Arrays.stream(elements).forEach(element -> orClause.should(QueryBuilders.termQuery(filterName, element)));
 					bool.must(orClause);
 				} else {
-					bool.must(QueryBuilders.wildcardQuery(filterName, "*" + filterValue + "*"));
+					if(filterName.contains("|")){
+						BoolQueryBuilder orClause = boolQuery();
+						String[] elements = filterName.split("\\|");
+						Arrays.stream(elements).forEach(element -> orClause.should(QueryBuilders.wildcardQuery(element, "*" + filterValue + "*")));
+						bool.must(orClause);
+					}else {
+						bool.must(QueryBuilders.wildcardQuery(filterName, "*" + filterValue + "*"));
+					}
 				}
 			});
 		}

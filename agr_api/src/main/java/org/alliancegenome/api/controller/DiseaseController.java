@@ -456,6 +456,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 		pagination.addFilterOption("diseaseRelation.name", associationType);
 		pagination.addFilterOption("subject.symbol", filterGene);
 		pagination.addFilterOption("subject.taxon.name", filterSpecies);
+		pagination.addFilterOption("primaryAnnotations.dataProvider|primaryAnnotations.secondaryDataProvider", filterSource);
 		pagination.addFilterOption("references.crossReferences.curie", filterReference);
 		BaseFilter filterMap = new BaseFilter();
 		filterMap.put(FieldFilter.INCLUDE_NEGATION, includeNegation);
