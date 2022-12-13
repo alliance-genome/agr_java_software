@@ -86,7 +86,7 @@
 		<dependency>
 			<groupId>org.alliancegenome</groupId>
 			<artifactId>agr_curation_api</artifactId>
-			<version>v0.12.0-rc1</version>
+			<version>v0.13.0</version>
 			<exclusions>
 				<exclusion>
 					<groupId>*</groupId>
