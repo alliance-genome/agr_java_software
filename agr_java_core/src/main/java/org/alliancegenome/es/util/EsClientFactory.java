@@ -8,7 +8,6 @@ import java.util.List;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.apache.http.HttpHost;
-import org.elasticsearch.client.HttpAsyncResponseConsumerFactory;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
@@ -26,7 +25,7 @@ public class EsClientFactory {
 
 	static {
 		RequestOptions.Builder builder = RequestOptions.DEFAULT.toBuilder();
-//		builder.setHttpAsyncResponseConsumerFactory(new HttpAsyncResponseConsumerFactory.HeapBufferedResponseConsumerFactory(1 * 1024 * 1024 * 1024));
+		//builder.setHttpAsyncResponseConsumerFactory(new HttpAsyncResponseConsumerFactory.HeapBufferedResponseConsumerFactory(1 * 1024 * 1024 * 1024));
 		LARGE_RESPONSE_REQUEST_OPTIONS = builder.build();
 	}
 
