@@ -87,11 +87,15 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 	private List<GeneDiseaseAnnotationDocument> createGeneDiseaseAnnotationDocuments() {
 
 		List<GeneDiseaseAnnotationDocument> ret = new ArrayList<>();
+		System.out.println("Total number of Genes with DAs: "+geneMap.size());
+		//geneMap.keySet().forEach(System.out::println);
 
 		for (Entry<String, Pair<Gene, ArrayList<DiseaseAnnotation>>> entry : geneMap.entrySet()) {
 			HashMap<String, GeneDiseaseAnnotationDocument> lookup = new HashMap<>();
 
 			for (DiseaseAnnotation da : entry.getValue().getRight()) {
+				if(da.getObject() == null)
+					continue;
 				String key = da.getDiseaseRelation().getName() + "_" + da.getObject().getName();
 				GeneDiseaseAnnotationDocument gdad = lookup.get(key);
 
@@ -235,6 +239,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 	private void indexAGMs() {
 
 		List<AGMDiseaseAnnotation> agmDiseaseAnnotations = agmService.getFiltered();
+		System.out.println("All AGM DAs found in Curation: "+agmDiseaseAnnotations.size());
 
 		for (AGMDiseaseAnnotation da : agmDiseaseAnnotations) {
 			AffectedGenomicModel genomicModel = da.getSubject();

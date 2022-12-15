@@ -27,6 +27,6 @@ public interface AGMDiseaseAnnotationInterface extends BaseIdCrudInterface<AGMDi
 		name = "Database Search Endpoints"
 	)
 	@JsonView({View.FieldsAndLists.class})
-	SearchResponse<AGMDiseaseAnnotation> find(@DefaultValue("0") @QueryParam("page") Integer page, @DefaultValue("10") @QueryParam("limit") Integer limit, @RequestBody HashMap<String, Object> params);
+	SearchResponse<AGMDiseaseAnnotation> find(@DefaultValue("0") @QueryParam("page") Integer page, @DefaultValue("10") @QueryParam("limit") Integer limit, HashMap<String, Object> params);
 
 }

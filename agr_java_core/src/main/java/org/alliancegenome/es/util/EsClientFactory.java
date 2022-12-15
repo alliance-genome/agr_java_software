@@ -26,7 +26,7 @@ public class EsClientFactory {
 
 	static {
 		RequestOptions.Builder builder = RequestOptions.DEFAULT.toBuilder();
-		builder.setHttpAsyncResponseConsumerFactory(new HttpAsyncResponseConsumerFactory.HeapBufferedResponseConsumerFactory(1 * 1024 * 1024 * 1024));
+//		builder.setHttpAsyncResponseConsumerFactory(new HttpAsyncResponseConsumerFactory.HeapBufferedResponseConsumerFactory(1 * 1024 * 1024 * 1024));
 		LARGE_RESPONSE_REQUEST_OPTIONS = builder.build();
 	}
 

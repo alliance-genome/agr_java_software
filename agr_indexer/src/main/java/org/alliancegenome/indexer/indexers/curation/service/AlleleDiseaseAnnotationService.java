@@ -27,14 +27,15 @@ public class AlleleDiseaseAnnotationService {
 		AlleleRepository alleleRepository = new AlleleRepository();
 		
 		List<String> alleleIDs = alleleRepository.getAllAlleleIDs();
-
+		System.out.println("All Allele IDs found in Neo4j: "+alleleIDs.size());
 		int batchSize = 1000;
 		int page = 0;
 		int pages = 0;
 		
 		HashMap<String, Object> params = new HashMap<>();
 		params.put("internal", false);
-		
+		//params.put("subject.curie", "WB:WBVar00087891");
+
 		do {
 			SearchResponse<AlleleDiseaseAnnotation> response = alleleApi.find(page, batchSize, params);
 			

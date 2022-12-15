@@ -28,7 +28,7 @@
 		<revision>5.4.0</revision>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<curation.version>0.0.0-SNAPSHOT</curation.version>
+		<curation.version>v0.14.0-rc1</curation.version>
 	</properties>
 
 	<dependencies>

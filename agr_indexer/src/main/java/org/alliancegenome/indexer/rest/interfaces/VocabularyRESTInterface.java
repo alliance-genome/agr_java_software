@@ -25,6 +25,6 @@ public interface VocabularyRESTInterface {
 		name = "Database Search Endpoints"
 	)
 	@JsonView({View.FieldsAndLists.class})
-	SearchResponse<VocabularyTerm> find(@DefaultValue("0") @QueryParam("page") Integer page, @DefaultValue("10") @QueryParam("limit") Integer limit, @RequestBody HashMap<String, Object> params);
+	SearchResponse<VocabularyTerm> find(@DefaultValue("0") @QueryParam("page") Integer page, @DefaultValue("10") @QueryParam("limit") Integer limit, HashMap<String, Object> params);
 
 }

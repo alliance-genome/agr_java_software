@@ -160,11 +160,11 @@ public class DiseaseAnnotationToTdfTranslator {
 		row.setSpeciesID(annotation.getSubject().getTaxon().getCurie());
 		row.setSpeciesName(annotation.getSubject().getTaxon().getName());
 		row.setMainEntityID(annotation.getSubject().getCurie());
-		row.setMainEntitySymbol(annotation.getSubject().getSymbol());
+		row.setMainEntitySymbol(annotation.getSubject().getGeneSymbol().getDisplayText());
 		row.setGeneticEntityID(annotation.getSubject().getCurie());
-		row.setGeneticEntityName(annotation.getSubject().getSymbol());
+		row.setGeneticEntityName(annotation.getSubject().getGeneSymbol().getDisplayText());
 		row.setReference(primaryAnnotation.getSingleReference().getCurie());
-		row.setSource(primaryAnnotation.getDataProvider());
+		row.setSource(primaryAnnotation.getDataProvider().getAbbreviation());
 		if(primaryAnnotation.getDbDateCreated() != null) {
 			row.setDateAssigned(primaryAnnotation.getDbDateCreated().toString());
 		}
@@ -194,7 +194,7 @@ public class DiseaseAnnotationToTdfTranslator {
 		row.setSource(annotation.getDataProvider());
 		if (homologousGene != null) {
 			row.setBasedOnID(homologousGene.getCurie());
-			row.setBasedOnName(homologousGene.getSymbol());
+			row.setBasedOnName(homologousGene.getGeneSymbol().getDisplayText());
 		}
 /*
 		if (CollectionUtils.isNotEmpty(annotation.getProviders()) &&
