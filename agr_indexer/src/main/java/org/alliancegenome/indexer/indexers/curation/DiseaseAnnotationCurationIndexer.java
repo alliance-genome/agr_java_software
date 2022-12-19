@@ -77,13 +77,13 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		//createJsonFile(list, "gdaList.json");
 		indexDocuments(list);
 
-		List<AlleleDiseaseAnnotationDocument> alleleList = createAlleleDiseaseAnnotationDocuments();
+		//List<AlleleDiseaseAnnotationDocument> alleleList = createAlleleDiseaseAnnotationDocuments();
 		//createJsonFile(alleleList, "alleleList.json");
-		indexDocuments(alleleList);
+		//indexDocuments(alleleList);
 
-		List<AGMDiseaseAnnotationDocument> agmList = createAGMDiseaseAnnotationDocuments();
+		//List<AGMDiseaseAnnotationDocument> agmList = createAGMDiseaseAnnotationDocuments();
 		//createJsonFile(agmList, "agmList.json");
-		indexDocuments(agmList);
+		//indexDocuments(agmList);
 
 	}
 

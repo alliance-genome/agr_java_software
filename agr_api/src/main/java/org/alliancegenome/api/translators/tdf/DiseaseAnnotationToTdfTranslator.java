@@ -1,7 +1,6 @@
 package org.alliancegenome.api.translators.tdf;
 
 import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
-import org.alliancegenome.api.service.ReferenceService;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.translators.tdf.DiseaseDownloadRow;
 import org.alliancegenome.core.translators.tdf.DownloadHeader;
@@ -184,7 +183,7 @@ public class DiseaseAnnotationToTdfTranslator {
 			row.setGeneticEntityName(pAnnotation.getSubject().getAlleleSymbol().getDisplayText());
 			row.setGeneticEntityType("Allele");
 		}
-		row.setReference(ReferenceService.getReferenceID(primaryAnnotation.getSingleReference()));
+		row.setReference(primaryAnnotation.getSingleReference().getReferenceID());
 		row.setSource(primaryAnnotation.getDataProvider().getAbbreviation());
 		if(primaryAnnotation.getDbDateCreated() != null) {
 			row.setDateAssigned(primaryAnnotation.getDbDateCreated().toString());
