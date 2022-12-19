@@ -12,10 +12,6 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
-import org.alliancegenome.api.service.ColumnFieldMapping;
-import org.alliancegenome.api.service.ExpressionColumnFieldMapping;
-import org.alliancegenome.api.service.FilterService;
-import org.alliancegenome.api.service.Table;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.CacheService;
 import org.alliancegenome.cache.repository.helper.ExpressionAnnotationFiltering;
@@ -24,6 +20,10 @@ import org.alliancegenome.cache.repository.helper.FilterFunction;
 import org.alliancegenome.cache.repository.helper.PaginationResult;
 import org.alliancegenome.cache.repository.helper.SortingField;
 import org.alliancegenome.core.ExpressionDetail;
+import org.alliancegenome.core.api.service.ColumnFieldMapping;
+import org.alliancegenome.core.api.service.ExpressionColumnFieldMapping;
+import org.alliancegenome.core.api.service.FilterService;
+import org.alliancegenome.core.api.service.Table;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.view.BaseFilter;
@@ -35,8 +35,7 @@ import lombok.extern.log4j.Log4j2;
 @RequestScoped
 public class ExpressionCacheRepository {
 
-	@Inject
-	private CacheService cacheService;
+	@Inject CacheService cacheService;
 
 	private static List<String> parentTermIDs = new ArrayList<>();
 

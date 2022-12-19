@@ -10,7 +10,7 @@ import org.alliancegenome.neo4j.repository.GoRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class GoIndexer extends Indexer<SearchableItemDocument> {
+public class GoIndexer extends Indexer {
 
 	private final Logger log = LogManager.getLogger(getClass());
 

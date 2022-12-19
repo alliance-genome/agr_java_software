@@ -20,7 +20,7 @@ import lombok.extern.jbosslog.JBossLog;
 @JBossLog
 public class GeneDocumentCache extends IndexerCache {
 
-	private Map<String, Gene> geneMap = new HashMap<>();
+	private Map<String, Gene> geneMap = new HashMap<String, Gene>();
 
 	private Map<String,Set<String>> strictOrthologySymbols = new HashMap<>();
 

@@ -17,8 +17,7 @@ import lombok.extern.log4j.Log4j2;
 @RequestScoped
 public class CacheStatusService {
 
-	@Inject
-	private CacheService cacheService;
+	@Inject CacheService cacheService;
 
 	public CacheStatus getCacheStatus(CacheAlliance type) {
 		return getCacheStatus(type, null);

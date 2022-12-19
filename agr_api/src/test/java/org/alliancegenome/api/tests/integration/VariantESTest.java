@@ -27,62 +27,62 @@ import static org.junit.Assert.assertNotNull;
 
 public class VariantESTest {
 
-    private VariantESDAO variantESDAO = new VariantESDAO();
+	private VariantESDAO variantESDAO = new VariantESDAO();
 
-    @Before
-    public void before() {
-        Configurator.setRootLevel(Level.WARN);
-        ConfigHelper.init();
+	@Before
+	public void before() {
+		Configurator.setRootLevel(Level.WARN);
+		ConfigHelper.init();
 
-        //alleleService = new AlleleService();
+		//alleleService = new AlleleService();
 
-    }
+	}
 
-    @Test
-    public void checkAllelesBySpecies() {
-        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-        BoolQueryBuilder bool = boolQuery();
+	@Test
+	public void checkAllelesBySpecies() {
+		SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+		BoolQueryBuilder bool = boolQuery();
 
-        bool.filter(new TermQueryBuilder("category", "allele"));
-        bool.must(new TermQueryBuilder("variant.gene.id.keyword", "WB:WBGene00004054"));
-        searchSourceBuilder.query(bool);
-//        SearchSourceBuilder buil = searchSourceBuilder.aggregation(AggregationBuilders.terms("keys1").field("transcriptLevelConsequences.geneLevelConsequence.keyword"));
+		bool.filter(new TermQueryBuilder("category", "allele"));
+		bool.must(new TermQueryBuilder("variant.gene.id.keyword", "WB:WBGene00004054"));
+		searchSourceBuilder.query(bool);
+//		  SearchSourceBuilder buil = searchSourceBuilder.aggregation(AggregationBuilders.terms("keys1").field("transcriptLevelConsequences.geneLevelConsequence.keyword"));
 
-        Pagination pagination = new Pagination();
-        pagination.addFieldFilter(FieldFilter.MOLECULAR_CONSEQUENCE, ".50");
-        JsonResultResponse<Allele> list = variantESDAO.performQuery(searchSourceBuilder, new Pagination());
-        assertNotNull(list);
-    }
+		Pagination pagination = new Pagination();
+		pagination.addFieldFilter(FieldFilter.MOLECULAR_CONSEQUENCE, ".50");
+		JsonResultResponse<Allele> list = variantESDAO.performQuery(searchSourceBuilder, new Pagination());
+		assertNotNull(list);
+	}
 
-    @Test
-    public void checkDistinctValues() {
-        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-        BoolQueryBuilder bool = boolQuery();
+	@Test
+	public void checkDistinctValues() {
+		SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+		BoolQueryBuilder bool = boolQuery();
 
-        bool.filter(new TermQueryBuilder("category", "allele"));
-        //bool.must(new TermQueryBuilder("variant.gene.id.keyword", "WB:WBGene00004054"));
-        searchSourceBuilder.query(bool);
-//        SearchSourceBuilder buil = searchSourceBuilder.aggregation(AggregationBuilders.terms("keys1").field("transcriptLevelConsequences.geneLevelConsequence.keyword"));
+		bool.filter(new TermQueryBuilder("category", "allele"));
+		//bool.must(new TermQueryBuilder("variant.gene.id.keyword", "WB:WBGene00004054"));
+		searchSourceBuilder.query(bool);
+//		  SearchSourceBuilder buil = searchSourceBuilder.aggregation(AggregationBuilders.terms("keys1").field("transcriptLevelConsequences.geneLevelConsequence.keyword"));
 
-        Map<String, Map<String, Integer>> list = variantESDAO.getHistogram(searchSourceBuilder);
-        assertNotNull(list);
-    }
+		Map<String, Map<String, Integer>> list = variantESDAO.getHistogram(searchSourceBuilder);
+		assertNotNull(list);
+	}
 
-    public void checkVariantDetailRetrieval() {
-        Variant variant = variantESDAO.getVariant("NC_005111.4:g.539868A>C");
-        assertNotNull(variant);
+	public void checkVariantDetailRetrieval() {
+		Variant variant = variantESDAO.getVariant("NC_005111.4:g.539868A>C");
+		assertNotNull(variant);
 
-        htsjdk.variant.variantcontext.Allele refAllele = htsjdk.variant.variantcontext.Allele.create("ATTGCACTTACTACATCACGCTCCCAACTGGAAAAGCAATTTCCGAAAAACCGCATTTTTTTGATTAATGGGAAAAGTTGTAGTGATATTAAAACAAAAGTAATACTTATCTCATAGTAAATGC*", true);
-        htsjdk.variant.variantcontext.Allele variantAllele = htsjdk.variant.variantcontext.Allele.create("A", false);
-        List<htsjdk.variant.variantcontext.Allele> alleleList = List.of(refAllele, variantAllele);
-        String attributeName = "CSQ";
-        String attributeValue = "-|intron_variant|MODIFIER|ZC13.2|WB:WBGene00022503|Transcript|WB:ZC13.2.1|protein_coding||1/4|WB:ZC13.2.1:c.348+92_349-17del|||||||||1||intron_variant|||TTGCACTTACTACATCACGCTCCCAACTGGAAAAGCAATTTCCGAAAAACCGCATTTTTTTGATTAATGGGAAAAGTTGTAGTGATATTAAAACAAAAGTAATACTTATCTCATAGTAAATGC|TTGCACTTACTACATCACGCTCCCAACTGGAAAAGCAATTTCCGAAAAACCGCATTTTTTTGATTAATGGGAAAAGTTGTAGTGATATTAAAACAAAAGTAATACTTATCTCATAGTAAATGC||WB_GFF.refseq.gff.gz||NC_003284.9:g.881176_881298del|||||881298|881176|ZC13.2.1|";
-        Map<String, String> csqMap = new HashMap<>();
-        csqMap.put(attributeName, attributeValue);
-        EnumSet<VariantContext.Validation> validationSet = EnumSet.of(VariantContext.Validation.ALLELES);
+		htsjdk.variant.variantcontext.Allele refAllele = htsjdk.variant.variantcontext.Allele.create("ATTGCACTTACTACATCACGCTCCCAACTGGAAAAGCAATTTCCGAAAAACCGCATTTTTTTGATTAATGGGAAAAGTTGTAGTGATATTAAAACAAAAGTAATACTTATCTCATAGTAAATGC*", true);
+		htsjdk.variant.variantcontext.Allele variantAllele = htsjdk.variant.variantcontext.Allele.create("A", false);
+		List<htsjdk.variant.variantcontext.Allele> alleleList = List.of(refAllele, variantAllele);
+		String attributeName = "CSQ";
+		String attributeValue = "-|intron_variant|MODIFIER|ZC13.2|WB:WBGene00022503|Transcript|WB:ZC13.2.1|protein_coding||1/4|WB:ZC13.2.1:c.348+92_349-17del|||||||||1||intron_variant|||TTGCACTTACTACATCACGCTCCCAACTGGAAAAGCAATTTCCGAAAAACCGCATTTTTTTGATTAATGGGAAAAGTTGTAGTGATATTAAAACAAAAGTAATACTTATCTCATAGTAAATGC|TTGCACTTACTACATCACGCTCCCAACTGGAAAAGCAATTTCCGAAAAACCGCATTTTTTTGATTAATGGGAAAAGTTGTAGTGATATTAAAACAAAAGTAATACTTATCTCATAGTAAATGC||WB_GFF.refseq.gff.gz||NC_003284.9:g.881176_881298del|||||881298|881176|ZC13.2.1|";
+		Map<String, String> csqMap = new HashMap<>();
+		csqMap.put(attributeName, attributeValue);
+		EnumSet<VariantContext.Validation> validationSet = EnumSet.of(VariantContext.Validation.ALLELES);
 
-        //VariantContext context = new VariantContext("unknown","WB:WBVar02079625", "X", 881175, 881298, alleleList, null,1.0, Set.of(), csqMap,false, validationSet);
-    }
+		//VariantContext context = new VariantContext("unknown","WB:WBVar02079625", "X", 881175, 881298, alleleList, null,1.0, Set.of(), csqMap,false, validationSet);
+	}
 
 }
 /*

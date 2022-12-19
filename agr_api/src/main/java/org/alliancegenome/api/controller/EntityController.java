@@ -11,12 +11,11 @@ import org.alliancegenome.api.service.EntityService;
 @RequestScoped
 public class EntityController implements EntityRESTInterface {
 
-    @Inject
-    private EntityService entityService;
+	@Inject EntityService entityService;
 
-    @Override
-    public Map<String, Object> getEntity(String id) {
-        return entityService.getById(id);
-    }
+	@Override
+	public Map<String, Object> getEntity(String id) {
+		return entityService.getById(id);
+	}
 
 }

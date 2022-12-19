@@ -33,14 +33,14 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.unit.ByteSizeUnit;
 import org.elasticsearch.common.unit.ByteSizeValue;
-import org.elasticsearch.core.TimeValue;
-import org.elasticsearch.xcontent.XContentType;
+import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.common.xcontent.XContentType;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public abstract class Indexer<D extends ESDocument> extends Thread {
+public abstract class Indexer extends Thread {
 
 	public static String indexName;
 	private Logger log = LogManager.getLogger(getClass());
@@ -61,6 +61,7 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 		this.indexerConfig = indexerConfig;
 
 		om.setSerializationInclusion(Include.NON_NULL);
+		om = customizeObjectMapper(om);
 
 		loadPopularityScore();
 
@@ -115,8 +116,6 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 
 	}
 
-	protected abstract void index();
-
 	public void runIndex() {
 		try {
 			display.startProcess(getClass().getName());
@@ -151,11 +150,11 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 		}
 	}
 
-	public void indexDocuments(Iterable<D> docs) {
+	public <D extends ESDocument> void indexDocuments(Iterable<D> docs) {
 		indexDocuments(docs, null);
 	}
 
-	public void indexDocuments(Iterable<D> docs, Class<?> view) {
+	public <D extends ESDocument> void indexDocuments(Iterable<D> docs, Class<?> view) {
 		for (D doc : docs) {
 			try {
 				String json = "";
@@ -175,7 +174,7 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 		}
 	}
 	
-	void initiateThreading(LinkedBlockingDeque<String> queue) throws InterruptedException {
+	public void initiateThreading(LinkedBlockingDeque<String> queue) throws InterruptedException {
 		Integer numberOfThreads = indexerConfig.getThreadCount();
 
 		List<Thread> threads = new ArrayList<Thread>();
@@ -198,6 +197,7 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 		}
 	}
 
+	protected abstract void index();
 	protected abstract void startSingleThread(LinkedBlockingDeque<String> queue);
-
+	protected ObjectMapper customizeObjectMapper(ObjectMapper objectMapper) { return objectMapper; }
 }

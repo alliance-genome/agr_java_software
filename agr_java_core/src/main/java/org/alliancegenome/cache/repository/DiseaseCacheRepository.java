@@ -13,15 +13,15 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
-import org.alliancegenome.api.service.ColumnFieldMapping;
-import org.alliancegenome.api.service.DiseaseColumnFieldMapping;
-import org.alliancegenome.api.service.FilterService;
-import org.alliancegenome.api.service.Table;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.CacheService;
 import org.alliancegenome.cache.repository.helper.DiseaseAnnotationFiltering;
 import org.alliancegenome.cache.repository.helper.DiseaseAnnotationSorting;
 import org.alliancegenome.cache.repository.helper.PaginationResult;
+import org.alliancegenome.core.api.service.ColumnFieldMapping;
+import org.alliancegenome.core.api.service.DiseaseColumnFieldMapping;
+import org.alliancegenome.core.api.service.FilterService;
+import org.alliancegenome.core.api.service.Table;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
@@ -39,8 +39,7 @@ import lombok.extern.log4j.Log4j2;
 @RequestScoped
 public class DiseaseCacheRepository {
 
-	@Inject
-	private CacheService cacheService;
+	@Inject CacheService cacheService;
 
 	public List<DiseaseAnnotation> getDiseaseAnnotationList(String diseaseID) {
 		return cacheService.getCacheEntries(diseaseID, CacheAlliance.DISEASE_ANNOTATION_GENE_LEVEL_GENE_DISEASE);

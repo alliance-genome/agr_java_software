@@ -14,7 +14,7 @@ import org.alliancegenome.neo4j.repository.indexer.GeneIndexerRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class GeneIndexer extends Indexer<SearchableItemDocument> {
+public class GeneIndexer extends Indexer {
 
 	private final Logger log = LogManager.getLogger(getClass());
 	private GeneDocumentCache geneDocumentCache;

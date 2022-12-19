@@ -7,3 +7,5 @@ audit.log
 .classpath
 .project
 /bin/
+
+src/main/resources/application.properties

@@ -27,18 +27,16 @@ public class Main {
 
 		Indexer.indexName = im.startSiteIndex();
 
-		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-			@Override public void uncaughtException(Thread t, Throwable e) {
-				log.error("Thread: " + t.getId() + " has uncaught exceptions");
-				e.printStackTrace();
-				System.exit(-1);
-			}
+		Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
+			log.error("Thread: " + t.getId() + " has uncaught exceptions");
+			e.printStackTrace();
+			System.exit(-1);
 		});
 
-		HashMap<String, Indexer<?>> indexers = new HashMap<>();
+		HashMap<String, Indexer> indexers = new HashMap<>();
 		for (IndexerConfig ic : IndexerConfig.values()) {
 			try {
-				Indexer<?> i = (Indexer<?>) ic.getIndexClazz().getDeclaredConstructor(IndexerConfig.class).newInstance(ic);
+				Indexer i = (Indexer) ic.getIndexClazz().getDeclaredConstructor(IndexerConfig.class).newInstance(ic);
 				indexers.put(ic.getTypeName(), i);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -68,7 +66,7 @@ public class Main {
 		}
 
 		log.debug("Waiting for Indexers to finish");
-		for (Indexer<?> i : indexers.values()) {
+		for (Indexer i: indexers.values()) {
 			try {
 				if (i.isAlive()) {
 					i.join();

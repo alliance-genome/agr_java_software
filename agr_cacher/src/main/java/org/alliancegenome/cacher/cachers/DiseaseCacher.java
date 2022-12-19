@@ -21,11 +21,11 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import org.alliancegenome.api.entity.CacheStatus;
-import org.alliancegenome.api.service.DiseaseRibbonService;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.ConditionService;
 import org.alliancegenome.cache.repository.helper.DiseaseAnnotationSorting;
 import org.alliancegenome.cache.repository.helper.SortingField;
+import org.alliancegenome.core.api.service.DiseaseRibbonService;
 import org.alliancegenome.core.util.ModelHelper;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;

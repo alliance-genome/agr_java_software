@@ -90,7 +90,17 @@ public class SearchService {
 
 	public QueryRescorerBuilder buildRescorer(String q) {
 		if (StringUtils.isEmpty(q)) {
-			return new QueryRescorerBuilder(new FunctionScoreQueryBuilder(buildRescoreMatchAllBoostFunctions()));
+			
+			List<FunctionScoreQueryBuilder.FilterFunctionBuilder> functionList = new ArrayList<>();
+			functionList.add(variantDemotion());
+			functionList.add(geneCategoryBoost());
+			functionList.add(humanSpeciesBoost());
+			functionList.add(documentHasDiseaseBoost());
+			functionList.add(proteinCodingBoost());
+			functionList.add(rnaBoost());
+			functionList.add(pseudogeneBoost());
+
+			return new QueryRescorerBuilder(new FunctionScoreQueryBuilder(functionList.toArray(new FunctionScoreQueryBuilder.FilterFunctionBuilder[functionList.size()])));
 		}
 
 		return new QueryRescorerBuilder(new FunctionScoreQueryBuilder(buildBoostFunctions(q)));
@@ -101,7 +111,17 @@ public class SearchService {
 		BoolQueryBuilder bool = buildQuery(q, category, filters);
 
 		if (StringUtils.isEmpty(q)) {
-			return new FunctionScoreQueryBuilder(bool, buildMatchAllBoostFunctions());
+			
+			List<FunctionScoreQueryBuilder.FilterFunctionBuilder> functionList = new ArrayList<>();
+
+			FieldValueFactorFunctionBuilder popularity = ScoreFunctionBuilders.fieldValueFactorFunction("popularity");
+			popularity.missing(1D);
+			popularity.modifier(FieldValueFactorFunction.Modifier.SQRT);
+			popularity.factor(1.1F);
+
+			functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchAllQuery(), popularity));
+
+			return new FunctionScoreQueryBuilder(bool, functionList.toArray(new FunctionScoreQueryBuilder.FilterFunctionBuilder[functionList.size()]));
 		}
 
 		FunctionScoreQueryBuilder builder = new FunctionScoreQueryBuilder(bool, buildBoostFunctions(q));
@@ -109,26 +129,6 @@ public class SearchService {
 		return builder;
 	}
 
-	public FunctionScoreQueryBuilder.FilterFunctionBuilder[] buildMatchAllBoostFunctions() {
-		List<FunctionScoreQueryBuilder.FilterFunctionBuilder> functionList = new ArrayList<>();
-
-		functionList.add(documentPopularityBoost());
-
-		return functionList.toArray(new FunctionScoreQueryBuilder.FilterFunctionBuilder[functionList.size()]);
-	}
-
-	public FunctionScoreQueryBuilder.FilterFunctionBuilder[] buildRescoreMatchAllBoostFunctions() {
-		List<FunctionScoreQueryBuilder.FilterFunctionBuilder> functionList = new ArrayList<>();
-		functionList.add(variantDemotion());
-		functionList.add(geneCategoryBoost());
-		functionList.add(humanSpeciesBoost());
-		functionList.add(documentHasDiseaseBoost());
-		functionList.add(proteinCodingBoost());
-		functionList.add(rnaBoost());
-		functionList.add(pseudogeneBoost());
-
-		return functionList.toArray(new FunctionScoreQueryBuilder.FilterFunctionBuilder[functionList.size()]);
-	}
 
 	public FunctionScoreQueryBuilder.FilterFunctionBuilder[] buildBoostFunctions(String q) {
 		List<FunctionScoreQueryBuilder.FilterFunctionBuilder> functionList = new ArrayList<>();
@@ -225,14 +225,6 @@ public class SearchService {
 				ScoreFunctionBuilders.weightFactorFunction(1.1F));
 	}
 
-	private FunctionScoreQueryBuilder.FilterFunctionBuilder documentPopularityBoost() {
-		FieldValueFactorFunctionBuilder popularity = ScoreFunctionBuilders.fieldValueFactorFunction("popularity");
-		popularity.missing(1D);
-		popularity.modifier(FieldValueFactorFunction.Modifier.SQRT);
-		popularity.factor(1.1F);
-
-		return new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchAllQuery(), popularity);
-	}
 
 	public BoolQueryBuilder buildQuery(String queryTerm, String category, MultivaluedMap<String,String> filters) {
 

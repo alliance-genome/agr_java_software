@@ -12,7 +12,7 @@ import org.alliancegenome.neo4j.repository.indexer.ModelIndexerRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class ModelIndexer extends Indexer<SearchableItemDocument> {
+public class ModelIndexer extends Indexer {
 
 	private final Logger log = LogManager.getLogger(getClass());
 	private ModelDocumentCache cache;
