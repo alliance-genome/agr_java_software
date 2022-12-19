@@ -23,7 +23,7 @@ public class AGMDiseaseAnnotationService {
 		
 		List<AGMDiseaseAnnotation> ret = new ArrayList<>();
 
-		int batchSize = 1000;
+		int batchSize = 100;
 		int page = 0;
 		int pages = 0;
 		

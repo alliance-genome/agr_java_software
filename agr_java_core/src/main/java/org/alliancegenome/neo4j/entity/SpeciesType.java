@@ -10,7 +10,9 @@ import org.apache.commons.lang3.StringUtils;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.extern.log4j.Log4j2;
 
+@Log4j2
 @Getter
 @AllArgsConstructor
 public enum SpeciesType {
@@ -94,6 +96,14 @@ public enum SpeciesType {
 			}
 		}
 		return null;
+	}
+
+	public static int getPhylogeneticIndex(String taxonID) {
+		SpeciesType speciesType1 = Arrays.stream(values()).filter(speciesType -> speciesType.getTaxonID().equals(taxonID)).findFirst().orElseGet(null);
+		if (speciesType1 != null)
+			return speciesType1.getOrderID();
+		log.error("Could not find phylogenetic sorting index for " + taxonID);
+		return 100;
 	}
 
 	public static SpeciesDoclet getByModNameOrIdPart(String string) {
