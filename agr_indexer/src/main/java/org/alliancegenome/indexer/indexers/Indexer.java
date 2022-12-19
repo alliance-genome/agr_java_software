@@ -21,8 +21,6 @@ import org.alliancegenome.es.util.EsClientFactory;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.apache.commons.io.FileUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.bulk.BackoffPolicy;
 import org.elasticsearch.action.bulk.BulkProcessor;
@@ -40,10 +38,12 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.extern.log4j.Log4j2;
+
+@Log4j2
 public abstract class Indexer extends Thread {
 
 	public static String indexName;
-	private Logger log = LogManager.getLogger(getClass());
 	protected IndexerConfig indexerConfig;
 	private RestHighLevelClient searchClient;
 	protected Runtime runtime = Runtime.getRuntime();
@@ -118,7 +118,7 @@ public abstract class Indexer extends Thread {
 
 	public void runIndex() {
 		try {
-			display.startProcess(getClass().getName());
+			display.startProcess(getClass().getSimpleName());
 			index();
 			log.info("Waiting for bulkProcessor to finish");
 			bulkProcessor.flush();
@@ -136,7 +136,7 @@ public abstract class Indexer extends Thread {
 	public void run() {
 		super.run();
 		try {
-			display.startProcess(getClass().getName());
+			display.startProcess(getClass().getSimpleName());
 			index();
 			log.info("Waiting for bulkProcessor to finish");
 			bulkProcessor.flush();

@@ -2,6 +2,7 @@ package org.alliancegenome.indexer.indexers.curation.service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 import org.alliancegenome.core.config.ConfigHelper;
@@ -12,8 +13,10 @@ import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.indexers.curation.interfaces.AlleleDiseaseAnnotationInterface;
 import org.alliancegenome.neo4j.repository.AlleleRepository;
 
+import lombok.extern.log4j.Log4j2;
 import si.mazi.rescu.RestProxyFactory;
 
+@Log4j2
 public class AlleleDiseaseAnnotationService {
 
 	private AlleleDiseaseAnnotationInterface alleleApi = RestProxyFactory.createProxy(AlleleDiseaseAnnotationInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
@@ -26,9 +29,10 @@ public class AlleleDiseaseAnnotationService {
 
 		AlleleRepository alleleRepository = new AlleleRepository();
 		
-		List<String> alleleIDs = alleleRepository.getAllAlleleIDs();
-		System.out.println("All Allele IDs found in Neo4j: "+alleleIDs.size());
-		int batchSize = 1000;
+		HashSet<String> alleleIds = new HashSet<>(alleleRepository.getAllAlleleIDs());
+		System.out.println("Allele Ids: " + alleleIds.size());
+		
+		int batchSize = 300;
 		int page = 0;
 		int pages = 0;
 		
@@ -40,7 +44,7 @@ public class AlleleDiseaseAnnotationService {
 			SearchResponse<AlleleDiseaseAnnotation> response = alleleApi.find(page, batchSize, params);
 			
 			for(AlleleDiseaseAnnotation da: response.getResults()) {
-				if(!da.getInternal() && alleleIDs.contains(da.getSubject().getCurie())) {
+				if(!da.getInternal() && alleleIds.contains(da.getSubject().getCurie())) {
 					ret.add(da);
 				}
 			}

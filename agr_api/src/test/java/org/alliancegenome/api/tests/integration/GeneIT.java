@@ -4,33 +4,46 @@ import static java.util.Arrays.asList;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 import static org.alliancegenome.api.service.ExpressionService.CELLULAR_COMPONENT;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
-import org.alliancegenome.api.controller.*;
-import org.alliancegenome.api.dto.*;
+import org.alliancegenome.api.controller.ExpressionController;
+import org.alliancegenome.api.controller.GeneController;
+import org.alliancegenome.api.controller.GenesController;
+import org.alliancegenome.api.controller.OrthologyController;
+import org.alliancegenome.api.dto.ExpressionSummary;
+import org.alliancegenome.api.dto.ExpressionSummaryGroup;
+import org.alliancegenome.api.dto.ExpressionSummaryGroupTerm;
 import org.alliancegenome.api.service.GeneService;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.ExpressionDetail;
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.neo4j.entity.node.*;
-import org.alliancegenome.neo4j.repository.*;
-import org.alliancegenome.neo4j.view.*;
+import org.alliancegenome.neo4j.entity.node.Allele;
+import org.alliancegenome.neo4j.entity.node.Gene;
+import org.alliancegenome.neo4j.entity.node.OrthoAlgorithm;
+import org.alliancegenome.neo4j.entity.node.Publication;
+import org.alliancegenome.neo4j.repository.AlleleRepository;
+import org.alliancegenome.neo4j.repository.GeneRepository;
+import org.alliancegenome.neo4j.view.OrthologView;
+import org.alliancegenome.neo4j.view.OrthologyModule;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.core.config.Configurator;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class GeneIT {
 
@@ -54,7 +67,6 @@ public class GeneIT {
 
 	@Before
 	public void before() {
-		Configurator.setRootLevel(Level.WARN);
 		ConfigHelper.init();
 		//geneService = new GeneService();
 		mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);

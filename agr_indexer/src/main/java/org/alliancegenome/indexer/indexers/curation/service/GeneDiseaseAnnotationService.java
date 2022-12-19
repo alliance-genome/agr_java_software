@@ -2,6 +2,7 @@ package org.alliancegenome.indexer.indexers.curation.service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 import org.alliancegenome.core.config.ConfigHelper;
@@ -12,8 +13,10 @@ import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.indexers.curation.interfaces.GeneDiseaseAnnotationInterface;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 
+import lombok.extern.log4j.Log4j2;
 import si.mazi.rescu.RestProxyFactory;
 
+@Log4j2
 public class GeneDiseaseAnnotationService {
 
 	private GeneDiseaseAnnotationInterface geneApi = RestProxyFactory.createProxy(GeneDiseaseAnnotationInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
@@ -25,9 +28,9 @@ public class GeneDiseaseAnnotationService {
 		
 		GeneRepository geneRepository = new GeneRepository();
 		
-		List<String> geneIds = geneRepository.getAllGeneKeys();
-		
-		int batchSize = 1000;
+		HashSet<String> geneIds = new HashSet<>(geneRepository.getAllGeneKeys());
+
+		int batchSize = 360;
 		int page = 0;
 		int pages;
 
@@ -40,6 +43,8 @@ public class GeneDiseaseAnnotationService {
 			for(GeneDiseaseAnnotation da: response.getResults()) {
 				if(!da.getInternal() && geneIds.contains(da.getSubject().getCurie())) {
 					ret.add(da);
+				} else {
+					System.out.println("Id not found in Neo: " + da.getSubject().getCurie());
 				}
 			}
 
@@ -47,7 +52,6 @@ public class GeneDiseaseAnnotationService {
 				display.startProcess("Pulling Gene DA's from curation", response.getTotalResults());
 			}
 			display.progressProcess(response.getReturnedRecords().longValue());
-			
 			pages = (int) (response.getTotalResults() / batchSize);
 			page++;
 		} while(page <= pages);

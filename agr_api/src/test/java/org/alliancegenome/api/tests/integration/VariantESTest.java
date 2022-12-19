@@ -1,6 +1,13 @@
 package org.alliancegenome.api.tests.integration;
 
-import htsjdk.variant.variantcontext.VariantContext;
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.junit.Assert.assertNotNull;
+
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.index.site.dao.VariantESDAO;
@@ -8,21 +15,13 @@ import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Variant;
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.core.config.Configurator;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
-import static org.junit.Assert.assertNotNull;
+import htsjdk.variant.variantcontext.VariantContext;
 
 
 public class VariantESTest {
@@ -31,7 +30,6 @@ public class VariantESTest {
 
 	@Before
 	public void before() {
-		Configurator.setRootLevel(Level.WARN);
 		ConfigHelper.init();
 
 		//alleleService = new AlleleService();
