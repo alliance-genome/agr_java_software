@@ -78,8 +78,8 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 
 	@Override
 	protected void index() {
-		indexGenes();
-		indexAlleles();
+		//indexGenes();
+		//indexAlleles();
 		indexAGMs();
 
 		List<GeneDiseaseAnnotationDocument> list = createGeneDiseaseAnnotationDocuments();

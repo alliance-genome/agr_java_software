@@ -170,23 +170,25 @@ public class DiseaseAnnotationToTdfTranslator {
 			AGMDiseaseAnnotation pAnnotation = (AGMDiseaseAnnotation) primaryAnnotation;
 			row.setGeneticEntityID(pAnnotation.getSubject().getCurie());
 			row.setGeneticEntityName(pAnnotation.getSubject().getName());
+			row.setGeneticEntityType(pAnnotation.getSubject().getSubtype().name());
 		}
 		if(primaryAnnotation instanceof GeneDiseaseAnnotation){
 			GeneDiseaseAnnotation pAnnotation = (GeneDiseaseAnnotation) primaryAnnotation;
 			row.setGeneticEntityID(pAnnotation.getSubject().getCurie());
 			row.setGeneticEntityName(pAnnotation.getSubject().getGeneSymbol().getDisplayText());
+			row.setGeneticEntityType("gene");
 		}
 		if(primaryAnnotation instanceof AlleleDiseaseAnnotation){
 			AlleleDiseaseAnnotation pAnnotation = (AlleleDiseaseAnnotation) primaryAnnotation;
 			row.setGeneticEntityID(pAnnotation.getSubject().getCurie());
 			row.setGeneticEntityName(pAnnotation.getSubject().getAlleleSymbol().getDisplayText());
+			row.setGeneticEntityType("Allele");
 		}
 		row.setReference(ReferenceService.getReferenceID(primaryAnnotation.getSingleReference()));
 		row.setSource(primaryAnnotation.getDataProvider().getAbbreviation());
 		if(primaryAnnotation.getDbDateCreated() != null) {
 			row.setDateAssigned(primaryAnnotation.getDbDateCreated().toString());
 		}
-		row.setGeneticEntityType("gene");
 	}
 
 	private DiseaseDownloadRow getDiseaseDownloadRow(DiseaseAnnotation annotation, PrimaryAnnotatedEntity entity, PublicationJoin join, Gene homologousGene) {
