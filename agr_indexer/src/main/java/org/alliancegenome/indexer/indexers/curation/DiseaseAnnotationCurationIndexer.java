@@ -1,25 +1,14 @@
 package org.alliancegenome.indexer.indexers.curation;
 
 
-import java.io.FileOutputStream;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.LinkedBlockingDeque;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import lombok.extern.slf4j.Slf4j;
 import org.alliancegenome.api.entity.DiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.curation_api.config.RestDefaultObjectMapper;
-import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.AffectedGenomicModel;
-import org.alliancegenome.curation_api.model.entities.Allele;
-import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.DiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.Gene;
-import org.alliancegenome.curation_api.model.entities.GeneDiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.*;
+import org.alliancegenome.curation_api.model.entities.ontology.NCBITaxonTerm;
 import org.alliancegenome.curation_api.view.View;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.config.IndexerConfig;
@@ -30,12 +19,14 @@ import org.alliancegenome.indexer.indexers.curation.service.AGMDiseaseAnnotation
 import org.alliancegenome.indexer.indexers.curation.service.AlleleDiseaseAnnotationService;
 import org.alliancegenome.indexer.indexers.curation.service.GeneDiseaseAnnotationService;
 import org.alliancegenome.indexer.indexers.curation.service.VocabularyService;
+import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.apache.commons.lang3.tuple.Pair;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-
-import lombok.extern.slf4j.Slf4j;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.LinkedBlockingDeque;
 
 @Slf4j
 public class DiseaseAnnotationCurationIndexer extends Indexer {
@@ -78,8 +69,8 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 
 	@Override
 	protected void index() {
-		//indexGenes();
-		//indexAlleles();
+		indexGenes();
+		indexAlleles();
 		indexAGMs();
 
 		List<GeneDiseaseAnnotationDocument> list = createGeneDiseaseAnnotationDocuments();
@@ -99,10 +90,12 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 	private List<GeneDiseaseAnnotationDocument> createGeneDiseaseAnnotationDocuments() {
 
 		List<GeneDiseaseAnnotationDocument> ret = new ArrayList<>();
+		System.out.println("Total number of Genes with DAs: " + geneMap.size());
+		//geneMap.keySet().forEach(System.out::println);
 
 		ProcessDisplayHelper ph = new ProcessDisplayHelper(10000);
 		ph.startProcess("Creating Gene Disease Annotations", geneMap.size());
-		
+
 		for (Entry<String, Pair<Gene, ArrayList<DiseaseAnnotation>>> entry : geneMap.entrySet()) {
 			HashMap<String, GeneDiseaseAnnotationDocument> lookup = new HashMap<>();
 
@@ -125,6 +118,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 				//gdad.setDataProvider(da.getDataProvider());
 				gdad.addReference(da.getSingleReference());
 				gdad.addPrimaryAnnotation(da);
+				gdad.setPhylogeneticSortingIndex(getPhylogeneticIndex(entry.getValue().getLeft().getTaxon()));
 			}
 			ph.progressProcess();
 			ret.addAll(lookup.values());
@@ -135,13 +129,20 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		return ret;
 	}
 
+	private int getPhylogeneticIndex(NCBITaxonTerm taxon) {
+		SpeciesType speciesType1 = Arrays.stream(SpeciesType.values()).filter(speciesType -> speciesType.getTaxonID().equals(taxon.getCurie())).findFirst().orElseGet(null);
+		if (speciesType1 != null)
+			return speciesType1.getOrderID();
+		throw new RuntimeException("Could not find phylogenetic sorting index for " + taxon.getCurie());
+	}
+
 	private List<AlleleDiseaseAnnotationDocument> createAlleleDiseaseAnnotationDocuments() {
 
 		List<AlleleDiseaseAnnotationDocument> ret = new ArrayList<>();
-		
+
 		ProcessDisplayHelper ph = new ProcessDisplayHelper(10000);
 		ph.startProcess("Creating Gene Disease Annotations", alleleMap.size());
-		
+
 		for (Entry<String, Pair<Allele, ArrayList<DiseaseAnnotation>>> entry : alleleMap.entrySet()) {
 			HashMap<String, AlleleDiseaseAnnotationDocument> lookup = new HashMap<>();
 
@@ -162,7 +163,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 				if (da instanceof AlleleDiseaseAnnotation || da instanceof AGMDiseaseAnnotation) {
 					adad.addPrimaryAnnotation(da);
 				}
-				
+
 			}
 			ph.progressProcess();
 			ret.addAll(lookup.values());
@@ -218,7 +219,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 			Allele allele = da.getSubject();
 			Pair<Allele, ArrayList<DiseaseAnnotation>> allelePair = alleleMap.computeIfAbsent(allele.getCurie(), alleleCurie -> Pair.of(allele, new ArrayList<>()));
 			allelePair.getRight().add(da);
-			
+
 			Gene inferredGene = da.getInferredGene();
 			extractGeneDiseaseAnnotations(da, inferredGene);
 			if (da.getAssertedGenes() != null) {
@@ -236,7 +237,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 			pair.getRight().add(da);
 		}
 	}
-	
+
 	private void extractAlleleDiseaseAnnotations(DiseaseAnnotation da, Allele inferredAllele) {
 		if (inferredAllele != null && !inferredAllele.getInternal()) {
 			Pair<Allele, ArrayList<DiseaseAnnotation>> pair = alleleMap.computeIfAbsent(inferredAllele.getCurie(), k -> Pair.of(inferredAllele, new ArrayList<>()));
@@ -247,7 +248,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 	private void indexAGMs() {
 
 		List<AGMDiseaseAnnotation> agmDiseaseAnnotations = agmService.getFiltered();
-		System.out.println("All AGM DAs found in Curation: "+agmDiseaseAnnotations.size());
+		System.out.println("All AGM DAs found in Curation: " + agmDiseaseAnnotations.size());
 
 		for (AGMDiseaseAnnotation da : agmDiseaseAnnotations) {
 			AffectedGenomicModel genomicModel = da.getSubject();
@@ -255,7 +256,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 			allelePair.getRight().add(da);
 
 			da.getInferredAllele();
-			
+
 			Gene inferredGene = da.getInferredGene();
 			extractGeneDiseaseAnnotations(da, inferredGene);
 			if (da.getAssertedGenes() != null) {
@@ -263,7 +264,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 					extractGeneDiseaseAnnotations(da, gene);
 				}
 			}
-			
+
 			Allele inferredAllele = da.getInferredAllele();
 			extractAlleleDiseaseAnnotations(da, inferredAllele);
 			if (da.getAssertedAllele() != null) {

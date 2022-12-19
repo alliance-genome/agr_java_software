@@ -139,7 +139,8 @@ public class SearchableItemDocument extends ESDocument {
 	@JsonView({View.AlleleVariantSequenceConverterForES.class})
 	Set<String> variantType;
 	Set<String> whereExpressed;
-	
+	int phylogeneticSortingIndex;
+
 	@Override
 	@JsonIgnore
 	public String getType() {

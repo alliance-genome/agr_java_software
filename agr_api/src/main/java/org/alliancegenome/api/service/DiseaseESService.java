@@ -57,7 +57,7 @@ public class DiseaseESService {
 		bool.filter(new TermQueryBuilder("category", "gene_disease_annotation"));
 
 		for (String geneId : geneIDs) {
-			bool2.should().add(new MatchQueryBuilder("subject.curie", geneId));
+			bool2.should(new MatchQueryBuilder("subject.curie.keyword", geneId));
 		}
 
 		// create histogram of select columns of unfiltered query
