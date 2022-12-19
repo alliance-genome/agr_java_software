@@ -1,9 +1,13 @@
 package org.alliancegenome.api.translators.tdf;
 
 import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
+import org.alliancegenome.api.service.ReferenceService;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.translators.tdf.DiseaseDownloadRow;
 import org.alliancegenome.core.translators.tdf.DownloadHeader;
+import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.GeneDiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.*;
@@ -161,9 +165,23 @@ public class DiseaseAnnotationToTdfTranslator {
 		row.setSpeciesName(annotation.getSubject().getTaxon().getName());
 		row.setMainEntityID(annotation.getSubject().getCurie());
 		row.setMainEntitySymbol(annotation.getSubject().getGeneSymbol().getDisplayText());
-		row.setGeneticEntityID(annotation.getSubject().getCurie());
-		row.setGeneticEntityName(annotation.getSubject().getGeneSymbol().getDisplayText());
-		row.setReference(primaryAnnotation.getSingleReference().getCurie());
+		// needs better generics or have subject attribute on the parent class (DiseaseAnnotation)
+		if(primaryAnnotation instanceof AGMDiseaseAnnotation){
+			AGMDiseaseAnnotation pAnnotation = (AGMDiseaseAnnotation) primaryAnnotation;
+			row.setGeneticEntityID(pAnnotation.getSubject().getCurie());
+			row.setGeneticEntityName(pAnnotation.getSubject().getName());
+		}
+		if(primaryAnnotation instanceof GeneDiseaseAnnotation){
+			GeneDiseaseAnnotation pAnnotation = (GeneDiseaseAnnotation) primaryAnnotation;
+			row.setGeneticEntityID(pAnnotation.getSubject().getCurie());
+			row.setGeneticEntityName(pAnnotation.getSubject().getGeneSymbol().getDisplayText());
+		}
+		if(primaryAnnotation instanceof AlleleDiseaseAnnotation){
+			AlleleDiseaseAnnotation pAnnotation = (AlleleDiseaseAnnotation) primaryAnnotation;
+			row.setGeneticEntityID(pAnnotation.getSubject().getCurie());
+			row.setGeneticEntityName(pAnnotation.getSubject().getAlleleSymbol().getDisplayText());
+		}
+		row.setReference(ReferenceService.getReferenceID(primaryAnnotation.getSingleReference()));
 		row.setSource(primaryAnnotation.getDataProvider().getAbbreviation());
 		if(primaryAnnotation.getDbDateCreated() != null) {
 			row.setDateAssigned(primaryAnnotation.getDbDateCreated().toString());
