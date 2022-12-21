@@ -39,7 +39,7 @@ import org.elasticsearch.client.indices.GetIndexResponse;
 import org.elasticsearch.cluster.metadata.AliasMetadata;
 import org.elasticsearch.cluster.metadata.RepositoryMetadata;
 import org.elasticsearch.common.Strings;
-import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.core.TimeValue;
 import org.elasticsearch.snapshots.SnapshotInfo;
 
 import lombok.extern.log4j.Log4j2;
@@ -71,7 +71,7 @@ public class IndexManager {
 	}
 
 	public void createAlias(String alias, String index) { // ES Util
-		log.debug("Creating Alias: " + alias + " for index: " + index);
+		log.info("Creating Alias: " + alias + " for index: " + index);
 
 		IndicesAliasesRequest request = new IndicesAliasesRequest();
 		IndicesAliasesRequest.AliasActions aliasAction = new IndicesAliasesRequest.AliasActions(IndicesAliasesRequest.AliasActions.Type.ADD).index(index).alias(alias);
@@ -86,7 +86,7 @@ public class IndexManager {
 
 	public void removeAlias(String alias, String index) { // ES Util
 
-		log.debug("Removing Alias: " + alias + " for index: " + index);
+		log.info("Removing Alias: " + alias + " for index: " + index);
 
 		IndicesAliasesRequest request = new IndicesAliasesRequest();
 		IndicesAliasesRequest.AliasActions removeAction = new IndicesAliasesRequest.AliasActions(IndicesAliasesRequest.AliasActions.Type.REMOVE).index(index).alias(alias);
@@ -215,7 +215,7 @@ public class IndexManager {
 			List<RepositoryMetadata> repositories = response.repositories();
 
 			if(repositories.size() == 0) {
-				log.debug("No Repo's found - Creating Repo");
+				log.info("No Repo's found - Creating Repo");
 				return createRepo(repoName);
 			} else {
 				for(RepositoryMetadata repo: repositories) {
@@ -240,6 +240,7 @@ public class IndexManager {
 
 			return repositories;
 		} catch (Exception ex) {
+			ex.printStackTrace();
 			log.error("Exception in getRepository method: " + ex.toString());
 		}
 		return null;
@@ -421,13 +422,13 @@ public class IndexManager {
 		createIndex(newIndexName);
 		createAlias(tempIndexName, newIndexName);
 
-		log.debug("Main Index Starting: ");
+		log.info("Main Index Starting: ");
 		return newIndexName;
 	}
 
 
 	public void finishIndex() {
-		log.debug("Main Index Finished: ");
+		log.info("Main Index Finished: ");
 		RefreshRequest request = new RefreshRequest(newIndexName);
 		try {
 			closableSearchClient.indices().refresh(request, RequestOptions.DEFAULT);
@@ -443,7 +444,7 @@ public class IndexManager {
 			e.printStackTrace();
 		}
 
-		log.debug(baseIndexName + " Finished: ");
+		log.info(baseIndexName + " Finished: ");
 	}
 
 	public void closeClient() throws IOException { // ES Util
