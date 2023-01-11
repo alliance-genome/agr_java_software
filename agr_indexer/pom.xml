@@ -75,6 +75,10 @@
 							<addClasspath>true</addClasspath>
 							<mainClass>org.alliancegenome.indexer.Main</mainClass>
 						</manifest>
+						<manifestEntries>
+							<Multi-Release>true</Multi-Release>
+							<Main-Class>org.alliancegenome.indexer.Main</Main-Class>
+						</manifestEntries>
 					</archive>
 					<descriptorRefs>
 						<descriptorRef>jar-with-dependencies</descriptorRef>
