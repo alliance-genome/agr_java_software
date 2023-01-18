@@ -54,13 +54,17 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
-				<version>2.3.2</version>
+				<version>3.0.2</version>
 				<configuration>
 					<archive>
 						<manifest>
 							<addClasspath>true</addClasspath>
 							<mainClass>org.alliancegenome.indexer.variant.Main</mainClass>
 						</manifest>
+						<manifestEntries>
+							<Multi-Release>true</Multi-Release>
+							<Main-Class>org.alliancegenome.indexer.variant.Main</Main-Class>
+						</manifestEntries>
 					</archive>
 				</configuration>
 			</plugin>
@@ -72,6 +76,10 @@
 							<addClasspath>true</addClasspath>
 							<mainClass>org.alliancegenome.indexer.variant.Main</mainClass>
 						</manifest>
+						<manifestEntries>
+							<Multi-Release>true</Multi-Release>
+							<Main-Class>org.alliancegenome.indexer.variant.Main</Main-Class>
+						</manifestEntries>
 					</archive>
 					<descriptorRefs>
 						<descriptorRef>jar-with-dependencies</descriptorRef>

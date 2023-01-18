@@ -80,7 +80,7 @@
 		<dependency>
 			<groupId>org.alliancegenome</groupId>
 			<artifactId>agr_curation_api</artifactId>
-			<version>v0.13.0</version>
+			<version>${curation.version}</version>
 			<exclusions>
 				<exclusion>
 					<groupId>*</groupId>
