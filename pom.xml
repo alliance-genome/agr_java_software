@@ -33,7 +33,7 @@
 		<quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
 		<quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
 		<quarkus.platform.version>${quarkus.version}</quarkus.platform.version>
-		<curation.version>0.0.0-SNAPSHOT</curation.version>
+		<curation.version>v0.15.0-rc2</curation.version>
 	</properties>
 
 

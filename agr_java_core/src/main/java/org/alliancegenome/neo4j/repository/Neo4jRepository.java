@@ -15,8 +15,6 @@ import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
@@ -25,10 +23,12 @@ import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 
+import io.quarkus.logging.Log;
+
 @SuppressWarnings("unchecked")
 public class Neo4jRepository<E> {
 
-	private final Logger log = LogManager.getLogger(getClass());
+	//private final Logger log = LogManager.getLogger(getClass());
 
 	protected Class<E> entityTypeClazz;
 
@@ -37,10 +37,11 @@ public class Neo4jRepository<E> {
 	
 	public Neo4jRepository(Class<E> entityTypeClazz) {
 		this.entityTypeClazz = entityTypeClazz;
+		Log.info("Creating Repo for: " + entityTypeClazz);
 		Configuration configuration = new Configuration.Builder().uri("bolt://" + ConfigHelper.getNeo4jHost() + ":" + ConfigHelper.getNeo4jPort()).build();
 		sessionFactory = new SessionFactory(configuration, "org.alliancegenome.neo4j.entity");
 		neo4jSession = sessionFactory.openSession();
-		log.info("------------------------------------- Starting sessionFactory: ----------------------------- ");
+		Log.info("------------------------------------- Starting sessionFactory: ----------------------------- ");
 	}
 
 	protected Iterable<E> getPage(int pageNumber, int pageSize, int depth) {
@@ -61,7 +62,7 @@ public class Neo4jRepository<E> {
 	}
 	
 	public void close() {
-		log.info("------------------------------------- Closing sessionFactory: ----------------------------- ");
+		Log.info("------------------------------------- Closing sessionFactory: ----------------------------- ");
 		sessionFactory.close();
 	}
 
@@ -91,10 +92,10 @@ public class Neo4jRepository<E> {
 	}
 	private <T> Iterable<T> loggedQueryByClass(Class<T> entityTypeClazz, String cypherQuery, Map<String, ?> params) {
 		Date start = new Date();
-		log.debug("Running Query: " + cypherQuery);
+		Log.debug("Running Query: " + cypherQuery);
 		Iterable<T> ret = neo4jSession.query(entityTypeClazz, cypherQuery, params);
 		Date end = new Date();
-		log.debug("Query took: " + ProcessDisplayHelper.getHumanReadableTimeDisplay(end.getTime() - start.getTime()) + " to run");
+		Log.debug("Query took: " + ProcessDisplayHelper.getHumanReadableTimeDisplay(end.getTime() - start.getTime()) + " to run");
 		return ret;
 	}
 	
@@ -109,10 +110,10 @@ public class Neo4jRepository<E> {
 	}
 	protected Result loggedQuery(String cypherQuery, Map<String, ?> params) {
 		Date start = new Date();
-		log.debug("Running Query: " + cypherQuery);
+		Log.debug("Running Query: " + cypherQuery);
 		Result ret = neo4jSession.query(cypherQuery, params);
 		Date end = new Date();
-		log.debug("Query took: " + ProcessDisplayHelper.getHumanReadableTimeDisplay(end.getTime() - start.getTime()) + " to run");
+		Log.debug("Query took: " + ProcessDisplayHelper.getHumanReadableTimeDisplay(end.getTime() - start.getTime()) + " to run");
 		return ret;
 	}
 
@@ -163,7 +164,7 @@ public class Neo4jRepository<E> {
 
 		}
 
-		log.info(returnMap.size() + " map entries");
+		Log.info(returnMap.size() + " map entries");
 
 		return returnMap;
 	}
@@ -193,7 +194,7 @@ public class Neo4jRepository<E> {
 			returnMap.get(key).add(rowMap);
 		}
 
-		log.info(returnMap.size() + " map entries");
+		Log.info(returnMap.size() + " map entries");
 
 		return returnMap;
 	}
