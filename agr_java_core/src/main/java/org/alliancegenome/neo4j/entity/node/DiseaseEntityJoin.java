@@ -14,12 +14,12 @@ import org.neo4j.ogm.annotation.Relationship;
 
 import lombok.Getter;
 import lombok.Setter;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
 @NodeEntity
 @Getter
 @Setter
-@Log4j2
+@Slf4j
 public class DiseaseEntityJoin extends EntityJoin {
 
 	@Relationship(type = "ASSOCIATION")

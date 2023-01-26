@@ -8,7 +8,6 @@
 	<packaging>pom</packaging>
 	<version>${revision}</version>
 	<name>AGR Java</name>
-
 	<modules>
 		<module>agr_java_core</module>
 		<module>agr_elasticsearch_util</module>
@@ -20,11 +19,9 @@
 		<module>agr_intermine_data_extractor</module>
 		<module>agr_variant_indexer</module>
 	</modules>
-
 	<properties>
 		<maven.compiler.source>17</maven.compiler.source>
 		<maven.compiler.target>17</maven.compiler.target>
-		
 		<revision>5.4.0</revision>
 		<quarkus.version>2.16.0.Final</quarkus.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -35,8 +32,6 @@
 		<quarkus.platform.version>${quarkus.version}</quarkus.platform.version>
 		<curation.version>v0.15.0-rc2</curation.version>
 	</properties>
-
-
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
@@ -50,7 +45,6 @@
 					</exclusion>
 				</exclusions>
 			</dependency>
-			
 			<dependency>
 				<groupId>${quarkus.platform.group-id}</groupId>
 				<artifactId>${quarkus.platform.artifact-id}</artifactId>
@@ -58,7 +52,6 @@
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
-			
 			<dependency>
 				<groupId>org.elasticsearch</groupId>
 				<artifactId>elasticsearch</artifactId>
@@ -74,7 +67,6 @@
 				<artifactId>elasticsearch-rest-high-level-client</artifactId>
 				<version>7.14.2</version>
 			</dependency>
-			
 			<dependency>
 				<groupId>org.infinispan</groupId>
 				<artifactId>infinispan-commons</artifactId>
@@ -92,9 +84,7 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
-		
 	<dependencies>
-
 		<dependency>
 			<groupId>org.codehaus.groovy</groupId>
 			<artifactId>groovy-all</artifactId>
@@ -109,9 +99,9 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-api</artifactId>
-			<version>2.17.1</version>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-simple</artifactId>
+			<version>1.7.21</version>
 		</dependency>
 		<dependency>
 			<groupId>org.spockframework</groupId>
@@ -122,13 +112,11 @@
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-engine</artifactId>
-			<version>5.6.2</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
-			<version>3.6</version>
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
@@ -136,7 +124,6 @@
 			<version>1.18.22</version>
 		</dependency>
 	</dependencies>
-
 	<build>
 		<plugins>
 			<plugin>
@@ -146,5 +133,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
 </project>

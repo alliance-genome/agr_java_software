@@ -21,9 +21,9 @@ import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.apache.commons.lang3.StringUtils;
 
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
-@Log4j2
+@Slf4j
 public class AlleleVariantSequenceColumnFieldMapping extends ColumnFieldMapping<AlleleVariantSequence> {
 
 	private Map<Column, Function<AlleleVariantSequence, Set<String>>> mapColumnAttribute = new HashMap<>();

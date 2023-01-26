@@ -22,9 +22,6 @@ import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.Sorting;
 import org.alliancegenome.neo4j.view.BaseFilter;
 
-import lombok.extern.jbosslog.JBossLog;
-
-@JBossLog
 public class FilterService<T> {
 
 	private AnnotationFiltering<T> filtering;

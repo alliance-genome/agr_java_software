@@ -15,9 +15,9 @@ import htsjdk.samtools.util.CloseableIterator;
 import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFFileReader;
 import htsjdk.variant.vcf.VCFInfoHeaderLine;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
-@Log4j2
+@Slf4j
 public class TestReadVCFFile {
 	LinkedBlockingDeque<ArrayList<VariantContext>> vcQueue = new LinkedBlockingDeque<ArrayList<VariantContext>>(100);
 	LinkedBlockingDeque<ArrayList<String>> jsonQueue = new LinkedBlockingDeque<ArrayList<String>>(1000);

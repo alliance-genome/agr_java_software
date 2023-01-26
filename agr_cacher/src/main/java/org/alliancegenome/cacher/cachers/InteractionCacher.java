@@ -17,8 +17,9 @@ import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
 import org.alliancegenome.neo4j.repository.InteractionRepository;
 import org.alliancegenome.neo4j.view.View;
 
-import lombok.extern.log4j.Log4j2;
-@Log4j2
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class InteractionCacher extends Cacher {
 
 	private static InteractionRepository interactionRepository;

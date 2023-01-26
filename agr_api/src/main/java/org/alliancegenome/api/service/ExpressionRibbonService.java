@@ -19,9 +19,9 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
-@Log4j2
+@Slf4j
 @RequestScoped
 public class ExpressionRibbonService {
 
@@ -39,7 +39,8 @@ public class ExpressionRibbonService {
 		try {
 			deepCopy = objectMapper.readValue(objectMapper.writeValueAsString(getRibbonSections()), RibbonSummary.class);
 		} catch (IOException e) {
-			log.error(e);
+			e.printStackTrace();
+			log.error("Error: " + e);
 		}
 
 		return deepCopy;

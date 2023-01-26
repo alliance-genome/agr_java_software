@@ -16,14 +16,13 @@ import org.alliancegenome.api.rest.interfaces.SiteMapRESTInterface;
 import org.alliancegenome.cache.repository.SiteMapCacheManager;
 import org.alliancegenome.core.config.ConfigHelper;
 
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
-@Log4j2
+@Slf4j
 @RequestScoped
 public class SiteMapController implements SiteMapRESTInterface {
 
 	@Inject SiteMapCacheManager manager;
-	//private final Logger log = Logger.getLogger(getClass());
 
 	@Override
 	public SiteMapIndex getSiteMap(UriInfo uriInfo) {

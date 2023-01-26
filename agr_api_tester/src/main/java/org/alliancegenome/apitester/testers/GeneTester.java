@@ -11,10 +11,10 @@ import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import si.mazi.rescu.RestProxyFactory;
 
-@Log4j2
+@Slf4j
 public class GeneTester extends Tester {
 
 	private GeneRepository repo = new GeneRepository();
@@ -47,7 +47,7 @@ public class GeneTester extends Tester {
 		
 		finishProcess();
 		log.info("Exceptions: " + exceptionQueue.size());
-		log.info(exceptionQueue);
+		log.info("Queue: " + exceptionQueue);
 	}
 	
 	class WorkerThread implements Runnable { 

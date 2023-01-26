@@ -12,9 +12,9 @@ import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.variant.config.VariantConfigHelper;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
-@Log4j2
+@Slf4j
 public class Main {
 
 	public static void main(String[] args) {

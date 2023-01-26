@@ -21,9 +21,6 @@ import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.apache.commons.collections4.CollectionUtils;
 
-import lombok.extern.jbosslog.JBossLog;
-
-@JBossLog
 public class AlleleColumnFieldMapping extends ColumnFieldMapping<Allele> {
 
 	private Map<Column, Function<Allele, Set<String>>> mapColumnAttribute = new HashMap<>();

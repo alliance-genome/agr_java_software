@@ -36,9 +36,9 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
-@Log4j2
+@Slf4j
 public class VariantESDAO extends ESDAO {
 
 	public static final String SITE_INDEX = ConfigHelper.getEsIndex();

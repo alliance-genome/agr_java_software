@@ -7,14 +7,14 @@ import javax.ws.rs.core.UriInfo;
 import org.alliancegenome.api.rest.interfaces.SearchRESTInterface;
 import org.alliancegenome.api.service.SearchService;
 import org.alliancegenome.es.model.search.SearchApiResponse;
-import org.jboss.logging.Logger;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @RequestScoped
 public class SearchController implements SearchRESTInterface {
 
 	@Inject SearchService searchService;
-
-	private Logger log = Logger.getLogger(getClass());
 
 	@Override
 	public SearchApiResponse search(String q, String category, Integer limit, Integer offset, String sort_by, Boolean debug, UriInfo uriInfo) {

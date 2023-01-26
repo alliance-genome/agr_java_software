@@ -14,9 +14,9 @@ import org.elasticsearch.client.RestHighLevelClient;
 
 import com.google.common.collect.Multimap;
 
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
-@Log4j2
+@Slf4j
 public class EsClientFactory {
 
 	private static Date lastClientChange = new Date();

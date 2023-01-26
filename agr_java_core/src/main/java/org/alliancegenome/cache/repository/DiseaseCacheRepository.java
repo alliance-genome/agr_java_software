@@ -33,9 +33,6 @@ import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import lombok.extern.log4j.Log4j2;
-
-@Log4j2
 @RequestScoped
 public class DiseaseCacheRepository {
 

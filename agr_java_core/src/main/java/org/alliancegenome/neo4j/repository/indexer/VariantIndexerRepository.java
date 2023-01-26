@@ -8,12 +8,11 @@ import java.util.concurrent.Executors;
 import org.alliancegenome.es.index.site.cache.VariantDocumentCache;
 import org.alliancegenome.neo4j.entity.node.Variant;
 import org.alliancegenome.neo4j.repository.Neo4jRepository;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class VariantIndexerRepository extends Neo4jRepository<Variant> {
-
-	private final Logger log = LogManager.getLogger(getClass());
 
 	private VariantDocumentCache cache = new VariantDocumentCache();
 	

@@ -16,9 +16,9 @@ import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.rescore.QueryRescorerBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
-import lombok.extern.jbosslog.JBossLog;
+import lombok.extern.slf4j.Slf4j;
 
-@JBossLog
+@Slf4j
 public class SearchDAO extends ESDAO {
 
 
@@ -91,9 +91,9 @@ public class SearchDAO extends ESDAO {
 		}
 
 		if(debug != null && debug) {
-			log.info(searchSourceBuilder);
+			log.info("searchSourceBuilder: " + searchSourceBuilder);
 		} else {
-			log.debug(searchSourceBuilder);
+			log.debug("searchSourceBuilder: " + searchSourceBuilder);
 		}
 
 		SearchRequest searchRequest = new SearchRequest(ConfigHelper.getEsIndex());
@@ -102,9 +102,9 @@ public class SearchDAO extends ESDAO {
 		//searchRequest.requestCache(true);
 
 		if(debug != null && debug) {
-			log.info(searchRequest);
+			log.info("Request: " + searchRequest);
 		} else {
-			log.debug(searchRequest);
+			log.debug("Request: " + searchRequest);
 		}
 
 		SearchResponse response = null;

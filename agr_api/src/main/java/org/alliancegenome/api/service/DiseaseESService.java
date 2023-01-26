@@ -40,9 +40,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
-import lombok.extern.jbosslog.JBossLog;
-
-@JBossLog
 @RequestScoped
 public class DiseaseESService {
 
@@ -101,10 +98,6 @@ public class DiseaseESService {
 			bool, aggBuilders, null, geneDiseaseSearchHelper.getResponseFields(),
 			pagination.getLimit(), pagination.getOffset(), hlb, "diseaseAnnotation", false);
 
-
-		log.info(geneIDs);
-		log.info(termID);
-		log.info(pagination);
 		JsonResultResponse<GeneDiseaseAnnotationDocument> ret = new JsonResultResponse<>();
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
 		Map<String, Object> supplementalData = new LinkedHashMap<>();

@@ -11,9 +11,9 @@ import org.alliancegenome.cache.CacheService;
 import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
 import org.alliancegenome.neo4j.view.OrthologView;
 
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
-@Log4j2
+@Slf4j
 @RequestScoped
 public class GeneCacheRepository {
 

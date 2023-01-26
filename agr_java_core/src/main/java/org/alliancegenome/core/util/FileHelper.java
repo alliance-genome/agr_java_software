@@ -17,9 +17,9 @@ import org.alliancegenome.core.config.ConfigHelper;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvException;
 
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
-@Log4j2
+@Slf4j
 public class FileHelper {
 
 	private static Map<String, Map<String, Boolean>> applicabilityMatrix = null;

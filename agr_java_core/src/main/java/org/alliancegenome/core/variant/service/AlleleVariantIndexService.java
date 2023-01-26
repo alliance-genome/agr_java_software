@@ -50,9 +50,9 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import lombok.extern.jbosslog.JBossLog;
+import lombok.extern.slf4j.Slf4j;
 
-@JBossLog
+@Slf4j
 @RequestScoped
 public class AlleleVariantIndexService {
 
@@ -73,7 +73,7 @@ public class AlleleVariantIndexService {
 			log.debug("BEFORE QUERY:" + new Date());
 
 			searchResponse = getSearchResponse(geneId);
-			log.debug(searchResponse.getHits().getHits().length);
+			log.debug("Len: " + searchResponse.getHits().getHits().length);
 			log.debug("AFTER QUERY:" + new Date() + "\tTOOK:" + searchResponse.getTook());
 
 			// searchHits = getSearchResponse(geneId,pagination);
@@ -205,7 +205,7 @@ public class AlleleVariantIndexService {
 		SearchRequest searchRequest = new SearchRequest(ConfigHelper.getEsIndex());
 
 		searchRequest.source(srb);
-		log.info(searchRequest);
+		log.info("Search Request: " + searchRequest);
 		return EsClientFactory.getDefaultEsClient().search(searchRequest, EsClientFactory.LARGE_RESPONSE_REQUEST_OPTIONS);
 	}
 

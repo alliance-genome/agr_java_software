@@ -42,9 +42,9 @@ import org.apache.commons.lang3.StringUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
-@Log4j2
+@Slf4j
 @RequestScoped
 public class DiseaseController implements DiseaseRESTInterface {
 
@@ -416,7 +416,8 @@ public class DiseaseController implements DiseaseRESTInterface {
 			responseBuilder.type(MediaType.TEXT_PLAIN_TYPE);
 			APIServiceHelper.setDownloadHeader(id, DISEASE, GENE, responseBuilder);
 		} catch (Exception e) {
-			log.error(e);
+			e.printStackTrace();
+			log.error("Error: " + e);
 			RestErrorMessage error = new RestErrorMessage();
 			error.addErrorMessage(e.getMessage());
 			throw new RestErrorException(error);
@@ -512,7 +513,8 @@ public class DiseaseController implements DiseaseRESTInterface {
 			responseBuilder.type(MediaType.TEXT_PLAIN_TYPE);
 			APIServiceHelper.setDownloadHeader(geneIDs.get(0), GENE, DISEASE, responseBuilder);
 		} catch (Exception e) {
-			log.error(e);
+			e.printStackTrace();
+			log.error("Error: " + e);
 			RestErrorMessage error = new RestErrorMessage();
 			error.addErrorMessage(e.getMessage());
 			throw new RestErrorException(error);

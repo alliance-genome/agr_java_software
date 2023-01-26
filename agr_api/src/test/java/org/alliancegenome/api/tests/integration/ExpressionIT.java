@@ -1,19 +1,27 @@
 package org.alliancegenome.api.tests.integration;
 
 import static org.hamcrest.Matchers.greaterThan;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
-import org.alliancegenome.api.dto.*;
+import org.alliancegenome.api.dto.EntitySubgroupSlim;
+import org.alliancegenome.api.dto.RibbonSummary;
 import org.alliancegenome.api.service.ExpressionService;
 import org.alliancegenome.cache.repository.ExpressionCacheRepository;
-import org.alliancegenome.cache.repository.helper.*;
+import org.alliancegenome.cache.repository.helper.JsonResultResponse;
+import org.alliancegenome.cache.repository.helper.PaginationResult;
 import org.alliancegenome.core.ExpressionDetail;
-import org.alliancegenome.es.model.query.*;
+import org.alliancegenome.es.model.query.FieldFilter;
+import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.node.GOTerm;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.view.BaseFilter;
