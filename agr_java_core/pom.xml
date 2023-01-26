@@ -11,37 +11,24 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<jackson.version>2.14.0</jackson.version>
-		<infinispan.version>13.0.10.Final</infinispan.version>
-		<quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
-		<quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
-		<quarkus.platform.version>2.14.2.Final</quarkus.platform.version>
 	</properties>
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>${quarkus.platform.group-id}</groupId>
-				<artifactId>${quarkus.platform.artifact-id}</artifactId>
-				<version>${quarkus.platform.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
+
 	<dependencies>
+		<dependency>
+			<groupId>org.alliancegenome</groupId>
+			<artifactId>agr_curation_api</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.infinispan</groupId>
 			<artifactId>infinispan-commons</artifactId>
-			<version>13.0.10.Final</version>
 		</dependency>
 		<dependency>
 			<groupId>org.infinispan</groupId>
 			<artifactId>infinispan-core</artifactId>
-			<version>13.0.10.Final</version>
 		</dependency>
 		<dependency>
 			<groupId>org.infinispan</groupId>
 			<artifactId>infinispan-client-hotrod</artifactId>
-			<version>13.0.10.Final</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.mmazi</groupId>
@@ -76,17 +63,6 @@
 			<groupId>io.quarkus</groupId>
 			<artifactId>quarkus-resteasy-jackson</artifactId>
 			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.alliancegenome</groupId>
-			<artifactId>agr_curation_api</artifactId>
-			<version>${curation.version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>*</groupId>
-					<artifactId>*</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.neo4j</groupId>
@@ -124,17 +100,14 @@
 		<dependency>
 			<groupId>org.elasticsearch</groupId>
 			<artifactId>elasticsearch</artifactId>
-			<version>7.14.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.elasticsearch</groupId>
 			<artifactId>elasticsearch-core</artifactId>
-			<version>7.14.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.elasticsearch.client</groupId>
 			<artifactId>elasticsearch-rest-high-level-client</artifactId>
-			<version>7.14.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>

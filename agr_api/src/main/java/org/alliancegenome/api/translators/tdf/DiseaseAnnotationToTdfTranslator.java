@@ -179,7 +179,7 @@ public class DiseaseAnnotationToTdfTranslator {
 			AGMDiseaseAnnotation pAnnotation = (AGMDiseaseAnnotation) primaryAnnotation;
 			row.setGeneticEntityID(pAnnotation.getSubject().getCurie());
 			row.setGeneticEntityName(pAnnotation.getSubject().getName());
-			row.setGeneticEntityType(pAnnotation.getSubject().getSubtype().name());
+			row.setGeneticEntityType(pAnnotation.getSubject().getSubtype().getName());
 		}
 		if(primaryAnnotation instanceof GeneDiseaseAnnotation){
 			GeneDiseaseAnnotation pAnnotation = (GeneDiseaseAnnotation) primaryAnnotation;

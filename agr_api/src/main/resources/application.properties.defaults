@@ -1,8 +1,8 @@
 
 DEBUG=false
-ES_HOST=build.alliancegenome.org
-NEO4J_HOST=build.alliancegenome.org
-CACHE_HOST=build.alliancegenome.org
+ES_HOST=build.cluster01.alliancegenome.org
+NEO4J_HOST=stage.alliancegenome.org
+CACHE_HOST=stage.alliancegenome.org
 
 AWS_BUCKET_NAME=
 AWS_ACCESS_KEY=
