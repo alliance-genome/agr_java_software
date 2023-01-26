@@ -1,13 +1,11 @@
 package org.alliancegenome.api.controller;
 
 import java.io.IOException;
-import java.net.http.HttpRequest;
 import java.time.LocalDateTime;
 import java.util.List;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import javax.ws.rs.core.Context;
 
 import org.alliancegenome.api.rest.interfaces.OrthologyRESTInterface;
 import org.alliancegenome.cache.repository.OrthologyCacheRepository;

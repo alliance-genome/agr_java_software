@@ -30,9 +30,9 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
-@Log4j2
+@Slf4j
 public class DiseaseAnnotationCurationIndexer extends Indexer {
 
 	private GeneDiseaseAnnotationService geneService = new GeneDiseaseAnnotationService();

@@ -1,8 +1,9 @@
 package org.alliancegenome.api.entity;
 
+import org.alliancegenome.curation_api.model.entities.Gene;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.alliancegenome.curation_api.model.entities.Gene;
 
 @Data
 @EqualsAndHashCode(callSuper = true)

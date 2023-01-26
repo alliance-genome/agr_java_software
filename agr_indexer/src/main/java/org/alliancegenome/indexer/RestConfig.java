@@ -7,11 +7,11 @@ import org.alliancegenome.curation_api.config.RestDefaultObjectMapper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import si.mazi.rescu.ClientConfig;
 import si.mazi.rescu.serialization.jackson.JacksonObjectMapperFactory;
 
-@Log4j2
+@Slf4j
 public class RestConfig {
 
 	public static ClientConfig config = new ClientConfig();

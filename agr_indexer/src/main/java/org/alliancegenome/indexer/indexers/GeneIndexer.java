@@ -11,12 +11,12 @@ import org.alliancegenome.es.index.site.document.SearchableItemDocument;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.repository.indexer.GeneIndexerRepository;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class GeneIndexer extends Indexer {
 
-	private final Logger log = LogManager.getLogger(getClass());
 	private GeneDocumentCache geneDocumentCache;
 
 	public GeneIndexer(IndexerConfig config) {

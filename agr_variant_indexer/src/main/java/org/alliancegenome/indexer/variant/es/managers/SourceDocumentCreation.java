@@ -38,9 +38,9 @@ import htsjdk.samtools.util.CloseableIterator;
 import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFFileReader;
 import htsjdk.variant.vcf.VCFInfoHeaderLine;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
-@Log4j2
+@Slf4j
 public class SourceDocumentCreation extends Thread {
 
 	private final GeneDocumentCache geneCache;
@@ -76,11 +76,11 @@ public class SourceDocumentCreation extends Thread {
 	
 	private int[][] jqs = new int[4][2]; // Json Queue Stats
 
-	private ProcessDisplayHelper ph1 = new ProcessDisplayHelper(log, VariantConfigHelper.getDisplayInterval());
-	private ProcessDisplayHelper ph2 = new ProcessDisplayHelper(log, VariantConfigHelper.getDisplayInterval());
-	private ProcessDisplayHelper ph3 = new ProcessDisplayHelper(log, VariantConfigHelper.getDisplayInterval());
-	private ProcessDisplayHelper ph4 = new ProcessDisplayHelper(log, VariantConfigHelper.getDisplayInterval());
-	private ProcessDisplayHelper ph5 = new ProcessDisplayHelper(log, VariantConfigHelper.getDisplayInterval());
+	private ProcessDisplayHelper ph1 = new ProcessDisplayHelper(VariantConfigHelper.getDisplayInterval());
+	private ProcessDisplayHelper ph2 = new ProcessDisplayHelper(VariantConfigHelper.getDisplayInterval());
+	private ProcessDisplayHelper ph3 = new ProcessDisplayHelper(VariantConfigHelper.getDisplayInterval());
+	private ProcessDisplayHelper ph4 = new ProcessDisplayHelper(VariantConfigHelper.getDisplayInterval());
+	private ProcessDisplayHelper ph5 = new ProcessDisplayHelper(VariantConfigHelper.getDisplayInterval());
 	
 	private int[][] config_settings = VariantConfigHelper.getBulkProcessorSettingsArray();
 

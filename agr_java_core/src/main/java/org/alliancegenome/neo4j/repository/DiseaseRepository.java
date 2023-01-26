@@ -4,7 +4,6 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -28,7 +27,6 @@ import org.alliancegenome.neo4j.entity.node.GOTerm;
 import org.alliancegenome.neo4j.entity.node.PublicationJoin;
 import org.alliancegenome.neo4j.entity.node.UBERONTerm;
 import org.alliancegenome.neo4j.view.BaseFilter;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.neo4j.ogm.model.Result;
 

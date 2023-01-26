@@ -8,11 +8,10 @@ import org.alliancegenome.core.filedownload.model.DownloadSource;
 import org.alliancegenome.core.variant.config.VariantConfigHelper;
 import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.neo4j.repository.indexer.GeneIndexerRepository;
-import org.elasticsearch.client.RestHighLevelClient;
 
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
-@Log4j2
+@Slf4j
 public class SourceDocumentCreationManager extends Thread {
 
 	private DownloadFileSet downloadSet;

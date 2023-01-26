@@ -10,14 +10,14 @@ import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.repository.indexer.AlleleIndexerRepository;
 import org.alliancegenome.neo4j.view.View;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import com.fasterxml.jackson.databind.MapperFeature;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class AlleleIndexer extends Indexer {
 
-	private final Logger log = LogManager.getLogger(getClass());
 	private AlleleDocumentCache alleleDocumentCache;
 	private AlleleIndexerRepository repo;
 

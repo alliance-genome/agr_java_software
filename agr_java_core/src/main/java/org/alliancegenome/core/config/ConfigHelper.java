@@ -1,18 +1,50 @@
 package org.alliancegenome.core.config;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
-import lombok.extern.log4j.Log4j2;
-import org.alliancegenome.core.util.FileHelper;
+import static org.alliancegenome.core.config.Constants.ALLIANCE_RELEASE;
+import static org.alliancegenome.core.config.Constants.AO_TERM_LIST;
+import static org.alliancegenome.core.config.Constants.API_HOST;
+import static org.alliancegenome.core.config.Constants.API_PORT;
+import static org.alliancegenome.core.config.Constants.API_SECURE;
+import static org.alliancegenome.core.config.Constants.AWS_BUCKET_NAME;
+import static org.alliancegenome.core.config.Constants.CACHE_HOST;
+import static org.alliancegenome.core.config.Constants.CACHE_PORT;
+import static org.alliancegenome.core.config.Constants.CURATION_API_TOKEN;
+import static org.alliancegenome.core.config.Constants.CURATION_API_URL;
+import static org.alliancegenome.core.config.Constants.DEBUG;
+import static org.alliancegenome.core.config.Constants.ES_BULK_ACTION_SIZE;
+import static org.alliancegenome.core.config.Constants.ES_BULK_CONCURRENT_REQUESTS;
+import static org.alliancegenome.core.config.Constants.ES_BULK_REQUEST_SIZE;
+import static org.alliancegenome.core.config.Constants.ES_HOST;
+import static org.alliancegenome.core.config.Constants.ES_INDEX;
+import static org.alliancegenome.core.config.Constants.ES_INDEX_PREFIX;
+import static org.alliancegenome.core.config.Constants.ES_INDEX_SUFFIX;
+import static org.alliancegenome.core.config.Constants.ES_PORT;
+import static org.alliancegenome.core.config.Constants.EXTRACTOR_OUTPUTDIR;
+import static org.alliancegenome.core.config.Constants.FMS_URL;
+import static org.alliancegenome.core.config.Constants.GO_TERM_LIST;
+import static org.alliancegenome.core.config.Constants.INDEX_VARIANTS;
+import static org.alliancegenome.core.config.Constants.NEO4J_HOST;
+import static org.alliancegenome.core.config.Constants.NEO4J_PORT;
+import static org.alliancegenome.core.config.Constants.POPULARITY_DOWNLOAD_URL;
+import static org.alliancegenome.core.config.Constants.POPULARITY_FILE_NAME;
+import static org.alliancegenome.core.config.Constants.RIBBON_TERM_SPECIES_APPLICABILITY;
+import static org.alliancegenome.core.config.Constants.THREADED;
+import static org.alliancegenome.core.config.Constants.VARIANT_CACHER_CONFIG_FILE;
+import static org.alliancegenome.core.config.Constants.VARIANT_DOWNLOAD_PATH;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Properties;
 import java.util.Set;
 
-import static org.alliancegenome.core.config.Constants.*;
+import org.alliancegenome.core.util.FileHelper;
 
-@Log4j2
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class ConfigHelper {
 
 	private static Date appStart = new Date();

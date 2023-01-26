@@ -1,15 +1,16 @@
 package org.alliancegenome.indexer.indexers.curation.service;
 
-import lombok.Getter;
+import java.util.HashMap;
+import java.util.List;
+
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.model.entities.VocabularyTerm;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.rest.interfaces.VocabularyRESTInterface;
-import si.mazi.rescu.RestProxyFactory;
 
-import java.util.HashMap;
-import java.util.List;
+import lombok.Getter;
+import si.mazi.rescu.RestProxyFactory;
 
 public class VocabularyService {
 

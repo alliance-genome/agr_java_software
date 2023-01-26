@@ -10,12 +10,12 @@ import org.alliancegenome.es.index.site.document.SearchableItemDocument;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.neo4j.entity.node.Variant;
 import org.alliancegenome.neo4j.repository.indexer.VariantIndexerRepository;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class VariantIndexer extends Indexer {
 
-	private final Logger log = LogManager.getLogger(getClass());
 	private VariantIndexerRepository repo;
 	private IndexerCache cache;
 

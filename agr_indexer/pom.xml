@@ -38,13 +38,6 @@
 		<dependency>
 			<groupId>org.alliancegenome</groupId>
 			<artifactId>agr_curation_api</artifactId>
-			<version>${curation.version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>*</groupId>
-					<artifactId>*</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 	</dependencies>
 	<build>

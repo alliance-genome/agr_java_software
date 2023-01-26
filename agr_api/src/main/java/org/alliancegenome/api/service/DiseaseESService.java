@@ -1,11 +1,20 @@
 package org.alliancegenome.api.service;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import lombok.extern.jbosslog.JBossLog;
+import static org.alliancegenome.cache.repository.helper.JsonResultResponse.DISTINCT_FIELD_VALUES;
+import static org.alliancegenome.cache.repository.helper.JsonResultResponse.getEmptyInstance;
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+
 import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.api.service.helper.GeneDiseaseSearchHelper;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
@@ -25,14 +34,13 @@ import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import java.util.*;
-import java.util.stream.Collectors;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
-import static org.alliancegenome.cache.repository.helper.JsonResultResponse.DISTINCT_FIELD_VALUES;
-import static org.alliancegenome.cache.repository.helper.JsonResultResponse.getEmptyInstance;
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import lombok.extern.jbosslog.JBossLog;
 
 @JBossLog
 @RequestScoped

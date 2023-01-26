@@ -7,7 +7,6 @@ import java.util.stream.StreamSupport;
 
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Variant;
-import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
 
 public class VariantRepository extends Neo4jRepository<Variant> {
 

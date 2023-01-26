@@ -13,10 +13,8 @@ import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.indexers.curation.interfaces.GeneDiseaseAnnotationInterface;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 
-import lombok.extern.log4j.Log4j2;
 import si.mazi.rescu.RestProxyFactory;
 
-@Log4j2
 public class GeneDiseaseAnnotationService {
 
 	private GeneDiseaseAnnotationInterface geneApi = RestProxyFactory.createProxy(GeneDiseaseAnnotationInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);

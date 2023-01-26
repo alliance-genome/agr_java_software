@@ -26,9 +26,9 @@ import htsjdk.variant.variantcontext.writer.VariantContextWriter;
 import htsjdk.variant.variantcontext.writer.VariantContextWriterBuilder;
 import htsjdk.variant.vcf.VCFFileReader;
 import htsjdk.variant.vcf.VCFHeader;
-import lombok.extern.jbosslog.JBossLog;
+import lombok.extern.slf4j.Slf4j;
 
-@JBossLog
+@Slf4j
 public class TestDownloadSplitUploadHuman {
 
 	private AmazonS3 s3Client;

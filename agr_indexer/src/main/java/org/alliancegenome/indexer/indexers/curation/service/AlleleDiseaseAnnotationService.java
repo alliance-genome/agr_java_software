@@ -13,10 +13,8 @@ import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.indexers.curation.interfaces.AlleleDiseaseAnnotationInterface;
 import org.alliancegenome.neo4j.repository.AlleleRepository;
 
-import lombok.extern.log4j.Log4j2;
 import si.mazi.rescu.RestProxyFactory;
 
-@Log4j2
 public class AlleleDiseaseAnnotationService {
 
 	private AlleleDiseaseAnnotationInterface alleleApi = RestProxyFactory.createProxy(AlleleDiseaseAnnotationInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);

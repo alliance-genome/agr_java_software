@@ -7,7 +7,11 @@ import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 import org.alliancegenome.api.entity.AlleleVariantSequence;
-import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.neo4j.entity.node.Allele;
+import org.alliancegenome.neo4j.entity.node.Construct;
+import org.alliancegenome.neo4j.entity.node.Publication;
+import org.alliancegenome.neo4j.entity.node.TranscriptLevelConsequence;
+import org.alliancegenome.neo4j.entity.node.Variant;
 import org.apache.commons.collections.CollectionUtils;
 
 public class AlleleToTdfTranslator {
