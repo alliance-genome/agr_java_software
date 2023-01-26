@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 
 import lombok.extern.slf4j.Slf4j;
@@ -39,8 +40,7 @@ public class CacheService {
 	}
 
 	static {
-		mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
-		// mapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false);
+		mapper = JsonMapper.builder().configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false).build();
 		mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 		mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
 		mapper.enable(SerializationFeature.INDENT_OUTPUT);
@@ -112,7 +112,7 @@ public class CacheService {
 		return getCacheSpace(cacheSpace).get(entityId);
 	}
 
-	public void putCacheEntry(String primaryKey, List items, Class<?> classView, CacheAlliance cacheAlliance) {
+	public void putCacheEntry(String primaryKey, List<?> items, Class<?> classView, CacheAlliance cacheAlliance) {
 		RemoteCache<String, String> cache = getCacheSpace(cacheAlliance);
 		String value;
 		try {

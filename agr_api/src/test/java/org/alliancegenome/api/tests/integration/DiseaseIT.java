@@ -934,7 +934,6 @@ public class DiseaseIT {
 	}
 
 
-	@SuppressWarnings("unchecked")
 	public static void main(String[] args) {
 		ConfigHelper.init();
 

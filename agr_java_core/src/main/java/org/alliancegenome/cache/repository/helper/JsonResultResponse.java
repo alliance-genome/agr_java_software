@@ -73,7 +73,11 @@ public class JsonResultResponse<T> {
 		if (request == null)
 			return;
 		this.request = new Request();
-		this.request.setUri(URLDecoder.decode(request.uri().toString()));
+		try {
+			this.request.setUri(URLDecoder.decode(request.uri().toString(), "UTF-8"));
+		} catch (Exception e) {
+			
+		}
 		//this.request.setParameterMap(request.);
 	}
 

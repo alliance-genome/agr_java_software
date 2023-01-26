@@ -29,6 +29,7 @@ import org.alliancegenome.neo4j.view.View;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -178,8 +179,7 @@ public class OrthologyCacheRepository {
 	}
 
 	public static JsonResultResponse<OrthologView> getOrthologyJson(Gene gene, OrthologyFilter filter) {
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
+		ObjectMapper mapper = JsonMapper.builder().configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false).build();
 		mapper.registerModule(new OrthologyModule());
 		JsonResultResponse<OrthologView> response = OrthologyCacheRepository.getOrthologViewList(gene, filter);
 		return response;
