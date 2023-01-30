@@ -16,6 +16,7 @@ import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.DiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.Gene;
 import org.alliancegenome.curation_api.model.entities.GeneDiseaseAnnotation;
+import org.alliancegenome.es.index.site.doclet.SpeciesDoclet;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
@@ -106,7 +107,12 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 				// gdad.setDataProvider(da.getDataProvider());
 				gdad.addReference(da.getSingleReference());
 				gdad.addPrimaryAnnotation(da);
-				gdad.setPhylogeneticSortingIndex(SpeciesType.getPhylogeneticIndex(entry.getValue().getLeft().getTaxon().getCurie()));
+				SpeciesDoclet doc = SpeciesType.fromTaxonId(entry.getValue().getLeft().getTaxon().getCurie());
+				if(doc != null) {
+					gdad.setPhylogeneticSortingIndex(doc.getOrderID());
+				} else {
+					gdad.setPhylogeneticSortingIndex(100);
+				}
 			}
 			ph.progressProcess();
 			ret.addAll(lookup.values());

@@ -98,14 +98,6 @@ public enum SpeciesType {
 		return null;
 	}
 
-	public static int getPhylogeneticIndex(String taxonID) {
-		SpeciesType speciesType1 = Arrays.stream(values()).filter(speciesType -> speciesType.getTaxonID().equals(taxonID)).findFirst().orElseGet(null);
-		if (speciesType1 != null)
-			return speciesType1.getOrderID();
-		log.error("Could not find phylogenetic sorting index for " + taxonID);
-		return 100;
-	}
-
 	public static SpeciesDoclet getByModNameOrIdPart(String string) {
 		if (fromTaxonIdPart(string) != null) {
 			return fromTaxonIdPart(string);
