@@ -110,7 +110,7 @@ public class DiseaseCacheRepository {
 		return getDiseaseAnnotationPaginationResult(pagination, slimDiseaseAnnotationList);
 	}
 
-	private PaginationResult<DiseaseAnnotation> getDiseaseAnnotationPaginationResult(Pagination pagination, List<DiseaseAnnotation> slimDiseaseAnnotationList) {
+	public PaginationResult<DiseaseAnnotation> getDiseaseAnnotationPaginationResult(Pagination pagination, List<DiseaseAnnotation> slimDiseaseAnnotationList) {
 		FilterService<DiseaseAnnotation> filterService = new FilterService<>(new DiseaseAnnotationFiltering());
 		BaseFilter negationFilter = new BaseFilter();
 		negationFilter.addFieldFilter(FieldFilter.INCLUDE_NEGATION, pagination.getFieldFilterValueMap().getFilterValue(FieldFilter.INCLUDE_NEGATION));

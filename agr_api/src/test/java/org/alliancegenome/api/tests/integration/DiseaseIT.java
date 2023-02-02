@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 
 import org.alliancegenome.api.controller.DiseaseController;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
+import org.alliancegenome.api.service.DiseaseESService;
 import org.alliancegenome.api.translators.tdf.DiseaseAnnotationToTdfTranslator;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.api.service.DiseaseService;
@@ -48,6 +49,8 @@ public class DiseaseIT {
 
 	private ObjectMapper mapper = new ObjectMapper();
 	private DiseaseService diseaseService = new DiseaseService();
+	private DiseaseESService diseaseESService = new DiseaseESService();
+
 	private DiseaseController diseaseController = new DiseaseController();
 	DiseaseService service = new DiseaseService();
 
@@ -703,7 +706,7 @@ public class DiseaseIT {
 	@Test
 	// Test Sox9 from MGI for disease via experiment records
 	public void checkDiseaseRibbonHeader() {
-		DiseaseRibbonSummary summary = diseaseService.getDiseaseRibbonSummary(List.of("MGI:98297"), null);
+		DiseaseRibbonSummary summary = diseaseESService.getDiseaseRibbonSummary(List.of("MGI:98297"), null);
 		assertNotNull(summary);
 	}
 

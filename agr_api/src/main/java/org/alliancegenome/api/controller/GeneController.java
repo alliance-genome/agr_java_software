@@ -21,10 +21,7 @@ import org.alliancegenome.api.dto.JoinTypeValue;
 import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
-import org.alliancegenome.api.service.AlleleService;
-import org.alliancegenome.api.service.EntityType;
-import org.alliancegenome.api.service.ExpressionService;
-import org.alliancegenome.api.service.GeneService;
+import org.alliancegenome.api.service.*;
 import org.alliancegenome.api.service.helper.APIServiceHelper;
 import org.alliancegenome.api.translators.tdf.DiseaseAnnotationToTdfTranslator;
 import org.alliancegenome.cache.repository.ExpressionCacheRepository;
@@ -73,6 +70,9 @@ public class GeneController implements GeneRESTInterface {
 	//private HttpRequest request;
 
 	@Inject ExpressionService service;
+
+	@Inject
+	DiseaseESService diseaseESService;
 
 	private static final PhenotypeAnnotationToTdfTranslator translator = new PhenotypeAnnotationToTdfTranslator();
 	private static final AlleleToTdfTranslator alleleTanslator = new AlleleToTdfTranslator();
@@ -616,7 +616,7 @@ public class GeneController implements GeneRESTInterface {
 			ids.add(id);
 
 		try {
-			return diseaseService.getDiseaseRibbonSummary(ids, includeNegation);
+			return diseaseESService.getDiseaseRibbonSummary(ids, includeNegation);
 		} catch (Exception e) {
 			log.error("Error while creating disease ribbon summary", e);
 			RestErrorMessage error = new RestErrorMessage();
