@@ -21,16 +21,16 @@ import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.entity.node.SimpleTerm;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @RequestScoped
 public class DiseaseRibbonService {
 
-	private Log log = LogFactory.getLog(getClass());
-	private DiseaseRepository diseaseRepository;
+	private final DiseaseRepository diseaseRepository;
 
 	private static DiseaseRibbonSummary diseaseRibbonSummary;
 
@@ -46,7 +46,7 @@ public class DiseaseRibbonService {
 		try {
 			deepCopy = objectMapper.readValue(objectMapper.writeValueAsString(getDiseaseRibbonSections()), DiseaseRibbonSummary.class);
 		} catch (IOException e) {
-			log.error(e);
+			log.error(e.toString());
 		}
 
 		return deepCopy;
@@ -98,13 +98,13 @@ public class DiseaseRibbonService {
 		});
 
 		diseaseRibbonSummary.getDiseaseRibbonSections().stream()
-				.filter(diseaseRibbonSection -> diseaseRibbonSection.getId() != null)
-				.filter(diseaseRibbonSection -> !diseaseRibbonSection.getId().equals(DiseaseRibbonSummary.DOID_ALL_ANNOTATIONS))
-				.filter(diseaseRibbonSection -> !diseaseRibbonSection.getId().equals(DOID_OTHER))
-				.forEach(diseaseRibbonSection -> {
-					DOTerm term = diseaseRepository.getShallowDiseaseTerm(diseaseRibbonSection.getId());
-					diseaseRibbonSection.setDescription(term.getDefinition());
-				});
+			.filter(diseaseRibbonSection -> diseaseRibbonSection.getId() != null)
+			.filter(diseaseRibbonSection -> !diseaseRibbonSection.getId().equals(DiseaseRibbonSummary.DOID_ALL_ANNOTATIONS))
+			.filter(diseaseRibbonSection -> !diseaseRibbonSection.getId().equals(DOID_OTHER))
+			.forEach(diseaseRibbonSection -> {
+				DOTerm term = diseaseRepository.getShallowDiseaseTerm(diseaseRibbonSection.getId());
+				diseaseRibbonSection.setDescription(term.getDefinition());
+			});
 
 //		  Map<String, Set<String>> closureMapping = diseaseRepository.getClosureChildToParentsMapping();
 
@@ -149,7 +149,7 @@ public class DiseaseRibbonService {
 
 	private Set<String> getParentIDsFromStream(Stream<String> stream, String doID) {
 		return stream.filter(id -> diseaseRepository.getDOParentTermIDs(doID).contains(id))
-				.collect(Collectors.toSet());
+			.collect(Collectors.toSet());
 	}
 
 }
