@@ -1,6 +1,19 @@
 package org.alliancegenome.core.api.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static org.alliancegenome.api.entity.DiseaseRibbonSummary.DOID_OTHER;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import javax.enterprise.context.RequestScoped;
+
 import org.alliancegenome.api.entity.DiseaseRibbonSection;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.api.entity.SectionSlim;
@@ -8,21 +21,15 @@ import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.entity.node.SimpleTerm;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
-import javax.enterprise.context.RequestScoped;
-import java.io.IOException;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import static org.alliancegenome.api.entity.DiseaseRibbonSummary.DOID_OTHER;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RequestScoped
 public class DiseaseRibbonService {
 
-	private final Log log = LogFactory.getLog(getClass());
 	private final DiseaseRepository diseaseRepository;
 
 	private static DiseaseRibbonSummary diseaseRibbonSummary;
@@ -39,7 +46,7 @@ public class DiseaseRibbonService {
 		try {
 			deepCopy = objectMapper.readValue(objectMapper.writeValueAsString(getDiseaseRibbonSections()), DiseaseRibbonSummary.class);
 		} catch (IOException e) {
-			log.error(e);
+			log.error(e.toString());
 		}
 
 		return deepCopy;
