@@ -458,14 +458,16 @@ public class DiseaseController implements DiseaseRESTInterface {
 		pagination.addFilterOption("object.name", diseaseTerm);
 		pagination.addFilterOption("evidenceCodes.abbreviation", evidenceCode);
 		pagination.addFilterOption("diseaseRelation.name", associationType);
-		pagination.addFilterOption("subject.symbol", filterGene);
-		pagination.addFilterOption("subject.taxon.name", filterSpecies);
-		pagination.addFilterOption("primaryAnnotations.dataProvider|primaryAnnotations.secondaryDataProvider", filterSource);
+		pagination.addFilterOption("subject.geneSymbol.displayText", filterGene);
+		pagination.addFilterOption("subject.taxon.name.keyword", filterSpecies);
+		pagination.addFilterOption("with.geneSymbol.displayText", basedOnGeneSymbol);
+		pagination.addFilterOption("dataProvider.uniqueId.keyword", filterSource);
 		pagination.addFilterOption("references.crossReferences.curie", filterReference);
+/*
 		BaseFilter filterMap = new BaseFilter();
 		filterMap.put(FieldFilter.INCLUDE_NEGATION, includeNegation);
 		filterMap.values().removeIf(Objects::isNull);
-		pagination.setFieldFilterValueMap(filterMap);
+*/
 
 		if (pagination.hasErrors()) {
 			RestErrorMessage message = new RestErrorMessage();
