@@ -362,14 +362,14 @@ public interface DiseaseRESTInterface {
 			@QueryParam("filterOptions") String filterOptions,
 			@Parameter(in = ParameterIn.QUERY, name = "filter.subject.taxon", description = "Species by taxon ID", schema = @Schema(type = SchemaType.STRING))
 			@QueryParam("filter.species") String filterSpecies,
-			@Parameter(in = ParameterIn.QUERY, name = "filter.subject.curie", description = "Gene symbol", schema = @Schema(type = SchemaType.STRING))
-			@QueryParam("filter.subject.curie") String filterGene,
+			@Parameter(in = ParameterIn.QUERY, name = "filter.subject.symbol", description = "Gene symbol", schema = @Schema(type = SchemaType.STRING))
+			@QueryParam("filter.subject.symbol") String filterGene,
 			@Parameter(in = ParameterIn.QUERY, name = "filter.reference", description = "Reference", schema = @Schema(type = SchemaType.STRING))
 			@QueryParam("filter.reference") String filterReference,
 			@Parameter(in = ParameterIn.QUERY, name = "filter.object.curie", description = "Ontology term name", schema = @Schema(type = SchemaType.STRING))
 			@QueryParam("filter.object.curie") String diseaseTerm,
-			@Parameter(in = ParameterIn.QUERY, name = "filter.source", description = "Source", schema = @Schema(type = SchemaType.STRING))
-			@QueryParam("filter.provider") String filterSource,
+			@Parameter(in = ParameterIn.QUERY, name = "filter.dataProvider", description = "Source", schema = @Schema(type = SchemaType.STRING))
+			@QueryParam("filter.dataProvider") String filterSource,
 			@Parameter(in = ParameterIn.QUERY, name = "filter.geneticEntity", description = "geneticEntity", schema = @Schema(type = SchemaType.STRING))
 			@QueryParam("filter.geneticEntity") String geneticEntity,
 			@Parameter(in = ParameterIn.QUERY, name = "filter.geneticEntityType", description = "geneticEntityType", schema = @Schema(type = SchemaType.STRING))
