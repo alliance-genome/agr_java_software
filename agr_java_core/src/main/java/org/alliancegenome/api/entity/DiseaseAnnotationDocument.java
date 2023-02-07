@@ -27,7 +27,7 @@ public class DiseaseAnnotationDocument extends SearchableItemDocument {
 	private Reference singleReference;
 	private Set<Reference> references;
 
-	Set<String> parentSlimIDs;
+	private Set<String> parentSlimIDs;
 	private List<DiseaseAnnotation> primaryAnnotations;
 
 	public DiseaseAnnotationDocument() {

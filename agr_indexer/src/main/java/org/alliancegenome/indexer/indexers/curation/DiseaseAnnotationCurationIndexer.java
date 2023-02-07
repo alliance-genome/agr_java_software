@@ -35,6 +35,8 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 	private Map<String, Pair<Allele, ArrayList<DiseaseAnnotation>>> alleleMap = new HashMap<>();
 	private Map<String, Pair<AffectedGenomicModel, ArrayList<DiseaseAnnotation>>> agmMap = new HashMap<>();
 
+	private final DiseaseRepository diseaseRepository = new DiseaseRepository();
+
 	public DiseaseAnnotationCurationIndexer(IndexerConfig indexerConfig) {
 		super(indexerConfig);
 	}
@@ -49,13 +51,14 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 
 	}
 
+	private static Map<String, Set<String>> closureMap = null;
+
+
 	@Override
 	protected void index() {
 		indexGenes();
-/*
 		indexAlleles();
 		indexAGMs();
-*/
 
 		List<GeneDiseaseAnnotationDocument> list = createGeneDiseaseAnnotationDocuments();
 		log.info("Indexing " + list.size() + " gene documents");
@@ -116,12 +119,9 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		return ret;
 	}
 
-	private static Map<String, Set<String>> closureMap = null;
-
 	// Get Closure for disease ontology
 	private static Map<String, Set<String>> getClosure() {
 		if (closureMap == null) {
-			DiseaseRepository diseaseRepository = new DiseaseRepository();
 			closureMap = diseaseRepository.getDOClosureChildMapping();
 		}
 		return closureMap;
