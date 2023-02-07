@@ -1,21 +1,10 @@
 package org.alliancegenome.indexer.indexers.curation;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.LinkedBlockingDeque;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.curation_api.config.RestDefaultObjectMapper;
-import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.AffectedGenomicModel;
-import org.alliancegenome.curation_api.model.entities.Allele;
-import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.DiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.Gene;
-import org.alliancegenome.curation_api.model.entities.GeneDiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.*;
 import org.alliancegenome.es.index.site.doclet.SpeciesDoclet;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.config.IndexerConfig;
@@ -27,11 +16,12 @@ import org.alliancegenome.indexer.indexers.curation.service.AlleleDiseaseAnnotat
 import org.alliancegenome.indexer.indexers.curation.service.GeneDiseaseAnnotationService;
 import org.alliancegenome.indexer.indexers.curation.service.VocabularyService;
 import org.alliancegenome.neo4j.entity.SpeciesType;
+import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.apache.commons.lang3.tuple.Pair;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import lombok.extern.slf4j.Slf4j;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.LinkedBlockingDeque;
 
 @Slf4j
 public class DiseaseAnnotationCurationIndexer extends Indexer {
@@ -41,9 +31,12 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 	private AGMDiseaseAnnotationService agmService = new AGMDiseaseAnnotationService();
 	private VocabularyService vocabService = new VocabularyService();
 
+	private static Map<String, Set<String>> closureMap = null;
 	private Map<String, Pair<Gene, ArrayList<DiseaseAnnotation>>> geneMap = new HashMap<>();
 	private Map<String, Pair<Allele, ArrayList<DiseaseAnnotation>>> alleleMap = new HashMap<>();
 	private Map<String, Pair<AffectedGenomicModel, ArrayList<DiseaseAnnotation>>> agmMap = new HashMap<>();
+
+	private final DiseaseRepository diseaseRepository = new DiseaseRepository();
 
 	public DiseaseAnnotationCurationIndexer(IndexerConfig indexerConfig) {
 		super(indexerConfig);
@@ -101,6 +94,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 						gdad.setDiseaseRelation(da.getDiseaseRelation());
 					}
 					gdad.setObject(da.getObject());
+					gdad.setParentSlimIDs(getClosure().get(da.getObject().getCurie()));
 					lookup.put(key, gdad);
 				}
 				gdad.setEvidenceCodes(da.getEvidenceCodes());
@@ -108,7 +102,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 				gdad.addReference(da.getSingleReference());
 				gdad.addPrimaryAnnotation(da);
 				SpeciesDoclet doc = SpeciesType.fromTaxonId(entry.getValue().getLeft().getTaxon().getCurie());
-				if(doc != null) {
+				if (doc != null) {
 					gdad.setPhylogeneticSortingIndex(doc.getOrderID());
 				} else {
 					gdad.setPhylogeneticSortingIndex(100);
@@ -121,6 +115,14 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		ph.finishProcess();
 
 		return ret;
+	}
+
+	// Get Closure for disease ontology
+	private static Map<String, Set<String>> getClosure() {
+		if (closureMap == null) {
+			closureMap = diseaseRepository.getDOClosureChildMapping();
+		}
+		return closureMap;
 	}
 
 	private List<AlleleDiseaseAnnotationDocument> createAlleleDiseaseAnnotationDocuments() {
