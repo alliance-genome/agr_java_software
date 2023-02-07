@@ -1,10 +1,22 @@
 package org.alliancegenome.indexer.indexers.curation;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.LinkedBlockingDeque;
+
 import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.curation_api.config.RestDefaultObjectMapper;
-import org.alliancegenome.curation_api.model.entities.*;
+import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.AffectedGenomicModel;
+import org.alliancegenome.curation_api.model.entities.Allele;
+import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.DiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.Gene;
+import org.alliancegenome.curation_api.model.entities.GeneDiseaseAnnotation;
 import org.alliancegenome.es.index.site.doclet.SpeciesDoclet;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.config.IndexerConfig;
@@ -19,9 +31,9 @@ import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.concurrent.LinkedBlockingDeque;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class DiseaseAnnotationCurationIndexer extends Indexer {
@@ -30,13 +42,12 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 	private AlleleDiseaseAnnotationService alleleService = new AlleleDiseaseAnnotationService();
 	private AGMDiseaseAnnotationService agmService = new AGMDiseaseAnnotationService();
 	private VocabularyService vocabService = new VocabularyService();
-
-	private static Map<String, Set<String>> closureMap = null;
+	private DiseaseRepository diseaseRepository = new DiseaseRepository();
+	
+	private Map<String, Set<String>> closureMap = diseaseRepository.getDOClosureChildMapping();
 	private Map<String, Pair<Gene, ArrayList<DiseaseAnnotation>>> geneMap = new HashMap<>();
 	private Map<String, Pair<Allele, ArrayList<DiseaseAnnotation>>> alleleMap = new HashMap<>();
 	private Map<String, Pair<AffectedGenomicModel, ArrayList<DiseaseAnnotation>>> agmMap = new HashMap<>();
-
-	private final DiseaseRepository diseaseRepository = new DiseaseRepository();
 
 	public DiseaseAnnotationCurationIndexer(IndexerConfig indexerConfig) {
 		super(indexerConfig);
@@ -94,7 +105,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 						gdad.setDiseaseRelation(da.getDiseaseRelation());
 					}
 					gdad.setObject(da.getObject());
-					gdad.setParentSlimIDs(getClosure().get(da.getObject().getCurie()));
+					gdad.setParentSlimIDs(closureMap.get(da.getObject().getCurie()));
 					lookup.put(key, gdad);
 				}
 				gdad.setEvidenceCodes(da.getEvidenceCodes());
@@ -115,14 +126,6 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		ph.finishProcess();
 
 		return ret;
-	}
-
-	// Get Closure for disease ontology
-	private static Map<String, Set<String>> getClosure() {
-		if (closureMap == null) {
-			closureMap = diseaseRepository.getDOClosureChildMapping();
-		}
-		return closureMap;
 	}
 
 	private List<AlleleDiseaseAnnotationDocument> createAlleleDiseaseAnnotationDocuments() {
