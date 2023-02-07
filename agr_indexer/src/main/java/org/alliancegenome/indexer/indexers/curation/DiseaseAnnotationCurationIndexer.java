@@ -42,9 +42,9 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 	private AlleleDiseaseAnnotationService alleleService = new AlleleDiseaseAnnotationService();
 	private AGMDiseaseAnnotationService agmService = new AGMDiseaseAnnotationService();
 	private VocabularyService vocabService = new VocabularyService();
-	private DiseaseRepository diseaseRepository = new DiseaseRepository();
+	private DiseaseRepository diseaseRepository;
 	
-	private Map<String, Set<String>> closureMap = diseaseRepository.getDOClosureChildMapping();
+	private Map<String, Set<String>> closureMap;
 	private Map<String, Pair<Gene, ArrayList<DiseaseAnnotation>>> geneMap = new HashMap<>();
 	private Map<String, Pair<Allele, ArrayList<DiseaseAnnotation>>> alleleMap = new HashMap<>();
 	private Map<String, Pair<AffectedGenomicModel, ArrayList<DiseaseAnnotation>>> agmMap = new HashMap<>();
@@ -65,6 +65,10 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 
 	@Override
 	protected void index() {
+		
+		diseaseRepository = new DiseaseRepository();
+		closureMap = diseaseRepository.getDOClosureChildMapping();
+		
 		indexGenes();
 		indexAlleles();
 		indexAGMs();
@@ -81,6 +85,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		log.info("Indexing " + agmList.size() + " agm documents");
 		indexDocuments(agmList);
 
+		diseaseRepository.close();
 	}
 
 	private List<GeneDiseaseAnnotationDocument> createGeneDiseaseAnnotationDocuments() {
