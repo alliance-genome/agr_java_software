@@ -31,6 +31,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 	private AGMDiseaseAnnotationService agmService = new AGMDiseaseAnnotationService();
 	private VocabularyService vocabService = new VocabularyService();
 
+	private static Map<String, Set<String>> closureMap = null;
 	private Map<String, Pair<Gene, ArrayList<DiseaseAnnotation>>> geneMap = new HashMap<>();
 	private Map<String, Pair<Allele, ArrayList<DiseaseAnnotation>>> alleleMap = new HashMap<>();
 	private Map<String, Pair<AffectedGenomicModel, ArrayList<DiseaseAnnotation>>> agmMap = new HashMap<>();
@@ -50,9 +51,6 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 	protected void startSingleThread(LinkedBlockingDeque<String> queue) {
 
 	}
-
-	private static Map<String, Set<String>> closureMap = null;
-
 
 	@Override
 	protected void index() {
