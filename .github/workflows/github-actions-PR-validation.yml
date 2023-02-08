@@ -43,5 +43,8 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
+      - name: Amazon ECR login
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
       - name: Build docker image
         run: docker build -t agr_java_software:latest .
