@@ -6,6 +6,7 @@ on:
       - release-*
       - master
 
+jobs:
   test-compile:
     if: github.event.action != 'edited' || github.event.changes.base
     runos-on: ubuntu-20.04
