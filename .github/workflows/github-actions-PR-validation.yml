@@ -17,7 +17,7 @@ jobs:
           echo "Trigger ref ${{ github.ref }}, base-ref ${{ github.base_ref }}, head_ref ${{ github.head_ref }}."
       - name: Check out repository code
         uses: actions/checkout@v3
-      - run: cp src/main/resources/application.properties.defaults src/main/resources/application.properties
+      - run: cp agr_api/src/main/resources/application.properties.defaults agr_api/src/main/resources/application.properties
       - name: Report files updated in PR
         run: |
           git fetch -q origin ${{ github.base_ref }} ${{ github.head_ref }}
