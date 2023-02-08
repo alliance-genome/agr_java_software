@@ -1,29 +1,21 @@
 package org.alliancegenome.api.translators.tdf;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.StringJoiner;
-import java.util.stream.Collectors;
-
 import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.translators.tdf.DiseaseDownloadRow;
 import org.alliancegenome.core.translators.tdf.DownloadHeader;
+import org.alliancegenome.curation_api.enums.CrossReferencePrefix;
 import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.GeneDiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.Reference;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
-import org.alliancegenome.neo4j.entity.node.CrossReference;
-import org.alliancegenome.neo4j.entity.node.ECOTerm;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.GeneticEntity;
-import org.alliancegenome.neo4j.entity.node.PublicationJoin;
+import org.alliancegenome.neo4j.entity.node.*;
 import org.apache.commons.collections.CollectionUtils;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class DiseaseAnnotationToTdfTranslator {
 
@@ -175,29 +167,44 @@ public class DiseaseAnnotationToTdfTranslator {
 		row.setMainEntityID(annotation.getSubject().getCurie());
 		row.setMainEntitySymbol(annotation.getSubject().getGeneSymbol().getDisplayText());
 		// needs better generics or have subject attribute on the parent class (DiseaseAnnotation)
-		if(primaryAnnotation instanceof AGMDiseaseAnnotation){
+		if (primaryAnnotation instanceof AGMDiseaseAnnotation) {
 			AGMDiseaseAnnotation pAnnotation = (AGMDiseaseAnnotation) primaryAnnotation;
 			row.setGeneticEntityID(pAnnotation.getSubject().getCurie());
 			row.setGeneticEntityName(pAnnotation.getSubject().getName());
 			row.setGeneticEntityType(pAnnotation.getSubject().getSubtype().name());
 		}
-		if(primaryAnnotation instanceof GeneDiseaseAnnotation){
+		if (primaryAnnotation instanceof GeneDiseaseAnnotation) {
 			GeneDiseaseAnnotation pAnnotation = (GeneDiseaseAnnotation) primaryAnnotation;
 			row.setGeneticEntityID(pAnnotation.getSubject().getCurie());
 			row.setGeneticEntityName(pAnnotation.getSubject().getGeneSymbol().getDisplayText());
 			row.setGeneticEntityType("gene");
 		}
-		if(primaryAnnotation instanceof AlleleDiseaseAnnotation){
+		if (primaryAnnotation instanceof AlleleDiseaseAnnotation) {
 			AlleleDiseaseAnnotation pAnnotation = (AlleleDiseaseAnnotation) primaryAnnotation;
 			row.setGeneticEntityID(pAnnotation.getSubject().getCurie());
 			row.setGeneticEntityName(pAnnotation.getSubject().getAlleleSymbol().getDisplayText());
 			row.setGeneticEntityType("Allele");
 		}
-		row.setReference(primaryAnnotation.getSingleReference().getReferenceID());
+		row.setReference(getReferenceID(primaryAnnotation.getSingleReference()));
 		row.setSource(primaryAnnotation.getDataProvider().getAbbreviation());
-		if(primaryAnnotation.getDbDateCreated() != null) {
+		if (primaryAnnotation.getDbDateCreated() != null) {
 			row.setDateAssigned(primaryAnnotation.getDbDateCreated().toString());
 		}
+	}
+
+	public static String getReferenceID(Reference reference) {
+		Optional<org.alliancegenome.curation_api.model.entities.CrossReference> opt = reference.getCrossReferences().stream().filter((ref) -> {
+			return ref.getCurie().startsWith("PMID:");
+		}).findFirst();
+		if (opt.isEmpty()) {
+			for (org.alliancegenome.curation_api.model.entities.CrossReference ref : reference.getCrossReferences()) {
+				String prefix = ref.getCurie().split(":")[0];
+				if (Arrays.asList(CrossReferencePrefix.values()).stream().map(Enum::name).collect(Collectors.toList()).contains(prefix))
+					return ref.getCurie();
+			}
+			return null;
+		}
+		return opt.get().getCurie();
 	}
 
 	private DiseaseDownloadRow getDiseaseDownloadRow(DiseaseAnnotation annotation, PrimaryAnnotatedEntity entity, PublicationJoin join, Gene homologousGene) {
