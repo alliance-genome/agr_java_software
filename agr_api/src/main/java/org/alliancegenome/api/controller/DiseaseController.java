@@ -460,8 +460,8 @@ public class DiseaseController implements DiseaseRESTInterface {
 		pagination.addFilterOption("diseaseRelation.name", associationType);
 		pagination.addFilterOption("subject.geneSymbol.displayText", filterGene);
 		pagination.addFilterOption("subject.taxon.name.keyword", filterSpecies);
-		pagination.addFilterOption("with.geneSymbol.displayText", basedOnGeneSymbol);
-		pagination.addFilterOption("dataProvider.uniqueId.keyword", filterSource);
+		pagination.addFilterOption("primaryAnnotations.with.geneSymbol.displayText", basedOnGeneSymbol);
+		pagination.addFilterOption("primaryAnnotations.dataProvider.abbreviation", filterSource);
 		pagination.addFilterOption("references.crossReferences.curie", filterReference);
 /*
 		BaseFilter filterMap = new BaseFilter();
