@@ -99,6 +99,9 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 
 			for (DiseaseAnnotation da : entry.getValue().getRight()) {
 				String key = da.getDiseaseRelation().getName() + "_" + da.getObject().getName() + "_" + da.getNegated();
+				if(da.getWith() != null && da.getWith().size() > 0) {
+					key += "_" + da.getSingleReference().getCurie();
+				}
 				GeneDiseaseAnnotationDocument gdad = lookup.get(key);
 
 				if (gdad == null) {
