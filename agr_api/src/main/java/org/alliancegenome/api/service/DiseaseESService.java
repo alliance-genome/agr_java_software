@@ -69,6 +69,11 @@ public class DiseaseESService {
 		for (String geneId : geneIDs) {
 			bool2.should(new MatchQueryBuilder("subject.curie.keyword", geneId));
 		}
+		if(termID != null){
+			BoolQueryBuilder bool3 = boolQuery();
+			bool.must(bool3);
+			bool3.should(new MatchQueryBuilder("parentSlimIDs.keyword", termID));
+		}
 
 		// create histogram of select columns of unfiltered query
 		Map<String, String> aggregationFields = new HashMap<>();
