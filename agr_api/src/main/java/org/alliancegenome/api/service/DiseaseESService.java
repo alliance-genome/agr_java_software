@@ -69,7 +69,7 @@ public class DiseaseESService {
 		for (String geneId : geneIDs) {
 			bool2.should(new MatchQueryBuilder("subject.curie.keyword", geneId));
 		}
-		if(termID != null){
+		if (termID != null) {
 			BoolQueryBuilder bool3 = boolQuery();
 			bool.must(bool3);
 			bool3.should(new MatchQueryBuilder("parentSlimIDs.keyword", termID));
@@ -93,10 +93,10 @@ public class DiseaseESService {
 					if (filterName.contains("|")) {
 						BoolQueryBuilder orClause = boolQuery();
 						String[] elements = filterName.split("\\|");
-						Arrays.stream(elements).forEach(element -> orClause.should(QueryBuilders.wildcardQuery(element, "*" + filterValue + "*")));
+						Arrays.stream(elements).forEach(element -> orClause.should(QueryBuilders.queryStringQuery(element + ":*" + filterValue + "*")));
 						bool.must(orClause);
 					} else {
-						bool.must(QueryBuilders.wildcardQuery(filterName, "*" + filterValue + "*"));
+						bool.must(QueryBuilders.queryStringQuery(filterName + ":*" + filterValue + "*"));
 					}
 				}
 			});
