@@ -9,6 +9,7 @@ import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.GeneDiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.Reference;
+import org.alliancegenome.curation_api.model.entities.base.CurieAuditedObject;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.*;
@@ -143,20 +144,9 @@ public class DiseaseAnnotationToTdfTranslator {
 	private List<DiseaseDownloadRow> getGeneDiseaseDownloadRow(GeneDiseaseAnnotationDocument annotation) {
 		List<DiseaseDownloadRow> list = new ArrayList<>();
 		annotation.getPrimaryAnnotations().forEach(primaryAnnotation -> {
-			if (CollectionUtils.isNotEmpty(primaryAnnotation.getWith())) {
-				primaryAnnotation.getWith().stream().filter(Objects::nonNull).forEach(gene -> {
-					DiseaseDownloadRow row = getBaseDiseaseDownloadRow(annotation, gene, primaryAnnotation);
-					extracted(annotation, primaryAnnotation, row);
-					if (primaryAnnotation.getDiseaseGeneticModifierRelation() != null) {
-						row.setGeneticEntityID(primaryAnnotation.getDiseaseGeneticModifierRelation().getAbbreviation());
-					}
-					list.add(row);
-				});
-			} else {
-				DiseaseDownloadRow row = getBaseDiseaseDownloadRow(annotation, null, primaryAnnotation);
-				extracted(annotation, primaryAnnotation, row);
-				list.add(row);
-			}
+			DiseaseDownloadRow row = getBaseDiseaseDownloadRow(annotation, null, primaryAnnotation);
+			extracted(annotation, primaryAnnotation, row);
+			list.add(row);
 		});
 		return list;
 	}
@@ -189,6 +179,10 @@ public class DiseaseAnnotationToTdfTranslator {
 		row.setSource(primaryAnnotation.getDataProviderString());
 		if (primaryAnnotation.getDateCreated() != null) {
 			row.setDateAssigned(primaryAnnotation.getDateCreated().toString());
+		}
+		if (CollectionUtils.isNotEmpty(primaryAnnotation.getWith())) {
+			row.setBasedOnID(primaryAnnotation.getWith().stream().map(CurieAuditedObject::getCurie).collect(Collectors.joining("|")));
+			row.setBasedOnName(primaryAnnotation.getWith().stream().map(gene -> gene.getGeneSymbol().getDisplayText()).collect(Collectors.joining("|")));
 		}
 	}
 
