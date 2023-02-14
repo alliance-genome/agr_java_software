@@ -94,7 +94,7 @@ public abstract class Indexer extends Thread {
 		builder.setConcurrentRequests(indexerConfig.getConcurrentRequests());
 		builder.setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(1L), 60));
 
-		bulkProcessor = BulkProcessor.builder((request, bulkListener) -> searchClient.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), listener).build();
+		bulkProcessor = builder.build();
 
 	}
 
