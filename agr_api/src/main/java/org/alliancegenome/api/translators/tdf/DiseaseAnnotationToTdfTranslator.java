@@ -1,16 +1,5 @@
 package org.alliancegenome.api.translators.tdf;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.StringJoiner;
-import java.util.stream.Collectors;
-
 import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.translators.tdf.DiseaseDownloadRow;
@@ -20,14 +9,14 @@ import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.GeneDiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.Reference;
+import org.alliancegenome.curation_api.model.entities.base.CurieAuditedObject;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
-import org.alliancegenome.neo4j.entity.node.CrossReference;
-import org.alliancegenome.neo4j.entity.node.ECOTerm;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.GeneticEntity;
-import org.alliancegenome.neo4j.entity.node.PublicationJoin;
+import org.alliancegenome.neo4j.entity.node.*;
 import org.apache.commons.collections.CollectionUtils;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class DiseaseAnnotationToTdfTranslator {
 
@@ -155,20 +144,9 @@ public class DiseaseAnnotationToTdfTranslator {
 	private List<DiseaseDownloadRow> getGeneDiseaseDownloadRow(GeneDiseaseAnnotationDocument annotation) {
 		List<DiseaseDownloadRow> list = new ArrayList<>();
 		annotation.getPrimaryAnnotations().forEach(primaryAnnotation -> {
-			if (CollectionUtils.isNotEmpty(primaryAnnotation.getWith())) {
-				primaryAnnotation.getWith().stream().filter(Objects::nonNull).forEach(gene -> {
-					DiseaseDownloadRow row = getBaseDiseaseDownloadRow(annotation, gene);
-					extracted(annotation, primaryAnnotation, row);
-					if (primaryAnnotation.getDiseaseGeneticModifierRelation() != null) {
-						row.setGeneticEntityID(primaryAnnotation.getDiseaseGeneticModifierRelation().getAbbreviation());
-					}
-					list.add(row);
-				});
-			} else {
-				DiseaseDownloadRow row = getBaseDiseaseDownloadRow(annotation, null);
-				extracted(annotation, primaryAnnotation, row);
-				list.add(row);
-			}
+			DiseaseDownloadRow row = getBaseDiseaseDownloadRow(annotation, null, primaryAnnotation);
+			extracted(annotation, primaryAnnotation, row);
+			list.add(row);
 		});
 		return list;
 	}
@@ -198,9 +176,13 @@ public class DiseaseAnnotationToTdfTranslator {
 			row.setGeneticEntityType("Allele");
 		}
 		row.setReference(getReferenceID(primaryAnnotation.getSingleReference()));
-		row.setSource(primaryAnnotation.getDataProvider().getAbbreviation());
-		if (primaryAnnotation.getDbDateCreated() != null) {
-			row.setDateAssigned(primaryAnnotation.getDbDateCreated().toString());
+		row.setSource(primaryAnnotation.getDataProviderString());
+		if (primaryAnnotation.getDateCreated() != null) {
+			row.setDateAssigned(primaryAnnotation.getDateCreated().toString());
+		}
+		if (CollectionUtils.isNotEmpty(primaryAnnotation.getWith())) {
+			row.setBasedOnID(primaryAnnotation.getWith().stream().map(CurieAuditedObject::getCurie).collect(Collectors.joining("|")));
+			row.setBasedOnName(primaryAnnotation.getWith().stream().map(gene -> gene.getGeneSymbol().getDisplayText()).collect(Collectors.joining("|")));
 		}
 	}
 
@@ -234,12 +216,12 @@ public class DiseaseAnnotationToTdfTranslator {
 		return row;
 	}
 
-	private DiseaseDownloadRow getBaseDiseaseDownloadRow(GeneDiseaseAnnotationDocument annotation, org.alliancegenome.curation_api.model.entities.Gene homologousGene) {
+	private DiseaseDownloadRow getBaseDiseaseDownloadRow(GeneDiseaseAnnotationDocument annotation, org.alliancegenome.curation_api.model.entities.Gene homologousGene, org.alliancegenome.curation_api.model.entities.DiseaseAnnotation primaryAnnotation) {
 		DiseaseDownloadRow row = new DiseaseDownloadRow();
 		row.setAssociation(annotation.getDiseaseRelation().getName());
 		row.setDiseaseID(annotation.getObject().getCurie());
 		row.setDiseaseName(annotation.getObject().getName());
-		row.setSource(annotation.getDataProvider());
+		row.setSource(primaryAnnotation.getDataProviderString());
 		if (homologousGene != null) {
 			row.setBasedOnID(homologousGene.getCurie());
 			row.setBasedOnName(homologousGene.getGeneSymbol().getDisplayText());
@@ -271,7 +253,7 @@ public class DiseaseAnnotationToTdfTranslator {
 		if (CollectionUtils.isNotEmpty(annotation.getEvidenceCodes())) {
 			Set<String> evidenceCodes = annotation.getEvidenceCodes()
 				.stream()
-				.map(org.alliancegenome.curation_api.model.entities.ontology.ECOTerm::getAbbreviation)
+				.map(org.alliancegenome.curation_api.model.entities.ontology.ECOTerm::getName)
 				.collect(Collectors.toSet());
 
 			evidenceCodes.forEach(evidenceJoinerName::add);
