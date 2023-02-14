@@ -6,7 +6,6 @@ import org.alliancegenome.indexer.indexers.DiseaseIndexer;
 import org.alliancegenome.indexer.indexers.GeneIndexer;
 import org.alliancegenome.indexer.indexers.GoIndexer;
 import org.alliancegenome.indexer.indexers.ModelIndexer;
-import org.alliancegenome.indexer.indexers.curation.DiseaseAnnotationCurationIndexer;
 
 public enum IndexerConfig {
 
@@ -22,7 +21,7 @@ public enum IndexerConfig {
 	AlleleIndexer("allele", AlleleIndexer.class, 4, 1517, 1517, 8, 1),	  // (407830, 334,	69968,	659)
 	GoIndexer("go", GoIndexer.class, 4, 914, 914, 8, 1),				// (44087,	262, 460247, 1093)
 	ModelIndexer("model", ModelIndexer.class, 4, 1426, 1426, 8, 1),		   // (132447, 314,	 18593,	 701)
-	DiseaseAnnotationMlIndexer("diseaseAnnotation", DiseaseAnnotationCurationIndexer.class, 4, 1426, 1426, 8, 1),		   // (132447, 314,	 18593,	 701)
+	//DiseaseAnnotationMlIndexer("diseaseAnnotation", DiseaseAnnotationCurationIndexer.class, 4, 1426, 1426, 8, 1),		   // (132447, 314,	 18593,	 701)
 	// still not implemented  VariantIndexer("variant", VariantIndexer.class, 2, 3000, 400, 4, 4)
 	;
 
