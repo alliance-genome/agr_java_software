@@ -477,7 +477,7 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
 		query += " OPTIONAL MATCH path8=(variant:Variant)-[:ASSOCIATION]->(:GeneLevelConsequence)";
 		query += " OPTIONAL MATCH path9=(variant:Variant)-[:ASSOCIATION]->(:GenomicLocation)";
 
-		query += " RETURN  path1,path2,path3,path4,path5,path6,path7,path8,path9 LIMIT 10000";
+		query += " RETURN  path1,path2,path3,path4,path5,path6,path7,path8,path9 LIMIT 100000";
 
 		Iterable<Allele> allelesWithVariantsIter = query(query, new HashMap<>());
 		Set<Allele> allelesWithVariants = StreamSupport.stream(allelesWithVariantsIter.spliterator(), false).collect(Collectors.toSet());
