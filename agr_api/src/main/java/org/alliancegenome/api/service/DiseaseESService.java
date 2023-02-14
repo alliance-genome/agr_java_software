@@ -15,6 +15,7 @@ import org.alliancegenome.core.api.service.DiseaseRibbonService;
 import org.alliancegenome.es.index.site.dao.SearchDAO;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.SimpleTerm;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
@@ -72,7 +73,14 @@ public class DiseaseESService {
 		if (termID != null) {
 			BoolQueryBuilder bool3 = boolQuery();
 			bool.must(bool3);
-			bool3.should(new MatchQueryBuilder("parentSlimIDs.keyword", termID));
+			if (termID.equals(DiseaseRibbonSummary.DOID_OTHER)) {
+				BoolQueryBuilder orClause = boolQuery();
+				DOTerm.getAllOtherDiseaseTerms().forEach(parentID -> orClause.should(QueryBuilders.termQuery("parentSlimIDs.keyword", parentID)));
+				bool3.should(orClause);
+
+			} else {
+				bool3.should(new MatchQueryBuilder("parentSlimIDs.keyword", termID));
+			}
 		}
 
 		// create histogram of select columns of unfiltered query
