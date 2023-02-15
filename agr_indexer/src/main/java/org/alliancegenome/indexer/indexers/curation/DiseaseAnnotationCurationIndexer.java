@@ -5,10 +5,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
-import org.alliancegenome.curation_api.config.RestDefaultObjectMapper;
 import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.AffectedGenomicModel;
 import org.alliancegenome.curation_api.model.entities.Allele;
@@ -27,9 +27,15 @@ import org.alliancegenome.indexer.indexers.curation.service.AlleleDiseaseAnnotat
 import org.alliancegenome.indexer.indexers.curation.service.GeneDiseaseAnnotationService;
 import org.alliancegenome.indexer.indexers.curation.service.VocabularyService;
 import org.alliancegenome.neo4j.entity.SpeciesType;
+import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.apache.commons.lang3.tuple.Pair;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -40,9 +46,9 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 	private AlleleDiseaseAnnotationService alleleService = new AlleleDiseaseAnnotationService();
 	private AGMDiseaseAnnotationService agmService = new AGMDiseaseAnnotationService();
 	private VocabularyService vocabService = new VocabularyService();
-	//private DiseaseRepository diseaseRepository;
+	private DiseaseRepository diseaseRepository;
 	
-	//private Map<String, Set<String>> closureMap;
+	private Map<String, Set<String>> closureMap;
 	private Map<String, Pair<Gene, ArrayList<DiseaseAnnotation>>> geneMap = new HashMap<>();
 	private Map<String, Pair<Allele, ArrayList<DiseaseAnnotation>>> alleleMap = new HashMap<>();
 	private Map<String, Pair<AffectedGenomicModel, ArrayList<DiseaseAnnotation>>> agmMap = new HashMap<>();
@@ -53,7 +59,13 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 
 	@Override
 	protected ObjectMapper customizeObjectMapper(ObjectMapper objectMapper) {
-		return (new RestDefaultObjectMapper()).getMapper();
+		objectMapper.registerModule(new JavaTimeModule());
+		objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+		objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+		objectMapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
+		objectMapper.setSerializationInclusion(Include.NON_NULL);
+		objectMapper.setSerializationInclusion(Include.NON_EMPTY);
+		return objectMapper;
 	}
 
 	@Override
@@ -64,8 +76,8 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 	@Override
 	protected void index() {
 		
-		//diseaseRepository = new DiseaseRepository();
-		//closureMap = diseaseRepository.getDOClosureChildMapping();
+		diseaseRepository = new DiseaseRepository();
+		closureMap = diseaseRepository.getDOClosureChildMapping();
 		
 		indexGenes();
 		indexAlleles();
@@ -83,7 +95,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		log.info("Indexing " + agmList.size() + " agm documents");
 		//indexDocuments(agmList);
 
-		//diseaseRepository.close();
+		diseaseRepository.close();
 	}
 
 	private List<GeneDiseaseAnnotationDocument> createGeneDiseaseAnnotationDocuments() {
