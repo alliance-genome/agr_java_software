@@ -54,6 +54,8 @@ public class VariantIndexer extends Indexer {
 
 		while(true) {
 			try {
+				if(queue.isEmpty()) return;
+				
 				String key = queue.takeFirst();
 				Variant variant = cache.getVariantMap().get(key);
 				if (variant != null) {

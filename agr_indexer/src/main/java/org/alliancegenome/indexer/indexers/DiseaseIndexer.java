@@ -47,6 +47,8 @@ public class DiseaseIndexer extends Indexer {
 		DiseaseRepository repo = new DiseaseRepository(); // Due to repo not being thread safe
 		while (true) {
 			try {
+				if(queue.isEmpty()) return;
+				
 				String key = queue.takeFirst();
 				DOTerm disease = repo.getDiseaseTerm(key);
 

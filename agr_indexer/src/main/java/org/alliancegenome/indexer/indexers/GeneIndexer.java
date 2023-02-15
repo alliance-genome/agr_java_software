@@ -52,6 +52,7 @@ public class GeneIndexer extends Indexer {
 		GeneTranslator geneTrans = new GeneTranslator();
 		while (true) {
 			try {
+				if(queue.isEmpty()) return;
 				
 				String key = queue.takeFirst();
 				Gene gene = geneDocumentCache.getGeneMap().get(key);

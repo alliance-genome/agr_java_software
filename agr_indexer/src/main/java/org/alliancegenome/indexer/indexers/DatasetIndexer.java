@@ -44,6 +44,7 @@ public class DatasetIndexer extends Indexer {
 		HTPDatasetTranslator translator = new HTPDatasetTranslator();
 		while (true) {
 			try {
+				if(queue.isEmpty()) return;
 				
 				String key = queue.takeFirst();
 				HTPDataset entity = cache.getDatasetMap().get(key);

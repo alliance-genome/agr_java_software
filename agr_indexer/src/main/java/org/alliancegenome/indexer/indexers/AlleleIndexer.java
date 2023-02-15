@@ -47,6 +47,7 @@ public class AlleleIndexer extends Indexer {
 		AlleleTranslator alleleTranslator = new AlleleTranslator();
 		while (true) {
 			try {
+				if(queue.isEmpty()) return;
 				
 				String key = queue.takeFirst();
 				Allele allele = alleleDocumentCache.getAlleleMap().get(key);

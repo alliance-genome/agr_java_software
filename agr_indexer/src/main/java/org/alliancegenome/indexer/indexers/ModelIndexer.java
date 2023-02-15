@@ -45,6 +45,8 @@ public class ModelIndexer extends Indexer {
 
 		while (true) {
 			try {
+				if(queue.isEmpty()) return;
+				
 				String key = queue.takeFirst();
 				AffectedGenomicModel model = cache.getModelMap().get(key);
 				if (model != null) {
