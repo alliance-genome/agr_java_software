@@ -25,7 +25,6 @@ public class AlleleIndexer extends Indexer {
 
 	public AlleleIndexer(IndexerConfig config) {
 		super(config);
-		setOutputFile("/data");
 	}
 
 	@Override
