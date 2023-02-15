@@ -66,26 +66,26 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 	@Override
 	protected void index() {
 		
-		diseaseRepository = new DiseaseRepository();
-		closureMap = diseaseRepository.getDOClosureChildMapping();
-		
-		indexGenes();
-		indexAlleles();
-		indexAGMs();
-
-		List<GeneDiseaseAnnotationDocument> list = createGeneDiseaseAnnotationDocuments();
-		log.info("Indexing " + list.size() + " gene documents");
-		indexDocuments(list);
-
-		List<AlleleDiseaseAnnotationDocument> alleleList = createAlleleDiseaseAnnotationDocuments();
-		log.info("Indexing " + alleleList.size() + " allele documents");
-		indexDocuments(alleleList);
-
-		List<AGMDiseaseAnnotationDocument> agmList = createAGMDiseaseAnnotationDocuments();
-		log.info("Indexing " + agmList.size() + " agm documents");
-		indexDocuments(agmList);
-
-		diseaseRepository.close();
+//		diseaseRepository = new DiseaseRepository();
+//		closureMap = diseaseRepository.getDOClosureChildMapping();
+//		
+//		indexGenes();
+//		indexAlleles();
+//		indexAGMs();
+//
+//		List<GeneDiseaseAnnotationDocument> list = createGeneDiseaseAnnotationDocuments();
+//		log.info("Indexing " + list.size() + " gene documents");
+//		indexDocuments(list);
+//
+//		List<AlleleDiseaseAnnotationDocument> alleleList = createAlleleDiseaseAnnotationDocuments();
+//		log.info("Indexing " + alleleList.size() + " allele documents");
+//		indexDocuments(alleleList);
+//
+//		List<AGMDiseaseAnnotationDocument> agmList = createAGMDiseaseAnnotationDocuments();
+//		log.info("Indexing " + agmList.size() + " agm documents");
+//		indexDocuments(agmList);
+//
+//		diseaseRepository.close();
 	}
 
 	private List<GeneDiseaseAnnotationDocument> createGeneDiseaseAnnotationDocuments() {
