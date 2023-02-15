@@ -1,6 +1,9 @@
 package org.alliancegenome.indexer.indexers;
 
+import java.io.BufferedOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -55,6 +58,7 @@ public abstract class Indexer extends Thread {
 
 	protected Map<String,Double> popularityScore;
 
+	private PrintWriter writer = null;
 	protected BulkProcessor bulkProcessor;
 
 	public Indexer(IndexerConfig indexerConfig) {
@@ -96,6 +100,14 @@ public abstract class Indexer extends Thread {
 
 		bulkProcessor = builder.build();
 
+	}
+	
+	protected void setOutputFile(String path) {
+		try {
+			writer = new PrintWriter(new BufferedOutputStream(new FileOutputStream(path + "/" + getName() + "_data.json")));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void loadPopularityScore() {
@@ -162,6 +174,9 @@ public abstract class Indexer extends Thread {
 					json = om.writerWithView(view).writeValueAsString(doc);
 				} else {
 					json = om.writeValueAsString(doc);
+				}
+				if(writer != null) {
+					writer.println(json);
 				}
 				display.progressProcess();
 				stats.addDocument(json);
