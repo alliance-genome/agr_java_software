@@ -84,17 +84,17 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		indexAlleles();
 		indexAGMs();
 
-		//List<GeneDiseaseAnnotationDocument> geneList = createGeneDiseaseAnnotationDocuments();
-		//log.info("Indexing " + geneList.size() + " gene documents");
-		//indexDocuments(geneList);
+		List<GeneDiseaseAnnotationDocument> geneList = createGeneDiseaseAnnotationDocuments();
+		log.info("Indexing " + geneList.size() + " gene documents");
+		indexDocuments(geneList);
 
-		//List<AlleleDiseaseAnnotationDocument> alleleList = createAlleleDiseaseAnnotationDocuments();
-		//log.info("Indexing " + alleleList.size() + " allele documents");
-		//indexDocuments(alleleList);
+		List<AlleleDiseaseAnnotationDocument> alleleList = createAlleleDiseaseAnnotationDocuments();
+		log.info("Indexing " + alleleList.size() + " allele documents");
+		indexDocuments(alleleList);
 
-		//List<AGMDiseaseAnnotationDocument> agmList = createAGMDiseaseAnnotationDocuments();
-		//log.info("Indexing " + agmList.size() + " agm documents");
-		//indexDocuments(agmList);
+		List<AGMDiseaseAnnotationDocument> agmList = createAGMDiseaseAnnotationDocuments();
+		log.info("Indexing " + agmList.size() + " agm documents");
+		indexDocuments(agmList);
 
 		diseaseRepository.close();
 	}
