@@ -84,9 +84,9 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		indexAlleles();
 		indexAGMs();
 
-		List<GeneDiseaseAnnotationDocument> geneList = createGeneDiseaseAnnotationDocuments();
-		log.info("Indexing " + geneList.size() + " gene documents");
-		indexDocuments(geneList);
+		//List<GeneDiseaseAnnotationDocument> geneList = createGeneDiseaseAnnotationDocuments();
+		//log.info("Indexing " + geneList.size() + " gene documents");
+		//indexDocuments(geneList);
 
 		//List<AlleleDiseaseAnnotationDocument> alleleList = createAlleleDiseaseAnnotationDocuments();
 		//log.info("Indexing " + alleleList.size() + " allele documents");
