@@ -11,7 +11,9 @@ import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.repository.indexer.AlleleIndexerRepository;
 import org.alliancegenome.neo4j.view.View;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,7 +25,7 @@ public class AlleleIndexer extends Indexer {
 
 	public AlleleIndexer(IndexerConfig config) {
 		super(config);
-		om.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false);
+		setOutputFile("/data");
 	}
 
 	@Override
@@ -80,6 +82,13 @@ public class AlleleIndexer extends Indexer {
 				return;
 			}
 		}
+	}
+	
+	@Override
+	protected ObjectMapper customizeObjectMapper(ObjectMapper objectMapper) {
+		objectMapper.setSerializationInclusion(Include.NON_NULL);
+		objectMapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false);
+		return objectMapper;
 	}
 
 }

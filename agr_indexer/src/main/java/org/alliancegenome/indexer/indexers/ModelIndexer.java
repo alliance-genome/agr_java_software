@@ -10,6 +10,9 @@ import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.neo4j.entity.node.AffectedGenomicModel;
 import org.alliancegenome.neo4j.repository.indexer.ModelIndexerRepository;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -75,6 +78,12 @@ public class ModelIndexer extends Indexer {
 				return;
 			}
 		}
+	}
+	
+	@Override
+	protected ObjectMapper customizeObjectMapper(ObjectMapper objectMapper) {
+		objectMapper.setSerializationInclusion(Include.NON_NULL);
+		return objectMapper;
 	}
 
 }

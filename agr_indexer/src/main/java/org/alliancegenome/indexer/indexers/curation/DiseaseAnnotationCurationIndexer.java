@@ -51,7 +51,6 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 
 	public DiseaseAnnotationCurationIndexer(IndexerConfig indexerConfig) {
 		super(indexerConfig);
-		setOutputFile("/data");
 	}
 
 	@Override

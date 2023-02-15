@@ -37,7 +37,6 @@ import org.elasticsearch.common.unit.ByteSizeValue;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.core.TimeValue;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -63,8 +62,7 @@ public abstract class Indexer extends Thread {
 
 	public Indexer(IndexerConfig indexerConfig) {
 		this.indexerConfig = indexerConfig;
-
-		om.setSerializationInclusion(Include.NON_NULL);
+		
 		om = customizeObjectMapper(om);
 
 		loadPopularityScore();
@@ -104,7 +102,7 @@ public abstract class Indexer extends Thread {
 	
 	protected void setOutputFile(String path) {
 		try {
-			writer = new PrintWriter(new BufferedOutputStream(new FileOutputStream(path + "/" + getName() + "_data.json")));
+			writer = new PrintWriter(new BufferedOutputStream(new FileOutputStream(path + "/" + getClass().getSimpleName() + "_data.json")));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -214,5 +212,5 @@ public abstract class Indexer extends Thread {
 
 	protected abstract void index();
 	protected abstract void startSingleThread(LinkedBlockingDeque<String> queue);
-	protected ObjectMapper customizeObjectMapper(ObjectMapper objectMapper) { return objectMapper; }
+	protected abstract ObjectMapper customizeObjectMapper(ObjectMapper objectMapper);
 }

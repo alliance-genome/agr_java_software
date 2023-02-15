@@ -8,6 +8,9 @@ import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.neo4j.entity.node.GOTerm;
 import org.alliancegenome.neo4j.repository.GoRepository;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -42,6 +45,12 @@ public class GoIndexer extends Indexer {
 
 	protected void startSingleThread(LinkedBlockingDeque<String> queue) {
 		// No need to multithread this
+	}
+	
+	@Override
+	protected ObjectMapper customizeObjectMapper(ObjectMapper objectMapper) {
+		objectMapper.setSerializationInclusion(Include.NON_NULL);
+		return objectMapper;
 	}
 
 }
