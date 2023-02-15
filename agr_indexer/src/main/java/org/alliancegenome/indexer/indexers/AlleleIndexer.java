@@ -86,8 +86,8 @@ public class AlleleIndexer extends Indexer {
 	
 	@Override
 	protected void customizeObjectMapper(ObjectMapper objectMapper) {
-		objectMapper.setSerializationInclusion(Include.NON_NULL);
 		objectMapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false);
+		objectMapper.setSerializationInclusion(Include.NON_NULL);
 	}
 
 }

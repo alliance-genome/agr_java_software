@@ -90,11 +90,11 @@ public abstract class Indexer extends Thread {
 			}
 		};
 
-		BulkProcessor.Builder builder = BulkProcessor.builder((request, bulkListener) -> searchClient.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), listener);
+		BulkProcessor.Builder builder = BulkProcessor.builder((request, bulkListener) -> searchClient.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), listener, getClass().getSimpleName());
 		builder.setBulkActions(indexerConfig.getBulkActions());
 		builder.setBulkSize(new ByteSizeValue(indexerConfig.getBulkSize(), ByteSizeUnit.MB));
 		builder.setConcurrentRequests(indexerConfig.getConcurrentRequests());
-		builder.setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(1L), 60));
+		builder.setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(10L), 60));
 
 		bulkProcessor = builder.build();
 

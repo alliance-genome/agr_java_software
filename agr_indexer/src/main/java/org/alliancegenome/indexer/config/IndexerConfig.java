@@ -19,10 +19,10 @@ public enum IndexerConfig {
 	GeneIndexer("gene", GeneIndexer.class, 4, 359, 359, 8, 1),			  // (280954, 616, 156692, 2785)
 	DatasetIndexer("dataset", DatasetIndexer.class, 4, 566, 566, 8, 1), // (8094,	358,  90542, 1765)
 	DiseaseIndexer("disease", DiseaseIndexer.class, 4, 680, 680, 8, 1), // (10751,	191, 330099, 1472)
-	AlleleIndexer("allele", AlleleIndexer.class, 4, 1517, 1517, 8, 1),	  // (407830, 334,	69968,	659)
+	AlleleIndexer("allele", AlleleIndexer.class, 4, 1517, 1517, 8, 10),	  // (407830, 334,	69968,	659)
 	GoIndexer("go", GoIndexer.class, 4, 914, 914, 8, 1),				// (44087,	262, 460247, 1093)
 	ModelIndexer("model", ModelIndexer.class, 4, 1426, 1426, 8, 1),		   // (132447, 314,	 18593,	 701)
-	DiseaseAnnotationMlIndexer("diseaseAnnotation", DiseaseAnnotationCurationIndexer.class, 4, 1426, 1426, 8, 1),		   // (132447, 314,	 18593,	 701)
+	DiseaseAnnotationMlIndexer("diseaseAnnotation", DiseaseAnnotationCurationIndexer.class, 4, 33, 33, 8, 1),		   // (49406, 1941,	32221104, 29538)
 	// still not implemented  VariantIndexer("variant", VariantIndexer.class, 2, 3000, 400, 4, 4)
 	;
 

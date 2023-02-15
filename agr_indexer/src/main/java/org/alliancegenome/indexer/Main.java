@@ -64,7 +64,7 @@ public class Main {
 			}
 		}
 
-		log.debug("Waiting for Indexers to finish");
+		log.info("Waiting for Indexers to finish");
 		for (Indexer i: indexers.values()) {
 			try {
 				if (i.isAlive()) {
