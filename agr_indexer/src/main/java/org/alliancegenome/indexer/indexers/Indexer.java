@@ -186,9 +186,9 @@ public abstract class Indexer extends Thread {
 				}
 				display.progressProcess();
 				stats.addDocument(json);
-				if(!getClass().getSimpleName().equals("DiseaseAnnotationCurationIndexer")) {
+				//if(!getClass().getSimpleName().equals("DiseaseAnnotationCurationIndexer")) {
 					bulkProcessor.add(new IndexRequest(indexName).source(json, XContentType.JSON));
-				}
+				//}
 			} catch (JsonProcessingException e) {
 				e.printStackTrace();
 				log.error(e.getMessage());

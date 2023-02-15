@@ -28,6 +28,7 @@ import org.elasticsearch.action.admin.cluster.snapshots.restore.RestoreSnapshotR
 import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequest;
 import org.elasticsearch.action.admin.indices.alias.get.GetAliasesRequest;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
+import org.elasticsearch.action.admin.indices.forcemerge.ForceMergeRequest;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.action.support.master.AcknowledgedResponse;
 import org.elasticsearch.client.GetAliasesResponse;
@@ -429,9 +430,15 @@ public class IndexManager {
 
 	public void finishIndex() {
 		log.info("Main Index Finished: ");
-		RefreshRequest request = new RefreshRequest(newIndexName);
+
 		try {
-			closableSearchClient.indices().refresh(request, RequestOptions.DEFAULT);
+			closableSearchClient.indices().forcemerge(new ForceMergeRequest(newIndexName), RequestOptions.DEFAULT);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		try {
+			closableSearchClient.indices().refresh(new RefreshRequest(newIndexName), RequestOptions.DEFAULT);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
