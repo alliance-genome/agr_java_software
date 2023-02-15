@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
@@ -28,7 +27,6 @@ import org.alliancegenome.indexer.indexers.curation.service.AlleleDiseaseAnnotat
 import org.alliancegenome.indexer.indexers.curation.service.GeneDiseaseAnnotationService;
 import org.alliancegenome.indexer.indexers.curation.service.VocabularyService;
 import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.apache.commons.lang3.tuple.Pair;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,9 +40,9 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 	private AlleleDiseaseAnnotationService alleleService = new AlleleDiseaseAnnotationService();
 	private AGMDiseaseAnnotationService agmService = new AGMDiseaseAnnotationService();
 	private VocabularyService vocabService = new VocabularyService();
-	private DiseaseRepository diseaseRepository;
+	//private DiseaseRepository diseaseRepository;
 	
-	private Map<String, Set<String>> closureMap;
+	//private Map<String, Set<String>> closureMap;
 	private Map<String, Pair<Gene, ArrayList<DiseaseAnnotation>>> geneMap = new HashMap<>();
 	private Map<String, Pair<Allele, ArrayList<DiseaseAnnotation>>> alleleMap = new HashMap<>();
 	private Map<String, Pair<AffectedGenomicModel, ArrayList<DiseaseAnnotation>>> agmMap = new HashMap<>();
@@ -66,26 +64,26 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 	@Override
 	protected void index() {
 		
-//		diseaseRepository = new DiseaseRepository();
-//		closureMap = diseaseRepository.getDOClosureChildMapping();
-//		
-//		indexGenes();
-//		indexAlleles();
-//		indexAGMs();
-//
-//		List<GeneDiseaseAnnotationDocument> list = createGeneDiseaseAnnotationDocuments();
-//		log.info("Indexing " + list.size() + " gene documents");
-//		indexDocuments(list);
-//
-//		List<AlleleDiseaseAnnotationDocument> alleleList = createAlleleDiseaseAnnotationDocuments();
-//		log.info("Indexing " + alleleList.size() + " allele documents");
-//		indexDocuments(alleleList);
-//
-//		List<AGMDiseaseAnnotationDocument> agmList = createAGMDiseaseAnnotationDocuments();
-//		log.info("Indexing " + agmList.size() + " agm documents");
-//		indexDocuments(agmList);
-//
-//		diseaseRepository.close();
+		//diseaseRepository = new DiseaseRepository();
+		//closureMap = diseaseRepository.getDOClosureChildMapping();
+		
+		indexGenes();
+		indexAlleles();
+		indexAGMs();
+
+		List<GeneDiseaseAnnotationDocument> list = createGeneDiseaseAnnotationDocuments();
+		log.info("Indexing " + list.size() + " gene documents");
+		indexDocuments(list);
+
+		List<AlleleDiseaseAnnotationDocument> alleleList = createAlleleDiseaseAnnotationDocuments();
+		log.info("Indexing " + alleleList.size() + " allele documents");
+		indexDocuments(alleleList);
+
+		List<AGMDiseaseAnnotationDocument> agmList = createAGMDiseaseAnnotationDocuments();
+		log.info("Indexing " + agmList.size() + " agm documents");
+		indexDocuments(agmList);
+
+		//diseaseRepository.close();
 	}
 
 	private List<GeneDiseaseAnnotationDocument> createGeneDiseaseAnnotationDocuments() {
@@ -113,7 +111,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 						gdad.setDiseaseRelation(da.getDiseaseRelation());
 					}
 					gdad.setObject(da.getObject());
-					gdad.setParentSlimIDs(closureMap.get(da.getObject().getCurie()));
+					//gdad.setParentSlimIDs(closureMap.get(da.getObject().getCurie()));
 					lookup.put(key, gdad);
 				}
 				gdad.setEvidenceCodes(da.getEvidenceCodes());
