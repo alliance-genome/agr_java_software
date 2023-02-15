@@ -135,6 +135,10 @@ public abstract class Indexer extends Thread {
 			bulkProcessor.awaitClose(30L, TimeUnit.DAYS);
 			display.finishProcess();
 			stats.printOutput();
+			if(writer != null) {
+				writer.flush();
+				writer.close();
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			log.error(e.getMessage());
@@ -153,6 +157,10 @@ public abstract class Indexer extends Thread {
 			bulkProcessor.awaitClose(30L, TimeUnit.DAYS);
 			display.finishProcess();
 			stats.printOutput();
+			if(writer != null) {
+				writer.flush();
+				writer.close();
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			log.error(e.getMessage());
