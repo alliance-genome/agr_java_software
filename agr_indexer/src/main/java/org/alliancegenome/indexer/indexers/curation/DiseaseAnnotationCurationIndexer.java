@@ -83,17 +83,17 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		indexAlleles();
 		indexAGMs();
 
-		List<GeneDiseaseAnnotationDocument> list = createGeneDiseaseAnnotationDocuments();
-		log.info("Indexing " + list.size() + " gene documents");
-		//indexDocuments(list);
+		List<GeneDiseaseAnnotationDocument> geneList = createGeneDiseaseAnnotationDocuments();
+		log.info("Indexing " + geneList.size() + " gene documents");
+		indexDocuments(geneList);
 
 		List<AlleleDiseaseAnnotationDocument> alleleList = createAlleleDiseaseAnnotationDocuments();
 		log.info("Indexing " + alleleList.size() + " allele documents");
-		//indexDocuments(alleleList);
+		indexDocuments(alleleList);
 
 		List<AGMDiseaseAnnotationDocument> agmList = createAGMDiseaseAnnotationDocuments();
 		log.info("Indexing " + agmList.size() + " agm documents");
-		//indexDocuments(agmList);
+		indexDocuments(agmList);
 
 		diseaseRepository.close();
 	}
@@ -123,7 +123,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 						gdad.setDiseaseRelation(da.getDiseaseRelation());
 					}
 					gdad.setObject(da.getObject());
-					//gdad.setParentSlimIDs(closureMap.get(da.getObject().getCurie()));
+					gdad.setParentSlimIDs(closureMap.get(da.getObject().getCurie()));
 					lookup.put(key, gdad);
 				}
 				gdad.setEvidenceCodes(da.getEvidenceCodes());
