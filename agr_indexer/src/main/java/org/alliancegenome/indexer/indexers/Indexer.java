@@ -63,7 +63,7 @@ public abstract class Indexer extends Thread {
 	public Indexer(IndexerConfig indexerConfig) {
 		this.indexerConfig = indexerConfig;
 		
-		om = customizeObjectMapper(om);
+		customizeObjectMapper(om);
 
 		loadPopularityScore();
 
@@ -212,5 +212,5 @@ public abstract class Indexer extends Thread {
 
 	protected abstract void index();
 	protected abstract void startSingleThread(LinkedBlockingDeque<String> queue);
-	protected abstract ObjectMapper customizeObjectMapper(ObjectMapper objectMapper);
+	protected abstract void customizeObjectMapper(ObjectMapper objectMapper);
 }

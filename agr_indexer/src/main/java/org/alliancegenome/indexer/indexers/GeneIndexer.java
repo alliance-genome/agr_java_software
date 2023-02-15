@@ -86,8 +86,7 @@ public class GeneIndexer extends Indexer {
 	}
 	
 	@Override
-	protected ObjectMapper customizeObjectMapper(ObjectMapper objectMapper) {
+	protected void customizeObjectMapper(ObjectMapper objectMapper) {
 		objectMapper.setSerializationInclusion(Include.NON_NULL);
-		return objectMapper;
 	}
 }
