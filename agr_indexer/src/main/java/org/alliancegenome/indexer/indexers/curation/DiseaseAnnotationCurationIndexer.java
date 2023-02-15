@@ -18,7 +18,6 @@ import org.alliancegenome.curation_api.model.entities.Gene;
 import org.alliancegenome.curation_api.model.entities.GeneDiseaseAnnotation;
 import org.alliancegenome.es.index.site.doclet.SpeciesDoclet;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
-import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
 import org.alliancegenome.indexer.indexers.curation.document.AGMDiseaseAnnotationDocument;
 import org.alliancegenome.indexer.indexers.curation.document.AlleleDiseaseAnnotationDocument;
@@ -53,10 +52,11 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 	private Map<String, Pair<Allele, ArrayList<DiseaseAnnotation>>> alleleMap = new HashMap<>();
 	private Map<String, Pair<AffectedGenomicModel, ArrayList<DiseaseAnnotation>>> agmMap = new HashMap<>();
 
-	public DiseaseAnnotationCurationIndexer(IndexerConfig indexerConfig) {
-		super(indexerConfig);
+	public DiseaseAnnotationCurationIndexer(Integer threadCount) {
+		super(threadCount);
+		// TODO Auto-generated constructor stub
 	}
-
+	
 	@Override
 	protected void customizeObjectMapper(ObjectMapper objectMapper) {
 		objectMapper.registerModule(new JavaTimeModule());
@@ -86,15 +86,15 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 
 		List<GeneDiseaseAnnotationDocument> geneList = createGeneDiseaseAnnotationDocuments();
 		log.info("Indexing " + geneList.size() + " gene documents");
-		indexDocuments(geneList);
+		saveJsonDocuments(geneList);
 
 		List<AlleleDiseaseAnnotationDocument> alleleList = createAlleleDiseaseAnnotationDocuments();
 		log.info("Indexing " + alleleList.size() + " allele documents");
-		indexDocuments(alleleList);
+		saveJsonDocuments(alleleList);
 
 		List<AGMDiseaseAnnotationDocument> agmList = createAGMDiseaseAnnotationDocuments();
 		log.info("Indexing " + agmList.size() + " agm documents");
-		indexDocuments(agmList);
+		saveJsonDocuments(agmList);
 
 		diseaseRepository.close();
 	}

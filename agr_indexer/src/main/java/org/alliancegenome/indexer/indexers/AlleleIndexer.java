@@ -1,12 +1,10 @@
 package org.alliancegenome.indexer.indexers;
 
-import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.core.translators.document.AlleleTranslator;
 import org.alliancegenome.es.index.site.cache.AlleleDocumentCache;
-import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.repository.indexer.AlleleIndexerRepository;
 import org.alliancegenome.neo4j.view.View;
@@ -22,11 +20,11 @@ public class AlleleIndexer extends Indexer {
 
 	private AlleleDocumentCache alleleDocumentCache;
 	private AlleleIndexerRepository repo;
-
-	public AlleleIndexer(IndexerConfig config) {
-		super(config);
+	
+	public AlleleIndexer(Integer threadCount) {
+		super(threadCount);
 	}
-
+	
 	@Override
 	public void index() {
 		try {
@@ -46,34 +44,18 @@ public class AlleleIndexer extends Indexer {
 	}
 
 	protected void startSingleThread(LinkedBlockingDeque<String> queue) {
-		ArrayList<Allele> list = new ArrayList<>();
 		AlleleTranslator alleleTranslator = new AlleleTranslator();
 		while (true) {
 			try {
-				if (list.size() >= indexerConfig.getBufferSize()) {
-					Iterable<AlleleVariantSequence> avsDocs = alleleTranslator.translateEntities(list);
-					alleleDocumentCache.addCachedFields(avsDocs);
-					alleleTranslator.updateDocuments(avsDocs);
-					indexDocuments(avsDocs, View.AlleleVariantSequenceConverterForES.class);
-					list.clear();
-				}
-				if (queue.isEmpty()) {
-					if (list.size() > 0) {
-						Iterable <AlleleVariantSequence> avsDocs = alleleTranslator.translateEntities(list);
-						alleleDocumentCache.addCachedFields(avsDocs);
-						alleleTranslator.updateDocuments(avsDocs);
-						indexDocuments(avsDocs, View.AlleleVariantSequenceConverterForES.class);
-						repo.clearCache();
-						list.clear();
-					}
-					return;
-				}
-
+				
 				String key = queue.takeFirst();
 				Allele allele = alleleDocumentCache.getAlleleMap().get(key);
-				if (allele != null)
-					list.add(allele);
-				else
+				if (allele != null) {
+					Iterable<AlleleVariantSequence> avsDocs = alleleTranslator.translate(allele);
+					alleleDocumentCache.addCachedFields(avsDocs);
+					alleleTranslator.updateDocuments(avsDocs);
+					saveJsonDocuments(avsDocs, View.AlleleVariantSequenceConverterForES.class);
+				} else
 					log.debug("No Allele found for " + key);
 			} catch (Exception e) {
 				log.error("Error while indexing...", e);

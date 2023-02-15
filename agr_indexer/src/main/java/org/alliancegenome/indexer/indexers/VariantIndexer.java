@@ -1,13 +1,11 @@
 package org.alliancegenome.indexer.indexers;
 
-import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.translators.document.VariantTranslator;
 import org.alliancegenome.es.index.site.cache.IndexerCache;
 import org.alliancegenome.es.index.site.document.SearchableItemDocument;
-import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.neo4j.entity.node.Variant;
 import org.alliancegenome.neo4j.repository.indexer.VariantIndexerRepository;
 
@@ -22,8 +20,9 @@ public class VariantIndexer extends Indexer {
 	private VariantIndexerRepository repo;
 	private IndexerCache cache;
 
-	public VariantIndexer(IndexerConfig config) {
-		super(config);
+	public VariantIndexer(Integer threadCount) {
+		super(threadCount);
+		// TODO Auto-generated constructor stub
 	}
 
 	@Override
@@ -51,34 +50,19 @@ public class VariantIndexer extends Indexer {
 
 	@Override
 	protected void startSingleThread(LinkedBlockingDeque<String> queue) {
-		ArrayList<Variant> list = new ArrayList<>();
 		VariantTranslator translator = new VariantTranslator();
 
 		while(true) {
 			try {
-				if (list.size() >= indexerConfig.getBufferSize()) {
-					Iterable<SearchableItemDocument> documents = translator.translateEntities(list);
-					cache.addCachedFields(documents);
-					indexDocuments(documents);
-					list.clear();
-				}
-				if (queue.isEmpty()) {
-					if (list.size() > 0) {
-						Iterable <SearchableItemDocument> documents = translator.translateEntities(list);
-						cache.addCachedFields(documents);
-						indexDocuments(documents);
-						repo.clearCache();
-						list.clear();
-					}
-					return;
-				}
-
 				String key = queue.takeFirst();
 				Variant variant = cache.getVariantMap().get(key);
-				if (variant != null)
-					list.add(variant);
-				else
+				if (variant != null) {
+					SearchableItemDocument document = translator.translate(variant);
+					cache.addCachedFields(document);
+					saveJsonDocument(document);
+				} else {
 					log.debug("No Variant found for " + key);
+				}
 			} catch (Exception e) {
 				log.error("Error while indexing...", e);
 				System.exit(-1);

@@ -59,11 +59,10 @@ public abstract class IndexerCache {
 	public <D extends SearchableItemDocument> void addCachedFields(Iterable<D> documents) {
 		for (D document : documents) {
 			addCachedFields(document);
-			addExtraCachedFields(document);
 		}
 	}
 
-	protected <D extends SearchableItemDocument> void addCachedFields(D document) {
+	public <D extends SearchableItemDocument> void addCachedFields(D document) {
 		String id = document.getPrimaryKey();
 
 		document.setAlleles(alleles.get(id));
@@ -151,6 +150,7 @@ public abstract class IndexerCache {
 		document.setSubcellularExpressionWithParents(subcellularExpressionWithParents.get(id));
 		document.setSubcellularExpressionAgrSlim(subcellularExpressionAgrSlim.get(id));
 
+		addExtraCachedFields(document);
 	}
 
 

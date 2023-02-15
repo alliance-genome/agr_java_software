@@ -9,6 +9,7 @@ import org.alliancegenome.es.util.IndexManager;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
+import org.alliancegenome.indexer.processors.ESDocumentProcessor;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,7 +25,7 @@ public class Main {
 
 		IndexManager im = new IndexManager();
 
-		Indexer.indexName = im.startSiteIndex();
+		ESDocumentProcessor.indexName = im.startSiteIndex();
 
 		Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
 			log.error("Thread: " + t.getId() + " has uncaught exceptions");
@@ -35,7 +36,7 @@ public class Main {
 		HashMap<String, Indexer> indexers = new HashMap<>();
 		for (IndexerConfig ic : IndexerConfig.values()) {
 			try {
-				Indexer i = (Indexer) ic.getIndexClazz().getDeclaredConstructor(IndexerConfig.class).newInstance(ic);
+				Indexer i = (Indexer) ic.getIndexClazz().getDeclaredConstructor(IndexerConfig.class).newInstance(ic.getThreadCount());
 				indexers.put(ic.getTypeName(), i);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -76,6 +77,9 @@ public class Main {
 				System.exit(-1);
 			}
 		}
+		
+		log.info("Need to read all the files and load them into ES");
+		
 
 		im.finishIndex();
 
