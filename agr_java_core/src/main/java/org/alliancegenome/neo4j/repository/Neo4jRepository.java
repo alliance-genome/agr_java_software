@@ -40,7 +40,7 @@ public class Neo4jRepository<E> {
 		Configuration configuration = new Configuration.Builder().uri("bolt://" + ConfigHelper.getNeo4jHost() + ":" + ConfigHelper.getNeo4jPort()).build();
 		sessionFactory = new SessionFactory(configuration, "org.alliancegenome.neo4j.entity");
 		neo4jSession = sessionFactory.openSession();
-		log.info("------------------------------------- Starting sessionFactory: ----------------------------- ");
+		log.info("------------------------------------- Starting sessionFactory: " + getClass().getSimpleName() + " ----------------------------- ");
 	}
 
 	protected Iterable<E> getPage(int pageNumber, int pageSize, int depth) {
@@ -61,7 +61,7 @@ public class Neo4jRepository<E> {
 	}
 	
 	public void close() {
-		log.info("------------------------------------- Closing sessionFactory: ----------------------------- ");
+		log.info("------------------------------------- Closing sessionFactory: " + getClass().getSimpleName() + " ----------------------------- ");
 		sessionFactory.close();
 	}
 
