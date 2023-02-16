@@ -60,28 +60,23 @@ public class ESDocumentProcessor {
 //		builder.setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(10L), 60));
 //
 //		bulkProcessor = builder.build();
-		
-		
-		
-	}
 
+	}
 
 	public void processIndexes() {
 		
 		for(IndexerConfig config: IndexerConfig.values()) {
 			
 			try {
+				log.info(config.getIndexClazz().getSimpleName());
 				BufferedReader reader = new BufferedReader(new FileReader(new File("/data/" + config.getIndexClazz().getSimpleName() + "_data.json")));
 				reader.close();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			
-			
+
 			log.info("Indexer: " + config.getIndexClazz().getSimpleName());
 		}
-		
-		
 	}
 
 	public void close() {
