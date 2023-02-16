@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.alliancegenome.es.util.EsClientFactory;
 import org.alliancegenome.indexer.config.IndexerConfig;
@@ -88,12 +89,19 @@ public class ESDocumentProcessor {
 		KMeans kMeans = new KMeans(10, 100, list);
 		kMeans.run();
 		
-
+		int previousCenter = 0;
+		List<Integer> boundries = new ArrayList<>();
 	    for (Integer center : kMeans.getCenters()) {
 	    	log.info("Center: " + center);
+	    	if(previousCenter == 0) {
+	    		boundries.add(0);
+	    	} else {
+	    		boundries.add(((center - previousCenter) / 2) + previousCenter);
+	    	}
+	    	previousCenter = center;
 	    }
 		
-		log.info("List: " + list.size());
+		log.info("boundries: " + boundries);
 	}
 
 	public void close() {
