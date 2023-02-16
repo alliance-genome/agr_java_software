@@ -44,9 +44,8 @@ public class ESDocumentProcessor {
 
 		@Override
 		public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {
-			// log.info("Size: " + request.requests().size() + " MB: " +
-			// request.estimatedSizeInBytes() + " Time: " + response.getTook() + " Bulk
-			// Requet Finished");
+			log.info("Size: " + request.requests().size() + " MB: " + request.estimatedSizeInBytes() + " Time: " + response.getTook() + " Bulk Requet Finished");
+			log.info("Failures: " + response.hasFailures());
 		}
 
 		@Override
