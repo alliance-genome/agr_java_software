@@ -360,7 +360,7 @@ public interface DiseaseRESTInterface {
 			@QueryParam("termID") String termID,
 			@Parameter(in = ParameterIn.QUERY, name = "filterOptions", description = "All filter key-value pairs", schema = @Schema(type = SchemaType.STRING))
 			@QueryParam("filterOptions") String filterOptions,
-			@Parameter(in = ParameterIn.QUERY, name = "filter.subject.taxon", description = "Species by taxon ID", schema = @Schema(type = SchemaType.STRING))
+			@Parameter(in = ParameterIn.QUERY, name = "filter.species", description = "Species by taxon ID", schema = @Schema(type = SchemaType.STRING))
 			@QueryParam("filter.species") String filterSpecies,
 			@Parameter(in = ParameterIn.QUERY, name = "filter.subject.symbol", description = "Gene symbol", schema = @Schema(type = SchemaType.STRING))
 			@QueryParam("filter.subject.symbol") String filterGene,
