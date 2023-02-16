@@ -5,12 +5,10 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
 import org.alliancegenome.es.util.EsClientFactory;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.kmeans.KMeans;
-import org.alliancegenome.indexer.kmeans.KMeans.Cluster;
 import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.bulk.BulkRequest;
@@ -90,9 +88,9 @@ public class ESDocumentProcessor {
 		KMeans kMeans = new KMeans(10, 100, list);
 		kMeans.run();
 		
-		List<Cluster> clusters = kMeans.getClusters();
-	    for (Cluster cluster : clusters) {
-	    	log.info("Center: " + cluster.getCentroid());
+
+	    for (Integer center : kMeans.getCenters()) {
+	    	log.info("Center: " + center);
 	    }
 		
 		log.info("List: " + list.size());

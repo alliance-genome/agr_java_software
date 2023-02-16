@@ -1,7 +1,9 @@
 package org.alliancegenome.indexer.kmeans;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -61,8 +63,10 @@ public class KMeans {
         }
     }
 	
-	public List<Cluster> getClusters() {
-        return clusters;
+	public List<Integer> getCenters() {
+		List<Integer> list = clusters.stream().map(c -> c.getCentroid()).collect(Collectors.toList());
+		Collections.sort(list);
+		return list;
     }
 	
 	@Data
