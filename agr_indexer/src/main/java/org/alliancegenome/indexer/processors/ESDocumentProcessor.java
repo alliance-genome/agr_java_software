@@ -26,11 +26,10 @@ public class ESDocumentProcessor {
 
 	public ESDocumentProcessor(String indexName) {
 		this.indexName = indexName;
+		searchClient = EsClientFactory.getMustCloseSearchClient();
 	}
 
 	public void readFiles() {
-
-		searchClient = EsClientFactory.getMustCloseSearchClient();
 
 		BulkProcessor.Listener listener = new BulkProcessor.Listener() {
 			@Override
