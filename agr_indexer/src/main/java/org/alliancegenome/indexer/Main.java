@@ -1,12 +1,8 @@
 package org.alliancegenome.indexer;
 
-import java.util.HashMap;
-
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.util.IndexManager;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
-import org.alliancegenome.indexer.config.IndexerConfig;
-import org.alliancegenome.indexer.indexers.Indexer;
 import org.alliancegenome.indexer.processors.ESDocumentProcessor;
 
 import lombok.extern.slf4j.Slf4j;
@@ -31,17 +27,17 @@ public class Main {
 //			System.exit(-1);
 //		});
 //
-		HashMap<String, Indexer> indexers = new HashMap<>();
-		for (IndexerConfig ic : IndexerConfig.values()) {
-			try {
-				Indexer i = (Indexer) ic.getIndexClazz().getDeclaredConstructor(Integer.class).newInstance(ic.getThreadCount());
-				indexers.put(ic.getTypeName(), i);
-			} catch (Exception e) {
-				e.printStackTrace();
-				log.error(e.getMessage());
-				System.exit(-1);
-			}
-		}
+//		HashMap<String, Indexer> indexers = new HashMap<>();
+//		for (IndexerConfig ic : IndexerConfig.values()) {
+//			try {
+//				Indexer i = (Indexer) ic.getIndexClazz().getDeclaredConstructor(Integer.class).newInstance(ic.getThreadCount());
+//				indexers.put(ic.getTypeName(), i);
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//				log.error(e.getMessage());
+//				System.exit(-1);
+//			}
+//		}
 //
 //		Set<String> argumentSet = new HashSet<>();
 //		for (int i = 0; i < args.length; i++) {
@@ -76,7 +72,7 @@ public class Main {
 //			}
 //		}
 		
-		processor.processIndexes(indexers);
+		processor.processIndexes();
 		processor.close();
 
 		im.finishIndex();
