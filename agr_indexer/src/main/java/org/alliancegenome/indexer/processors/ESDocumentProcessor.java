@@ -87,7 +87,7 @@ public class ESDocumentProcessor {
 			log.info("Indexer: " + config.getIndexClazz().getSimpleName());
 		}
 		
-		KMeans kMeans = new KMeans(10, 10, list);
+		KMeans kMeans = new KMeans(10, 100, list);
 		kMeans.run();
 		
 		List<Cluster> clusters = kMeans.getClusters();

@@ -25,7 +25,7 @@ public class KMeans {
 	public void run() {
         initializeClusters();
         for (int i = 0; i < iterations; i++) {
-        	log.info("Iterating cluster: " + i);
+        	//log.info("Iterating cluster: " + i);
             assignDataPointsToClusters();
             recalculateClusterCentroids();
         }
@@ -34,7 +34,8 @@ public class KMeans {
 	private void initializeClusters() {
         for (int i = 0; i < clusterCount; i++) {
             Cluster cluster = new Cluster();
-            cluster.setCentroid(dataPoints.get(i));
+            int idx = (int)(Math.random() * dataPoints.size());
+            cluster.setCentroid(dataPoints.get(idx));
             clusters.add(cluster);
         }
     }
