@@ -4,12 +4,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map.Entry;
 
 import org.alliancegenome.es.util.EsClientFactory;
 import org.alliancegenome.indexer.config.IndexerConfig;
-import org.alliancegenome.indexer.indexers.Indexer;
 import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.bulk.BulkRequest;
@@ -69,18 +66,19 @@ public class ESDocumentProcessor {
 	}
 
 
-	public void processIndexes(HashMap<String, Indexer> indexers) {
+	public void processIndexes() {
 		
-		for(Entry<String, Indexer> entry: indexers.entrySet()) {
+		for(IndexerConfig config: IndexerConfig.values()) {
+			
 			try {
-				BufferedReader reader = new BufferedReader(new FileReader(new File("/data/" + getClass().getSimpleName() + "_data.json")));
+				BufferedReader reader = new BufferedReader(new FileReader(new File("/data/" + config.getIndexClazz().getSimpleName() + "_data.json")));
 				reader.close();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 			
 			
-			log.info("Indexer: " + entry.getValue().getClass().getSimpleName());
+			log.info("Indexer: " + config.getIndexClazz().getSimpleName());
 		}
 		
 		
