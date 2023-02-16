@@ -46,6 +46,7 @@ public class ESDocumentProcessor {
 		public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {
 			log.info("Size: " + request.requests().size() + " MB: " + request.estimatedSizeInBytes() + " Time: " + response.getTook() + " Bulk Requet Finished");
 			log.info("Failures: " + response.hasFailures());
+			log.info(response.buildFailureMessage());
 		}
 
 		@Override
@@ -71,16 +72,21 @@ public class ESDocumentProcessor {
 		log.info("Reading Data Files");
 		for (IndexerConfig config : IndexerConfig.values()) {
 			try {
-				BufferedReader reader = new BufferedReader(new FileReader(new File("/data/" + config.getIndexClazz().getSimpleName() + "_data.json")));
-				String line = null;
-				ProcessDisplayHelper ph = new ProcessDisplayHelper(2000);
-				ph.startProcess(config.getIndexClazz().getSimpleName() + " reading data");
-				while ((line = reader.readLine()) != null) {
-					list.add(line.length());
-					ph.progressProcess();
+				File inputFile = new File("/data/" + config.getIndexClazz().getSimpleName() + "_data.json");
+				if(inputFile.exists()) {
+					BufferedReader reader = new BufferedReader(new FileReader(inputFile));
+					String line = null;
+					ProcessDisplayHelper ph = new ProcessDisplayHelper(2000);
+					ph.startProcess(config.getIndexClazz().getSimpleName() + " reading data");
+					while ((line = reader.readLine()) != null) {
+						list.add(line.length());
+						ph.progressProcess();
+					}
+					ph.finishProcess();
+					reader.close();
+				} else {
+					log.info("No input file for: " + config.getIndexClazz().getSimpleName() + " skipping documents");
 				}
-				ph.finishProcess();
-				reader.close();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
