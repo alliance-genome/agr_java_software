@@ -20,7 +20,6 @@ import lombok.extern.slf4j.Slf4j;
 public class DiseaseIndexer extends Indexer {
 
 	private DiseaseDocumentCache diseaseDocumentCache;
-	private DiseaseRepository repo;
 	
 	public DiseaseIndexer(Integer threadCount) {
 		super(threadCount);
@@ -29,7 +28,6 @@ public class DiseaseIndexer extends Indexer {
 	@Override
 	public void index() {
 		try {
-			repo = new DiseaseRepository();
 			DiseaseIndexerRepository diseaseIndexerRepository = new DiseaseIndexerRepository();
 			diseaseDocumentCache = diseaseIndexerRepository.getDiseaseDocumentCache();
 			diseaseDocumentCache.setPopularity(popularityScore);
@@ -37,7 +35,6 @@ public class DiseaseIndexer extends Indexer {
 			LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>(allDiseaseIDs);
 			diseaseIndexerRepository.clearCache();
 			initiateThreading(queue);
-			repo.close();
 			diseaseIndexerRepository.close();
 		} catch (Exception e) {
 			log.error("Error while indexing...", e);
@@ -47,10 +44,13 @@ public class DiseaseIndexer extends Indexer {
 
 	protected void startSingleThread(LinkedBlockingDeque<String> queue) {
 		DiseaseTranslator diseaseTrans = new DiseaseTranslator();
-		
+		DiseaseRepository repo = new DiseaseRepository();
 		while (true) {
 			try {
-				if(queue.isEmpty()) return;
+				if(queue.isEmpty()) {
+					repo.close();
+					return;
+				}
 				
 				String key = queue.takeFirst();
 				DOTerm disease = repo.getDiseaseTerm(key);
@@ -65,6 +65,7 @@ public class DiseaseIndexer extends Indexer {
 			} catch (Exception e) {
 				log.error("Error while indexing...", e);
 				System.exit(-1);
+				repo.close();
 				return;
 			}
 		}
