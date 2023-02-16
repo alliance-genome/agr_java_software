@@ -104,8 +104,8 @@ public class ESDocumentProcessor {
 
 			BulkProcessor.Builder builder = BulkProcessor.builder((request, bulkListener) -> searchClient.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), listener, "Processor for: " + center);
 			ByteSizeValue m10 = new ByteSizeValue(10, ByteSizeUnit.MB);
-			log.info("Action Size: " + ((int)(m10.getBytes() / center)));
-			builder.setBulkActions((int)(m10.getBytes() / center));
+			log.info("Action Size: " + ((int)(m10.getBytes() / center) + 1));
+			builder.setBulkActions((int)(m10.getBytes() / center) + 1);
 			builder.setBulkSize(m10);
 			builder.setConcurrentRequests(10);
 			builder.setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(10L), 60));
