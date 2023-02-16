@@ -71,9 +71,7 @@ public class ESDocumentProcessor {
 		
 		log.info("Reading Data Files");
 		for (IndexerConfig config : IndexerConfig.values()) {
-
 			try {
-				log.info(config.getIndexClazz().getSimpleName());
 				BufferedReader reader = new BufferedReader(new FileReader(new File("/data/" + config.getIndexClazz().getSimpleName() + "_data.json")));
 				String line = null;
 				while ((line = reader.readLine()) != null) {
@@ -84,17 +82,19 @@ public class ESDocumentProcessor {
 				e.printStackTrace();
 			}
 
-			log.info("Indexer: " + config.getIndexClazz().getSimpleName());
+			log.info("Finished reading data file: " + config.getIndexClazz().getSimpleName());
 		}
 
+		log.info("Computing KMeans");
 		KMeans kMeans = new KMeans(clusterCount, 500, list);
 		kMeans.run();
+		log.info("KMeans Centers: " + kMeans.getCenters());
 
 		int previousCenter = 0;
 
 		NavigableMap<Integer, BulkProcessor> bulkProcessorsMap = new TreeMap<Integer, BulkProcessor>();
 
-		log.info("Computing KMeans");
+		log.info("Creating Bulk Processors");
 		for (Integer center : kMeans.getCenters()) {
 			log.info("Center: " + center);
 			int mid = 0;
@@ -102,12 +102,12 @@ public class ESDocumentProcessor {
 				mid = ((center - previousCenter) / 2) + previousCenter;
 			}
 
-			BulkProcessor.Builder builder = BulkProcessor.builder((request, bulkListener) -> searchClient.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), listener,getClass().getSimpleName());
+			BulkProcessor.Builder builder = BulkProcessor.builder((request, bulkListener) -> searchClient.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), listener, "Processor for: " + center);
 			ByteSizeValue m10 = new ByteSizeValue(10, ByteSizeUnit.MB);
-			
+			log.info("Action Size: " + ((int)(m10.getBytes() / center)));
 			builder.setBulkActions((int)(m10.getBytes() / center));
 			builder.setBulkSize(m10);
-			builder.setConcurrentRequests(2);
+			builder.setConcurrentRequests(10);
 			builder.setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(10L), 60));
 
 			bulkProcessorsMap.put(mid, builder.build());
@@ -118,7 +118,6 @@ public class ESDocumentProcessor {
 		log.info("Adding documents to BulkProcessors");
 		for (IndexerConfig config : IndexerConfig.values()) {
 			try {
-				log.info(config.getIndexClazz().getSimpleName());
 				BufferedReader reader = new BufferedReader(new FileReader(new File("/data/" + config.getIndexClazz().getSimpleName() + "_data.json")));
 				String line = null;
 				ProcessDisplayHelper ph = new ProcessDisplayHelper(2000);
@@ -144,7 +143,7 @@ public class ESDocumentProcessor {
 				e.printStackTrace();
 			}
 		}
-		
+		log.info("Everything is finished");
 	}
 
 	public void close() {
