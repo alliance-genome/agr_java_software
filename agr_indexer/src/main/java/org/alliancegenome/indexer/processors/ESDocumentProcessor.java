@@ -5,17 +5,26 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Map.Entry;
+import java.util.NavigableMap;
+import java.util.TreeMap;
+import java.util.concurrent.TimeUnit;
 
 import org.alliancegenome.es.util.EsClientFactory;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.kmeans.KMeans;
 import org.elasticsearch.action.DocWriteRequest;
+import org.elasticsearch.action.bulk.BackoffPolicy;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.unit.ByteSizeUnit;
+import org.elasticsearch.common.unit.ByteSizeValue;
+import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.core.TimeValue;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,59 +32,50 @@ import lombok.extern.slf4j.Slf4j;
 public class ESDocumentProcessor {
 
 	private String indexName;
-	private IndexerConfig indexerConfig;
 	private RestHighLevelClient searchClient;
-	private BulkProcessor bulkProcessor;
+
+	private Integer clusterCount = 10;
+
+	private BulkProcessor.Listener listener = new BulkProcessor.Listener() {
+		@Override
+		public void beforeBulk(long executionId, BulkRequest request) {
+		}
+
+		@Override
+		public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {
+			// log.info("Size: " + request.requests().size() + " MB: " +
+			// request.estimatedSizeInBytes() + " Time: " + response.getTook() + " Bulk
+			// Requet Finished");
+		}
+
+		@Override
+		public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
+			log.error("Bulk Request Failure: " + failure.getMessage());
+			for (DocWriteRequest<?> req : request.requests()) {
+				// IndexRequest idxreq = (IndexRequest)req;
+				// bulkProcessor.add(idxreq);
+			}
+			log.error("Finished Adding failed requests to bulkProcessor: ");
+		}
+	};
 
 	public ESDocumentProcessor(String indexName) {
 		this.indexName = indexName;
 		searchClient = EsClientFactory.getMustCloseSearchClient();
 	}
 
-	public void readFiles() {
-
-		BulkProcessor.Listener listener = new BulkProcessor.Listener() {
-			@Override
-			public void beforeBulk(long executionId, BulkRequest request) {
-			}
-
-			@Override
-			public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {
-				//log.info("Size: " + request.requests().size() + " MB: " + request.estimatedSizeInBytes() + " Time: " + response.getTook() + " Bulk Requet Finished");
-			}
-
-			@Override
-			public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
-				log.error("Bulk Request Failure: " + failure.getMessage());
-				for(DocWriteRequest<?> req: request.requests()) {
-					IndexRequest idxreq = (IndexRequest)req;
-					bulkProcessor.add(idxreq);
-				}
-				log.error("Finished Adding failed requests to bulkProcessor: ");
-			}
-		};
-
-//		BulkProcessor.Builder builder = BulkProcessor.builder((request, bulkListener) -> searchClient.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), listener, getClass().getSimpleName());
-//		builder.setBulkActions(indexerConfig.getBulkActions());
-//		builder.setBulkSize(new ByteSizeValue(indexerConfig.getBulkSize(), ByteSizeUnit.MB));
-//		builder.setConcurrentRequests(indexerConfig.getConcurrentRequests());
-//		builder.setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(10L), 60));
-//
-//		bulkProcessor = builder.build();
-
-	}
-
 	public void processIndexes() {
-		
+
 		ArrayList<Integer> list = new ArrayList<>();
 		
-		for(IndexerConfig config: IndexerConfig.values()) {
-			
+		log.info("Reading Data Files");
+		for (IndexerConfig config : IndexerConfig.values()) {
+
 			try {
 				log.info(config.getIndexClazz().getSimpleName());
 				BufferedReader reader = new BufferedReader(new FileReader(new File("/data/" + config.getIndexClazz().getSimpleName() + "_data.json")));
 				String line = null;
-				while((line = reader.readLine()) != null) {
+				while ((line = reader.readLine()) != null) {
 					list.add(line.length());
 				}
 				reader.close();
@@ -85,23 +85,59 @@ public class ESDocumentProcessor {
 
 			log.info("Indexer: " + config.getIndexClazz().getSimpleName());
 		}
-		
-		KMeans kMeans = new KMeans(10, 100, list);
+
+		KMeans kMeans = new KMeans(clusterCount, 500, list);
 		kMeans.run();
-		
+
 		int previousCenter = 0;
-		List<Integer> boundries = new ArrayList<>();
-	    for (Integer center : kMeans.getCenters()) {
-	    	log.info("Center: " + center);
-	    	if(previousCenter == 0) {
-	    		boundries.add(0);
-	    	} else {
-	    		boundries.add(((center - previousCenter) / 2) + previousCenter);
-	    	}
-	    	previousCenter = center;
-	    }
+
+		NavigableMap<Integer, BulkProcessor> bulkProcessorsMap = new TreeMap<Integer, BulkProcessor>();
+
+		log.info("Computing KMeans");
+		for (Integer center : kMeans.getCenters()) {
+			log.info("Center: " + center);
+			int mid = 0;
+			if (previousCenter != 0) {
+				mid = ((center - previousCenter) / 2) + previousCenter;
+			}
+
+			BulkProcessor.Builder builder = BulkProcessor.builder((request, bulkListener) -> searchClient.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), listener,getClass().getSimpleName());
+			builder.setBulkActions(10);
+			builder.setBulkSize(new ByteSizeValue(10, ByteSizeUnit.MB));
+			builder.setConcurrentRequests(2);
+			builder.setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(10L), 60));
+
+			bulkProcessorsMap.put(mid, builder.build());
+
+			previousCenter = center;
+		}
 		
-		log.info("boundries: " + boundries);
+		log.info("Adding documents to BulkProcessors");
+		for (IndexerConfig config : IndexerConfig.values()) {
+			try {
+				log.info(config.getIndexClazz().getSimpleName());
+				BufferedReader reader = new BufferedReader(new FileReader(new File("/data/" + config.getIndexClazz().getSimpleName() + "_data.json")));
+				String line = null;
+				while ((line = reader.readLine()) != null) {
+					bulkProcessorsMap.floorEntry(line.length()).getValue().add(new IndexRequest(indexName).source(line, XContentType.JSON));
+				}
+				reader.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			log.info("Indexer: " + config.getIndexClazz().getSimpleName());
+		}
+		
+		log.info("Waiting for BulkProcessor to finished");
+		for(Entry<Integer, BulkProcessor> entry: bulkProcessorsMap.entrySet()) {
+			entry.getValue().flush();
+			try {
+				entry.getValue().awaitClose(30L, TimeUnit.DAYS);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		
 	}
 
 	public void close() {
