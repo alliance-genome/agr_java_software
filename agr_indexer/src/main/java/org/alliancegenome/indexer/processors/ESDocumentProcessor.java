@@ -10,6 +10,7 @@ import java.util.NavigableMap;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
+import org.alliancegenome.curation_api.util.ProcessDisplayHelper;
 import org.alliancegenome.es.util.EsClientFactory;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.kmeans.KMeans;
@@ -102,8 +103,10 @@ public class ESDocumentProcessor {
 			}
 
 			BulkProcessor.Builder builder = BulkProcessor.builder((request, bulkListener) -> searchClient.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), listener,getClass().getSimpleName());
-			builder.setBulkActions(10);
-			builder.setBulkSize(new ByteSizeValue(10, ByteSizeUnit.MB));
+			ByteSizeValue m10 = new ByteSizeValue(10, ByteSizeUnit.MB);
+			
+			builder.setBulkActions((int)(m10.getBytes() / center));
+			builder.setBulkSize(m10);
 			builder.setConcurrentRequests(2);
 			builder.setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(10L), 60));
 
@@ -118,9 +121,13 @@ public class ESDocumentProcessor {
 				log.info(config.getIndexClazz().getSimpleName());
 				BufferedReader reader = new BufferedReader(new FileReader(new File("/data/" + config.getIndexClazz().getSimpleName() + "_data.json")));
 				String line = null;
+				ProcessDisplayHelper ph = new ProcessDisplayHelper(2000);
+				ph.startProcess(config.getIndexClazz().getSimpleName() + " processor starting");
 				while ((line = reader.readLine()) != null) {
 					bulkProcessorsMap.floorEntry(line.length()).getValue().add(new IndexRequest(indexName).source(line, XContentType.JSON));
+					ph.progressProcess();
 				}
+				ph.finishProcess();
 				reader.close();
 			} catch (Exception e) {
 				e.printStackTrace();
