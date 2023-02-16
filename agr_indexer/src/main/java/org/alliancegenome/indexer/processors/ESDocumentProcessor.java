@@ -3,6 +3,7 @@ package org.alliancegenome.indexer.processors;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
@@ -86,6 +87,10 @@ public class ESDocumentProcessor {
 	}
 
 	public void close() {
-		searchClient.close();
+		try {
+			searchClient.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }
