@@ -121,16 +121,21 @@ public class ESDocumentProcessor {
 		log.info("Adding documents to BulkProcessors");
 		for (IndexerConfig config : IndexerConfig.values()) {
 			try {
-				BufferedReader reader = new BufferedReader(new FileReader(new File("/data/" + config.getIndexClazz().getSimpleName() + "_data.json")));
-				String line = null;
-				ProcessDisplayHelper ph = new ProcessDisplayHelper(2000);
-				ph.startProcess(config.getIndexClazz().getSimpleName() + " processor starting");
-				while ((line = reader.readLine()) != null) {
-					bulkProcessorsMap.floorEntry(line.length()).getValue().add(new IndexRequest(indexName).source(line, XContentType.JSON));
-					ph.progressProcess();
+				File inputFile = new File("/data/" + config.getIndexClazz().getSimpleName() + "_data.json");
+				if(inputFile.exists()) {
+					BufferedReader reader = new BufferedReader(new FileReader(inputFile));
+					String line = null;
+					ProcessDisplayHelper ph = new ProcessDisplayHelper(2000);
+					ph.startProcess(config.getIndexClazz().getSimpleName() + " processor starting");
+					while ((line = reader.readLine()) != null) {
+						bulkProcessorsMap.floorEntry(line.length()).getValue().add(new IndexRequest(indexName).source(line, XContentType.JSON));
+						ph.progressProcess();
+					}
+					ph.finishProcess();
+					reader.close();
+				} else {
+					log.info("No input file for: " + config.getIndexClazz().getSimpleName() + " skipping documents");
 				}
-				ph.finishProcess();
-				reader.close();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
