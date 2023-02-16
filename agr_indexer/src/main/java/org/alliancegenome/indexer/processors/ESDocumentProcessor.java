@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import org.alliancegenome.es.util.EsClientFactory;
 import org.alliancegenome.indexer.config.IndexerConfig;
@@ -64,11 +65,17 @@ public class ESDocumentProcessor {
 
 	public void processIndexes() {
 		
+		ArrayList<Integer> list = new ArrayList<>();
+		
 		for(IndexerConfig config: IndexerConfig.values()) {
 			
 			try {
 				log.info(config.getIndexClazz().getSimpleName());
 				BufferedReader reader = new BufferedReader(new FileReader(new File("/data/" + config.getIndexClazz().getSimpleName() + "_data.json")));
+				String line = null;
+				while((line = reader.readLine()) != null) {
+					list.add(line.length());
+				}
 				reader.close();
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -76,6 +83,8 @@ public class ESDocumentProcessor {
 
 			log.info("Indexer: " + config.getIndexClazz().getSimpleName());
 		}
+		
+		log.info("List: " + list.size());
 	}
 
 	public void close() {
