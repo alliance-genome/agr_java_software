@@ -10,8 +10,8 @@ import java.util.NavigableMap;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
-import org.alliancegenome.curation_api.util.ProcessDisplayHelper;
 import org.alliancegenome.es.util.EsClientFactory;
+import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.kmeans.KMeans;
 import org.elasticsearch.action.DocWriteRequest;
@@ -74,9 +74,13 @@ public class ESDocumentProcessor {
 			try {
 				BufferedReader reader = new BufferedReader(new FileReader(new File("/data/" + config.getIndexClazz().getSimpleName() + "_data.json")));
 				String line = null;
+				ProcessDisplayHelper ph = new ProcessDisplayHelper(2000);
+				ph.startProcess(config.getIndexClazz().getSimpleName() + " reading data");
 				while ((line = reader.readLine()) != null) {
 					list.add(line.length());
+					ph.progressProcess();
 				}
+				ph.finishProcess();
 				reader.close();
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -96,7 +100,6 @@ public class ESDocumentProcessor {
 
 		log.info("Creating Bulk Processors");
 		for (Integer center : kMeans.getCenters()) {
-			log.info("Center: " + center);
 			int mid = 0;
 			if (previousCenter != 0) {
 				mid = ((center - previousCenter) / 2) + previousCenter;
