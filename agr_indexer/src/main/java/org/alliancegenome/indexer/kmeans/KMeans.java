@@ -67,7 +67,7 @@ public class KMeans {
 	
 	@Data
 	public class Cluster {
-		private double centroid;
+		private Integer centroid;
 		private List<Integer> clusterDataPoints;
 		
 		public Cluster() {
@@ -83,7 +83,7 @@ public class KMeans {
 	        for (Integer dataPoint : clusterDataPoints) {
 	            sum += dataPoint;
 	        }
-	        centroid = sum / clusterDataPoints.size();
+	        centroid = (int)(sum / clusterDataPoints.size());
 	        clusterDataPoints.clear();
 		}
 	}
