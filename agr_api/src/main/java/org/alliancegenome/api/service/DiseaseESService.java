@@ -104,7 +104,11 @@ public class DiseaseESService {
 						Arrays.stream(elements).forEach(element -> orClause.should(QueryBuilders.queryStringQuery(element + ":*" + filterValue + "*")));
 						bool.must(orClause);
 					} else {
-						bool.must(QueryBuilders.queryStringQuery(filterName + ":*" + filterValue + "*"));
+						if (filterName.endsWith("keyword")) {
+							bool.must(QueryBuilders.termQuery(filterName, filterValue));
+						} else {
+							bool.must(QueryBuilders.queryStringQuery(filterName + ":*" + filterValue + "*"));
+						}
 					}
 				}
 			});
