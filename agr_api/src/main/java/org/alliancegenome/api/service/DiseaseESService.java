@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 import static org.alliancegenome.cache.repository.helper.JsonResultResponse.DISTINCT_FIELD_VALUES;
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.elasticsearch.index.query.QueryBuilders.*;
 
 @RequestScoped
 public class DiseaseESService {
@@ -59,16 +59,19 @@ public class DiseaseESService {
 	private final GeneDiseaseSearchHelper geneDiseaseSearchHelper = new GeneDiseaseSearchHelper();
 
 	// termID may be used in the future when converting disease page to new ES stack.
-	public JsonResultResponse<GeneDiseaseAnnotationDocument> getRibbonDiseaseAnnotations(List<String> geneIDs, String termID, Pagination pagination) {
+	public JsonResultResponse<GeneDiseaseAnnotationDocument> getRibbonDiseaseAnnotations(List<String> geneIDs, String termID, Pagination pagination, boolean excludeNegated) {
 
 		BoolQueryBuilder bool = boolQuery();
 		BoolQueryBuilder bool2 = boolQuery();
 		bool.must(bool2);
 
-		bool.filter(new TermQueryBuilder("category", "gene_disease_annotation"));
+		bool.filter(termQuery("category", "gene_disease_annotation"));
 
 		for (String geneId : geneIDs) {
 			bool2.should(new MatchQueryBuilder("subject.curie.keyword", geneId));
+		}
+		if (excludeNegated) {
+			bool.must(matchQuery("primaryAnnotations.negated", false));
 		}
 		if (termID != null) {
 			BoolQueryBuilder bool3 = boolQuery();

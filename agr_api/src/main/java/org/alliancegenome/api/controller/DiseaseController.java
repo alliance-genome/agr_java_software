@@ -1,22 +1,8 @@
 package org.alliancegenome.api.controller;
 
-import static org.alliancegenome.api.service.EntityType.DISEASE;
-import static org.alliancegenome.api.service.EntityType.GENE;
-
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.api.rest.interfaces.DiseaseRESTInterface;
 import org.alliancegenome.api.service.DiseaseESService;
@@ -34,15 +20,24 @@ import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
-import org.alliancegenome.neo4j.view.BaseFilter;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
-import lombok.extern.slf4j.Slf4j;
+import static org.alliancegenome.api.service.EntityType.DISEASE;
+import static org.alliancegenome.api.service.EntityType.GENE;
 
 @Slf4j
 @RequestScoped
@@ -446,7 +441,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 																								String associationType,
 																								String evidenceCode,
 																								String basedOnGeneSymbol,
-																								String includeNegation,
+																								boolean includeNegation,
 																								Integer limit,
 																								Integer page,
 																								String sortBy,
@@ -463,11 +458,6 @@ public class DiseaseController implements DiseaseRESTInterface {
 		pagination.addFilterOption("primaryAnnotations.with.geneSymbol.displayText", basedOnGeneSymbol);
 		pagination.addFilterOption("primaryAnnotations.dataProvider.abbreviation", filterSource);
 		pagination.addFilterOption("references.crossReferences.curie", filterReference);
-/*
-		BaseFilter filterMap = new BaseFilter();
-		filterMap.put(FieldFilter.INCLUDE_NEGATION, includeNegation);
-		filterMap.values().removeIf(Objects::isNull);
-*/
 
 		if (pagination.hasErrors()) {
 			RestErrorMessage message = new RestErrorMessage();
@@ -475,7 +465,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 			throw new RestErrorException(message);
 		}
 		try {
-			JsonResultResponse<GeneDiseaseAnnotationDocument> response = diseaseESService.getRibbonDiseaseAnnotations(geneIDs, termID, pagination);
+			JsonResultResponse<GeneDiseaseAnnotationDocument> response = diseaseESService.getRibbonDiseaseAnnotations(geneIDs, termID, pagination, !includeNegation);
 			response.setHttpServletRequest(null);
 			response.calculateRequestDuration(startDate);
 			return response;
@@ -500,7 +490,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 															   String associationType,
 															   String evidenceCode,
 															   String basedOnGeneSymbol,
-															   String includeNegation,
+															   boolean includeNegation,
 															   String sortBy,
 															   String asc) {
 
