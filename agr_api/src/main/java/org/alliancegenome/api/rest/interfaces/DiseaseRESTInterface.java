@@ -381,7 +381,7 @@ public interface DiseaseRESTInterface {
 			@Parameter(in = ParameterIn.QUERY, name = "filter.basedOnGeneSymbol", description = "basedOnGeneSymbol", schema = @Schema(type = SchemaType.STRING))
 			@QueryParam("filter.basedOnGeneSymbol") String basedOnGeneSymbol,
 			@Parameter(in = ParameterIn.QUERY, name = "includeNegation", description = "include negated annotations", schema = @Schema(type = SchemaType.STRING))
-			@DefaultValue("false") @QueryParam("includeNegation") String includeNegation,
+			@DefaultValue("false") @QueryParam("includeNegation") boolean includeNegation,
 			@Parameter(in = ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
 			@DefaultValue("20") @QueryParam("limit") Integer limit,
 			@Parameter(in = ParameterIn.QUERY, name = "page", description = "Page number")
@@ -423,7 +423,7 @@ public interface DiseaseRESTInterface {
 			@Parameter(in = ParameterIn.QUERY, name = "filter.basedOnGeneSymbol", description = "basedOnGeneSymbol", schema = @Schema(type = SchemaType.STRING))
 			@QueryParam("filter.basedOnGeneSymbol") String basedOnGeneSymbol,
 			@Parameter(in = ParameterIn.QUERY, name = "includeNegation", description = "include negated annotations", schema = @Schema(type = SchemaType.STRING))
-			@DefaultValue("false") @QueryParam("includeNegation") String includeNegation,
+			@DefaultValue("false") @QueryParam("includeNegation") boolean includeNegation,
 			@Parameter(in = ParameterIn.QUERY, name = "sortBy", description = "Sort by field name")
 			@QueryParam("sortBy") String sortBy,
 			@Parameter(in = ParameterIn.QUERY, name = "asc", description = "ascending or descending", schema = @Schema(type = SchemaType.STRING))

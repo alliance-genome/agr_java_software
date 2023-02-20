@@ -1,22 +1,10 @@
 package org.alliancegenome.indexer.indexers.curation;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.LinkedBlockingDeque;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.curation_api.config.RestDefaultObjectMapper;
-import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.AffectedGenomicModel;
-import org.alliancegenome.curation_api.model.entities.Allele;
-import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.DiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.Gene;
-import org.alliancegenome.curation_api.model.entities.GeneDiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.*;
 import org.alliancegenome.es.index.site.doclet.SpeciesDoclet;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.config.IndexerConfig;
@@ -31,9 +19,9 @@ import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.apache.commons.lang3.tuple.Pair;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import lombok.extern.slf4j.Slf4j;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.LinkedBlockingDeque;
 
 @Slf4j
 public class DiseaseAnnotationCurationIndexer extends Indexer {
@@ -43,7 +31,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 	private AGMDiseaseAnnotationService agmService = new AGMDiseaseAnnotationService();
 	private VocabularyService vocabService = new VocabularyService();
 	private DiseaseRepository diseaseRepository;
-	
+
 	private Map<String, Set<String>> closureMap;
 	private Map<String, Pair<Gene, ArrayList<DiseaseAnnotation>>> geneMap = new HashMap<>();
 	private Map<String, Pair<Allele, ArrayList<DiseaseAnnotation>>> alleleMap = new HashMap<>();
@@ -65,10 +53,10 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 
 	@Override
 	protected void index() {
-		
+
 		diseaseRepository = new DiseaseRepository();
 		closureMap = diseaseRepository.getDOClosureChildMapping();
-		
+
 		indexGenes();
 		indexAlleles();
 		indexAGMs();
@@ -99,7 +87,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 
 			for (DiseaseAnnotation da : entry.getValue().getRight()) {
 				String key = da.getDiseaseRelation().getName() + "_" + da.getObject().getName() + "_" + da.getNegated();
-				if(da.getWith() != null && da.getWith().size() > 0) {
+				if (da.getWith() != null && da.getWith().size() > 0) {
 					key += "_" + da.getSingleReference().getCurie();
 				}
 				GeneDiseaseAnnotationDocument gdad = lookup.get(key);
@@ -112,6 +100,8 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 					} else {
 						gdad.setDiseaseRelation(da.getDiseaseRelation());
 					}
+					String diseaseRelationNegation = getDiseaseRelationNegation(gdad.getDiseaseRelation().getName(), da.getNegated());
+					gdad.setDiseaseRelationNegation(diseaseRelationNegation);
 					gdad.setObject(da.getObject());
 					gdad.setParentSlimIDs(closureMap.get(da.getObject().getCurie()));
 					lookup.put(key, gdad);
@@ -134,6 +124,12 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		ph.finishProcess();
 
 		return ret;
+	}
+
+	private String getDiseaseRelationNegation(String diseaseRelation, Boolean negated) {
+		if (!negated)
+			return diseaseRelation;
+		return diseaseRelation.replaceFirst("_", "_not_");
 	}
 
 	private List<AlleleDiseaseAnnotationDocument> createAlleleDiseaseAnnotationDocuments() {
