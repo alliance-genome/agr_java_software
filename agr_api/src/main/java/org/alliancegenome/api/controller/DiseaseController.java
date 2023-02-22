@@ -452,7 +452,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 		pagination.addFilterOptions(filterOptions);
 		pagination.addFilterOption("object.name", diseaseTerm);
 		pagination.addFilterOption("evidenceCodes.abbreviation", evidenceCode);
-		pagination.addFilterOption("diseaseRelation.name", associationType);
+		pagination.addFilterOption("diseaseRelationNegation", associationType);
 		pagination.addFilterOption("subject.geneSymbol.displayText", filterGene);
 		pagination.addFilterOption("subject.taxon.name.keyword", filterSpecies);
 		pagination.addFilterOption("primaryAnnotations.with.geneSymbol.displayText", basedOnGeneSymbol);

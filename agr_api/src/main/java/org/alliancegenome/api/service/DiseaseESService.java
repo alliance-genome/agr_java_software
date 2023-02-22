@@ -89,7 +89,7 @@ public class DiseaseESService {
 		// create histogram of select columns of unfiltered query
 		Map<String, String> aggregationFields = new HashMap<>();
 		aggregationFields.put("subject.taxon.name.keyword", "species");
-		aggregationFields.put("diseaseRelation.name.keyword", "associationType");
+		aggregationFields.put("diseaseRelationNegation.keyword", "associationType");
 		Map<String, List<String>> distinctFieldValueMap = addAggregations(bool, aggregationFields);
 
 		HashMap<String, String> filterOptionMap = pagination.getFilterOptionMap();
@@ -99,6 +99,12 @@ public class DiseaseESService {
 					BoolQueryBuilder orClause = boolQuery();
 					String[] elements = filterValue.split("\\|");
 					Arrays.stream(elements).forEach(element -> orClause.should(QueryBuilders.termQuery(filterName, element)));
+					bool.must(orClause);
+				} else if (filterValue.contains(" ")) {
+					// multi-word values are ANDed as wildcard string each
+					BoolQueryBuilder orClause = boolQuery();
+					String[] elements = filterValue.split(" ");
+					Arrays.stream(elements).forEach(element -> orClause.must(QueryBuilders.queryStringQuery(filterName + ":*" + element + "*")));
 					bool.must(orClause);
 				} else {
 					if (filterName.contains("|")) {
