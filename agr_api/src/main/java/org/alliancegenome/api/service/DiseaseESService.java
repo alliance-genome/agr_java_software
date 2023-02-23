@@ -132,7 +132,7 @@ public class DiseaseESService {
 		HighlightBuilder hlb = new HighlightBuilder();
 		SearchResponse searchResponse = searchDAO.performQuery(
 			bool, aggBuilders, null, geneDiseaseSearchHelper.getResponseFields(),
-			pagination.getLimit(), pagination.getOffset(), hlb, "diseaseAnnotation", true);
+			pagination.getLimit(), pagination.getOffset(), hlb, "diseaseAnnotation", false);
 
 		JsonResultResponse<GeneDiseaseAnnotationDocument> ret = new JsonResultResponse<>();
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
