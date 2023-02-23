@@ -86,6 +86,7 @@ public class Mapping extends Builder {
 				.htmlSmoosh()
 				.standardBigrams()
 				.build();
+		new FieldBuilder(builder, "object.name", "text").keyword().sort().build();
 		new FieldBuilder(builder, "phenotypeStatements", "text")
 				.keyword()
 				.build();
