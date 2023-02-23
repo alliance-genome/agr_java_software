@@ -1,10 +1,24 @@
 package org.alliancegenome.api.service;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import static java.util.stream.Collectors.toList;
+import static org.alliancegenome.cache.repository.helper.JsonResultResponse.DISTINCT_FIELD_VALUES;
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
+import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+
 import org.alliancegenome.api.entity.DiseaseEntitySubgroupSlim;
 import org.alliancegenome.api.entity.DiseaseRibbonEntity;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
@@ -35,14 +49,11 @@ import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.toList;
-import static org.alliancegenome.cache.repository.helper.JsonResultResponse.DISTINCT_FIELD_VALUES;
-import static org.elasticsearch.index.query.QueryBuilders.*;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 @RequestScoped
 public class DiseaseESService {
@@ -130,15 +141,6 @@ public class DiseaseESService {
 		ret.setSupplementalData(supplementalData);
 
 		List<GeneDiseaseAnnotationDocument> list = new ArrayList<>();
-		ObjectMapper mapper2 = new ObjectMapper();
-		JavaTimeModule module = new JavaTimeModule();
-		mapper2.registerModule(module);
-		mapper2.registerModule(new Jdk8Module());
-
-//		mapper2.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-		mapper2.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-		mapper2.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-		mapper2.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 
 		for (SearchHit searchHit : searchResponse.getHits().getHits()) {
 			try {

@@ -1,10 +1,22 @@
 package org.alliancegenome.indexer.indexers.curation;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.LinkedBlockingDeque;
+
 import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.curation_api.config.RestDefaultObjectMapper;
-import org.alliancegenome.curation_api.model.entities.*;
+import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.AffectedGenomicModel;
+import org.alliancegenome.curation_api.model.entities.Allele;
+import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.DiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.Gene;
+import org.alliancegenome.curation_api.model.entities.GeneDiseaseAnnotation;
 import org.alliancegenome.es.index.site.doclet.SpeciesDoclet;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.config.IndexerConfig;
@@ -19,9 +31,9 @@ import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.concurrent.LinkedBlockingDeque;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class DiseaseAnnotationCurationIndexer extends Indexer {
@@ -94,7 +106,10 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 
 				if (gdad == null) {
 					gdad = new GeneDiseaseAnnotationDocument();
+					
 					gdad.setSubject(entry.getValue().getLeft());
+					int order = SpeciesType.getTypeByID(entry.getValue().getLeft().getTaxon().getCurie()).getOrderID();
+					gdad.setPhylogeneticSortingIndex(order);
 					if (da instanceof AGMDiseaseAnnotation || da instanceof AlleleDiseaseAnnotation) {
 						gdad.setDiseaseRelation(vocabService.getVocabularyTerm("is_implicated_in"));
 					} else {
@@ -148,6 +163,8 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 
 				if (adad == null) {
 					adad = new AlleleDiseaseAnnotationDocument();
+					int order = SpeciesType.getTypeByID(entry.getValue().getLeft().getTaxon().getCurie()).getOrderID();
+					adad.setPhylogeneticSortingIndex(order);
 					adad.setSubject(entry.getValue().getLeft());
 					adad.setDiseaseRelation(da.getDiseaseRelation());
 					adad.setObject(da.getObject());
@@ -181,18 +198,20 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 
 			for (DiseaseAnnotation da : entry.getValue().getRight()) {
 				String key = da.getDiseaseRelation().getName() + "_" + da.getObject().getName() + "_" + da.getNegated();
-				AGMDiseaseAnnotationDocument gdad = lookup.get(key);
+				AGMDiseaseAnnotationDocument adad = lookup.get(key);
 
-				if (gdad == null) {
-					gdad = new AGMDiseaseAnnotationDocument();
-					gdad.setSubject(entry.getValue().getLeft());
-					gdad.setDiseaseRelation(da.getDiseaseRelation());
-					gdad.setObject(da.getObject());
-					lookup.put(key, gdad);
+				if (adad == null) {
+					adad = new AGMDiseaseAnnotationDocument();
+					int order = SpeciesType.getTypeByID(entry.getValue().getLeft().getTaxon().getCurie()).getOrderID();
+					adad.setPhylogeneticSortingIndex(order);
+					adad.setSubject(entry.getValue().getLeft());
+					adad.setDiseaseRelation(da.getDiseaseRelation());
+					adad.setObject(da.getObject());
+					lookup.put(key, adad);
 				}
-				gdad.setEvidenceCodes(da.getEvidenceCodes());
+				adad.setEvidenceCodes(da.getEvidenceCodes());
 				// gdad.setDataProvider(da.getDataProvider());
-				gdad.addReference(da.getSingleReference());
+				adad.addReference(da.getSingleReference());
 			}
 			ph.progressProcess();
 			ret.addAll(lookup.values());
