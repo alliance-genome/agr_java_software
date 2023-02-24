@@ -39,6 +39,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
+import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.search.SearchHit;
@@ -55,19 +56,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
+import io.quarkus.logging.Log;
+
+
 @RequestScoped
 public class DiseaseESService {
 
 	@Inject
 	ObjectMapper mapper;
 
-	private final DiseaseRibbonService diseaseRibbonService = new DiseaseRibbonService(new DiseaseRepository());
-
 	private static final GeneRepository geneRepository = new GeneRepository();
 	private static final DiseaseRepository diseaseRepository = new DiseaseRepository();
+	private static final DiseaseRibbonService diseaseRibbonService = new DiseaseRibbonService(diseaseRepository);
 	private static final SearchDAO searchDAO = new SearchDAO();
-
-	private final GeneDiseaseSearchHelper geneDiseaseSearchHelper = new GeneDiseaseSearchHelper();
+	private static final GeneDiseaseSearchHelper geneDiseaseSearchHelper = new GeneDiseaseSearchHelper();
 
 	// termID may be used in the future when converting disease page to new ES stack.
 	public JsonResultResponse<GeneDiseaseAnnotationDocument> getRibbonDiseaseAnnotations(List<String> geneIDs, String termID, Pagination pagination, boolean excludeNegated) {
@@ -100,31 +102,13 @@ public class DiseaseESService {
 		// create histogram of select columns of unfiltered query
 		Map<String, String> aggregationFields = new HashMap<>();
 		aggregationFields.put("subject.taxon.name.keyword", "species");
-		aggregationFields.put("diseaseRelation.name.keyword", "associationType");
+		aggregationFields.put("diseaseRelationNegation.keyword", "associationType");
 		Map<String, List<String>> distinctFieldValueMap = addAggregations(bool, aggregationFields);
 
 		HashMap<String, String> filterOptionMap = pagination.getFilterOptionMap();
 		if (MapUtils.isNotEmpty(filterOptionMap)) {
 			filterOptionMap.forEach((filterName, filterValue) -> {
-				if (filterValue.contains("|")) {
-					BoolQueryBuilder orClause = boolQuery();
-					String[] elements = filterValue.split("\\|");
-					Arrays.stream(elements).forEach(element -> orClause.should(QueryBuilders.termQuery(filterName, element)));
-					bool.must(orClause);
-				} else {
-					if (filterName.contains("|")) {
-						BoolQueryBuilder orClause = boolQuery();
-						String[] elements = filterName.split("\\|");
-						Arrays.stream(elements).forEach(element -> orClause.should(QueryBuilders.queryStringQuery(element + ":*" + filterValue + "*")));
-						bool.must(orClause);
-					} else {
-						if (filterName.endsWith("keyword")) {
-							bool.must(QueryBuilders.termQuery(filterName, filterValue));
-						} else {
-							bool.must(QueryBuilders.queryStringQuery(filterName + ":*" + filterValue + "*"));
-						}
-					}
-				}
+				generateFilter(bool, filterName, filterValue);
 			});
 		}
 
@@ -153,6 +137,43 @@ public class DiseaseESService {
 		}
 		ret.setResults(list);
 		return ret;
+	}
+
+	private void generateFilter(BoolQueryBuilder bool, String filterName, String filterValue) {
+
+		if (filterValue.contains("|")) {
+			Log.info("Or Filter: " + filterName + " " + filterValue);
+			BoolQueryBuilder orClause = boolQuery();
+			String[] elements = filterValue.split("\\|");
+			Arrays.stream(elements).forEach(element -> orClause.should(QueryBuilders.termQuery(filterName, element)));
+			bool.must(orClause);
+		} else if(filterValue.contains("&")) {
+			Log.info("And Filter: " + filterName + " " + filterValue);
+
+			String[] elements = filterValue.split("\\&");
+			//Arrays.stream(elements).forEach(element -> andClause.should(QueryBuilders.termQuery(filterName, element)));
+			StringBuffer queryString = new StringBuffer();
+			String delim = "";
+			for(String element: elements) {
+				queryString.append(delim);
+				queryString.append(element);
+				delim = " ";
+			}
+			
+			bool.must(QueryBuilders.queryStringQuery(queryString.toString()).defaultOperator(Operator.AND).field(filterName));
+		} else {
+			Log.info("Other Filter: " + filterName + " " + filterValue);
+			
+			if (filterName.endsWith("keyword")) {
+				bool.must(QueryBuilders.termQuery(filterName, filterValue));
+			} else {
+				String[] elements = filterValue.split(" ");
+				BoolQueryBuilder andClause = boolQuery();
+				Arrays.stream(elements).forEach(element -> andClause.must(QueryBuilders.queryStringQuery("*" + element + "*").field(filterName)));
+				bool.must(andClause);
+			}
+		}
+		Log.info(bool);
 	}
 
 	private Map<String, List<String>> addAggregations(BoolQueryBuilder bool, Map<String, String> aggregationFields) {
@@ -266,21 +287,7 @@ public class DiseaseESService {
 		HashMap<String, String> filterOptionMap = pagination.getFilterOptionMap();
 		if (MapUtils.isNotEmpty(filterOptionMap)) {
 			filterOptionMap.forEach((filterName, filterValue) -> {
-				if (filterValue.contains("|")) {
-					BoolQueryBuilder orClause = boolQuery();
-					String[] elements = filterValue.split("\\|");
-					Arrays.stream(elements).forEach(element -> orClause.should(QueryBuilders.termQuery(filterName, element)));
-					bool.must(orClause);
-				} else {
-					if (filterName.contains("|")) {
-						BoolQueryBuilder orClause = boolQuery();
-						String[] elements = filterName.split("\\|");
-						Arrays.stream(elements).forEach(element -> orClause.should(QueryBuilders.wildcardQuery(element, "*" + filterValue + "*")));
-						bool.must(orClause);
-					} else {
-						bool.must(QueryBuilders.wildcardQuery(filterName, "*" + filterValue + "*"));
-					}
-				}
+				generateFilter(bool, filterName, filterValue);
 			});
 		}
 
