@@ -1,5 +1,6 @@
 package org.alliancegenome.api.controller;
 
+
 import static org.alliancegenome.api.service.EntityType.DISEASE;
 import static org.alliancegenome.api.service.EntityType.GENE;
 
@@ -460,7 +461,12 @@ public class DiseaseController implements DiseaseRESTInterface {
 		pagination.addFilterOption("subject.taxon.name.keyword", filterSpecies);
 		pagination.addFilterOption("primaryAnnotations.with.geneSymbol.displayText", basedOnGeneSymbol);
 		pagination.addFilterOption("primaryAnnotations.dataProvider.abbreviation", filterSource);
-		pagination.addFilterOption("references.crossReferences.curie", filterReference);
+
+		if(filterReference != null) {
+			pagination.addFilterOption("references.crossReferences.curie", filterReference + "&PMID");
+		} else {
+			pagination.addFilterOption("references.crossReferences.curie", null);
+		}
 
 		if (pagination.hasErrors()) {
 			RestErrorMessage message = new RestErrorMessage();
