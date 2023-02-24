@@ -100,7 +100,7 @@ public class DiseaseESService {
 		// create histogram of select columns of unfiltered query
 		Map<String, String> aggregationFields = new HashMap<>();
 		aggregationFields.put("subject.taxon.name.keyword", "species");
-		aggregationFields.put("diseaseRelation.name.keyword", "associationType");
+		aggregationFields.put("diseaseRelationNegation.keyword", "associationType");
 		Map<String, List<String>> distinctFieldValueMap = addAggregations(bool, aggregationFields);
 
 		HashMap<String, String> filterOptionMap = pagination.getFilterOptionMap();
