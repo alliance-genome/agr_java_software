@@ -108,7 +108,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 					gdad = new GeneDiseaseAnnotationDocument();
 					gdad.setSubject(entry.getValue().getLeft());
 					SpeciesType type = SpeciesType.getTypeByID(entry.getValue().getLeft().getTaxon().getCurie());
-					int order = 10;
+					int order = 100;
 					if(type != null) {
 						order = type.getOrderID();
 					}
@@ -167,7 +167,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 				if (adad == null) {
 					adad = new AlleleDiseaseAnnotationDocument();
 					SpeciesType type = SpeciesType.getTypeByID(entry.getValue().getLeft().getTaxon().getCurie());
-					int order = 10;
+					int order = 100;
 					if(type != null) {
 						order = type.getOrderID();
 					}
@@ -210,7 +210,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 				if (adad == null) {
 					adad = new AGMDiseaseAnnotationDocument();
 					SpeciesType type = SpeciesType.getTypeByID(entry.getValue().getLeft().getTaxon().getCurie());
-					int order = 10;
+					int order = 100;
 					if(type != null) {
 						order = type.getOrderID();
 					}
