@@ -106,9 +106,12 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 
 				if (gdad == null) {
 					gdad = new GeneDiseaseAnnotationDocument();
-					
 					gdad.setSubject(entry.getValue().getLeft());
-					int order = SpeciesType.getTypeByID(entry.getValue().getLeft().getTaxon().getCurie()).getOrderID();
+					SpeciesType type = SpeciesType.getTypeByID(entry.getValue().getLeft().getTaxon().getCurie());
+					int order = 10;
+					if(type != null) {
+						order = type.getOrderID();
+					}
 					gdad.setPhylogeneticSortingIndex(order);
 					if (da instanceof AGMDiseaseAnnotation || da instanceof AlleleDiseaseAnnotation) {
 						gdad.setDiseaseRelation(vocabService.getVocabularyTerm("is_implicated_in"));
@@ -163,7 +166,11 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 
 				if (adad == null) {
 					adad = new AlleleDiseaseAnnotationDocument();
-					int order = SpeciesType.getTypeByID(entry.getValue().getLeft().getTaxon().getCurie()).getOrderID();
+					SpeciesType type = SpeciesType.getTypeByID(entry.getValue().getLeft().getTaxon().getCurie());
+					int order = 10;
+					if(type != null) {
+						order = type.getOrderID();
+					}
 					adad.setPhylogeneticSortingIndex(order);
 					adad.setSubject(entry.getValue().getLeft());
 					adad.setDiseaseRelation(da.getDiseaseRelation());
@@ -202,7 +209,11 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 
 				if (adad == null) {
 					adad = new AGMDiseaseAnnotationDocument();
-					int order = SpeciesType.getTypeByID(entry.getValue().getLeft().getTaxon().getCurie()).getOrderID();
+					SpeciesType type = SpeciesType.getTypeByID(entry.getValue().getLeft().getTaxon().getCurie());
+					int order = 10;
+					if(type != null) {
+						order = type.getOrderID();
+					}
 					adad.setPhylogeneticSortingIndex(order);
 					adad.setSubject(entry.getValue().getLeft());
 					adad.setDiseaseRelation(da.getDiseaseRelation());
