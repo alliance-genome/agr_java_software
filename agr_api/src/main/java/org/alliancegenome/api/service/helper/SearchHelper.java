@@ -320,17 +320,14 @@ public class SearchHelper {
 		ArrayList<AggResult> ret = new ArrayList<>();
 
 		if(category == null) {
-
 			Terms aggs = res.getAggregations().get("categories");
-
-			AggResult ares = new AggResult("category", aggs);
+			AggResult ares = new AggResult("category", aggs, category_filters.keySet());
 			ret.add(ares);
-
 		} else {
 			if(category_filters.containsKey(category)) {
 				for(String item: category_filters.get(category)) {
 					Terms aggs = res.getAggregations().get(item);
-					AggResult ares = new AggResult(item, aggs);
+					AggResult ares = new AggResult(item, aggs, null);
 					ret.add(ares);
 				}
 			}
