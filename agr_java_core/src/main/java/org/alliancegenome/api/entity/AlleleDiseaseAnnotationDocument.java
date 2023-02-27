@@ -1,6 +1,5 @@
-package org.alliancegenome.indexer.indexers.curation.document;
+package org.alliancegenome.api.entity;
 
-import org.alliancegenome.api.entity.DiseaseAnnotationDocument;
 import org.alliancegenome.curation_api.model.entities.Allele;
 
 import lombok.Data;

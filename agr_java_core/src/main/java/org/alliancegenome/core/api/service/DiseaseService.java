@@ -1,8 +1,33 @@
 package org.alliancegenome.core.api.service;
 
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
+import static org.alliancegenome.neo4j.entity.DiseaseAnnotation.NOT_ASSOCIATION_TYPE;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+
 import org.alliancegenome.cache.repository.DiseaseCacheRepository;
 import org.alliancegenome.cache.repository.PhenotypeCacheRepository;
-import org.alliancegenome.cache.repository.helper.*;
+import org.alliancegenome.cache.repository.helper.DiseaseAnnotationFiltering;
+import org.alliancegenome.cache.repository.helper.DiseaseAnnotationSorting;
+import org.alliancegenome.cache.repository.helper.JsonResultResponse;
+import org.alliancegenome.cache.repository.helper.ModelAnnotationFiltering;
+import org.alliancegenome.cache.repository.helper.ModelAnnotationsSorting;
+import org.alliancegenome.cache.repository.helper.PaginationResult;
+import org.alliancegenome.cache.repository.helper.PrimaryAnnotatedEntityFiltering;
+import org.alliancegenome.cache.repository.helper.PrimaryAnnotatedEntitySorting;
+import org.alliancegenome.cache.repository.helper.SortingField;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
@@ -14,16 +39,6 @@ import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
-
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
-import static org.alliancegenome.neo4j.entity.DiseaseAnnotation.NOT_ASSOCIATION_TYPE;
 
 @RequestScoped
 public class DiseaseService {
