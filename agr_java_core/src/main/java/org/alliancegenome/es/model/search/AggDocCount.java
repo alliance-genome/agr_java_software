@@ -7,11 +7,15 @@ import org.apache.commons.collections.CollectionUtils;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 
+import lombok.Data;
+import lombok.ToString;
+
+@Data @ToString
 public class AggDocCount {
 
-	public String key;
-	public long total;
-	public List<AggDocCount> values = new ArrayList<>();
+	private String key;
+	private long total;
+	private List<AggDocCount> values = new ArrayList<>();
 	
 	public AggDocCount(String key, long total) {
 		this.key = key;
@@ -27,8 +31,7 @@ public class AggDocCount {
 			Terms sub = aggs.get(aggs.asList().get(0).getName());
 
 			for (Terms.Bucket entry : sub.getBuckets()) {
-				values.add(new AggDocCount(entry.getKeyAsString(),
-						entry.getDocCount(),entry.getAggregations()));
+				values.add(new AggDocCount(entry.getKeyAsString(), entry.getDocCount(), entry.getAggregations()));
 			}
 		}
 	}
