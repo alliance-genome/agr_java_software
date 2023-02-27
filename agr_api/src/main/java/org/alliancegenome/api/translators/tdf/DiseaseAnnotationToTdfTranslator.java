@@ -218,7 +218,7 @@ public class DiseaseAnnotationToTdfTranslator {
 
 	private DiseaseDownloadRow getBaseDiseaseDownloadRow(GeneDiseaseAnnotationDocument annotation, org.alliancegenome.curation_api.model.entities.Gene homologousGene, org.alliancegenome.curation_api.model.entities.DiseaseAnnotation primaryAnnotation) {
 		DiseaseDownloadRow row = new DiseaseDownloadRow();
-		row.setAssociation(annotation.getDiseaseRelation().getName());
+		row.setAssociation(annotation.getDiseaseRelationNegation());
 		row.setDiseaseID(annotation.getObject().getCurie());
 		row.setDiseaseName(annotation.getObject().getName());
 		row.setSource(primaryAnnotation.getDataProviderString());
