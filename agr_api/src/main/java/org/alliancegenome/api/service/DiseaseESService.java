@@ -36,6 +36,7 @@ import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.lucene.search.join.ScoreMode;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
@@ -156,11 +157,17 @@ public class DiseaseESService {
 			String delim = "";
 			for(String element: elements) {
 				queryString.append(delim);
-				queryString.append(element);
+				queryString.append("*" + element + "*");
 				delim = " ";
-			}
-			
-			bool.must(QueryBuilders.queryStringQuery(queryString.toString()).defaultOperator(Operator.AND).field(filterName));
+			}	
+
+			bool.must(
+				QueryBuilders.nestedQuery(
+					filterName.substring(0, filterName.lastIndexOf('.')),
+					QueryBuilders.queryStringQuery(queryString.toString()).defaultOperator(Operator.AND).field(filterName),
+					ScoreMode.Total
+				)
+			);
 		} else {
 			Log.info("Other Filter: " + filterName + " " + filterValue);
 			

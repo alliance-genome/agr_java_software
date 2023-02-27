@@ -92,6 +92,9 @@ public class Mapping extends Builder {
 				.build();
 		new FieldBuilder(builder, "popularity", "double").build();
 		new FieldBuilder(builder, "primaryKey", "keyword").build();
+		
+		new FieldBuilder(builder, "references.crossReferences", "nested").build();
+		
 		new FieldBuilder(builder, "sampleIds", "keyword").build();
 		new FieldBuilder(builder, "symbol", "text").analyzer("symbols")
 				.autocomplete()
