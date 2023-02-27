@@ -8,6 +8,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingDeque;
 
+import org.alliancegenome.api.entity.AGMDiseaseAnnotationDocument;
+import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.curation_api.config.RestDefaultObjectMapper;
 import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
@@ -21,8 +23,6 @@ import org.alliancegenome.es.index.site.doclet.SpeciesDoclet;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
-import org.alliancegenome.indexer.indexers.curation.document.AGMDiseaseAnnotationDocument;
-import org.alliancegenome.indexer.indexers.curation.document.AlleleDiseaseAnnotationDocument;
 import org.alliancegenome.indexer.indexers.curation.service.AGMDiseaseAnnotationService;
 import org.alliancegenome.indexer.indexers.curation.service.AlleleDiseaseAnnotationService;
 import org.alliancegenome.indexer.indexers.curation.service.GeneDiseaseAnnotationService;
