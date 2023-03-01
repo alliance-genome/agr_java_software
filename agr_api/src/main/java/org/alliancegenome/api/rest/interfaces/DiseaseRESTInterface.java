@@ -408,10 +408,10 @@ public interface DiseaseRESTInterface {
 			@QueryParam("filter.subject.symbol") String filterGene,
 			@Parameter(in = ParameterIn.QUERY, name = "filter.reference", description = "Reference", schema = @Schema(type = SchemaType.STRING))
 			@QueryParam("filter.reference") String filterReference,
-			@Parameter(in = ParameterIn.QUERY, name = "filter.disease", description = "Ontology term name", schema = @Schema(type = SchemaType.STRING))
-			@QueryParam("filter.disease") String diseaseTerm,
-			@Parameter(in = ParameterIn.QUERY, name = "filter.source", description = "Source", schema = @Schema(type = SchemaType.STRING))
-			@QueryParam("filter.provider") String filterSource,
+			@Parameter(in = ParameterIn.QUERY, name = "filter.object.curie", description = "Ontology term name", schema = @Schema(type = SchemaType.STRING))
+			@QueryParam("filter.object.curie") String diseaseTerm,
+			@Parameter(in = ParameterIn.QUERY, name = "filter.dataProvider", description = "Source", schema = @Schema(type = SchemaType.STRING))
+			@QueryParam("filter.dataProvider") String filterSource,
 			@Parameter(in = ParameterIn.QUERY, name = "filter.geneticEntity", description = "geneticEntity", schema = @Schema(type = SchemaType.STRING))
 			@QueryParam("filter.geneticEntity") String geneticEntity,
 			@Parameter(in = ParameterIn.QUERY, name = "filter.geneticEntityType", description = "geneticEntityType", schema = @Schema(type = SchemaType.STRING))
