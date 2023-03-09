@@ -556,7 +556,7 @@ public interface GeneRESTInterface {
 			@Parameter(in = ParameterIn.QUERY, name = "geneID", description = "additional orthologous genes", required = true)
 			@QueryParam("geneID") List<String> geneIDs,
 			@Parameter(in = ParameterIn.QUERY, name = "includeNegation", description = "include negated annotations", schema = @Schema(type = SchemaType.STRING))
-			@DefaultValue("false") @QueryParam("includeNegation") String includeNegation
+			@DefaultValue("false") @QueryParam("includeNegation") boolean includeNegation
 	) throws JsonProcessingException;
 
 	@GET

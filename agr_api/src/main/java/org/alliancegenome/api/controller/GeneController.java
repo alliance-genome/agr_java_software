@@ -612,7 +612,7 @@ public class GeneController implements GeneRESTInterface {
 	// the List passed in here is unmodifiable
 	public DiseaseRibbonSummary getDiseaseRibbonSummary(String id,
 														List<String> geneIDs,
-														String includeNegation) {
+														boolean includeNegation) {
 		List<String> ids = new ArrayList<>();
 		if (geneIDs != null)
 			ids.addAll(geneIDs);

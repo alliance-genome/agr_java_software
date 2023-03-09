@@ -206,14 +206,13 @@ public class DiseaseESService {
 		return distinctFieldValueMap;
 	}
 
-	public DiseaseRibbonSummary getDiseaseRibbonSummary(List<String> geneIDs, String includeNegation) {
+	public DiseaseRibbonSummary getDiseaseRibbonSummary(List<String> geneIDs, boolean includeNegation) {
 		DiseaseRibbonSummary summary = diseaseRibbonService.getDiseaseRibbonSectionInfo();
 		Pagination pagination = new Pagination();
 		pagination.setLimit(10000);
-		pagination.addFieldFilter(FieldFilter.INCLUDE_NEGATION, includeNegation);
 		// loop over all genes provided
 		geneIDs.forEach(geneID -> {
-			JsonResultResponse<GeneDiseaseAnnotationDocument> paginationResult = getDiseaseAnnotationList(geneID, pagination);
+			JsonResultResponse<GeneDiseaseAnnotationDocument> paginationResult = getDiseaseAnnotationList(geneID, pagination, !includeNegation);
 			// calculate histogram
 			Map<String, List<GeneDiseaseAnnotationDocument>> histogram = getDiseaseAnnotationHistogram(paginationResult);
 
@@ -281,13 +280,16 @@ public class DiseaseESService {
 	}
 
 
-	private JsonResultResponse<GeneDiseaseAnnotationDocument> getDiseaseAnnotationList(String geneID, Pagination pagination) {
+	private JsonResultResponse<GeneDiseaseAnnotationDocument> getDiseaseAnnotationList(String geneID, Pagination pagination, boolean excludeNegatedAnnotation) {
 		BoolQueryBuilder bool = boolQuery();
 		BoolQueryBuilder bool2 = boolQuery();
 		bool.must(bool2);
 
 		bool.filter(new TermQueryBuilder("category", "gene_disease_annotation"));
 		bool2.should(new MatchQueryBuilder("subject.curie.keyword", geneID));
+		if (excludeNegatedAnnotation) {
+			bool.must(matchQuery("primaryAnnotations.negated", false));
+		}
 
 		// create histogram of select columns of unfiltered query
 
