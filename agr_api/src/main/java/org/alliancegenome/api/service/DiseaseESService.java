@@ -206,7 +206,7 @@ public class DiseaseESService {
 		return distinctFieldValueMap;
 	}
 
-	public DiseaseRibbonSummary getDiseaseRibbonSummary(List<String> geneIDs, boolean includeNegation) {
+	public DiseaseRibbonSummary getDiseaseRibbonSummary(List<String> geneIDs, Boolean includeNegation) {
 		DiseaseRibbonSummary summary = diseaseRibbonService.getDiseaseRibbonSectionInfo();
 		Pagination pagination = new Pagination();
 		pagination.setLimit(10000);
