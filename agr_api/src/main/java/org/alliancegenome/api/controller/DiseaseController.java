@@ -42,6 +42,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.lucene.queryparser.classic.QueryParserBase;
 
 @Slf4j
 @RequestScoped
@@ -463,7 +464,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 		pagination.addFilterOption("primaryAnnotations.dataProvider.abbreviation", filterSource);
 
 		if(filterReference != null) {
-			pagination.addFilterOption("references.crossReferences.curie", filterReference + "&PMID");
+			pagination.addFilterOption("references.crossReferences.curie", QueryParserBase.escape(filterReference) + "&PMID");
 		} else {
 			pagination.addFilterOption("references.crossReferences.curie", null);
 		}
