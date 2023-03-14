@@ -1,15 +1,5 @@
 package org.alliancegenome.api.translators.tdf;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.StringJoiner;
-import java.util.stream.Collectors;
-
 import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.translators.tdf.DiseaseDownloadRow;
@@ -22,12 +12,11 @@ import org.alliancegenome.curation_api.model.entities.Reference;
 import org.alliancegenome.curation_api.model.entities.base.CurieAuditedObject;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
-import org.alliancegenome.neo4j.entity.node.CrossReference;
-import org.alliancegenome.neo4j.entity.node.ECOTerm;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.GeneticEntity;
-import org.alliancegenome.neo4j.entity.node.PublicationJoin;
+import org.alliancegenome.neo4j.entity.node.*;
 import org.apache.commons.collections.CollectionUtils;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class DiseaseAnnotationToTdfTranslator {
 
@@ -172,7 +161,27 @@ public class DiseaseAnnotationToTdfTranslator {
 			AGMDiseaseAnnotation pAnnotation = (AGMDiseaseAnnotation) primaryAnnotation;
 			row.setGeneticEntityID(pAnnotation.getSubject().getCurie());
 			row.setGeneticEntityName(pAnnotation.getSubject().getName());
-			row.setGeneticEntityType(pAnnotation.getSubject().getSubtype().getName());
+			// ToDo: Remove as soon as subtype is not null any longer
+			if (pAnnotation.getSubject().getSubtype() != null) {
+				row.setGeneticEntityType(pAnnotation.getSubject().getSubtype().getName());
+			} else {
+				String curiePrefix = pAnnotation.getSubjectCurie().split(":")[0];
+				switch (curiePrefix) {
+					case "ZFIN":
+						row.setGeneticEntityType("fish");
+					case "MGI":
+						row.setGeneticEntityType("genotype");
+					case "RGD":
+						row.setGeneticEntityType("strain");
+					case "WB":
+						if (pAnnotation.getSubjectCurie().toLowerCase().contains("genotype")) {
+							row.setGeneticEntityType("genotype");
+						} else if (pAnnotation.getSubjectCurie().toLowerCase().contains("strain")) {
+							row.setGeneticEntityType("strain");
+						}
+				}
+
+			}
 		}
 		if (primaryAnnotation instanceof GeneDiseaseAnnotation) {
 			GeneDiseaseAnnotation pAnnotation = (GeneDiseaseAnnotation) primaryAnnotation;
