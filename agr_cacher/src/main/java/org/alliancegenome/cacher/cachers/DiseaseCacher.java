@@ -525,7 +525,7 @@ public class DiseaseCacher extends Cacher {
 														entity.setName(model.getName());
 														entity.setUrl(model.getModCrossRefCompleteUrl());
 														entity.setDisplayName(model.getNameText());
-														entity.setType(GeneticEntity.getType(model.getSubtype()));
+														entity.setType(model.getSubtype());
 														ConditionService.populateExperimentalConditions(diseaseJoin, entity);
 														document.addPrimaryAnnotatedEntity(entity);
 														entity.addPublicationEvidenceCode(pubJoin);
@@ -563,7 +563,7 @@ public class DiseaseCacher extends Cacher {
 														entity.setUrl(refs.get(0).getCrossRefCompleteUrl());
 
 													entity.setDisplayName(allele.getSymbolText());
-													entity.setType(GeneticEntity.CrossReferenceType.ALLELE);
+													entity.setType(GeneticEntity.CrossReferenceType.ALLELE.getDisplayName());
 													entity.addPublicationEvidenceCode(pubJoin);
 													entity.setDiseaseAssociationType(join.getJoinType());
 													return entity;
@@ -597,7 +597,7 @@ public class DiseaseCacher extends Cacher {
 								entity.setUrl(refs.get(0).getCrossRefCompleteUrl());
 
 							//entity.setDisplayName(geneticEntity.getSymbolText());
-							entity.setType(geneticEntity.getCrossReferenceType());
+							entity.setType(geneticEntity.getCrossReferenceType().getDisplayName());
 							entity.addPublicationEvidenceCode(join.getPublicationJoins());
 							entity.setDiseaseAssociationType(join.getJoinType());
 							document.addPrimaryAnnotatedEntity(entity);
