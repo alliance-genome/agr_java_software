@@ -289,7 +289,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 		pagination.addFieldFilter(FieldFilter.ASSOCIATION_TYPE, associationType);
 
 		// TODO: remove when SC data is fixed:
-		if (species == "Saccharomyces cerevisiae") {
+		if (species.equals("Saccharomyces cerevisiae")) {
 			pagination.addFieldFilter(FieldFilter.SPECIES, "Saccharomyces cerevisiae S288C");
 		}
 		if (pagination.hasErrors()) {
