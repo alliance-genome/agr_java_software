@@ -287,6 +287,11 @@ public class DiseaseController implements DiseaseRESTInterface {
 		pagination.addFieldFilter(FieldFilter.EVIDENCE_CODE, evidenceCode);
 		pagination.addFieldFilter(FieldFilter.BASED_ON_GENE, basedOnGeneSymbol);
 		pagination.addFieldFilter(FieldFilter.ASSOCIATION_TYPE, associationType);
+
+		// TODO: remove when SC data is fixed:
+		if (species == "Saccharomyces cerevisiae") {
+			pagination.addFieldFilter(FieldFilter.SPECIES, "Saccharomyces cerevisiae S288C");
+		}
 		if (pagination.hasErrors()) {
 			RestErrorMessage message = new RestErrorMessage();
 			message.setErrors(pagination.getErrors());
