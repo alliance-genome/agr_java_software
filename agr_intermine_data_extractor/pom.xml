@@ -51,6 +51,10 @@
 							<addClasspath>true</addClasspath>
 							<mainClass>org.alliancegenome.data_extractor.Main</mainClass>
 						</manifest>
+						<manifestEntries>
+							<Multi-Release>true</Multi-Release>
+							<Main-Class>org.alliancegenome.data_extractor.Main</Main-Class>
+						</manifestEntries>
 					</archive>
 				</configuration>
 			</plugin>
@@ -62,6 +66,10 @@
 							<addClasspath>true</addClasspath>
 							<mainClass>org.alliancegenome.data_extractor.Main</mainClass>
 						</manifest>
+						<manifestEntries>
+							<Multi-Release>true</Multi-Release>
+							<Main-Class>org.alliancegenome.data_extractor.Main</Main-Class>
+						</manifestEntries>
 					</archive>
 					<descriptorRefs>
 						<descriptorRef>jar-with-dependencies</descriptorRef>
