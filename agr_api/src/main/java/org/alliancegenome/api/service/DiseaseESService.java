@@ -180,7 +180,7 @@ public class DiseaseESService {
 				bool.must(andClause);
 			}
 		}
-		Log.info(bool);
+		//Log.info(bool);
 	}
 
 	private Map<String, List<String>> addAggregations(BoolQueryBuilder bool, Map<String, String> aggregationFields) {

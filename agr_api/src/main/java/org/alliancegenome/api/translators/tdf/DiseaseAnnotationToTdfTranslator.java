@@ -1,5 +1,15 @@
 package org.alliancegenome.api.translators.tdf;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.StringJoiner;
+import java.util.stream.Collectors;
+
 import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.translators.tdf.DiseaseDownloadRow;
@@ -12,11 +22,12 @@ import org.alliancegenome.curation_api.model.entities.Reference;
 import org.alliancegenome.curation_api.model.entities.base.CurieAuditedObject;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
-import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.neo4j.entity.node.CrossReference;
+import org.alliancegenome.neo4j.entity.node.ECOTerm;
+import org.alliancegenome.neo4j.entity.node.Gene;
+import org.alliancegenome.neo4j.entity.node.GeneticEntity;
+import org.alliancegenome.neo4j.entity.node.PublicationJoin;
 import org.apache.commons.collections.CollectionUtils;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 public class DiseaseAnnotationToTdfTranslator {
 
@@ -229,7 +240,7 @@ public class DiseaseAnnotationToTdfTranslator {
 		row.setMainEntitySymbol(annotation.getGene().getSymbol());
 		row.setGeneticEntityID(entity.getId());
 		row.setGeneticEntityName(entity.getDisplayName());
-		row.setGeneticEntityType(entity.getType().getDisplayName());
+		row.setGeneticEntityType(entity.getType());
 		row.setSpeciesID(annotation.getGene().getSpecies().getPrimaryKey());
 		row.setSpeciesName(annotation.getGene().getSpecies().getName());
 
@@ -404,7 +415,7 @@ public class DiseaseAnnotationToTdfTranslator {
 						if (!entity.getType().equals(GeneticEntity.CrossReferenceType.GENE)) {
 							row.setGeneticEntityID(entity.getId());
 							row.setGeneticEntityName(entity.getDisplayName());
-							row.setGeneticEntityType(entity.getType().getDisplayName());
+							row.setGeneticEntityType(entity.getType());
 							row.setSpeciesID(annotation.getFeature().getSpecies().getPrimaryKey());
 							row.setSpeciesName(annotation.getFeature().getSpecies().getName());
 						} else {
@@ -491,11 +502,11 @@ public class DiseaseAnnotationToTdfTranslator {
 		if (annotation.getGene() != null) {
 			entity.setId(annotation.getGene().getPrimaryKey());
 			entity.setName(annotation.getGene().getSymbol());
-			entity.setType(GeneticEntity.CrossReferenceType.GENE);
+			entity.setType(GeneticEntity.CrossReferenceType.GENE.getDisplayName());
 		} else {
 			entity.setId(annotation.getFeature().getPrimaryKey());
 			entity.setName(annotation.getFeature().getSymbolText());
-			entity.setType(GeneticEntity.CrossReferenceType.ALLELE);
+			entity.setType(GeneticEntity.CrossReferenceType.ALLELE.getDisplayName());
 		}
 		if (join == null)
 			entity.setPublicationEvidenceCodes(annotation.getPublicationJoins());
@@ -592,7 +603,7 @@ public class DiseaseAnnotationToTdfTranslator {
 						row.setMainEntitySymbol(annotation.getGene().getSymbol());
 						row.setGeneticEntityID(entity.getId());
 						row.setGeneticEntityName(entity.getName());
-						row.setGeneticEntityType(entity.getType().getDisplayName());
+						row.setGeneticEntityType(entity.getType());
 						row.setSpeciesID(annotation.getGene().getSpecies().getPrimaryKey());
 						row.setSpeciesName(annotation.getGene().getSpecies().getName());
 						return row;

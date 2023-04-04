@@ -13,7 +13,6 @@ import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.AffectedGenomicModel;
-import org.alliancegenome.neo4j.entity.node.GeneticEntity;
 import org.alliancegenome.neo4j.entity.node.Species;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.view.View;
@@ -61,7 +60,7 @@ public class ModelCacher extends Cacher {
 						entity.setSpecies(model.getAlleles().get(0).getSpecies());
 					}
 					if (model.getSubtype() != null)
-						entity.setType(GeneticEntity.CrossReferenceType.getCrossReferenceType(model.getSubtype()));
+						entity.setType(model.getSubtype());
 					entity.setDataProvider(model.getDataProvider());
 					return entity;
 				})

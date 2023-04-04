@@ -166,7 +166,7 @@ public class GenePhenotypeCacher extends Cacher {
 					entity.setName(model.getName());
 					entity.setDisplayName(model.getNameText());
 					entity.setUrl(model.getModCrossRefCompleteUrl());
-					entity.setType(GeneticEntity.CrossReferenceType.getCrossReferenceType(model.getSubtype()));
+					entity.setType(model.getSubtype());
 					entity.addPublicationEvidenceCode(join.getPublicationJoins());
 					entity.addPhenotype(join.getPhenotype().getPhenotypeStatement());
 					entity.setDataProvider(model.getDataProvider());
@@ -332,7 +332,7 @@ public class GenePhenotypeCacher extends Cacher {
 														entity.setName(model.getName());
 														entity.setUrl(model.getModCrossRefCompleteUrl());
 														entity.setDisplayName(model.getNameText());
-														entity.setType(GeneticEntity.getType(model.getSubtype()));
+														entity.setType(model.getSubtype());
 														entity.addPhenotype(phenotypeStatement);
 														addExperimentalConditions(entity, phenotypeEntityJoin1, phenotypeStatement);
 
@@ -364,7 +364,7 @@ public class GenePhenotypeCacher extends Cacher {
 														entity.setUrl(refs.get(0).getCrossRefCompleteUrl());
 
 													entity.setDisplayName(allele.getSymbolText());
-													entity.setType(GeneticEntity.CrossReferenceType.ALLELE);
+													entity.setType(GeneticEntity.CrossReferenceType.ALLELE.getDisplayName());
 													entity.addPublicationEvidenceCode(phenotypeEntityJoin1.getPublicationJoins());
 													document.addPrimaryAnnotatedEntity(entity);
 												});
