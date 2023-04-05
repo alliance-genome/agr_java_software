@@ -280,7 +280,6 @@ public class DiseaseController implements DiseaseRESTInterface {
 		long startTime = System.currentTimeMillis();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
 		pagination.addFieldFilter(FieldFilter.GENE_NAME, geneName);
-		pagination.addFieldFilter(FieldFilter.SPECIES, species);
 		pagination.addFieldFilter(FieldFilter.DISEASE, disease);
 		pagination.addFieldFilter(FieldFilter.SOURCE, source);
 		pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
@@ -289,8 +288,11 @@ public class DiseaseController implements DiseaseRESTInterface {
 		pagination.addFieldFilter(FieldFilter.ASSOCIATION_TYPE, associationType);
 
 		// TODO: remove when SC data is fixed:
-		if (species.equals("Saccharomyces cerevisiae")) {
-			pagination.addFieldFilter(FieldFilter.SPECIES, "Saccharomyces cerevisiae S288C");
+		if (species.equals("Saccharomyces cerevisiae S288C")) {
+			pagination.addFieldFilter(FieldFilter.SPECIES, "Saccharomyces cerevisiae");
+		}
+		else {
+			pagination.addFieldFilter(FieldFilter.SPECIES, species);
 		}
 		if (pagination.hasErrors()) {
 			RestErrorMessage message = new RestErrorMessage();
