@@ -292,8 +292,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 		String SC_288C = "Saccharomyces cerevisiae S288C";
 		List<String> SC_List = List.of(SC, SC_288C);
 		if (SC_List.contains(species)) {
-			pagination.addFieldFilter(FieldFilter.SPECIES, SC);
-			pagination.addFieldFilter(FieldFilter.SPECIES, SC_288C);
+			pagination.addFieldFilter(FieldFilter.SPECIES, SC +"|" + SC_288C);
 		}
 		else {
 			pagination.addFieldFilter(FieldFilter.SPECIES, species);
