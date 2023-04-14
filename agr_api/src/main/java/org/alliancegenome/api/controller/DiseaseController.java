@@ -290,12 +290,12 @@ public class DiseaseController implements DiseaseRESTInterface {
 		// TODO: remove when SC data is fixed:
 		String SC = "Saccharomyces cerevisiae";
 		String SC_288C = "Saccharomyces cerevisiae S288C";
-		List<String> SC_List = List.of(SC, SC_288C);
-		if (SC_List.contains(species)) {
-			pagination.addFieldFilter(FieldFilter.SPECIES, SC +"|" + SC_288C);
-		}
-		else {
-			pagination.addFieldFilter(FieldFilter.SPECIES, species);
+		if (species != null) {
+			if (species.equals(SC)) {
+				pagination.addFieldFilter(FieldFilter.SPECIES, SC_288C);
+			} else {
+				pagination.addFieldFilter(FieldFilter.SPECIES, species);
+			}
 		}
 		if (pagination.hasErrors()) {
 			RestErrorMessage message = new RestErrorMessage();
