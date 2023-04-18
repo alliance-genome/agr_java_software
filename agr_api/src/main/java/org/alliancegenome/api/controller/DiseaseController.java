@@ -282,21 +282,12 @@ public class DiseaseController implements DiseaseRESTInterface {
 		pagination.addFieldFilter(FieldFilter.GENE_NAME, geneName);
 		pagination.addFieldFilter(FieldFilter.DISEASE, disease);
 		pagination.addFieldFilter(FieldFilter.SOURCE, source);
+		pagination.addFieldFilter(FieldFilter.SPECIES, species);
 		pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
 		pagination.addFieldFilter(FieldFilter.EVIDENCE_CODE, evidenceCode);
 		pagination.addFieldFilter(FieldFilter.BASED_ON_GENE, basedOnGeneSymbol);
 		pagination.addFieldFilter(FieldFilter.ASSOCIATION_TYPE, associationType);
 
-		// TODO: remove when SC data is fixed:
-		String SC = "Saccharomyces cerevisiae";
-		String SC_288C = "Saccharomyces cerevisiae S288C";
-		if (species != null) {
-			if (species.equals(SC)) {
-				pagination.addFieldFilter(FieldFilter.SPECIES, SC_288C);
-			} else {
-				pagination.addFieldFilter(FieldFilter.SPECIES, species);
-			}
-		}
 		if (pagination.hasErrors()) {
 			RestErrorMessage message = new RestErrorMessage();
 			message.setErrors(pagination.getErrors());
@@ -472,6 +463,17 @@ public class DiseaseController implements DiseaseRESTInterface {
 		pagination.addFilterOption("subject.taxon.name.keyword", filterSpecies);
 		pagination.addFilterOption("primaryAnnotations.with.geneSymbol.displayText", basedOnGeneSymbol);
 		pagination.addFilterOption("primaryAnnotations.dataProvider.abbreviation", filterSource);
+
+		// TODO: remove when SC data is fixed:
+		String SC = "Saccharomyces cerevisiae";
+		String SC_288C = "Saccharomyces cerevisiae S288C";
+		if (filterSpecies != null) {
+			if (filterSpecies.equals(SC)) {
+				pagination.addFieldFilter(FieldFilter.SPECIES, SC_288C);
+			} else {
+				pagination.addFieldFilter(FieldFilter.SPECIES, filterSpecies);
+			}
+		}
 
 		if(filterReference != null) {
 			pagination.addFilterOption("references.crossReferences.curie", QueryParserBase.escape(filterReference) + "&PMID");
