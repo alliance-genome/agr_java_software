@@ -460,7 +460,6 @@ public class DiseaseController implements DiseaseRESTInterface {
 		pagination.addFilterOption("evidenceCodes.abbreviation", evidenceCode);
 		pagination.addFilterOption("diseaseRelationNegation", associationType);
 		pagination.addFilterOption("subject.geneSymbol.displayText", filterGene);
-		pagination.addFilterOption("subject.taxon.name.keyword", filterSpecies);
 		pagination.addFilterOption("primaryAnnotations.with.geneSymbol.displayText", basedOnGeneSymbol);
 		pagination.addFilterOption("primaryAnnotations.dataProvider.abbreviation", filterSource);
 
@@ -469,9 +468,9 @@ public class DiseaseController implements DiseaseRESTInterface {
 		String SC_288C = "Saccharomyces cerevisiae S288C";
 		if (filterSpecies != null) {
 			if (filterSpecies.equals(SC)) {
-				pagination.addFieldFilter(FieldFilter.SPECIES, SC_288C);
+				pagination.addFilterOption("subject.taxon.name.keyword", SC_288C);
 			} else {
-				pagination.addFieldFilter(FieldFilter.SPECIES, filterSpecies);
+				pagination.addFilterOption("subject.taxon.name.keyword", filterSpecies);
 			}
 		}
 
