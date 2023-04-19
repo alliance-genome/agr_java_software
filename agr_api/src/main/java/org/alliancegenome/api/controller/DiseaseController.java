@@ -471,7 +471,6 @@ public class DiseaseController implements DiseaseRESTInterface {
 				pagination.addFilterOption("subject.taxon.name.keyword", SC_288C);
 			} else {
 				pagination.addFilterOption("subject.taxon.name.keyword", filterSpecies);
-
 			}
 		}
 
