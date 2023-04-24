@@ -1,5 +1,5 @@
 ARG REG=100225593120.dkr.ecr.us-east-1.amazonaws.com
-ARG DOCKER_PULL_TAG=latest
+ARG DOCKER_PULL_TAG=stage
 
 FROM ${REG}/agr_base_linux_env:${DOCKER_PULL_TAG}
 
@@ -7,4 +7,4 @@ WORKDIR /workdir/agr_java_software
 
 ADD . .
 
-RUN mvn -T 4 -B clean package
+RUN mvn -ntp -T 4 -B clean package

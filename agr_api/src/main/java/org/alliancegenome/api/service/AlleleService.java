@@ -18,6 +18,11 @@ import org.alliancegenome.cache.repository.helper.DiseaseAnnotationSorting;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.cache.repository.helper.PhenotypeAnnotationFiltering;
 import org.alliancegenome.cache.repository.helper.PhenotypeAnnotationSorting;
+import org.alliancegenome.core.api.service.AlleleDiseaseColumnFieldMapping;
+import org.alliancegenome.core.api.service.ColumnFieldMapping;
+import org.alliancegenome.core.api.service.FilterService;
+import org.alliancegenome.core.api.service.Table;
+import org.alliancegenome.core.api.service.TransgenicAlleleColumnFieldMapping;
 import org.alliancegenome.es.index.site.dao.VariantESDAO;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
@@ -38,8 +43,7 @@ public class AlleleService {
 	private static AlleleRepository alleleRepo = new AlleleRepository();
 	private static VariantESDAO variantESDAO = new VariantESDAO();
 	
-	@Inject
-	private AlleleCacheRepository alleleCacheRepo;
+	@Inject AlleleCacheRepository alleleCacheRepo;
 
 	public Allele getById(String id) {
 		return alleleRepo.getAllele(id);

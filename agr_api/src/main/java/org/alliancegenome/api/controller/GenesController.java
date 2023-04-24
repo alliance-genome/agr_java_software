@@ -22,8 +22,7 @@ import org.apache.commons.collections.CollectionUtils;
 @RequestScoped
 public class GenesController implements GenesRESTInterface {
 
-	@Inject
-	private GeneService geneService;
+	@Inject GeneService geneService;
 
 	private final GeneToTdfTranslator geneTranslator = new GeneToTdfTranslator();
 	

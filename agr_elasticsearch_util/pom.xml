@@ -3,22 +3,18 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-
 	<parent>
 		<groupId>org.alliancegenome</groupId>
 		<artifactId>agr_java_software</artifactId>
 		<version>${revision}</version>
 	</parent>
-
 	<artifactId>agr_elasticsearch_util</artifactId>
 	<name>AGR Java :: ESUtil</name>
 	<packaging>jar</packaging>
-
 	<properties>
 		<failOnMissingWebXml>false</failOnMissingWebXml>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
-
 	<dependencies>
 		<dependency>
 			<groupId>org.alliancegenome</groupId>
@@ -26,20 +22,23 @@
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
-
 	<build>
 		<finalName>${project.artifactId}</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
-				<version>2.3.2</version>
+				<version>3.0.2</version>
 				<configuration>
 					<archive>
 						<manifest>
 							<addClasspath>true</addClasspath>
 							<mainClass>org.alliancegenome.agr_elasticsearch_util.Main</mainClass>
 						</manifest>
+						<manifestEntries>
+							<Multi-Release>true</Multi-Release>
+							<Main-Class>org.alliancegenome.agr_elasticsearch_util.Main</Main-Class>
+						</manifestEntries>
 					</archive>
 				</configuration>
 			</plugin>
@@ -51,6 +50,10 @@
 							<addClasspath>true</addClasspath>
 							<mainClass>org.alliancegenome.agr_elasticsearch_util.Main</mainClass>
 						</manifest>
+						<manifestEntries>
+							<Multi-Release>true</Multi-Release>
+							<Main-Class>org.alliancegenome.agr_elasticsearch_util.Main</Main-Class>
+						</manifestEntries>
 					</archive>
 					<descriptorRefs>
 						<descriptorRef>jar-with-dependencies</descriptorRef>

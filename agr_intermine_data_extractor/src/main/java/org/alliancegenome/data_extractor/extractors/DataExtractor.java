@@ -13,9 +13,9 @@ import org.alliancegenome.es.util.ProcessDisplayHelper;
 
 import lombok.Getter;
 import lombok.Setter;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
-@Log4j2
+@Slf4j
 @Setter
 @Getter
 public abstract class DataExtractor extends Thread {

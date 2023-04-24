@@ -11,10 +11,6 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
 import org.alliancegenome.api.entity.JoinTypeValue;
-import org.alliancegenome.api.service.ColumnFieldMapping;
-import org.alliancegenome.api.service.FilterService;
-import org.alliancegenome.api.service.InteractionColumnFieldMapping;
-import org.alliancegenome.api.service.Table;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.CacheService;
 import org.alliancegenome.cache.repository.helper.FilterFunction;
@@ -22,18 +18,21 @@ import org.alliancegenome.cache.repository.helper.InteractionAnnotationFiltering
 import org.alliancegenome.cache.repository.helper.InteractionAnnotationSorting;
 import org.alliancegenome.cache.repository.helper.PaginationResult;
 import org.alliancegenome.cache.repository.helper.SortingField;
+import org.alliancegenome.core.api.service.ColumnFieldMapping;
+import org.alliancegenome.core.api.service.FilterService;
+import org.alliancegenome.core.api.service.InteractionColumnFieldMapping;
+import org.alliancegenome.core.api.service.Table;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
 import org.alliancegenome.neo4j.view.BaseFilter;
 
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
-@Log4j2
+@Slf4j
 @RequestScoped
 public class InteractionCacheRepository {
 
-	@Inject
-	private CacheService cacheService;
+	@Inject CacheService cacheService;
 
 	public PaginationResult<InteractionGeneJoin> getInteractionAnnotationList(String geneID, Pagination pagination, String joinType) {
 

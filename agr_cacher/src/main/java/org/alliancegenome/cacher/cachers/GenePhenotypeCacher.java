@@ -33,9 +33,9 @@ import org.alliancegenome.neo4j.repository.PhenotypeRepository;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections.CollectionUtils;
 
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
-@Log4j2
+@Slf4j
 public class GenePhenotypeCacher extends Cacher {
 
 	private static PhenotypeRepository phenotypeRepository;
@@ -166,7 +166,7 @@ public class GenePhenotypeCacher extends Cacher {
 					entity.setName(model.getName());
 					entity.setDisplayName(model.getNameText());
 					entity.setUrl(model.getModCrossRefCompleteUrl());
-					entity.setType(GeneticEntity.CrossReferenceType.getCrossReferenceType(model.getSubtype()));
+					entity.setType(model.getSubtype());
 					entity.addPublicationEvidenceCode(join.getPublicationJoins());
 					entity.addPhenotype(join.getPhenotype().getPhenotypeStatement());
 					entity.setDataProvider(model.getDataProvider());
@@ -332,7 +332,7 @@ public class GenePhenotypeCacher extends Cacher {
 														entity.setName(model.getName());
 														entity.setUrl(model.getModCrossRefCompleteUrl());
 														entity.setDisplayName(model.getNameText());
-														entity.setType(GeneticEntity.getType(model.getSubtype()));
+														entity.setType(model.getSubtype());
 														entity.addPhenotype(phenotypeStatement);
 														addExperimentalConditions(entity, phenotypeEntityJoin1, phenotypeStatement);
 
@@ -364,7 +364,7 @@ public class GenePhenotypeCacher extends Cacher {
 														entity.setUrl(refs.get(0).getCrossRefCompleteUrl());
 
 													entity.setDisplayName(allele.getSymbolText());
-													entity.setType(GeneticEntity.CrossReferenceType.ALLELE);
+													entity.setType(GeneticEntity.CrossReferenceType.ALLELE.getDisplayName());
 													entity.addPublicationEvidenceCode(phenotypeEntityJoin1.getPublicationJoins());
 													document.addPrimaryAnnotatedEntity(entity);
 												});

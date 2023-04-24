@@ -16,14 +16,14 @@ import org.alliancegenome.neo4j.entity.node.GeneticEntity;
 import org.alliancegenome.neo4j.entity.node.Phenotype;
 import org.alliancegenome.neo4j.entity.node.PhenotypeEntityJoin;
 import org.alliancegenome.neo4j.view.BaseFilter;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.neo4j.ogm.model.Result;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
 
 	public static final String TOTAL_COUNT = "totalCount";
-	private Logger log = LogManager.getLogger(getClass());
 
 	public PhenotypeRepository() {
 		super(Phenotype.class);

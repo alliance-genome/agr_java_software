@@ -1,6 +1,7 @@
 package org.alliancegenome.cache.repository.helper;
 
 import java.net.URLDecoder;
+import java.net.http.HttpRequest;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -9,10 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.alliancegenome.neo4j.view.View;
-import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
@@ -21,7 +19,6 @@ import lombok.Setter;
 
 @Setter
 @Getter
-@Schema(name="JsonResultResponse", description="POJO that represents the JsonResultResponse")
 public class JsonResultResponse<T> {
 
 	public static final String DISTINCT_FIELD_VALUES = "distinctFieldValues";
@@ -72,12 +69,16 @@ public class JsonResultResponse<T> {
 		}
 	}
 
-	public void setHttpServletRequest(HttpServletRequest request) {
+	public void setHttpServletRequest(HttpRequest request) {
 		if (request == null)
 			return;
 		this.request = new Request();
-		this.request.setUri(URLDecoder.decode(request.getRequestURI()));
-		this.request.setParameterMap(request.getParameterMap());
+		try {
+			this.request.setUri(URLDecoder.decode(request.uri().toString(), "UTF-8"));
+		} catch (Exception e) {
+			
+		}
+		//this.request.setParameterMap(request.);
 	}
 
 	public void addSupplementalData(String attribute, Object object) {

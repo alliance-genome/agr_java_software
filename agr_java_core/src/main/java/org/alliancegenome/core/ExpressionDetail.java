@@ -12,7 +12,6 @@ import org.alliancegenome.neo4j.entity.node.MMOTerm;
 import org.alliancegenome.neo4j.entity.node.Publication;
 import org.alliancegenome.neo4j.entity.node.Stage;
 import org.alliancegenome.neo4j.view.View;
-import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
@@ -21,7 +20,6 @@ import lombok.Setter;
 
 @Setter
 @Getter
-@Schema(name="ExpressionDetail", description="POJO that represents Expression Detail")
 public class ExpressionDetail implements Comparable, Serializable {
 
 	@JsonView(View.Expression.class)

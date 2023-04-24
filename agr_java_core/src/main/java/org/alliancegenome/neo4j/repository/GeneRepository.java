@@ -41,9 +41,9 @@ import org.neo4j.ogm.model.Result;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
-@Log4j2
+@Slf4j
 public class GeneRepository extends Neo4jRepository<Gene> {
 
 	public static final String GOSLIM_AGR = "goslim_agr";

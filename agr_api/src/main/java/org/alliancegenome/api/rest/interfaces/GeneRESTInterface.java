@@ -15,10 +15,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.alliancegenome.api.dto.ExpressionSummary;
+import org.alliancegenome.api.dto.JoinTypeValue;
 import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
-import org.alliancegenome.api.entity.ExpressionSummary;
-import org.alliancegenome.api.entity.JoinTypeValue;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.DiseaseSummary;
@@ -556,7 +556,7 @@ public interface GeneRESTInterface {
 			@Parameter(in = ParameterIn.QUERY, name = "geneID", description = "additional orthologous genes", required = true)
 			@QueryParam("geneID") List<String> geneIDs,
 			@Parameter(in = ParameterIn.QUERY, name = "includeNegation", description = "include negated annotations", schema = @Schema(type = SchemaType.STRING))
-			@DefaultValue("false") @QueryParam("includeNegation") String includeNegation
+			@DefaultValue("false") @QueryParam("includeNegation") Boolean includeNegation
 	) throws JsonProcessingException;
 
 	@GET

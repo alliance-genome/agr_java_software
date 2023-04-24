@@ -29,9 +29,9 @@ import java.util.Set;
 
 import org.alliancegenome.core.util.FileHelper;
 
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
-@Log4j2
+@Slf4j
 public class VariantConfigHelper {
 
 	private static Properties configProperties = new Properties();

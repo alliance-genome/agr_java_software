@@ -26,8 +26,7 @@ public class AutoCompleteService {
 	private static AutoCompleteDAO autoCompleteDAO = new AutoCompleteDAO();
 	private SearchHelper searchHelper = new SearchHelper();
 
-	@Inject
-	private SearchService searchService;
+	@Inject SearchService searchService;
 
 	public AutoCompleteResult query(String queryTerm, String category) {
 		QueryBuilder query = buildQuery(queryTerm, category);

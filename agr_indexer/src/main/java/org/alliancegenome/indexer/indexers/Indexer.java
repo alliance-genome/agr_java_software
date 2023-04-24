@@ -21,8 +21,6 @@ import org.alliancegenome.es.util.EsClientFactory;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.apache.commons.io.FileUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.bulk.BackoffPolicy;
 import org.elasticsearch.action.bulk.BulkProcessor;
@@ -33,17 +31,19 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.unit.ByteSizeUnit;
 import org.elasticsearch.common.unit.ByteSizeValue;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.core.TimeValue;
-import org.elasticsearch.xcontent.XContentType;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public abstract class Indexer<D extends ESDocument> extends Thread {
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+public abstract class Indexer extends Thread {
 
 	public static String indexName;
-	private Logger log = LogManager.getLogger(getClass());
 	protected IndexerConfig indexerConfig;
 	private RestHighLevelClient searchClient;
 	protected Runtime runtime = Runtime.getRuntime();
@@ -61,6 +61,7 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 		this.indexerConfig = indexerConfig;
 
 		om.setSerializationInclusion(Include.NON_NULL);
+		om = customizeObjectMapper(om);
 
 		loadPopularityScore();
 
@@ -73,7 +74,10 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 
 			@Override
 			public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {
-				//log.info("Size: " + request.requests().size() + " MB: " + request.estimatedSizeInBytes() + " Time: " + response.getTook() + " Bulk Requet Finished");
+				if(response.hasFailures()) {
+					log.info("Size: " + request.requests().size() + " MB: " + request.estimatedSizeInBytes() + " Time: " + response.getTook() + " Bulk Requet Finished");
+					log.info(response.buildFailureMessage());
+				}
 			}
 
 			@Override
@@ -115,11 +119,9 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 
 	}
 
-	protected abstract void index();
-
 	public void runIndex() {
 		try {
-			display.startProcess(getClass().getName());
+			display.startProcess(getClass().getSimpleName());
 			index();
 			log.info("Waiting for bulkProcessor to finish");
 			bulkProcessor.flush();
@@ -137,7 +139,7 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 	public void run() {
 		super.run();
 		try {
-			display.startProcess(getClass().getName());
+			display.startProcess(getClass().getSimpleName());
 			index();
 			log.info("Waiting for bulkProcessor to finish");
 			bulkProcessor.flush();
@@ -151,11 +153,11 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 		}
 	}
 
-	public void indexDocuments(Iterable<D> docs) {
+	public <D extends ESDocument> void indexDocuments(Iterable<D> docs) {
 		indexDocuments(docs, null);
 	}
 
-	public void indexDocuments(Iterable<D> docs, Class<?> view) {
+	public <D extends ESDocument> void indexDocuments(Iterable<D> docs, Class<?> view) {
 		for (D doc : docs) {
 			try {
 				String json = "";
@@ -175,7 +177,7 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 		}
 	}
 	
-	void initiateThreading(LinkedBlockingDeque<String> queue) throws InterruptedException {
+	public void initiateThreading(LinkedBlockingDeque<String> queue) throws InterruptedException {
 		Integer numberOfThreads = indexerConfig.getThreadCount();
 
 		List<Thread> threads = new ArrayList<Thread>();
@@ -198,6 +200,7 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 		}
 	}
 
+	protected abstract void index();
 	protected abstract void startSingleThread(LinkedBlockingDeque<String> queue);
-
+	protected ObjectMapper customizeObjectMapper(ObjectMapper objectMapper) { return objectMapper; }
 }

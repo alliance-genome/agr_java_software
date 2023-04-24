@@ -4,7 +4,6 @@ import java.util.List;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
 
 import org.alliancegenome.api.rest.interfaces.VariantRESTInterface;
 import org.alliancegenome.api.service.VariantService;
@@ -17,17 +16,16 @@ import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Transcript;
 import org.alliancegenome.neo4j.entity.node.Variant;
 
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
-@Log4j2
+@Slf4j
 @RequestScoped
 public class VariantController implements VariantRESTInterface {
 
-	@Inject
-	private VariantService variantService;
+	@Inject VariantService variantService;
 
-	@Inject
-	private HttpServletRequest request;
+	//@Inject
+	//private HttpRequest request;
 
 	@Override
 	public Variant getVariant(String id) {
@@ -60,7 +58,7 @@ public class VariantController implements VariantRESTInterface {
 		}
 		try {
 			JsonResultResponse<Transcript> alleles = variantService.getTranscriptsByVariant(id, pagination);
-			alleles.setHttpServletRequest(request);
+			alleles.setHttpServletRequest(null);
 			alleles.calculateRequestDuration(startTime);
 			return alleles;
 		} catch (Exception e) {
@@ -85,7 +83,7 @@ public class VariantController implements VariantRESTInterface {
 		}
 		try {
 			JsonResultResponse<Allele> alleles = variantService.getAllelesByVariant(id, pagination);
-			alleles.setHttpServletRequest(request);
+			alleles.setHttpServletRequest(null);
 			alleles.calculateRequestDuration(startTime);
 			return alleles;
 		} catch (Exception e) {

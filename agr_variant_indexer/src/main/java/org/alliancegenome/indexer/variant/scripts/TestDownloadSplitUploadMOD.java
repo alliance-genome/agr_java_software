@@ -26,10 +26,10 @@ import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.variantcontext.writer.VariantContextWriter;
 import htsjdk.variant.variantcontext.writer.VariantContextWriterBuilder;
 import htsjdk.variant.vcf.VCFFileReader;
-import lombok.extern.jbosslog.JBossLog;
+import lombok.extern.slf4j.Slf4j;
 import si.mazi.rescu.RestProxyFactory;
 
-@JBossLog
+@Slf4j
 public class TestDownloadSplitUploadMOD {
 
 	private String fileSaveLocation = ConfigHelper.getVariantDownloadPath();

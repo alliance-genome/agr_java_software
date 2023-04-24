@@ -6,20 +6,19 @@ import javax.inject.Inject;
 import org.alliancegenome.api.rest.interfaces.AutoCompleteRESTInterface;
 import org.alliancegenome.api.service.AutoCompleteService;
 import org.alliancegenome.es.model.search.AutoCompleteResult;
-import org.jboss.logging.Logger;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @RequestScoped
 public class AutoCompleteController implements AutoCompleteRESTInterface {
 
-    @Inject
-    private AutoCompleteService autoCompleteService;
+	@Inject AutoCompleteService autoCompleteService;
 
-    private Logger log = Logger.getLogger(getClass());
-
-    @Override
-    public AutoCompleteResult searchAutoComplete(String q, String category) {
-        log.info("This is the Auto Complete query: " + q);
-        return autoCompleteService.query(q, category);
-    }
+	@Override
+	public AutoCompleteResult searchAutoComplete(String q, String category) {
+		log.info("This is the Auto Complete query: " + q);
+		return autoCompleteService.query(q, category);
+	}
 
 }

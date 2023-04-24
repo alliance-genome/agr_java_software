@@ -11,40 +11,40 @@ import org.apache.commons.collections.CollectionUtils;
 
 public class ConditionService {
 
-    public static void populateExperimentalConditions(EntityJoin join, PrimaryAnnotatedEntity entity) {
-        entity.addConditions(ConditionAnnotation.ConditionType.HAS_CONDITION, join.getHasConditionList());
-        entity.addConditions(ConditionAnnotation.ConditionType.INDUCES, join.getInducerConditionList());
-        entity.addModifier(ConditionAnnotation.ConditionType.AMELIORATES, join.getAmeliorateConditionList());
-        entity.addModifier(ConditionAnnotation.ConditionType.EXACERBATES, join.getExacerbateConditionList());
-    }
+	public static void populateExperimentalConditions(EntityJoin join, PrimaryAnnotatedEntity entity) {
+		entity.addConditions(ConditionAnnotation.ConditionType.HAS_CONDITION, join.getHasConditionList());
+		entity.addConditions(ConditionAnnotation.ConditionType.INDUCES, join.getInducerConditionList());
+		entity.addModifier(ConditionAnnotation.ConditionType.AMELIORATES, join.getAmeliorateConditionList());
+		entity.addModifier(ConditionAnnotation.ConditionType.EXACERBATES, join.getExacerbateConditionList());
+	}
 
-    public static PrimaryAnnotatedEntity createBaseLevelPAEs(EntityJoin entityJoin) {
-        // create PAE from Allele when allele-level annotation or Gene when gene-level annotation,
-        // i.e. no model / AGM or Allele off PublicationJoin node
-        // needed for showing experimental conditions
-        if (entityJoin.getPublicationJoins().stream().anyMatch(pubJoin -> CollectionUtils.isEmpty(pubJoin.getAlleles())
-                && CollectionUtils.isEmpty(pubJoin.getModels()) && entityJoin.getModel() == null)) {
-            GeneticEntity geneticEntity = entityJoin.getAllele();
-            if (geneticEntity == null) {
-                geneticEntity = entityJoin.getGene();
-            }
-            PrimaryAnnotatedEntity entity = new PrimaryAnnotatedEntity();
-            entity.setId(geneticEntity.getPrimaryKey());
-            entity.setName(geneticEntity.getSymbol());
-            if (entityJoin.hasExperimentalConditions()) {
-                populateExperimentalConditions(entityJoin, entity);
-            }
-            List<CrossReference> refs = geneticEntity.getCrossReferences();
-            if (CollectionUtils.isNotEmpty(refs))
-                entity.setUrl(refs.get(0).getCrossRefCompleteUrl());
+	public static PrimaryAnnotatedEntity createBaseLevelPAEs(EntityJoin entityJoin) {
+		// create PAE from Allele when allele-level annotation or Gene when gene-level annotation,
+		// i.e. no model / AGM or Allele off PublicationJoin node
+		// needed for showing experimental conditions
+		if (entityJoin.getPublicationJoins().stream().anyMatch(pubJoin -> CollectionUtils.isEmpty(pubJoin.getAlleles())
+				&& CollectionUtils.isEmpty(pubJoin.getModels()) && entityJoin.getModel() == null)) {
+			GeneticEntity geneticEntity = entityJoin.getAllele();
+			if (geneticEntity == null) {
+				geneticEntity = entityJoin.getGene();
+			}
+			PrimaryAnnotatedEntity entity = new PrimaryAnnotatedEntity();
+			entity.setId(geneticEntity.getPrimaryKey());
+			entity.setName(geneticEntity.getSymbol());
+			if (entityJoin.hasExperimentalConditions()) {
+				populateExperimentalConditions(entityJoin, entity);
+			}
+			List<CrossReference> refs = geneticEntity.getCrossReferences();
+			if (CollectionUtils.isNotEmpty(refs))
+				entity.setUrl(refs.get(0).getCrossRefCompleteUrl());
 
-            entity.addPublicationEvidenceCode(entityJoin.getPublicationJoins());
-            entity.setType(geneticEntity.getCrossReferenceType());
-            entity.setDiseaseAssociationType(entityJoin.getJoinType());
-            return entity;
-        }
-        return null;
-    }
+			entity.addPublicationEvidenceCode(entityJoin.getPublicationJoins());
+			entity.setType(geneticEntity.getCrossReferenceType().getDisplayName());
+			entity.setDiseaseAssociationType(entityJoin.getJoinType());
+			return entity;
+		}
+		return null;
+	}
 
 
 }

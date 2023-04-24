@@ -8,9 +8,9 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.logging.log4j.Logger;
 
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
-@Log4j2
+@Slf4j
 public class ProcessDisplayHelper {
 
 	private Runtime runtime = Runtime.getRuntime();
@@ -28,6 +28,7 @@ public class ProcessDisplayHelper {
 	
 	private long displayTimeout = 30000; // How often to display to the console
 	private Logger logger = null;
+	private org.slf4j.Logger logger2 = null;
 	
 	public ProcessDisplayHelper() { }
 
@@ -169,6 +170,8 @@ public class ProcessDisplayHelper {
 	private void logWarnMessage(String message) {
 		if(logger != null) {
 			logger.warn(message);
+		} else if(logger2 != null) {
+			logger2.warn(message);
 		} else {
 			log.warn(message);
 		}
@@ -177,6 +180,8 @@ public class ProcessDisplayHelper {
 	private void logInfoMessage(String message) {
 		if(logger != null) {
 			logger.info(message);
+		} else if(logger2 != null) {
+			logger2.info(message);
 		} else {
 			log.info(message);
 		}

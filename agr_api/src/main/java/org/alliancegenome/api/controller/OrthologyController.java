@@ -6,8 +6,6 @@ import java.util.List;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.Context;
 
 import org.alliancegenome.api.rest.interfaces.OrthologyRESTInterface;
 import org.alliancegenome.cache.repository.OrthologyCacheRepository;
@@ -25,14 +23,12 @@ public class OrthologyController implements OrthologyRESTInterface {
 
 	public static final String API_VERSION = "0.91";
 
-	@Context
-	private HttpServletRequest request;
+	//@Context
+	//private HttpRequest request;
 
-	@Inject
-	private OrthologyCacheRepository service;
+	@Inject OrthologyCacheRepository service;
 
-	@Inject
-	private GeneController controller;
+	@Inject GeneController controller;
 	
 	private static OrthologousRepository orthoRepo = new OrthologousRepository();
 
@@ -57,7 +53,7 @@ public class OrthologyController implements OrthologyRESTInterface {
 		JsonResultResponse<OrthologView> response = service.getOrthologyByTwoSpecies(taxonIDOne, taxonIDTwo, pagination);
 		response.calculateRequestDuration(startDate);
 		response.setApiVersion(API_VERSION);
-		response.setHttpServletRequest(request);
+		response.setHttpServletRequest(null);
 		return response;
 	}
 
@@ -80,7 +76,7 @@ public class OrthologyController implements OrthologyRESTInterface {
 		JsonResultResponse<OrthologView> response = service.getOrthologyBySpecies(species, pagination);
 		response.calculateRequestDuration(startDate);
 		response.setApiVersion(API_VERSION);
-		response.setHttpServletRequest(request);
+		response.setHttpServletRequest(null);
 		return response;
 	}
 

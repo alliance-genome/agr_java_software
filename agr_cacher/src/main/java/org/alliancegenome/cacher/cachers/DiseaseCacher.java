@@ -21,11 +21,11 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import org.alliancegenome.api.entity.CacheStatus;
-import org.alliancegenome.api.service.DiseaseRibbonService;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.ConditionService;
 import org.alliancegenome.cache.repository.helper.DiseaseAnnotationSorting;
 import org.alliancegenome.cache.repository.helper.SortingField;
+import org.alliancegenome.core.api.service.DiseaseRibbonService;
 import org.alliancegenome.core.util.ModelHelper;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
@@ -46,9 +46,9 @@ import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections4.CollectionUtils;
 
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
-@Log4j2
+@Slf4j
 public class DiseaseCacher extends Cacher {
 
 	private static DiseaseRepository diseaseRepository;
@@ -525,7 +525,7 @@ public class DiseaseCacher extends Cacher {
 														entity.setName(model.getName());
 														entity.setUrl(model.getModCrossRefCompleteUrl());
 														entity.setDisplayName(model.getNameText());
-														entity.setType(GeneticEntity.getType(model.getSubtype()));
+														entity.setType(model.getSubtype());
 														ConditionService.populateExperimentalConditions(diseaseJoin, entity);
 														document.addPrimaryAnnotatedEntity(entity);
 														entity.addPublicationEvidenceCode(pubJoin);
@@ -563,7 +563,7 @@ public class DiseaseCacher extends Cacher {
 														entity.setUrl(refs.get(0).getCrossRefCompleteUrl());
 
 													entity.setDisplayName(allele.getSymbolText());
-													entity.setType(GeneticEntity.CrossReferenceType.ALLELE);
+													entity.setType(GeneticEntity.CrossReferenceType.ALLELE.getDisplayName());
 													entity.addPublicationEvidenceCode(pubJoin);
 													entity.setDiseaseAssociationType(join.getJoinType());
 													return entity;
@@ -597,7 +597,7 @@ public class DiseaseCacher extends Cacher {
 								entity.setUrl(refs.get(0).getCrossRefCompleteUrl());
 
 							//entity.setDisplayName(geneticEntity.getSymbolText());
-							entity.setType(geneticEntity.getCrossReferenceType());
+							entity.setType(geneticEntity.getCrossReferenceType().getDisplayName());
 							entity.addPublicationEvidenceCode(join.getPublicationJoins());
 							entity.setDiseaseAssociationType(join.getJoinType());
 							document.addPrimaryAnnotatedEntity(entity);

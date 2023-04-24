@@ -12,9 +12,9 @@ import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.repository.Neo4jRepository;
 
-import lombok.extern.jbosslog.JBossLog;
+import lombok.extern.slf4j.Slf4j;
 
-@JBossLog
+@Slf4j
 public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
 
 	protected Runtime runtime = Runtime.getRuntime();

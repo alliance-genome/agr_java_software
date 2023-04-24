@@ -19,16 +19,17 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
-@Log4j2
+@Slf4j
 @RequestScoped
 public class CacheService {
 
 	@Inject
-	private RemoteCacheManager manager;
+	RemoteCacheManager manager;
 
 	public static ObjectMapper mapper = new ObjectMapper();
 
@@ -39,8 +40,7 @@ public class CacheService {
 	}
 
 	static {
-		mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
-		//mapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false);
+		mapper = JsonMapper.builder().configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false).build();
 		mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 		mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
 		mapper.enable(SerializationFeature.INDENT_OUTPUT);
@@ -52,7 +52,7 @@ public class CacheService {
 	}
 
 	private RemoteCache<String, String> getCacheSpace(CacheAlliance cache) {
-		//log.info("Getting Cache Space: " + cache.getCacheName());
+		// log.info("Getting Cache Space: " + cache.getCacheName());
 		RemoteCache<String, String> remoteCache = manager.getCache(cache.getCacheName());
 
 		if (remoteCache == null) {
@@ -107,12 +107,12 @@ public class CacheService {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	public <O> String getCacheEntryString(String entityId, CacheAlliance cacheSpace, Class<O> clazz) {
 		return getCacheSpace(cacheSpace).get(entityId);
 	}
 
-	public void putCacheEntry(String primaryKey, List items, Class<?> classView, CacheAlliance cacheAlliance) {
+	public void putCacheEntry(String primaryKey, List<?> items, Class<?> classView, CacheAlliance cacheAlliance) {
 		RemoteCache<String, String> cache = getCacheSpace(cacheAlliance);
 		String value;
 		try {
@@ -137,7 +137,3 @@ public class CacheService {
 	}
 
 }
-
-
-
-

@@ -47,7 +47,7 @@ public class PhenotypeAnnotationToTdfTranslator {
 									if (!entity.getType().equals(GeneticEntity.CrossReferenceType.GENE)) {
 										row.setGeneticEntityID(entity.getId());
 										row.setGeneticEntityName(entity.getDisplayName());
-										row.setGeneticEntityType(entity.getType().getDisplayName());
+										row.setGeneticEntityType(entity.getType());
 									}
 
 									return row;
@@ -100,11 +100,11 @@ public class PhenotypeAnnotationToTdfTranslator {
 		if (annotation.getGene() != null) {
 			entity.setId(annotation.getGene().getPrimaryKey());
 			entity.setName(annotation.getGene().getSymbol());
-			entity.setType(GeneticEntity.CrossReferenceType.GENE);
+			entity.setType(GeneticEntity.CrossReferenceType.GENE.getDisplayName());
 		} else {
 			entity.setId(annotation.getAllele().getPrimaryKey());
 			entity.setName(annotation.getAllele().getSymbolText());
-			entity.setType(GeneticEntity.CrossReferenceType.ALLELE);
+			entity.setType(GeneticEntity.CrossReferenceType.ALLELE.getDisplayName());
 		}
 		
 		return entity;
@@ -138,7 +138,7 @@ public class PhenotypeAnnotationToTdfTranslator {
 		if (entity != null) {
 			row.setGeneticEntityID(entity.getId());
 			row.setGeneticEntityName(entity.getDisplayName());
-			row.setGeneticEntityType(entity.getType().getDisplayName());
+			row.setGeneticEntityType(entity.getType());
 
 		}
 		return row;

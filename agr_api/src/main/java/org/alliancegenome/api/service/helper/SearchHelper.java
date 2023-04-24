@@ -19,14 +19,13 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
-import org.jboss.logging.Logger;
 
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @SuppressWarnings("serial")
 public class SearchHelper {
-
-	private Logger log = Logger.getLogger(getClass());
 
 	private static String[] SUFFIX_LIST = { ".htmlSmoosh", ".keywordAutocomplete", ".keyword", ".smoosh",
 											".synonyms", ".symbols", ".text", ".classicText", ".standardText",
@@ -321,17 +320,14 @@ public class SearchHelper {
 		ArrayList<AggResult> ret = new ArrayList<>();
 
 		if(category == null) {
-
 			Terms aggs = res.getAggregations().get("categories");
-
-			AggResult ares = new AggResult("category", aggs);
+			AggResult ares = new AggResult("category", aggs, category_filters.keySet());
 			ret.add(ares);
-
 		} else {
 			if(category_filters.containsKey(category)) {
 				for(String item: category_filters.get(category)) {
 					Terms aggs = res.getAggregations().get(item);
-					AggResult ares = new AggResult(item, aggs);
+					AggResult ares = new AggResult(item, aggs, null);
 					ret.add(ares);
 				}
 			}

@@ -7,12 +7,11 @@ import org.alliancegenome.es.index.site.document.SearchableItemDocument;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.neo4j.entity.node.GOTerm;
 import org.alliancegenome.neo4j.repository.GoRepository;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
-public class GoIndexer extends Indexer<SearchableItemDocument> {
+import lombok.extern.slf4j.Slf4j;
 
-	private final Logger log = LogManager.getLogger(getClass());
+@Slf4j
+public class GoIndexer extends Indexer {
 
 	private final GoRepository goRepo = new GoRepository();
 	private final GoTranslator goTrans = new GoTranslator();

@@ -15,8 +15,6 @@ import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
@@ -25,10 +23,11 @@ import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 
-@SuppressWarnings("unchecked")
-public class Neo4jRepository<E> {
+import lombok.extern.slf4j.Slf4j;
 
-	private final Logger log = LogManager.getLogger(getClass());
+
+@Slf4j
+public class Neo4jRepository<E> {
 
 	protected Class<E> entityTypeClazz;
 
@@ -37,6 +36,7 @@ public class Neo4jRepository<E> {
 	
 	public Neo4jRepository(Class<E> entityTypeClazz) {
 		this.entityTypeClazz = entityTypeClazz;
+		log.info("Creating Repo for: " + entityTypeClazz);
 		Configuration configuration = new Configuration.Builder().uri("bolt://" + ConfigHelper.getNeo4jHost() + ":" + ConfigHelper.getNeo4jPort()).build();
 		sessionFactory = new SessionFactory(configuration, "org.alliancegenome.neo4j.entity");
 		neo4jSession = sessionFactory.openSession();

@@ -8,15 +8,15 @@ import javax.ws.rs.ext.Provider;
 
 import org.alliancegenome.core.config.ConfigHelper;
 
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
-@Log4j2
+@Slf4j
 @Provider
 public class DebugRequestFilter implements ContainerRequestFilter {
-    @Override
-    public void filter(ContainerRequestContext requestContext) throws IOException {
-        if(ConfigHelper.getDebug()) {
-            log.info("Request: " + requestContext.getUriInfo().getPath());
-        }
-    }
+	@Override
+	public void filter(ContainerRequestContext requestContext) throws IOException {
+		if(ConfigHelper.getDebug()) {
+			log.info("Request: " + requestContext.getUriInfo().getPath());
+		}
+	}
 }

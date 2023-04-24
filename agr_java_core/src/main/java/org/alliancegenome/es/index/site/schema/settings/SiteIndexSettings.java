@@ -15,7 +15,7 @@ public class SiteIndexSettings extends Settings {
 		builder.startObject();
 			builder.startObject("index")
 				.field("max_result_window", "150000")
-				.field("mapping.total_fields.limit","2000")
+				.field("mapping.total_fields.limit", "25000")
 				.field("number_of_replicas", "0")
 				.field("number_of_shards", "16");
 				buildAnalysis(false);

@@ -13,15 +13,14 @@ import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.AffectedGenomicModel;
-import org.alliancegenome.neo4j.entity.node.GeneticEntity;
 import org.alliancegenome.neo4j.entity.node.Species;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections.CollectionUtils;
 
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
-@Log4j2
+@Slf4j
 public class ModelCacher extends Cacher {
 
 	private static GeneRepository geneRepository;
@@ -61,7 +60,7 @@ public class ModelCacher extends Cacher {
 						entity.setSpecies(model.getAlleles().get(0).getSpecies());
 					}
 					if (model.getSubtype() != null)
-						entity.setType(GeneticEntity.CrossReferenceType.getCrossReferenceType(model.getSubtype()));
+						entity.setType(model.getSubtype());
 					entity.setDataProvider(model.getDataProvider());
 					return entity;
 				})

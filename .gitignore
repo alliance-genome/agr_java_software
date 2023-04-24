@@ -8,3 +8,7 @@ audit.log
 *.iml
 .metadata/
 bin
+agr_indexer/alliance_popularity.tsv
+
+# vscode
+.vscode/

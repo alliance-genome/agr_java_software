@@ -8,12 +8,11 @@ import java.util.concurrent.Executors;
 import org.alliancegenome.es.index.site.cache.DiseaseDocumentCache;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.repository.Neo4jRepository;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class DiseaseIndexerRepository extends Neo4jRepository<DOTerm> {
-
-	private Logger log = LogManager.getLogger(getClass());
 
 	private DiseaseDocumentCache cache = new DiseaseDocumentCache();
 	

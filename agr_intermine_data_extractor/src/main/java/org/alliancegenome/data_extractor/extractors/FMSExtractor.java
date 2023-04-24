@@ -14,10 +14,10 @@ import org.alliancegenome.data_extractor.extractors.fms.SnapShotResponce;
 import org.alliancegenome.data_extractor.extractors.fms.interfaces.SnapShotRESTInterface;
 import org.apache.commons.io.FileUtils;
 
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import si.mazi.rescu.RestProxyFactory;
 
-@Log4j2
+@Slf4j
 public class FMSExtractor extends DataExtractor {
 
 	SnapShotRESTInterface api2;

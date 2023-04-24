@@ -9,9 +9,9 @@ import java.nio.file.StandardCopyOption;
 
 import org.alliancegenome.core.filedownload.model.DownloadableFile;
 
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
-@Log4j2
+@Slf4j
 public class FileDownload extends Thread {
 
 	private String downloadPath;

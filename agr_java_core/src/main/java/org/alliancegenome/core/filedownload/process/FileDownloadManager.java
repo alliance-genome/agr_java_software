@@ -8,9 +8,9 @@ import org.alliancegenome.core.filedownload.model.DownloadSource;
 import org.alliancegenome.core.filedownload.model.DownloadableFile;
 import org.alliancegenome.core.variant.config.VariantConfigHelper;
 
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
-@Log4j2
+@Slf4j
 public class FileDownloadManager extends Thread {
 
 	private DownloadFileSet downloadSet;

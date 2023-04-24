@@ -35,9 +35,9 @@ import org.apache.commons.lang3.StringUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
-@Log4j2
+@Slf4j
 public class AlleleCacher extends Cacher {
 
 	private AlleleRepository alleleRepository;
@@ -71,7 +71,7 @@ public class AlleleCacher extends Cacher {
 		cacheSpecies(SpeciesType.WORM.getTaxonID());
 		cacheSpecies(SpeciesType.FLY.getTaxonID());
 //		  cacheSpecies(SpeciesType.HUMAN.getTaxonID());
-		log.info(htpVariantMap);
+		log.info("htpVariantMap: " + htpVariantMap);
 	}
 
 	private void cacheSpecies(String taxonID) {

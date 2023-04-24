@@ -12,7 +12,6 @@ import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.Chromosome;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.GeneLevelConsequence;
 import org.alliancegenome.neo4j.entity.node.GeneticEntity;

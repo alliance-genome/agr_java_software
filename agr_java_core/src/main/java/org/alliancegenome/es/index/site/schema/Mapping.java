@@ -2,7 +2,7 @@ package org.alliancegenome.es.index.site.schema;
 
 import java.io.IOException;
 
-import org.elasticsearch.xcontent.XContentBuilder;
+import org.elasticsearch.common.xcontent.XContentBuilder;
 
 public class Mapping extends Builder {
 	
@@ -86,11 +86,15 @@ public class Mapping extends Builder {
 				.htmlSmoosh()
 				.standardBigrams()
 				.build();
+		new FieldBuilder(builder, "object.name", "text").keyword().sort().build();
 		new FieldBuilder(builder, "phenotypeStatements", "text")
 				.keyword()
 				.build();
 		new FieldBuilder(builder, "popularity", "double").build();
 		new FieldBuilder(builder, "primaryKey", "keyword").build();
+		
+		new FieldBuilder(builder, "references.crossReferences", "nested").build();
+		
 		new FieldBuilder(builder, "sampleIds", "keyword").build();
 		new FieldBuilder(builder, "symbol", "text").analyzer("symbols")
 				.autocomplete()

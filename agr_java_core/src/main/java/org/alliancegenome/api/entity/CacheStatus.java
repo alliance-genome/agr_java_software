@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.neo4j.view.View;
-import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -20,7 +19,6 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-@Schema(name="CacheStatus", description="POJO that represents Cache status")
 @JsonPropertyOrder({"name", "entitiesInCache", "speciesStats", "entityStats"})
 public class CacheStatus implements Serializable {
 

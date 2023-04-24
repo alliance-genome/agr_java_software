@@ -8,12 +8,11 @@ import java.util.concurrent.Executors;
 import org.alliancegenome.es.index.site.cache.ModelDocumentCache;
 import org.alliancegenome.neo4j.entity.node.AffectedGenomicModel;
 import org.alliancegenome.neo4j.repository.Neo4jRepository;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class ModelIndexerRepository extends Neo4jRepository {
-
-	private final Logger log = LogManager.getLogger(getClass());
 
 	//indexing doesn't need the class defined, but once it is, it can go here
 	public ModelIndexerRepository() { super(AffectedGenomicModel.class); }

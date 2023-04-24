@@ -1,5 +1,5 @@
 all:
-	mvn -q clean package 
+	mvn -q -T 8 clean package -Dquarkus.package.type=uber-jar -ntp
 
 run:
 	java -jar target/agr_api-thorntail.jar -Xms4g -Xmx4g -Papp.properties

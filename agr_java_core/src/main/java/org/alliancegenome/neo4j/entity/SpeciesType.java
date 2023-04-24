@@ -10,7 +10,9 @@ import org.apache.commons.lang3.StringUtils;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Getter
 @AllArgsConstructor
 public enum SpeciesType {
@@ -58,6 +60,7 @@ public enum SpeciesType {
 		for (SpeciesType type : values())
 			if (type.taxonID.equals(ID))
 				return type;
+		log.info("Species could not be found: " + ID);
 		return null;
 	}
 

@@ -9,12 +9,12 @@ import org.alliancegenome.es.index.site.document.SearchableItemDocument;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.neo4j.entity.node.AffectedGenomicModel;
 import org.alliancegenome.neo4j.repository.indexer.ModelIndexerRepository;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
-public class ModelIndexer extends Indexer<SearchableItemDocument> {
+import lombok.extern.slf4j.Slf4j;
 
-	private final Logger log = LogManager.getLogger(getClass());
+@Slf4j
+public class ModelIndexer extends Indexer {
+
 	private ModelDocumentCache cache;
 	private ModelIndexerRepository repo;
 

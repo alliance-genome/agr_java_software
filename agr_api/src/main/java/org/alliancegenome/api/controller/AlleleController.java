@@ -2,7 +2,6 @@ package org.alliancegenome.api.controller;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 
 import org.alliancegenome.api.rest.interfaces.AlleleRESTInterface;
@@ -10,11 +9,11 @@ import org.alliancegenome.api.service.AlleleService;
 import org.alliancegenome.api.service.EntityType;
 import org.alliancegenome.api.service.VariantService;
 import org.alliancegenome.api.service.helper.APIServiceHelper;
+import org.alliancegenome.api.translators.tdf.DiseaseAnnotationToTdfTranslator;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.exceptions.RestErrorException;
 import org.alliancegenome.core.exceptions.RestErrorMessage;
 import org.alliancegenome.core.translators.tdf.AlleleToTdfTranslator;
-import org.alliancegenome.core.translators.tdf.DiseaseAnnotationToTdfTranslator;
 import org.alliancegenome.core.translators.tdf.PhenotypeAnnotationToTdfTranslator;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
@@ -23,20 +22,18 @@ import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Variant;
 
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
-@Log4j2
+@Slf4j
 @RequestScoped
 public class AlleleController implements AlleleRESTInterface {
 
-	@Inject
-	private AlleleService alleleService;
+	@Inject AlleleService alleleService;
 	
-	@Inject
-	private VariantService variantService;
+	@Inject VariantService variantService;
 
-	@Inject
-	private HttpServletRequest request;
+	//@Inject
+	//private HttpRequest request;
 
 	private AlleleToTdfTranslator translator = new AlleleToTdfTranslator();
 	private final PhenotypeAnnotationToTdfTranslator phenotypeAnnotationToTdfTranslator = new PhenotypeAnnotationToTdfTranslator();
@@ -66,7 +63,7 @@ public class AlleleController implements AlleleRESTInterface {
 
 		try {
 			JsonResultResponse<Variant> alleles = variantService.getVariants(id, pagination);
-			alleles.setHttpServletRequest(request);
+			alleles.setHttpServletRequest(null);
 			alleles.calculateRequestDuration(startTime);
 			return alleles;
 		} catch (Exception e) {
@@ -98,7 +95,7 @@ public class AlleleController implements AlleleRESTInterface {
 		long startTime = System.currentTimeMillis();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
 		JsonResultResponse<Allele> response = alleleService.getAllelesBySpecies(species, pagination);
-		response.setHttpServletRequest(request);
+		response.setHttpServletRequest(null);
 		Long duration = (System.currentTimeMillis() - startTime) / 1000;
 		response.setRequestDuration(duration.toString());
 		return response;
@@ -125,7 +122,7 @@ public class AlleleController implements AlleleRESTInterface {
 
 		try {
 			JsonResultResponse<PhenotypeAnnotation> phenotypeAnnotation = alleleService.getPhenotype(id, pagination);
-			phenotypeAnnotation.setHttpServletRequest(request);
+			phenotypeAnnotation.setHttpServletRequest(null);
 			phenotypeAnnotation.calculateRequestDuration(startTime);
 			return phenotypeAnnotation;
 		} catch (Exception e) {
@@ -176,7 +173,7 @@ public class AlleleController implements AlleleRESTInterface {
 
 		try {
 			JsonResultResponse<DiseaseAnnotation> alleles = alleleService.getDisease(id, pagination);
-			alleles.setHttpServletRequest(request);
+			alleles.setHttpServletRequest(null);
 			alleles.calculateRequestDuration(startTime);
 			return alleles;
 		} catch (Exception e) {

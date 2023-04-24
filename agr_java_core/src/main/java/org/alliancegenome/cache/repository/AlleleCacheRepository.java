@@ -8,11 +8,6 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
 import org.alliancegenome.api.entity.AlleleVariantSequence;
-import org.alliancegenome.api.service.AlleleColumnFieldMapping;
-import org.alliancegenome.api.service.AlleleVariantSequenceColumnFieldMapping;
-import org.alliancegenome.api.service.ColumnFieldMapping;
-import org.alliancegenome.api.service.FilterService;
-import org.alliancegenome.api.service.Table;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.CacheService;
 import org.alliancegenome.cache.repository.helper.AlleleFiltering;
@@ -21,20 +16,24 @@ import org.alliancegenome.cache.repository.helper.AlleleVariantSequenceFiltering
 import org.alliancegenome.cache.repository.helper.AlleleVariantSequenceSorting;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.cache.repository.helper.SortingField;
+import org.alliancegenome.core.api.service.AlleleColumnFieldMapping;
+import org.alliancegenome.core.api.service.AlleleVariantSequenceColumnFieldMapping;
+import org.alliancegenome.core.api.service.ColumnFieldMapping;
+import org.alliancegenome.core.api.service.FilterService;
+import org.alliancegenome.core.api.service.Table;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.apache.commons.collections.CollectionUtils;
 
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
-@Log4j2
+@Slf4j
 @RequestScoped
 public class AlleleCacheRepository {
 
-	@Inject
-	private CacheService cacheService;
+	@Inject CacheService cacheService;
 
 	public JsonResultResponse<Allele> getAllelesBySpecies(String taxonID, Pagination pagination) {
 		List<Allele> allAlleles = cacheService.getCacheEntries(taxonID, CacheAlliance.ALLELE_SPECIES);

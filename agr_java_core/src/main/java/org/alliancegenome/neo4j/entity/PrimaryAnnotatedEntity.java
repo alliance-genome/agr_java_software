@@ -15,7 +15,6 @@ import org.alliancegenome.es.util.DateConverter;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.CrossReference;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
-import org.alliancegenome.neo4j.entity.node.GeneticEntity;
 import org.alliancegenome.neo4j.entity.node.PublicationJoin;
 import org.alliancegenome.neo4j.entity.node.SequenceTargetingReagent;
 import org.alliancegenome.neo4j.entity.node.SimpleTerm;
@@ -48,7 +47,7 @@ public class PrimaryAnnotatedEntity extends ConditionAnnotation implements Compa
 	@JsonView({View.PrimaryAnnotation.class, View.API.class})
 	protected String url;
 	@JsonView({View.PrimaryAnnotation.class, View.API.class})
-	protected GeneticEntity.CrossReferenceType type;
+	protected String type;
 	@JsonView({View.PrimaryAnnotation.class, View.API.class})
 	protected CrossReference crossReference;
 	@JsonView({View.PrimaryAnnotation.class, View.API.class})

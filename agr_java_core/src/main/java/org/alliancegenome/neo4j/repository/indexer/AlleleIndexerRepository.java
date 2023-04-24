@@ -8,12 +8,11 @@ import java.util.concurrent.Executors;
 import org.alliancegenome.es.index.site.cache.AlleleDocumentCache;
 import org.alliancegenome.es.util.CollectionHelper;
 import org.alliancegenome.neo4j.repository.AlleleRepository;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class AlleleIndexerRepository extends AlleleRepository {
-
-	private final Logger log = LogManager.getLogger(getClass());
 
 	private AlleleDocumentCache cache = new AlleleDocumentCache();
 

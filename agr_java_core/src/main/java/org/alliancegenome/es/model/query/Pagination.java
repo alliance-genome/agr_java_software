@@ -4,13 +4,14 @@ import static org.alliancegenome.es.model.query.FieldFilter.FILTER_PREFIX;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.core.MultivaluedMap;
 
-import org.alliancegenome.api.service.ColumnFieldMapping;
+import org.alliancegenome.core.api.service.ColumnFieldMapping;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.commons.lang3.StringUtils;
 
@@ -33,6 +34,8 @@ public class Pagination {
 	private ColumnFieldMapping mapping;
 	private long totalHits;
 	private boolean isCount = false;
+	private HashMap<String, String> filterOptionMap = new HashMap<>();
+
 
 	public Pagination(Integer page, Integer limit, String sortBy, String asc, ColumnFieldMapping mapping) {
 		this(page, limit, sortBy, asc);
@@ -77,7 +80,7 @@ public class Pagination {
 	public void addFieldFilter(FieldFilter fieldFilter, String value) {
 		// if mapping exists
 		checkIfMappingExists(fieldFilter);
-		if(value!=null && !value.equals("")) {
+		if (value != null && !value.equals("")) {
 			fieldFilterValueMap.put(fieldFilter, value);
 		}
 	}
@@ -145,8 +148,8 @@ public class Pagination {
 			return null;
 		String[] sortingTokens = sortBy.split(SORTING_DELIMITER);
 		return Arrays.stream(sortingTokens)
-				.map(FieldFilter::getFieldFilterByName)
-				.collect(Collectors.toList());
+			.map(FieldFilter::getFieldFilterByName)
+			.collect(Collectors.toList());
 	}
 
 	public boolean hasInvalidElements() {
@@ -162,14 +165,32 @@ public class Pagination {
 		if (mapping == null)
 			return;
 		queryParameters.keySet().stream()
-				.filter(parameter -> parameter.startsWith(FILTER_PREFIX))
-				.forEach(parameter -> {
-					if (!mapping.getColumnFieldFilters().contains(parameter)) {
-						String e = "The filter name '" + parameter + "' is not a valid parameter name. ";
-						e += "Allowed values are [" + mapping.getAllowedFieldFilterNames() + "]";
-						errorList.add(e);
-					}
-				});
+			.filter(parameter -> parameter.startsWith(FILTER_PREFIX))
+			.forEach(parameter -> {
+				if (!mapping.getColumnFieldFilters().contains(parameter)) {
+					String e = "The filter name '" + parameter + "' is not a valid parameter name. ";
+					e += "Allowed values are [" + mapping.getAllowedFieldFilterNames() + "]";
+					errorList.add(e);
+				}
+			});
+	}
+
+	public void addFilterOptions(String filterOptions) {
+		if (StringUtils.isEmpty(filterOptions))
+			return;
+		String[] options = filterOptions.split(";");
+		Arrays.stream(options).forEach(option -> {
+			String[] optionArray = option.split("=");
+			String key = optionArray[0];
+			String value = optionArray[1];
+			filterOptionMap.put(key, value);
+		});
+	}
+
+	public void addFilterOption(String key, String value) {
+		if (StringUtils.isNotEmpty(value)) {
+			filterOptionMap.put(key, value);
+		}
 	}
 
 	enum AscendingValues {
@@ -192,7 +213,7 @@ public class Pagination {
 		public static String getAllValues() {
 			StringJoiner values = new StringJoiner(",");
 			Arrays.asList(values()).forEach(sorting ->
-					values.add(sorting.name()));
+				values.add(sorting.name()));
 			return values.toString();
 		}
 
@@ -205,7 +226,7 @@ public class Pagination {
 		}
 	}
 
-	public int getIndexOfFirstElement() {
+	public int getOffset() {
 		return (page - 1) * limit;
 	}
 
