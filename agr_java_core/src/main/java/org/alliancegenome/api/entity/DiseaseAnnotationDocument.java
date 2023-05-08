@@ -28,6 +28,7 @@ public class DiseaseAnnotationDocument extends SearchableItemDocument {
 	private Set<Reference> references;
 
 	private String diseaseRelationNegation;
+	private String pubmedPubModID;
 	private Set<String> parentSlimIDs;
 	private List<DiseaseAnnotation> primaryAnnotations;
 
@@ -48,4 +49,5 @@ public class DiseaseAnnotationDocument extends SearchableItemDocument {
 		}
 		primaryAnnotations.add(da);
 	}
+
 }
