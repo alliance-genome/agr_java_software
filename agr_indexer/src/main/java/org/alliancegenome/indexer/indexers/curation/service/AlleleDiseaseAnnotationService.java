@@ -28,7 +28,6 @@ public class AlleleDiseaseAnnotationService {
 		AlleleRepository alleleRepository = new AlleleRepository();
 		
 		HashSet<String> alleleIds = new HashSet<>(alleleRepository.getAllAlleleIDs());
-		System.out.println("Allele Ids: " + alleleIds.size());
 		
 		int batchSize = 300;
 		int page = 0;
