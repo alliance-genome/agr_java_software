@@ -79,20 +79,20 @@ public class Gene extends GeneticEntity implements Comparable<Gene> {
 	@Relationship(type = "LOCATED_ON")
 	private List<Chromosome> chromsomes;
 
-	@Relationship(type = "IS_ALLELE_OF", direction = Relationship.INCOMING)
+	@Relationship(type = "IS_ALLELE_OF", direction = Relationship.Direction.INCOMING)
 	@JsonView(value = {View.GeneAPI.class})
 	private List<Allele> alleles;
 
-	@Relationship(type = "ASSOCIATION", direction = Relationship.UNDIRECTED)
+	@Relationship(type = "ASSOCIATION", direction = Relationship.Direction.UNDIRECTED)
 	private List<DiseaseEntityJoin> diseaseEntityJoins;
 
-	@Relationship(type = "ASSOCIATION", direction = Relationship.UNDIRECTED)
+	@Relationship(type = "ASSOCIATION", direction = Relationship.Direction.UNDIRECTED)
 	private List<BioEntityGeneExpressionJoin> entityGeneExpressionJoins;
 
 	@Relationship(type = "ASSOCIATION")
 	private List<PhenotypeEntityJoin> phenotypeEntityJoins;
 
-	@Relationship(type = "ASSOCIATION", direction = Relationship.UNDIRECTED)
+	@Relationship(type = "ASSOCIATION", direction = Relationship.Direction.UNDIRECTED)
 	private List<OrthologyGeneJoin> orthologyGeneJoins;
 
 	@Relationship(type = "HAS_PHENOTYPE")

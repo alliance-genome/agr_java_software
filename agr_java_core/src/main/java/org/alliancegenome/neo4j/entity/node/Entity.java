@@ -16,7 +16,7 @@ public class Entity extends Neo4jEntity {
 	//private Date dateProduced;
 	private String primaryKey;
 	
-//	@Relationship(type = "CREATED_BY", direction=Relationship.INCOMING)
+//	@Relationship(type = "CREATED_BY", direction=Relationship.Direction.INCOMING)
 //	private Set<Gene> createdBy = new HashSet<Gene>();
 
 }

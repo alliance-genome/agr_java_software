@@ -19,13 +19,13 @@ public class PhenotypeEntityJoin extends EntityJoin {
 	private String primaryKey;
 	private String dataProvider;
 
-	@Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
+	@Relationship(type = "ASSOCIATION", direction = Relationship.Direction.INCOMING)
 	private Gene gene;
 
-	@Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
+	@Relationship(type = "ASSOCIATION", direction = Relationship.Direction.INCOMING)
 	private Allele allele;
 
-	@Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
+	@Relationship(type = "ASSOCIATION", direction = Relationship.Direction.INCOMING)
 	private AffectedGenomicModel model;
 
 	@Relationship(type = "ASSOCIATION")

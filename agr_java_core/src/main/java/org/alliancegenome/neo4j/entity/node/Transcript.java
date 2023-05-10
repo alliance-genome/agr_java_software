@@ -42,14 +42,14 @@ public class Transcript extends Neo4jEntity implements Comparable<Transcript> {
 	private GenomeLocation genomeLocation;
 
 	@JsonView({View.Default.class, View.API.class,View.AlleleVariantSequenceConverterForES.class})
-	@Relationship(type = "TRANSCRIPT_TYPE", direction = Relationship.INCOMING)
+	@Relationship(type = "TRANSCRIPT_TYPE", direction = Relationship.Direction.INCOMING)
 	private SOTerm type;
 
 	@JsonView({View.Default.class, View.API.class})
 	@Relationship(type = "TRANSCRIPT")
 	private Gene gene;
 
-	@Relationship(type = "EXON", direction = Relationship.INCOMING)
+	@Relationship(type = "EXON", direction = Relationship.Direction.INCOMING)
 	private List<Exon> exons;
 
 	@JsonView({View.Default.class, View.API.class})

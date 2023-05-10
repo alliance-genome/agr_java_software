@@ -17,20 +17,20 @@ public class EntityJoin extends Association {
 	protected String primaryKey;
 	protected String joinType;
 
-	@Relationship(type = "EVIDENCE", direction = Relationship.INCOMING)
+	@Relationship(type = "EVIDENCE", direction = Relationship.Direction.INCOMING)
 	private List<Publication> publications;
 
 	@Relationship(type = "EVIDENCE")
 	private List<ECOTerm> evidenceCodes;
 
-	@Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
+	@Relationship(type = "ASSOCIATION", direction = Relationship.Direction.INCOMING)
 	private Gene gene;
 
-	@Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
+	@Relationship(type = "ASSOCIATION", direction = Relationship.Direction.INCOMING)
 	private Allele allele;
 
 	// direct annotations
-	@Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
+	@Relationship(type = "ASSOCIATION", direction = Relationship.Direction.INCOMING)
 	private AffectedGenomicModel model;
 
 	@Relationship(type = "EVIDENCE")

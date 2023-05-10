@@ -64,7 +64,7 @@ public class InteractionRepository extends Neo4jRepository<InteractionGeneJoin> 
 	}
 	
 	public List<InteractionGeneJoin> getInteraction(String primaryKey) {
-		String query = "MATCH p1=(igj:InteractionGeneJoin)--(s) WHERE igj.primaryKey = {primaryKey} ";
+		String query = "MATCH p1=(igj:InteractionGeneJoin)--(s) WHERE igj.primaryKey = $primaryKey ";
 		query +=  " RETURN p1";
 		
 		HashMap<String, String> map = new HashMap<>();

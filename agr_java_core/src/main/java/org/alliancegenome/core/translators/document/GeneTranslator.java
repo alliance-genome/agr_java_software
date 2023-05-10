@@ -44,7 +44,7 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, SearchableIte
         document.setSymbol(entity.getSymbol());
 
         if(entity.getOrthoGenes() == null) {
-            entity.setOrthoGenes(new ArrayList<Orthologous>());
+            entity.setOrthoGenes(new ArrayList<>());
         }
         
         document.setStrictOrthologySymbols(

@@ -61,7 +61,7 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
 	private SOTerm variantType;
 
 	@JsonView({View.API.class, View.AlleleVariantSequenceConverterForES.class})
-	@Relationship(type = "COMPUTED_GENE", direction = Relationship.INCOMING)
+	@Relationship(type = "COMPUTED_GENE", direction = Relationship.Direction.INCOMING)
 	private Gene gene;
 
 	@JsonView({View.AlleleVariantSequenceConverterForES.class})
@@ -81,7 +81,7 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
 	private GenomeLocation location;
 
 	@JsonView({View.API.class})
-	@Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
+	@Relationship(type = "ASSOCIATION", direction = Relationship.Direction.INCOMING)
 	protected List<Transcript> transcriptList;
 
 	@JsonView({View.API.class, View.AlleleVariantSequenceConverterForES.class})

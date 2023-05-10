@@ -23,10 +23,10 @@ public class Phenotype extends Neo4jEntity {
 	@JsonView({View.AlleleAPI.class, View.Interaction.class})
 	private String phenotypeStatement;
 
-	@Relationship(type = "IS_IMPLICATED_IN", direction = Relationship.INCOMING)
+	@Relationship(type = "IS_IMPLICATED_IN", direction = Relationship.Direction.INCOMING)
 	private List<Gene> genes;
 
-	@Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
+	@Relationship(type = "ASSOCIATION", direction = Relationship.Direction.INCOMING)
 	private List<PhenotypeEntityJoin> phenotypeEntityJoins;
 
 	@Override
