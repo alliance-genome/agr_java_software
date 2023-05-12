@@ -208,17 +208,17 @@ public class DiseaseAnnotationToTdfTranslator {
 
 	public static String getReferenceID(Reference reference) {
 		Optional<org.alliancegenome.curation_api.model.entities.CrossReference> opt = reference.getCrossReferences().stream().filter((ref) -> {
-			return ref.getCurie().startsWith("PMID:");
+			return ref.getReferencedCurie().startsWith("PMID:");
 		}).findFirst();
 		if (opt.isEmpty()) {
 			for (org.alliancegenome.curation_api.model.entities.CrossReference ref : reference.getCrossReferences()) {
-				String prefix = ref.getCurie().split(":")[0];
+				String prefix = ref.getReferencedCurie().split(":")[0];
 				if (Arrays.asList(CrossReferencePrefix.values()).stream().map(Enum::name).collect(Collectors.toList()).contains(prefix))
-					return ref.getCurie();
+					return ref.getReferencedCurie();
 			}
 			return null;
 		}
-		return opt.get().getCurie();
+		return opt.get().getReferencedCurie();
 	}
 
 	private DiseaseDownloadRow getDiseaseDownloadRow(DiseaseAnnotation annotation, PrimaryAnnotatedEntity entity, PublicationJoin join, Gene homologousGene) {
