@@ -363,7 +363,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
 	private class GetSubcellularExpressionWithParentsMapThread implements Runnable {
 		public void run() {
 			log.info("Building gene -> Subcellular Expression w/parents map");
-			String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)--(ebe:ExpressionBioEntity)-[:CELLULAR_COMPONENT]-(:GOTerm)-[:IS_A_PART_OF_CLOSURE|IS_A_PART_OF_SELF_CLOSURE]->(term:GOTerm) ";
+			String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)--(ebe:ExpressionBioEntity)-[:CELLULAR_COMPONENT]-(:GOTerm)-[:IS_A_PART_OF_CLOSURE]->(term:GOTerm) ";
 			query +=  " RETURN distinct gene.primaryKey, term.name ";
 
 			cache.setSubcellularExpressionWithParents(getMapSetForQuery(query, "gene.primaryKey", "term.name"));
@@ -385,7 +385,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
 	private class GetAnatomicalExpressionWithParentsMapThread implements Runnable {
 		public void run() {
 			log.info("Building gene -> Expression Anatomy w/parents map");
-			String query = " MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)--(ebe:ExpressionBioEntity)-[:ANATOMICAL_STRUCTURE]-(:Ontology)-[:IS_A_PART_OF_CLOSURE|IS_A_PART_OF_SELF_CLOSURE]->(term:Ontology) ";
+			String query = " MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)--(ebe:ExpressionBioEntity)-[:ANATOMICAL_STRUCTURE]-(:Ontology)-[:IS_A_PART_OF_CLOSURE]->(term:Ontology) ";
 			query +=  " RETURN distinct gene.primaryKey, term.name ";
 
 			cache.setAnatomicalExpressionWithParents(getMapSetForQuery(query, "gene.primaryKey", "term.name"));
@@ -398,8 +398,8 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
 		
 		public GetGOTermMapThread(String type, Boolean slim, CacheCallback callback) { this.type = type; this.slim = slim; this.callback = callback; }
 		public void run() {
-			String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)--(:GOTerm)-[:IS_A_PART_OF_CLOSURE|IS_A_PART_OF_SELF_CLOSURE]->(term:GOTerm) ";
-			query += "WHERE term.type = {type}";
+			String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)--(:GOTerm)-[:IS_A_PART_OF_CLOSURE]->(term:GOTerm) ";
+			query += "WHERE term.type = $type";
 
 			Map<String,String> params = new HashMap<String,String>();
 
@@ -414,7 +414,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
 		}
 	}
 	
-	public Map<String,Set<String>> getSpeciesCommonNames() {
+	public Map<String, Set<String>> getSpeciesCommonNames() {
 		return getMapSetForQuery(" MATCH (species:Species) RETURN species.name as id, species.commonNames as value ");
 	}
 	

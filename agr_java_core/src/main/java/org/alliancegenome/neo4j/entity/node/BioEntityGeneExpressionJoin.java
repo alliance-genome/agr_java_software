@@ -13,7 +13,7 @@ import lombok.Setter;
 @Setter
 public class BioEntityGeneExpressionJoin extends Association {
 
-	@Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
+	@Relationship(type = "ASSOCIATION", direction = Relationship.Direction.INCOMING)
 	private ExpressionBioEntity entity;
 
 	@Relationship(type = "EVIDENCE")
@@ -31,7 +31,7 @@ public class BioEntityGeneExpressionJoin extends Association {
 	@Relationship(type = "CROSS_REFERENCE")
 	private List<CrossReference> crossReferences;
 
-	@Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
+	@Relationship(type = "ASSOCIATION", direction = Relationship.Direction.INCOMING)
 	private Gene gene;
 
 

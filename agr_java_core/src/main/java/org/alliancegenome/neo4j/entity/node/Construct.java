@@ -39,26 +39,26 @@ public class Construct extends GeneticEntity implements Comparable<Construct>, P
 	@JsonIgnore
 	// bi-directional mapping. exclude since Construct is used from the Allele
 	// otherwise an infinite loop when JSON-ified
-	@Relationship(type = "CONTAINS", direction = Relationship.INCOMING)
+	@Relationship(type = "CONTAINS", direction = Relationship.Direction.INCOMING)
 	private List<Allele> alleles;
 
-	@Relationship(type = "IS_REGULATED_BY", direction = Relationship.INCOMING)
+	@Relationship(type = "IS_REGULATED_BY", direction = Relationship.Direction.INCOMING)
 	private List<Gene> regulatedByGenes = new ArrayList<>();
 
-	@Relationship(type = "IS_REGULATED_BY", direction = Relationship.INCOMING)
+	@Relationship(type = "IS_REGULATED_BY", direction = Relationship.Direction.INCOMING)
 	private List<NonBGIConstructComponent> nonBGIConstructComponentsRegulation;
 
-	@Relationship(type = "EXPRESSES", direction = Relationship.INCOMING)
+	@Relationship(type = "EXPRESSES", direction = Relationship.Direction.INCOMING)
 	private List<Gene> expressedGenes = new ArrayList<>();
 
-	@Relationship(type = "EXPRESSES", direction = Relationship.INCOMING)
+	@Relationship(type = "EXPRESSES", direction = Relationship.Direction.INCOMING)
 	private List<NonBGIConstructComponent> nonBGIConstructComponents;
 
 	@JsonView({View.AlleleAPI.class, View.TransgenicAlleleAPI.class})
-	@Relationship(type = "TARGETS", direction = Relationship.INCOMING)
+	@Relationship(type = "TARGETS", direction = Relationship.Direction.INCOMING)
 	private List<Gene> targetGenes = new ArrayList<>();
 
-	@Relationship(type = "TARGETS", direction = Relationship.INCOMING)
+	@Relationship(type = "TARGETS", direction = Relationship.Direction.INCOMING)
 	private List<NonBGIConstructComponent> nonBGIConstructComponentsTarget;
 
 

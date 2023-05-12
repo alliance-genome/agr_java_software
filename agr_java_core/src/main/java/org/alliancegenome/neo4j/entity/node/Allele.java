@@ -52,14 +52,14 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
 	private Gene gene;
 
 	@JsonView({View.GeneAllelesAPI.class, View.GeneAlleleVariantSequenceAPI.class, View.AlleleVariantSequenceConverterForES.class})
-	@Relationship(type = "IS_IMPLICATED_IN", direction = Relationship.INCOMING)
+	@Relationship(type = "IS_IMPLICATED_IN", direction = Relationship.Direction.INCOMING)
 	private List<DOTerm> diseases;
 
 	@JsonView({View.AlleleAPI.class, View.GeneAllelesAPI.class})
-	@Relationship(type = "VARIATION", direction = Relationship.INCOMING)
+	@Relationship(type = "VARIATION", direction = Relationship.Direction.INCOMING)
 	private List<Variant> variants;
 
-	@Relationship(type = "ASSOCIATION", direction = Relationship.UNDIRECTED)
+	@Relationship(type = "ASSOCIATION", direction = Relationship.Direction.UNDIRECTED)
 	private List<DiseaseEntityJoin> diseaseEntityJoins;
 
 	@Relationship(type = "ASSOCIATION")

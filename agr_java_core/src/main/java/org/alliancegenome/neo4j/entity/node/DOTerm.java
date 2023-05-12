@@ -80,16 +80,16 @@ public class DOTerm extends SimpleTerm {
 
 	private List<DOTerm> highLevelTermList = new ArrayList<>(2);
 
-	@Relationship(type = "IS_IMPLICATED_IN", direction = Relationship.INCOMING)
+	@Relationship(type = "IS_IMPLICATED_IN", direction = Relationship.Direction.INCOMING)
 	private List<Gene> genes;
 
-	@Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
+	@Relationship(type = "ASSOCIATION", direction = Relationship.Direction.INCOMING)
 	private List<DiseaseEntityJoin> diseaseEntityJoins;
 
 	@Relationship(type = "IS_A")
 	private List<DOTerm> parents;
 
-	@Relationship(type = "IS_A", direction = Relationship.INCOMING)
+	@Relationship(type = "IS_A", direction = Relationship.Direction.INCOMING)
 	protected List<DOTerm> children;
 
 	@Relationship(type = "ALSO_KNOWN_AS")

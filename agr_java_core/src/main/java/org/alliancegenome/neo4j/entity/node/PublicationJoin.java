@@ -26,7 +26,7 @@ public class PublicationJoin extends Association {
 	protected String joinType;
 
 	@JsonView({View.API.class})
-	@Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
+	@Relationship(type = "ASSOCIATION", direction = Relationship.Direction.INCOMING)
 	private Publication publication;
 
 	@JsonView({View.API.class})

@@ -28,7 +28,7 @@ public class InteractionGeneJoin extends Neo4jEntity implements Comparable, Pres
 	private String joinType;
 
 	@JsonView({View.Interaction.class})
-	@Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
+	@Relationship(type = "ASSOCIATION", direction = Relationship.Direction.INCOMING)
 	private Gene geneA;
 
 	@JsonView({View.Interaction.class})

@@ -67,12 +67,12 @@
 		<dependency>
 			<groupId>org.neo4j</groupId>
 			<artifactId>neo4j-ogm-bolt-driver</artifactId>
-			<version>3.2.37</version>
+			<version>4.0.5</version>
 		</dependency>
 		<dependency>
 			<groupId>org.neo4j</groupId>
 			<artifactId>neo4j-ogm-core</artifactId>
-			<version>3.2.37</version>
+			<version>4.0.5</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-io</groupId>

@@ -25,7 +25,7 @@ public class GOTerm extends Ontology {
 	private String isObsolete;
 	private List<String> subset;
 
-	@Relationship(type = "ANNOTATED_TO", direction=Relationship.INCOMING)
+	@Relationship(type = "ANNOTATED_TO", direction=Relationship.Direction.INCOMING)
 	private Set<Gene> genes = new HashSet<>();
 	
 	@Relationship(type = "ALSO_KNOWN_AS")

@@ -95,10 +95,10 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
 	@JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
 	private String sequenceFeatureType;
 
-	@Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
+	@Relationship(type = "ASSOCIATION", direction = Relationship.Direction.INCOMING)
 	private Variant variant;
 
-	@Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
+	@Relationship(type = "ASSOCIATION", direction = Relationship.Direction.INCOMING)
 	@JsonView({View.AlleleVariantSequenceConverterForES.class,View.GeneAlleleVariantSequenceAPI.class})
 	private Transcript transcript;
 
