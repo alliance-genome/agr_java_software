@@ -154,7 +154,7 @@ public class DatasetIndexerRepository extends Neo4jRepository<HTPDataset> {
 		@Override
 		public void run() {
 			log.info("Fetching anatomical expression parent terms");
-			cache.setAnatomicalExpressionWithParents(getMapSetForQuery("MATCH (dataset:HTPDataset)-[:ASSOCIATION]-(:HTPDatasetSample)-[:STRUCTURE_SAMPLED]-(ebe:ExpressionBioEntity)-[:ANATOMICAL_STRUCTURE]-(:Ontology)-[:IS_A_PART_OF_CLOSURE|IS_A_PART_OF_SELF_CLOSURE]->(term:Ontology) " +
+			cache.setAnatomicalExpressionWithParents(getMapSetForQuery("MATCH (dataset:HTPDataset)-[:ASSOCIATION]-(:HTPDatasetSample)-[:STRUCTURE_SAMPLED]-(ebe:ExpressionBioEntity)-[:ANATOMICAL_STRUCTURE]-(:Ontology)-[:IS_A_PART_OF_CLOSURE]->(term:Ontology) " +
 					" RETURN dataset.primaryKey as id, term.name as value"));
 			log.info("Finished Fetching anatomical expression parent terms");
 		}
