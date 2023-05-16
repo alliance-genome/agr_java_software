@@ -72,7 +72,7 @@ public class DiseaseIndexerRepository extends Neo4jRepository<DOTerm> {
 		@Override
 		public void run() {
 			log.info("Building disease -> gene map");
-			cache.setGenes(getMapSetForQuery("MATCH (disease:DOTerm)-[:IS_MARKER_FOR|:IS_IMPLICATED_IN|:IMPLICATED_VIA_ORTHOLOGY|:BIOMARKER_VIA_ORTHOLOGY]-(gene:Gene) " +
+			cache.setGenes(getMapSetForQuery("MATCH (disease:DOTerm)-[:IS_MARKER_FOR|IS_IMPLICATED_IN|IMPLICATED_VIA_ORTHOLOGY|BIOMARKER_VIA_ORTHOLOGY]-(gene:Gene) " +
 					" RETURN disease.primaryKey as id, gene.symbolWithSpecies as value;"));
 			log.info("Finished Building disease -> gene map");
 		}
@@ -102,7 +102,7 @@ public class DiseaseIndexerRepository extends Neo4jRepository<DOTerm> {
 		@Override
 		public void run() {
 			log.info("Building disease -> species map");
-			cache.setSpeciesMap(getMapSetForQuery("MATCH (disease:DOTerm)-[:IS_MARKER_FOR|:IS_IMPLICATED_IN|:IMPLICATED_VIA_ORTHOLOGY|:BIOMARKER_VIA_ORTHOLOGY]-(gene:Gene)-[:FROM_SPECIES]-(species:Species) " +
+			cache.setSpeciesMap(getMapSetForQuery("MATCH (disease:DOTerm)-[:IS_MARKER_FOR|IS_IMPLICATED_IN|IMPLICATED_VIA_ORTHOLOGY|BIOMARKER_VIA_ORTHOLOGY]-(gene:Gene)-[:FROM_SPECIES]-(species:Species) " +
 					" RETURN disease.primaryKey as id, species.name as value;"));
 			log.info("Finished Building disease -> species map");
 		}
