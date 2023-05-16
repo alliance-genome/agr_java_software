@@ -274,7 +274,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
 	private class GetDiseasesMapThread implements Runnable {
 		public void run() {
 			log.info("Building gene -> diseases map");
-			String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[:IS_MARKER_FOR|:IS_IMPLICATED_IN|:IMPLICATED_VIA_ORTHOLOGY|:BIOMARKER_VIA_ORTHOLOGY]-(disease:DOTerm) ";
+			String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[:IS_MARKER_FOR|IS_IMPLICATED_IN|IMPLICATED_VIA_ORTHOLOGY|BIOMARKER_VIA_ORTHOLOGY]-(disease:DOTerm) ";
 			query += " RETURN distinct gene.primaryKey, disease.nameKey ";
 
 			cache.setDiseases(getMapSetForQuery(query, "gene.primaryKey", "disease.nameKey"));
@@ -286,7 +286,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
 	private class GetDiseasesAgrSlimMapThread implements Runnable {
 		public void run() {
 			log.info("Building gene -> diseasesAgrSlim map");
-			String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[:IS_MARKER_FOR|:IS_IMPLICATED_IN|:IMPLICATED_VIA_ORTHOLOGY|:BIOMARKER_VIA_ORTHOLOGY]-(:DOTerm)-[:IS_A_PART_OF_CLOSURE]->(disease:DOTerm) ";
+			String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[:IS_MARKER_FOR|IS_IMPLICATED_IN|IMPLICATED_VIA_ORTHOLOGY|BIOMARKER_VIA_ORTHOLOGY]-(:DOTerm)-[:IS_A_PART_OF_CLOSURE]->(disease:DOTerm) ";
 			query += " WHERE disease.subset =~ '.*DO_AGR_slim.*' ";
 			query += " RETURN distinct gene.primaryKey, disease.nameKey ";
 
@@ -298,7 +298,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
 	private class GetDiseasesWithParentsThread implements Runnable {
 		public void run() {
 			log.info("Building gene -> diseasesWithParents map");
-			String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[:IS_MARKER_FOR|:IS_IMPLICATED_IN|:IMPLICATED_VIA_ORTHOLOGY|:BIOMARKER_VIA_ORTHOLOGY]-(:DOTerm)-[:IS_A_PART_OF_CLOSURE]->(disease:DOTerm) ";
+			String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[:IS_MARKER_FOR|IS_IMPLICATED_IN|IMPLICATED_VIA_ORTHOLOGY|BIOMARKER_VIA_ORTHOLOGY]-(:DOTerm)-[:IS_A_PART_OF_CLOSURE]->(disease:DOTerm) ";
 			query += " RETURN distinct gene.primaryKey, disease.nameKey ";
 
 			cache.setDiseasesWithParents(getMapSetForQuery(query, "gene.primaryKey", "disease.nameKey"));
@@ -309,7 +309,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
 	private class GetModelMapThread implements Runnable {
 		public void run() {
 			log.info("Building gene -> model map");
-			String query = "MATCH (species:Species)-[:FROM_SPECIES]-(model:AffectedGenomicModel)-[:MODEL_COMPONENT|:SEQUENCE_TARGETING_REAGENT]-(feature)--(gene:Gene)";
+			String query = "MATCH (species:Species)-[:FROM_SPECIES]-(model:AffectedGenomicModel)-[:MODEL_COMPONENT|SEQUENCE_TARGETING_REAGENT]-(feature)--(gene:Gene)";
 			query += " RETURN gene.primaryKey as id, model.nameTextWithSpecies as value";
 
 			cache.setModels(getMapSetForQuery(query));
