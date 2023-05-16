@@ -1,24 +1,12 @@
 package org.alliancegenome.indexer.indexers.curation;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.LinkedBlockingDeque;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.alliancegenome.api.entity.AGMDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.curation_api.config.RestDefaultObjectMapper;
-import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.AffectedGenomicModel;
-import org.alliancegenome.curation_api.model.entities.Allele;
-import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.DiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.Gene;
-import org.alliancegenome.curation_api.model.entities.GeneDiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.*;
 import org.alliancegenome.es.index.site.doclet.SpeciesDoclet;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.config.IndexerConfig;
@@ -29,11 +17,12 @@ import org.alliancegenome.indexer.indexers.curation.service.GeneDiseaseAnnotatio
 import org.alliancegenome.indexer.indexers.curation.service.VocabularyService;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import lombok.extern.slf4j.Slf4j;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.LinkedBlockingDeque;
 
 @Slf4j
 public class DiseaseAnnotationCurationIndexer extends Indexer {
@@ -109,7 +98,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 					gdad.setSubject(entry.getValue().getLeft());
 					SpeciesType type = SpeciesType.getTypeByID(entry.getValue().getLeft().getTaxon().getCurie());
 					int order = 100;
-					if(type != null) {
+					if (type != null) {
 						order = type.getOrderID();
 					}
 					gdad.setPhylogeneticSortingIndex(order);
@@ -127,6 +116,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 				gdad.setEvidenceCodes(da.getEvidenceCodes());
 				// gdad.setDataProvider(da.getDataProvider());
 				gdad.addReference(da.getSingleReference());
+				gdad.setPubmedPubModID(getPubmedPubModID(da.getSingleReference()));
 				gdad.addPrimaryAnnotation(da);
 				SpeciesDoclet doc = SpeciesType.fromTaxonId(entry.getValue().getLeft().getTaxon().getCurie());
 				if (doc != null) {
@@ -142,6 +132,19 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		ph.finishProcess();
 
 		return ret;
+	}
+
+	private String getPubmedPubModID(Reference singleReference) {
+		List<CrossReference> crossReferences = singleReference.getCrossReferences();
+		if (CollectionUtils.isEmpty(crossReferences))
+			return null;
+		String[] prefixes = {"PMID", "MGI", "RGD", "ZFIN", "FB", "WB", "MGI"};
+		for (String prefix : prefixes) {
+			Optional<CrossReference> opt = crossReferences.stream().filter((reference) -> reference.getReferencedCurie().startsWith(prefix + ":")).findFirst();
+			if (opt.isPresent())
+				return opt.get().getReferencedCurie();
+		}
+		return null;
 	}
 
 	private String getDiseaseRelationNegation(String diseaseRelation, Boolean negated) {
@@ -168,7 +171,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 					adad = new AlleleDiseaseAnnotationDocument();
 					SpeciesType type = SpeciesType.getTypeByID(entry.getValue().getLeft().getTaxon().getCurie());
 					int order = 100;
-					if(type != null) {
+					if (type != null) {
 						order = type.getOrderID();
 					}
 					adad.setPhylogeneticSortingIndex(order);
@@ -211,7 +214,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 					adad = new AGMDiseaseAnnotationDocument();
 					SpeciesType type = SpeciesType.getTypeByID(entry.getValue().getLeft().getTaxon().getCurie());
 					int order = 100;
-					if(type != null) {
+					if (type != null) {
 						order = type.getOrderID();
 					}
 					adad.setPhylogeneticSortingIndex(order);
