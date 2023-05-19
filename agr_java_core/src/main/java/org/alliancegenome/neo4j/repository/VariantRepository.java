@@ -20,7 +20,7 @@ public class VariantRepository extends Neo4jRepository<Variant> {
 		map.put(paramName, id);
 		String query = "";
 		query += " MATCH p1=(a:Allele)<-[:VARIATION]-(variant:Variant)--(soTerm:SOTerm) ";
-		query += " WHERE a.primaryKey = {" + paramName + "}";
+		query += " WHERE a.primaryKey = $" + paramName;
 		query += " OPTIONAL MATCH synonyms=(variant:Variant)-[:ALSO_KNOWN_AS]-(:Synonym) ";
 		query += " OPTIONAL MATCH notes=(variant:Variant)-[:ASSOCIATION]->(:Note) ";
 		query += " OPTIONAL MATCH pubs=(variant:Variant)-[:ASSOCIATION]->(:Publication) ";
@@ -44,7 +44,7 @@ public class VariantRepository extends Neo4jRepository<Variant> {
 		map.put(paramName, variantID);
 		String query = "";
 		query += " MATCH p1=(t:Transcript)-[:ASSOCIATION]->(variant:Variant)--(soTerm:SOTerm) ";
-		query += " WHERE variant.primaryKey = {" + paramName + "}";
+		query += " WHERE variant.primaryKey = $" + paramName;
 		query += " OPTIONAL MATCH consequence=(:GenomicLocation)--(variant:Variant)-[:ASSOCIATION]->(:TranscriptLevelConsequence)" +
 				"<-[:ASSOCIATION]-(t:Transcript)<-[:TRANSCRIPT_TYPE]-(:SOTerm)";
 		query += " OPTIONAL MATCH gene=(t:Transcript)-[:TRANSCRIPT]-(:Gene)--(:GenomicLocation)";

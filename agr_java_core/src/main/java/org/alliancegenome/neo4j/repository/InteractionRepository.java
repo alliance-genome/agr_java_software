@@ -19,7 +19,7 @@ public class InteractionRepository extends Neo4jRepository<InteractionGeneJoin> 
 		super(InteractionGeneJoin.class);
 	}
 
-	private String interactionsQuery = "MATCH p1=(g1:Gene)--(igj:InteractionGeneJoin)--(g2:Gene), p2=(igj:InteractionGeneJoin)--(s) where g1.primaryKey = {primaryKey}"
+	private String interactionsQuery = "MATCH p1=(g1:Gene)--(igj:InteractionGeneJoin)--(g2:Gene), p2=(igj:InteractionGeneJoin)--(s) where g1.primaryKey = $primaryKey"
 			+ " OPTIONAL MATCH p3=(g1:Gene)-->(s1:Species) "
 			+ " OPTIONAL MATCH p4=(g2:Gene)-->(s2:Species) ";
 
@@ -29,7 +29,7 @@ public class InteractionRepository extends Neo4jRepository<InteractionGeneJoin> 
 
 		map.put("primaryKey", primaryKey);
 		String query = interactionsQuery + " RETURN p1, p2, p3, p4";
-		//String query = "MATCH p1=(g:Gene)-[iw:INTERACTS_WITH]->(g2:Gene), p2=(g:Gene)-->(igj:InteractionGeneJoin)--(s) where g.primaryKey = {primaryKey} and iw.uuid = igj.primaryKey RETURN p1, p2";
+		//String query = "MATCH p1=(g:Gene)-[iw:INTERACTS_WITH]->(g2:Gene), p2=(g:Gene)-->(igj:InteractionGeneJoin)--(s) where g.primaryKey = $primaryKey and iw.uuid = igj.primaryKey RETURN p1, p2";
 
 		Iterable<InteractionGeneJoin> joins = query(query, map);
 		for (InteractionGeneJoin join : joins) {
