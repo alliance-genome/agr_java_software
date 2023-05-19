@@ -76,7 +76,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 		HashMap<String, String> map = new HashMap<>();
 
 		map.put("primaryKey", primaryKey);
-		String query = " MATCH p1=(q:Species)-[:FROM_SPECIES]-(g:Gene) WHERE g.primaryKey = {primaryKey} "
+		String query = " MATCH p1=(q:Species)-[:FROM_SPECIES]-(g:Gene) WHERE g.primaryKey = $primaryKey "
 				+ "OPTIONAL MATCH p2=(g:Gene)--(:SOTerm) "
 				+ "OPTIONAL MATCH p3=(g:Gene)--(:Synonym) "
 				+ "OPTIONAL MATCH p4=(g:Gene)--(:SecondaryId) "
@@ -98,7 +98,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 		HashMap<String, String> map = new HashMap<>();
 
 		map.put("primaryKey", primaryKey);
-		String query = " MATCH p1=(q:Species)-[:FROM_SPECIES]-(g:Gene) WHERE g.primaryKey = {primaryKey} RETURN p1";
+		String query = " MATCH p1=(q:Species)-[:FROM_SPECIES]-(g:Gene) WHERE g.primaryKey = $primaryKey RETURN p1";
 
 		Iterable<Gene> genes = query(query, map);
 		for (Gene g : genes) {
@@ -113,7 +113,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 		HashMap<String, String> map = new HashMap<>();
 
 		map.put("primaryKey", secondaryIdPrimaryKey);
-		String query = " MATCH p1=(q:Species)-[:FROM_SPECIES]-(g:Gene)-[:ALSO_KNOWN_AS]-(s:SecondaryId) WHERE s.primaryKey = {primaryKey} "
+		String query = " MATCH p1=(q:Species)-[:FROM_SPECIES]-(g:Gene)-[:ALSO_KNOWN_AS]-(s:SecondaryId) WHERE s.primaryKey = $primaryKey "
 				+ "OPTIONAL MATCH p2=(g:Gene)--(:SOTerm) "
 				+ "OPTIONAL MATCH p3=(g:Gene)--(:Synonym) "
 				+ "OPTIONAL MATCH p4=(g:Gene)--(:SecondaryId) "
@@ -138,7 +138,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 		Map<String, String> parameters = new HashMap<>();
 		parameters.put("taxon", taxonID);
 		String query = " MATCH p1=(species:Species)--(gene:Gene)-->(s:BioEntityGeneExpressionJoin)--(t) " +
-				"WHERE gene.taxonId = {taxon} ";
+				"WHERE gene.taxonId = $taxon ";
 		query += " OPTIONAL MATCH p2=(t:ExpressionBioEntity)-->(o:Ontology) ";
 		query += " RETURN s, p1, p2 ";
 		Iterable<BioEntityGeneExpressionJoin> joins = query(BioEntityGeneExpressionJoin.class, query, parameters);
@@ -197,7 +197,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 		map.put("primaryKey", primaryKey);
 		String query = "";
 
-		query += " MATCH p1=(q:Species)-[:FROM_SPECIES]-(g:Gene)--(s) WHERE g.primaryKey = {primaryKey}";
+		query += " MATCH p1=(q:Species)-[:FROM_SPECIES]-(g:Gene)--(s) WHERE g.primaryKey = $primaryKey";
 		query += " OPTIONAL MATCH p4=(g)--(s:OrthologyGeneJoin)--(a:OrthoAlgorithm), p3=(g)-[o:ORTHOLOGOUS]-(g2:Gene)-[:FROM_SPECIES]-(q2:Species), (s)--(g2)";
 		query += " RETURN p1, p3, p4";
 
@@ -295,7 +295,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 				"p2=(g)-[:FROM_SPECIES]-(gs:Species), " +
 				"p3=(gh)-[:FROM_SPECIES]-(ghs:Species), " +
 				"p5=(s)--(algorithm:OrthoAlgorithm) ";
-		query += " where g.taxonId = {speciesID} and   gh.taxonId = {homologSpeciesID} and ortho.strictFilter = {strict} ";
+		query += " where g.taxonId = $speciesID and   gh.taxonId = $homologSpeciesID and ortho.strictFilter = $strict ";
 		//query += "return g, ortho, gh, s, algorithm";
 		query += "return g";
 
@@ -327,7 +327,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 				"p3=(g)-[:FROM_SPECIES]-(gs:Species), " +
 				"p4=(gh)-[:FROM_SPECIES]-(ghs:Species), " +
 				"p5=(s)--(algorithm:OrthoAlgorithm) ";
-		query += " where g.taxonId = {speciesID} ";
+		query += " where g.taxonId = $speciesID ";
 		query += "return p1, p2, p3, p4, p5";
 
 		Iterable<Gene> genes = query(query, map);
@@ -367,7 +367,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 	}
 
 	public List<String> getAllGeneKeys(String species) {
-		String query = "MATCH (g:Gene)-[:FROM_SPECIES]-(species:Species) WHERE species.name = {species} RETURN distinct g.primaryKey";
+		String query = "MATCH (g:Gene)-[:FROM_SPECIES]-(species:Species) WHERE species.name = $species RETURN distinct g.primaryKey";
 
 		HashMap<String, String> params = new HashMap<>();
 		params.put("species", species);

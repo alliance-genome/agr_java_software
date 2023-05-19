@@ -48,7 +48,7 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
 
 		map.put("primaryKey", primaryKey);
 		String query = "";
-		query += " MATCH p1=(aSpecies:Species)-[:FROM_SPECIES]-(a:Allele) WHERE a.primaryKey = {primaryKey}";
+		query += " MATCH p1=(aSpecies:Species)-[:FROM_SPECIES]-(a:Allele) WHERE a.primaryKey = $primaryKey";
 		query += " OPTIONAL MATCH p3=(a:Allele)-[:IS_ALLELE_OF]-(gene:Gene)-[:FROM_SPECIES]-(gSpecies:Species)";
 		query += " OPTIONAL MATCH p4=(a:Allele)-[:ALSO_KNOWN_AS]-(:Synonym)";
 		query += " OPTIONAL MATCH vari=(a:Allele)<-[:VARIATION]-(variant:Variant)-[:VARIATION_TYPE]-(soTerm:SOTerm)";
@@ -407,12 +407,12 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
 	private String getCypherQuery(String relationship) {
 		String query = "";
 		query += " MATCH p1=(:Species)<-[:FROM_SPECIES]-(allele:Allele)--(construct:Construct)-[:" + relationship + "]-(gene:Gene)--(:Species) " +
-				"  where gene.primaryKey = {geneID}";
+				"  where gene.primaryKey = $geneID";
 		// need this optional match to retrieve all expresses genes besides the given geneID
 		query += " OPTIONAL MATCH express=(construct:Construct)-[:EXPRESSES]-(:Gene)--(:Species)";
 		query += " OPTIONAL MATCH expressNonBGI=(construct:Construct)-[:EXPRESSES]-(:NonBGIConstructComponent)";
-		query += " OPTIONAL MATCH target=(:CrossReference)--(construct:Construct)-[:TARGET]-(:Gene)--(:Species)";
-		query += " OPTIONAL MATCH targetNon=(:CrossReference)--(construct:Construct)-[:TARGET]-(:NonBGIConstructComponent)";
+		query += " OPTIONAL MATCH target=(:CrossReference)--(construct:Construct)-[:TARGETS]-(:Gene)--(:Species)";
+		query += " OPTIONAL MATCH targetNon=(:CrossReference)--(construct:Construct)-[:TARGETS]-(:NonBGIConstructComponent)";
 		query += " OPTIONAL MATCH regulated=(:CrossReference)--(construct:Construct)-[:IS_REGULATED_BY]-(:Gene)--(:Species)";
 		query += " OPTIONAL MATCH regulatedNon=(:CrossReference)--(construct:Construct)-[:IS_REGULATED_BY]-(:NonBGIConstructComponent)";
 		query += " OPTIONAL MATCH disease=(allele:Allele)--(:DiseaseEntityJoin)";

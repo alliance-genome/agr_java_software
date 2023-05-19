@@ -48,7 +48,7 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
 	public Phenotype getPhenotypeTerm(String primaryKey) {
 
 		String cypher = "MATCH p0=(termName:Phenotype)--(phenotypeEntityJoin:PhenotypeEntityJoin)-[:EVIDENCE]-(publications:Publication)" +
-				" WHERE termName.primaryKey = {primaryKey}	 " +
+				" WHERE termName.primaryKey = $primaryKey	 " +
 				" OPTIONAL MATCH p2=(phenotypeEntityJoin)--(g:Gene)-[:FROM_SPECIES]-(species:Species)" +
 				" OPTIONAL MATCH p4=(phenotypeEntityJoin)--(feature:Feature)" +
 				" OPTIONAL MATCH crossRefMatch=(phenotypeEntityJoin)--(feature:Feature)--(crossRef:CrossReference)" +
@@ -153,7 +153,7 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
 
 		String baseCypher = "MATCH p0=(phenotype:Phenotype)--(phenotypeEntityJoin:PhenotypeEntityJoin)-[:EVIDENCE]-(publications:Publication), " +
 				"		 p2=(phenotypeEntityJoin)--(gene:Gene) " +
-				"where gene.primaryKey = {geneID} ";
+				"where gene.primaryKey = $geneID ";
 		// get feature-less phenotypes
 		String phenotypeFilterClause = addAndWhereClauseString("phenotype.phenotypeStatement", FieldFilter.PHENOTYPE, pagination.getFieldFilterValueMap());
 		if (phenotypeFilterClause != null) {
@@ -205,7 +205,7 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
 	private String getPhenotypeBaseQuery() {
 		return "MATCH p0=(phenotype:Phenotype)--(phenotypeEntityJoin:PhenotypeEntityJoin)-[:EVIDENCE]-(publications:Publication), " +
 				"p2=(phenotypeEntityJoin)--(gene:Gene)-[:FROM_SPECIES]-(species:Species) " +
-				"where gene.primaryKey = {geneID} " +
+				"where gene.primaryKey = $geneID " +
 				"OPTIONAL MATCH p4=(phenotypeEntityJoin)--(feature:Feature) ";
 	}
 

@@ -316,7 +316,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 
 	public DOTerm getShallowDiseaseTerm(String id) {
 
-		String cypher = "MATCH (disease:DOTerm) WHERE disease.primaryKey = {primaryKey}	  " +
+		String cypher = "MATCH (disease:DOTerm) WHERE disease.primaryKey = $primaryKey	  " +
 				" RETURN disease ";
 
 		HashMap<String, String> map = new HashMap<>();
@@ -330,7 +330,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 
 	public UBERONTerm getShallowUberonTerm(String id) {
 
-		String cypher = "MATCH (disease:UBERONTerm) WHERE disease.primaryKey = {primaryKey}	  " +
+		String cypher = "MATCH (disease:UBERONTerm) WHERE disease.primaryKey = $primaryKey	  " +
 				" RETURN disease ";
 
 		HashMap<String, String> map = new HashMap<>();
@@ -344,7 +344,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 
 	public GOTerm getGOTerm(String id) {
 
-		String cypher = "MATCH (disease:GOTerm) WHERE disease.primaryKey = {primaryKey}	  " +
+		String cypher = "MATCH (disease:GOTerm) WHERE disease.primaryKey = $primaryKey	  " +
 				" RETURN disease ";
 
 		HashMap<String, String> map = new HashMap<>();
@@ -576,7 +576,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 		if (!empiricalDisease) {
 			baseCypher += cypherViaOrthology;
 		}
-		baseCypher += "where gene.primaryKey = {geneID} ";
+		baseCypher += "where gene.primaryKey = $geneID ";
 		// get feature-less diseases
 
 		baseCypher += getFilterClauses(pagination, true);
@@ -637,7 +637,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 		if (!empiricalDisease) {
 			baseCypher += cypherViaOrthology;
 		}
-		baseCypher += "where gene.primaryKey = {geneID} ";
+		baseCypher += "where gene.primaryKey = $geneID ";
 
 		String cypher = baseCypher;
 		if (empiricalDisease) {
