@@ -116,7 +116,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 				gdad.setEvidenceCodes(da.getEvidenceCodes());
 				// gdad.setDataProvider(da.getDataProvider());
 				gdad.addReference(da.getSingleReference());
-				gdad.setPubmedPubModID(getPubmedPubModID(da.getSingleReference()));
+				gdad.addPubMedPubModID(getPubmedPubModID(da.getSingleReference()));
 				gdad.addPrimaryAnnotation(da);
 				SpeciesDoclet doc = SpeciesType.fromTaxonId(entry.getValue().getLeft().getTaxon().getCurie());
 				if (doc != null) {

@@ -28,7 +28,7 @@ public class DiseaseAnnotationDocument extends SearchableItemDocument {
 	private Set<Reference> references;
 
 	private String diseaseRelationNegation;
-	private String pubmedPubModID;
+	private Set<String> pubmedPubModIDs;
 	private Set<String> parentSlimIDs;
 	private List<DiseaseAnnotation> primaryAnnotations;
 
@@ -41,6 +41,13 @@ public class DiseaseAnnotationDocument extends SearchableItemDocument {
 			references = new HashSet<>();
 		}
 		references.add(singleReference);
+	}
+
+	public void addPubMedPubModID(String id) {
+		if (pubmedPubModIDs == null) {
+			pubmedPubModIDs = new HashSet<>();
+		}
+		pubmedPubModIDs.add(id);
 	}
 
 	public void addPrimaryAnnotation(DiseaseAnnotation da) {
