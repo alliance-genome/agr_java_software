@@ -459,6 +459,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 		pagination.addFilterOption("object.name", diseaseTerm);
 		pagination.addFilterOption("evidenceCodes.abbreviation", evidenceCode);
 		pagination.addFilterOption("diseaseRelationNegation", associationType);
+		pagination.addFilterOption("pubmedPubModIDs", filterReference);
 		pagination.addFilterOption("subject.geneSymbol.displayText", filterGene);
 		pagination.addFilterOption("primaryAnnotations.with.geneSymbol.displayText", basedOnGeneSymbol);
 		pagination.addFilterOption("primaryAnnotations.dataProvider.abbreviation", filterSource);
@@ -472,12 +473,6 @@ public class DiseaseController implements DiseaseRESTInterface {
 			} else {
 				pagination.addFilterOption("subject.taxon.name.keyword", filterSpecies);
 			}
-		}
-
-		if(filterReference != null) {
-			pagination.addFilterOption("references.crossReferences.curie", QueryParserBase.escape(filterReference) + "&PMID");
-		} else {
-			pagination.addFilterOption("references.crossReferences.curie", null);
 		}
 
 		if (pagination.hasErrors()) {
