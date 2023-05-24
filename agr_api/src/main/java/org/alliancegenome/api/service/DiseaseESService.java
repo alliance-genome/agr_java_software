@@ -148,29 +148,9 @@ public class DiseaseESService {
 			String[] elements = filterValue.split("\\|");
 			Arrays.stream(elements).forEach(element -> orClause.should(QueryBuilders.termQuery(filterName, element)));
 			bool.must(orClause);
-		} else if(filterValue.contains("&")) {
-			Log.info("And Filter: " + filterName + " " + filterValue);
-
-			String[] elements = filterValue.split("\\&");
-			//Arrays.stream(elements).forEach(element -> andClause.should(QueryBuilders.termQuery(filterName, element)));
-			StringBuffer queryString = new StringBuffer();
-			String delim = "";
-			for(String element: elements) {
-				queryString.append(delim);
-				queryString.append("*" + element + "*");
-				delim = " ";
-			}	
-
-			bool.must(
-				QueryBuilders.nestedQuery(
-					filterName.substring(0, filterName.lastIndexOf('.')),
-					QueryBuilders.queryStringQuery(queryString.toString()).defaultOperator(Operator.AND).field(filterName),
-					ScoreMode.Total
-				)
-			);
 		} else {
 			Log.info("Other Filter: " + filterName + " " + filterValue);
-			
+
 			if (filterName.endsWith("keyword")) {
 				bool.must(QueryBuilders.termQuery(filterName, filterValue));
 			} else {
