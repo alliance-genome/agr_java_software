@@ -1,24 +1,11 @@
 package org.alliancegenome.api.service;
 
-import static java.util.stream.Collectors.toList;
-import static org.alliancegenome.cache.repository.helper.JsonResultResponse.DISTINCT_FIELD_VALUES;
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
-import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
-import static org.elasticsearch.index.query.QueryBuilders.termQuery;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import io.quarkus.logging.Log;
 import org.alliancegenome.api.entity.DiseaseEntitySubgroupSlim;
 import org.alliancegenome.api.entity.DiseaseRibbonEntity;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
@@ -27,7 +14,6 @@ import org.alliancegenome.api.service.helper.GeneDiseaseSearchHelper;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.api.service.DiseaseRibbonService;
 import org.alliancegenome.es.index.site.dao.SearchDAO;
-import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.entity.node.Gene;
@@ -36,11 +22,10 @@ import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.lucene.search.join.ScoreMode;
+import org.apache.lucene.queryparser.classic.QueryParser;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
-import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.search.SearchHit;
@@ -51,13 +36,14 @@ import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import java.util.*;
+import java.util.stream.Collectors;
 
-import io.quarkus.logging.Log;
+import static java.util.stream.Collectors.toList;
+import static org.alliancegenome.cache.repository.helper.JsonResultResponse.DISTINCT_FIELD_VALUES;
+import static org.elasticsearch.index.query.QueryBuilders.*;
 
 
 @RequestScoped
@@ -156,7 +142,7 @@ public class DiseaseESService {
 			} else {
 				String[] elements = filterValue.split(" ");
 				BoolQueryBuilder andClause = boolQuery();
-				Arrays.stream(elements).forEach(element -> andClause.must(QueryBuilders.queryStringQuery("*" + element + "*").field(filterName)));
+				Arrays.stream(elements).forEach(element -> andClause.must(QueryBuilders.queryStringQuery("*" + QueryParser.escape(element) + "*").field(filterName)));
 				bool.must(andClause);
 			}
 		}
