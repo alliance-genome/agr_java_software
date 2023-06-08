@@ -29,6 +29,7 @@ public class AGMDiseaseAnnotationService {
 		
 		HashMap<String, Object> params = new HashMap<>();
 		params.put("internal", false);
+		params.put("obsolete", false);
 		
 		do {
 			SearchResponse<AGMDiseaseAnnotation> response = agmApi.find(page, batchSize, params);

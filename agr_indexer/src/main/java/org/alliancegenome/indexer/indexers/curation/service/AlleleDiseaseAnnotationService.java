@@ -35,6 +35,7 @@ public class AlleleDiseaseAnnotationService {
 		
 		HashMap<String, Object> params = new HashMap<>();
 		params.put("internal", false);
+		params.put("obsolete", false);
 		//params.put("subject.curie", "WB:WBVar00087891");
 
 		do {

@@ -34,6 +34,7 @@ public class GeneDiseaseAnnotationService {
 
 		HashMap<String, Object> params = new HashMap<>();
 		params.put("internal", false);
+		params.put("obsolete", false);
 		
 		do {
 			SearchResponse<GeneDiseaseAnnotation> response = geneApi.find(page, batchSize, params);
