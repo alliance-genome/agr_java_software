@@ -172,27 +172,7 @@ public class DiseaseAnnotationToTdfTranslator {
 			AGMDiseaseAnnotation pAnnotation = (AGMDiseaseAnnotation) primaryAnnotation;
 			row.setGeneticEntityID(pAnnotation.getSubject().getCurie());
 			row.setGeneticEntityName(pAnnotation.getSubject().getName());
-			// ToDo: Remove as soon as subtype is not null any longer
-			if (pAnnotation.getSubject().getSubtype() != null) {
-				row.setGeneticEntityType(pAnnotation.getSubject().getSubtype().getName());
-			} else {
-				String curiePrefix = pAnnotation.getSubjectCurie().split(":")[0];
-				switch (curiePrefix) {
-					case "ZFIN":
-						row.setGeneticEntityType("fish");
-					case "MGI":
-						row.setGeneticEntityType("genotype");
-					case "RGD":
-						row.setGeneticEntityType("strain");
-					case "WB":
-						if (pAnnotation.getSubjectCurie().toLowerCase().contains("genotype")) {
-							row.setGeneticEntityType("genotype");
-						} else if (pAnnotation.getSubjectCurie().toLowerCase().contains("strain")) {
-							row.setGeneticEntityType("strain");
-						}
-				}
-
-			}
+			row.setGeneticEntityType(pAnnotation.getSubject().getSubtype().getName());
 		}
 		if (primaryAnnotation instanceof GeneDiseaseAnnotation) {
 			GeneDiseaseAnnotation pAnnotation = (GeneDiseaseAnnotation) primaryAnnotation;
