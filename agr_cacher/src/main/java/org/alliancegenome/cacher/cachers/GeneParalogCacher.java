@@ -97,10 +97,6 @@ public class GeneParalogCacher extends Cacher {
 		geneRepository.clearCache();
 	}
 
-	public String getSpeciesSpeciesID(OrthologView o) {
-		return o.getGene().getTaxonId() + ":" + o.getHomologGene().getTaxonId();
-	}
-
 	private List<String> getPredictionNotCalled(OrthologView view) {
 		List<String> usedNames = view.getPredictionMethodsMatched() != null ? new ArrayList<>(view.getPredictionMethodsMatched()) : new ArrayList<>();
 		if (view.getPredictionMethodsNotMatched() != null)
