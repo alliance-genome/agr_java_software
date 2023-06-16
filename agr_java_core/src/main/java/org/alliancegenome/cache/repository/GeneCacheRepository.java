@@ -30,6 +30,17 @@ public class GeneCacheRepository {
 		return fullOrthologyList;
 	}
 
+	public List<OrthologView> getAllParalogyGenes(List<String> geneIDs) {
+		List<OrthologView> fullOrthologyList = new ArrayList<>();
+		geneIDs.forEach(id -> {
+			final List<OrthologView> orthology = cacheService.getCacheEntries(id, CacheAlliance.GENE_PARALOGY);
+			if (orthology != null)
+				fullOrthologyList.addAll(orthology);
+		});
+
+		return fullOrthologyList;
+	}
+
 	public List<OrthologView> getOrthologyBySpeciesSpecies(String taxonOne, String taxonTwo) {
 		List<OrthologView> fullOrthologyList = new ArrayList<>();
 		final List<OrthologView> orthology = cacheService.getCacheEntries(taxonOne + ":" + taxonTwo, CacheAlliance.SPECIES_SPECIES_ORTHOLOGY);

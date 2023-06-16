@@ -187,7 +187,36 @@ public class OrthologyCacheRepository {
 
 	public JsonResultResponse<OrthologView> getOrthologyMultiGeneJson(List<String> geneIDs, Pagination pagination) {
 		long start = System.currentTimeMillis();
-		List<OrthologView> orthologViewList = repo.getAllOrthologyGenes(geneIDs);
+		List<OrthologView> orthologViewList = repo.getAllParalogyGenes(geneIDs);
+		//filtering
+		FilterService<OrthologView> filterService = new FilterService<>(new OrthologyFiltering());
+		List<OrthologView> orthologViewFiltered = filterService.filterAnnotations(orthologViewList, pagination.getFieldFilterValueMap());
+
+		List<OrthologView> paginatedViewFiltered = orthologViewFiltered.stream()
+				.skip(pagination.getStart())
+				.limit(pagination.getLimit()).sorted(Comparator.comparing(o -> o.getHomologGene().getSpecies().getPhylogeneticOrder()))
+				.collect(Collectors.toList());
+
+
+
+		// <geneID, Map<variableName,variableValue>>
+		Map<String, Object> map = new HashMap<>();
+
+		paginatedViewFiltered.forEach(orthologView -> {
+			putGeneInfo(map, orthologView.getGene());
+			putGeneInfo(map, orthologView.getHomologGene());
+		});
+		JsonResultResponse<OrthologView> response = new JsonResultResponse<>();
+		response.setResults(paginatedViewFiltered);
+		response.setTotal(orthologViewFiltered.size());
+		response.setSupplementalData(map);
+		response.calculateRequestDuration(start);
+		return response;
+	}
+
+	public JsonResultResponse<OrthologView> getParalogyMultiGeneJson(List<String> geneIDs, Pagination pagination) {
+		long start = System.currentTimeMillis();
+		List<OrthologView> orthologViewList = repo.getAllParalogyGenes(geneIDs);
 		//filtering
 		FilterService<OrthologView> filterService = new FilterService<>(new OrthologyFiltering());
 		List<OrthologView> orthologViewFiltered = filterService.filterAnnotations(orthologViewList, pagination.getFieldFilterValueMap());

@@ -580,6 +580,36 @@ public class GeneController implements GeneRESTInterface {
 	}
 
 	@Override
+	public JsonResultResponse<OrthologView> getGeneParalogy(String id,
+															 List<String> geneIDs,
+															 String geneLister,
+															 String stringencyFilter,
+															 String taxonID,
+															 String method,
+															 Integer limit,
+															 Integer page) {
+
+		List<String> geneList = new ArrayList<>();
+		if (id != null) {
+			geneList.add(id);
+		}
+		if (geneLister != null) {
+			List<String> ids = Arrays.asList(geneLister.split(","));
+			geneList.addAll(ids);
+		}
+		if (CollectionUtils.isNotEmpty(geneIDs)) {
+			geneList.addAll(geneIDs);
+		}
+		Pagination pagination = new Pagination(page, limit, null, null);
+		pagination.addFieldFilter(FieldFilter.STRINGENCY, stringencyFilter);
+		pagination.addFieldFilter(FieldFilter.ORTHOLOGY_METHOD, method);
+		pagination.addFieldFilter(FieldFilter.ORTHOLOGY_TAXON, taxonID);
+		final JsonResultResponse<OrthologView> response = orthologyService.getParalogyMultiGeneJson(geneList, pagination);
+		response.setHttpServletRequest(null);
+		return response;
+	}
+
+	@Override
 	public JsonResultResponse<OrthologView> getGeneOrthologyWithExpression(String id,
 																		   String stringencyFilter) {
 
