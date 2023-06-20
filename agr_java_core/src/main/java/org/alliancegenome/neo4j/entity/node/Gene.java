@@ -34,7 +34,7 @@ public class Gene extends GeneticEntity implements Comparable<Gene> {
 		this.crossReferenceType = CrossReferenceType.GENE;
 	}
 
-	@JsonView({View.Orthology.class, View.Expression.class})
+	@JsonView({View.Homology.class, View.Expression.class})
 	private String taxonId;
 
 	@JsonView({View.GeneAPI.class})

@@ -16,17 +16,17 @@ import org.neo4j.ogm.annotation.StartNode;
 @RelationshipEntity(type = "PARALOGOUS")
 public class Paralogous extends Neo4jEntity {
 
-	@JsonView(View.Orthology.class)
+	@JsonView(View.Homology.class)
 	@StartNode
 	private Gene gene1;
-	@JsonView(View.Orthology.class)
+	@JsonView(View.Homology.class)
 	@EndNode
 	private Gene gene2;
 
 	private String primaryKey;
-	@JsonView(View.Orthology.class)
+	@JsonView(View.Homology.class)
 	private String isBestRevScore;
-	@JsonView(View.Orthology.class)
+	@JsonView(View.Homology.class)
 	private String isBestScore;
 	private String confidence;
 	private boolean moderateFilter;

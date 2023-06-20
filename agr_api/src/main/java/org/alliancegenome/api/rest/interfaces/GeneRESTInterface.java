@@ -390,7 +390,7 @@ public interface GeneRESTInterface {
 
 	@GET
 	@Path("/{id}/homologs")
-	@JsonView(value = {View.Orthology.class})
+	@JsonView(value = {View.Homology.class})
 	@Operation(summary = "Download homology records.")
 	JsonResultResponse<OrthologView> getGeneOrthology(
 		@Parameter(in = ParameterIn.PATH, name = "id", description = "Source Gene ID: the gene for which you are searching homologous gene, e.g. 'MGI:109583'", required = true, schema = @Schema(type = SchemaType.STRING))
@@ -412,7 +412,7 @@ public interface GeneRESTInterface {
 
 	@GET
 	@Path("/{id}/paralogs")
-	@JsonView(value = {View.Orthology.class})
+	@JsonView(value = {View.Homology.class})
 	@Operation(summary = "Download paralogy records.")
 	JsonResultResponse<OrthologView> getGeneParalogy(
 		@Parameter(in = ParameterIn.PATH, name = "id", description = "Source Gene ID: the gene for which you are searching homologous gene, e.g. 'MGI:109583'", required = true, schema = @Schema(type = SchemaType.STRING))
@@ -434,7 +434,7 @@ public interface GeneRESTInterface {
 
 	@GET
 	@Path("/{id}/homologs-with-expression")
-	@JsonView(value = {View.Orthology.class})
+	@JsonView(value = {View.Homology.class})
 	@Operation(summary = "Retrieve homologous gene records that have expression data")
 	JsonResultResponse<OrthologView> getGeneOrthologyWithExpression(
 		@Parameter(in = ParameterIn.PATH, name = "id", description = "Source Gene ID: the gene for which you are searching homologous gene, e.g. 'MGI:109583'", required = true, schema = @Schema(type = SchemaType.STRING))

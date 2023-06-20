@@ -37,7 +37,7 @@ public interface OrthologyRESTInterface {
 
 	@GET
 	@Path("/{taxonIDOne}/{taxonIDTwo}")
-	@JsonView(value = {View.Orthology.class})
+	@JsonView(value = {View.Homology.class})
 	@Operation(summary = "Retrieve homologous gene records for given pair of species")
 	@APIResponses(
 			value = {
@@ -67,7 +67,7 @@ public interface OrthologyRESTInterface {
 
 	@GET
 	@Path("/{taxonID}")
-	@JsonView(value = {View.Orthology.class})
+	@JsonView(value = {View.Homology.class})
 	@Operation(summary = "Retrieve homologous gene records for a given species")
 	JsonResultResponse<OrthologView> getSingleSpeciesOrthology(
 			@Parameter(in=ParameterIn.PATH, name = "taxonID", description = "Taxon ID for the gene: Could be the full ID, e.g. 'NCBITaxon:10090', or just the ID, i.e. '10090'. Alternatively, part of a species name uniquely identifying a single species, e.g. 'danio' or 'mus'.", required = true, schema = @Schema(type = SchemaType.STRING))
@@ -83,7 +83,7 @@ public interface OrthologyRESTInterface {
 
 	@GET
 	@Path("/species")
-	@JsonView(value = {View.Orthology.class})
+	@JsonView(value = {View.Homology.class})
 	JsonResultResponse<OrthologView> getMultiSpeciesOrthology(
 			@QueryParam("taxonID") List<String> taxonID,
 			@QueryParam("taxonIdList") String taxonIdList,
@@ -94,7 +94,7 @@ public interface OrthologyRESTInterface {
 
 	@GET
 	@Path("/geneMap")
-	@JsonView(value = {View.Orthology.class})
+	@JsonView(value = {View.Homology.class})
 	@Operation(summary = "Retrieve homologous gene records for given list of geneMap")
 	JsonResultResponse<OrthologView> getMultiGeneOrthology(
 			@Parameter(in=ParameterIn.QUERY, name =	 "geneID", description = "List of geneMap (specified by their ID) for which homology is retrieved, e.g. 'MGI:109583'", schema = @Schema(type = SchemaType.STRING))

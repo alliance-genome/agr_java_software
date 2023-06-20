@@ -35,7 +35,7 @@ public interface GenesRESTInterface {
 	@GET
 	@Path("/")
 	@Operation(summary = "Retrieve gene records")
-	@JsonView({View.Orthology.class})
+	@JsonView({View.Homology.class})
 	JsonResultResponse<Gene> getGenes(
 			//@ApiParam(name = "taxonID", value = "Species identifier: Could be the full ID, e.g. 'NCBITaxon:10090', or just the ID, i.e. '10090'. Alternatively, part of a species name uniquely identifying a single species, e.g. 'danio' or 'mus'.", type = "String")
 

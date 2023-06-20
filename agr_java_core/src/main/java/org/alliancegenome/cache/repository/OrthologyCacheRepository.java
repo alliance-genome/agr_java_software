@@ -307,11 +307,11 @@ public class OrthologyCacheRepository {
 	@Getter
 	public static class Response extends JsonResultResponse<OrthologView> {
 
-		@JsonView(View.Orthology.class)
+		@JsonView(View.Homology.class)
 		private List<OrthologView> results;
-		@JsonView(View.Orthology.class)
+		@JsonView(View.Homology.class)
 		private int total;
-		@JsonView(View.Orthology.class)
+		@JsonView(View.Homology.class)
 		private String errorMessage;
 	}
 }
