@@ -16,7 +16,7 @@ import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.node.OrthoAlgorithm;
 import org.alliancegenome.neo4j.repository.OrthologousRepository;
-import org.alliancegenome.neo4j.view.OrthologView;
+import org.alliancegenome.neo4j.view.HomologView;
 
 @RequestScoped
 public class OrthologyController implements OrthologyRESTInterface {
@@ -33,12 +33,12 @@ public class OrthologyController implements OrthologyRESTInterface {
 	private static OrthologousRepository orthoRepo = new OrthologousRepository();
 
 	@Override
-	public JsonResultResponse<OrthologView> getDoubleSpeciesOrthology(String taxonIDOne,
-																	  String taxonIDTwo,
-																	  String stringency,
-																	  String method,
-																	  Integer limit,
-																	  Integer page) {
+	public JsonResultResponse<HomologView> getDoubleSpeciesOrthology(String taxonIDOne,
+                                                                     String taxonIDTwo,
+                                                                     String stringency,
+                                                                     String method,
+                                                                     Integer limit,
+                                                                     Integer page) {
 
 		LocalDateTime startDate = LocalDateTime.now();
 		Pagination pagination = new Pagination(page, limit, null, null);
@@ -50,7 +50,7 @@ public class OrthologyController implements OrthologyRESTInterface {
 			throw new RestErrorException(message);
 		}
 
-		JsonResultResponse<OrthologView> response = service.getOrthologyByTwoSpecies(taxonIDOne, taxonIDTwo, pagination);
+		JsonResultResponse<HomologView> response = service.getOrthologyByTwoSpecies(taxonIDOne, taxonIDTwo, pagination);
 		response.calculateRequestDuration(startDate);
 		response.setApiVersion(API_VERSION);
 		response.setHttpServletRequest(null);
@@ -58,11 +58,11 @@ public class OrthologyController implements OrthologyRESTInterface {
 	}
 
 	@Override
-	public JsonResultResponse<OrthologView> getSingleSpeciesOrthology(String species,
-																	  String stringencyFilter,
-																	  String methods,
-																	  Integer limit,
-																	  Integer page) {
+	public JsonResultResponse<HomologView> getSingleSpeciesOrthology(String species,
+                                                                     String stringencyFilter,
+                                                                     String methods,
+                                                                     Integer limit,
+                                                                     Integer page) {
 		LocalDateTime startDate = LocalDateTime.now();
 		Pagination pagination = new Pagination(page, limit, null, null);
 		pagination.addFieldFilter(FieldFilter.STRINGENCY, stringencyFilter);
@@ -73,7 +73,7 @@ public class OrthologyController implements OrthologyRESTInterface {
 			throw new RestErrorException(message);
 		}
 
-		JsonResultResponse<OrthologView> response = service.getOrthologyBySpecies(species, pagination);
+		JsonResultResponse<HomologView> response = service.getOrthologyBySpecies(species, pagination);
 		response.calculateRequestDuration(startDate);
 		response.setApiVersion(API_VERSION);
 		response.setHttpServletRequest(null);
@@ -81,20 +81,20 @@ public class OrthologyController implements OrthologyRESTInterface {
 	}
 
 	@Override
-	public JsonResultResponse<OrthologView> getMultiSpeciesOrthology(List<String> taxonID, String taxonIdList, String stringencyFilter, String methods, Integer rows, Integer start) throws IOException {
-		JsonResultResponse<OrthologView> response = new JsonResultResponse<OrthologView>();
+	public JsonResultResponse<HomologView> getMultiSpeciesOrthology(List<String> taxonID, String taxonIdList, String stringencyFilter, String methods, Integer rows, Integer start) throws IOException {
+		JsonResultResponse<HomologView> response = new JsonResultResponse<HomologView>();
 		response.setNote("Not yet implemented");
 		response.setApiVersion(API_VERSION);
 		return response;
 	}
 
 	@Override
-	public JsonResultResponse<OrthologView> getMultiGeneOrthology(List<String> geneIDs,
-																  String geneList,
-																  String stringencyFilter,
-																  String method,
-																  Integer rows,
-																  Integer page) {
+	public JsonResultResponse<HomologView> getMultiGeneOrthology(List<String> geneIDs,
+                                                                 String geneList,
+                                                                 String stringencyFilter,
+                                                                 String method,
+                                                                 Integer rows,
+                                                                 Integer page) {
 		//controller.setRequest(request);
 		return controller.getGeneOrthology(null, geneIDs, geneList, stringencyFilter, null, method, rows, page);
 	}

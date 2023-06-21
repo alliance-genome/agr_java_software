@@ -21,7 +21,7 @@ import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.OrthoAlgorithm;
 import org.alliancegenome.neo4j.entity.node.OrthologyGeneJoin;
 import org.alliancegenome.neo4j.entity.relationship.Orthologous;
-import org.alliancegenome.neo4j.view.OrthologView;
+import org.alliancegenome.neo4j.view.HomologView;
 import org.alliancegenome.neo4j.view.OrthologyFilter;
 import org.alliancegenome.neo4j.view.OrthologyModule;
 import org.alliancegenome.neo4j.view.View;
@@ -115,15 +115,15 @@ public class OrthologyCacheRepository {
 		return matched;
 	}
 
-	public static JsonResultResponse<OrthologView> getOrthologViewList(Gene gene) {
+	public static JsonResultResponse<HomologView> getOrthologViewList(Gene gene) {
 		return getOrthologViewList(gene, new OrthologyFilter());
 	}
 
 
-	private static JsonResultResponse<OrthologView> getOrthologViewList(Gene gene, OrthologyFilter filter) {
-		JsonResultResponse<OrthologView> response = new JsonResultResponse<>();
+	private static JsonResultResponse<HomologView> getOrthologViewList(Gene gene, OrthologyFilter filter) {
+		JsonResultResponse<HomologView> response = new JsonResultResponse<>();
 		if (gene.getOrthologyGeneJoins().size() > 0) {
-			List<OrthologView> orthologList = new ArrayList<>();
+			List<HomologView> orthologList = new ArrayList<>();
 
 			HashMap<String, Orthologous> lookup = new HashMap<>();
 			gene.getOrthoGenes()
@@ -141,7 +141,7 @@ public class OrthologyCacheRepository {
 					.filter(join -> isAllMatchMethods(join, filter))
 					.forEach(join -> {
 						Orthologous ortho = lookup.get(join.getPrimaryKey());
-						OrthologView view = new OrthologView();
+						HomologView view = new HomologView();
 						//gene.setSpeciesName(ortho.getGene1().getSpecies() == null ? null : ortho.getGene1().getSpecies().getName());
 						view.setGene(gene);
 						//ortho.getGene2().setSpeciesName(ortho.getGene2().getSpecies() == null ? null : ortho.getGene2().getSpecies().getName());
@@ -178,21 +178,21 @@ public class OrthologyCacheRepository {
 		return unmatched.size() == 0;
 	}
 
-	public static JsonResultResponse<OrthologView> getOrthologyJson(Gene gene, OrthologyFilter filter) {
+	public static JsonResultResponse<HomologView> getOrthologyJson(Gene gene, OrthologyFilter filter) {
 		ObjectMapper mapper = JsonMapper.builder().configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false).build();
 		mapper.registerModule(new OrthologyModule());
-		JsonResultResponse<OrthologView> response = OrthologyCacheRepository.getOrthologViewList(gene, filter);
+		JsonResultResponse<HomologView> response = OrthologyCacheRepository.getOrthologViewList(gene, filter);
 		return response;
 	}
 
-	public JsonResultResponse<OrthologView> getOrthologyMultiGeneJson(List<String> geneIDs, Pagination pagination) {
+	public JsonResultResponse<HomologView> getOrthologyMultiGeneJson(List<String> geneIDs, Pagination pagination) {
 		long start = System.currentTimeMillis();
-		List<OrthologView> orthologViewList = repo.getAllParalogyGenes(geneIDs);
+		List<HomologView> homologViewList = repo.getAllParalogyGenes(geneIDs);
 		//filtering
-		FilterService<OrthologView> filterService = new FilterService<>(new OrthologyFiltering());
-		List<OrthologView> orthologViewFiltered = filterService.filterAnnotations(orthologViewList, pagination.getFieldFilterValueMap());
+		FilterService<HomologView> filterService = new FilterService<>(new OrthologyFiltering());
+		List<HomologView> homologViewFiltered = filterService.filterAnnotations(homologViewList, pagination.getFieldFilterValueMap());
 
-		List<OrthologView> paginatedViewFiltered = orthologViewFiltered.stream()
+		List<HomologView> paginatedViewFiltered = homologViewFiltered.stream()
 				.skip(pagination.getStart())
 				.limit(pagination.getLimit()).sorted(Comparator.comparing(o -> o.getHomologGene().getSpecies().getPhylogeneticOrder()))
 				.collect(Collectors.toList());
@@ -206,22 +206,22 @@ public class OrthologyCacheRepository {
 			putGeneInfo(map, orthologView.getGene());
 			putGeneInfo(map, orthologView.getHomologGene());
 		});
-		JsonResultResponse<OrthologView> response = new JsonResultResponse<>();
+		JsonResultResponse<HomologView> response = new JsonResultResponse<>();
 		response.setResults(paginatedViewFiltered);
-		response.setTotal(orthologViewFiltered.size());
+		response.setTotal(homologViewFiltered.size());
 		response.setSupplementalData(map);
 		response.calculateRequestDuration(start);
 		return response;
 	}
 
-	public JsonResultResponse<OrthologView> getParalogyMultiGeneJson(List<String> geneIDs, Pagination pagination) {
+	public JsonResultResponse<HomologView> getParalogyMultiGeneJson(List<String> geneIDs, Pagination pagination) {
 		long start = System.currentTimeMillis();
-		List<OrthologView> orthologViewList = repo.getAllParalogyGenes(geneIDs);
+		List<HomologView> homologViewList = repo.getAllParalogyGenes(geneIDs);
 		//filtering
-		FilterService<OrthologView> filterService = new FilterService<>(new OrthologyFiltering());
-		List<OrthologView> orthologViewFiltered = filterService.filterAnnotations(orthologViewList, pagination.getFieldFilterValueMap());
+		FilterService<HomologView> filterService = new FilterService<>(new OrthologyFiltering());
+		List<HomologView> homologViewFiltered = filterService.filterAnnotations(homologViewList, pagination.getFieldFilterValueMap());
 
-		List<OrthologView> paginatedViewFiltered = orthologViewFiltered.stream()
+		List<HomologView> paginatedViewFiltered = homologViewFiltered.stream()
 				.skip(pagination.getStart())
 				.limit(pagination.getLimit()).sorted(Comparator.comparing(o -> o.getHomologGene().getSpecies().getPhylogeneticOrder()))
 				.collect(Collectors.toList());
@@ -235,9 +235,9 @@ public class OrthologyCacheRepository {
 			putGeneInfo(map, orthologView.getGene());
 			putGeneInfo(map, orthologView.getHomologGene());
 		});
-		JsonResultResponse<OrthologView> response = new JsonResultResponse<>();
+		JsonResultResponse<HomologView> response = new JsonResultResponse<>();
 		response.setResults(paginatedViewFiltered);
-		response.setTotal(orthologViewFiltered.size());
+		response.setTotal(homologViewFiltered.size());
 		response.setSupplementalData(map);
 		response.calculateRequestDuration(start);
 		return response;
@@ -251,34 +251,34 @@ public class OrthologyCacheRepository {
 		map.put(gene.getPrimaryKey(), data);
 	}
 
-	public JsonResultResponse<OrthologView> getOrthologyGenes(List<String> geneIDList, OrthologyFilter orthoFilter) {
-		List<OrthologView> orthologViewList = repo.getAllOrthologyGenes(geneIDList);
-		List<OrthologView> filteredOrthologViewList = orthologViewList;
+	public JsonResultResponse<HomologView> getOrthologyGenes(List<String> geneIDList, OrthologyFilter orthoFilter) {
+		List<HomologView> homologViewList = repo.getAllOrthologyGenes(geneIDList);
+		List<HomologView> filteredHomologViewList = homologViewList;
 
 
 		if (orthoFilter.getStringency() != null && !orthoFilter.getStringency().equals(OrthologyFilter.Stringency.ALL)) {
-			filteredOrthologViewList = orthologViewList.stream()
+			filteredHomologViewList = homologViewList.stream()
 					.filter(orthologView -> orthologView.getStringencyFilter().equalsIgnoreCase(orthoFilter.getStringency().name()))
 					.collect(Collectors.toList());
 		}
 
-		JsonResultResponse<OrthologView> response = new JsonResultResponse<>();
-		response.setResults(filteredOrthologViewList);
-		response.setTotal(filteredOrthologViewList.size());
+		JsonResultResponse<HomologView> response = new JsonResultResponse<>();
+		response.setResults(filteredHomologViewList);
+		response.setTotal(filteredHomologViewList.size());
 		return response;
 	}
 
-	public JsonResultResponse<OrthologView> getOrthologyByTwoSpecies(String taxonIDOne, String taxonIDTwo, Pagination pagination) {
+	public JsonResultResponse<HomologView> getOrthologyByTwoSpecies(String taxonIDOne, String taxonIDTwo, Pagination pagination) {
 
 		final String taxonOne = SpeciesType.getTaxonId(taxonIDOne);
 		final String taxonTwo = SpeciesType.getTaxonId(taxonIDTwo);
 
-		List<OrthologView> orthologViewList = repo.getOrthologyBySpeciesSpecies(taxonOne, taxonTwo);
-		JsonResultResponse<OrthologView> response = new JsonResultResponse<>();
+		List<HomologView> homologViewList = repo.getOrthologyBySpeciesSpecies(taxonOne, taxonTwo);
+		JsonResultResponse<HomologView> response = new JsonResultResponse<>();
 
 		//filtering
-		FilterService<OrthologView> filterService = new FilterService<>(new OrthologyFiltering());
-		List<OrthologView> filteredOrthologyList = filterService.filterAnnotations(orthologViewList, pagination.getFieldFilterValueMap());
+		FilterService<HomologView> filterService = new FilterService<>(new OrthologyFiltering());
+		List<HomologView> filteredOrthologyList = filterService.filterAnnotations(homologViewList, pagination.getFieldFilterValueMap());
 		response.setTotal(filteredOrthologyList.size());
 
 		// sorting and pagination
@@ -286,16 +286,16 @@ public class OrthologyCacheRepository {
 		return response;
 	}
 
-	public JsonResultResponse<OrthologView> getOrthologyBySpecies(String taxonIDOne, Pagination pagination) {
+	public JsonResultResponse<HomologView> getOrthologyBySpecies(String taxonIDOne, Pagination pagination) {
 
 		final String taxonOne = SpeciesType.getTaxonId(taxonIDOne);
 
-		List<OrthologView> orthologViewList = repo.getOrthologyBySpecies(List.of(taxonOne));
-		JsonResultResponse<OrthologView> response = new JsonResultResponse<>();
+		List<HomologView> homologViewList = repo.getOrthologyBySpecies(List.of(taxonOne));
+		JsonResultResponse<HomologView> response = new JsonResultResponse<>();
 
 		//filtering
-		FilterService<OrthologView> filterService = new FilterService<>(new OrthologyFiltering());
-		List<OrthologView> filteredOrthologyList = filterService.filterAnnotations(orthologViewList, pagination.getFieldFilterValueMap());
+		FilterService<HomologView> filterService = new FilterService<>(new OrthologyFiltering());
+		List<HomologView> filteredOrthologyList = filterService.filterAnnotations(homologViewList, pagination.getFieldFilterValueMap());
 		response.setTotal(filteredOrthologyList.size());
 
 		// sorting and pagination
@@ -305,10 +305,10 @@ public class OrthologyCacheRepository {
 
 	@Setter
 	@Getter
-	public static class Response extends JsonResultResponse<OrthologView> {
+	public static class Response extends JsonResultResponse<HomologView> {
 
 		@JsonView(View.Homology.class)
-		private List<OrthologView> results;
+		private List<HomologView> results;
 		@JsonView(View.Homology.class)
 		private int total;
 		@JsonView(View.Homology.class)

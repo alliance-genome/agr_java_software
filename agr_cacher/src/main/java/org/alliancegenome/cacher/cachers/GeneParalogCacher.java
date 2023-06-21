@@ -5,7 +5,7 @@ import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.repository.GeneRepository;
-import org.alliancegenome.neo4j.view.OrthologView;
+import org.alliancegenome.neo4j.view.HomologView;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections4.map.MultiKeyMap;
@@ -47,11 +47,11 @@ public class GeneParalogCacher extends Cacher {
 		log.info("Total Number of Para Records: ", paralogousRecords);
 		startProcess("create geneList into cache", paralogousRecords);
 
-		List<OrthologView> allParalogy = new ArrayList<>();
+		List<HomologView> allParalogy = new ArrayList<>();
 		geneList.stream().filter(gene -> gene.getParaGenes() != null).forEach(gene -> {
-			Set<OrthologView> paralogySet = gene.getParaGenes().stream()
+			Set<HomologView> paralogySet = gene.getParaGenes().stream()
 					.map(paralogous -> {
-						OrthologView view = new OrthologView();
+						HomologView view = new HomologView();
 						view.setGene(gene);
 						view.setHomologGene(paralogous.getGene2());
 						view.setBest(paralogous.getIsBestScore());
@@ -79,7 +79,7 @@ public class GeneParalogCacher extends Cacher {
 		// get homology cache by species
 		
 		startProcess("allParalogy.stream - group By o.getGene().getTaxonId()");
-		Map<String, List<OrthologView>> map = allParalogy.stream()
+		Map<String, List<HomologView>> map = allParalogy.stream()
 				.collect(groupingBy(o -> o.getGene().getTaxonId()));
 		finishProcess();
 		
@@ -97,7 +97,7 @@ public class GeneParalogCacher extends Cacher {
 		geneRepository.clearCache();
 	}
 
-	private List<String> getPredictionNotCalled(OrthologView view) {
+	private List<String> getPredictionNotCalled(HomologView view) {
 		List<String> usedNames = view.getPredictionMethodsMatched() != null ? new ArrayList<>(view.getPredictionMethodsMatched()) : new ArrayList<>();
 		if (view.getPredictionMethodsNotMatched() != null)
 			usedNames.addAll(view.getPredictionMethodsNotMatched());

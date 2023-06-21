@@ -15,7 +15,7 @@ import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.repository.GeneRepository;
-import org.alliancegenome.neo4j.view.OrthologView;
+import org.alliancegenome.neo4j.view.HomologView;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections4.map.MultiKeyMap;
@@ -55,11 +55,11 @@ public class GeneOrthologCacher extends Cacher {
 		log.info("Total Number of Ortho Records: ", orthologousRecords);
 		startProcess("create geneList into cache", orthologousRecords);
 
-		List<OrthologView> allOrthology = new ArrayList<>();
+		List<HomologView> allOrthology = new ArrayList<>();
 		geneList.stream().filter(gene -> gene.getOrthoGenes() != null).forEach(gene -> {
-			Set<OrthologView> orthologySet = gene.getOrthoGenes().stream()
+			Set<HomologView> orthologySet = gene.getOrthoGenes().stream()
 					.map(orthologous -> {
-						OrthologView view = new OrthologView();
+						HomologView view = new HomologView();
 						view.setGene(gene);
 						view.setHomologGene(orthologous.getGene2());
 						view.setBest(orthologous.getIsBestScore());
@@ -87,7 +87,7 @@ public class GeneOrthologCacher extends Cacher {
 		// get homology cache by species
 		
 		startProcess("allOrthology.stream - group By o.getGene().getTaxonId()");
-		Map<String, List<OrthologView>> map = allOrthology.stream()
+		Map<String, List<HomologView>> map = allOrthology.stream()
 				.collect(groupingBy(o -> o.getGene().getTaxonId()));
 		finishProcess();
 		
@@ -115,7 +115,7 @@ public class GeneOrthologCacher extends Cacher {
 		setCacheStatus(status);
 
 		startProcess("allOrthology.stream - group By getSpeciesSpeciesID");
-		Map<String, List<OrthologView>> speciesToSpeciesMap = allOrthology.stream()
+		Map<String, List<HomologView>> speciesToSpeciesMap = allOrthology.stream()
 				.collect(groupingBy(this::getSpeciesSpeciesID));
 		finishProcess();
 		
@@ -139,11 +139,11 @@ public class GeneOrthologCacher extends Cacher {
 		geneRepository.clearCache();
 	}
 
-	public String getSpeciesSpeciesID(OrthologView o) {
+	public String getSpeciesSpeciesID(HomologView o) {
 		return o.getGene().getTaxonId() + ":" + o.getHomologGene().getTaxonId();
 	}
 
-	private List<String> getPredictionNotCalled(OrthologView view) {
+	private List<String> getPredictionNotCalled(HomologView view) {
 		List<String> usedNames = view.getPredictionMethodsMatched() != null ? new ArrayList<>(view.getPredictionMethodsMatched()) : new ArrayList<>();
 		if (view.getPredictionMethodsNotMatched() != null)
 			usedNames.addAll(view.getPredictionMethodsNotMatched());

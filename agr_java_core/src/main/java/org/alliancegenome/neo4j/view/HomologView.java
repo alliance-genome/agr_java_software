@@ -18,7 +18,7 @@ import lombok.Setter;
 @Getter
 @Schema(name="OrthologView", description="POJO that represents the Ortholog view")
 @JsonPropertyOrder({"gene", "homologGene", "best", "bestReverse", "stringencyFilter", "predictionMethodsMatched", "predictionMethodsNotMatched", "predictionMethodsNotCalled", "methodCount", "totalMethodCount"})
-public class OrthologView implements Serializable {
+public class HomologView implements Serializable {
 
 	@JsonView(View.Homology.class)
 	private Gene gene;
@@ -71,7 +71,7 @@ public class OrthologView implements Serializable {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		OrthologView that = (OrthologView) o;
+		HomologView that = (HomologView) o;
 		return best == that.best &&
 				bestReverse == that.bestReverse &&
 				Objects.equals(gene, that.gene) &&

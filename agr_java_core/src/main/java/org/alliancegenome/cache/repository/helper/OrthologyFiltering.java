@@ -1,14 +1,14 @@
 package org.alliancegenome.cache.repository.helper;
 
 import org.alliancegenome.es.model.query.FieldFilter;
-import org.alliancegenome.neo4j.view.OrthologView;
+import org.alliancegenome.neo4j.view.HomologView;
 import org.alliancegenome.neo4j.view.OrthologyFilter.Stringency;
 import org.apache.commons.collections.CollectionUtils;
 
-public class OrthologyFiltering extends AnnotationFiltering<OrthologView> {
+public class OrthologyFiltering extends AnnotationFiltering<HomologView> {
 
 
-    public FilterFunction<OrthologView, String> stringencyFilter =
+    public FilterFunction<HomologView, String> stringencyFilter =
             (orthologView, value) -> {
                 Stringency stringency = Stringency.getOrthologyFilter(value);
                 if (stringency == null)
@@ -23,7 +23,7 @@ public class OrthologyFiltering extends AnnotationFiltering<OrthologView> {
                 return false;
             };
 
-    public FilterFunction<OrthologView, String> methodFilter =
+    public FilterFunction<HomologView, String> methodFilter =
             (orthologView, value) -> {
                 if (CollectionUtils.isEmpty(orthologView.getPredictionMethodsMatched()))
                     return false;

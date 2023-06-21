@@ -11,7 +11,7 @@ import org.alliancegenome.neo4j.entity.*;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
-import org.alliancegenome.neo4j.view.OrthologView;
+import org.alliancegenome.neo4j.view.HomologView;
 import org.alliancegenome.neo4j.view.View;
 import org.alliancegenome.neo4j.view.View.GeneAPI;
 import org.alliancegenome.neo4j.view.View.GeneAlleleVariantSequenceAPI;
@@ -392,7 +392,7 @@ public interface GeneRESTInterface {
 	@Path("/{id}/homologs")
 	@JsonView(value = {View.Homology.class})
 	@Operation(summary = "Download homology records.")
-	JsonResultResponse<OrthologView> getGeneOrthology(
+	JsonResultResponse<HomologView> getGeneOrthology(
 		@Parameter(in = ParameterIn.PATH, name = "id", description = "Source Gene ID: the gene for which you are searching homologous gene, e.g. 'MGI:109583'", required = true, schema = @Schema(type = SchemaType.STRING))
 		@PathParam("id") String id,
 		@Parameter(in = ParameterIn.QUERY, name = "geneId", description = "List of additional source gene IDs for which homology is retrieved.", schema = @Schema(type = SchemaType.STRING))
@@ -414,7 +414,7 @@ public interface GeneRESTInterface {
 	@Path("/{id}/paralogs")
 	@JsonView(value = {View.Homology.class})
 	@Operation(summary = "Download paralogy records.")
-	JsonResultResponse<OrthologView> getGeneParalogy(
+	JsonResultResponse<HomologView> getGeneParalogy(
 		@Parameter(in = ParameterIn.PATH, name = "id", description = "Source Gene ID: the gene for which you are searching homologous gene, e.g. 'MGI:109583'", required = true, schema = @Schema(type = SchemaType.STRING))
 		@PathParam("id") String id,
 		@Parameter(in = ParameterIn.QUERY, name = "geneId", description = "List of additional source gene IDs for which homology is retrieved.", schema = @Schema(type = SchemaType.STRING))
@@ -436,7 +436,7 @@ public interface GeneRESTInterface {
 	@Path("/{id}/homologs-with-expression")
 	@JsonView(value = {View.Homology.class})
 	@Operation(summary = "Retrieve homologous gene records that have expression data")
-	JsonResultResponse<OrthologView> getGeneOrthologyWithExpression(
+	JsonResultResponse<HomologView> getGeneOrthologyWithExpression(
 		@Parameter(in = ParameterIn.PATH, name = "id", description = "Source Gene ID: the gene for which you are searching homologous gene, e.g. 'MGI:109583'", required = true, schema = @Schema(type = SchemaType.STRING))
 		@PathParam("id") String id,
 		@Parameter(in = ParameterIn.QUERY, name = "stringencyFilter", description = "apply stringency containsFilterdescription", schema = @Schema(type = SchemaType.STRING))

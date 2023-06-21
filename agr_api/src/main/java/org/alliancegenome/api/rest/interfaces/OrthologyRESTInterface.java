@@ -14,7 +14,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.neo4j.entity.node.OrthoAlgorithm;
-import org.alliancegenome.neo4j.view.OrthologView;
+import org.alliancegenome.neo4j.view.HomologView;
 import org.alliancegenome.neo4j.view.View;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.ParameterIn;
@@ -49,8 +49,8 @@ public interface OrthologyRESTInterface {
 							responseCode = "200",
 							description = "homologous gene records for given pair of species.",
 							content = @Content(mediaType = "application/json",
-									schema = @Schema(implementation = OrthologView.class))) })
-	JsonResultResponse<OrthologView> getDoubleSpeciesOrthology(
+									schema = @Schema(implementation = HomologView.class))) })
+	JsonResultResponse<HomologView> getDoubleSpeciesOrthology(
 			@Parameter(in=ParameterIn.PATH, name = "taxonIDOne", description = "Taxon ID for the first gene: Could be the full ID, e.g. 'NCBITaxon:10090', or just the ID, i.e. '10090'. Alternatively, part of a species name uniquely identifying a single species, e.g. 'danio' or 'mus'.", required = true, schema = @Schema(type = SchemaType.STRING))
 			@PathParam("taxonIDOne") String speciesOne,
 			@Parameter(in=ParameterIn.PATH, name = "taxonIDTwo", description = "Taxon ID for the second gene: Could be the full ID, e.g. 'NCBITaxon:10090', or just the ID, i.e. '10090'. Alternatively, part of a species name uniquely identifying a single species, e.g. 'danio' or 'mus'.", required = true, schema = @Schema(type = SchemaType.STRING))
@@ -69,7 +69,7 @@ public interface OrthologyRESTInterface {
 	@Path("/{taxonID}")
 	@JsonView(value = {View.Homology.class})
 	@Operation(summary = "Retrieve homologous gene records for a given species")
-	JsonResultResponse<OrthologView> getSingleSpeciesOrthology(
+	JsonResultResponse<HomologView> getSingleSpeciesOrthology(
 			@Parameter(in=ParameterIn.PATH, name = "taxonID", description = "Taxon ID for the gene: Could be the full ID, e.g. 'NCBITaxon:10090', or just the ID, i.e. '10090'. Alternatively, part of a species name uniquely identifying a single species, e.g. 'danio' or 'mus'.", required = true, schema = @Schema(type = SchemaType.STRING))
 			@PathParam("taxonID") String species,
 			@Parameter(in=ParameterIn.QUERY, name = "filter.stringency", description = "apply stringency containsFilterValue", schema = @Schema(type = SchemaType.STRING))
@@ -84,7 +84,7 @@ public interface OrthologyRESTInterface {
 	@GET
 	@Path("/species")
 	@JsonView(value = {View.Homology.class})
-	JsonResultResponse<OrthologView> getMultiSpeciesOrthology(
+	JsonResultResponse<HomologView> getMultiSpeciesOrthology(
 			@QueryParam("taxonID") List<String> taxonID,
 			@QueryParam("taxonIdList") String taxonIdList,
 			@QueryParam("stringencyFilter") String stringencyFilter,
@@ -96,7 +96,7 @@ public interface OrthologyRESTInterface {
 	@Path("/geneMap")
 	@JsonView(value = {View.Homology.class})
 	@Operation(summary = "Retrieve homologous gene records for given list of geneMap")
-	JsonResultResponse<OrthologView> getMultiGeneOrthology(
+	JsonResultResponse<HomologView> getMultiGeneOrthology(
 			@Parameter(in=ParameterIn.QUERY, name =	 "geneID", description = "List of geneMap (specified by their ID) for which homology is retrieved, e.g. 'MGI:109583'", schema = @Schema(type = SchemaType.STRING))
 			@QueryParam("geneID") List<String> geneID,
 			@Parameter(in=ParameterIn.QUERY, name = "geneIdList", description = "List of additional source gene IDs for which homology is retrieved in a comma-delimited list, e.g. 'MGI:109583,RGD:2129,MGI:97570", schema = @Schema(type = SchemaType.STRING))
