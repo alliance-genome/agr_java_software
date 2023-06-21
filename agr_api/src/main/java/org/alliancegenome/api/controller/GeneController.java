@@ -48,7 +48,7 @@ import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
-import org.alliancegenome.neo4j.view.OrthologView;
+import org.alliancegenome.neo4j.view.HomologView;
 import org.alliancegenome.neo4j.view.OrthologyFilter;
 import org.apache.commons.collections.CollectionUtils;
 
@@ -550,14 +550,14 @@ public class GeneController implements GeneRESTInterface {
 	}
 
 	@Override
-	public JsonResultResponse<OrthologView> getGeneOrthology(String id,
-															 List<String> geneIDs,
-															 String geneLister,
-															 String stringencyFilter,
-															 String taxonID,
-															 String method,
-															 Integer limit,
-															 Integer page) {
+	public JsonResultResponse<HomologView> getGeneOrthology(String id,
+															List<String> geneIDs,
+															String geneLister,
+															String stringencyFilter,
+															String taxonID,
+															String method,
+															Integer limit,
+															Integer page) {
 
 		List<String> geneList = new ArrayList<>();
 		if (id != null) {
@@ -574,14 +574,44 @@ public class GeneController implements GeneRESTInterface {
 		pagination.addFieldFilter(FieldFilter.STRINGENCY, stringencyFilter);
 		pagination.addFieldFilter(FieldFilter.ORTHOLOGY_METHOD, method);
 		pagination.addFieldFilter(FieldFilter.ORTHOLOGY_TAXON, taxonID);
-		final JsonResultResponse<OrthologView> response = orthologyService.getOrthologyMultiGeneJson(geneList, pagination);
+		final JsonResultResponse<HomologView> response = orthologyService.getOrthologyMultiGeneJson(geneList, pagination);
 		response.setHttpServletRequest(null);
 		return response;
 	}
 
 	@Override
-	public JsonResultResponse<OrthologView> getGeneOrthologyWithExpression(String id,
-																		   String stringencyFilter) {
+	public JsonResultResponse<HomologView> getGeneParalogy(String id,
+														   List<String> geneIDs,
+														   String geneLister,
+														   String stringencyFilter,
+														   String taxonID,
+														   String method,
+														   Integer limit,
+														   Integer page) {
+
+		List<String> geneList = new ArrayList<>();
+		if (id != null) {
+			geneList.add(id);
+		}
+		if (geneLister != null) {
+			List<String> ids = Arrays.asList(geneLister.split(","));
+			geneList.addAll(ids);
+		}
+		if (CollectionUtils.isNotEmpty(geneIDs)) {
+			geneList.addAll(geneIDs);
+		}
+		Pagination pagination = new Pagination(page, limit, null, null);
+		pagination.addFieldFilter(FieldFilter.STRINGENCY, stringencyFilter);
+		pagination.addFieldFilter(FieldFilter.ORTHOLOGY_METHOD, method);
+		pagination.addFieldFilter(FieldFilter.ORTHOLOGY_TAXON, taxonID);
+		final JsonResultResponse<HomologView> response = orthologyService.getParalogyMultiGeneJson(geneList, pagination);
+		response.setHttpServletRequest(null);
+		return response;
+	}
+
+	@Override
+	public JsonResultResponse<HomologView> getGeneOrthologyWithExpression(String id,
+																		  String stringencyFilter) {
 
 		long startTime = System.currentTimeMillis();
 		List<String> geneList = new ArrayList<>();
@@ -591,8 +621,8 @@ public class GeneController implements GeneRESTInterface {
 
 		OrthologyFilter orthologyFilter = new OrthologyFilter(stringencyFilter, null, null);
 		orthologyFilter.setStart(1);
-		JsonResultResponse<OrthologView> orthologs = orthologyCacheService.getOrthologyGenes(geneList, orthologyFilter);
-		List<OrthologView> filteredList = orthologs.getResults().stream()
+		JsonResultResponse<HomologView> orthologs = orthologyCacheService.getOrthologyGenes(geneList, orthologyFilter);
+		List<HomologView> filteredList = orthologs.getResults().stream()
 				.filter(orthologView -> expressionCacheRepository.hasExpression(orthologView.getHomologGene().getPrimaryKey()))
 				.sorted(Comparator.comparing(orthologView -> orthologView.getHomologGene().getSymbol().toLowerCase()))
 				.collect(Collectors.toList());

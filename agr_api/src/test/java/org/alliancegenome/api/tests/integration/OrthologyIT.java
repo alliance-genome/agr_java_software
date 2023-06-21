@@ -17,7 +17,7 @@ import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.repository.GeneRepository;
-import org.alliancegenome.neo4j.view.OrthologView;
+import org.alliancegenome.neo4j.view.HomologView;
 import org.apache.commons.collections4.map.MultiKeyMap;
 import org.hamcrest.Matchers;
 import org.junit.Test;
@@ -44,7 +44,7 @@ public class OrthologyIT {
 
 		Pagination pagination = new Pagination();
 		pagination.setLimit(10);
-		JsonResultResponse<OrthologView> response = service.getOrthologyMultiGeneJson(List.of("MGI:109583"), pagination);
+		JsonResultResponse<HomologView> response = service.getOrthologyMultiGeneJson(List.of("MGI:109583"), pagination);
 		assertNotNull(response);
 		assertTrue(response.getResults().stream().anyMatch(orthologView -> orthologView.getHomologGene().getPrimaryKey().equals("MGI:97490")));
 		assertThat(response.getTotal(), greaterThan(6));
@@ -60,7 +60,7 @@ public class OrthologyIT {
 	public void getSpeciesSpeciesOrthology() {
 		Pagination pagination = new Pagination();
 		pagination.setLimit(500);
-		JsonResultResponse<OrthologView> response = service.getOrthologyByTwoSpecies("NCBITaxon:7955", "NCBITaxon:10090", pagination);
+		JsonResultResponse<HomologView> response = service.getOrthologyByTwoSpecies("NCBITaxon:7955", "NCBITaxon:10090", pagination);
 		assertNotNull(response);
 		assertThat(response.getTotal(), greaterThan(86000));
 		// all source genes are ZFIN genes

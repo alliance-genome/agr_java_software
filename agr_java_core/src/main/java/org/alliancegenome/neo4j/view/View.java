@@ -9,8 +9,8 @@ public class View {
 
 	public static class API extends Default { }
 
-	public static class Orthology extends Default { }
-	public static class OrthologyCacher extends Orthology { }
+	public static class Homology extends Default { }
+	public static class OrthologyCacher extends Homology { }
 	public static class Cacher extends Default { }
 	public static class CacherDetail extends Cacher { }
 	public static class PhenotypeAPI extends API { }

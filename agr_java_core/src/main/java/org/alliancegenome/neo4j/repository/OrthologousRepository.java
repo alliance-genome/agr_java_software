@@ -14,7 +14,7 @@ import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.OrthoAlgorithm;
 import org.alliancegenome.neo4j.entity.relationship.Orthologous;
-import org.alliancegenome.neo4j.view.OrthologView;
+import org.alliancegenome.neo4j.view.HomologView;
 import org.alliancegenome.neo4j.view.OrthologyFilter;
 import org.neo4j.ogm.model.Result;
 
@@ -32,7 +32,7 @@ public class OrthologousRepository extends Neo4jRepository<Orthologous> {
 	}
 
 
-	public JsonResultResponse<OrthologView> getOrthologyByTwoSpecies(String speciesOne, String speciesTwo, OrthologyFilter filter) {
+	public JsonResultResponse<HomologView> getOrthologyByTwoSpecies(String speciesOne, String speciesTwo, OrthologyFilter filter) {
 
 		final String taxonOne = SpeciesType.getTaxonId(speciesOne);
 		final String taxonTwo = SpeciesType.getTaxonId(speciesTwo);
@@ -61,9 +61,9 @@ public class OrthologousRepository extends Neo4jRepository<Orthologous> {
 		recordQuery += COLLECT_DISTINCT_NOT_MATCHED + ", " + COLLECT_DISTINCT_NOT_CALLED + " order by g.symbol, gh.symbol ";
 		recordQuery += " SKIP " + (filter.getStart() - 1) + " limit " + filter.getRows();
 		Result result = queryForResult(recordQuery);
-		Set<OrthologView> orthologViews = new LinkedHashSet<>();
+		Set<HomologView> homologViews = new LinkedHashSet<>();
 		result.forEach(objectMap -> {
-			OrthologView view = new OrthologView();
+			HomologView view = new HomologView();
 			Gene gene = (Gene) objectMap.get("g");
 			//gene.setSpeciesName(SpeciesType.fromTaxonId(taxonOne).getName());
 			view.setGene(gene);
@@ -75,13 +75,13 @@ public class OrthologousRepository extends Neo4jRepository<Orthologous> {
 			view.setBestReverse(((List<Orthologous>) objectMap.get("collect(distinct ortho)")).get(0).getIsBestRevScore());
 
 			setPredictionInfo(objectMap, view);
-			orthologViews.add(view);
+			homologViews.add(view);
 		});
 
 		String countQuery = query + "return distinct g, gh";
 		Result count = queryForResult(countQuery);
-		JsonResultResponse<OrthologView> response = new JsonResultResponse<>();
-		response.setResults(new ArrayList<>(orthologViews));
+		JsonResultResponse<HomologView> response = new JsonResultResponse<>();
+		response.setResults(new ArrayList<>(homologViews));
 		List<Integer> counterSet = new ArrayList<>();
 		count.forEach(stringObjectMap -> counterSet.add(1));
 		response.setTotal(counterSet.size());
@@ -89,7 +89,7 @@ public class OrthologousRepository extends Neo4jRepository<Orthologous> {
 	}
 
 	// do the counts manually as the query does not return those values
-	private void setPredictionInfo(Map<String, Object> objectMap, OrthologView view) {
+	private void setPredictionInfo(Map<String, Object> objectMap, HomologView view) {
 		List<String> methodListNotMatched = getMethodList(objectMap, COLLECT_DISTINCT_NOT_MATCHED);
 		view.setPredictionMethodsNotMatched(methodListNotMatched);
 		List<String> methodListNotCalled = getMethodList(objectMap, COLLECT_DISTINCT_NOT_CALLED);

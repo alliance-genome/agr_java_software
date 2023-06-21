@@ -35,7 +35,7 @@ import org.alliancegenome.neo4j.entity.node.OrthoAlgorithm;
 import org.alliancegenome.neo4j.entity.node.Publication;
 import org.alliancegenome.neo4j.repository.AlleleRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
-import org.alliancegenome.neo4j.view.OrthologView;
+import org.alliancegenome.neo4j.view.HomologView;
 import org.alliancegenome.neo4j.view.OrthologyModule;
 import org.apache.commons.collections.CollectionUtils;
 import org.junit.Before;
@@ -98,7 +98,7 @@ public class GeneIT {
 
 		GeneController controller = new GeneController();
 		String[] geneIDs = {"RGD:2129"};
-		JsonResultResponse<OrthologView> response = controller.getGeneOrthology("MGI:109583", asList(geneIDs), null, "stringENT", null, null, 20, 1);
+		JsonResultResponse<HomologView> response = controller.getGeneOrthology("MGI:109583", asList(geneIDs), null, "stringENT", null, null, 20, 1);
 		assertThat("Matches found for containsFilterValue 'stringent", response.getTotal(), greaterThan(0));
 	}
 
@@ -106,7 +106,7 @@ public class GeneIT {
 	public void checkOrthologyForListOfGenes() {
 
 		GeneController controller = new GeneController();
-		JsonResultResponse<OrthologView> response = controller.getGeneOrthology("MGI:109583", null, null, "stringENT", null, null, 20, 1);
+		JsonResultResponse<HomologView> response = controller.getGeneOrthology("MGI:109583", null, null, "stringENT", null, null, 20, 1);
 		assertThat("Matches found for containsFilterValue 'stringent", response.getTotal(), greaterThan(0));
 	}
 
@@ -114,7 +114,7 @@ public class GeneIT {
 	public void checkOrthologyForSingleSpecies() throws IOException {
 
 		OrthologyController controller = new OrthologyController();
-		JsonResultResponse<OrthologView> response = controller.getSingleSpeciesOrthology("559292", "stringent", "OMA", 20, 1);
+		JsonResultResponse<HomologView> response = controller.getSingleSpeciesOrthology("559292", "stringent", "OMA", 20, 1);
 		assertThat("Orthology records found for mouse geneMap", response.getTotal(), greaterThan(0));
 	}
 
@@ -122,7 +122,7 @@ public class GeneIT {
 	public void checkOrthologyAPIWithSpecies() {
 
 		GeneController controller = new GeneController();
-		JsonResultResponse<OrthologView> response = controller.getGeneOrthology("MGI:109583", null, null, "stringent", null, null, 20, 1);
+		JsonResultResponse<HomologView> response = controller.getGeneOrthology("MGI:109583", null, null, "stringent", null, null, 20, 1);
 		assertThat("No matches found for species 'NCBITaxon:10115", response.getTotal(), greaterThan(5));
 
 		String taxonArray = "NCBITaxon:10116";
@@ -147,7 +147,7 @@ public class GeneIT {
 
 		GeneController controller = new GeneController();
 		String methods = "ZFIN";
-		JsonResultResponse<OrthologView> response = controller.getGeneOrthology("MGI:109583", null, null, null, null, methods, 20, 1);
+		JsonResultResponse<HomologView> response = controller.getGeneOrthology("MGI:109583", null, null, null, null, methods, 20, 1);
 		assertThat("No match against method 'ZFIN'", response.getTotal(), greaterThan(0));
 
 		methods = "OrthoFinder";
@@ -167,7 +167,7 @@ public class GeneIT {
 	public void checkOrthologyAPINoFilters() {
 
 		GeneController controller = new GeneController();
-		JsonResultResponse<OrthologView> response = controller.getGeneOrthology("MGI:109583", null, null, null, null, null, 20, 1);
+		JsonResultResponse<HomologView> response = controller.getGeneOrthology("MGI:109583", null, null, null, null, null, 20, 1);
 		assertThat("matches found for gene MGI:109583'", response.getTotal(), greaterThan(0));
 	}
 

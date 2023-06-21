@@ -9,7 +9,7 @@ import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.ECOTerm;
 import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
-import org.alliancegenome.neo4j.view.OrthologView;
+import org.alliancegenome.neo4j.view.HomologView;
 
 public enum CacheAlliance {
 
@@ -21,7 +21,8 @@ public enum CacheAlliance {
 	GENE_EXPRESSION(ExpressionDetail.class, (31586 * 100) + 1023787), // min: 791 max: 1023787 mean: 31586
 	GENE_PHENOTYPE(PhenotypeAnnotation.class, (12584 * 100) + 956783), // min: 507 max: 956783 mean: 12584
 	GENE_INTERACTION(InteractionGeneJoin.class, (134649 * 100) + 20188384), // min: 3354 max: 20188384 mean: 134649
-	GENE_ORTHOLOGY(OrthologView.class, (18912 * 100) + 2020141), // min: 905 max: 2020141 mean: 18912
+	GENE_ORTHOLOGY(HomologView.class, (18912 * 100) + 2020141), // min: 905 max: 2020141 mean: 18912
+	GENE_PARALOGY(HomologView.class, (18912 * 100) + 2020141), // min: 905 max: 2020141 mean: 18912
 	GENE_PURE_AGM_PHENOTYPE(PrimaryAnnotatedEntity.class, 10_000_000), // Need to run the stats on this cache
 	GENE_ASSOCIATION_MODEL_GENE(PrimaryAnnotatedEntity.class, (4073 * 100) + 1468636), // min: 492 max: 1468636 mean: 4073
 	//GENE_ALLELE(),
@@ -45,8 +46,9 @@ public enum CacheAlliance {
 	ECO_MAP(ECOTerm.class, (17 * 100000)), // min: 3 max: 250 mean: 17
 	CLOSURE_MAP(String.class, (127 * 10000)), // min: 12 max: 388 mean: 127
 
-	SPECIES_ORTHOLOGY(OrthologView.class, 1_000_000_000),
-	SPECIES_SPECIES_ORTHOLOGY(OrthologView.class, 1_000_000_000),
+	SPECIES_ORTHOLOGY(HomologView.class, 1_000_000_000),
+	SPECIES_SPECIES_ORTHOLOGY(HomologView.class, 1_000_000_000),
+	SPECIES_SPECIES_PARALOGY(HomologView.class, 1_000_000_000),
 
 	SITEMAP_GENE(String.class, (263483 * 100) + 280790), // min: 181157 max: 280790 mean: 263483
 	SITEMAP_ALLELE(String.class, (281158 * 100) + 418277), // min: 7364 max: 418277 mean: 281158

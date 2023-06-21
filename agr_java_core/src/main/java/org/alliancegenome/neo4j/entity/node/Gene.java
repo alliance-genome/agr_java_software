@@ -10,6 +10,7 @@ import org.alliancegenome.es.util.DateConverter;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
 import org.alliancegenome.neo4j.entity.relationship.Orthologous;
+import org.alliancegenome.neo4j.entity.relationship.Paralogous;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections4.CollectionUtils;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
@@ -33,7 +34,7 @@ public class Gene extends GeneticEntity implements Comparable<Gene> {
 		this.crossReferenceType = CrossReferenceType.GENE;
 	}
 
-	@JsonView({View.Orthology.class, View.Expression.class})
+	@JsonView({View.Homology.class, View.Expression.class})
 	private String taxonId;
 
 	@JsonView({View.GeneAPI.class})
@@ -71,6 +72,9 @@ public class Gene extends GeneticEntity implements Comparable<Gene> {
 
 	@Relationship(type = "ORTHOLOGOUS")
 	private List<Orthologous> orthoGenes;
+
+	@Relationship(type = "PARALOGOUS")
+	private List<Paralogous> paraGenes;
 
 	@Relationship(type = "ASSOCIATION")
 	@JsonView({View.GeneAPI.class, View.VariantAPI.class, View.AlleleAPI.class,View.AlleleVariantSequenceConverterForES.class})

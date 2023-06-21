@@ -19,7 +19,7 @@ import lombok.Setter;
 @Schema(name="Stage", description="POJO that represents the Stage")
 public class Stage extends Neo4jEntity implements Comparable<Stage> {
 
-	@JsonView({View.Orthology.class, View.Interaction.class, View.Expression.class})
+	@JsonView({View.Homology.class, View.Interaction.class, View.Expression.class})
 	@JsonProperty("stageID")
 	private String primaryKey;
 	@JsonView({View.Expression.class})
