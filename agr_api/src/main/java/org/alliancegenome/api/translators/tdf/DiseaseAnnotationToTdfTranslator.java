@@ -1,33 +1,24 @@
 package org.alliancegenome.api.translators.tdf;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.StringJoiner;
-import java.util.stream.Collectors;
-
 import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.translators.tdf.DiseaseDownloadRow;
 import org.alliancegenome.core.translators.tdf.DownloadHeader;
 import org.alliancegenome.curation_api.enums.CrossReferencePrefix;
-import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.GeneDiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.Reference;
+import org.alliancegenome.curation_api.model.entities.ExperimentalCondition;
+import org.alliancegenome.curation_api.model.entities.Note;
+import org.alliancegenome.curation_api.model.entities.*;
 import org.alliancegenome.curation_api.model.entities.base.CurieAuditedObject;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.CrossReference;
-import org.alliancegenome.neo4j.entity.node.ECOTerm;
 import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.GeneticEntity;
-import org.alliancegenome.neo4j.entity.node.PublicationJoin;
+import org.alliancegenome.neo4j.entity.node.*;
 import org.apache.commons.collections.CollectionUtils;
+
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class DiseaseAnnotationToTdfTranslator {
 
@@ -41,14 +32,26 @@ public class DiseaseAnnotationToTdfTranslator {
 			new DownloadHeader<>("Species Name", (DiseaseDownloadRow::getSpeciesName)),
 			new DownloadHeader<>("Gene ID", (DiseaseDownloadRow::getMainEntityID)),
 			new DownloadHeader<>("Gene Symbol", (DiseaseDownloadRow::getMainEntitySymbol)),
+			new DownloadHeader<>("Additional Implicated Gene ID", (DiseaseDownloadRow::getAdditionalImplicatedGeneSymbols)),
+			new DownloadHeader<>("Additional Implicated Gene Symbol", (DiseaseDownloadRow::getAdditionalImplicatedGeneIds)),
 			new DownloadHeader<>("Genetic Entity ID", (DiseaseDownloadRow::getGeneticEntityID)),
 			new DownloadHeader<>("Genetic Entity Name", (DiseaseDownloadRow::getGeneticEntityName)),
 			new DownloadHeader<>("Genetic Entity Type", (DiseaseDownloadRow::getGeneticEntityType)),
 			new DownloadHeader<>("Association", (DiseaseDownloadRow::getAssociation)),
+			new DownloadHeader<>("Disease Qualifier", (DiseaseDownloadRow::getDiseaseQualifier)),
 			new DownloadHeader<>("Disease ID", (DiseaseDownloadRow::getDiseaseID)),
 			new DownloadHeader<>("Disease Name", (DiseaseDownloadRow::getDiseaseName)),
 			new DownloadHeader<>("Evidence Code", (DiseaseDownloadRow::getEvidenceCode)),
+			new DownloadHeader<>("Evidence Code Abbreviation", (DiseaseDownloadRow::getEvidenceAbbreviation)),
 			new DownloadHeader<>("Evidence Code Name", (DiseaseDownloadRow::getEvidenceCodeName)),
+            new DownloadHeader<>("Experimental Conditions", (DiseaseDownloadRow::getExperimentalCondition)),
+            new DownloadHeader<>("Genetic Modifier Relation", (DiseaseDownloadRow::getDiseaseGeneticModifierRelation)),
+			new DownloadHeader<>("Genetic Modifier IDs", (DiseaseDownloadRow::getDiseaseGeneticModifierID)),
+			new DownloadHeader<>("Strain Background ID", (DiseaseDownloadRow::getStrainBackgroundID)),
+			new DownloadHeader<>("Strain Background Name", (DiseaseDownloadRow::getStrainBackgroundName)),
+			new DownloadHeader<>("Genetic Sex", (DiseaseDownloadRow::getGeneticSex)),
+			new DownloadHeader<>("Notes", (DiseaseDownloadRow::getNote)),
+			new DownloadHeader<>("Annotation Type", (DiseaseDownloadRow::getAnnotationType)),
 			new DownloadHeader<>("Based On ID", (DiseaseDownloadRow::getBasedOnID)),
 			new DownloadHeader<>("Based On Name", (DiseaseDownloadRow::getBasedOnName)),
 			new DownloadHeader<>("Source", (DiseaseDownloadRow::getSource)),
@@ -173,11 +176,23 @@ public class DiseaseAnnotationToTdfTranslator {
 			row.setGeneticEntityID(pAnnotation.getSubject().getCurie());
 			row.setGeneticEntityName(pAnnotation.getSubject().getName());
 			row.setGeneticEntityType(pAnnotation.getSubject().getSubtype().getName());
+			if (CollectionUtils.isNotEmpty(pAnnotation.getAssertedGenes())) {
+				row.setAssertedGeneID(pAnnotation.getAssertedGenes().stream().map(CurieAuditedObject::getCurie).collect(Collectors.joining("|")));
+				row.setAssertedGeneName(pAnnotation.getAssertedGenes().stream().map(gene -> gene.getGeneSymbol().getDisplayText()).collect(Collectors.joining("|")));
+			}
+
 		}
 		if (primaryAnnotation instanceof GeneDiseaseAnnotation) {
 			GeneDiseaseAnnotation pAnnotation = (GeneDiseaseAnnotation) primaryAnnotation;
 			row.setGeneticEntityID(pAnnotation.getSubject().getCurie());
 			row.setGeneticEntityName(pAnnotation.getSubject().getGeneSymbol().getDisplayText());
+			if (pAnnotation.getSgdStrainBackground() != null) {
+				row.setStrainBackgroundID(pAnnotation.getSgdStrainBackground().getCurie());
+				row.setStrainBackgroundName(pAnnotation.getSgdStrainBackground().getName());
+			}
+            if(pAnnotation.getDiseaseGeneticModifierRelation() != null) {
+                row.setDiseaseGeneticModifierRelation(pAnnotation.getDiseaseGeneticModifierRelation().getName());
+            }
 			row.setGeneticEntityType("gene");
 		}
 		if (primaryAnnotation instanceof AlleleDiseaseAnnotation) {
@@ -194,6 +209,28 @@ public class DiseaseAnnotationToTdfTranslator {
 		if (CollectionUtils.isNotEmpty(primaryAnnotation.getWith())) {
 			row.setBasedOnID(primaryAnnotation.getWith().stream().map(CurieAuditedObject::getCurie).collect(Collectors.joining("|")));
 			row.setBasedOnName(primaryAnnotation.getWith().stream().map(gene -> gene.getGeneSymbol().getDisplayText()).collect(Collectors.joining("|")));
+		}
+		if (primaryAnnotation.getGeneticSex() != null) {
+			row.setGeneticSex(primaryAnnotation.getGeneticSex().getName());
+		}
+		if (CollectionUtils.isNotEmpty(primaryAnnotation.getRelatedNotes())) {
+			row.setNote(primaryAnnotation.getRelatedNotes().stream().map(Note::getFreeText).collect(Collectors.joining("|")));
+		}
+		if (primaryAnnotation.getAnnotationType() != null) {
+			row.setAnnotationType(primaryAnnotation.getAnnotationType().getName());
+		}
+		if (CollectionUtils.isNotEmpty(primaryAnnotation.getDiseaseQualifiers())) {
+			row.setDiseaseQualifier(primaryAnnotation.getDiseaseQualifiers().stream().map(VocabularyTerm::getName).collect(Collectors.joining("|")));
+		}
+		if (CollectionUtils.isNotEmpty(primaryAnnotation.getDiseaseGeneticModifiers())) {
+			row.setDiseaseGeneticModifierID(primaryAnnotation.getDiseaseGeneticModifiers().stream().map(CurieAuditedObject::getCurie).collect(Collectors.joining("|")));
+			//row.setDiseaseGeneticModifierName(primaryAnnotation.getDiseaseGeneticModifiers().stream().map(BiologicalEntity::).collect(Collectors.joining("|")));
+		}
+		if (CollectionUtils.isNotEmpty(primaryAnnotation.getConditionRelations())) {
+			String condition = primaryAnnotation.getConditionRelations().stream().map(conditionRelation -> {
+				return conditionRelation.getConditionRelationType().getName() + ": " + conditionRelation.getConditions().stream().map(ExperimentalCondition::getConditionSummary).collect(Collectors.joining(";"));
+			}).collect(Collectors.joining("|"));
+			row.setExperimentalCondition(condition);
 		}
 	}
 
@@ -249,30 +286,32 @@ public class DiseaseAnnotationToTdfTranslator {
 			row.setSource(sourceProvider);
 		}
 */
+		StringJoiner evidenceJoiner = getStringJoiner(annotation, org.alliancegenome.curation_api.model.entities.ontology.ECOTerm::getCurie);
+		row.setEvidenceCode(evidenceJoiner.toString());
+
+		StringJoiner evidenceJoinerName = getStringJoiner(annotation, org.alliancegenome.curation_api.model.entities.ontology.ECOTerm::getName);
+		row.setEvidenceCodeName(evidenceJoinerName.toString());
+
+		StringJoiner evidenceJoinerabbreviation = getStringJoiner(annotation, org.alliancegenome.curation_api.model.entities.ontology.ECOTerm::getAbbreviation);
+		row.setEvidenceAbbreviation(evidenceJoinerabbreviation.toString());
+
+		StringJoiner additionalGeneIdsJoiner = new StringJoiner("|");
+		row.setAdditionalImplicatedGeneIds(additionalGeneIdsJoiner.toString());
+
+		return row;
+	}
+
+	private static StringJoiner getStringJoiner(GeneDiseaseAnnotationDocument annotation, Function<org.alliancegenome.curation_api.model.entities.ontology.ECOTerm, String> function) {
 		StringJoiner evidenceJoiner = new StringJoiner("|");
 		if (CollectionUtils.isNotEmpty(annotation.getEvidenceCodes())) {
 			Set<String> evidenceCodes = annotation.getEvidenceCodes()
 				.stream()
-				.map(org.alliancegenome.curation_api.model.entities.ontology.ECOTerm::getCurie)
+				.map(function)
 				.collect(Collectors.toSet());
 
 			evidenceCodes.forEach(evidenceJoiner::add);
 		}
-		row.setEvidenceCode(evidenceJoiner.toString());
-
-		StringJoiner evidenceJoinerName = new StringJoiner("|");
-		if (CollectionUtils.isNotEmpty(annotation.getEvidenceCodes())) {
-			Set<String> evidenceCodes = annotation.getEvidenceCodes()
-				.stream()
-				.map(org.alliancegenome.curation_api.model.entities.ontology.ECOTerm::getName)
-				.collect(Collectors.toSet());
-
-			evidenceCodes.forEach(evidenceJoinerName::add);
-		}
-		row.setEvidenceCodeName(evidenceJoinerName.toString());
-		//row.setReference(annotation.getSingleReference().getCurie());
-		//row.setDateAssigned(annotation.get);
-		return row;
+		return evidenceJoiner;
 	}
 
 	private DiseaseDownloadRow getBaseDownloadRow(DiseaseAnnotation annotation, PublicationJoin join, Gene homologousGene) {
