@@ -389,7 +389,7 @@ public interface GeneRESTInterface {
 
 
 	@GET
-	@Path("/{id}/homologs")
+	@Path("/{id}/orthologs")
 	@JsonView(value = {View.Homology.class})
 	@Operation(summary = "Download homology records.")
 	JsonResultResponse<HomologView> getGeneOrthology(
