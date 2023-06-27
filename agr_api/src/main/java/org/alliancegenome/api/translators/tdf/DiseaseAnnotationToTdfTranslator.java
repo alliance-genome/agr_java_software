@@ -214,7 +214,15 @@ public class DiseaseAnnotationToTdfTranslator {
 			row.setGeneticSex(primaryAnnotation.getGeneticSex().getName());
 		}
 		if (CollectionUtils.isNotEmpty(primaryAnnotation.getRelatedNotes())) {
-			row.setNote(primaryAnnotation.getRelatedNotes().stream().map(Note::getFreeText).collect(Collectors.joining("|")));
+			row.setNote(primaryAnnotation.getRelatedNotes().stream().map(note -> {
+				if(note.getNoteType().getName().equals("disease_note")){
+					return "Note: "+note.getFreeText();
+				}
+				if(note.getNoteType().getName().equals("disease_summary")){
+					return "Summary: "+note.getFreeText();
+				}
+				return "";
+			}).collect(Collectors.joining("|")));
 		}
 		if (primaryAnnotation.getAnnotationType() != null) {
 			row.setAnnotationType(primaryAnnotation.getAnnotationType().getName());
