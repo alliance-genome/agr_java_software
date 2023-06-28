@@ -10,9 +10,6 @@ public class DiseaseDownloadRow {
 	private String mainEntityID;
 	private String mainEntitySymbol;
 	private String entityType;
-
-	private String additionalImplicatedGeneIds;
-	private String additionalImplicatedGeneSymbols;
 	private String geneticEntityID;
 	private String geneticEntityName;
 	private String geneticEntityType;
@@ -39,6 +36,7 @@ public class DiseaseDownloadRow {
 	private String evidenceAbbreviation;
 	private String evidenceCodeName;
 	private String source;
+	private String sourceUrl;
 	private String reference;
 	private String dateAssigned;
 }
