@@ -203,9 +203,12 @@ public class DiseaseAnnotationToTdfTranslator {
 		}
 		row.setReference(getReferenceID(primaryAnnotation.getSingleReference()));
 		row.setSource(primaryAnnotation.getDataProviderString());
-		String urlTemplate = primaryAnnotation.getDataProvider().getCrossReference().getResourceDescriptorPage().getUrlTemplate();
-		urlTemplate = urlTemplate.replace("[%s]", primaryAnnotation.getDataProvider().getCrossReference().getReferencedCurie());
-		row.setSourceUrl(urlTemplate);
+		DataProvider dataProvider = primaryAnnotation.getDataProvider();
+		if(dataProvider != null && dataProvider.getCrossReference() != null) {
+			String urlTemplate = dataProvider.getCrossReference().getResourceDescriptorPage().getUrlTemplate();
+			urlTemplate = urlTemplate.replace("[%s]", dataProvider.getCrossReference().getReferencedCurie());
+			row.setSourceUrl(urlTemplate);
+		}
 		if (primaryAnnotation.getDateCreated() != null) {
 			row.setDateAssigned(primaryAnnotation.getDateCreated().toString());
 		}
