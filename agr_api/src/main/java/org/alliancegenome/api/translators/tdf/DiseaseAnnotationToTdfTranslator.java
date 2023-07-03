@@ -206,7 +206,7 @@ public class DiseaseAnnotationToTdfTranslator {
 		DataProvider dataProvider = primaryAnnotation.getDataProvider();
 		if(dataProvider != null && dataProvider.getCrossReference() != null) {
 			String urlTemplate = dataProvider.getCrossReference().getResourceDescriptorPage().getUrlTemplate();
-			urlTemplate = urlTemplate.replace("[%s]", dataProvider.getCrossReference().getReferencedCurie());
+			urlTemplate = urlTemplate.replace("[%s]", primaryAnnotation.getObject().getCurie());
 			row.setSourceUrl(urlTemplate);
 		}
 		if (primaryAnnotation.getDateCreated() != null) {
