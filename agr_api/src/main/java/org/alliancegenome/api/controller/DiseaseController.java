@@ -506,6 +506,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 															   String geneticEntity,
 															   String geneticEntityType,
 															   String associationType,
+															   String diseaseQualifier,
 															   String evidenceCode,
 															   String basedOnGeneSymbol,
 															   boolean includeNegation,
@@ -515,7 +516,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 		LocalDateTime startDate = LocalDateTime.now();
 		Response.ResponseBuilder responseBuilder;
 		try {
-			JsonResultResponse<GeneDiseaseAnnotationDocument> response = getDiseaseAnnotationsRibbonDetails(geneIDs, termID, null, filterSpecies, filterGene, filterReference, diseaseTerm, filterSource, geneticEntity, geneticEntityType, associationType, evidenceCode, basedOnGeneSymbol, includeNegation, 150000, 1, sortBy, asc);
+			JsonResultResponse<GeneDiseaseAnnotationDocument> response = getDiseaseAnnotationsRibbonDetails(geneIDs, termID, null, filterSpecies, filterGene, filterReference, diseaseTerm, filterSource, geneticEntity, geneticEntityType, associationType, diseaseQualifier, evidenceCode, basedOnGeneSymbol, includeNegation, 150000, 1, sortBy, asc);
 			response.setHttpServletRequest(null);
 			response.calculateRequestDuration(startDate);
 			// translate all records

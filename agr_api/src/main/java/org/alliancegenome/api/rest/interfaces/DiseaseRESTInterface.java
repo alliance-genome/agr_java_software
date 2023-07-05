@@ -420,6 +420,8 @@ public interface DiseaseRESTInterface {
 			@QueryParam("filter.geneticEntityType") String geneticEntityType,
 			@Parameter(in = ParameterIn.QUERY, name = "filter.associationType", description = "associationType", schema = @Schema(type = SchemaType.STRING))
 			@QueryParam("filter.associationType") String associationType,
+			@Parameter(in = ParameterIn.QUERY, name = "filter.diseaseQualifier", description = "diseaseQualifier", schema = @Schema(type = SchemaType.STRING))
+			@QueryParam("filter.diseaseQualifier") String diseaseQualifier,
 			@Parameter(in = ParameterIn.QUERY, name = "filter.evidenceCode", description = "evidenceCode", schema = @Schema(type = SchemaType.STRING))
 			@QueryParam("filter.evidenceCode") String evidenceCode,
 			@Parameter(in = ParameterIn.QUERY, name = "filter.basedOnGeneSymbol", description = "basedOnGeneSymbol", schema = @Schema(type = SchemaType.STRING))
