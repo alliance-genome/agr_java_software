@@ -46,6 +46,7 @@ public class DiseaseAnnotationToTdfTranslator {
             new DownloadHeader<>("Experimental Conditions", (DiseaseDownloadRow::getExperimentalCondition)),
             new DownloadHeader<>("Genetic Modifier Relation", (DiseaseDownloadRow::getDiseaseGeneticModifierRelation)),
 			new DownloadHeader<>("Genetic Modifier IDs", (DiseaseDownloadRow::getDiseaseGeneticModifierID)),
+			new DownloadHeader<>("Genetic Modifier Names", (DiseaseDownloadRow::getDiseaseGeneticModifierName)),
 			new DownloadHeader<>("Strain Background ID", (DiseaseDownloadRow::getStrainBackgroundID)),
 			new DownloadHeader<>("Strain Background Name", (DiseaseDownloadRow::getStrainBackgroundName)),
 			new DownloadHeader<>("Genetic Sex", (DiseaseDownloadRow::getGeneticSex)),
@@ -236,9 +237,22 @@ public class DiseaseAnnotationToTdfTranslator {
 		if (CollectionUtils.isNotEmpty(primaryAnnotation.getDiseaseQualifiers())) {
 			row.setDiseaseQualifier(primaryAnnotation.getDiseaseQualifiers().stream().map(VocabularyTerm::getName).collect(Collectors.joining("|")));
 		}
-		if (CollectionUtils.isNotEmpty(primaryAnnotation.getDiseaseGeneticModifiers())) {
-			row.setDiseaseGeneticModifierID(primaryAnnotation.getDiseaseGeneticModifiers().stream().map(CurieAuditedObject::getCurie).collect(Collectors.joining("|")));
-			//row.setDiseaseGeneticModifierName(primaryAnnotation.getDiseaseGeneticModifiers().stream().map(BiologicalEntity::).collect(Collectors.joining("|")));
+		List<BiologicalEntity> diseaseGeneticModifiers = primaryAnnotation.getDiseaseGeneticModifiers();
+		if (CollectionUtils.isNotEmpty(diseaseGeneticModifiers)) {
+			row.setDiseaseGeneticModifierID(diseaseGeneticModifiers.stream().map(CurieAuditedObject::getCurie).collect(Collectors.joining("|")));
+			StringJoiner joiner = new StringJoiner("|");
+			diseaseGeneticModifiers.forEach(entity -> {
+				if(entity instanceof org.alliancegenome.curation_api.model.entities.Gene gene){
+					joiner.add(gene.getGeneSymbol().getFormatText());
+				}
+				if(entity instanceof org.alliancegenome.curation_api.model.entities.Allele allele){
+					joiner.add(allele.getAlleleSymbol().getFormatText());
+				}
+				if(entity instanceof org.alliancegenome.curation_api.model.entities.AffectedGenomicModel model){
+					joiner.add(model.getName());
+				}
+			});
+			row.setDiseaseGeneticModifierName(joiner.toString());
 		}
 		if (CollectionUtils.isNotEmpty(primaryAnnotation.getConditionRelations())) {
 			String condition = primaryAnnotation.getConditionRelations().stream().map(conditionRelation -> {
