@@ -28,6 +28,7 @@ public class DiseaseAnnotationDocument extends SearchableItemDocument {
 	private Set<Reference> references;
 
 	private String diseaseRelationNegation;
+	private Set<String> diseaseQualifiers;
 	private Set<String> pubmedPubModIDs;
 	private Set<String> parentSlimIDs;
 	private List<DiseaseAnnotation> primaryAnnotations;

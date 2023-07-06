@@ -23,6 +23,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class DiseaseAnnotationCurationIndexer extends Indexer {
@@ -114,7 +115,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 					lookup.put(key, gdad);
 				}
 				gdad.setEvidenceCodes(da.getEvidenceCodes());
-				// gdad.setDataProvider(da.getDataProvider());
+				gdad.setDiseaseQualifiers(da.getDiseaseQualifiers().stream().map(term -> diseaseQualifierMapping.get(term.getName())).collect(Collectors.toSet()));
 				gdad.addReference(da.getSingleReference());
 				gdad.addPubMedPubModID(getPubmedPubModID(da.getSingleReference()));
 				gdad.addPrimaryAnnotation(da);
@@ -132,6 +133,17 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		ph.finishProcess();
 
 		return ret;
+	}
+
+	static Map<String, String> diseaseQualifierMapping = new HashMap<>();
+	static {
+	diseaseQualifierMapping.put("susceptibility", "susceptibility to");
+	diseaseQualifierMapping.put("disease_progression", "disease progression of");
+	diseaseQualifierMapping.put("severity", "severity of");
+	diseaseQualifierMapping.put("onset", "onset of");
+	diseaseQualifierMapping.put("sexual_dimorphism", "sexual dimorphism in");
+	diseaseQualifierMapping.put("resistance", "resistance to");
+	diseaseQualifierMapping.put("penetrance", "penetrance of");
 	}
 
 	private String getPubmedPubModID(Reference singleReference) {
