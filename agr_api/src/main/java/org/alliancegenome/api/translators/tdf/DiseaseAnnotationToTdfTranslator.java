@@ -314,19 +314,32 @@ public class DiseaseAnnotationToTdfTranslator {
 			row.setSource(sourceProvider);
 		}
 */
-		StringJoiner evidenceJoiner = getStringJoiner(annotation, org.alliancegenome.curation_api.model.entities.ontology.ECOTerm::getCurie);
+		StringJoiner evidenceJoiner = getStringJoiner(primaryAnnotation, org.alliancegenome.curation_api.model.entities.ontology.ECOTerm::getCurie);
 		row.setEvidenceCode(evidenceJoiner.toString());
 
-		StringJoiner evidenceJoinerName = getStringJoiner(annotation, org.alliancegenome.curation_api.model.entities.ontology.ECOTerm::getName);
+		StringJoiner evidenceJoinerName = getStringJoiner(primaryAnnotation, org.alliancegenome.curation_api.model.entities.ontology.ECOTerm::getName);
 		row.setEvidenceCodeName(evidenceJoinerName.toString());
 
-		StringJoiner evidenceJoinerabbreviation = getStringJoiner(annotation, org.alliancegenome.curation_api.model.entities.ontology.ECOTerm::getAbbreviation);
-		row.setEvidenceAbbreviation(evidenceJoinerabbreviation.toString());
+		StringJoiner evidenceJoinerAbbreviation = getStringJoiner(primaryAnnotation, org.alliancegenome.curation_api.model.entities.ontology.ECOTerm::getAbbreviation);
+		row.setEvidenceAbbreviation(evidenceJoinerAbbreviation.toString());
 
 		return row;
 	}
 
 	private static StringJoiner getStringJoiner(GeneDiseaseAnnotationDocument annotation, Function<org.alliancegenome.curation_api.model.entities.ontology.ECOTerm, String> function) {
+		StringJoiner evidenceJoiner = new StringJoiner("|");
+		if (CollectionUtils.isNotEmpty(annotation.getEvidenceCodes())) {
+			Set<String> evidenceCodes = annotation.getEvidenceCodes()
+				.stream()
+				.map(function)
+				.collect(Collectors.toSet());
+
+			evidenceCodes.forEach(evidenceJoiner::add);
+		}
+		return evidenceJoiner;
+	}
+
+	private static StringJoiner getStringJoiner(org.alliancegenome.curation_api.model.entities.DiseaseAnnotation annotation, Function<org.alliancegenome.curation_api.model.entities.ontology.ECOTerm, String> function) {
 		StringJoiner evidenceJoiner = new StringJoiner("|");
 		if (CollectionUtils.isNotEmpty(annotation.getEvidenceCodes())) {
 			Set<String> evidenceCodes = annotation.getEvidenceCodes()
