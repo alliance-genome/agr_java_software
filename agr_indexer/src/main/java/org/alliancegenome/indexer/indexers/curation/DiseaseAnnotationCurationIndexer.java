@@ -143,13 +143,13 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 
 	static Map<String, String> diseaseQualifierMapping = new HashMap<>();
 	static {
-	diseaseQualifierMapping.put("susceptibility", "susceptibility to");
-	diseaseQualifierMapping.put("disease_progression", "disease progression of");
-	diseaseQualifierMapping.put("severity", "severity of");
-	diseaseQualifierMapping.put("onset", "onset of");
-	diseaseQualifierMapping.put("sexual_dimorphism", "sexual dimorphism in");
-	diseaseQualifierMapping.put("resistance", "resistance to");
-	diseaseQualifierMapping.put("penetrance", "penetrance of");
+	diseaseQualifierMapping.put("susceptibility_to", "susceptibility to");
+	diseaseQualifierMapping.put("disease_progression_of", "disease progression of");
+	diseaseQualifierMapping.put("severity_of", "severity of");
+	diseaseQualifierMapping.put("onset_of", "onset of");
+	diseaseQualifierMapping.put("sexual_dimorphism_in", "sexual dimorphism in");
+	diseaseQualifierMapping.put("resistance_to", "resistance to");
+	diseaseQualifierMapping.put("penetrance_of", "penetrance of");
 	}
 
 	private String getPubmedPubModID(Reference singleReference) {
