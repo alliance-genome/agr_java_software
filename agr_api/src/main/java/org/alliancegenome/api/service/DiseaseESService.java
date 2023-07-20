@@ -90,7 +90,7 @@ public class DiseaseESService {
 		Map<String, String> aggregationFields = new HashMap<>();
 		aggregationFields.put("subject.taxon.name.keyword", "species");
 		aggregationFields.put("diseaseRelationNegation.keyword", "associationType");
-		aggregationFields.put("diseaseQualifier.keyword", "diseaseQualifier");
+		aggregationFields.put("diseaseQualifiers.keyword", "diseaseQualifiers");
 		Map<String, List<String>> distinctFieldValueMap = addAggregations(bool, aggregationFields);
 
 		HashMap<String, String> filterOptionMap = pagination.getFilterOptionMap();
