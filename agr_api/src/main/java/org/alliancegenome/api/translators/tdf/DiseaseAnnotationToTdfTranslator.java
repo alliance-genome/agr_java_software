@@ -43,8 +43,8 @@ public class DiseaseAnnotationToTdfTranslator {
 			new DownloadHeader<>("Evidence Code", (DiseaseDownloadRow::getEvidenceCode)),
 			new DownloadHeader<>("Evidence Code Abbreviation", (DiseaseDownloadRow::getEvidenceAbbreviation)),
 			new DownloadHeader<>("Evidence Code Name", (DiseaseDownloadRow::getEvidenceCodeName)),
-            new DownloadHeader<>("Experimental Conditions", (DiseaseDownloadRow::getExperimentalCondition)),
-            new DownloadHeader<>("Genetic Modifier Relation", (DiseaseDownloadRow::getDiseaseGeneticModifierRelation)),
+			new DownloadHeader<>("Experimental Conditions", (DiseaseDownloadRow::getExperimentalCondition)),
+			new DownloadHeader<>("Genetic Modifier Relation", (DiseaseDownloadRow::getDiseaseGeneticModifierRelation)),
 			new DownloadHeader<>("Genetic Modifier IDs", (DiseaseDownloadRow::getDiseaseGeneticModifierID)),
 			new DownloadHeader<>("Genetic Modifier Names", (DiseaseDownloadRow::getDiseaseGeneticModifierName)),
 			new DownloadHeader<>("Strain Background ID", (DiseaseDownloadRow::getStrainBackgroundID)),
@@ -199,13 +199,13 @@ public class DiseaseAnnotationToTdfTranslator {
 			row.setGeneticEntityName(pAnnotation.getSubject().getAlleleSymbol().getDisplayText());
 			row.setGeneticEntityType("Allele");
 		}
-		if(primaryAnnotation.getDiseaseGeneticModifierRelation() != null) {
+		if (primaryAnnotation.getDiseaseGeneticModifierRelation() != null) {
 			row.setDiseaseGeneticModifierRelation(primaryAnnotation.getDiseaseGeneticModifierRelation().getName());
 		}
 		row.setReference(getReferenceID(primaryAnnotation.getSingleReference()));
 		row.setSource(primaryAnnotation.getDataProviderString());
 		DataProvider dataProvider = primaryAnnotation.getDataProvider();
-		if(dataProvider != null && dataProvider.getCrossReference() != null) {
+		if (dataProvider != null && dataProvider.getCrossReference() != null) {
 			String urlTemplate = dataProvider.getCrossReference().getResourceDescriptorPage().getUrlTemplate();
 			urlTemplate = urlTemplate.replace("[%s]", dataProvider.getCrossReference().getReferencedCurie());
 			row.setSourceUrl(urlTemplate);
@@ -222,11 +222,11 @@ public class DiseaseAnnotationToTdfTranslator {
 		}
 		if (CollectionUtils.isNotEmpty(primaryAnnotation.getRelatedNotes())) {
 			row.setNote(primaryAnnotation.getRelatedNotes().stream().map(note -> {
-				if(note.getNoteType().getName().equals("disease_note")){
-					return "Note: "+note.getFreeText();
+				if (note.getNoteType().getName().equals("disease_note")) {
+					return "Note: " + note.getFreeText();
 				}
-				if(note.getNoteType().getName().equals("disease_summary")){
-					return "Summary: "+note.getFreeText();
+				if (note.getNoteType().getName().equals("disease_summary")) {
+					return "Summary: " + note.getFreeText();
 				}
 				return "";
 			}).collect(Collectors.joining("|")));
@@ -235,20 +235,21 @@ public class DiseaseAnnotationToTdfTranslator {
 			row.setAnnotationType(primaryAnnotation.getAnnotationType().getName());
 		}
 		if (CollectionUtils.isNotEmpty(primaryAnnotation.getDiseaseQualifiers())) {
-			row.setDiseaseQualifier(primaryAnnotation.getDiseaseQualifiers().stream().map(VocabularyTerm::getName).collect(Collectors.joining("|")));
+			row.setDiseaseQualifier(primaryAnnotation.getDiseaseQualifiers().stream()
+				.map(term -> term.getName().replace("_", " ")).collect(Collectors.joining("|")));
 		}
 		List<BiologicalEntity> diseaseGeneticModifiers = primaryAnnotation.getDiseaseGeneticModifiers();
 		if (CollectionUtils.isNotEmpty(diseaseGeneticModifiers)) {
 			row.setDiseaseGeneticModifierID(diseaseGeneticModifiers.stream().map(CurieAuditedObject::getCurie).collect(Collectors.joining("|")));
 			StringJoiner joiner = new StringJoiner("|");
 			diseaseGeneticModifiers.forEach(entity -> {
-				if(entity instanceof org.alliancegenome.curation_api.model.entities.Gene gene){
+				if (entity instanceof org.alliancegenome.curation_api.model.entities.Gene gene) {
 					joiner.add(gene.getGeneSymbol().getFormatText());
 				}
-				if(entity instanceof org.alliancegenome.curation_api.model.entities.Allele allele){
+				if (entity instanceof org.alliancegenome.curation_api.model.entities.Allele allele) {
 					joiner.add(allele.getAlleleSymbol().getFormatText());
 				}
-				if(entity instanceof org.alliancegenome.curation_api.model.entities.AffectedGenomicModel model){
+				if (entity instanceof org.alliancegenome.curation_api.model.entities.AffectedGenomicModel model) {
 					joiner.add(model.getName());
 				}
 			});
