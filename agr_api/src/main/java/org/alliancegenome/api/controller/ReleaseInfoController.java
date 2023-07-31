@@ -11,16 +11,16 @@ import org.alliancegenome.neo4j.entity.node.AllianceReleaseInfo;
 @RequestScoped
 public class ReleaseInfoController implements ReleaseInfoRESTInterface {
 
-    @Inject ReleaseInfoService releaseService;
+	@Inject ReleaseInfoService releaseService;
 
-    @Override
-    public AllianceReleaseInfo getReleaseInfo() {
-        return releaseService.getReleaseInfo();
-    }
+	@Override
+	public AllianceReleaseInfo getReleaseInfo() {
+		return releaseService.getReleaseInfo();
+	}
 
-    @Override
-    public ReleaseSummary getReleaseInfoSummary() {
-        return releaseService.getSummary();
-    }
+	@Override
+	public ReleaseSummary getReleaseInfoSummary() {
+		return releaseService.getSummary();
+	}
 
 }

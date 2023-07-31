@@ -326,7 +326,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 			"p2=(g)-[:FROM_SPECIES]-(gs:Species), " +
 			"p3=(gh)-[:FROM_SPECIES]-(ghs:Species), " +
 			"p5=(s)--(algorithm:OrthoAlgorithm) ";
-		query += " where g.taxonId = $speciesID and   gh.taxonId = $homologSpeciesID and ortho.strictFilter = $strict ";
+		query += " where g.taxonId = $speciesID and	  gh.taxonId = $homologSpeciesID and ortho.strictFilter = $strict ";
 		//query += "return g, ortho, gh, s, algorithm";
 		query += "return g";
 
