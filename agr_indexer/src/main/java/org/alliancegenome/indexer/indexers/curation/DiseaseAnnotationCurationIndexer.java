@@ -1,12 +1,29 @@
 package org.alliancegenome.indexer.indexers.curation;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.stream.Collectors;
+
 import org.alliancegenome.api.entity.AGMDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.curation_api.config.RestDefaultObjectMapper;
-import org.alliancegenome.curation_api.model.entities.*;
+import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.AffectedGenomicModel;
+import org.alliancegenome.curation_api.model.entities.Allele;
+import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.CrossReference;
+import org.alliancegenome.curation_api.model.entities.DiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.Gene;
+import org.alliancegenome.curation_api.model.entities.GeneDiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.Reference;
 import org.alliancegenome.es.index.site.doclet.SpeciesDoclet;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.config.IndexerConfig;
@@ -20,10 +37,9 @@ import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.stream.Collectors;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class DiseaseAnnotationCurationIndexer extends Indexer {
@@ -38,6 +54,17 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 	private Map<String, Pair<Gene, ArrayList<DiseaseAnnotation>>> geneMap = new HashMap<>();
 	private Map<String, Pair<Allele, ArrayList<DiseaseAnnotation>>> alleleMap = new HashMap<>();
 	private Map<String, Pair<AffectedGenomicModel, ArrayList<DiseaseAnnotation>>> agmMap = new HashMap<>();
+
+	static Map<String, String> diseaseQualifierMapping = new HashMap<>();
+	static {
+		diseaseQualifierMapping.put("susceptibility_to", "susceptibility to");
+		diseaseQualifierMapping.put("disease_progression_of", "disease progression of");
+		diseaseQualifierMapping.put("severity_of", "severity of");
+		diseaseQualifierMapping.put("onset_of", "onset of");
+		diseaseQualifierMapping.put("sexual_dimorphism_in", "sexual dimorphism in");
+		diseaseQualifierMapping.put("resistance_to", "resistance to");
+		diseaseQualifierMapping.put("penetrance_of", "penetrance of");
+	}
 
 	public DiseaseAnnotationCurationIndexer(IndexerConfig indexerConfig) {
 		super(indexerConfig);
@@ -90,7 +117,9 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 			for (DiseaseAnnotation da : entry.getValue().getRight()) {
 				String key = da.getDiseaseRelation().getName() + "_" + da.getObject().getName() + "_" + da.getNegated();
 				if (da.getWith() != null && da.getWith().size() > 0) {
-					key += "_" + da.getSingleReference().getCurie();
+					List<String> withIds = da.getWith().stream().map(Gene::getCurie).collect(Collectors.toList());
+					Collections.sort(withIds);
+					key += "_" + String.join("_", withIds);
 				}
 				GeneDiseaseAnnotationDocument gdad = lookup.get(key);
 
@@ -118,7 +147,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 				if(CollectionUtils.isNotEmpty(da.getDiseaseQualifiers())) {
 					log.info(gdad.getSubject().getCurie());
 					Set<String> diseaseQualifiers = da.getDiseaseQualifiers().stream().map(term -> diseaseQualifierMapping.get(term.getName())).collect(Collectors.toSet());
-					log.info("No. of qualifiers: "+diseaseQualifiers.size());
+					log.info("No. of qualifiers: " + diseaseQualifiers.size());
 					gdad.setDiseaseQualifiers(diseaseQualifiers);
 					log.info(gdad.getDiseaseQualifiers().iterator().next());
 				}
@@ -139,17 +168,6 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		ph.finishProcess();
 
 		return ret;
-	}
-
-	static Map<String, String> diseaseQualifierMapping = new HashMap<>();
-	static {
-	diseaseQualifierMapping.put("susceptibility_to", "susceptibility to");
-	diseaseQualifierMapping.put("disease_progression_of", "disease progression of");
-	diseaseQualifierMapping.put("severity_of", "severity of");
-	diseaseQualifierMapping.put("onset_of", "onset of");
-	diseaseQualifierMapping.put("sexual_dimorphism_in", "sexual dimorphism in");
-	diseaseQualifierMapping.put("resistance_to", "resistance to");
-	diseaseQualifierMapping.put("penetrance_of", "penetrance of");
 	}
 
 	private String getPubmedPubModID(Reference singleReference) {
