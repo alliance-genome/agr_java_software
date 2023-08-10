@@ -24,6 +24,7 @@ import org.alliancegenome.curation_api.model.entities.DiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.Gene;
 import org.alliancegenome.curation_api.model.entities.GeneDiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.Reference;
+import org.alliancegenome.curation_api.model.entities.VocabularyTerm;
 import org.alliancegenome.es.index.site.doclet.SpeciesDoclet;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.config.IndexerConfig;
@@ -115,7 +116,13 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 			HashMap<String, GeneDiseaseAnnotationDocument> lookup = new HashMap<>();
 
 			for (DiseaseAnnotation da : entry.getValue().getRight()) {
-				String key = da.getDiseaseRelation().getName() + "_" + da.getObject().getName() + "_" + da.getNegated();
+				
+				VocabularyTerm diseaseRelation = vocabService.getVocabularyTerm("is_implicated_in");
+				if (da instanceof GeneDiseaseAnnotation) {
+					diseaseRelation = da.getDiseaseRelation();
+				}
+
+				String key = diseaseRelation.getName() + "_" + da.getObject().getName() + "_" + da.getNegated();
 				if (da.getWith() != null && da.getWith().size() > 0) {
 					List<String> withIds = da.getWith().stream().map(Gene::getCurie).collect(Collectors.toList());
 					Collections.sort(withIds);
@@ -132,11 +139,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 						order = type.getOrderID();
 					}
 					gdad.setPhylogeneticSortingIndex(order);
-					if (da instanceof AGMDiseaseAnnotation || da instanceof AlleleDiseaseAnnotation) {
-						gdad.setDiseaseRelation(vocabService.getVocabularyTerm("is_implicated_in"));
-					} else {
-						gdad.setDiseaseRelation(da.getDiseaseRelation());
-					}
+					gdad.setDiseaseRelation(diseaseRelation);
 					String diseaseRelationNegation = getDiseaseRelationNegation(gdad.getDiseaseRelation().getName(), da.getNegated());
 					gdad.setDiseaseRelationNegation(diseaseRelationNegation);
 					gdad.setObject(da.getObject());
