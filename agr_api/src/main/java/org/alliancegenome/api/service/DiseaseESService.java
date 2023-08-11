@@ -73,7 +73,7 @@ public class DiseaseESService {
 	private static final GeneDiseaseSearchHelper geneDiseaseSearchHelper = new GeneDiseaseSearchHelper();
 
 	// termID may be used in the future when converting disease page to new ES stack.
-	public JsonResultResponse<GeneDiseaseAnnotationDocument> getRibbonDiseaseAnnotations(String focusTaxonIdId, List<String> geneIDs, String termID, Pagination pagination, boolean excludeNegated) {
+	public JsonResultResponse<GeneDiseaseAnnotationDocument> getRibbonDiseaseAnnotations(String focusTaxonId, List<String> geneIDs, String termID, Pagination pagination, boolean excludeNegated) {
 
 		BoolQueryBuilder bool = boolQuery();
 		BoolQueryBuilder bool2 = boolQuery();
@@ -105,7 +105,7 @@ public class DiseaseESService {
 		aggregationFields.put("subject.taxon.name.keyword", "species");
 		aggregationFields.put("diseaseRelationNegation.keyword", "associationType");
 		aggregationFields.put("diseaseQualifiers.keyword", "diseaseQualifiers");
-		Map<String, List<String>> distinctFieldValueMap = addAggregations(bool, aggregationFields, focusTaxonIdId);
+		Map<String, List<String>> distinctFieldValueMap = addAggregations(bool, aggregationFields, focusTaxonId);
 
 		HashMap<String, String> filterOptionMap = pagination.getFilterOptionMap();
 		if (MapUtils.isNotEmpty(filterOptionMap)) {
@@ -117,7 +117,7 @@ public class DiseaseESService {
 		List<AggregationBuilder> aggBuilders = new ArrayList<>();
 		HighlightBuilder hlb = new HighlightBuilder();
 	
-		SpeciesType type = SpeciesType.getTypeByID(focusTaxonIdId);
+		SpeciesType type = SpeciesType.getTypeByID(focusTaxonId);
 		HashMap<String, SortOrder> sorts = new HashMap<>();
 		if(type != null) {
 			sorts.put("speciesOrder." + type.getTaxonIDPart(), SortOrder.ASC);
@@ -172,7 +172,7 @@ public class DiseaseESService {
 		//Log.info(bool);
 	}
 
-	private Map<String, List<String>> addAggregations(BoolQueryBuilder bool, Map<String, String> aggregationFields, String focusTaxonIdId) {
+	private Map<String, List<String>> addAggregations(BoolQueryBuilder bool, Map<String, String> aggregationFields, String focusTaxonId) {
 		Map<String, List<String>> distinctFieldValueMap = new HashMap<>();
 		List<AggregationBuilder> aggBuilders = new ArrayList<>();
 		aggregationFields.forEach((field, colName) -> {
@@ -183,7 +183,7 @@ public class DiseaseESService {
 			aggBuilders.add(aggregationBuilder);
 		});
 		
-		SpeciesType type = SpeciesType.getTypeByID(focusTaxonIdId);
+		SpeciesType type = SpeciesType.getTypeByID(focusTaxonId);
 		HashMap<String, SortOrder> sorts = new HashMap<>();
 		if(type != null) {
 			sorts.put("speciesOrder." + type.getTaxonIDPart(), SortOrder.ASC);

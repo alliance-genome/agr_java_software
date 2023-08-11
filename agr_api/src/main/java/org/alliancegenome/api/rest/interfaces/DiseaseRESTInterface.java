@@ -354,8 +354,8 @@ public interface DiseaseRESTInterface {
 	@Path("")
 	@Operation(summary = "Retrieve all disease annotations of a given set of genes")
 	JsonResultResponse<GeneDiseaseAnnotationDocument> getDiseaseAnnotationsRibbonDetails(
-			@Parameter(in = ParameterIn.QUERY, name = "focusTaxonIdId", description = "Focus Taxon ID", required = true)
-			@QueryParam("focusTaxonIdId") String focusTaxonIdId,
+			@Parameter(in = ParameterIn.QUERY, name = "focusTaxonId", description = "Focus Taxon ID", required = true)
+			@QueryParam("focusTaxonId") String focusTaxonId,
 			@Parameter(in = ParameterIn.QUERY, name = "geneID", description = "Gene by ID", required = true)
 			@QueryParam("geneID") List<String> geneIDs,
 			@Parameter(in = ParameterIn.QUERY, name = "termID", description = "Term ID by which rollup should happen")
@@ -402,8 +402,8 @@ public interface DiseaseRESTInterface {
 	@JsonView(value = {View.DiseaseAnnotation.class})
 	@Operation(summary = "Download all disease annotations of a given set of genes")
 	Response getDiseaseAnnotationsRibbonDetailsDownload(
-			@Parameter(in = ParameterIn.QUERY, name = "focusTaxonIdId", description = "Focus Taxon ID", required = true)
-			@QueryParam("focusTaxonIdId") String focusTaxonIdId,
+			@Parameter(in = ParameterIn.QUERY, name = "focusTaxonId", description = "Focus Taxon ID", required = true)
+			@QueryParam("focusTaxonId") String focusTaxonId,
 			@Parameter(in = ParameterIn.QUERY, name = "geneID", description = "Gene by ID", required = true)
 			@QueryParam("geneID") List<String> geneIDs,
 			@Parameter(in = ParameterIn.QUERY, name = "termID", description = "Term ID by which rollup should happen")
