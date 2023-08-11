@@ -1,11 +1,24 @@
 package org.alliancegenome.api.service;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import io.quarkus.logging.Log;
+import static java.util.stream.Collectors.toList;
+import static org.alliancegenome.cache.repository.helper.JsonResultResponse.DISTINCT_FIELD_VALUES;
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
+import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+
 import org.alliancegenome.api.entity.DiseaseEntitySubgroupSlim;
 import org.alliancegenome.api.entity.DiseaseRibbonEntity;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
@@ -15,6 +28,7 @@ import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.api.service.DiseaseRibbonService;
 import org.alliancegenome.es.index.site.dao.SearchDAO;
 import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.SimpleTerm;
@@ -35,15 +49,15 @@ import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
+import org.elasticsearch.search.sort.SortOrder;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import java.util.*;
-import java.util.stream.Collectors;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
-import static java.util.stream.Collectors.toList;
-import static org.alliancegenome.cache.repository.helper.JsonResultResponse.DISTINCT_FIELD_VALUES;
-import static org.elasticsearch.index.query.QueryBuilders.*;
+import io.quarkus.logging.Log;
 
 
 @RequestScoped
@@ -59,7 +73,7 @@ public class DiseaseESService {
 	private static final GeneDiseaseSearchHelper geneDiseaseSearchHelper = new GeneDiseaseSearchHelper();
 
 	// termID may be used in the future when converting disease page to new ES stack.
-	public JsonResultResponse<GeneDiseaseAnnotationDocument> getRibbonDiseaseAnnotations(List<String> geneIDs, String termID, Pagination pagination, boolean excludeNegated) {
+	public JsonResultResponse<GeneDiseaseAnnotationDocument> getRibbonDiseaseAnnotations(String focusTaxonIdId, List<String> geneIDs, String termID, Pagination pagination, boolean excludeNegated) {
 
 		BoolQueryBuilder bool = boolQuery();
 		BoolQueryBuilder bool2 = boolQuery();
@@ -91,7 +105,7 @@ public class DiseaseESService {
 		aggregationFields.put("subject.taxon.name.keyword", "species");
 		aggregationFields.put("diseaseRelationNegation.keyword", "associationType");
 		aggregationFields.put("diseaseQualifiers.keyword", "diseaseQualifiers");
-		Map<String, List<String>> distinctFieldValueMap = addAggregations(bool, aggregationFields);
+		Map<String, List<String>> distinctFieldValueMap = addAggregations(bool, aggregationFields, focusTaxonIdId);
 
 		HashMap<String, String> filterOptionMap = pagination.getFilterOptionMap();
 		if (MapUtils.isNotEmpty(filterOptionMap)) {
@@ -102,9 +116,17 @@ public class DiseaseESService {
 
 		List<AggregationBuilder> aggBuilders = new ArrayList<>();
 		HighlightBuilder hlb = new HighlightBuilder();
+	
+		SpeciesType type = SpeciesType.getTypeByID(focusTaxonIdId);
+		HashMap<String, SortOrder> sorts = new HashMap<>();
+		if(type != null) {
+			sorts.put("speciesOrder." + type.getTaxonIDPart(), SortOrder.ASC);
+		}
+		sorts.put("object.name.sort", SortOrder.ASC);
+		
 		SearchResponse searchResponse = searchDAO.performQuery(
 			bool, aggBuilders, null, geneDiseaseSearchHelper.getResponseFields(),
-			pagination.getLimit(), pagination.getOffset(), hlb, "diseaseAnnotation", false);
+			pagination.getLimit(), pagination.getOffset(), hlb, sorts, false);
 
 		JsonResultResponse<GeneDiseaseAnnotationDocument> ret = new JsonResultResponse<>();
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
@@ -150,7 +172,7 @@ public class DiseaseESService {
 		//Log.info(bool);
 	}
 
-	private Map<String, List<String>> addAggregations(BoolQueryBuilder bool, Map<String, String> aggregationFields) {
+	private Map<String, List<String>> addAggregations(BoolQueryBuilder bool, Map<String, String> aggregationFields, String focusTaxonIdId) {
 		Map<String, List<String>> distinctFieldValueMap = new HashMap<>();
 		List<AggregationBuilder> aggBuilders = new ArrayList<>();
 		aggregationFields.forEach((field, colName) -> {
@@ -160,9 +182,17 @@ public class DiseaseESService {
 			aggregationBuilder.field(field);
 			aggBuilders.add(aggregationBuilder);
 		});
+		
+		SpeciesType type = SpeciesType.getTypeByID(focusTaxonIdId);
+		HashMap<String, SortOrder> sorts = new HashMap<>();
+		if(type != null) {
+			sorts.put("speciesOrder." + type.getTaxonIDPart(), SortOrder.ASC);
+		}
+		sorts.put("object.name.sort", SortOrder.ASC);
+		
 		SearchResponse searchResponseHistogram = searchDAO.performQuery(
 			bool, aggBuilders, null, geneDiseaseSearchHelper.getResponseFields(),
-			0, 0, new HighlightBuilder(), "diseaseAnnotation", false);
+			0, 0, new HighlightBuilder(), sorts, false);
 
 		aggregationFields.forEach((field, colName) -> {
 			String fieldNameAgg = field + "_agg";

@@ -2,6 +2,7 @@ package org.alliancegenome.api.entity;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -32,6 +33,8 @@ public class DiseaseAnnotationDocument extends SearchableItemDocument {
 	private Set<String> pubmedPubModIDs;
 	private Set<String> parentSlimIDs;
 	private List<DiseaseAnnotation> primaryAnnotations;
+	
+	private HashMap<String, Integer> speciesOrder;
 
 	public DiseaseAnnotationDocument() {
 		primaryAnnotations = new ArrayList<>();

@@ -25,7 +25,6 @@ import org.alliancegenome.curation_api.model.entities.Gene;
 import org.alliancegenome.curation_api.model.entities.GeneDiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.Reference;
 import org.alliancegenome.curation_api.model.entities.VocabularyTerm;
-import org.alliancegenome.es.index.site.doclet.SpeciesDoclet;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
@@ -133,12 +132,8 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 				if (gdad == null) {
 					gdad = new GeneDiseaseAnnotationDocument();
 					gdad.setSubject(entry.getValue().getLeft());
-					SpeciesType type = SpeciesType.getTypeByID(entry.getValue().getLeft().getTaxon().getCurie());
-					int order = 100;
-					if (type != null) {
-						order = type.getOrderID();
-					}
-					gdad.setPhylogeneticSortingIndex(order);
+					HashMap<String, Integer> order = SpeciesType.getSpeciesOrderByTaxonID(entry.getValue().getLeft().getTaxon().getCurie());
+					gdad.setSpeciesOrder(order);
 					gdad.setDiseaseRelation(diseaseRelation);
 					String diseaseRelationNegation = getDiseaseRelationNegation(gdad.getDiseaseRelation().getName(), da.getNegated());
 					gdad.setDiseaseRelationNegation(diseaseRelationNegation);
@@ -157,12 +152,6 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 				gdad.addReference(da.getSingleReference());
 				gdad.addPubMedPubModID(getPubmedPubModID(da.getSingleReference()));
 				gdad.addPrimaryAnnotation(da);
-				SpeciesDoclet doc = SpeciesType.fromTaxonId(entry.getValue().getLeft().getTaxon().getCurie());
-				if (doc != null) {
-					gdad.setPhylogeneticSortingIndex(doc.getOrderID());
-				} else {
-					gdad.setPhylogeneticSortingIndex(100);
-				}
 			}
 			ph.progressProcess();
 			ret.addAll(lookup.values());
@@ -208,12 +197,8 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 
 				if (adad == null) {
 					adad = new AlleleDiseaseAnnotationDocument();
-					SpeciesType type = SpeciesType.getTypeByID(entry.getValue().getLeft().getTaxon().getCurie());
-					int order = 100;
-					if (type != null) {
-						order = type.getOrderID();
-					}
-					adad.setPhylogeneticSortingIndex(order);
+					HashMap<String, Integer> order = SpeciesType.getSpeciesOrderByTaxonID(entry.getValue().getLeft().getTaxon().getCurie());
+					adad.setSpeciesOrder(order);
 					adad.setSubject(entry.getValue().getLeft());
 					adad.setDiseaseRelation(da.getDiseaseRelation());
 					adad.setObject(da.getObject());
@@ -251,12 +236,8 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 
 				if (adad == null) {
 					adad = new AGMDiseaseAnnotationDocument();
-					SpeciesType type = SpeciesType.getTypeByID(entry.getValue().getLeft().getTaxon().getCurie());
-					int order = 100;
-					if (type != null) {
-						order = type.getOrderID();
-					}
-					adad.setPhylogeneticSortingIndex(order);
+					HashMap<String, Integer> order = SpeciesType.getSpeciesOrderByTaxonID(entry.getValue().getLeft().getTaxon().getCurie());
+					adad.setSpeciesOrder(order);
 					adad.setSubject(entry.getValue().getLeft());
 					adad.setDiseaseRelation(da.getDiseaseRelation());
 					adad.setObject(da.getObject());
@@ -281,7 +262,6 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 			Gene gene = da.getSubject();
 			Pair<Gene, ArrayList<DiseaseAnnotation>> pair = geneMap.computeIfAbsent(gene.getCurie(), geneCurie -> Pair.of(gene, new ArrayList<>()));
 			pair.getRight().add(da);
-
 		}
 	}
 

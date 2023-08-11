@@ -1,7 +1,9 @@
 package org.alliancegenome.es.index.site.dao;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.index.ESDAO;
@@ -54,11 +56,10 @@ public class SearchDAO extends ESDAO {
 			List<String> responseFields,
 			int limit, int offset,
 			HighlightBuilder highlighter,
-			String sort, Boolean debug) {
+			HashMap<String, SortOrder> sorts, Boolean debug) {
 
 
 		SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-
 
 		searchSourceBuilder.fetchSource(responseFields.toArray(new String[responseFields.size()]), null);
 
@@ -75,16 +76,13 @@ public class SearchDAO extends ESDAO {
 		searchSourceBuilder.from(offset);
 		searchSourceBuilder.trackTotalHits(true);
 
-		if(sort != null && sort.equals("alphabetical")) {
-			searchSourceBuilder.sort("name.keyword", SortOrder.ASC);
-		}
-		if(sort != null && sort.equals("diseaseAnnotation")) {
-			searchSourceBuilder.sort("phylogeneticSortingIndex", SortOrder.ASC);
-			searchSourceBuilder.sort("object.name.sort", SortOrder.ASC);
+		if(sorts != null) {
+			for(Entry<String, SortOrder> entry: sorts.entrySet()) {
+				searchSourceBuilder.sort(entry.getKey(), entry.getValue());
+			}
 		}
 
 		searchSourceBuilder.highlighter(highlighter);
-
 
 		for(AggregationBuilder aggBuilder: aggBuilders) {
 			searchSourceBuilder.aggregation(aggBuilder);

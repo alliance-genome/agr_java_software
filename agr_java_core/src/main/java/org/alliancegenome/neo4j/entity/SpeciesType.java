@@ -16,15 +16,15 @@ import lombok.extern.slf4j.Slf4j;
 @Getter
 @AllArgsConstructor
 public enum SpeciesType {
-	HUMAN("Homo sapiens", "HUMAN", "NCBITaxon:9606", "Hsa", "HUMAN", "Human", "9606", 0, "GRCh38"),
-	RAT("Rattus norvegicus", "RGD", "NCBITaxon:10116", "Rno", "RGD", "Rat Genome Database", "10116", 1, "Rnor_6.0"),
-	MOUSE("Mus musculus", "MGI", "NCBITaxon:10090", "Mmu", "MGD", "Mouse Genome Database", "10090", 2, "GRCm38"),
-	AFRCLAWFROG("Xenopus laevis", "XBXL", "NCBITaxon:8355", "Xla", "XB", "Xenbase", "8355", 3, "XL9.2"),
-	WESTCLAWFROG("Xenopus tropicalis", "XBXT", "NCBITaxon:8364", "Xtr", "XB", "Xenbase", "8364", 4, "XT9.1"),
-	ZEBRAFISH("Danio rerio", "ZFIN", "NCBITaxon:7955", "Dre", "ZFIN", "Zebrafish Information Network", "7955", 5, "GRCz11"),
-	FLY("Drosophila melanogaster", "FB", "NCBITaxon:7227", "Dme", "FB", "Fly Base", "7227", 6, "R6"),
-	WORM("Caenorhabditis elegans", "WB", "NCBITaxon:6239", "Cel", "WB", "Worm Base", "6239", 7, "WBcel235"),
-	YEAST("Saccharomyces cerevisiae", "SGD", "NCBITaxon:559292", "Sce", "SGD", "Saccharomyces Genome Database", "559292", 8, "R64-2-1"),
+	HUMAN("Homo sapiens", "HUMAN", "NCBITaxon:9606", "Hsa", "HUMAN", "Human", "9606", 1, "GRCh38"),
+	RAT("Rattus norvegicus", "RGD", "NCBITaxon:10116", "Rno", "RGD", "Rat Genome Database", "10116", 2, "Rnor_6.0"),
+	MOUSE("Mus musculus", "MGI", "NCBITaxon:10090", "Mmu", "MGD", "Mouse Genome Database", "10090", 3, "GRCm38"),
+	AFRCLAWFROG("Xenopus laevis", "XBXL", "NCBITaxon:8355", "Xla", "XB", "Xenbase", "8355", 4, "XL9.2"),
+	WESTCLAWFROG("Xenopus tropicalis", "XBXT", "NCBITaxon:8364", "Xtr", "XB", "Xenbase", "8364", 5, "XT9.1"),
+	ZEBRAFISH("Danio rerio", "ZFIN", "NCBITaxon:7955", "Dre", "ZFIN", "Zebrafish Information Network", "7955", 6, "GRCz11"),
+	FLY("Drosophila melanogaster", "FB", "NCBITaxon:7227", "Dme", "FB", "Fly Base", "7227", 7, "R6"),
+	WORM("Caenorhabditis elegans", "WB", "NCBITaxon:6239", "Cel", "WB", "Worm Base", "6239", 8, "WBcel235"),
+	YEAST("Saccharomyces cerevisiae", "SGD", "NCBITaxon:559292", "Sce", "SGD", "Saccharomyces Genome Database", "559292", 9, "R64-2-1"),
 	COVID(
 			"SARS-CoV-2", // Must be the same as the DB due to lookup from the database
 			"Severe acute respiratory syndrome coronavirus 2", // not sure where display Name is used?
@@ -32,7 +32,7 @@ public enum SpeciesType {
 			"SARS-CoV-2", // Up for change?
 			"COVID", // Up for change?
 			"Severe acute respiratory syndrome coronavirus 2", // Mod name?
-			"2697049", 9, null);
+			"2697049", 10, null);
 
 	private String name;
 	private String displayName;
@@ -120,7 +120,13 @@ public enum SpeciesType {
 				.map(SpeciesType::getTaxonID)
 				.collect(Collectors.toList());
 	}
-
+	
+	public static List<String> getAllTaxonIDPartList() {
+		return List.of(values()).stream()
+				.map(SpeciesType::getTaxonIDPart)
+				.collect(Collectors.toList());
+	}
+	
 	public static String getNameByID(String taxonID) {
 		return List.of(values()).stream()
 				.filter(species -> species.taxonID.equals(taxonID))
@@ -163,4 +169,19 @@ public enum SpeciesType {
 			return typeByName.getTaxonID();
 		return species;
 	}
+
+	public static HashMap<String, Integer> getSpeciesOrderByTaxonID(String taxonId) {
+
+		SpeciesType type = getTypeByID(taxonId);
+		
+		HashMap<String, Integer> map = new HashMap<>();
+		for(SpeciesType species: values()) {
+			map.put(species.taxonIDPart, type.getOrderID());
+		}
+		taxonId = taxonId.replace(NCBITAXON, "");
+		map.put(taxonId, 0);
+
+		return map;
+	}
+
 }

@@ -9,6 +9,7 @@ import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -39,6 +40,7 @@ import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.rescore.QueryRescorerBuilder;
+import org.elasticsearch.search.sort.SortOrder;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -70,8 +72,13 @@ public class SearchService {
 		List<AggregationBuilder> aggBuilders = searchHelper.createAggBuilder(category, biotypeSelected(filterMap));
 
 		HighlightBuilder hlb = searchHelper.buildHighlights();
+		
+		HashMap<String, SortOrder> sorts = new HashMap<>();
+		if(sort_by != null && sort_by.length() > 0) {
+			sorts.put(sort_by, SortOrder.ASC);
+		}
 
-		SearchResponse searchResponse = searchDAO.performQuery(query, aggBuilders, rescorerBuilder, searchHelper.getResponseFields(), limit, offset, hlb, sort_by, debug);
+		SearchResponse searchResponse = searchDAO.performQuery(query, aggBuilders, rescorerBuilder, searchHelper.getResponseFields(), limit, offset, hlb, sorts, debug);
 
 		if(debug != null && debug) {
 			log.info("Search Query: " + q);
