@@ -16,6 +16,7 @@ public class DiseaseDownloadRow {
 	private String speciesID;
 	private String speciesName;
 	private String association;
+	private String geneticEntityAssociation;
 	private String assertedGeneID;
 	private String assertedGeneName;
 	private String diseaseQualifier;
