@@ -33,10 +33,11 @@ public class DiseaseAnnotationToTdfTranslator {
 			new DownloadHeader<>("Gene Symbol", (DiseaseDownloadRow::getMainEntitySymbol)),
 			new DownloadHeader<>("Additional Implicated Gene ID", (DiseaseDownloadRow::getAssertedGeneID)),
 			new DownloadHeader<>("Additional Implicated Gene Symbol", (DiseaseDownloadRow::getAssertedGeneName)),
+			new DownloadHeader<>("Association", (DiseaseDownloadRow::getAssociation)),
 			new DownloadHeader<>("Genetic Entity ID", (DiseaseDownloadRow::getGeneticEntityID)),
 			new DownloadHeader<>("Genetic Entity Name", (DiseaseDownloadRow::getGeneticEntityName)),
 			new DownloadHeader<>("Genetic Entity Type", (DiseaseDownloadRow::getGeneticEntityType)),
-			new DownloadHeader<>("Association", (DiseaseDownloadRow::getAssociation)),
+			new DownloadHeader<>("Genetic Entity Association", (DiseaseDownloadRow::getGeneticEntityAssociation)),
 			new DownloadHeader<>("Disease Qualifier", (DiseaseDownloadRow::getDiseaseQualifier)),
 			new DownloadHeader<>("Disease ID", (DiseaseDownloadRow::getDiseaseID)),
 			new DownloadHeader<>("Disease Name", (DiseaseDownloadRow::getDiseaseName)),
@@ -220,6 +221,7 @@ public class DiseaseAnnotationToTdfTranslator {
 		if (primaryAnnotation.getGeneticSex() != null) {
 			row.setGeneticSex(primaryAnnotation.getGeneticSex().getName());
 		}
+		row.setGeneticEntityAssociation(primaryAnnotation.getDiseaseRelation().getName());
 		if (CollectionUtils.isNotEmpty(primaryAnnotation.getRelatedNotes())) {
 			row.setNote(primaryAnnotation.getRelatedNotes().stream().map(note -> {
 				if (note.getNoteType().getName().equals("disease_note")) {
