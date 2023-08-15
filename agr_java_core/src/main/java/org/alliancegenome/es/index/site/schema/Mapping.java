@@ -118,7 +118,7 @@ public class Mapping extends Builder {
 		
 		//new FieldBuilder(builder, "speciesOrder", "nested").build();
 		for(SpeciesType type: SpeciesType.values()) {
-			new FieldBuilder(builder, "speciesOrder." + type.getTaxonIDPart(), "text").keyword().sort().build();
+			new FieldBuilder(builder, "speciesOrder." + type.getTaxonIDPart(), "text").sort().build();
 		}
 		
 //		  new FieldBuilder(builder, "stage", "text").keyword().build();
