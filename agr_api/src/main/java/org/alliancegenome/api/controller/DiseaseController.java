@@ -300,7 +300,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 	}
 
 	@Override
-	public JsonResultResponse<GeneDiseaseAnnotationDocument> getDiseaseAnnotationsRibbonDetails(String focusTaxonId, List<String> geneIDs, String termID, String filterOptions, String filterSpecies,	 String filterGene, String filterReference, String diseaseTerm, String filterSource, String geneticEntity, String geneticEntityType, String associationType, String diseaseQualifier,  String evidenceCode, String basedOnGeneSymbol, boolean includeNegation, Integer limit, Integer page, String sortBy, String asc) {
+	public JsonResultResponse<GeneDiseaseAnnotationDocument> getDiseaseAnnotationsRibbonDetails(String focusTaxonId, List<String> geneIDs, String termID, String filterOptions, String filterSpecies,	 String filterGene, String filterReference, String diseaseTerm, String filterSource, String geneticEntity, String geneticEntityType, String associationType, String diseaseQualifier,  String evidenceCode, String basedOnGeneSymbol, Boolean includeNegation, Boolean debug, Integer limit, Integer page, String sortBy, String asc) {
 
 		LocalDateTime startDate = LocalDateTime.now();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
@@ -331,7 +331,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 			throw new RestErrorException(message);
 		}
 		try {
-			JsonResultResponse<GeneDiseaseAnnotationDocument> response = diseaseESService.getRibbonDiseaseAnnotations(focusTaxonId, geneIDs, termID, pagination, !includeNegation);
+			JsonResultResponse<GeneDiseaseAnnotationDocument> response = diseaseESService.getRibbonDiseaseAnnotations(focusTaxonId, geneIDs, termID, pagination, !includeNegation, debug);
 			response.setHttpServletRequest(null);
 			response.calculateRequestDuration(startDate);
 			return response;
@@ -344,12 +344,12 @@ public class DiseaseController implements DiseaseRESTInterface {
 	}
 
 	@Override
-	public Response getDiseaseAnnotationsRibbonDetailsDownload(String focusTaxonId, List<String> geneIDs, String termID, String filterSpecies, String filterGene, String filterReference, String diseaseTerm, String filterSource, String geneticEntity, String geneticEntityType, String associationType, String diseaseQualifier, String evidenceCode, String basedOnGeneSymbol, boolean includeNegation, String sortBy, String asc) {
+	public Response getDiseaseAnnotationsRibbonDetailsDownload(String focusTaxonId, List<String> geneIDs, String termID, String filterSpecies, String filterGene, String filterReference, String diseaseTerm, String filterSource, String geneticEntity, String geneticEntityType, String associationType, String diseaseQualifier, String evidenceCode, String basedOnGeneSymbol, Boolean includeNegation, Boolean debug, String sortBy, String asc) {
 
 		LocalDateTime startDate = LocalDateTime.now();
 		Response.ResponseBuilder responseBuilder;
 		try {
-			JsonResultResponse<GeneDiseaseAnnotationDocument> response = getDiseaseAnnotationsRibbonDetails(focusTaxonId, geneIDs, termID, null, filterSpecies, filterGene, filterReference, diseaseTerm, filterSource, geneticEntity, geneticEntityType, associationType, diseaseQualifier, evidenceCode, basedOnGeneSymbol, includeNegation, 150000, 1, sortBy, asc);
+			JsonResultResponse<GeneDiseaseAnnotationDocument> response = getDiseaseAnnotationsRibbonDetails(focusTaxonId, geneIDs, termID, null, filterSpecies, filterGene, filterReference, diseaseTerm, filterSource, geneticEntity, geneticEntityType, associationType, diseaseQualifier, evidenceCode, basedOnGeneSymbol, includeNegation, debug, 150000, 1, sortBy, asc);
 			response.setHttpServletRequest(null);
 			response.calculateRequestDuration(startDate);
 			// translate all records

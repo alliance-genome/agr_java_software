@@ -1,13 +1,30 @@
 package org.alliancegenome.api.rest.interfaces;
 
-import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import java.io.IOException;
+import java.util.List;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+
 import org.alliancegenome.api.dto.ExpressionSummary;
 import org.alliancegenome.api.dto.JoinTypeValue;
 import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.neo4j.entity.*;
+import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
+import org.alliancegenome.neo4j.entity.DiseaseSummary;
+import org.alliancegenome.neo4j.entity.EntitySummary;
+import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
+import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
@@ -26,13 +43,8 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-import java.io.IOException;
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 @Path("/gene")
 @Tag(name = "Genes")
@@ -566,7 +578,9 @@ public interface GeneRESTInterface {
 		@Parameter(in = ParameterIn.QUERY, name = "geneID", description = "additional orthologous genes", required = true)
 		@QueryParam("geneID") List<String> geneIDs,
 		@Parameter(in = ParameterIn.QUERY, name = "includeNegation", description = "include negated annotations", schema = @Schema(type = SchemaType.STRING))
-		@DefaultValue("false") @QueryParam("includeNegation") Boolean includeNegation
+		@DefaultValue("false") @QueryParam("includeNegation") Boolean includeNegation,
+		@Parameter(in = ParameterIn.QUERY, name = "debug", description = "debug the query", schema = @Schema(type = SchemaType.STRING))
+		@DefaultValue("false") @QueryParam("debug") Boolean debug
 	) throws JsonProcessingException;
 
 	@GET

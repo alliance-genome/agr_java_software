@@ -73,7 +73,7 @@ public class DiseaseESService {
 	private static final GeneDiseaseSearchHelper geneDiseaseSearchHelper = new GeneDiseaseSearchHelper();
 
 	// termID may be used in the future when converting disease page to new ES stack.
-	public JsonResultResponse<GeneDiseaseAnnotationDocument> getRibbonDiseaseAnnotations(String focusTaxonId, List<String> geneIDs, String termID, Pagination pagination, boolean excludeNegated) {
+	public JsonResultResponse<GeneDiseaseAnnotationDocument> getRibbonDiseaseAnnotations(String focusTaxonId, List<String> geneIDs, String termID, Pagination pagination, boolean excludeNegated, boolean debug) {
 
 		BoolQueryBuilder bool = boolQuery();
 		BoolQueryBuilder bool2 = boolQuery();
@@ -105,7 +105,7 @@ public class DiseaseESService {
 		aggregationFields.put("subject.taxon.name.keyword", "species");
 		aggregationFields.put("diseaseRelationNegation.keyword", "associationType");
 		aggregationFields.put("diseaseQualifiers.keyword", "diseaseQualifiers");
-		Map<String, List<String>> distinctFieldValueMap = addAggregations(bool, aggregationFields, focusTaxonId);
+		Map<String, List<String>> distinctFieldValueMap = addAggregations(bool, aggregationFields, focusTaxonId, debug);
 
 		HashMap<String, String> filterOptionMap = pagination.getFilterOptionMap();
 		if (MapUtils.isNotEmpty(filterOptionMap)) {
@@ -120,7 +120,9 @@ public class DiseaseESService {
 		SpeciesType type = SpeciesType.getTypeByID(focusTaxonId);
 		HashMap<String, SortOrder> sorts = new HashMap<>();
 		if(type != null) {
-			sorts.put("speciesOrder." + type.getTaxonIDPart(), SortOrder.ASC);
+			sorts.put("speciesOrder." + type.getTaxonIDPart() + ".sort", SortOrder.ASC);
+		} else {
+			Log.info("Species could not be found for: " + focusTaxonId);
 		}
 		sorts.put("object.name.sort", SortOrder.ASC);
 		
@@ -172,7 +174,7 @@ public class DiseaseESService {
 		//Log.info(bool);
 	}
 
-	private Map<String, List<String>> addAggregations(BoolQueryBuilder bool, Map<String, String> aggregationFields, String focusTaxonId) {
+	private Map<String, List<String>> addAggregations(BoolQueryBuilder bool, Map<String, String> aggregationFields, String focusTaxonId, boolean debug) {
 		Map<String, List<String>> distinctFieldValueMap = new HashMap<>();
 		List<AggregationBuilder> aggBuilders = new ArrayList<>();
 		aggregationFields.forEach((field, colName) -> {
@@ -192,7 +194,7 @@ public class DiseaseESService {
 		
 		SearchResponse searchResponseHistogram = searchDAO.performQuery(
 			bool, aggBuilders, null, geneDiseaseSearchHelper.getResponseFields(),
-			0, 0, new HighlightBuilder(), sorts, false);
+			0, 0, new HighlightBuilder(), sorts, debug);
 
 		aggregationFields.forEach((field, colName) -> {
 			String fieldNameAgg = field + "_agg";
@@ -203,13 +205,13 @@ public class DiseaseESService {
 		return distinctFieldValueMap;
 	}
 
-	public DiseaseRibbonSummary getDiseaseRibbonSummary(List<String> geneIDs, Boolean includeNegation) {
+	public DiseaseRibbonSummary getDiseaseRibbonSummary(List<String> geneIDs, Boolean includeNegation, boolean debug) {
 		DiseaseRibbonSummary summary = diseaseRibbonService.getDiseaseRibbonSectionInfo();
 		Pagination pagination = new Pagination();
 		pagination.setLimit(10000);
 		// loop over all genes provided
 		geneIDs.forEach(geneID -> {
-			JsonResultResponse<GeneDiseaseAnnotationDocument> paginationResult = getDiseaseAnnotationList(geneID, pagination, !includeNegation);
+			JsonResultResponse<GeneDiseaseAnnotationDocument> paginationResult = getDiseaseAnnotationList(geneID, pagination, !includeNegation, debug);
 			// calculate histogram
 			Map<String, List<GeneDiseaseAnnotationDocument>> histogram = getDiseaseAnnotationHistogram(paginationResult);
 
@@ -277,7 +279,7 @@ public class DiseaseESService {
 	}
 
 
-	private JsonResultResponse<GeneDiseaseAnnotationDocument> getDiseaseAnnotationList(String geneID, Pagination pagination, boolean excludeNegatedAnnotation) {
+	private JsonResultResponse<GeneDiseaseAnnotationDocument> getDiseaseAnnotationList(String geneID, Pagination pagination, boolean excludeNegatedAnnotation, boolean debug) {
 		BoolQueryBuilder bool = boolQuery();
 		BoolQueryBuilder bool2 = boolQuery();
 		bool.must(bool2);
@@ -301,7 +303,7 @@ public class DiseaseESService {
 		HighlightBuilder hlb = new HighlightBuilder();
 		SearchResponse searchResponse = searchDAO.performQuery(
 			bool, aggBuilders, null, geneDiseaseSearchHelper.getResponseFields(),
-			pagination.getLimit(), pagination.getOffset(), hlb, null, false);
+			pagination.getLimit(), pagination.getOffset(), hlb, null, debug);
 
 		JsonResultResponse<GeneDiseaseAnnotationDocument> ret = new JsonResultResponse<>();
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
