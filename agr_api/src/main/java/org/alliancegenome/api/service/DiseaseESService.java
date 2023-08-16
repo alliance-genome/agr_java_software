@@ -188,7 +188,7 @@ public class DiseaseESService {
 		SpeciesType type = SpeciesType.getTypeByID(focusTaxonId);
 		HashMap<String, SortOrder> sorts = new HashMap<>();
 		if(type != null) {
-			sorts.put("speciesOrder." + type.getTaxonIDPart(), SortOrder.ASC);
+			sorts.put("speciesOrder." + type.getTaxonIDPart() + ".sort", SortOrder.ASC);
 		}
 		sorts.put("object.name.sort", SortOrder.ASC);
 		
