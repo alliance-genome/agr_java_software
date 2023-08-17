@@ -11,7 +11,6 @@ on:
 
 jobs:
   test-compile:
-    if: github.event.action != 'edited' || github.event.changes.base
     runs-on: ubuntu-20.04
     steps:
       - name: Report workflow details
@@ -41,7 +40,6 @@ jobs:
           mvn -T 8 clean package -ntp -DskipTests=true
 
   test-build-docker-image:
-    if: github.event.action != 'edited' || github.event.changes.base
     runs-on: ubuntu-20.04
     steps:
       - name: Check out repository code
