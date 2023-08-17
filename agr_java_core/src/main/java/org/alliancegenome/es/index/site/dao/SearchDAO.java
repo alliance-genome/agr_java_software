@@ -1,7 +1,7 @@
 package org.alliancegenome.es.index.site.dao;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -56,7 +56,7 @@ public class SearchDAO extends ESDAO {
 			List<String> responseFields,
 			int limit, int offset,
 			HighlightBuilder highlighter,
-			HashMap<String, SortOrder> sorts, Boolean debug) {
+			LinkedHashMap<String, SortOrder> sorts, Boolean debug) {
 
 
 		SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();

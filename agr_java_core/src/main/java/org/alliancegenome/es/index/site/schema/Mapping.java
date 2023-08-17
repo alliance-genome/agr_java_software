@@ -2,7 +2,6 @@ package org.alliancegenome.es.index.site.schema;
 
 import java.io.IOException;
 
-import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 
 public class Mapping extends Builder {
@@ -116,12 +115,9 @@ public class Mapping extends Builder {
 		new FieldBuilder(builder, "soTermId", "keyword").build();
 		new FieldBuilder(builder, "species", "text").keyword().synonym().sort().build();
 		
-		//new FieldBuilder(builder, "speciesOrder", "nested").build();
-		for(SpeciesType type: SpeciesType.values()) {
-			new FieldBuilder(builder, "speciesOrder." + type.getTaxonIDPart(), "text").keyword().sort().build();
-		}
+		// speciesOrder will generate properly and it will be of type: long
 		
-//		  new FieldBuilder(builder, "stage", "text").keyword().build();
+		// new FieldBuilder(builder, "stage", "text").keyword().build();
 		new FieldBuilder(builder, "strictOrthologySymbols", "text").keyword().autocomplete().build();
 		new FieldBuilder(builder, "summary", "text").build();
 		new FieldBuilder(builder, "symbolText", "text").keyword().standardText().build();

@@ -116,19 +116,10 @@ public class DiseaseESService {
 
 		List<AggregationBuilder> aggBuilders = new ArrayList<>();
 		HighlightBuilder hlb = new HighlightBuilder();
-	
-		SpeciesType type = SpeciesType.getTypeByID(focusTaxonId);
-		HashMap<String, SortOrder> sorts = new HashMap<>();
-		if(type != null) {
-			sorts.put("speciesOrder." + type.getTaxonIDPart() + ".sort", SortOrder.ASC);
-		} else {
-			Log.info("Species could not be found for: " + focusTaxonId);
-		}
-		sorts.put("object.name.sort", SortOrder.ASC);
-		
+
 		SearchResponse searchResponse = searchDAO.performQuery(
 			bool, aggBuilders, null, geneDiseaseSearchHelper.getResponseFields(),
-			pagination.getLimit(), pagination.getOffset(), hlb, sorts, false);
+			pagination.getLimit(), pagination.getOffset(), hlb, getAnnotationSorts(focusTaxonId, debug), false);
 
 		JsonResultResponse<GeneDiseaseAnnotationDocument> ret = new JsonResultResponse<>();
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
@@ -185,16 +176,9 @@ public class DiseaseESService {
 			aggBuilders.add(aggregationBuilder);
 		});
 		
-		SpeciesType type = SpeciesType.getTypeByID(focusTaxonId);
-		HashMap<String, SortOrder> sorts = new HashMap<>();
-		if(type != null) {
-			sorts.put("speciesOrder." + type.getTaxonIDPart() + ".sort", SortOrder.ASC);
-		}
-		sorts.put("object.name.sort", SortOrder.ASC);
-		
 		SearchResponse searchResponseHistogram = searchDAO.performQuery(
 			bool, aggBuilders, null, geneDiseaseSearchHelper.getResponseFields(),
-			0, 0, new HighlightBuilder(), sorts, debug);
+			0, 0, new HighlightBuilder(), getAnnotationSorts(focusTaxonId, debug), debug);
 
 		aggregationFields.forEach((field, colName) -> {
 			String fieldNameAgg = field + "_agg";
@@ -203,6 +187,23 @@ public class DiseaseESService {
 			distinctFieldValueMap.put(colName, values);
 		});
 		return distinctFieldValueMap;
+	}
+
+	private LinkedHashMap<String, SortOrder> getAnnotationSorts(String focusTaxonId, boolean debug) {
+		SpeciesType type = SpeciesType.getTypeByID(focusTaxonId);
+		LinkedHashMap<String, SortOrder> sorts = new LinkedHashMap<>();
+		if(type != null) {
+			sorts.put("speciesOrder." + type.getTaxonIDPart(), SortOrder.ASC);
+		} else {
+			if(debug) {
+				Log.info("Species could not be found for: " + focusTaxonId);
+			} else {
+				Log.debug("Species could not be found for: " + focusTaxonId);
+			}
+		}
+		sorts.put("object.name.sort", SortOrder.ASC);
+		if(debug) Log.info(sorts);
+		return sorts;
 	}
 
 	public DiseaseRibbonSummary getDiseaseRibbonSummary(List<String> geneIDs, Boolean includeNegation, boolean debug) {
