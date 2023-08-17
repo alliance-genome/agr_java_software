@@ -9,7 +9,7 @@ import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -73,7 +73,7 @@ public class SearchService {
 
 		HighlightBuilder hlb = searchHelper.buildHighlights();
 		
-		HashMap<String, SortOrder> sorts = new HashMap<>();
+		LinkedHashMap<String, SortOrder> sorts = new LinkedHashMap<>();
 		if(sort_by != null && sort_by.length() > 0) {
 			sorts.put(sort_by, SortOrder.ASC);
 		}
