@@ -135,9 +135,10 @@ public class CacheService {
 			throw new RuntimeException(e);
 		} catch (Exception e ) {
 			log.info(primaryKey);
-			log.info(value + "");
+			log.info(value.length() + "");
 			log.info(classView + "");
 			log.info(cacheAlliance + "");
+			log.error(e + "");
 			throw new RuntimeException(e);
 		}
 	}
