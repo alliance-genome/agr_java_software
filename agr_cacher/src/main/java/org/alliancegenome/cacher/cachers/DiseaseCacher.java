@@ -345,8 +345,8 @@ public class DiseaseCacher extends Cacher {
 					document.setAssociationType(join.getJoinType());
 					document.addModifier(DiseaseAnnotation.ConditionType.AMELIORATES, join.getAmeliorateConditionList());
 					document.addModifier(DiseaseAnnotation.ConditionType.EXACERBATES, join.getExacerbateConditionList());
-					document.addConditions(DiseaseAnnotation.ConditionType.HAS_CONDITION, join.getHasConditionList());
-					document.addConditions(DiseaseAnnotation.ConditionType.INDUCES, join.getInducerConditionList());
+					document.addCondition(DiseaseAnnotation.ConditionType.HAS_CONDITION, join.getHasConditionList());
+					document.addCondition(DiseaseAnnotation.ConditionType.INDUCES, join.getInducerConditionList());
 					document.addPublicationJoins(join.getPublicationJoins());
 					Source source = new Source();
 					source.setName(model.getDataProvider());
@@ -484,8 +484,8 @@ public class DiseaseCacher extends Cacher {
 					document.setSource(join.getSource());
 					document.setAssociationType(join.getJoinType().toLowerCase());
 					document.setSortOrder(join.getSortOrder());
-					document.addConditions(DiseaseAnnotation.ConditionType.HAS_CONDITION, join.getHasConditionList());
-					document.addConditions(DiseaseAnnotation.ConditionType.INDUCES, join.getInducerConditionList());
+					document.addCondition(DiseaseAnnotation.ConditionType.HAS_CONDITION, join.getHasConditionList());
+					document.addCondition(DiseaseAnnotation.ConditionType.INDUCES, join.getInducerConditionList());
 					document.addModifier(DiseaseAnnotation.ConditionType.AMELIORATES, join.getAmeliorateConditionList());
 					document.addModifier(DiseaseAnnotation.ConditionType.EXACERBATES, join.getExacerbateConditionList());
 					if (join.getDataProviderList() != null) {

@@ -11,16 +11,19 @@ public class View {
 
 	public static class Homology extends Default { }
 	public static class OrthologyCacher extends Homology { }
+	
 	public static class Cacher extends Default { }
 	public static class CacherDetail extends Cacher { }
 	public static class PhenotypeAPI extends API { }
 	public static class OrthologyMethod extends Default { }
 	public static class Expression extends API { }
+	
 	public static class DiseaseAnnotation extends API { }
-	public static class DiseaseAnnotationSummary extends DiseaseAnnotation { }
+		public static class DiseaseAnnotationAll extends DiseaseAnnotation { }
+		public static class DiseaseAnnotationSummary extends DiseaseAnnotation { }
+			public static class DiseaseCacher extends DiseaseAnnotationSummary { }
+
 	public static class PrimaryAnnotation extends API { }
-	public static class DiseaseCacher extends DiseaseAnnotationSummary { }
-	public static class DiseaseAnnotationAll extends DiseaseAnnotation { }
 
 	public static class Interaction extends API { }
 	public static class GeneAPI extends API { }

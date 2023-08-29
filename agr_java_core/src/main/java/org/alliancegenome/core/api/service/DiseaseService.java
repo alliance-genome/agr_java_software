@@ -117,7 +117,7 @@ public class DiseaseService {
 				annotations.forEach(annotation -> {
 					firstAnnotation.addAllPrimaryAnnotatedEntities(annotation.getPrimaryAnnotatedEntities());
 					firstAnnotation.addOrthologousGenes(annotation.getOrthologyGenes());
-					firstAnnotation.addPublicationJoins(annotation.getPublicationJoins());
+					firstAnnotation.setPublicationJoins(annotation.getPublicationJoins());
 				});
 				geneDiseaseAnnotations.add(firstAnnotation);
 			});
