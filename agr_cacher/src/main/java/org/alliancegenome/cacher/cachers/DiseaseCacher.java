@@ -351,7 +351,7 @@ public class DiseaseCacher extends Cacher {
 					Source source = new Source();
 					source.setName(model.getDataProvider());
 					document.setSource(source);
-					document.setEcoCodes(join.getEvidenceCodes());
+					document.setEvidenceCodes(join.getEvidenceCodes());
 					return document;
 				})
 				.collect(Collectors.toList());
@@ -609,7 +609,7 @@ public class DiseaseCacher extends Cacher {
 					} else {
 						diseaseRepository.populatePublicationJoins(publicationJoins);
 					}
-					document.setPublicationJoins(publicationJoins);
+					document.addPublicationJoins(publicationJoins);
 	/*
 						List<ECOTerm> ecoList = join.getPublicationJoins().stream()
 								.filter(join -> CollectionUtils.isNotEmpty(join.getEcoCode()))
@@ -626,7 +626,7 @@ public class DiseaseCacher extends Cacher {
 						Set<String> slimId = diseaseRibbonService.getAllParentIDs(join.getDisease().getPrimaryKey());
 						document.setParentIDs(slimId);
 					}
-					document.setEcoCodes(evidences);
+					document.setEvidenceCodes(evidences);
 					progressProcess();
 					return document;
 				})

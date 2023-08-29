@@ -20,7 +20,7 @@ public class ModelAnnotationFiltering extends AnnotationFiltering<DiseaseAnnotat
 
 	public FilterFunction<DiseaseAnnotation, String> evidenceCodeFilter =
 			(annotation, value) -> {
-				Set<Boolean> filteringPassed = annotation.getEcoCodes().stream()
+				Set<Boolean> filteringPassed = annotation.getEvidenceCodes().stream()
 						// this encodes the logic:
 						// if there is a displaySynonym (three / four-letter abbrev then check that attribute
 						// otherwise check the term name
