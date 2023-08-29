@@ -86,7 +86,15 @@ public abstract class Cacher extends Thread {
 	void populateCacheFromMap(Map<String, ?> map, Class view, CacheAlliance cacheAlliance) {
 		log.info(cacheAlliance.name() + " into cache", map.size());
 		for (Map.Entry<String, ? extends Object> entry : map.entrySet()) {
-			cacheService.putCacheEntry(entry.getKey(), entry.getValue(), view, cacheAlliance);
+			try {
+				cacheService.putCacheEntry(entry.getKey(), entry.getValue(), view, cacheAlliance);
+			} catch (Exception e) {
+				log.info(entry.getKey());
+				log.info(entry.getValue() + "");
+				log.info(view + "");
+				log.info("cacheAlliance: " + cacheAlliance);
+				throw e;
+			}
 		}
 	}
 
