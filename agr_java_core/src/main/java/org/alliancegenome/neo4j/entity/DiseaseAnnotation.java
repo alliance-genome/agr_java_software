@@ -76,8 +76,6 @@ public class DiseaseAnnotation extends ConditionAnnotation implements Comparable
 	@JsonView({View.DiseaseAnnotation.class})
 	private List<Gene> orthologyGenes;
 	@JsonView({View.DiseaseAnnotation.class})
-	private List<PublicationJoin> publicationJoins;
-	@JsonView({View.DiseaseAnnotation.class})
 	private List<Map<String, CrossReference>> providers;
 	
 	@JsonView({View.DiseaseCacher.class})
@@ -195,7 +193,7 @@ public class DiseaseAnnotation extends ConditionAnnotation implements Comparable
 		if (publications == null)
 			publications = new ArrayList<>();
 		
-		publications.addAll(publicationJoins.stream()
+		publications.addAll(joins.stream()
 				.map(PublicationJoin::getPublication)
 				.distinct()
 				.collect(Collectors.toList()));
@@ -205,7 +203,7 @@ public class DiseaseAnnotation extends ConditionAnnotation implements Comparable
 				.sorted(Comparator.naturalOrder())
 				.collect(Collectors.toList());
 		
-		ecoCodes = publicationJoins.stream()
+		ecoCodes = joins.stream()
 			.filter(publicationJoin -> CollectionUtils.isNotEmpty(publicationJoin.getEcoCode()))
 			.map(PublicationJoin::getEcoCode)
 			.flatMap(Collection::stream)
