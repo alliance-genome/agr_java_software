@@ -1,5 +1,6 @@
 package org.alliancegenome.cache;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -134,6 +135,11 @@ public class CacheService {
 			log.error("error while saving entry into cache", e);
 			throw new RuntimeException(e);
 		} catch (Exception e ) {
+			try {
+				mapper.writerWithView(classView).writeValue(new File("/data/error.json"), object);
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
 			log.info(primaryKey);
 			log.info(value.length() + "");
 			log.info(classView + "");
