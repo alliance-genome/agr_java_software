@@ -3,20 +3,17 @@ package org.alliancegenome.neo4j.view;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonView;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Objects;
 
-@Setter
-@Getter
+@Data
 @Schema(name="OrthologView", description="POJO that represents the Ortholog view")
 @JsonPropertyOrder({"gene", "homologGene", "length", "similarity", "identity", "rank", "predictionMethodsMatched", "predictionMethodsNotMatched", "predictionMethodsNotCalled", "methodCount", "totalMethodCount"})
-public class ParalogView implements Serializable {
+public class ParalogBean implements Serializable {
 
 	@JsonView(View.Homology.class)
 	private Gene gene;
@@ -65,23 +62,6 @@ public class ParalogView implements Serializable {
 
 	@JsonProperty(value = "totalMethodCount")
 	public void setTotalMethodCount(Integer count) {
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		ParalogView that = (ParalogView) o;
-		return Objects.equals(length, that.length) &&
-			Objects.equals(rank, that.rank) &&
-				Objects.equals(gene, that.gene) &&
-				Objects.equals(homologGene, that.homologGene);
-	}
-
-	@Override
-	public int hashCode() {
-
-		return Objects.hash(gene, homologGene, length, rank);
 	}
 
 }

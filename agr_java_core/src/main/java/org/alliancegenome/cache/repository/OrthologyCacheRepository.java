@@ -211,10 +211,10 @@ public class OrthologyCacheRepository {
 		return response;
 	}
 
-	public JsonResultResponse<ParalogView> getParalogyMultiGeneJson(List<String> geneIDs, Pagination pagination) {
+	public JsonResultResponse<ParalogBean> getParalogyMultiGeneJson(List<String> geneIDs, Pagination pagination) {
 		long start = System.currentTimeMillis();
-		List<ParalogView> homologViewList = repo.getAllParalogyGenes(geneIDs);
-		List<ParalogView> paginatedViewFiltered = homologViewList.stream()
+		List<ParalogBean> homologViewList = repo.getAllParalogyGenes(geneIDs);
+		List<ParalogBean> paginatedViewFiltered = homologViewList.stream()
 				.skip(pagination.getStart())
 				.limit(pagination.getLimit()).sorted(Comparator.comparing(o -> o.getHomologGene().getSpecies().getPhylogeneticOrder()))
 				.collect(Collectors.toList());
@@ -228,7 +228,7 @@ public class OrthologyCacheRepository {
 			putGeneInfo(map, orthologView.getGene());
 			putGeneInfo(map, orthologView.getHomologGene());
 		});
-		JsonResultResponse<ParalogView> response = new JsonResultResponse<>();
+		JsonResultResponse<ParalogBean> response = new JsonResultResponse<>();
 		response.setResults(paginatedViewFiltered);
 		response.setTotal(homologViewList.size());
 		response.setSupplementalData(map);

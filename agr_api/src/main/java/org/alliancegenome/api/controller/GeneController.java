@@ -50,7 +50,7 @@ import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
 import org.alliancegenome.neo4j.view.HomologView;
 import org.alliancegenome.neo4j.view.OrthologyFilter;
-import org.alliancegenome.neo4j.view.ParalogView;
+import org.alliancegenome.neo4j.view.ParalogBean;
 import org.apache.commons.collections.CollectionUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -581,7 +581,7 @@ public class GeneController implements GeneRESTInterface {
 	}
 
 	@Override
-	public JsonResultResponse<ParalogView> getGeneParalogy(String id,
+	public JsonResultResponse<ParalogBean> getGeneParalogy(String id,
 														   List<String> geneIDs,
 														   String geneLister,
 														   String stringencyFilter,
@@ -605,7 +605,7 @@ public class GeneController implements GeneRESTInterface {
 		pagination.addFieldFilter(FieldFilter.STRINGENCY, stringencyFilter);
 		pagination.addFieldFilter(FieldFilter.ORTHOLOGY_METHOD, method);
 		pagination.addFieldFilter(FieldFilter.ORTHOLOGY_TAXON, taxonID);
-		final JsonResultResponse<ParalogView> response = orthologyService.getParalogyMultiGeneJson(geneList, pagination);
+		final JsonResultResponse<ParalogBean> response = orthologyService.getParalogyMultiGeneJson(geneList, pagination);
 		response.setHttpServletRequest(null);
 		return response;
 	}
