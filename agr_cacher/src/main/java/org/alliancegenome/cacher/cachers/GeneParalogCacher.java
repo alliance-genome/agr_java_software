@@ -6,6 +6,7 @@ import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.view.HomologView;
+import org.alliancegenome.neo4j.view.ParalogView;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections4.map.MultiKeyMap;
@@ -47,20 +48,17 @@ public class GeneParalogCacher extends Cacher {
 		log.info("Total Number of Para Records: ", paralogousRecords);
 		startProcess("create geneList into cache", paralogousRecords);
 
-		List<HomologView> allParalogy = new ArrayList<>();
+		List<ParalogView> allParalogy = new ArrayList<>();
 		geneList.stream().filter(gene -> gene.getParaGenes() != null).forEach(gene -> {
-			Set<HomologView> paralogySet = gene.getParaGenes().stream()
+			Set<ParalogView> paralogySet = gene.getParaGenes().stream()
 					.map(paralogous -> {
-						HomologView view = new HomologView();
+						ParalogView view = new ParalogView();
 						view.setGene(gene);
 						view.setHomologGene(paralogous.getGene2());
-						view.setBest(paralogous.getIsBestScore());
-						view.setBestReverse(paralogous.getIsBestRevScore());
-						if (paralogous.isStrictFilter()) {
-							view.setStringencyFilter("stringent");
-						} else if (paralogous.isModerateFilter()) {
-							view.setStringencyFilter("moderate");
-						}
+						view.setLength(paralogous.getLength());
+						view.setIdentity(paralogous.getIdentity());
+						view.setSimilarity(paralogous.getSimilarity());
+						view.setRank(paralogous.getRank());
 
 						progressProcess();
 						view.setPredictionMethodsMatched(getPredictionMatches(gene.getPrimaryKey(), paralogous.getGene2().getPrimaryKey()));
@@ -79,7 +77,7 @@ public class GeneParalogCacher extends Cacher {
 		// get homology cache by species
 		
 		startProcess("allParalogy.stream - group By o.getGene().getTaxonId()");
-		Map<String, List<HomologView>> map = allParalogy.stream()
+		Map<String, List<ParalogView>> map = allParalogy.stream()
 				.collect(groupingBy(o -> o.getGene().getTaxonId()));
 		finishProcess();
 		
@@ -97,7 +95,7 @@ public class GeneParalogCacher extends Cacher {
 		geneRepository.clearCache();
 	}
 
-	private List<String> getPredictionNotCalled(HomologView view) {
+	private List<String> getPredictionNotCalled(ParalogView view) {
 		List<String> usedNames = view.getPredictionMethodsMatched() != null ? new ArrayList<>(view.getPredictionMethodsMatched()) : new ArrayList<>();
 		if (view.getPredictionMethodsNotMatched() != null)
 			usedNames.addAll(view.getPredictionMethodsNotMatched());

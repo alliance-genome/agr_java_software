@@ -12,6 +12,7 @@ import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
 import org.alliancegenome.neo4j.view.HomologView;
 
 import lombok.extern.slf4j.Slf4j;
+import org.alliancegenome.neo4j.view.ParalogView;
 
 @Slf4j
 @RequestScoped
@@ -30,10 +31,10 @@ public class GeneCacheRepository {
 		return fullOrthologyList;
 	}
 
-	public List<HomologView> getAllParalogyGenes(List<String> geneIDs) {
-		List<HomologView> fullOrthologyList = new ArrayList<>();
+	public List<ParalogView> getAllParalogyGenes(List<String> geneIDs) {
+		List<ParalogView> fullOrthologyList = new ArrayList<>();
 		geneIDs.forEach(id -> {
-			final List<HomologView> orthology = cacheService.getCacheEntries(id, CacheAlliance.GENE_PARALOGY);
+			final List<ParalogView> orthology = cacheService.getCacheEntries(id, CacheAlliance.GENE_PARALOGY);
 			if (orthology != null)
 				fullOrthologyList.addAll(orthology);
 		});

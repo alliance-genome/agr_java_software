@@ -25,21 +25,11 @@ public class Paralogous extends Neo4jEntity {
 
 	private String primaryKey;
 	@JsonView(View.Homology.class)
-	private String isBestRevScore;
+	private Float length;
 	@JsonView(View.Homology.class)
-	private String isBestScore;
+	private Float similarity;
 	private String confidence;
-	private boolean moderateFilter;
-	private boolean strictFilter;
+	private Integer rank;
+	private Float identity;
 
-	public boolean hasFilter(OrthologyFilter filter) {
-		OrthologyFilter.Stringency stringency = filter.getStringency();
-		if (stringency.equals(OrthologyFilter.Stringency.ALL))
-			return true;
-		if (stringency.equals(OrthologyFilter.Stringency.MODERATE) && moderateFilter)
-			return true;
-		if (stringency.equals(OrthologyFilter.Stringency.STRINGENT) && strictFilter)
-			return true;
-		return false;
-	}
 }
