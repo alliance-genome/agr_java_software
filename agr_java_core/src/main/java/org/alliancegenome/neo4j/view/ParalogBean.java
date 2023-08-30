@@ -11,7 +11,7 @@ import java.io.Serializable;
 import java.util.List;
 
 @Data
-@Schema(name="OrthologView", description="POJO that represents the Ortholog view")
+@Schema(name="OrthologView", description="POJO that represents the Paralog view")
 @JsonPropertyOrder({"gene", "homologGene", "length", "similarity", "identity", "rank", "predictionMethodsMatched", "predictionMethodsNotMatched", "predictionMethodsNotCalled", "methodCount", "totalMethodCount"})
 public class ParalogBean implements Serializable {
 
