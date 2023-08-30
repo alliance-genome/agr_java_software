@@ -62,21 +62,28 @@ public class DiseaseAnnotation extends ConditionAnnotation implements Comparable
 	@JsonView({View.DiseaseAnnotation.class})
 	private List<Reference> references;
 	@JsonView({View.DiseaseAnnotation.class})
+	
 	// This attribute will go away and be replaced by publicationJoin objects that keep the pub/evCodes pairs
 	private List<Publication> publications;
 	// This attribute will go away and be replaced by publicationJoin objects that keep the pub/evCodes pairs
-	private List<ECOTerm> ecoCodes;
+	@JsonView({View.DiseaseAnnotation.class})
+	private List<ECOTerm> evidenceCodes;
+	
 	@JsonView({View.DiseaseAnnotation.class})
 	private String associationType;
 	@JsonView({View.DiseaseCacher.class})
 	private int sortOrder;
 	@JsonView({View.DiseaseAnnotation.class})
 	private List<Gene> orthologyGenes;
-	@JsonView({View.DiseaseAnnotation.class})
+
+	@JsonIgnore
 	private List<PublicationJoin> publicationJoins;
+	
 	@JsonView({View.DiseaseAnnotation.class})
 	private List<Map<String, CrossReference>> providers;
 
+	transient boolean remove = false;
+	
 	public void addOrthologousGene(Gene gene) {
 		if (orthologyGenes == null)
 			orthologyGenes = new ArrayList<>();
@@ -159,13 +166,13 @@ public class DiseaseAnnotation extends ConditionAnnotation implements Comparable
 				Objects.equals(feature, that.feature) &&
 				Objects.equals(references, that.references) &&
 				Objects.equals(publications, that.publications) &&
-				Objects.equals(ecoCodes, that.ecoCodes) &&
+				Objects.equals(evidenceCodes, that.evidenceCodes) &&
 				Objects.equals(associationType, that.associationType);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(source, disease, gene, feature, publications, ecoCodes, associationType);
+		return Objects.hash(source, disease, gene, feature, publications, evidenceCodes, associationType);
 	}
 
 	@Override
@@ -188,11 +195,6 @@ public class DiseaseAnnotation extends ConditionAnnotation implements Comparable
 		return builder.toString();
 	}
 
-	transient boolean remove = false;
-
-	public void setPublicationJoins(List<PublicationJoin> publicationJoins) {
-		addPublicationJoins(publicationJoins);
-	}
 
 	public void addPublicationJoins(List<PublicationJoin> joins) {
 		if (joins == null)
@@ -214,6 +216,13 @@ public class DiseaseAnnotation extends ConditionAnnotation implements Comparable
 				.distinct()
 				.sorted(Comparator.naturalOrder())
 				.collect(Collectors.toList());
+		
+		evidenceCodes = publicationJoins.stream()
+			.filter(publicationJoin -> CollectionUtils.isNotEmpty(publicationJoin.getEcoCode()))
+			.map(PublicationJoin::getEcoCode)
+			.flatMap(Collection::stream)
+			.distinct()
+			.collect(Collectors.toList());
 	}
 
 	public Species getSpecies() {
@@ -222,24 +231,6 @@ public class DiseaseAnnotation extends ConditionAnnotation implements Comparable
 		if (feature != null)
 			return feature.getSpecies();
 		return model.getSpecies();
-	}
-
-	@JsonView({View.DiseaseAnnotation.class})
-	@JsonProperty(value = "evidenceCodes")
-	public List<ECOTerm> getEcoCodes() {
-		if (publicationJoins == null)
-			return null;
-		return publicationJoins.stream()
-				.filter(publicationJoin -> CollectionUtils.isNotEmpty(publicationJoin.getEcoCode()))
-				.map(PublicationJoin::getEcoCode)
-				.flatMap(Collection::stream)
-				.distinct()
-				.collect(Collectors.toList());
-	}
-
-	@JsonProperty(value = "evidenceCodes")
-	public void setEcoCodes(List<ECOTerm> ecoCodes) {
-		this.ecoCodes = ecoCodes;
 	}
 
 }

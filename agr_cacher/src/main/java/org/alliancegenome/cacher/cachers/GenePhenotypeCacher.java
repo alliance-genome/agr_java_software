@@ -155,8 +155,8 @@ public class GenePhenotypeCacher extends Cacher {
 					document.setPrimaryKey(join.getPrimaryKey());
 					document.setPhenotype(join.getPhenotype().getPhenotypeStatement());
 					document.setPublications(join.getPublications());
-					document.addConditions(DiseaseAnnotation.ConditionType.HAS_CONDITION, join.getHasConditionList());
-					document.addConditions(DiseaseAnnotation.ConditionType.INDUCES, join.getInducerConditionList());
+					document.addCondition(DiseaseAnnotation.ConditionType.HAS_CONDITION, join.getHasConditionList());
+					document.addCondition(DiseaseAnnotation.ConditionType.INDUCES, join.getInducerConditionList());
 					document.addModifier(DiseaseAnnotation.ConditionType.AMELIORATES, join.getAmeliorateConditionList());
 					document.addModifier(DiseaseAnnotation.ConditionType.EXACERBATES, join.getExacerbateConditionList());
 
@@ -170,8 +170,8 @@ public class GenePhenotypeCacher extends Cacher {
 					entity.addPublicationEvidenceCode(join.getPublicationJoins());
 					entity.addPhenotype(join.getPhenotype().getPhenotypeStatement());
 					entity.setDataProvider(model.getDataProvider());
-					entity.addConditions(ConditionAnnotation.ConditionType.HAS_CONDITION, join.getHasConditionList());
-					entity.addConditions(ConditionAnnotation.ConditionType.INDUCES, join.getInducerConditionList());
+					entity.addCondition(ConditionAnnotation.ConditionType.HAS_CONDITION, join.getHasConditionList());
+					entity.addCondition(ConditionAnnotation.ConditionType.INDUCES, join.getInducerConditionList());
 					entity.addModifier(ConditionAnnotation.ConditionType.AMELIORATES, join.getAmeliorateConditionList());
 					entity.addModifier(ConditionAnnotation.ConditionType.EXACERBATES, join.getExacerbateConditionList());
 
@@ -388,8 +388,8 @@ public class GenePhenotypeCacher extends Cacher {
 		if (entityJoin == null)
 			return;
 		if (entity.getPhenotypes() != null && entityJoin.getPhenotype() != null && phenotype.equals(entityJoin.getPhenotype().getPhenotypeStatement())) {
-			entity.addConditions(ConditionAnnotation.ConditionType.HAS_CONDITION, entityJoin.getHasConditionList());
-			entity.addConditions(ConditionAnnotation.ConditionType.INDUCES, entityJoin.getInducerConditionList());
+			entity.addCondition(ConditionAnnotation.ConditionType.HAS_CONDITION, entityJoin.getHasConditionList());
+			entity.addCondition(ConditionAnnotation.ConditionType.INDUCES, entityJoin.getInducerConditionList());
 			entity.addModifier(ConditionAnnotation.ConditionType.AMELIORATES, entityJoin.getAmeliorateConditionList());
 			entity.addModifier(ConditionAnnotation.ConditionType.EXACERBATES, entityJoin.getExacerbateConditionList());
 		}

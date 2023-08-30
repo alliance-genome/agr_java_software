@@ -12,8 +12,8 @@ import org.apache.commons.collections.CollectionUtils;
 public class ConditionService {
 
 	public static void populateExperimentalConditions(EntityJoin join, PrimaryAnnotatedEntity entity) {
-		entity.addConditions(ConditionAnnotation.ConditionType.HAS_CONDITION, join.getHasConditionList());
-		entity.addConditions(ConditionAnnotation.ConditionType.INDUCES, join.getInducerConditionList());
+		entity.addCondition(ConditionAnnotation.ConditionType.HAS_CONDITION, join.getHasConditionList());
+		entity.addCondition(ConditionAnnotation.ConditionType.INDUCES, join.getInducerConditionList());
 		entity.addModifier(ConditionAnnotation.ConditionType.AMELIORATES, join.getAmeliorateConditionList());
 		entity.addModifier(ConditionAnnotation.ConditionType.EXACERBATES, join.getExacerbateConditionList());
 	}

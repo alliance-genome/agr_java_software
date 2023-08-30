@@ -21,15 +21,24 @@ import lombok.Setter;
 @Schema(name = "ConditionAnnotation", description = "POJO that represents a Condition Annotation")
 public abstract class ConditionAnnotation {
 
+	@JsonView({View.DiseaseAnnotation.class, View.PrimaryAnnotation.class, View.PhenotypeAPI.class})
 	private Map<String, List<ExperimentalCondition>> conditions;
 
+	@JsonView({View.DiseaseAnnotation.class, View.PrimaryAnnotation.class, View.PhenotypeAPI.class})
 	private Map<String, List<ExperimentalCondition>> conditionModifiers;
 
-	@JsonView({View.DiseaseAnnotation.class, View.PrimaryAnnotation.class, View.PhenotypeAPI.class})
-	public Map<String, List<ExperimentalCondition>> getConditionModifiers() {
-		return conditionModifiers;
-	}
 
+	public void addCondition(ConditionType conditionType, List<ExperimentalCondition> conditions) {
+		if (conditions == null || conditionType == null)
+			return;
+		if (!conditionType.isCondition())
+			throw new RuntimeException("No condition type provided:" + conditionType);
+		if (this.conditions == null)
+			this.conditions = new HashMap<>();
+		this.conditions.computeIfAbsent(conditionType.getDisplayName(), k -> new ArrayList<>());
+		this.conditions.get(conditionType.getDisplayName()).addAll(conditions);
+	}
+	
 	public void addModifier(ConditionType conditionType, List<ExperimentalCondition> conditionModifier) {
 		if (conditionModifier == null || conditionType == null)
 			return;
@@ -39,33 +48,6 @@ public abstract class ConditionAnnotation {
 			this.conditionModifiers = new HashMap<>();
 		this.conditionModifiers.computeIfAbsent(conditionType.getDisplayName(), k -> new ArrayList<>());
 		this.conditionModifiers.get(conditionType.getDisplayName()).addAll(conditionModifier);
-	}
-
-	@JsonView({View.PrimaryAnnotation.class, View.PhenotypeAPI.class})
-	public void setConditions(Map<String, List<ExperimentalCondition>> conditions) {
-		this.conditions = conditions;
-	}
-
-	@JsonView({View.PrimaryAnnotation.class, View.PhenotypeAPI.class})
-	public void setConditionModifiers(Map<String, List<ExperimentalCondition>> conditionModifiers) {
-		this.conditionModifiers = conditionModifiers;
-	}
-
-	@JsonView({View.DiseaseAnnotation.class, View.PrimaryAnnotation.class, View.PhenotypeAPI.class})
-	public Map<String, List<ExperimentalCondition>> getConditions() {
-		return conditions;
-	}
-
-
-	public void addConditions(ConditionType conditionType, List<ExperimentalCondition> conditions) {
-		if (conditions == null || conditionType == null)
-			return;
-		if (!conditionType.isCondition())
-			throw new RuntimeException("No condition type provided:" + conditionType);
-		if (this.conditions == null)
-			this.conditions = new HashMap<>();
-		this.conditions.computeIfAbsent(conditionType.getDisplayName(), k -> new ArrayList<>());
-		this.conditions.get(conditionType.getDisplayName()).addAll(conditions);
 	}
 
 	public boolean hasExperimentalCondition() {

@@ -55,17 +55,6 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 	private Map<String, Pair<Allele, ArrayList<DiseaseAnnotation>>> alleleMap = new HashMap<>();
 	private Map<String, Pair<AffectedGenomicModel, ArrayList<DiseaseAnnotation>>> agmMap = new HashMap<>();
 
-	static Map<String, String> diseaseQualifierMapping = new HashMap<>();
-	static {
-		diseaseQualifierMapping.put("susceptibility_to", "susceptibility to");
-		diseaseQualifierMapping.put("disease_progression_of", "disease progression of");
-		diseaseQualifierMapping.put("severity_of", "severity of");
-		diseaseQualifierMapping.put("onset_of", "onset of");
-		diseaseQualifierMapping.put("sexual_dimorphism_in", "sexual dimorphism in");
-		diseaseQualifierMapping.put("resistance_to", "resistance to");
-		diseaseQualifierMapping.put("penetrance_of", "penetrance of");
-	}
-
 	public DiseaseAnnotationCurationIndexer(IndexerConfig indexerConfig) {
 		super(indexerConfig);
 	}
@@ -144,7 +133,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 				gdad.setEvidenceCodes(da.getEvidenceCodes());
 				if(CollectionUtils.isNotEmpty(da.getDiseaseQualifiers())) {
 					log.info(gdad.getSubject().getCurie());
-					Set<String> diseaseQualifiers = da.getDiseaseQualifiers().stream().map(term -> diseaseQualifierMapping.get(term.getName())).collect(Collectors.toSet());
+					Set<String> diseaseQualifiers = da.getDiseaseQualifiers().stream().map(term -> term.getName().replace("_", " ")).collect(Collectors.toSet());
 					log.info("No. of qualifiers: " + diseaseQualifiers.size());
 					gdad.setDiseaseQualifiers(diseaseQualifiers);
 					log.info(gdad.getDiseaseQualifiers().iterator().next());
