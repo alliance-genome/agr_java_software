@@ -30,6 +30,6 @@ public class Paralogous extends Neo4jEntity {
 	private Float similarity;
 	private String confidence;
 	private Integer rank;
-	private Float identity;
+	private String identity;
 
 }
