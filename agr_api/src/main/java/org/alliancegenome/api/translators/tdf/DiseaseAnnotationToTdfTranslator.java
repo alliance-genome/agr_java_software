@@ -1,11 +1,9 @@
 package org.alliancegenome.api.translators.tdf;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.function.Function;
@@ -15,14 +13,12 @@ import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.translators.tdf.DiseaseDownloadRow;
 import org.alliancegenome.core.translators.tdf.DownloadHeader;
-import org.alliancegenome.curation_api.enums.CrossReferencePrefix;
 import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.BiologicalEntity;
 import org.alliancegenome.curation_api.model.entities.DataProvider;
 import org.alliancegenome.curation_api.model.entities.ExperimentalCondition;
 import org.alliancegenome.curation_api.model.entities.GeneDiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.Reference;
 import org.alliancegenome.curation_api.model.entities.base.CurieAuditedObject;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
@@ -217,7 +213,7 @@ public class DiseaseAnnotationToTdfTranslator {
 		if (primaryAnnotation.getDiseaseGeneticModifierRelation() != null) {
 			row.setDiseaseGeneticModifierRelation(primaryAnnotation.getDiseaseGeneticModifierRelation().getName());
 		}
-		row.setReference(getReferenceID(primaryAnnotation.getSingleReference()));
+		row.setReference(primaryAnnotation.getSingleReference().getReferenceID());
 		row.setSource(primaryAnnotation.getDataProviderString());
 		DataProvider dataProvider = primaryAnnotation.getDataProvider();
 		if (dataProvider != null && dataProvider.getCrossReference() != null) {
@@ -277,21 +273,6 @@ public class DiseaseAnnotationToTdfTranslator {
 			}).collect(Collectors.joining("|"));
 			row.setExperimentalCondition(condition);
 		}
-	}
-
-	public static String getReferenceID(Reference reference) {
-		Optional<org.alliancegenome.curation_api.model.entities.CrossReference> opt = reference.getCrossReferences().stream().filter((ref) -> {
-			return ref.getReferencedCurie().startsWith("PMID:");
-		}).findFirst();
-		if (opt.isEmpty()) {
-			for (org.alliancegenome.curation_api.model.entities.CrossReference ref : reference.getCrossReferences()) {
-				String prefix = ref.getReferencedCurie().split(":")[0];
-				if (Arrays.asList(CrossReferencePrefix.values()).stream().map(Enum::name).collect(Collectors.toList()).contains(prefix))
-					return ref.getReferencedCurie();
-			}
-			return null;
-		}
-		return opt.get().getReferencedCurie();
 	}
 
 	private DiseaseDownloadRow getDiseaseDownloadRow(DiseaseAnnotation annotation, PrimaryAnnotatedEntity entity, PublicationJoin join, Gene homologousGene) {
