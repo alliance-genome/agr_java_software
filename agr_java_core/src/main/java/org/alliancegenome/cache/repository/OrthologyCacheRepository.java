@@ -21,10 +21,7 @@ import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.OrthoAlgorithm;
 import org.alliancegenome.neo4j.entity.node.OrthologyGeneJoin;
 import org.alliancegenome.neo4j.entity.relationship.Orthologous;
-import org.alliancegenome.neo4j.view.HomologView;
-import org.alliancegenome.neo4j.view.OrthologyFilter;
-import org.alliancegenome.neo4j.view.OrthologyModule;
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.*;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.MapperFeature;
@@ -214,14 +211,10 @@ public class OrthologyCacheRepository {
 		return response;
 	}
 
-	public JsonResultResponse<HomologView> getParalogyMultiGeneJson(List<String> geneIDs, Pagination pagination) {
+	public JsonResultResponse<ParalogBean> getParalogyMultiGeneJson(List<String> geneIDs, Pagination pagination) {
 		long start = System.currentTimeMillis();
-		List<HomologView> homologViewList = repo.getAllParalogyGenes(geneIDs);
-		//filtering
-		FilterService<HomologView> filterService = new FilterService<>(new OrthologyFiltering());
-		List<HomologView> homologViewFiltered = filterService.filterAnnotations(homologViewList, pagination.getFieldFilterValueMap());
-
-		List<HomologView> paginatedViewFiltered = homologViewFiltered.stream()
+		List<ParalogBean> homologViewList = repo.getAllParalogyGenes(geneIDs);
+		List<ParalogBean> paginatedViewFiltered = homologViewList.stream()
 				.skip(pagination.getStart())
 				.limit(pagination.getLimit()).sorted(Comparator.comparing(o -> o.getHomologGene().getSpecies().getPhylogeneticOrder()))
 				.collect(Collectors.toList());
@@ -235,9 +228,9 @@ public class OrthologyCacheRepository {
 			putGeneInfo(map, orthologView.getGene());
 			putGeneInfo(map, orthologView.getHomologGene());
 		});
-		JsonResultResponse<HomologView> response = new JsonResultResponse<>();
+		JsonResultResponse<ParalogBean> response = new JsonResultResponse<>();
 		response.setResults(paginatedViewFiltered);
-		response.setTotal(homologViewFiltered.size());
+		response.setTotal(homologViewList.size());
 		response.setSupplementalData(map);
 		response.calculateRequestDuration(start);
 		return response;
