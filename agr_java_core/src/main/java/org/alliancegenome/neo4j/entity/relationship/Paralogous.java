@@ -29,7 +29,7 @@ public class Paralogous extends Neo4jEntity {
 	@JsonView(View.Homology.class)
 	private String similarity;
 	private String confidence;
-	private Integer rank;
+	private String rank;
 	private String identity;
 
 }

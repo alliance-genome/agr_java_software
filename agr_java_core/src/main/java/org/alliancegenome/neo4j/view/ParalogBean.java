@@ -25,7 +25,7 @@ public class ParalogBean implements Serializable {
 	@JsonView(View.Homology.class)
 	private String similarity;
 	@JsonView(View.Homology.class)
-	private Integer rank;
+	private String rank;
 	@JsonView(View.Homology.class)
 	private String identity;
 
