@@ -21,9 +21,9 @@ public class ParalogBean implements Serializable {
 	private Gene homologGene;
 
 	@JsonView(View.Homology.class)
-	private Float length;
+	private String length;
 	@JsonView(View.Homology.class)
-	private Float similarity;
+	private String similarity;
 	@JsonView(View.Homology.class)
 	private Integer rank;
 	@JsonView(View.Homology.class)

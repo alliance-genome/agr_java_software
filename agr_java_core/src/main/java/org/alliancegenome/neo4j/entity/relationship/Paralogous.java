@@ -25,9 +25,9 @@ public class Paralogous extends Neo4jEntity {
 
 	private String primaryKey;
 	@JsonView(View.Homology.class)
-	private Float length;
+	private String length;
 	@JsonView(View.Homology.class)
-	private Float similarity;
+	private String similarity;
 	private String confidence;
 	private Integer rank;
 	private String identity;
