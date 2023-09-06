@@ -143,7 +143,8 @@ public class DiseaseESService {
 	}
 
 	private void generateFilter(BoolQueryBuilder bool, String filterName, String filterValue) {
-
+		filterValue = QueryParser.escape(filterValue);
+		filterValue = filterValue.replaceAll("'"," ");
 		if (filterValue.contains("|")) {
 			Log.info("Or Filter: " + filterName + " " + filterValue);
 			BoolQueryBuilder orClause = boolQuery();
@@ -158,7 +159,7 @@ public class DiseaseESService {
 			} else {
 				String[] elements = filterValue.split(" ");
 				BoolQueryBuilder andClause = boolQuery();
-				Arrays.stream(elements).forEach(element -> andClause.must(QueryBuilders.queryStringQuery("*" + QueryParser.escape(element) + "*").field(filterName)));
+				Arrays.stream(elements).forEach(element -> andClause.must(QueryBuilders.queryStringQuery("*" + element + "*").field(filterName)));
 				bool.must(andClause);
 			}
 		}
