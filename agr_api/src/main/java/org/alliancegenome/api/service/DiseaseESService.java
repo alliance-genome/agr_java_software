@@ -1,24 +1,11 @@
 package org.alliancegenome.api.service;
 
-import static java.util.stream.Collectors.toList;
-import static org.alliancegenome.cache.repository.helper.JsonResultResponse.DISTINCT_FIELD_VALUES;
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
-import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
-import static org.elasticsearch.index.query.QueryBuilders.termQuery;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import io.quarkus.logging.Log;
 import org.alliancegenome.api.entity.DiseaseEntitySubgroupSlim;
 import org.alliancegenome.api.entity.DiseaseRibbonEntity;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
@@ -51,13 +38,14 @@ import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilde
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import java.util.*;
+import java.util.stream.Collectors;
 
-import io.quarkus.logging.Log;
+import static java.util.stream.Collectors.toList;
+import static org.alliancegenome.cache.repository.helper.JsonResultResponse.DISTINCT_FIELD_VALUES;
+import static org.elasticsearch.index.query.QueryBuilders.*;
 
 
 @RequestScoped
@@ -143,13 +131,11 @@ public class DiseaseESService {
 	}
 
 	private void generateFilter(BoolQueryBuilder bool, String filterName, String filterValue) {
-		filterValue = QueryParser.escape(filterValue);
-		filterValue = filterValue.replaceAll("'"," ");
 		if (filterValue.contains("|")) {
 			Log.info("Or Filter: " + filterName + " " + filterValue);
 			BoolQueryBuilder orClause = boolQuery();
 			String[] elements = filterValue.split("\\|");
-			Arrays.stream(elements).forEach(element -> orClause.should(QueryBuilders.termQuery(filterName, element)));
+			Arrays.stream(elements).forEach(element -> orClause.should(QueryBuilders.termQuery(filterName, escapeValue(element))));
 			bool.must(orClause);
 		} else {
 			Log.info("Other Filter: " + filterName + " " + filterValue);
@@ -157,13 +143,19 @@ public class DiseaseESService {
 			if (filterName.endsWith("keyword")) {
 				bool.must(QueryBuilders.termQuery(filterName, filterValue));
 			} else {
-				String[] elements = filterValue.split(" ");
+				String[] elements = escapeValue(filterValue).split(" ");
 				BoolQueryBuilder andClause = boolQuery();
 				Arrays.stream(elements).forEach(element -> andClause.must(QueryBuilders.queryStringQuery("*" + element + "*").field(filterName)));
 				bool.must(andClause);
 			}
 		}
 		//Log.info(bool);
+	}
+
+	private String escapeValue(String value) {
+		value = QueryParser.escape(value);
+		value = value.replaceAll("'", " ");
+		return value;
 	}
 
 	private Map<String, List<String>> addAggregations(BoolQueryBuilder bool, Map<String, String> aggregationFields, String focusTaxonId, boolean debug) {
@@ -176,7 +168,7 @@ public class DiseaseESService {
 			aggregationBuilder.field(field);
 			aggBuilders.add(aggregationBuilder);
 		});
-		
+
 		SearchResponse searchResponseHistogram = searchDAO.performQuery(
 			bool, aggBuilders, null, geneDiseaseSearchHelper.getResponseFields(),
 			0, 0, new HighlightBuilder(), getAnnotationSorts(focusTaxonId, debug), debug);
@@ -193,17 +185,17 @@ public class DiseaseESService {
 	private LinkedHashMap<String, SortOrder> getAnnotationSorts(String focusTaxonId, boolean debug) {
 		SpeciesType type = SpeciesType.getTypeByID(focusTaxonId);
 		LinkedHashMap<String, SortOrder> sorts = new LinkedHashMap<>();
-		if(type != null) {
+		if (type != null) {
 			sorts.put("speciesOrder." + type.getTaxonIDPart(), SortOrder.ASC);
 		} else {
-			if(debug) {
+			if (debug) {
 				Log.info("Species could not be found for: " + focusTaxonId);
 			} else {
 				Log.debug("Species could not be found for: " + focusTaxonId);
 			}
 		}
 		sorts.put("object.name.sort", SortOrder.ASC);
-		if(debug) Log.info(sorts);
+		if (debug) Log.info(sorts);
 		return sorts;
 	}
 
