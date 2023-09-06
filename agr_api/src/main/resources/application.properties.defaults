@@ -40,3 +40,9 @@ INDEX_VARIANTS = false
 API_PORT = 8080
 ES_INDEX = site_index
 GO_TERM_LIST = go-term-order.csv
+
+quarkus.http.root-path=/
+quarkus.http.non-application-root-path=/
+
+quarkus.swagger-ui.always-include=true
+quarkus.swagger-ui.doc-expansion=none
