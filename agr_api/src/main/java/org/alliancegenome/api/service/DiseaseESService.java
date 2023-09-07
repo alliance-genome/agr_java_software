@@ -153,8 +153,8 @@ public class DiseaseESService {
 	}
 
 	private String escapeValue(String value) {
-		value = QueryParser.escape(value);
 		value = value.replaceAll("'", " ");
+		value = QueryParser.escape(value);
 		return value;
 	}
 
