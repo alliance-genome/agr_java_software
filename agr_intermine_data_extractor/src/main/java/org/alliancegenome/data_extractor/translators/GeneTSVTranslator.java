@@ -38,22 +38,25 @@ public class GeneTSVTranslator extends ResultTSVTranslator {
 
 	@Override
 	protected List<String> mapToRow(Map<String, Object> map) {
+		
+		String strippedSynopsis = String.valueOf(map.get("g.geneSynopsis")).replaceAll("[\\r\\n]", "").strip();
+		String strippedGeneSynopsis = String.valueOf(map.get("g.automatedGeneSynopsis")).replaceAll("[\\r\\n]", "").strip();
 
 		return Arrays.asList(
-			String.valueOf(map.get("g.primaryKey")),
-			String.valueOf(map.get("g.modLocalId")),
-			String.valueOf(Arrays.deepToString((Object[]) map.get("synonyms"))),   
-			String.valueOf(Arrays.deepToString((Object[]) map.get("crossrefs"))),
-			String.valueOf(map.get("g.name")),
-			String.valueOf(map.get("g.symbol")),
-			String.valueOf(map.get("g.geneSynopsis")).stripTrailing(),
-			String.valueOf(map.get("g.automatedGeneSynopsis")).stripTrailing(),
-			String.valueOf(map.get("s.primaryKey")),
-			String.valueOf(map.get("gl.chromosome")),
-			String.valueOf(map.get("gl.start")),
-			String.valueOf(map.get("gl.end")),
-			String.valueOf(map.get("gl.strand")),
-			String.valueOf(map.get("so.name"))
+			String.valueOf(map.get("g.primaryKey")).strip(),
+			String.valueOf(map.get("g.modLocalId")).strip(),
+			String.valueOf(Arrays.deepToString((Object[]) map.get("synonyms")).strip()),   
+			String.valueOf(Arrays.deepToString((Object[]) map.get("crossrefs")).strip()),
+			String.valueOf(map.get("g.name")).strip(),
+			String.valueOf(map.get("g.symbol")).strip(),
+			strippedSynopsis,
+			strippedGeneSynopsis,
+			String.valueOf(map.get("s.primaryKey")).strip(),
+			String.valueOf(map.get("gl.chromosome")).strip(),
+			String.valueOf(map.get("gl.start")).strip(),
+			String.valueOf(map.get("gl.end")).strip(),
+			String.valueOf(map.get("gl.strand")).strip(),
+			String.valueOf(map.get("so.name")).strip()
 
 		);
 	}
