@@ -1,11 +1,24 @@
 package org.alliancegenome.api.service;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import io.quarkus.logging.Log;
+import static java.util.stream.Collectors.toList;
+import static org.alliancegenome.cache.repository.helper.JsonResultResponse.DISTINCT_FIELD_VALUES;
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
+import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+
 import org.alliancegenome.api.entity.DiseaseEntitySubgroupSlim;
 import org.alliancegenome.api.entity.DiseaseRibbonEntity;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
@@ -38,14 +51,13 @@ import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilde
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import java.util.*;
-import java.util.stream.Collectors;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
-import static java.util.stream.Collectors.toList;
-import static org.alliancegenome.cache.repository.helper.JsonResultResponse.DISTINCT_FIELD_VALUES;
-import static org.elasticsearch.index.query.QueryBuilders.*;
+import io.quarkus.logging.Log;
 
 
 @RequestScoped
@@ -132,14 +144,13 @@ public class DiseaseESService {
 
 	private void generateFilter(BoolQueryBuilder bool, String filterName, String filterValue) {
 		if (filterValue.contains("|")) {
-			Log.info("Or Filter: " + filterName + " " + filterValue);
+			//Log.info("Or Filter: " + filterName + " " + filterValue);
 			BoolQueryBuilder orClause = boolQuery();
 			String[] elements = filterValue.split("\\|");
 			Arrays.stream(elements).forEach(element -> orClause.should(QueryBuilders.termQuery(filterName, escapeValue(element))));
 			bool.must(orClause);
 		} else {
-			Log.info("Other Filter: " + filterName + " " + filterValue);
-
+			//Log.info("Other Filter: " + filterName + " " + filterValue);
 			if (filterName.endsWith("keyword")) {
 				bool.must(QueryBuilders.termQuery(filterName, filterValue));
 			} else {

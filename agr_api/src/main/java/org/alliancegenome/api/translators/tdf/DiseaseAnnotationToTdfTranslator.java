@@ -519,15 +519,21 @@ public class DiseaseAnnotationToTdfTranslator {
 			});
 
 		// add genetic entity info for annotations that are not accounted in PAE
-		diseaseAnnotations.forEach(annotation -> annotation.getPublicationJoins().stream()
-			// filter out the ones that are not found in an individual PAE
-			.filter(join -> annotation.getPrimaryAnnotatedEntities().stream()
-				.noneMatch(entity -> String.join(":", entity.getPublicationEvidenceCodes().stream()
-					.map(PublicationJoin::toString).collect(Collectors.toList())).contains(join.toString())))
-			.forEach(join -> {
-				PrimaryAnnotatedEntity entity = createNewPrimaryAnnotatedEntity(annotation, join);
-				annotation.addPrimaryAnnotatedEntityDuplicate(entity);
-			}));
+		diseaseAnnotations.forEach(annotation -> {
+			if(annotation.getPublicationJoins() != null) {
+				annotation.getPublicationJoins().stream()
+				// filter out the ones that are not found in an individual PAE
+				.filter(join -> annotation.getPrimaryAnnotatedEntities().stream()
+					.noneMatch(entity -> String.join(":", entity.getPublicationEvidenceCodes().stream()
+						.map(PublicationJoin::toString).collect(Collectors.toList())).contains(join.toString())))
+				.forEach(join -> {
+					PrimaryAnnotatedEntity entity = createNewPrimaryAnnotatedEntity(annotation, join);
+					annotation.addPrimaryAnnotatedEntityDuplicate(entity);
+				});
+			}
+		}
+
+		);
 	}
 
 	private org.alliancegenome.curation_api.model.entities.DiseaseAnnotation createNewPrimaryDiseaseAnnotatedEntity(GeneDiseaseAnnotationDocument annotation, PublicationJoin join) {
