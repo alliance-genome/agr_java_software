@@ -7,6 +7,6 @@ WORKDIR /workdir/agr_java_software
 
 ADD . .
 
-COPY /workdir/agr_java_software/agr_api/src/main/resources/application.properties.defaults /workdir/agr_java_software/agr_api/src/main/resources/application.properties
+RUN cp /workdir/agr_java_software/agr_api/src/main/resources/application.properties.defaults /workdir/agr_java_software/agr_api/src/main/resources/application.properties
 
 RUN mvn -ntp -T 4 -B clean package
