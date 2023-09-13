@@ -76,6 +76,7 @@ public class DiseaseAnnotation extends ConditionAnnotation implements Comparable
 	@JsonView({View.DiseaseAnnotation.class})
 	private List<Gene> orthologyGenes;
 
+	@JsonView({View.DiseaseAnnotation.class})
 	private List<PublicationJoin> publicationJoins;
 	
 	@JsonView({View.DiseaseAnnotation.class})
