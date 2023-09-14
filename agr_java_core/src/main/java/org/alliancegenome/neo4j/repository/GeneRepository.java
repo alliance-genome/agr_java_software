@@ -371,7 +371,11 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 		return geneList;
 	}
 
+	private List<String> allGeneIDs = null;
+
 	public List<String> getAllGeneKeys() {
+		if (allGeneIDs != null)
+			return null;
 		String query = "MATCH (g:Gene)-[:FROM_SPECIES]-(q:Species) RETURN distinct g.primaryKey";
 		Result r = queryForResult(query);
 		Iterator<Map<String, Object>> i = r.iterator();
@@ -381,6 +385,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 			Map<String, Object> map2 = i.next();
 			list.add((String) map2.get("g.primaryKey"));
 		}
+		allGeneIDs = new ArrayList<>(new HashSet<>(list));
 		return list;
 	}
 
