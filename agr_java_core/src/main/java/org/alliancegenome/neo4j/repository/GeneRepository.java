@@ -1,28 +1,47 @@
 package org.alliancegenome.neo4j.repository;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.extern.slf4j.Slf4j;
-import org.alliancegenome.core.util.FileHelper;
-import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.neo4j.entity.node.*;
-import org.alliancegenome.neo4j.view.OrthologyFilter;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections4.map.MultiKeyMap;
-import org.neo4j.ogm.model.Result;
+import static java.util.stream.Collectors.joining;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import static java.util.stream.Collectors.joining;
+import org.alliancegenome.core.util.FileHelper;
+import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.node.AffectedGenomicModel;
+import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
+import org.alliancegenome.neo4j.entity.node.GOTerm;
+import org.alliancegenome.neo4j.entity.node.Gene;
+import org.alliancegenome.neo4j.entity.node.OrthoAlgorithm;
+import org.alliancegenome.neo4j.entity.node.ParaAlgorithm;
+import org.alliancegenome.neo4j.entity.node.SecondaryId;
+import org.alliancegenome.neo4j.entity.node.UBERONTerm;
+import org.alliancegenome.neo4j.view.OrthologyFilter;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.map.MultiKeyMap;
+import org.neo4j.ogm.model.Result;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class GeneRepository extends Neo4jRepository<Gene> {
@@ -311,71 +330,8 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 		return map;
 	}
 
-	public Set<Gene> getOrthologyByTwoSpecies(String speciesOne, String speciesTwo) {
-
-		speciesOne = SpeciesType.getTaxonId(speciesOne);
-		speciesTwo = SpeciesType.getTaxonId(speciesTwo);
-		HashMap<String, String> map = new HashMap<>();
-		map.put("speciesID", speciesOne);
-		map.put("homologSpeciesID", speciesTwo);
-		map.put("strict", "true");
-		String query = "";
-
-		query += " MATCH p1=(g:Gene)-[ortho:ORTHOLOGOUS]-(gh:Gene), ";
-		query += "p4=(g)--(s:OrthologyGeneJoin)--(gh:Gene), " +
-			"p2=(g)-[:FROM_SPECIES]-(gs:Species), " +
-			"p3=(gh)-[:FROM_SPECIES]-(ghs:Species), " +
-			"p5=(s)--(algorithm:OrthoAlgorithm) ";
-		query += " where g.taxonId = $speciesID and gh.taxonId = $homologSpeciesID and ortho.strictFilter = $strict ";
-		//query += "return g, ortho, gh, s, algorithm";
-		query += "return g";
-
-		Iterable<Gene> genes = query(query, map);
-		Set<Gene> geneListp = new HashSet<>();
-		genes.forEach(gene -> geneListp.add(gene));
-		Set<Gene> geneList = new HashSet<>();
-		for (Gene g : genes) {
-			if (g.getTaxonId().equals(speciesOne) && (g.getOrthoGenes() != null && g.getOrthoGenes().size() > 0)) {
-				if (log.isDebugEnabled())
-					g.getOrthoGenes().forEach(orthologous -> {
-						log.debug(orthologous.getGene1().getPrimaryKey() + " " + orthologous.getGene2().getPrimaryKey());
-					});
-				geneList.add(g);
-			}
-		}
-		return geneList;
-	}
-
-	public Set<Gene> getOrthologyBySingleSpecies(String speciesOne) {
-
-		speciesOne = SpeciesType.getTaxonId(speciesOne);
-		HashMap<String, String> map = new HashMap<>();
-		map.put("speciesID", speciesOne);
-		String query = "";
-
-		query += "MATCH p1=(g:Gene)-[ortho:ORTHOLOGOUS]-(gh:Gene), ";
-		query += "p2=(g)--(s:OrthologyGeneJoin)--(gh:Gene), " +
-			"p3=(g)-[:FROM_SPECIES]-(gs:Species), " +
-			"p4=(gh)-[:FROM_SPECIES]-(ghs:Species), " +
-			"p5=(s)--(algorithm:OrthoAlgorithm) ";
-		query += " where g.taxonId = $speciesID ";
-		query += "return p1, p2, p3, p4, p5";
-
-		Iterable<Gene> genes = query(query, map);
-		Set<Gene> geneList = new HashSet<>();
-		for (Gene g : genes) {
-			if (g.getSpecies().getPrimaryKey().equals(speciesOne)) {
-				geneList.add(g);
-			}
-		}
-		return geneList;
-	}
-
-	private List<String> allGeneIDs = null;
 
 	public List<String> getAllGeneKeys() {
-		if (allGeneIDs != null)
-			return null;
 		String query = "MATCH (g:Gene)-[:FROM_SPECIES]-(q:Species) RETURN distinct g.primaryKey";
 		Result r = queryForResult(query);
 		Iterator<Map<String, Object>> i = r.iterator();
@@ -385,30 +341,12 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 			Map<String, Object> map2 = i.next();
 			list.add((String) map2.get("g.primaryKey"));
 		}
-		allGeneIDs = new ArrayList<>(new HashSet<>(list));
 		return list;
 	}
 
 	public List<String> getAllAgmKeys() {
 		String query = "MATCH (g:AffectedGenomicModel) RETURN distinct g.primaryKey";
 		Result r = queryForResult(query);
-		Iterator<Map<String, Object>> i = r.iterator();
-		ArrayList<String> list = new ArrayList<>();
-
-		while (i.hasNext()) {
-			Map<String, Object> map2 = i.next();
-			list.add((String) map2.get("g.primaryKey"));
-		}
-		return list;
-	}
-
-	public List<String> getAllGeneKeys(String species) {
-		String query = "MATCH (g:Gene)-[:FROM_SPECIES]-(species:Species) WHERE species.name = $species RETURN distinct g.primaryKey";
-
-		HashMap<String, String> params = new HashMap<>();
-		params.put("species", species);
-
-		Result r = queryForResult(query, params);
 		Iterator<Map<String, Object>> i = r.iterator();
 		ArrayList<String> list = new ArrayList<>();
 

@@ -1,16 +1,30 @@
 package org.alliancegenome.neo4j.repository;
 
-import lombok.extern.slf4j.Slf4j;
-import org.alliancegenome.neo4j.entity.node.*;
+import static java.util.stream.Collectors.groupingBy;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.StringJoiner;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
+import org.alliancegenome.neo4j.entity.node.Allele;
+import org.alliancegenome.neo4j.entity.node.Chromosome;
+import org.alliancegenome.neo4j.entity.node.Transcript;
+import org.alliancegenome.neo4j.entity.node.TranscriptLevelConsequence;
+import org.alliancegenome.neo4j.entity.node.Variant;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.neo4j.ogm.model.Result;
 
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
-import static java.util.stream.Collectors.groupingBy;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class AlleleRepository extends Neo4jRepository<Allele> {
@@ -18,6 +32,19 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
 	// for debugging
 	public boolean debug;
 	public List<String> testGeneIDs;
+
+	private Map<String, Transcript> transcriptMap;
+	// geneID, chromosome
+	private Map<String, String> geneChromosomeMap = new HashMap<>();
+	// allele ID for which disease info exists
+	private Set<String> alleleDiseaseSet = new HashSet<>();
+	// allele ID, disease info exists
+	private Set<String> allelePhenoSet = new HashSet<>();
+
+	private static Set<String> allAllelicHgvsGNames = null;
+
+	private static Map<String, Map<String, Set<Allele>>> allAllelesMap = null;
+
 
 	public AlleleRepository(boolean debug, List<String> testGeneIDs) {
 		super(Allele.class);
@@ -75,11 +102,7 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
 		return list;
 	}
 
-	private List<String> allAlleleIDs = null;
-
 	public List<String> getAllAlleleIDs() {
-		if (allAlleleIDs != null)
-			return null;
 		String query = "MATCH (a:Allele)-[:FROM_SPECIES]-(q:Species) RETURN a.primaryKey";
 
 		Result r = queryForResult(query);
@@ -91,19 +114,8 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
 			Map<String, Object> map2 = i.next();
 			list.add((String) map2.get("a.primaryKey"));
 		}
-		allAlleleIDs = new ArrayList<>(new HashSet<>(list));
 		return list;
 	}
-
-	private Map<String, Transcript> transcriptMap;
-	// geneID, chromosome
-	private Map<String, String> geneChromosomeMap = new HashMap<>();
-	// allele ID for which disease info exists
-	private Set<String> alleleDiseaseSet = new HashSet<>();
-	// allele ID, disease info exists
-	private Set<String> allelePhenoSet = new HashSet<>();
-
-	private static Set<String> allAllelicHgvsGNames = null;
 
 	public Map<String, Transcript> getTranscriptWithExonInfo() {
 		if (MapUtils.isNotEmpty(transcriptMap))
@@ -204,9 +216,6 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
 		log.info("Size" + ": " + alleles.size());
 		return alleles;
 	}
-
-
-	private static Map<String, Map<String, Set<Allele>>> allAllelesMap = null;
 
 	public Map<String, Map<String, Set<Allele>>> getAllAllelesCache() {
 		if (allAllelesMap == null) {
