@@ -7,12 +7,16 @@ import java.util.List;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.BiologicalEntity;
+import org.alliancegenome.curation_api.model.entities.GeneDiseaseAnnotation;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.indexers.curation.interfaces.AlleleDiseaseAnnotationInterface;
 import org.alliancegenome.neo4j.repository.AlleleRepository;
 
+import org.alliancegenome.neo4j.repository.GeneRepository;
+import org.apache.commons.collections4.CollectionUtils;
 import si.mazi.rescu.RestProxyFactory;
 
 public class AlleleDiseaseAnnotationService {
@@ -22,13 +26,9 @@ public class AlleleDiseaseAnnotationService {
 	public List<AlleleDiseaseAnnotation> getFiltered() {
 
 		ProcessDisplayHelper display = new ProcessDisplayHelper(10000);
-		
 		List<AlleleDiseaseAnnotation> ret = new ArrayList<>();
-
 		AlleleRepository alleleRepository = new AlleleRepository();
-		
-		HashSet<String> alleleIds = new HashSet<>(alleleRepository.getAllAlleleIDs());
-		
+
 		int batchSize = 300;
 		int page = 0;
 		int pages = 0;
@@ -42,8 +42,10 @@ public class AlleleDiseaseAnnotationService {
 			SearchResponse<AlleleDiseaseAnnotation> response = alleleApi.find(page, batchSize, params);
 			
 			for(AlleleDiseaseAnnotation da: response.getResults()) {
-				if(!da.getInternal() && alleleIds.contains(da.getSubject().getCurie())) {
-					ret.add(da);
+				if(!da.getInternal() && hasValidAlleles(da)) {
+					if (hasValidGenes(da)) {
+						ret.add(da);
+					}
 				}
 			}
 			
@@ -60,6 +62,32 @@ public class AlleleDiseaseAnnotationService {
 		
 		return ret;
 	}
-	
-	
+
+	private static boolean hasValidAlleles(AlleleDiseaseAnnotation da) {
+		List<String> alleleIds = (new AlleleRepository()).getAllAlleleIDs();
+		if (da.getInternal())
+			return false;
+		if (!alleleIds.contains(da.getSubject().getCurie()))
+			return false;
+		return true;
+	}
+
+
+	private static boolean hasValidGenes(AlleleDiseaseAnnotation da) {
+		List<String> allGeneIDs = (new GeneRepository()).getAllGeneKeys();
+		if (!allGeneIDs.contains(da.getInferredGene().getCurie()))
+			return false;
+		if (CollectionUtils.isNotEmpty(da.getAssertedGenes())) {
+			if (da.getAssertedGenes().stream()
+				.anyMatch((gene -> !allGeneIDs.contains(gene.getCurie()))))
+				return false;
+		}
+		if (CollectionUtils.isNotEmpty(da.getDiseaseGeneticModifiers())) {
+			if (da.getDiseaseGeneticModifiers().stream()
+				.anyMatch((gene -> !allGeneIDs.contains(gene.getCurie()))))
+				return false;
+		}
+		return true;
+	}
+
 }

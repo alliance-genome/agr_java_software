@@ -66,7 +66,6 @@ public class DiseaseAnnotation extends ConditionAnnotation implements Comparable
 	// This attribute will go away and be replaced by publicationJoin objects that keep the pub/evCodes pairs
 	private List<Publication> publications;
 	// This attribute will go away and be replaced by publicationJoin objects that keep the pub/evCodes pairs
-	@JsonView({View.DiseaseAnnotation.class})
 	private List<ECOTerm> evidenceCodes;
 	
 	@JsonView({View.DiseaseAnnotation.class})
