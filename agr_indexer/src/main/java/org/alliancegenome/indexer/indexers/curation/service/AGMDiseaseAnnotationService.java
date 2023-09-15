@@ -1,26 +1,30 @@
 package org.alliancegenome.indexer.indexers.curation.service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.indexers.curation.interfaces.AGMDiseaseAnnotationInterface;
 
+import org.alliancegenome.neo4j.repository.AlleleRepository;
+import org.alliancegenome.neo4j.repository.GeneRepository;
+import org.apache.commons.collections4.CollectionUtils;
 import si.mazi.rescu.RestProxyFactory;
 
-public class AGMDiseaseAnnotationService {
+public class AGMDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 
 	private AGMDiseaseAnnotationInterface agmApi = RestProxyFactory.createProxy(AGMDiseaseAnnotationInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 
 	public List<AGMDiseaseAnnotation> getFiltered() {
 
 		ProcessDisplayHelper display = new ProcessDisplayHelper(10000);
-		
+		AlleleRepository alleleRepository = new AlleleRepository();
+		GeneRepository geneRepository = new GeneRepository();
+
 		List<AGMDiseaseAnnotation> ret = new ArrayList<>();
 
 		int batchSize = 100;
@@ -33,7 +37,17 @@ public class AGMDiseaseAnnotationService {
 		
 		do {
 			SearchResponse<AGMDiseaseAnnotation> response = agmApi.find(page, batchSize, params);
-			
+			HashSet<String> alleleIds = new HashSet<>(alleleRepository.getAllAlleleIDs());
+			HashSet<String> allGeneIDs = new HashSet<>(geneRepository.getAllGeneKeys());
+			HashSet<String> allModelIDs = new HashSet<>(alleleRepository.getAllModelKeys());
+
+			for(AGMDiseaseAnnotation da: response.getResults()) {
+				if(!da.getInternal() && allModelIDs.contains(da.getSubject().getCurie())) {
+					if (hasValidEntities(da, allGeneIDs, alleleIds, allModelIDs)) {
+						ret.add(da);
+					}
+				}
+			}
 			for(AGMDiseaseAnnotation da: response.getResults()) {
 				if(!da.getInternal()) {
 					ret.add(da);

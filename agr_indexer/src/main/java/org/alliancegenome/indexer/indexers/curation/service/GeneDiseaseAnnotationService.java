@@ -6,17 +6,19 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.GeneDiseaseAnnotation;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.indexers.curation.interfaces.GeneDiseaseAnnotationInterface;
+import org.alliancegenome.neo4j.repository.AlleleRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.apache.commons.collections4.CollectionUtils;
 
 import si.mazi.rescu.RestProxyFactory;
 
-public class GeneDiseaseAnnotationService {
+public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 
 	private final GeneDiseaseAnnotationInterface geneApi = RestProxyFactory.createProxy(GeneDiseaseAnnotationInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 
@@ -24,6 +26,10 @@ public class GeneDiseaseAnnotationService {
 		ProcessDisplayHelper display = new ProcessDisplayHelper(10000);
 		List<GeneDiseaseAnnotation> ret = new ArrayList<>();
 		GeneRepository geneRepository = new GeneRepository();
+		AlleleRepository alleleRepository = new AlleleRepository();
+		HashSet<String> alleleIds = new HashSet<>(alleleRepository.getAllAlleleIDs());
+		HashSet<String> allGeneIDs = new HashSet<>(geneRepository.getAllGeneKeys());
+		HashSet<String> allModelIDs = new HashSet<>(alleleRepository.getAllModelKeys());
 
 		int batchSize = 360;
 		int page = 0;
@@ -35,14 +41,11 @@ public class GeneDiseaseAnnotationService {
 
 		do {
 			SearchResponse<GeneDiseaseAnnotation> response = geneApi.find(page, batchSize, params);
-
-			HashSet<String> allGeneIDs = new HashSet<String>(geneRepository.getAllGeneKeys());
-			
-			for (GeneDiseaseAnnotation da : response.getResults()) {
-				if (hasValidGenes(da, allGeneIDs)) {
-					ret.add(da);
-				} else {
-					System.out.println("Id not found in Neo: " + da.getSubject().getCurie());
+			for(GeneDiseaseAnnotation da: response.getResults()) {
+				if(!da.getInternal() && allGeneIDs.contains(da.getSubject().getCurie())) {
+					if (hasValidEntities(da, allGeneIDs, alleleIds, allModelIDs)) {
+						ret.add(da);
+					}
 				}
 			}
 
