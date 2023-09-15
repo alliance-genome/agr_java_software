@@ -1,5 +1,10 @@
 package org.alliancegenome.indexer.indexers.curation.service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.model.entities.GeneDiseaseAnnotation;
 import org.alliancegenome.curation_api.response.SearchResponse;
@@ -8,11 +13,8 @@ import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.indexers.curation.interfaces.GeneDiseaseAnnotationInterface;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.apache.commons.collections4.CollectionUtils;
-import si.mazi.rescu.RestProxyFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import si.mazi.rescu.RestProxyFactory;
 
 public class GeneDiseaseAnnotationService {
 
@@ -34,8 +36,10 @@ public class GeneDiseaseAnnotationService {
 		do {
 			SearchResponse<GeneDiseaseAnnotation> response = geneApi.find(page, batchSize, params);
 
+			HashSet<String> allGeneIDs = new HashSet<String>(geneRepository.getAllGeneKeys());
+			
 			for (GeneDiseaseAnnotation da : response.getResults()) {
-				if (hasValidGenes(da)) {
+				if (hasValidGenes(da, allGeneIDs)) {
 					ret.add(da);
 				} else {
 					System.out.println("Id not found in Neo: " + da.getSubject().getCurie());
@@ -55,8 +59,7 @@ public class GeneDiseaseAnnotationService {
 		return ret;
 	}
 
-	private static boolean hasValidGenes(GeneDiseaseAnnotation da) {
-		List<String> allGeneIDs = (new GeneRepository()).getAllGeneKeys();
+	private static boolean hasValidGenes(GeneDiseaseAnnotation da, HashSet<String> allGeneIDs) {
 		if (da.getInternal())
 			return false;
 		if (!allGeneIDs.contains(da.getSubject().getCurie()))
