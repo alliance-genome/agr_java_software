@@ -66,7 +66,7 @@ public class AlleleDiseaseAnnotationService {
 
 	private boolean hasValidGenes(AlleleDiseaseAnnotation da, HashSet<String> allGeneIDs) {
 		
-		if (!allGeneIDs.contains(da.getInferredGene().getCurie()))
+		if (da.getInferredGene() != null && !allGeneIDs.contains(da.getInferredGene().getCurie()))
 			return false;
 		if (CollectionUtils.isNotEmpty(da.getAssertedGenes())) {
 			if (da.getAssertedGenes().stream()
