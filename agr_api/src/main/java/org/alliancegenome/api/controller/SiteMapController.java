@@ -81,7 +81,7 @@ public class SiteMapController implements SiteMapRESTInterface {
 		}
 		
 		if(category.equals("allele")) {
-			List<XMLURL> list = manager.getDiseases(page.toString());
+			List<XMLURL> list = manager.getAlleles(page.toString());
 			XMLURLSet set = new XMLURLSet();
 			set.setUrl(list);
 			for(XMLURL url: list) {

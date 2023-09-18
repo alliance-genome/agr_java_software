@@ -58,6 +58,25 @@ public class SiteMapCacheManager {
 
 		return urls;
 	}
+	
+	public List<XMLURL> getAlleles(String key) {
+
+		List<String> allIds = getCacheEntry(key, CacheAlliance.SITEMAP_ALLELE);
+
+		List<XMLURL> urls = new ArrayList<XMLURL>();
+
+		for (String id : allIds) {
+			Date date = null;
+
+			// if(hit.getSource().get("dateProduced") != null) {
+			// date = new Date((long)hit.getSource().get("dateProduced"));
+			// }
+
+			urls.add(new XMLURL("allele/" + id, ConfigHelper.getAppStart(), "monthly", "0.6"));
+		}
+
+		return urls;
+	}
 
 	public List<String> getGenesKeys() {
 		return cacheService.getAllKeys(CacheAlliance.SITEMAP_GENE);
