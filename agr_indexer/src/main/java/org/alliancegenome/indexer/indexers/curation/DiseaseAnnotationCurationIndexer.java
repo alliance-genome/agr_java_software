@@ -295,8 +295,6 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 			Pair<AffectedGenomicModel, ArrayList<DiseaseAnnotation>> allelePair = agmMap.computeIfAbsent(genomicModel.getCurie(), agmCurie -> Pair.of(genomicModel, new ArrayList<>()));
 			allelePair.getRight().add(da);
 
-			da.getInferredAllele();
-
 			Gene inferredGene = da.getInferredGene();
 			extractGeneDiseaseAnnotations(da, inferredGene);
 			if (da.getAssertedGenes() != null) {
