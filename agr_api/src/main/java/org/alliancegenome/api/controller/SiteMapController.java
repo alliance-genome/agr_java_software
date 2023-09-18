@@ -1,17 +1,11 @@
 package org.alliancegenome.api.controller;
 
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import javax.ws.rs.core.UriInfo;
 
-import org.alliancegenome.api.model.xml.SiteMap;
-import org.alliancegenome.api.model.xml.SiteMapIndex;
-import org.alliancegenome.api.model.xml.XMLURL;
-import org.alliancegenome.api.model.xml.XMLURLSet;
+import org.alliancegenome.api.model.xml.*;
 import org.alliancegenome.api.rest.interfaces.SiteMapRESTInterface;
 import org.alliancegenome.cache.repository.SiteMapCacheManager;
 import org.alliancegenome.core.config.ConfigHelper;
@@ -25,26 +19,26 @@ public class SiteMapController implements SiteMapRESTInterface {
 	@Inject SiteMapCacheManager manager;
 
 	@Override
-	public SiteMapIndex getSiteMap(UriInfo uriInfo) {
+	public SiteMapIndex getSiteMap() {
 		
 		List<SiteMap> list = new ArrayList<SiteMap>();
 		
 		List<String> geneKeys = manager.getGenesKeys();
 		log.info("Gene Keys: "	+ geneKeys.size());
 		for(String s: geneKeys) {
-			list.add(new SiteMap(buildUrl(uriInfo, "api/sitemap/gene-sitemap-" + s + ".xml"), ConfigHelper.getAppStart()));
+			list.add(new SiteMap(buildUrl("api/sitemap/gene-sitemap-" + s + ".xml"), ConfigHelper.getAppStart()));
 		}
 		
 		List<String> diseaseKeys = manager.getDiseaseKeys();
 		log.info("Disease Keys: "  + diseaseKeys.size());
 		for(String s: diseaseKeys) {
-			list.add(new SiteMap(buildUrl(uriInfo, "api/sitemap/disease-sitemap-" + s + ".xml"), ConfigHelper.getAppStart()));
+			list.add(new SiteMap(buildUrl("api/sitemap/disease-sitemap-" + s + ".xml"), ConfigHelper.getAppStart()));
 		}
 		
 		List<String> alleleKeys = manager.getAlleleKeys();
 		log.info("Disease Keys: "  + alleleKeys.size());
 		for(String s: alleleKeys) {
-			list.add(new SiteMap(buildUrl(uriInfo, "api/sitemap/allele-sitemap-" + s + ".xml"), ConfigHelper.getAppStart()));
+			list.add(new SiteMap(buildUrl("api/sitemap/allele-sitemap-" + s + ".xml"), ConfigHelper.getAppStart()));
 		}
 		
 		SiteMapIndex index = new SiteMapIndex();
@@ -53,19 +47,19 @@ public class SiteMapController implements SiteMapRESTInterface {
 	}
 
 	@Override
-	public XMLURLSet getCategorySiteMap(String category, Integer page, UriInfo uriInfo) {
-		return buildSiteMapByCategory(category, page, uriInfo);
+	public XMLURLSet getCategorySiteMap(String category, Integer page) {
+		return buildSiteMapByCategory(category, page);
 	}
 
 
-	private XMLURLSet buildSiteMapByCategory(String category, Integer page, UriInfo uriInfo) {
+	private XMLURLSet buildSiteMapByCategory(String category, Integer page) {
 
 		if(category.equals("gene")) {
 			List<XMLURL> list = manager.getGenes(page.toString());
 			XMLURLSet set = new XMLURLSet();
 			set.setUrl(list);
 			for(XMLURL url: list) {
-				url.setLoc(buildUrl(uriInfo, url.getLoc()));
+				url.setLoc(buildUrl(url.getLoc()));
 			}
 			return set;
 		}
@@ -75,7 +69,7 @@ public class SiteMapController implements SiteMapRESTInterface {
 			XMLURLSet set = new XMLURLSet();
 			set.setUrl(list);
 			for(XMLURL url: list) {
-				url.setLoc(buildUrl(uriInfo, url.getLoc()));
+				url.setLoc(buildUrl(url.getLoc()));
 			}
 			return set;
 		}
@@ -85,7 +79,7 @@ public class SiteMapController implements SiteMapRESTInterface {
 			XMLURLSet set = new XMLURLSet();
 			set.setUrl(list);
 			for(XMLURL url: list) {
-				url.setLoc(buildUrl(uriInfo, url.getLoc()));
+				url.setLoc(buildUrl(url.getLoc()));
 			}
 			return set;
 		}
@@ -93,17 +87,10 @@ public class SiteMapController implements SiteMapRESTInterface {
 		return null;
 	}
 
-	private String buildUrl(UriInfo uriInfo, String inUrl) {
-		final URI uri = uriInfo.getAbsolutePath();
+	private String buildUrl(String inUrl) {
 		final StringBuilder url = new StringBuilder();
-		url.append("https://");
-		url.append(uri.getHost());
+		url.append("https://www.alliancegenome.org");
 
-		final int port = uri.getPort();
-		if (port != -1) {
-			url.append(":");
-			url.append(uri.getPort());
-		}
 		if(inUrl != null) {
 			url.append("/");
 			url.append(inUrl);
