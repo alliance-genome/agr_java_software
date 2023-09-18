@@ -63,7 +63,8 @@ public class AGMDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 			page++;
 		} while(page <= pages);
 		display.finishProcess();
-
+		alleleRepository.close();
+		geneRepository.close();
 		return ret;
 	}
 

@@ -58,6 +58,7 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 		} while (page <= pages);
 		display.finishProcess();
 		geneRepository.close();
+		alleleRepository.close();
 
 		return ret;
 	}
