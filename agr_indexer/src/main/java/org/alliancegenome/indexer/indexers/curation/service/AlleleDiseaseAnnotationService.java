@@ -1,9 +1,6 @@
 package org.alliancegenome.indexer.indexers.curation.service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
@@ -17,7 +14,7 @@ import org.apache.commons.collections4.CollectionUtils;
 
 import si.mazi.rescu.RestProxyFactory;
 
-public class AlleleDiseaseAnnotationService {
+public class AlleleDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 
 	private AlleleDiseaseAnnotationInterface alleleApi = RestProxyFactory.createProxy(AlleleDiseaseAnnotationInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 
@@ -39,12 +36,13 @@ public class AlleleDiseaseAnnotationService {
 
 		do {
 			SearchResponse<AlleleDiseaseAnnotation> response = alleleApi.find(page, batchSize, params);
-			HashSet<String> alleleIds = new HashSet<String>(alleleRepository.getAllAlleleIDs());
-			HashSet<String> allGeneIDs = new HashSet<String>(geneRepository.getAllGeneKeys());
-			
+			HashSet<String> alleleIds = new HashSet<>(alleleRepository.getAllAlleleIDs());
+			HashSet<String> allGeneIDs = new HashSet<>(geneRepository.getAllGeneKeys());
+			HashSet<String> allModelIDs = new HashSet<>(alleleRepository.getAllModelKeys());
+
 			for(AlleleDiseaseAnnotation da: response.getResults()) {
 				if(!da.getInternal() && alleleIds.contains(da.getSubject().getCurie())) {
-					if (hasValidGenes(da, allGeneIDs)) {
+					if (hasValidEntities(da, allGeneIDs, alleleIds, allModelIDs)) {
 						ret.add(da);
 					}
 				}
@@ -62,23 +60,6 @@ public class AlleleDiseaseAnnotationService {
 		alleleRepository.close();
 		geneRepository.close();
 		return ret;
-	}
-
-	private boolean hasValidGenes(AlleleDiseaseAnnotation da, HashSet<String> allGeneIDs) {
-		
-		if (da.getInferredGene() != null && !allGeneIDs.contains(da.getInferredGene().getCurie()))
-			return false;
-		if (CollectionUtils.isNotEmpty(da.getAssertedGenes())) {
-			if (da.getAssertedGenes().stream()
-				.anyMatch((gene -> !allGeneIDs.contains(gene.getCurie()))))
-				return false;
-		}
-		if (CollectionUtils.isNotEmpty(da.getDiseaseGeneticModifiers())) {
-			if (da.getDiseaseGeneticModifiers().stream()
-				.anyMatch((gene -> !allGeneIDs.contains(gene.getCurie()))))
-				return false;
-		}
-		return true;
 	}
 
 }

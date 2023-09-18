@@ -117,6 +117,21 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
 		return list;
 	}
 
+	public List<String> getAllModelKeys() {
+		String query = "MATCH (a:AffectedGenomicModel)-[:FROM_SPECIES]-(q:Species) RETURN a.primaryKey";
+
+		Result r = queryForResult(query);
+		Iterator<Map<String, Object>> i = r.iterator();
+
+		ArrayList<String> list = new ArrayList<>();
+
+		while (i.hasNext()) {
+			Map<String, Object> map2 = i.next();
+			list.add((String) map2.get("a.primaryKey"));
+		}
+		return list;
+	}
+
 	public Map<String, Transcript> getTranscriptWithExonInfo() {
 		if (MapUtils.isNotEmpty(transcriptMap))
 			return transcriptMap;
