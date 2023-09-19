@@ -38,12 +38,13 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 		HashMap<String, Object> params = new HashMap<>();
 		params.put("internal", false);
 		params.put("obsolete", false);
+		//params.put("subject.curie", "SGD:S000005450");
 
 		do {
 			SearchResponse<GeneDiseaseAnnotation> response = geneApi.find(page, batchSize, params);
 			for(GeneDiseaseAnnotation da: response.getResults()) {
-				if(!da.getInternal() && allGeneIDs.contains(da.getSubject().getCurie())) {
-					if (hasValidEntities(da, allGeneIDs, alleleIds, allModelIDs)) {
+				if(isValidEntity(allGeneIDs, da.getSubjectCurie())) {
+					if (hasValidGeneticModifiers(da, allGeneIDs, alleleIds, allModelIDs)) {
 						ret.add(da);
 					}
 				}

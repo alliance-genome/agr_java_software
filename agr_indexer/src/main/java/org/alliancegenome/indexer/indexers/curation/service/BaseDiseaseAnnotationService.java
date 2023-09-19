@@ -3,39 +3,47 @@ package org.alliancegenome.indexer.indexers.curation.service;
 import org.alliancegenome.curation_api.model.entities.*;
 import org.apache.commons.collections4.CollectionUtils;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 public class BaseDiseaseAnnotationService {
 
-	protected boolean hasValidEntities(GeneDiseaseAnnotation da, Set<String> allGeneIDs, Set<String> allAllelIDs, Set<String> allModelIDs) {
-		return hasValidGeneticModifiers(da, allGeneIDs, allAllelIDs, allModelIDs);
-	}
-
 	protected boolean hasValidEntities(AGMDiseaseAnnotation da, Set<String> allGeneIDs, Set<String> allAllelIDs, Set<String> allModelIDs) {
 		Gene inferredGene = da.getInferredGene();
 		List<Gene> assertedGenes = da.getAssertedGenes();
-		return hasValidEntities(da, allGeneIDs, allAllelIDs, allModelIDs, inferredGene, assertedGenes);
+		if (!hasValidInferredAssertedEntities(allGeneIDs, inferredGene, assertedGenes))
+			return false;
+		Allele inferredAllele = da.getInferredAllele();
+		List<Allele> assertedAlleles = null;
+		if (da.getAssertedAllele() != null) {
+			assertedAlleles = List.of(da.getAssertedAllele());
+		}
+		if (!hasValidInferredAssertedEntities(allAllelIDs, inferredAllele, assertedAlleles))
+			return false;
+		return hasValidGeneticModifiers(da, allGeneIDs, allAllelIDs, allModelIDs);
 	}
 
 	protected boolean hasValidEntities(AlleleDiseaseAnnotation da, Set<String> allGeneIDs, Set<String> allAllelIDs, Set<String> allModelIDs) {
 		Gene inferredGene = da.getInferredGene();
 		List<Gene> assertedGenes = da.getAssertedGenes();
-		return hasValidEntities(da, allGeneIDs, allAllelIDs, allModelIDs, inferredGene, assertedGenes);
-	}
-
-	private static boolean hasValidEntities(DiseaseAnnotation da, Set<String> allGeneIDs, Set<String> allAllelIDs, Set<String> allModelIDs, Gene inferredGene, List<Gene> assertedGenes) {
-		if (!allGeneIDs.contains(inferredGene.getCurie()))
+		if (!hasValidInferredAssertedEntities(allGeneIDs, inferredGene, assertedGenes))
 			return false;
-		if (CollectionUtils.isNotEmpty(assertedGenes)) {
-			if (assertedGenes.stream()
-				.anyMatch((gene -> !allGeneIDs.contains(gene.getCurie()))))
-				return false;
-		}
 		return hasValidGeneticModifiers(da, allGeneIDs, allAllelIDs, allModelIDs);
 	}
 
-	private static boolean hasValidGeneticModifiers(DiseaseAnnotation da, Set<String> allGeneIDs, Set<String> allAllelIDs, Set<String> allModelIDs) {
+	private static boolean hasValidInferredAssertedEntities(Set<String> allEntityIDs, GenomicEntity inferredEntity, List<? extends GenomicEntity> assertedEntity) {
+		if (inferredEntity != null && !allEntityIDs.contains(inferredEntity.getCurie()))
+			return false;
+		if (CollectionUtils.isNotEmpty(assertedEntity)) {
+			if (assertedEntity.stream()
+				.anyMatch((entity -> !allEntityIDs.contains(entity.getCurie()))))
+				return false;
+		}
+		return true;
+	}
+
+	protected static boolean hasValidGeneticModifiers(DiseaseAnnotation da, Set<String> allGeneIDs, Set<String> allAllelIDs, Set<String> allModelIDs) {
 		if (CollectionUtils.isNotEmpty(da.getDiseaseGeneticModifiers())) {
 			if (da.getDiseaseGeneticModifiers().stream()
 				.anyMatch((entity -> (!allGeneIDs.contains(entity.getCurie()) &&
@@ -44,6 +52,10 @@ public class BaseDiseaseAnnotationService {
 				return false;
 		}
 		return true;
+	}
+
+	protected static boolean isValidEntity(HashSet<String> allEntityIds, String curie) {
+		return allEntityIds.contains(curie);
 	}
 
 
