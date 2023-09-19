@@ -32,26 +32,22 @@ public class AGMDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 		HashMap<String, Object> params = new HashMap<>();
 		params.put("internal", false);
 		params.put("obsolete", false);
-		
+//		params.put("subject.curie", "MGI:3707539");
+
+		HashSet<String> alleleIds = new HashSet<>(alleleRepository.getAllAlleleIDs());
+		HashSet<String> allGeneIDs = new HashSet<>(geneRepository.getAllGeneKeys());
+		HashSet<String> allModelIDs = new HashSet<>(alleleRepository.getAllModelKeys());
 		do {
 			SearchResponse<AGMDiseaseAnnotation> response = agmApi.find(page, batchSize, params);
-			HashSet<String> alleleIds = new HashSet<>(alleleRepository.getAllAlleleIDs());
-			HashSet<String> allGeneIDs = new HashSet<>(geneRepository.getAllGeneKeys());
-			HashSet<String> allModelIDs = new HashSet<>(alleleRepository.getAllModelKeys());
 
 			for(AGMDiseaseAnnotation da: response.getResults()) {
-				if(isValidEntity(allModelIDs, da.getCurie())) {
+				if(isValidEntity(allModelIDs, da.getSubjectCurie())) {
 					if (hasValidEntities(da, allGeneIDs, alleleIds, allModelIDs)) {
 						ret.add(da);
 					}
 				}
 			}
-			for(AGMDiseaseAnnotation da: response.getResults()) {
-				if(!da.getInternal()) {
-					ret.add(da);
-				}
-			}
-			
+
 			if(page == 0) {
 				display.startProcess("Pulling AGM DA's from curation", response.getTotalResults());
 			}

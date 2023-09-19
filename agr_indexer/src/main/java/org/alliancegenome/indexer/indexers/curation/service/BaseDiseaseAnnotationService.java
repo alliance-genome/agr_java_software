@@ -12,11 +12,14 @@ public class BaseDiseaseAnnotationService {
 	protected boolean hasValidEntities(AGMDiseaseAnnotation da, Set<String> allGeneIDs, Set<String> allAllelIDs, Set<String> allModelIDs) {
 		Gene inferredGene = da.getInferredGene();
 		List<Gene> assertedGenes = da.getAssertedGenes();
-		if(!hasValidInferredAssertedEntities(allGeneIDs, inferredGene, assertedGenes))
+		if (!hasValidInferredAssertedEntities(allGeneIDs, inferredGene, assertedGenes))
 			return false;
 		Allele inferredAllele = da.getInferredAllele();
-		List<Allele> assertedAlleles = List.of(da.getAssertedAllele());
-		if(!hasValidInferredAssertedEntities(allAllelIDs, inferredAllele, assertedAlleles))
+		List<Allele> assertedAlleles = null;
+		if (da.getAssertedAllele() != null) {
+			assertedAlleles = List.of(da.getAssertedAllele());
+		}
+		if (!hasValidInferredAssertedEntities(allAllelIDs, inferredAllele, assertedAlleles))
 			return false;
 		return hasValidGeneticModifiers(da, allGeneIDs, allAllelIDs, allModelIDs);
 	}
@@ -24,13 +27,13 @@ public class BaseDiseaseAnnotationService {
 	protected boolean hasValidEntities(AlleleDiseaseAnnotation da, Set<String> allGeneIDs, Set<String> allAllelIDs, Set<String> allModelIDs) {
 		Gene inferredGene = da.getInferredGene();
 		List<Gene> assertedGenes = da.getAssertedGenes();
-		if(!hasValidInferredAssertedEntities(allGeneIDs, inferredGene, assertedGenes))
+		if (!hasValidInferredAssertedEntities(allGeneIDs, inferredGene, assertedGenes))
 			return false;
 		return hasValidGeneticModifiers(da, allGeneIDs, allAllelIDs, allModelIDs);
 	}
 
 	private static boolean hasValidInferredAssertedEntities(Set<String> allEntityIDs, GenomicEntity inferredEntity, List<? extends GenomicEntity> assertedEntity) {
-		if (inferredEntity!= null && !allEntityIDs.contains(inferredEntity.getCurie()))
+		if (inferredEntity != null && !allEntityIDs.contains(inferredEntity.getCurie()))
 			return false;
 		if (CollectionUtils.isNotEmpty(assertedEntity)) {
 			if (assertedEntity.stream()
