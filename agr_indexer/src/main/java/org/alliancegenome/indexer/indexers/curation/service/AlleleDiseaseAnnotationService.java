@@ -4,6 +4,7 @@ import java.util.*;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.DiseaseAnnotation;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.RestConfig;
@@ -36,13 +37,13 @@ public class AlleleDiseaseAnnotationService extends BaseDiseaseAnnotationService
 
 		do {
 			SearchResponse<AlleleDiseaseAnnotation> response = alleleApi.find(page, batchSize, params);
-			HashSet<String> alleleIds = new HashSet<>(alleleRepository.getAllAlleleIDs());
+			HashSet<String> AllAlleleIds = new HashSet<>(alleleRepository.getAllAlleleIDs());
 			HashSet<String> allGeneIDs = new HashSet<>(geneRepository.getAllGeneKeys());
 			HashSet<String> allModelIDs = new HashSet<>(alleleRepository.getAllModelKeys());
 
 			for(AlleleDiseaseAnnotation da: response.getResults()) {
-				if(!da.getInternal() && alleleIds.contains(da.getSubject().getCurie())) {
-					if (hasValidEntities(da, allGeneIDs, alleleIds, allModelIDs)) {
+				if(isValidEntity(AllAlleleIds, da.getCurie())) {
+					if (hasValidEntities(da, allGeneIDs, AllAlleleIds, allModelIDs)) {
 						ret.add(da);
 					}
 				}

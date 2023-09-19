@@ -42,8 +42,8 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 		do {
 			SearchResponse<GeneDiseaseAnnotation> response = geneApi.find(page, batchSize, params);
 			for(GeneDiseaseAnnotation da: response.getResults()) {
-				if(!da.getInternal() && allGeneIDs.contains(da.getSubject().getCurie())) {
-					if (hasValidEntities(da, allGeneIDs, alleleIds, allModelIDs)) {
+				if(isValidEntity(allGeneIDs, da.getCurie())) {
+					if (hasValidGeneticModifiers(da, allGeneIDs, alleleIds, allModelIDs)) {
 						ret.add(da);
 					}
 				}

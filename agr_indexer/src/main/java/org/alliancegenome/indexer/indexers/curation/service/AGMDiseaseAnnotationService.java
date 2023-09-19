@@ -4,7 +4,6 @@ import java.util.*;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.RestConfig;
@@ -12,7 +11,6 @@ import org.alliancegenome.indexer.indexers.curation.interfaces.AGMDiseaseAnnotat
 
 import org.alliancegenome.neo4j.repository.AlleleRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
-import org.apache.commons.collections4.CollectionUtils;
 import si.mazi.rescu.RestProxyFactory;
 
 public class AGMDiseaseAnnotationService extends BaseDiseaseAnnotationService {
@@ -42,7 +40,7 @@ public class AGMDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 			HashSet<String> allModelIDs = new HashSet<>(alleleRepository.getAllModelKeys());
 
 			for(AGMDiseaseAnnotation da: response.getResults()) {
-				if(!da.getInternal() && allModelIDs.contains(da.getSubject().getCurie())) {
+				if(isValidEntity(allModelIDs, da.getCurie())) {
 					if (hasValidEntities(da, allGeneIDs, alleleIds, allModelIDs)) {
 						ret.add(da);
 					}
