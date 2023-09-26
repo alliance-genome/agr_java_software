@@ -1,15 +1,10 @@
 package org.alliancegenome.core.variant.service;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.enterprise.context.RequestScoped;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.cache.repository.AlleleCacheRepository;
 import org.alliancegenome.cache.repository.helper.AlleleFiltering;
@@ -27,11 +22,7 @@ import org.alliancegenome.neo4j.entity.node.CrossReference;
 import org.alliancegenome.neo4j.entity.node.TranscriptLevelConsequence;
 import org.alliancegenome.neo4j.entity.node.Variant;
 import org.apache.lucene.search.SortField;
-import org.elasticsearch.action.search.ClearScrollRequest;
-import org.elasticsearch.action.search.ClearScrollResponse;
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchScrollRequest;
+import org.elasticsearch.action.search.*;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.core.TimeValue;
@@ -45,12 +36,9 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import lombok.extern.slf4j.Slf4j;
+import javax.enterprise.context.RequestScoped;
+import java.io.IOException;
+import java.util.*;
 
 @Slf4j
 @RequestScoped
@@ -66,7 +54,9 @@ public class AlleleVariantIndexService {
 		mapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false);
 	}
 
-	/** DETAIL PAGE */
+	/**
+	 * DETAIL PAGE
+	 */
 	public List<AlleleVariantSequence> getAllelesNVariants(String geneId, Pagination pagination) {
 		SearchResponse searchResponse = null;
 		try {
@@ -223,7 +213,7 @@ public class AlleleVariantIndexService {
 		srb.sort(new FieldSortBuilder(getSortFields(pagination)[0].getField()).order(SortOrder.ASC));
 		srb.size(pagination.getLimit());
 		srb.trackTotalHits(true);
-		
+
 		RestHighLevelClient searchClient = EsClientFactory.getDefaultEsClient();
 
 		if (from + pagination.getLimit() <= 150000) {
@@ -304,8 +294,7 @@ public class AlleleVariantIndexService {
 					}
 
 					if (e.getKey().toString().equalsIgnoreCase("allele_category")) {
-						if (e.getValue().toString().split("\\|").length < 3)
-							queryBuilder.filter(QueryBuilders.termsQuery("alterationType.keyword", e.getValue().toString().split("\\|")));
+						queryBuilder.filter(QueryBuilders.termsQuery("alterationType.keyword", e.getValue().toString().split("\\|")));
 					}
 
 					if (e.getKey().toString().equalsIgnoreCase("variant_type")) {
