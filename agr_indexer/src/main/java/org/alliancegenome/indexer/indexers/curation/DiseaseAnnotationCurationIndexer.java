@@ -107,7 +107,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 				
 				VocabularyTerm diseaseRelation = vocabService.getVocabularyTerm("is_implicated_in");
 				if (da instanceof GeneDiseaseAnnotation) {
-					diseaseRelation = da.getDiseaseRelation();
+					diseaseRelation = da.getRelation();
 				}
 
 				String key = diseaseRelation.getName() + "_" + da.getObject().getName() + "_" + da.getNegated();
@@ -178,7 +178,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 			HashMap<String, AlleleDiseaseAnnotationDocument> lookup = new HashMap<>();
 
 			for (DiseaseAnnotation da : entry.getValue().getRight()) {
-				String key = da.getDiseaseRelation().getName() + "_" + da.getObject().getName() + "_" + da.getNegated();
+				String key = da.getRelation().getName() + "_" + da.getObject().getName() + "_" + da.getNegated();
 				AlleleDiseaseAnnotationDocument adad = lookup.get(key);
 
 				if (adad == null) {
@@ -186,7 +186,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 					HashMap<String, Integer> order = SpeciesType.getSpeciesOrderByTaxonID(entry.getValue().getLeft().getTaxon().getCurie());
 					adad.setSpeciesOrder(order);
 					adad.setSubject(entry.getValue().getLeft());
-					adad.setDiseaseRelation(da.getDiseaseRelation());
+					adad.setDiseaseRelation(da.getRelation());
 					adad.setObject(da.getObject());
 					lookup.put(key, adad);
 				}
@@ -217,7 +217,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 			HashMap<String, AGMDiseaseAnnotationDocument> lookup = new HashMap<>();
 
 			for (DiseaseAnnotation da : entry.getValue().getRight()) {
-				String key = da.getDiseaseRelation().getName() + "_" + da.getObject().getName() + "_" + da.getNegated();
+				String key = da.getRelation().getName() + "_" + da.getObject().getName() + "_" + da.getNegated();
 				AGMDiseaseAnnotationDocument adad = lookup.get(key);
 
 				if (adad == null) {
@@ -225,7 +225,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 					HashMap<String, Integer> order = SpeciesType.getSpeciesOrderByTaxonID(entry.getValue().getLeft().getTaxon().getCurie());
 					adad.setSpeciesOrder(order);
 					adad.setSubject(entry.getValue().getLeft());
-					adad.setDiseaseRelation(da.getDiseaseRelation());
+					adad.setDiseaseRelation(da.getRelation());
 					adad.setObject(da.getObject());
 					lookup.put(key, adad);
 				}
