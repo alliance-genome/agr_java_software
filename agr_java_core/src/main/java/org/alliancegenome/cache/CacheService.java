@@ -4,9 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-
 import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.core.config.CacheConfig;
 import org.alliancegenome.neo4j.view.View;
@@ -22,14 +19,14 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 
-import lombok.extern.slf4j.Slf4j;
+import io.quarkus.logging.Log;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
 
-@Slf4j
 @RequestScoped
 public class CacheService {
 
-	@Inject
-	RemoteCacheManager manager;
+	@Inject RemoteCacheManager manager;
 
 	public static ObjectMapper mapper = new ObjectMapper();
 
@@ -74,7 +71,7 @@ public class CacheService {
 		try {
 			list = new ArrayList<>(mapper.readValue(json, javaType));
 		} catch (IOException e) {
-			log.error("Error during deserialization ", e);
+			Log.error("Error during deserialization ", e);
 			throw new RuntimeException(e);
 		}
 
@@ -89,7 +86,7 @@ public class CacheService {
 		try {
 			return mapper.readerWithView(View.Cacher.class).forType(CacheStatus.class).readValue(json);
 		} catch (IOException e) {
-			log.error("Error during deserialization ", e);
+			Log.error("Error during deserialization ", e);
 			throw new RuntimeException(e);
 		}
 	}
@@ -103,7 +100,7 @@ public class CacheService {
 		try {
 			return mapper.readValue(json, clazz);
 		} catch (IOException e) {
-			log.error("Error during deserialization ", e);
+			Log.error("Error during deserialization ", e);
 			throw new RuntimeException(e);
 		}
 	}
@@ -119,7 +116,7 @@ public class CacheService {
 			value = mapper.writerWithView(classView).writeValueAsString(items);
 			cache.put(primaryKey, value);
 		} catch (JsonProcessingException e) {
-			log.error("error while saving entry into cache", e);
+			Log.error("error while saving entry into cache", e);
 			throw new RuntimeException(e);
 		}
 	}
@@ -131,14 +128,14 @@ public class CacheService {
 			value = mapper.writerWithView(classView).writeValueAsString(object);
 			cache.put(primaryKey, value);
 		} catch (JsonProcessingException e) {
-			log.error("error while saving entry into cache", e);
+			Log.error("error while saving entry into cache", e);
 			throw new RuntimeException(e);
-		} catch (Exception e ) {
-			log.info(primaryKey);
-			log.info(value.length() + "");
-			log.info(classView + "");
-			log.info(cacheAlliance + "");
-			log.error(e + "");
+		} catch (Exception e) {
+			Log.info(primaryKey);
+			Log.info(value.length() + "");
+			Log.info(classView + "");
+			Log.info(cacheAlliance + "");
+			Log.error(e + "");
 			throw new RuntimeException(e);
 		}
 	}

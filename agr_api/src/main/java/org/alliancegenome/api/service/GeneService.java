@@ -4,9 +4,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-
 import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.cache.repository.AlleleCacheRepository;
 import org.alliancegenome.cache.repository.InteractionCacheRepository;
@@ -26,6 +23,9 @@ import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.repository.InteractionRepository;
 import org.alliancegenome.neo4j.repository.PhenotypeRepository;
 import org.apache.commons.collections.CollectionUtils;
+
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
 
 @RequestScoped
 public class GeneService {

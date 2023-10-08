@@ -1,12 +1,11 @@
 package org.alliancegenome.indexer;
 
-import javax.ws.rs.HeaderParam;
-
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.config.RestDefaultObjectMapper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import jakarta.ws.rs.HeaderParam;
 import lombok.extern.slf4j.Slf4j;
 import si.mazi.rescu.ClientConfig;
 import si.mazi.rescu.serialization.jackson.JacksonObjectMapperFactory;

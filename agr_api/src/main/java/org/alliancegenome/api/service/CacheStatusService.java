@@ -4,16 +4,14 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-
 import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.CacheService;
 
-import lombok.extern.slf4j.Slf4j;
+import io.quarkus.logging.Log;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
 
-@Slf4j
 @RequestScoped
 public class CacheStatusService {
 
@@ -40,7 +38,7 @@ public class CacheStatusService {
 				if (status != null)
 					map.put(cacheAlliance, status);
 			} catch (Exception e) {
-				log.info("No suitable cache status found for " + cacheAlliance.getCacheName());
+				Log.info("No suitable cache status found for " + cacheAlliance.getCacheName());
 			}
 		});
 		return map;

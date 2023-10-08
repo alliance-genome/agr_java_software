@@ -3,14 +3,14 @@ package org.alliancegenome.api.service;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-
 import org.alliancegenome.neo4j.entity.ReleaseSummary;
 import org.alliancegenome.neo4j.entity.node.AllianceReleaseInfo;
 import org.alliancegenome.neo4j.repository.ModFileRepository;
 import org.alliancegenome.neo4j.repository.OntologyFileRepository;
 import org.alliancegenome.neo4j.repository.ReleaseInfoRepository;
+
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
 
 @RequestScoped
 public class ReleaseInfoService {

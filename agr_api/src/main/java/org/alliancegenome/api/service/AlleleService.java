@@ -5,9 +5,6 @@ import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-
 import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.cache.repository.AlleleCacheRepository;
 import org.alliancegenome.cache.repository.helper.AlleleESFiltering;
@@ -36,6 +33,9 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
 
 @RequestScoped
 public class AlleleService {

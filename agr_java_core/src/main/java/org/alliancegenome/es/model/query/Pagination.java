@@ -1,7 +1,5 @@
 package org.alliancegenome.es.model.query;
 
-import static org.alliancegenome.es.model.query.FieldFilter.FILTER_PREFIX;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -9,12 +7,11 @@ import java.util.List;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
-import javax.ws.rs.core.MultivaluedMap;
-
 import org.alliancegenome.core.api.service.ColumnFieldMapping;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.commons.lang3.StringUtils;
 
+import jakarta.ws.rs.core.MultivaluedMap;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -165,7 +162,7 @@ public class Pagination {
 		if (mapping == null)
 			return;
 		queryParameters.keySet().stream()
-			.filter(parameter -> parameter.startsWith(FILTER_PREFIX))
+			.filter(parameter -> parameter.startsWith(FieldFilter.FILTER_PREFIX))
 			.forEach(parameter -> {
 				if (!mapping.getColumnFieldFilters().contains(parameter)) {
 					String e = "The filter name '" + parameter + "' is not a valid parameter name. ";

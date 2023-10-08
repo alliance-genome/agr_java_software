@@ -6,8 +6,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.enterprise.context.RequestScoped;
-
 import org.alliancegenome.cache.repository.helper.AlleleFiltering;
 import org.alliancegenome.cache.repository.helper.AlleleSorting;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
@@ -20,6 +18,8 @@ import org.alliancegenome.neo4j.entity.node.Transcript;
 import org.alliancegenome.neo4j.entity.node.Variant;
 import org.alliancegenome.neo4j.repository.VariantRepository;
 import org.apache.commons.lang3.StringUtils;
+
+import jakarta.enterprise.context.RequestScoped;
 
 @RequestScoped
 public class VariantService {

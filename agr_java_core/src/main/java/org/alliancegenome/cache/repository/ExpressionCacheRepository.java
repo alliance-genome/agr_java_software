@@ -9,9 +9,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.CacheService;
 import org.alliancegenome.cache.repository.helper.ExpressionAnnotationFiltering;
@@ -29,9 +26,9 @@ import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.commons.collections4.CollectionUtils;
 
-import lombok.extern.slf4j.Slf4j;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
 
-@Slf4j
 @RequestScoped
 public class ExpressionCacheRepository {
 

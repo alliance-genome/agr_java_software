@@ -3,18 +3,15 @@ package org.alliancegenome.cache.repository;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.CacheService;
 import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
 import org.alliancegenome.neo4j.view.HomologView;
-
-import lombok.extern.slf4j.Slf4j;
 import org.alliancegenome.neo4j.view.ParalogBean;
 
-@Slf4j
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+
 @RequestScoped
 public class GeneCacheRepository {
 

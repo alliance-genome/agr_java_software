@@ -1,9 +1,5 @@
 package org.alliancegenome.api.controller;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.ws.rs.core.Response;
-
 import org.alliancegenome.api.rest.interfaces.AlleleRESTInterface;
 import org.alliancegenome.api.service.AlleleService;
 import org.alliancegenome.api.service.EntityType;
@@ -22,6 +18,9 @@ import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Variant;
 
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

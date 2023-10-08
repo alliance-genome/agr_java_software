@@ -6,8 +6,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.enterprise.context.RequestScoped;
-
 import org.alliancegenome.api.dto.RibbonSection;
 import org.alliancegenome.api.dto.RibbonSummary;
 import org.alliancegenome.api.entity.SectionSlim;
@@ -19,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import jakarta.enterprise.context.RequestScoped;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

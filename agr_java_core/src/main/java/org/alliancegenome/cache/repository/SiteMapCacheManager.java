@@ -4,17 +4,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-
 import org.alliancegenome.api.model.xml.XMLURL;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.CacheService;
 import org.alliancegenome.core.config.ConfigHelper;
 
-import lombok.extern.slf4j.Slf4j;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
 
-@Slf4j
 @RequestScoped
 public class SiteMapCacheManager {
 

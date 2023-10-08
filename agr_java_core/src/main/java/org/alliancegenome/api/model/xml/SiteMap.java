@@ -2,8 +2,7 @@ package org.alliancegenome.api.model.xml;
 
 import java.util.Date;
 
-import javax.xml.bind.annotation.XmlRootElement;
-
+import jakarta.xml.bind.annotation.XmlRootElement;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

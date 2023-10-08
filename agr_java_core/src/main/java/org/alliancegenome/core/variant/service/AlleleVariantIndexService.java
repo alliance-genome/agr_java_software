@@ -1,10 +1,13 @@
 package org.alliancegenome.core.variant.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.cache.repository.AlleleCacheRepository;
 import org.alliancegenome.cache.repository.helper.AlleleFiltering;
@@ -22,7 +25,11 @@ import org.alliancegenome.neo4j.entity.node.CrossReference;
 import org.alliancegenome.neo4j.entity.node.TranscriptLevelConsequence;
 import org.alliancegenome.neo4j.entity.node.Variant;
 import org.apache.lucene.search.SortField;
-import org.elasticsearch.action.search.*;
+import org.elasticsearch.action.search.ClearScrollRequest;
+import org.elasticsearch.action.search.ClearScrollResponse;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.search.SearchScrollRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.core.TimeValue;
@@ -36,11 +43,14 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
-import javax.enterprise.context.RequestScoped;
-import java.io.IOException;
-import java.util.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-@Slf4j
+import io.quarkus.logging.Log;
+import jakarta.enterprise.context.RequestScoped;
+
 @RequestScoped
 public class AlleleVariantIndexService {
 
@@ -60,11 +70,11 @@ public class AlleleVariantIndexService {
 	public List<AlleleVariantSequence> getAllelesNVariants(String geneId, Pagination pagination) {
 		SearchResponse searchResponse = null;
 		try {
-			log.debug("BEFORE QUERY:" + new Date());
+			Log.debug("BEFORE QUERY:" + new Date());
 
 			searchResponse = getSearchResponse(geneId);
-			log.debug("Len: " + searchResponse.getHits().getHits().length);
-			log.debug("AFTER QUERY:" + new Date() + "\tTOOK:" + searchResponse.getTook());
+			Log.debug("Len: " + searchResponse.getHits().getHits().length);
+			Log.debug("AFTER QUERY:" + new Date() + "\tTOOK:" + searchResponse.getTook());
 
 			// searchHits = getSearchResponse(geneId,pagination);
 		} catch (IOException e) {
@@ -113,8 +123,8 @@ public class AlleleVariantIndexService {
 				}
 			}
 
-		log.debug("TOTAL HITS:" + searchResponse.getHits().getTotalHits().value);
-		log.debug("Allele Variant Sequences:" + avsList.size());
+		Log.debug("TOTAL HITS:" + searchResponse.getHits().getTotalHits().value);
+		Log.debug("Allele Variant Sequences:" + avsList.size());
 		return avsList;
 	}
 
@@ -163,8 +173,8 @@ public class AlleleVariantIndexService {
 
 		}
 
-		log.debug("TOTAL HITS:" + searchHits.size());
-		log.debug("Alleles :" + alleles.size());
+		Log.debug("TOTAL HITS:" + searchHits.size());
+		Log.debug("Alleles :" + alleles.size());
 
 		JsonResultResponse<Allele> response = new JsonResultResponse<>();
 
@@ -195,7 +205,7 @@ public class AlleleVariantIndexService {
 		SearchRequest searchRequest = new SearchRequest(ConfigHelper.getEsIndex());
 
 		searchRequest.source(srb);
-		log.info("Search Request: " + searchRequest);
+		Log.info("Search Request: " + searchRequest);
 		return EsClientFactory.getDefaultEsClient().search(searchRequest, EsClientFactory.LARGE_RESPONSE_REQUEST_OPTIONS);
 	}
 
@@ -346,10 +356,9 @@ public class AlleleVariantIndexService {
 	}
 
 	public void buildAggregations(SearchSourceBuilder searchSourceBuilder) {
-		List<String> aggregationFields = new ArrayList<>(Arrays.asList("variantType", "hasDisease", "allele.hasPhenotype", "allele.variants.transcriptLevelConsequence.impact",
-			"allele.variants.transcriptLevelConsequence.polyphenPrediction", "allele.variants.transcriptLevelConsequence.siftPrediction",
-			"allele.variants.transcriptLevelConsequence.sequenceFeatureType", "allele.variants.transcriptLevelConsequence.transcript.name", "allele.gene.symbol",
-			"allele.variants.transcriptLevelConsequence.location", "allele.variants.transcriptLevelConsequence.molecularConsequences", "alterationType"));
+		List<String> aggregationFields = new ArrayList<>(Arrays.asList("variantType", "hasDisease", "allele.hasPhenotype", "allele.variants.transcriptLevelConsequence.impact", "allele.variants.transcriptLevelConsequence.polyphenPrediction",
+			"allele.variants.transcriptLevelConsequence.siftPrediction", "allele.variants.transcriptLevelConsequence.sequenceFeatureType", "allele.variants.transcriptLevelConsequence.transcript.name", "allele.gene.symbol", "allele.variants.transcriptLevelConsequence.location",
+			"allele.variants.transcriptLevelConsequence.molecularConsequences", "alterationType"));
 		for (String field : aggregationFields) {
 			searchSourceBuilder.aggregation(buildAggregations(field));
 		}

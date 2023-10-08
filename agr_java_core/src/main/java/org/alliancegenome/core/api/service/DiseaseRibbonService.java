@@ -12,8 +12,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.enterprise.context.RequestScoped;
-
 import org.alliancegenome.api.entity.DiseaseRibbonSection;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.api.entity.SectionSlim;
@@ -24,9 +22,9 @@ import org.apache.commons.collections4.CollectionUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import lombok.extern.slf4j.Slf4j;
+import io.quarkus.logging.Log;
+import jakarta.enterprise.context.RequestScoped;
 
-@Slf4j
 @RequestScoped
 public class DiseaseRibbonService {
 
@@ -46,7 +44,7 @@ public class DiseaseRibbonService {
 		try {
 			deepCopy = objectMapper.readValue(objectMapper.writeValueAsString(getDiseaseRibbonSections()), DiseaseRibbonSummary.class);
 		} catch (IOException e) {
-			log.error(e.toString());
+			Log.error(e.toString());
 		}
 
 		return deepCopy;

@@ -16,11 +16,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import javax.enterprise.context.RequestScoped;
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.UriInfo;
-
 import org.alliancegenome.api.service.helper.SearchHelper;
 import org.alliancegenome.es.index.site.dao.SearchDAO;
 import org.alliancegenome.es.model.search.RelatedDataLink;
@@ -42,9 +37,12 @@ import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.rescore.QueryRescorerBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
-import lombok.extern.slf4j.Slf4j;
+import io.quarkus.logging.Log;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.ws.rs.core.MultivaluedHashMap;
+import jakarta.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.core.UriInfo;
 
-@Slf4j
 @RequestScoped
 public class SearchService {
 
@@ -81,9 +79,9 @@ public class SearchService {
 		SearchResponse searchResponse = searchDAO.performQuery(query, aggBuilders, rescorerBuilder, searchHelper.getResponseFields(), limit, offset, hlb, sorts, debug);
 
 		if(debug != null && debug) {
-			log.info("Search Query: " + q);
+			Log.info("Search Query: " + q);
 		} else {
-			log.debug("Search Query: " + q);
+			Log.debug("Search Query: " + q);
 		}
 
 		result.setTotal(searchResponse.getHits().getTotalHits().value);
