@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 import org.alliancegenome.api.entity.AGMDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
-import org.alliancegenome.curation_api.config.RestDefaultObjectMapper;
 import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.AffectedGenomicModel;
 import org.alliancegenome.curation_api.model.entities.Allele;
@@ -26,6 +25,7 @@ import org.alliancegenome.curation_api.model.entities.GeneDiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.Reference;
 import org.alliancegenome.curation_api.model.entities.VocabularyTerm;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
+import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
 import org.alliancegenome.indexer.indexers.curation.service.AGMDiseaseAnnotationService;
@@ -61,7 +61,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 
 	@Override
 	protected ObjectMapper customizeObjectMapper(ObjectMapper objectMapper) {
-		return (new RestDefaultObjectMapper()).getMapper();
+		return RestConfig.config.getJacksonObjectMapperFactory().createObjectMapper();
 	}
 
 	@Override

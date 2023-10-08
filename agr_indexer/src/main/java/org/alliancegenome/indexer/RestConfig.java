@@ -1,9 +1,13 @@
 package org.alliancegenome.indexer;
 
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.curation_api.config.RestDefaultObjectMapper;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import jakarta.ws.rs.HeaderParam;
 import lombok.extern.slf4j.Slf4j;
@@ -19,8 +23,15 @@ public class RestConfig {
 		JacksonObjectMapperFactory objectMapperFactory = new JacksonObjectMapperFactory() {
 			@Override
 			public ObjectMapper createObjectMapper() {
-				RestDefaultObjectMapper mappedProducer = new RestDefaultObjectMapper();
-				return mappedProducer.getMapper();
+				// Curation Object Mapper
+				ObjectMapper mapper = new ObjectMapper();
+				mapper.registerModule(new JavaTimeModule());
+				mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+				mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+				mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
+				mapper.setSerializationInclusion(Include.NON_NULL);
+				mapper.setSerializationInclusion(Include.NON_EMPTY);
+				return mapper;
 			}
 
 			@Override
