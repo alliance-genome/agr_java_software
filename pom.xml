@@ -22,8 +22,9 @@
 	<properties>
 		<maven.compiler.source>17</maven.compiler.source>
 		<maven.compiler.target>17</maven.compiler.target>
-		<revision>5.4.0</revision>
-		<quarkus.version>2.16.11.Final</quarkus.version>
+		<revision>6.0.0</revision>
+		<quarkus.version>3.4.2</quarkus.version>
+		<infinispan.version>14.0.17.Final</infinispan.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
@@ -68,19 +69,24 @@
 				<version>7.14.2</version>
 			</dependency>
 			<dependency>
+				<groupId>com.github.mmazi</groupId>
+				<artifactId>rescu</artifactId>
+				<version>3.0</version>
+			</dependency>
+			<dependency>
 				<groupId>org.infinispan</groupId>
 				<artifactId>infinispan-commons</artifactId>
-				<version>13.0.10.Final</version>
+				<version>${infinispan.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.infinispan</groupId>
-				<artifactId>infinispan-core</artifactId>
-				<version>13.0.10.Final</version>
+				<artifactId>infinispan-core-jakarta</artifactId>
+				<version>${infinispan.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.infinispan</groupId>
-				<artifactId>infinispan-client-hotrod</artifactId>
-				<version>13.0.10.Final</version>
+				<artifactId>infinispan-client-hotrod-jakarta</artifactId>
+				<version>${infinispan.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
@@ -130,6 +136,24 @@
 				<groupId>io.quarkus</groupId>
 				<artifactId>quarkus-maven-plugin</artifactId>
 				<version>${quarkus.platform.version}</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>3.0.1</version>
+				<configuration>
+					<doclint>all,-html,-syntax,-accessibility,-missing</doclint>
+					<failOnError>false</failOnError>
+					<quiet>true</quiet>
+				</configuration>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>

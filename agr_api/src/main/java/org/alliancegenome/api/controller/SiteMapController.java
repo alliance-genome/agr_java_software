@@ -1,18 +1,20 @@
 package org.alliancegenome.api.controller;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-
-import org.alliancegenome.api.model.xml.*;
+import org.alliancegenome.api.model.xml.SiteMap;
+import org.alliancegenome.api.model.xml.SiteMapIndex;
+import org.alliancegenome.api.model.xml.XMLURL;
+import org.alliancegenome.api.model.xml.XMLURLSet;
 import org.alliancegenome.api.rest.interfaces.SiteMapRESTInterface;
 import org.alliancegenome.cache.repository.SiteMapCacheManager;
 import org.alliancegenome.core.config.ConfigHelper;
 
-import lombok.extern.slf4j.Slf4j;
+import io.quarkus.logging.Log;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
 
-@Slf4j
 @RequestScoped
 public class SiteMapController implements SiteMapRESTInterface {
 
@@ -24,19 +26,19 @@ public class SiteMapController implements SiteMapRESTInterface {
 		List<SiteMap> list = new ArrayList<SiteMap>();
 		
 		List<String> geneKeys = manager.getGenesKeys();
-		log.info("Gene Keys: "	+ geneKeys.size());
+		Log.info("Gene Keys: "	+ geneKeys.size());
 		for(String s: geneKeys) {
 			list.add(new SiteMap(buildUrl("api/sitemap/gene-sitemap-" + s + ".xml"), ConfigHelper.getAppStart()));
 		}
 		
 		List<String> diseaseKeys = manager.getDiseaseKeys();
-		log.info("Disease Keys: "  + diseaseKeys.size());
+		Log.info("Disease Keys: "  + diseaseKeys.size());
 		for(String s: diseaseKeys) {
 			list.add(new SiteMap(buildUrl("api/sitemap/disease-sitemap-" + s + ".xml"), ConfigHelper.getAppStart()));
 		}
 		
 		List<String> alleleKeys = manager.getAlleleKeys();
-		log.info("Disease Keys: "  + alleleKeys.size());
+		Log.info("Disease Keys: "  + alleleKeys.size());
 		for(String s: alleleKeys) {
 			list.add(new SiteMap(buildUrl("api/sitemap/allele-sitemap-" + s + ".xml"), ConfigHelper.getAppStart()));
 		}

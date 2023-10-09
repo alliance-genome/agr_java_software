@@ -5,10 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.ws.rs.core.Response;
-
 import org.alliancegenome.api.dto.RibbonSummary;
 import org.alliancegenome.api.rest.interfaces.ExpressionRESTInterface;
 import org.alliancegenome.api.service.EntityType;
@@ -31,9 +27,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import lombok.extern.slf4j.Slf4j;
+import io.quarkus.logging.Log;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.core.Response;
 
-@Slf4j
 @RequestScoped
 public class ExpressionController implements ExpressionRESTInterface {
 
@@ -81,7 +79,7 @@ public class ExpressionController implements ExpressionRESTInterface {
 			response.setHttpServletRequest(null);
 			return response;
 		} catch (Exception e) {
-			log.error("Error while retrieving expression data", e);
+			Log.error("Error while retrieving expression data", e);
 			RestErrorMessage error = new RestErrorMessage();
 			error.addErrorMessage(e.getMessage());
 			throw new RestErrorException(error);
@@ -147,7 +145,7 @@ public class ExpressionController implements ExpressionRESTInterface {
 		try {
 			return expressionService.getExpressionRibbonSummary(ids);
 		} catch (Exception e) {
-			log.error("error",e);
+			Log.error("error", e);
 			RestErrorMessage error = new RestErrorMessage();
 			error.addErrorMessage(e.getMessage());
 			throw new RestErrorException(error);

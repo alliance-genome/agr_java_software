@@ -11,11 +11,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
 import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.api.rest.interfaces.DiseaseRESTInterface;
 import org.alliancegenome.api.service.DiseaseESService;
@@ -40,9 +35,12 @@ import org.apache.commons.lang3.StringUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import lombok.extern.slf4j.Slf4j;
+import io.quarkus.logging.Log;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
-@Slf4j
 @RequestScoped
 public class DiseaseController implements DiseaseRESTInterface {
 
@@ -97,7 +95,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 
 			return response;
 		} catch (Exception e) {
-			log.error("Error while retrieving disease annotations", e);
+			Log.error("Error while retrieving disease annotations", e);
 			RestErrorMessage error = new RestErrorMessage();
 			error.addErrorMessage(e.getMessage());
 			throw new RestErrorException(error);
@@ -132,7 +130,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 
 			return response;
 		} catch (Exception e) {
-			log.error("Error while retrieving disease annotations by allele", e);
+			Log.error("Error while retrieving disease annotations by allele", e);
 			RestErrorMessage error = new RestErrorMessage();
 			error.addErrorMessage(e.getMessage());
 			throw new RestErrorException(error);
@@ -212,7 +210,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 
 			return response;
 		} catch (Exception e) {
-			log.error("Error while retrieving disease annotations by allele", e);
+			Log.error("Error while retrieving disease annotations by allele", e);
 			RestErrorMessage error = new RestErrorMessage();
 			error.addErrorMessage(e.getMessage());
 			throw new RestErrorException(error);
@@ -243,7 +241,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 
 			return response;
 		} catch (Exception e) {
-			log.error("Error while retrieving disease annotations by allele", e);
+			Log.error("Error while retrieving disease annotations by allele", e);
 			RestErrorMessage error = new RestErrorMessage();
 			error.addErrorMessage(e.getMessage());
 			throw new RestErrorException(error);
@@ -284,7 +282,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 			APIServiceHelper.setDownloadHeader(id, DISEASE, GENE, responseBuilder);
 		} catch (Exception e) {
 			e.printStackTrace();
-			log.error("Error: " + e);
+			Log.error("Error: " + e);
 			RestErrorMessage error = new RestErrorMessage();
 			error.addErrorMessage(e.getMessage());
 			throw new RestErrorException(error);
@@ -336,7 +334,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 			response.calculateRequestDuration(startDate);
 			return response;
 		} catch (Exception e) {
-			log.error("Error while retrieving disease annotations", e);
+			Log.error("Error while retrieving disease annotations", e);
 			RestErrorMessage error = new RestErrorMessage();
 			error.addErrorMessage(e.getMessage());
 			throw new RestErrorException(error);
@@ -358,7 +356,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 			APIServiceHelper.setDownloadHeader(geneIDs.get(0), GENE, DISEASE, responseBuilder);
 		} catch (Exception e) {
 			e.printStackTrace();
-			log.error("Error: " + e);
+			Log.error("Error: " + e);
 			RestErrorMessage error = new RestErrorMessage();
 			error.addErrorMessage(e.getMessage());
 			throw new RestErrorException(error);
