@@ -1,9 +1,9 @@
 package org.alliancegenome.api.tests.integration;
 
-import javax.inject.Inject;
-
 import org.alliancegenome.cache.repository.SiteMapCacheManager;
 import org.junit.Test;
+
+import jakarta.inject.Inject;
 
 public class SiteMapGenIT {
 

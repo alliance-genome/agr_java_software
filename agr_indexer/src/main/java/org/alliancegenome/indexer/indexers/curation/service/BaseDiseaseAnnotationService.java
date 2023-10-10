@@ -1,11 +1,16 @@
 package org.alliancegenome.indexer.indexers.curation.service;
 
-import org.alliancegenome.curation_api.model.entities.*;
-import org.apache.commons.collections4.CollectionUtils;
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.Allele;
+import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.DiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.Gene;
+import org.alliancegenome.curation_api.model.entities.GenomicEntity;
+import org.apache.commons.collections4.CollectionUtils;
 
 public class BaseDiseaseAnnotationService {
 

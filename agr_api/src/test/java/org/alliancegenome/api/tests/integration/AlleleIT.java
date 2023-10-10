@@ -18,8 +18,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-
 import org.alliancegenome.api.controller.GeneController;
 import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.api.service.AlleleService;
@@ -52,6 +50,8 @@ import org.junit.Test;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import jakarta.inject.Inject;
 
 
 public class AlleleIT {

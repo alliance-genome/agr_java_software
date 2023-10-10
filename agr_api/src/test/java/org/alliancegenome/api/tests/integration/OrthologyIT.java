@@ -10,8 +10,6 @@ import static org.junit.Assert.assertTrue;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-
 import org.alliancegenome.cache.repository.OrthologyCacheRepository;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.es.model.query.FieldFilter;
@@ -21,6 +19,8 @@ import org.alliancegenome.neo4j.view.HomologView;
 import org.apache.commons.collections4.map.MultiKeyMap;
 import org.hamcrest.Matchers;
 import org.junit.Test;
+
+import jakarta.inject.Inject;
 
 public class OrthologyIT {
 

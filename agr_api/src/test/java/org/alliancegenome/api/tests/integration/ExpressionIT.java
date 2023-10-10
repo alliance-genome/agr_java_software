@@ -11,8 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-
 import org.alliancegenome.api.dto.EntitySubgroupSlim;
 import org.alliancegenome.api.dto.RibbonSummary;
 import org.alliancegenome.api.service.ExpressionService;
@@ -26,6 +24,8 @@ import org.alliancegenome.neo4j.entity.node.GOTerm;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.junit.Test;
+
+import jakarta.inject.Inject;
 
 public class ExpressionIT extends AbstractIT{
 
