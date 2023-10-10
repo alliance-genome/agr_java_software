@@ -13,8 +13,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-
 import org.alliancegenome.api.service.VariantService;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.config.ConfigHelper;
@@ -25,6 +23,8 @@ import org.alliancegenome.neo4j.entity.node.Variant;
 import org.alliancegenome.neo4j.repository.VariantRepository;
 import org.junit.Before;
 import org.junit.Test;
+
+import jakarta.inject.Inject;
 
 public class VariantIT {
 

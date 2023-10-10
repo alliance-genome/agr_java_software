@@ -14,8 +14,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-
 import org.alliancegenome.api.service.GeneService;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.api.service.DiseaseService;
@@ -37,6 +35,8 @@ import org.junit.Test;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import jakarta.inject.Inject;
 
 public class PhenotypeIT {
 
