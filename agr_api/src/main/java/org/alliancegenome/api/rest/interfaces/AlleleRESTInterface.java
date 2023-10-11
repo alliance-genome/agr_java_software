@@ -1,5 +1,6 @@
 package org.alliancegenome.api.rest.interfaces;
 
+import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
@@ -49,7 +50,7 @@ public interface AlleleRESTInterface {
 							description = "Search for alleles.",
 							content = @Content(mediaType = "application/json",
 									schema = @Schema(implementation = Allele.class))) })
-	public Allele getAllele(
+	Allele getAllele(
 			@Parameter(in = ParameterIn.PATH, name = "id", description = "Search for an Allele by ID", required = true, schema = @Schema(type = SchemaType.STRING))
 			@PathParam("id") String id
 			);
@@ -106,10 +107,10 @@ public interface AlleleRESTInterface {
 	@JsonView(value = {View.GeneAllelesAPI.class})
 	JsonResultResponse<Allele> getAllelesPerSpecies(
 			@Parameter(
-					in=ParameterIn.PATH, 
-					name="species", 
-					description = "Species identifier: Could be the full ID, e.g. 'NCBITaxon:10090', or just the ID, i.e. '10090'. Alternatively, part of a species name uniquely identifying a single species, e.g. 'danio' or 'mus'.", 
-					required=true, 
+					in=ParameterIn.PATH,
+					name="species",
+					description = "Species identifier: Could be the full ID, e.g. 'NCBITaxon:10090', or just the ID, i.e. '10090'. Alternatively, part of a species name uniquely identifying a single species, e.g. 'danio' or 'mus'.",
+					required=true,
 					schema = @Schema(type = SchemaType.STRING))
 			@PathParam("species") String species,
 			@Parameter(in=ParameterIn.QUERY, name="limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
@@ -187,25 +188,36 @@ public interface AlleleRESTInterface {
 							description = "Diseases for a given Allele.",
 							content = @Content(mediaType = "application/json",
 									schema = @Schema(implementation = DiseaseAnnotation.class))) })
-	@JsonView(value = {View.DiseaseAnnotationSummary.class})
-	JsonResultResponse<DiseaseAnnotation> getDiseasePerAllele(
-			@Parameter(in=ParameterIn.PATH, name = "id", description = "Search for Phenotypes for a given Allele by ID", required=true, schema = @Schema(type = SchemaType.STRING))
-			@PathParam("id") String id,
-			@Parameter(in=ParameterIn.QUERY, name="limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
-			@DefaultValue("20") @QueryParam("limit") Integer limit,
-			@Parameter(in=ParameterIn.QUERY, name="page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER))
-			@DefaultValue("1") @QueryParam("page") Integer page,
-			@Parameter(in=ParameterIn.QUERY, name = "filter.disease", description = "termName annotation")
-			@QueryParam("filter.disease") String disease,
-			@Parameter(in=ParameterIn.QUERY, name = "filter.source", description = "Source")
-			@QueryParam("filter.source") String source,
-			@Parameter(in=ParameterIn.QUERY, name = "filter.reference", description = "Reference number: PUBMED or a Pub ID from the MOD")
-			@QueryParam("filter.reference") String reference,
-			@Parameter(in=ParameterIn.QUERY, name = "filter.associationType", description = "Filter on association Type")
-			@QueryParam("filter.associationType") String associationType,
-			@Parameter(in=ParameterIn.QUERY, name="sortBy", description = "Field name by which to sort", schema = @Schema(type = SchemaType.STRING))
-			@DefaultValue("symbol") @QueryParam("sortBy") String sortBy
-
+	JsonResultResponse<AlleleDiseaseAnnotationDocument> getDiseasePerAllele(
+		@PathParam("id") String id,
+		@Parameter(in = ParameterIn.QUERY, name = "filterOptions", description = "All filter key-value pairs", schema = @Schema(type = SchemaType.STRING))
+		@QueryParam("filterOptions") String filterOptions,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.reference", description = "Reference", schema = @Schema(type = SchemaType.STRING))
+		@QueryParam("filter.reference") String filterReference,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.object.curie", description = "Ontology term name", schema = @Schema(type = SchemaType.STRING))
+		@QueryParam("filter.disease") String diseaseTerm,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.dataProvider", description = "Source", schema = @Schema(type = SchemaType.STRING))
+		@QueryParam("filter.dataProvider") String filterSource,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.geneticEntity", description = "geneticEntity", schema = @Schema(type = SchemaType.STRING))
+		@QueryParam("filter.geneticEntity") String geneticEntity,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.geneticEntityType", description = "geneticEntityType", schema = @Schema(type = SchemaType.STRING))
+		@QueryParam("filter.geneticEntityType") String geneticEntityType,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.diseaseRelation.name", description = "associationType", schema = @Schema(type = SchemaType.STRING))
+		@QueryParam("filter.associationType") String associationType,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.diseaseQualifier", description = "diseaseQualifier", schema = @Schema(type = SchemaType.STRING))
+		@QueryParam("filter.diseaseQualifier") String diseaseQualifier,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.evidenceCode", description = "evidenceCode", schema = @Schema(type = SchemaType.STRING))
+		@QueryParam("filter.evidenceCode") String evidenceCode,
+		@Parameter(in = ParameterIn.QUERY, name = "debug", description = "debug query", schema = @Schema(type = SchemaType.STRING))
+		@DefaultValue("false") @QueryParam("debug") Boolean debug,
+		@Parameter(in = ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
+		@DefaultValue("20") @QueryParam("limit") Integer limit,
+		@Parameter(in = ParameterIn.QUERY, name = "page", description = "Page number")
+		@DefaultValue("1") @QueryParam("page") Integer page,
+		@Parameter(in = ParameterIn.QUERY, name = "sortBy", description = "Sort by field name")
+		@QueryParam("sortBy") String sortBy,
+		@Parameter(in = ParameterIn.QUERY, name = "asc", description = "ascending or descending", schema = @Schema(type = SchemaType.STRING))
+		@DefaultValue("true") @QueryParam("asc") String asc
 			);
 
 
@@ -215,18 +227,34 @@ public interface AlleleRESTInterface {
 	@JsonView(value = {View.DiseaseAnnotationSummary.class})
 	@Produces(MediaType.TEXT_PLAIN)
 	Response getDiseasePerAlleleDownload(
-			@Parameter(in=ParameterIn.PATH, name = "id", description = "Search for Phenotypes for a given Allele by ID", required=true, schema = @Schema(type = SchemaType.STRING))
-			@PathParam("id") String id,
-			@Parameter(in=ParameterIn.QUERY, name = "filter.disease", description = "termName annotation")
-			@QueryParam("filter.disease") String disease,
-			@Parameter(in=ParameterIn.QUERY, name = "filter.source", description = "Source")
-			@QueryParam("filter.source") String source,
-			@Parameter(in=ParameterIn.QUERY, name = "filter.reference", description = "Reference number: PUBMED or a Pub ID from the MOD")
-			@QueryParam("filter.reference") String reference,
-			@Parameter(in=ParameterIn.QUERY, name = "filter.associationType", description = "Filter on association Type")
-			@QueryParam("filter.associationType") String associationType,
-			@Parameter(in=ParameterIn.QUERY, name="sortBy", description = "Field name by which to sort", schema = @Schema(type = SchemaType.STRING))
-			@DefaultValue("symbol") @QueryParam("sortBy") String sortBy
-			);
+		@PathParam("id") String id,
+		@Parameter(in = ParameterIn.QUERY, name = "filterOptions", description = "All filter key-value pairs", schema = @Schema(type = SchemaType.STRING))
+		@QueryParam("filterOptions") String filterOptions,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.reference", description = "Reference", schema = @Schema(type = SchemaType.STRING))
+		@QueryParam("filter.reference") String filterReference,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.object.curie", description = "Ontology term name", schema = @Schema(type = SchemaType.STRING))
+		@QueryParam("filter.disease") String diseaseTerm,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.dataProvider", description = "Source", schema = @Schema(type = SchemaType.STRING))
+		@QueryParam("filter.dataProvider") String filterSource,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.geneticEntity", description = "geneticEntity", schema = @Schema(type = SchemaType.STRING))
+		@QueryParam("filter.geneticEntity") String geneticEntity,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.geneticEntityType", description = "geneticEntityType", schema = @Schema(type = SchemaType.STRING))
+		@QueryParam("filter.geneticEntityType") String geneticEntityType,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.diseaseRelation.name", description = "associationType", schema = @Schema(type = SchemaType.STRING))
+		@QueryParam("filter.associationType") String associationType,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.diseaseQualifier", description = "diseaseQualifier", schema = @Schema(type = SchemaType.STRING))
+		@QueryParam("filter.diseaseQualifier") String diseaseQualifier,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.evidenceCode", description = "evidenceCode", schema = @Schema(type = SchemaType.STRING))
+		@QueryParam("filter.evidenceCode") String evidenceCode,
+		@Parameter(in = ParameterIn.QUERY, name = "debug", description = "debug query", schema = @Schema(type = SchemaType.STRING))
+		@DefaultValue("false") @QueryParam("debug") Boolean debug,
+		@Parameter(in = ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
+		@DefaultValue("20") @QueryParam("limit") Integer limit,
+		@Parameter(in = ParameterIn.QUERY, name = "page", description = "Page number")
+		@DefaultValue("1") @QueryParam("page") Integer page,
+		@Parameter(in = ParameterIn.QUERY, name = "sortBy", description = "Sort by field name")
+		@QueryParam("sortBy") String sortBy,
+		@Parameter(in = ParameterIn.QUERY, name = "asc", description = "ascending or descending", schema = @Schema(type = SchemaType.STRING))
+		@DefaultValue("true") @QueryParam("asc") String asc			);
 
 }
