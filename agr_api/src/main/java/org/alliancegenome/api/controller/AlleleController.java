@@ -1,7 +1,9 @@
 package org.alliancegenome.api.controller;
 
+import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
 import org.alliancegenome.api.rest.interfaces.AlleleRESTInterface;
 import org.alliancegenome.api.service.AlleleService;
+import org.alliancegenome.api.service.DiseaseESService;
 import org.alliancegenome.api.service.EntityType;
 import org.alliancegenome.api.service.VariantService;
 import org.alliancegenome.api.service.helper.APIServiceHelper;
@@ -23,13 +25,20 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.LocalDateTime;
+
 @Slf4j
 @RequestScoped
 public class AlleleController implements AlleleRESTInterface {
 
-	@Inject AlleleService alleleService;
-	
-	@Inject VariantService variantService;
+	@Inject
+	AlleleService alleleService;
+
+	@Inject
+	VariantService variantService;
+
+	@Inject
+	DiseaseESService diseaseESService;
 
 	//@Inject
 	//private HttpRequest request;
@@ -132,7 +141,7 @@ public class AlleleController implements AlleleRESTInterface {
 		}
 	}
 
-   @Override
+	@Override
 	public Response getPhenotypesPerAlleleDownload(String id,
 												   String phenotype,
 												   String source,
@@ -150,33 +159,46 @@ public class AlleleController implements AlleleRESTInterface {
 		return responseBuilder.build();
 	}
 
-	public JsonResultResponse<DiseaseAnnotation> getDiseasePerAllele(String id,
-																	 Integer limit,
-																	 Integer page,
-																	 String disease,
-																	 String source,
-																	 String reference,
-																	 String associationType,
-																	 String sortBy) {
-		long startTime = System.currentTimeMillis();
-		Pagination pagination = new Pagination(page, limit, sortBy, null);
-		pagination.addFieldFilter(FieldFilter.DISEASE, disease);
-		pagination.addFieldFilter(FieldFilter.SOURCE, source);
-		pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
-		pagination.addFieldFilter(FieldFilter.ASSOCIATION_TYPE, associationType);
+	public JsonResultResponse<AlleleDiseaseAnnotationDocument> getDiseasePerAllele(String alleleID,
+																				   String filterOptions,
+																				   String filterReference,
+																				   String diseaseTerm,
+																				   String filterSource,
+																				   String geneticEntity,
+																				   String geneticEntityType,
+																				   String associationType,
+																				   String diseaseQualifier,
+																				   String evidenceCode,
+																				   Boolean debug,
+																				   Integer limit,
+																				   Integer page,
+																				   String sortBy,
+																				   String asc) {
+
+		LocalDateTime startDate = LocalDateTime.now();
+		Pagination pagination = new Pagination(page, limit, sortBy, asc);
+		pagination.addFilterOptions(filterOptions);
+		//pagination.addFilterOption("subject.curie.keyword", alleleID);
+		pagination.addFilterOption("object.name", diseaseTerm);
+		pagination.addFilterOption("evidenceCodes.abbreviation", evidenceCode);
+		pagination.addFilterOption("diseaseRelationNegation.keyword", associationType);
+		pagination.addFilterOption("diseaseQualifiers.keyword", diseaseQualifier);
+		pagination.addFilterOption("pubmedPubModIDs", filterReference);
+		pagination.addFilterOption("primaryAnnotations.dataProvider.abbreviation", filterSource);
+
+
 		if (pagination.hasErrors()) {
 			RestErrorMessage message = new RestErrorMessage();
 			message.setErrors(pagination.getErrors());
 			throw new RestErrorException(message);
 		}
-
 		try {
-			JsonResultResponse<DiseaseAnnotation> alleles = alleleService.getDisease(id, pagination);
-			alleles.setHttpServletRequest(null);
-			alleles.calculateRequestDuration(startTime);
-			return alleles;
+			JsonResultResponse<AlleleDiseaseAnnotationDocument> response = diseaseESService.getAlleleDiseaseAnnotations(alleleID, pagination, true, debug);
+			response.setHttpServletRequest(null);
+			response.calculateRequestDuration(startDate);
+			return response;
 		} catch (Exception e) {
-			log.error("Error while retrieving disease info", e);
+			log.error("Error while retrieving disease annotations", e);
 			RestErrorMessage error = new RestErrorMessage();
 			error.addErrorMessage(e.getMessage());
 			throw new RestErrorException(error);
@@ -184,23 +206,40 @@ public class AlleleController implements AlleleRESTInterface {
 	}
 
 
-   @Override
-	public Response getDiseasePerAlleleDownload(String id,
-												   String disease,
-												   String source,
-												   String reference,
-												   String associationType,
-												   String sortBy) {
-		JsonResultResponse<DiseaseAnnotation> response = getDiseasePerAllele( id,
-				Integer.MAX_VALUE,
-				1,
-				disease,
-				source,
-				reference,
-				associationType,
-				sortBy);
-		Response.ResponseBuilder responseBuilder = Response.ok(diseaseToTdfTranslator.getAllRowsForAllele(response.getResults()));
-		APIServiceHelper.setDownloadHeader(id, EntityType.ALLELE, EntityType.DISEASE, responseBuilder);
+	@Override
+	public Response getDiseasePerAlleleDownload(String alleleID,
+												String filterOptions,
+												String filterReference,
+												String diseaseTerm,
+												String filterSource,
+												String geneticEntity,
+												String geneticEntityType,
+												String associationType,
+												String diseaseQualifier,
+												String evidenceCode,
+												Boolean debug,
+												Integer limit,
+												Integer page,
+												String sortBy,
+												String asc) {
+		JsonResultResponse<AlleleDiseaseAnnotationDocument> response = getDiseasePerAllele(alleleID,
+			filterOptions,
+			filterReference,
+			diseaseTerm,
+			filterSource,
+			geneticEntity,
+			geneticEntityType,
+			associationType,
+			diseaseQualifier,
+			evidenceCode,
+			debug,
+			Integer.MAX_VALUE,
+			page,
+			sortBy,
+			asc);
+		Response.ResponseBuilder responseBuilder = null;
+		///Response.ResponseBuilder responseBuilder = Response.ok(diseaseToTdfTranslator.getAllRowsForAllele(response.getResults()));
+		//APIServiceHelper.setDownloadHeader(id, EntityType.ALLELE, EntityType.DISEASE, responseBuilder);
 		return responseBuilder.build();
 	}
 

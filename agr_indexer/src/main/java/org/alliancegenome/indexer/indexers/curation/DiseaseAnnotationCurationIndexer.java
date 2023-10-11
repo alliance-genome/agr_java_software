@@ -187,12 +187,15 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 					adad.setSpeciesOrder(order);
 					adad.setSubject(entry.getValue().getLeft());
 					adad.setDiseaseRelation(da.getDiseaseRelation());
+					String diseaseRelationNegation = getDiseaseRelationNegation(da.getDiseaseRelation().getName(), da.getNegated());
+					adad.setDiseaseRelationNegation(diseaseRelationNegation);
 					adad.setObject(da.getObject());
 					lookup.put(key, adad);
 				}
 				adad.setEvidenceCodes(da.getEvidenceCodes());
 				// gdad.setDataProvider(da.getDataProvider());
 				adad.addReference(da.getSingleReference());
+				adad.addPubMedPubModID(getPubmedPubModID(da.getSingleReference()));
 				if (da instanceof AlleleDiseaseAnnotation || da instanceof AGMDiseaseAnnotation) {
 					adad.addPrimaryAnnotation(da);
 				}

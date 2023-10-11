@@ -298,7 +298,27 @@ public class DiseaseController implements DiseaseRESTInterface {
 	}
 
 	@Override
-	public JsonResultResponse<GeneDiseaseAnnotationDocument> getDiseaseAnnotationsRibbonDetails(String focusTaxonId, List<String> geneIDs, String termID, String filterOptions, String filterSpecies,	 String filterGene, String filterReference, String diseaseTerm, String filterSource, String geneticEntity, String geneticEntityType, String associationType, String diseaseQualifier,  String evidenceCode, String basedOnGeneSymbol, Boolean includeNegation, Boolean debug, Integer limit, Integer page, String sortBy, String asc) {
+	public JsonResultResponse<GeneDiseaseAnnotationDocument> getDiseaseAnnotationsRibbonDetails(String focusTaxonId,
+																								List<String> geneIDs,
+																								String termID,
+																								String filterOptions,
+																								String filterSpecies,
+																								String filterGene,
+																								String filterReference,
+																								String diseaseTerm,
+																								String filterSource,
+																								String geneticEntity,
+																								String geneticEntityType,
+																								String associationType,
+																								String diseaseQualifier,
+																								String evidenceCode,
+																								String basedOnGeneSymbol,
+																								Boolean includeNegation,
+																								Boolean debug,
+																								Integer limit,
+																								Integer page,
+																								String sortBy,
+																								String asc) {
 
 		LocalDateTime startDate = LocalDateTime.now();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
