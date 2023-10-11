@@ -16,10 +16,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.alliancegenome.api.entity.DiseaseEntitySubgroupSlim;
-import org.alliancegenome.api.entity.DiseaseRibbonEntity;
-import org.alliancegenome.api.entity.DiseaseRibbonSummary;
-import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
+import org.alliancegenome.api.entity.*;
 import org.alliancegenome.api.service.helper.GeneDiseaseSearchHelper;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.api.service.DiseaseRibbonService;
@@ -33,6 +30,7 @@ import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -101,7 +99,9 @@ public class DiseaseESService {
 
 		// create histogram of select columns of unfiltered query
 		Map<String, String> aggregationFields = new HashMap<>();
-		aggregationFields.put("subject.taxon.name.keyword", "species");
+		if (StringUtils.isNotEmpty(focusTaxonId)) {
+			aggregationFields.put("subject.taxon.name.keyword", "species");
+		}
 		aggregationFields.put("diseaseRelationNegation.keyword", "associationType");
 		aggregationFields.put("diseaseQualifiers.keyword", "diseaseQualifiers");
 		Map<String, List<String>> distinctFieldValueMap = addAggregations(bool, aggregationFields, focusTaxonId, debug);
@@ -131,6 +131,63 @@ public class DiseaseESService {
 		for (SearchHit searchHit : searchResponse.getHits().getHits()) {
 			try {
 				GeneDiseaseAnnotationDocument object = mapper.readValue(searchHit.getSourceAsString(), GeneDiseaseAnnotationDocument.class);
+				object.setUniqueId(searchHit.getId());
+				list.add(object);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		ret.setResults(list);
+		return ret;
+	}
+
+	public JsonResultResponse<AlleleDiseaseAnnotationDocument> getAlleleDiseaseAnnotations(String alleleID,
+																						   Pagination pagination,
+																						   boolean excludeNegated,
+																						   boolean debug) {
+
+		BoolQueryBuilder bool = boolQuery();
+		BoolQueryBuilder bool2 = boolQuery();
+		bool.must(bool2);
+
+		bool.filter(termQuery("category", "allele_disease_annotation"));
+		bool.filter(termQuery("subject.curie.keyword", escapeValue(alleleID)));
+
+		if (excludeNegated) {
+			bool.must(matchQuery("primaryAnnotations.negated", false));
+		}
+
+		// create histogram of select columns of unfiltered query
+		Map<String, String> aggregationFields = new HashMap<>();
+		aggregationFields.put("diseaseRelationNegation.keyword", "associationType");
+		aggregationFields.put("diseaseQualifiers.keyword", "diseaseQualifiers");
+		Map<String, List<String>> distinctFieldValueMap = addAggregations(bool, aggregationFields, null, debug);
+
+		HashMap<String, String> filterOptionMap = pagination.getFilterOptionMap();
+		if (MapUtils.isNotEmpty(filterOptionMap)) {
+			filterOptionMap.forEach((filterName, filterValue) -> {
+				generateFilter(bool, filterName, filterValue);
+			});
+		}
+
+		List<AggregationBuilder> aggBuilders = new ArrayList<>();
+		HighlightBuilder hlb = new HighlightBuilder();
+
+		SearchResponse searchResponse = searchDAO.performQuery(
+			bool, aggBuilders, null, geneDiseaseSearchHelper.getResponseFields(),
+			pagination.getLimit(), pagination.getOffset(), hlb, getAnnotationSorts(null, debug), false);
+
+		JsonResultResponse<AlleleDiseaseAnnotationDocument> ret = new JsonResultResponse<>();
+		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
+		Map<String, Object> supplementalData = new LinkedHashMap<>();
+		supplementalData.put(DISTINCT_FIELD_VALUES, distinctFieldValueMap);
+		ret.setSupplementalData(supplementalData);
+
+		List<AlleleDiseaseAnnotationDocument> list = new ArrayList<>();
+
+		for (SearchHit searchHit : searchResponse.getHits().getHits()) {
+			try {
+				AlleleDiseaseAnnotationDocument object = mapper.readValue(searchHit.getSourceAsString(), AlleleDiseaseAnnotationDocument.class);
 				object.setUniqueId(searchHit.getId());
 				list.add(object);
 			} catch (Exception e) {
@@ -181,7 +238,7 @@ public class DiseaseESService {
 
 		SearchResponse searchResponseHistogram = searchDAO.performQuery(
 			bool, aggBuilders, null, geneDiseaseSearchHelper.getResponseFields(),
-			0, 0, new HighlightBuilder(), getAnnotationSorts(focusTaxonId, debug), debug);
+			0, 0, new HighlightBuilder(), focusTaxonId == null ? null : getAnnotationSorts(focusTaxonId, debug), debug);
 
 		aggregationFields.forEach((field, colName) -> {
 			String fieldNameAgg = field + "_agg";
