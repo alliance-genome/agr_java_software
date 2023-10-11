@@ -34,7 +34,7 @@ public class AlleleDiseaseAnnotationService extends BaseDiseaseAnnotationService
 		HashMap<String, Object> params = new HashMap<>();
 		params.put("internal", false);
 		params.put("obsolete", false);
-		params.put("subject.curie", "FB:FBal0065871");
+		//params.put("subject.curie", "FB:FBal0065871");
 		HashSet<String> AllAlleleIds = new HashSet<>(alleleRepository.getAllAlleleIDs());
 		HashSet<String> allGeneIDs = new HashSet<>(geneRepository.getAllGeneKeys());
 		HashSet<String> allModelIDs = new HashSet<>(alleleRepository.getAllModelKeys());
