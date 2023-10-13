@@ -31,9 +31,9 @@ public class SearchHelper {
 											".letterText", ".bigrams", ".standardBigrams" };
 
 	
-	private HashMap<String, List<String>> category_filters = new HashMap<String, List<String>>() {
+	private HashMap<String, List<String>> category_filters = new HashMap<>() {
 		{
-			put("gene", new ArrayList<String>() {
+			put("gene", new ArrayList<>() {
 				{
 					add("species");
 					add("biotypes");
@@ -45,7 +45,7 @@ public class SearchHelper {
 					add("subcellularExpressionAgrSlim");
 				}
 			});
-			put("go", new ArrayList<String>() {
+			put("go", new ArrayList<>() {
 				{
 					add("branch");
 					add("associatedSpecies");
@@ -62,14 +62,14 @@ public class SearchHelper {
 //					  add("stage"); will be implemented in the future
 				}
 			});
-			put("disease", new ArrayList<String>() {
+			put("disease", new ArrayList<>() {
 				{
 					add("diseaseGroup");
 					add("genes");
 					add("associatedSpecies");
 				}
 			});
-			put("allele", new ArrayList<String>() {
+			put("allele", new ArrayList<>() {
 				{
 					add("species");
 					add("alterationType");
@@ -82,7 +82,7 @@ public class SearchHelper {
 					add("constructRegulatoryRegion");
 				}
 			});
-			put("model", new ArrayList<String>() {
+			put("model", new ArrayList<>() {
 				{
 					add("species");
 					add("diseasesAgrSlim");
@@ -106,19 +106,19 @@ public class SearchHelper {
 	};
 
 	public Map<String, Float> getBoostMap() { return boostMap; }
-	private Map<String, Float> boostMap = new HashMap<String, Float>() {
+	private Map<String, Float> boostMap = new HashMap<>() {
 		{
-			put("symbol",5.0F);
-			put("symbol.autocomplete",2.0F);
-			put("name.autocomplete",0.1F);
-			put("synonyms.keyword",2.0F);
-			put("synonyms",2.0F);
-			put("genes",0.5F);
+			put("symbol", 5.0F);
+			put("symbol.autocomplete", 2.0F);
+			put("name.autocomplete", 0.1F);
+			put("synonyms.keyword", 2.0F);
+			put("synonyms", 2.0F);
+			put("genes", 0.5F);
 		}
 	};
 
 	public List<String> getSearchFields() { return searchFields; }
-	private List<String> searchFields = new ArrayList<String>() {
+	private List<String> searchFields = new ArrayList<>() {
 		{
 			add("alleles");
 			add("alleles.text");
@@ -218,7 +218,7 @@ public class SearchHelper {
 			add("synonyms.standardBigrams");
 			add("species");
 			add("species.synonyms");
-			add("secondaryIds");	
+			add("secondaryIds");
 			add("soTermName");
 			add("soTermName.letterText");
 			add("strictOrthologySymbols.autocomplete");
@@ -231,7 +231,7 @@ public class SearchHelper {
 	};
 
 	@Getter
-	private final List<String> responseFields = new ArrayList<String>() {
+	private final List<String> responseFields = new ArrayList<>() {
 		{
 			add("alterationType");
 			add("biologicalProcess");
@@ -269,9 +269,10 @@ public class SearchHelper {
 	};
 
 
-	private List<String> highlight_blacklist_fields = new ArrayList<String>() {
+	private List<String> highlight_blacklist_fields = new ArrayList<>() {
 		{
-			add("go_genes"); add("name.autocomplete");
+			add("go_genes");
+			add("name.autocomplete");
 		}
 	};
 
@@ -439,6 +440,6 @@ public class SearchHelper {
 
 	public Boolean isExcluded(String value){
 		return value.charAt(0) == '-';
-	};
+	}
 
 }
