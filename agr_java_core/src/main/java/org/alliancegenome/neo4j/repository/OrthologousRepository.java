@@ -18,9 +18,6 @@ import org.alliancegenome.neo4j.view.HomologView;
 import org.alliancegenome.neo4j.view.OrthologyFilter;
 import org.neo4j.ogm.model.Result;
 
-import lombok.extern.slf4j.Slf4j;
-
-@Slf4j
 public class OrthologousRepository extends Neo4jRepository<Orthologous> {
 
 	public static final String COLLECT_DISTINCT_MATCHED = "collect(distinct matched)";
