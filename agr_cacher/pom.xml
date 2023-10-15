@@ -26,8 +26,8 @@
 			<artifactId>jackson-databind</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>io.quarkus</groupId>
-			<artifactId>quarkus-resteasy</artifactId>
+			<groupId>org.alliancegenome</groupId>
+			<artifactId>agr_curation_api</artifactId>
 		</dependency>
 	</dependencies>
 	<build>
@@ -36,7 +36,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
-				<version>2.3.2</version>
+				<version>3.0.2</version>
 				<configuration>
 					<archive>
 						<manifest>
@@ -44,6 +44,7 @@
 							<mainClass>org.alliancegenome.cacher.Main</mainClass>
 						</manifest>
 						<manifestEntries>
+							<Main-Class>org.alliancegenome.cacher.Main</Main-Class>
 							<Multi-Release>true</Multi-Release>
 						</manifestEntries>
 					</archive>
@@ -59,6 +60,7 @@
 						</manifest>
 						<manifestEntries>
 							<Multi-Release>true</Multi-Release>
+							<Main-Class>org.alliancegenome.cacher.Main</Main-Class>
 						</manifestEntries>
 					</archive>
 					<descriptorRefs>

@@ -1,0 +1,1 @@
+docker run -d --net curation -p 11222:11222 -e USER=admin -e PASS=admin --name infinispan infinispan/server:14.0.17.Final
