@@ -28,11 +28,12 @@ import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.commons.collections4.MapUtils;
 import org.neo4j.ogm.model.Result;
 
-import io.quarkus.logging.Log;
 import jakarta.enterprise.context.RequestScoped;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RequestScoped
 public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 
@@ -236,7 +237,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 
 		doAgrDoList = StreamSupport.stream(joins.spliterator(), false)
 				.collect(Collectors.toList());
-		Log.debug("AGR-DO slim: " + doAgrDoList.size());
+		log.debug("AGR-DO slim: " + doAgrDoList.size());
 		return doAgrDoList;
 
 	}
@@ -291,7 +292,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 
 		//Iterable<PublicationJoin> joins = neo4jSession.query(PublicationJoin.class, cypher, new HashMap<>());
 
-		Log.info("Number of PublicationJoin records retrieved: " + String.format("%,d", ecoTermMap.size()));
+		log.info("Number of PublicationJoin records retrieved: " + String.format("%,d", ecoTermMap.size()));
 	}
 
 	public List<ECOTerm> getEcoTerm(String publicationEvidenceCodeJoinID) {
@@ -411,8 +412,8 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 
 		Set<DiseaseEntityJoin> allDiseaseEntityJoins = StreamSupport.stream(joins.spliterator(), false).
 				collect(Collectors.toSet());
-		Log.info("Total DiseaseEntityJoinRecords: " + String.format("%,d", allDiseaseEntityJoins.size()));
-		Log.info("Loaded in:	" + ((System.currentTimeMillis() - start) / 1000) + " s");
+		log.info("Total DiseaseEntityJoinRecords: " + String.format("%,d", allDiseaseEntityJoins.size()));
+		log.info("Loaded in:	" + ((System.currentTimeMillis() - start) / 1000) + " s");
 		// remove alleleDej nodes that are not hanging off the disease in question
 		// the above OPTIONAL MATCH clause
 		return cleanupDiseaseEntityJoins(allDiseaseEntityJoins);
@@ -457,8 +458,8 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 
 		Set<DiseaseEntityJoin> allDiseaseEntityJoins = StreamSupport.stream(joins.spliterator(), false).
 				collect(Collectors.toSet());
-		Log.info("Total DiseaseEntityJoinRecords: " + String.format("%,d", allDiseaseEntityJoins.size()));
-		Log.info("Loaded in:	" + ((System.currentTimeMillis() - start) / 1000) + " s");
+		log.info("Total DiseaseEntityJoinRecords: " + String.format("%,d", allDiseaseEntityJoins.size()));
+		log.info("Loaded in:	" + ((System.currentTimeMillis() - start) / 1000) + " s");
 
 		Set<DiseaseEntityJoin> allDiseaseEntityJoinsStripped = allDiseaseEntityJoins.stream()
 				.filter(join -> join.getPublicationJoins() != null)
