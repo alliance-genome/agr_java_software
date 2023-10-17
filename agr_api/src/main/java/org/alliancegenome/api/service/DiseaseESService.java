@@ -61,14 +61,33 @@ public class DiseaseESService {
 	// termID may be used in the future when converting disease page to new ES stack.
 	public JsonResultResponse<GeneDiseaseAnnotationDocument> getRibbonDiseaseAnnotations(String focusTaxonId, List<String> geneIDs, String termID, Pagination pagination, boolean excludeNegated, boolean debug) {
 
-		BoolQueryBuilder bool = getBoolQueryBuilder(geneIDs, termID, pagination, excludeNegated, "gene_disease_annotation");
-
-		SearchResponse searchResponse = getSearchResponse(bool, pagination, getAnnotationSorts(focusTaxonId, debug), false);
+		// unfiltered query
+		BoolQueryBuilder query = getBaseQuery(geneIDs, termID, pagination, excludeNegated, "gene_disease_annotation");
 
 		JsonResultResponse<GeneDiseaseAnnotationDocument> ret = new JsonResultResponse<>();
-		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
-		Map<String, Object> supplementalData = new LinkedHashMap<>();
+		ret.setSupplementalData(getSupplementalData(focusTaxonId, debug, query));
 
+		// add table filter
+		addTableFilter(pagination, query);
+		SearchResponse searchResponse = getSearchResponse(query, pagination, getAnnotationSorts(focusTaxonId, debug), false);
+		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
+
+		List<GeneDiseaseAnnotationDocument> list = Arrays.stream(searchResponse.getHits().getHits())
+			.map(searchHit -> {
+				try {
+					GeneDiseaseAnnotationDocument object = mapper.readValue(searchHit.getSourceAsString(), GeneDiseaseAnnotationDocument.class);
+					object.setUniqueId(searchHit.getId());
+					return object;
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				return null;
+			}).toList();
+		ret.setResults(list);
+		return ret;
+	}
+
+	private Map<String, Object> getSupplementalData(String focusTaxonId, boolean debug, BoolQueryBuilder unfilteredQuery) {
 		// create histogram of select columns of unfiltered query
 		Map<String, String> aggregationFields = new HashMap<>();
 		if (StringUtils.isNotEmpty(focusTaxonId)) {
@@ -76,23 +95,10 @@ public class DiseaseESService {
 		}
 		aggregationFields.put("diseaseRelationNegation.keyword", "associationType");
 		aggregationFields.put("diseaseQualifiers.keyword", "diseaseQualifiers");
-		Map<String, List<String>> distinctFieldValueMap = addAggregations(bool, aggregationFields, focusTaxonId, debug);
+		Map<String, List<String>> distinctFieldValueMap = getAggregations(unfilteredQuery, aggregationFields, focusTaxonId, debug);
+		Map<String, Object> supplementalData = new LinkedHashMap<>();
 		supplementalData.put(DISTINCT_FIELD_VALUES, distinctFieldValueMap);
-		ret.setSupplementalData(supplementalData);
-
-		List<GeneDiseaseAnnotationDocument> list = new ArrayList<>();
-
-		for (SearchHit searchHit : searchResponse.getHits().getHits()) {
-			try {
-				GeneDiseaseAnnotationDocument object = mapper.readValue(searchHit.getSourceAsString(), GeneDiseaseAnnotationDocument.class);
-				object.setUniqueId(searchHit.getId());
-				list.add(object);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		ret.setResults(list);
-		return ret;
+		return supplementalData;
 	}
 
 	private SearchResponse getSearchResponse(BoolQueryBuilder bool, Pagination pagination, LinkedHashMap<String, SortOrder> focusTaxonId, boolean debug) {
@@ -104,7 +110,7 @@ public class DiseaseESService {
 			pagination.getLimit(), pagination.getOffset(), hlb, focusTaxonId, debug);
 	}
 
-	private BoolQueryBuilder getBoolQueryBuilder(List<String> entityIDs, String termID, Pagination pagination, boolean excludeNegated, String recordType) {
+	private BoolQueryBuilder getBaseQuery(List<String> entityIDs, String termID, Pagination pagination, boolean excludeNegated, String recordType) {
 		BoolQueryBuilder bool = boolQuery();
 		BoolQueryBuilder bool2 = boolQuery();
 		bool.must(bool2);
@@ -131,49 +137,42 @@ public class DiseaseESService {
 				bool3.should(new MatchQueryBuilder("parentSlimIDs.keyword", termID));
 			}
 		}
+		return bool;
+	}
 
-
+	private void addTableFilter(Pagination pagination, BoolQueryBuilder bool) {
 		HashMap<String, String> filterOptionMap = pagination.getFilterOptionMap();
 		if (MapUtils.isNotEmpty(filterOptionMap)) {
-			filterOptionMap.forEach((filterName, filterValue) -> {
-				generateFilter(bool, filterName, filterValue);
-			});
+			filterOptionMap.forEach((filterName, filterValue) -> generateFilter(bool, filterName, filterValue));
 		}
-		return bool;
 	}
 
 	public JsonResultResponse<AlleleDiseaseAnnotationDocument> getDiseaseAnnotations(String alleleID,
 																					 Pagination pagination,
 																					 boolean excludeNegated,
 																					 boolean debug) {
-		BoolQueryBuilder bool = getBoolQueryBuilder(List.of(alleleID), null, pagination, excludeNegated, "allele_disease_annotation");
-
-		SearchResponse searchResponse = getSearchResponse(bool, pagination, getAnnotationSorts(null, debug), false);
+		// unfiltered base query
+		BoolQueryBuilder query = getBaseQuery(List.of(alleleID), null, pagination, excludeNegated, "allele_disease_annotation");
 
 		JsonResultResponse<AlleleDiseaseAnnotationDocument> ret = new JsonResultResponse<>();
+		ret.setSupplementalData(getSupplementalData(null, debug, query));
+
+		// add table filter
+		addTableFilter(pagination, query);
+		SearchResponse searchResponse = getSearchResponse(query, pagination, getAnnotationSorts(null, debug), false);
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
 
-		Map<String, Object> supplementalData = new LinkedHashMap<>();
-		// create histogram of select columns of unfiltered query
-		Map<String, String> aggregationFields = new HashMap<>();
-
-		aggregationFields.put("diseaseRelationNegation.keyword", "associationType");
-		aggregationFields.put("diseaseQualifiers.keyword", "diseaseQualifiers");
-		Map<String, List<String>> distinctFieldValueMap = addAggregations(bool, aggregationFields, null, debug);
-		supplementalData.put(DISTINCT_FIELD_VALUES, distinctFieldValueMap);
-		ret.setSupplementalData(supplementalData);
-
-		List<AlleleDiseaseAnnotationDocument> list = new ArrayList<>();
-
-		for (SearchHit searchHit : searchResponse.getHits().getHits()) {
-			try {
-				AlleleDiseaseAnnotationDocument object = mapper.readValue(searchHit.getSourceAsString(), AlleleDiseaseAnnotationDocument.class);
-				object.setUniqueId(searchHit.getId());
-				list.add(object);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
+		List<AlleleDiseaseAnnotationDocument> list = Arrays.stream(searchResponse.getHits().getHits())
+			.map(searchHit -> {
+				try {
+					AlleleDiseaseAnnotationDocument object = mapper.readValue(searchHit.getSourceAsString(), AlleleDiseaseAnnotationDocument.class);
+					object.setUniqueId(searchHit.getId());
+					return object;
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				return null;
+			}).toList();
 		ret.setResults(list);
 		return ret;
 
@@ -206,8 +205,7 @@ public class DiseaseESService {
 		return value;
 	}
 
-	private Map<String, List<String>> addAggregations(BoolQueryBuilder bool, Map<String, String> aggregationFields, String focusTaxonId, boolean debug) {
-		Map<String, List<String>> distinctFieldValueMap = new HashMap<>();
+	private Map<String, List<String>> getAggregations(BoolQueryBuilder bool, Map<String, String> aggregationFields, String focusTaxonId, boolean debug) {
 		List<AggregationBuilder> aggBuilders = new ArrayList<>();
 		aggregationFields.forEach((field, colName) -> {
 			String fieldNameAgg = field + "_agg";
@@ -221,6 +219,7 @@ public class DiseaseESService {
 			bool, aggBuilders, null, geneDiseaseSearchHelper.getResponseFields(),
 			0, 0, new HighlightBuilder(), focusTaxonId == null ? null : getAnnotationSorts(focusTaxonId, debug), debug);
 
+		Map<String, List<String>> distinctFieldValueMap = new HashMap<>();
 		aggregationFields.forEach((field, colName) -> {
 			String fieldNameAgg = field + "_agg";
 			List<String> values = ((ParsedStringTerms) searchResponseHistogram.getAggregations().get(fieldNameAgg)).getBuckets().stream()
@@ -334,12 +333,7 @@ public class DiseaseESService {
 
 		// create histogram of select columns of unfiltered query
 
-		HashMap<String, String> filterOptionMap = pagination.getFilterOptionMap();
-		if (MapUtils.isNotEmpty(filterOptionMap)) {
-			filterOptionMap.forEach((filterName, filterValue) -> {
-				generateFilter(bool, filterName, filterValue);
-			});
-		}
+		addTableFilter(pagination, bool);
 
 		SearchResponse searchResponse = getSearchResponse(bool, pagination, null, debug);
 
