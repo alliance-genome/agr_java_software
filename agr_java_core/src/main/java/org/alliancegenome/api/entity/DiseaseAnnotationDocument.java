@@ -22,13 +22,13 @@ import lombok.EqualsAndHashCode;
 public class DiseaseAnnotationDocument extends SearchableItemDocument {
 
 	private String uniqueId;
-	private VocabularyTerm diseaseRelation;
+	private VocabularyTerm relation;
 	private DOTerm object;
 	private List<ECOTerm> evidenceCodes;
 	private Reference singleReference;
 	private Set<Reference> references;
 
-	private String diseaseRelationNegation;
+	private String relationNegation;
 	private Set<String> diseaseQualifiers;
 	private Set<String> pubmedPubModIDs;
 	private Set<String> parentSlimIDs;

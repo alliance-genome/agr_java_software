@@ -105,12 +105,12 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 
 			for (DiseaseAnnotation da : entry.getValue().getRight()) {
 				
-				VocabularyTerm diseaseRelation = vocabService.getVocabularyTerm("is_implicated_in");
+				VocabularyTerm relation = vocabService.getVocabularyTerm("is_implicated_in");
 				if (da instanceof GeneDiseaseAnnotation) {
-					diseaseRelation = da.getDiseaseRelation();
+					relation = da.getRelation();
 				}
 
-				String key = diseaseRelation.getName() + "_" + da.getObject().getName() + "_" + da.getNegated();
+				String key = relation.getName() + "_" + da.getObject().getName() + "_" + da.getNegated();
 				if (da.getWith() != null && da.getWith().size() > 0) {
 					List<String> withIds = da.getWith().stream().map(Gene::getCurie).collect(Collectors.toList());
 					Collections.sort(withIds);
@@ -123,9 +123,9 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 					gdad.setSubject(entry.getValue().getLeft());
 					HashMap<String, Integer> order = SpeciesType.getSpeciesOrderByTaxonID(entry.getValue().getLeft().getTaxon().getCurie());
 					gdad.setSpeciesOrder(order);
-					gdad.setDiseaseRelation(diseaseRelation);
-					String diseaseRelationNegation = getDiseaseRelationNegation(gdad.getDiseaseRelation().getName(), da.getNegated());
-					gdad.setDiseaseRelationNegation(diseaseRelationNegation);
+					gdad.setRelation(relation);
+					String relationNegation = getRelationNegation(gdad.getRelation().getName(), da.getNegated());
+					gdad.setRelationNegation(relationNegation);
 					gdad.setObject(da.getObject());
 					gdad.setParentSlimIDs(closureMap.get(da.getObject().getCurie()));
 					lookup.put(key, gdad);
@@ -161,10 +161,10 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		return null;
 	}
 
-	private String getDiseaseRelationNegation(String diseaseRelation, Boolean negated) {
+	private String getRelationNegation(String relation, Boolean negated) {
 		if (!negated)
-			return diseaseRelation;
-		return diseaseRelation.replaceFirst("_", "_not_");
+			return relation;
+		return relation.replaceFirst("_", "_not_");
 	}
 
 	private List<AlleleDiseaseAnnotationDocument> createAlleleDiseaseAnnotationDocuments() {
@@ -178,7 +178,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 			HashMap<String, AlleleDiseaseAnnotationDocument> lookup = new HashMap<>();
 
 			for (DiseaseAnnotation da : entry.getValue().getRight()) {
-				String key = da.getDiseaseRelation().getName() + "_" + da.getObject().getName() + "_" + da.getNegated();
+				String key = da.getRelation().getName() + "_" + da.getObject().getName() + "_" + da.getNegated();
 				AlleleDiseaseAnnotationDocument adad = lookup.get(key);
 
 				if (adad == null) {
@@ -186,9 +186,9 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 					HashMap<String, Integer> order = SpeciesType.getSpeciesOrderByTaxonID(entry.getValue().getLeft().getTaxon().getCurie());
 					adad.setSpeciesOrder(order);
 					adad.setSubject(entry.getValue().getLeft());
-					adad.setDiseaseRelation(da.getDiseaseRelation());
-					String diseaseRelationNegation = getDiseaseRelationNegation(da.getDiseaseRelation().getName(), da.getNegated());
-					adad.setDiseaseRelationNegation(diseaseRelationNegation);
+					adad.setRelation(da.getRelation());
+					String relationNegation = getRelationNegation(da.getRelation().getName(), da.getNegated());
+					adad.setRelationNegation(relationNegation);
 					adad.setObject(da.getObject());
 					lookup.put(key, adad);
 				}
@@ -220,7 +220,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 			HashMap<String, AGMDiseaseAnnotationDocument> lookup = new HashMap<>();
 
 			for (DiseaseAnnotation da : entry.getValue().getRight()) {
-				String key = da.getDiseaseRelation().getName() + "_" + da.getObject().getName() + "_" + da.getNegated();
+				String key = da.getRelation().getName() + "_" + da.getObject().getName() + "_" + da.getNegated();
 				AGMDiseaseAnnotationDocument adad = lookup.get(key);
 
 				if (adad == null) {
@@ -228,7 +228,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 					HashMap<String, Integer> order = SpeciesType.getSpeciesOrderByTaxonID(entry.getValue().getLeft().getTaxon().getCurie());
 					adad.setSpeciesOrder(order);
 					adad.setSubject(entry.getValue().getLeft());
-					adad.setDiseaseRelation(da.getDiseaseRelation());
+					adad.setRelation(da.getRelation());
 					adad.setObject(da.getObject());
 					lookup.put(key, adad);
 				}
