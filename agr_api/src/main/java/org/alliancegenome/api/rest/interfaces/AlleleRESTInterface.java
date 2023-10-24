@@ -202,7 +202,7 @@ public interface AlleleRESTInterface {
 		@QueryParam("filter.geneticEntity") String geneticEntity,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.geneticEntityType", description = "geneticEntityType", schema = @Schema(type = SchemaType.STRING))
 		@QueryParam("filter.geneticEntityType") String geneticEntityType,
-		@Parameter(in = ParameterIn.QUERY, name = "filter.diseaseRelation.name", description = "associationType", schema = @Schema(type = SchemaType.STRING))
+		@Parameter(in = ParameterIn.QUERY, name = "filter.relation.name", description = "associationType", schema = @Schema(type = SchemaType.STRING))
 		@QueryParam("filter.associationType") String associationType,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.diseaseQualifier", description = "diseaseQualifier", schema = @Schema(type = SchemaType.STRING))
 		@QueryParam("filter.diseaseQualifier") String diseaseQualifier,
@@ -240,7 +240,7 @@ public interface AlleleRESTInterface {
 		@QueryParam("filter.geneticEntity") String geneticEntity,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.geneticEntityType", description = "geneticEntityType", schema = @Schema(type = SchemaType.STRING))
 		@QueryParam("filter.geneticEntityType") String geneticEntityType,
-		@Parameter(in = ParameterIn.QUERY, name = "filter.diseaseRelation.name", description = "associationType", schema = @Schema(type = SchemaType.STRING))
+		@Parameter(in = ParameterIn.QUERY, name = "filter.relation.name", description = "associationType", schema = @Schema(type = SchemaType.STRING))
 		@QueryParam("filter.associationType") String associationType,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.diseaseQualifier", description = "diseaseQualifier", schema = @Schema(type = SchemaType.STRING))
 		@QueryParam("filter.diseaseQualifier") String diseaseQualifier,

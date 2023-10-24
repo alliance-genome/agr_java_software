@@ -231,7 +231,7 @@ public class DiseaseAnnotationToTdfTranslator {
 		if (primaryAnnotation.getGeneticSex() != null) {
 			row.setGeneticSex(primaryAnnotation.getGeneticSex().getName());
 		}
-		row.setGeneticEntityAssociation(primaryAnnotation.getDiseaseRelation().getName());
+		row.setGeneticEntityAssociation(primaryAnnotation.getRelation().getName());
 		if (CollectionUtils.isNotEmpty(primaryAnnotation.getRelatedNotes())) {
 			row.setNote(primaryAnnotation.getRelatedNotes().stream().map(note -> {
 				if (note.getNoteType().getName().equals("disease_note")) {
@@ -292,7 +292,7 @@ public class DiseaseAnnotationToTdfTranslator {
 
 	private DiseaseDownloadRow getBaseDiseaseDownloadRow(GeneDiseaseAnnotationDocument annotation, org.alliancegenome.curation_api.model.entities.Gene homologousGene, org.alliancegenome.curation_api.model.entities.DiseaseAnnotation primaryAnnotation) {
 		DiseaseDownloadRow row = new DiseaseDownloadRow();
-		row.setAssociation(annotation.getDiseaseRelationNegation());
+		row.setAssociation(annotation.getGeneratedRelationString());
 		row.setDiseaseID(annotation.getObject().getCurie());
 		row.setDiseaseName(annotation.getObject().getName());
 		row.setSource(primaryAnnotation.getDataProviderString());
