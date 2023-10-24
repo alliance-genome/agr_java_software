@@ -93,7 +93,7 @@ public class DiseaseESService {
 		if (StringUtils.isNotEmpty(focusTaxonId)) {
 			aggregationFields.put("subject.taxon.name.keyword", "species");
 		}
-		aggregationFields.put("negationInclRelation.keyword", "associationType");
+		aggregationFields.put("generatedRelationString.keyword", "associationType");
 		aggregationFields.put("diseaseQualifiers.keyword", "diseaseQualifiers");
 		Map<String, List<String>> distinctFieldValueMap = getAggregations(unfilteredQuery, aggregationFields, focusTaxonId, debug);
 		Map<String, Object> supplementalData = new LinkedHashMap<>();

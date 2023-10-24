@@ -124,8 +124,8 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 					HashMap<String, Integer> order = SpeciesType.getSpeciesOrderByTaxonID(entry.getValue().getLeft().getTaxon().getCurie());
 					gdad.setSpeciesOrder(order);
 					gdad.setRelation(relation);
-					String negationInclRelation = getNegationInclRelation(gdad.getRelation().getName(), da.getNegated());
-					gdad.setNegationInclRelation(negationInclRelation);
+					String generatedRelationString = getGeneratedRelationString(gdad.getRelation().getName(), da.getNegated());
+					gdad.setGeneratedRelationString(generatedRelationString);
 					gdad.setObject(da.getObject());
 					gdad.setParentSlimIDs(closureMap.get(da.getObject().getCurie()));
 					lookup.put(key, gdad);
@@ -161,7 +161,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		return null;
 	}
 
-	private String getNegationInclRelation(String relation, Boolean negated) {
+	private String getGeneratedRelationString(String relation, Boolean negated) {
 		if (!negated)
 			return relation;
 		return relation.replaceFirst("_", "_not_");
@@ -187,8 +187,8 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 					adad.setSpeciesOrder(order);
 					adad.setSubject(entry.getValue().getLeft());
 					adad.setRelation(da.getRelation());
-					String negationInclRelation = getNegationInclRelation(da.getRelation().getName(), da.getNegated());
-					adad.setNegationInclRelation(negationInclRelation);
+					String generatedRelationString = getGeneratedRelationString(da.getRelation().getName(), da.getNegated());
+					adad.setGeneratedRelationString(generatedRelationString);
 					adad.setObject(da.getObject());
 					lookup.put(key, adad);
 				}
