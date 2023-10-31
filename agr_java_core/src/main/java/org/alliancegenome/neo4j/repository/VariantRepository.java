@@ -19,19 +19,28 @@ public class VariantRepository extends Neo4jRepository<Variant> {
 		String paramName = "alleleID";
 		map.put(paramName, id);
 		String query = "";
-		query += " MATCH p1=(a:Allele)<-[:VARIATION]-(variant:Variant)--(soTerm:SOTerm) ";
-		query += " WHERE a.primaryKey = $" + paramName;
+		query += " MATCH p1=(a:Allele)<-[:VARIATION]-(variant:Variant)--(soTerm:SOTerm) WHERE a.primaryKey = $" + paramName;
+		query += " WITH a, variant, p1";
 		query += " OPTIONAL MATCH synonyms=(variant:Variant)-[:ALSO_KNOWN_AS]-(:Synonym) ";
+		query += " WITH a, variant, p1, collect(synonyms) AS synonyms";
 		query += " OPTIONAL MATCH notes=(variant:Variant)-[:ASSOCIATION]->(:Note) ";
+		query += " WITH a, variant, p1, synonyms, collect(notes) AS notes";
 		query += " OPTIONAL MATCH pubs=(variant:Variant)-[:ASSOCIATION]->(:Publication) ";
+		query += " WITH a, variant, p1, synonyms, notes, collect(pubs) AS pubs";
 		query += " OPTIONAL MATCH crossRefs=(variant:Variant)-[:CROSS_REFERENCE]->(:CrossReference) ";
+		query += " WITH a, variant, p1, synonyms, notes, pubs, collect(crossRefs) AS crossRefs";
 		query += " OPTIONAL MATCH consequence=(:GeneLevelConsequence)<-[:ASSOCIATION]-(variant:Variant)";
+		query += " WITH a, variant, p1, synonyms, notes, pubs, crossRefs, collect(consequence) AS consequences";
 		query += " OPTIONAL MATCH transcripts=(:GenomicLocation)--(variant:Variant)-[:ASSOCIATION]-(t:Transcript)<-[:TRANSCRIPT_TYPE]-(:SOTerm)";
+		query += " WITH a, variant, p1, synonyms, notes, pubs, crossRefs, consequences, collect(transcripts) AS transcripts";
 		query += " OPTIONAL MATCH transcriptConsequence=(variant:Variant)--(tlc:TranscriptLevelConsequence)<-[:ASSOCIATION]-(t:Transcript)--(variant:Variant)";
+		query += " WITH a, variant, p1, synonyms, notes, pubs, crossRefs, consequences, transcripts, collect(transcriptConsequence) AS transcriptConsequences";
 		query += " OPTIONAL MATCH loc=(variant:Variant)-[:ASSOCIATION]->(:GenomicLocation)";
+		query += " WITH a, variant, p1, synonyms, notes, pubs, crossRefs, consequences, transcripts, transcriptConsequences, collect(loc) AS locs";
 		query += " OPTIONAL MATCH p2=(variant:Variant)<-[:COMPUTED_GENE]-(:Gene)-[:ASSOCIATION]->(:GenomicLocation)";
+		query += " WITH p1, collect(p2) AS p2, locs, consequences, synonyms, transcripts, transcriptConsequences, notes, crossRefs, pubs";
 		query += " RETURN p1, p2, loc, consequence, synonyms, transcripts, transcriptConsequence, notes, crossRefs, pubs ";
-
+		
 		Iterable<Variant> alleles = query(query, map);
 		return StreamSupport.stream(alleles.spliterator(), false)
 				.collect(Collectors.toList());
