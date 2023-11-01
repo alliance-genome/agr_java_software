@@ -39,7 +39,7 @@ public class VariantRepository extends Neo4jRepository<Variant> {
 		query += " WITH a, variant, p1, synonyms, notes, pubs, crossRefs, consequences, transcripts, transcriptConsequences, collect(loc) AS locs";
 		query += " OPTIONAL MATCH p2=(variant:Variant)<-[:COMPUTED_GENE]-(:Gene)-[:ASSOCIATION]->(:GenomicLocation)";
 		query += " WITH p1, collect(p2) AS p2, locs, consequences, synonyms, transcripts, transcriptConsequences, notes, crossRefs, pubs";
-		query += " RETURN p1, p2, loc, consequence, synonyms, transcripts, transcriptConsequence, notes, crossRefs, pubs ";
+		query += " RETURN p1, p2, loc, consequences, synonyms, transcripts, transcriptConsequence, notes, crossRefs, pubs ";
 		
 		Iterable<Variant> alleles = query(query, map);
 		return StreamSupport.stream(alleles.spliterator(), false)
