@@ -112,8 +112,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 
 				String key = relation.getName() + "_" + da.getObject().getName() + "_" + da.getNegated();
 				if (da.getWith() != null && da.getWith().size() > 0) {
-					List<String> withIds = da.getWith().stream().map(Gene::getCurie).collect(Collectors.toList());
-					Collections.sort(withIds);
+					List<String> withIds = da.getWith().stream().map(Gene::getCurie).sorted().collect(Collectors.toList());
 					key += "_" + String.join("_", withIds);
 				}
 				GeneDiseaseAnnotationDocument gdad = lookup.get(key);
@@ -178,7 +177,14 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 			HashMap<String, AlleleDiseaseAnnotationDocument> lookup = new HashMap<>();
 
 			for (DiseaseAnnotation da : entry.getValue().getRight()) {
-				String key = da.getRelation().getName() + "_" + da.getObject().getName() + "_" + da.getNegated();
+
+				// use this relation if inherited (inferred or asserted) from an AGM DA.
+				VocabularyTerm relation = vocabService.getVocabularyTerm("is_implicated_in");
+				if (da instanceof AlleleDiseaseAnnotation) {
+					relation = da.getRelation();
+				}
+
+				String key = relation.getName() + "_" + da.getObject().getName() + "_" + da.getNegated();
 				AlleleDiseaseAnnotationDocument adad = lookup.get(key);
 
 				if (adad == null) {
@@ -186,8 +192,8 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 					HashMap<String, Integer> order = SpeciesType.getSpeciesOrderByTaxonID(entry.getValue().getLeft().getTaxon().getCurie());
 					adad.setSpeciesOrder(order);
 					adad.setSubject(entry.getValue().getLeft());
-					adad.setRelation(da.getRelation());
-					String generatedRelationString = getGeneratedRelationString(da.getRelation().getName(), da.getNegated());
+					adad.setRelation(relation);
+					String generatedRelationString = getGeneratedRelationString(relation.getName(), da.getNegated());
 					adad.setGeneratedRelationString(generatedRelationString);
 					adad.setObject(da.getObject());
 					lookup.put(key, adad);
