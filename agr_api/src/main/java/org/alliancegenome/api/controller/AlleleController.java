@@ -230,13 +230,12 @@ public class AlleleController implements AlleleRESTInterface {
 			diseaseQualifier,
 			evidenceCode,
 			debug,
-			Integer.MAX_VALUE,
+			150000,
 			page,
 			sortBy,
 			asc);
-		Response.ResponseBuilder responseBuilder = null;
-		///Response.ResponseBuilder responseBuilder = Response.ok(diseaseToTdfTranslator.getAllRowsForAllele(response.getResults()));
-		//APIServiceHelper.setDownloadHeader(id, EntityType.ALLELE, EntityType.DISEASE, responseBuilder);
+		Response.ResponseBuilder responseBuilder = Response.ok(diseaseToTdfTranslator.getAllRowsForAlleleDiseaseAnnotations(response.getResults()));
+		APIServiceHelper.setDownloadHeader(alleleID, EntityType.ALLELE, EntityType.DISEASE, responseBuilder);
 		return responseBuilder.build();
 	}
 
