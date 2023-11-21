@@ -199,6 +199,11 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 					lookup.put(key, adad);
 				}
 				adad.setEvidenceCodes(da.getEvidenceCodes());
+				if(CollectionUtils.isNotEmpty(da.getDiseaseQualifiers())) {
+					Set<String> diseaseQualifiers = da.getDiseaseQualifiers().stream().map(term -> term.getName().replace("_", " ")).collect(Collectors.toSet());
+					adad.setDiseaseQualifiers(diseaseQualifiers);
+				}
+
 				// gdad.setDataProvider(da.getDataProvider());
 				adad.addReference(da.getSingleReference());
 				adad.addPubMedPubModID(getPubmedPubModID(da.getSingleReference()));
