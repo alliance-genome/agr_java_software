@@ -121,7 +121,7 @@ public class ModelIndexerRepository extends Neo4jRepository {
 		@Override
 		public void run() {
 			log.info("Fetching model -> gene map");
-			String query = "MATCH (species:Species)-[:FROM_SPECIES]-(model:AffectedGenomicModel)-[:MODEL_COMPONENT|:SEQUENCE_TARGETING_REAGENT]-(feature)--(gene:Gene)";
+			String query = "MATCH (species:Species)-[:FROM_SPECIES]-(model:AffectedGenomicModel)-[:MODEL_COMPONENT|SEQUENCE_TARGETING_REAGENT]-(feature)--(gene:Gene)";
 			query += " RETURN model.primaryKey as id, gene.symbolWithSpecies as value";
 
 			cache.setGenes(getMapSetForQuery(query));
