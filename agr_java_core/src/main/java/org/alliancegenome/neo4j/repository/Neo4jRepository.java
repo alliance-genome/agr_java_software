@@ -37,7 +37,7 @@ public class Neo4jRepository<E> {
 	public Neo4jRepository(Class<E> entityTypeClazz) {
 		this.entityTypeClazz = entityTypeClazz;
 		log.info("Creating Repo for: " + entityTypeClazz);
-		Configuration configuration = new Configuration.Builder().uri("bolt://" + ConfigHelper.getNeo4jHost() + ":" + ConfigHelper.getNeo4jPort()).build();
+		Configuration configuration = new Configuration.Builder().uri("bolt://" + ConfigHelper.getNeo4jHost() + ":" + ConfigHelper.getNeo4jPort()).connectionLivenessCheckTimeout(10).build();
 		sessionFactory = new SessionFactory(configuration, "org.alliancegenome.neo4j.entity");
 		neo4jSession = sessionFactory.openSession();
 		log.info("------------------------------------- Starting sessionFactory: " + getClass() + " ----------------------------- ");
