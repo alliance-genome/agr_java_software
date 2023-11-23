@@ -646,10 +646,6 @@ public class DiseaseAnnotationToTdfTranslator {
 			new DownloadHeader<>("Genetic Entity Type", (DiseaseDownloadRow::getGeneticEntityType)),
 			new DownloadHeader<>("Species ID", (DiseaseDownloadRow::getSpeciesID)),
 			new DownloadHeader<>("Species Name", (DiseaseDownloadRow::getSpeciesName)),
-/*
-			new DownloadHeader<>("Additional Implicated Gene ID", (DiseaseDownloadRow::getAssertedGeneID)),
-			new DownloadHeader<>("Additional Implicated Gene Symbol", (DiseaseDownloadRow::getAssertedGeneName)),
-*/
 			new DownloadHeader<>("Allele Association", (DiseaseDownloadRow::getAssociation)),
 			new DownloadHeader<>("Genetic Entity Association", (DiseaseDownloadRow::getGeneticEntityAssociation)),
 			new DownloadHeader<>("Disease Qualifier", (DiseaseDownloadRow::getDiseaseQualifier)),
@@ -662,8 +658,6 @@ public class DiseaseAnnotationToTdfTranslator {
 			new DownloadHeader<>("Genetic Modifier Relation", (DiseaseDownloadRow::getDiseaseGeneticModifierRelation)),
 			new DownloadHeader<>("Genetic Modifier IDs", (DiseaseDownloadRow::getDiseaseGeneticModifierID)),
 			new DownloadHeader<>("Genetic Modifier Names", (DiseaseDownloadRow::getDiseaseGeneticModifierName)),
-			new DownloadHeader<>("Strain Background ID", (DiseaseDownloadRow::getStrainBackgroundID)),
-			new DownloadHeader<>("Strain Background Name", (DiseaseDownloadRow::getStrainBackgroundName)),
 			new DownloadHeader<>("Genetic Sex", (DiseaseDownloadRow::getGeneticSex)),
 			new DownloadHeader<>("Notes", (DiseaseDownloadRow::getNote)),
 			new DownloadHeader<>("Annotation Type", (DiseaseDownloadRow::getAnnotationType)),
