@@ -76,6 +76,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		closureMap = diseaseRepository.getDOClosureChildMapping();
 
 		indexGenes();
+		createDiseaseAnnotationsFromOrthology();
 		indexAlleles();
 		indexAGMs();
 
@@ -92,6 +93,11 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		indexDocuments(agmList);
 
 		diseaseRepository.close();
+	}
+
+	private void createDiseaseAnnotationsFromOrthology() {
+		List<GeneDiseaseAnnotation> geneDAs = geneService.getOrthologousGeneDiseaseAnnotations(geneMap);
+		addDiseaseAnnotationsToLGlobalMap(geneDAs);
 	}
 
 	private List<GeneDiseaseAnnotationDocument> createGeneDiseaseAnnotationDocuments() {
@@ -257,6 +263,10 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 
 	private void indexGenes() {
 		List<GeneDiseaseAnnotation> geneDiseaseAnnotations = geneService.getFiltered();
+		addDiseaseAnnotationsToLGlobalMap(geneDiseaseAnnotations);
+	}
+
+	private void addDiseaseAnnotationsToLGlobalMap(List<GeneDiseaseAnnotation> geneDiseaseAnnotations) {
 		log.info("Filtered Genes: " + geneDiseaseAnnotations.size());
 		for (GeneDiseaseAnnotation da : geneDiseaseAnnotations) {
 			Gene gene = da.getSubject();
