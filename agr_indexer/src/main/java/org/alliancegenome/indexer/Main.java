@@ -24,7 +24,7 @@ public class Main {
 
 		IndexManager im = new IndexManager();
 
-		Indexer.indexName = im.startSiteIndex();
+//		Indexer.indexName = im.startSiteIndex();
 
 		Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
 			log.error("Thread: " + t.getId() + " has uncaught exceptions");
