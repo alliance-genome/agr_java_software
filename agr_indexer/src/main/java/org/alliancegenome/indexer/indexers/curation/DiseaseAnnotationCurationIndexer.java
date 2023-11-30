@@ -1,7 +1,6 @@
 package org.alliancegenome.indexer.indexers.curation;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -112,15 +111,8 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 				}
 
 				StringJoiner joiner = new StringJoiner("_");
-				List<String> terms = new ArrayList<>();
-				
-				for(VocabularyTerm term: da.getDiseaseQualifiers()) {
-					terms.add(term.getName());
-				}
-				Collections.sort(terms);
-				for(String term: terms) {
-					joiner.add(term);
-				}
+
+				da.getDiseaseQualifiers().stream().map(VocabularyTerm::getName).sorted().collect(Collectors.toList()).forEach(t -> { joiner.add(t); });
 				
 				String key = relation.getName() + "_" + da.getObject().getName() + "_" + da.getNegated() + "_" + joiner.toString();
 				if (da.getWith() != null && da.getWith().size() > 0) {
