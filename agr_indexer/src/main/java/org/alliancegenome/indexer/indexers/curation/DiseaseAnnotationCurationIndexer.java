@@ -112,7 +112,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 				String key = relation.getName() + "_" + da.getObject().getName() + "_" + da.getNegated();
 				
 				if(da.getDiseaseQualifiers() != null) {
-					key += "_" + da.getDiseaseQualifiers().stream().map(VocabularyTerm::getName).sorted().collect(Collectors.toList());
+					key += "_" + String.join("_", da.getDiseaseQualifiers().stream().map(VocabularyTerm::getName).sorted().collect(Collectors.toList()));
 				}
 				
 				if (da.getWith() != null && da.getWith().size() > 0) {
