@@ -110,11 +110,13 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 					relation = da.getRelation();
 				}
 
-				StringJoiner joiner = new StringJoiner("_");
-
-				da.getDiseaseQualifiers().stream().map(VocabularyTerm::getName).sorted().collect(Collectors.toList()).forEach(t -> { joiner.add(t); });
+				String key = relation.getName() + "_" + da.getObject().getName() + "_" + da.getNegated();
+				if(da.getDiseaseQualifiers() != null) {
+					StringJoiner joiner = new StringJoiner("_");
+					da.getDiseaseQualifiers().stream().map(VocabularyTerm::getName).sorted().collect(Collectors.toList()).forEach(t -> { joiner.add(t); });
+					key += "_" + joiner.toString();
+				}
 				
-				String key = relation.getName() + "_" + da.getObject().getName() + "_" + da.getNegated() + "_" + joiner.toString();
 				if (da.getWith() != null && da.getWith().size() > 0) {
 					List<String> withIds = da.getWith().stream().map(Gene::getCurie).sorted().collect(Collectors.toList());
 					key += "_" + String.join("_", withIds);
