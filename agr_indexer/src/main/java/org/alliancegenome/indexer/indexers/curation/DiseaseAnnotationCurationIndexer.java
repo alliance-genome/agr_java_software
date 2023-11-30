@@ -1,13 +1,13 @@
 package org.alliancegenome.indexer.indexers.curation;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.StringJoiner;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.stream.Collectors;
 
@@ -110,7 +110,11 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 					relation = da.getRelation();
 				}
 
-				String key = relation.getName() + "_" + da.getObject().getName() + "_" + da.getNegated();
+				StringJoiner joiner = new StringJoiner("_");
+
+				da.getDiseaseQualifiers().stream().map(VocabularyTerm::getName).sorted().collect(Collectors.toList()).forEach(t -> { joiner.add(t); });
+				
+				String key = relation.getName() + "_" + da.getObject().getName() + "_" + da.getNegated() + "_" + joiner.toString();
 				if (da.getWith() != null && da.getWith().size() > 0) {
 					List<String> withIds = da.getWith().stream().map(Gene::getCurie).sorted().collect(Collectors.toList());
 					key += "_" + String.join("_", withIds);
