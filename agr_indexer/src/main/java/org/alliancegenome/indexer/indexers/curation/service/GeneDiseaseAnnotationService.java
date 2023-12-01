@@ -1,5 +1,6 @@
 package org.alliancegenome.indexer.indexers.curation.service;
 
+import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.model.entities.*;
 import org.alliancegenome.curation_api.model.entities.orthology.GeneToGeneOrthologyGenerated;
@@ -16,6 +17,7 @@ import si.mazi.rescu.RestProxyFactory;
 
 import java.util.*;
 
+@Log4j2
 public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 
 	private final GeneDiseaseAnnotationInterface geneApi = RestProxyFactory.createProxy(GeneDiseaseAnnotationInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
@@ -33,6 +35,9 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 		HashSet<String> alleleIds = new HashSet<>(alleleRepository.getAllAlleleIDs());
 		HashSet<String> allGeneIDs = new HashSet<>(geneRepository.getAllGeneKeys());
 		HashSet<String> allModelIDs = new HashSet<>(alleleRepository.getAllModelKeys());
+		log.info("Allele IDs #: "+alleleIds);
+		log.info("Gene IDs #: "+allGeneIDs);
+		log.info("AGM IDs #: "+allModelIDs);
 
 		int batchSize = 360;
 		int page = 0;
@@ -48,7 +53,7 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 			SearchResponse<GeneDiseaseAnnotation> response = geneApi.find(page, batchSize, params);
 			for (GeneDiseaseAnnotation da : response.getResults()) {
 				ret.add(da);
-				if(isValidEntity(allGeneIDs, da.getSubjectCurie())) {
+				if (isValidEntity(allGeneIDs, da.getSubjectCurie())) {
 					if (hasValidGeneticModifiers(da, allGeneIDs, alleleIds, allModelIDs)) {
 						ret.add(da);
 					}
