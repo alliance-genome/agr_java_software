@@ -79,19 +79,18 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 		GeneRepository geneRepository = new GeneRepository();
 		HashSet<String> allGeneIDs = new HashSet<>(geneRepository.getAllGeneKeys());
 
-		int batchSize = 360;
-		int page = 0;
-		int pages;
-
 		HashMap<String, Object> params = new HashMap<>();
 		params.put("internal", false);
 		params.put("obsolete", false);
 		params.put("strictFilter", true);
 
+		int batchSize = 360;
 		// loop over all Markers of validated GeneDiseaseAnnotation records
 		for (String geneID : geneMap.keySet()) {
 			List<DiseaseAnnotation> focusDiseaseAnnotations = geneMap.get(geneID).getRight();
 			params.put("subjectGene.curie", geneID);
+			int page = 0;
+			int pages;
 			do {
 				SearchResponse<GeneToGeneOrthologyGenerated> response = orthologyApi.find(page, batchSize, params);
 				for (GeneToGeneOrthologyGenerated geneGeneOrthology : response.getResults()) {
@@ -130,7 +129,7 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 				}
 
 				if (page == 0) {
-					display.startProcess("Pulling Gene DA's from curation", response.getTotalResults());
+					display.startProcess("Creating Gene DA's via orthology", response.getTotalResults());
 				}
 				display.progressProcess(response.getReturnedRecords().longValue());
 				pages = (int) (response.getTotalResults() / batchSize);
