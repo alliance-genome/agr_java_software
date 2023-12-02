@@ -35,9 +35,9 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 		HashSet<String> alleleIds = new HashSet<>(alleleRepository.getAllAlleleIDs());
 		HashSet<String> allGeneIDs = new HashSet<>(geneRepository.getAllGeneKeys());
 		HashSet<String> allModelIDs = new HashSet<>(alleleRepository.getAllModelKeys());
-		log.info("Allele IDs #: "+alleleIds);
-		log.info("Gene IDs #: "+allGeneIDs);
-		log.info("AGM IDs #: "+allModelIDs);
+		log.info("Allele IDs #: " + alleleIds);
+		log.info("Gene IDs #: " + allGeneIDs);
+		log.info("AGM IDs #: " + allModelIDs);
 
 		int batchSize = 1000;
 		int page = 0;
@@ -84,61 +84,54 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 		params.put("obsolete", false);
 		params.put("strictFilter", true);
 
-		int batchSize = 360;
+		long count = 0;
+		display.startProcess("Creating Gene DA's via orthology", geneMap.size());
 		// loop over all Markers of validated GeneDiseaseAnnotation records
 		for (String geneID : geneMap.keySet()) {
+			if (count++ % 10 == 0)
+				System.out.println(count);
 			List<DiseaseAnnotation> focusDiseaseAnnotations = geneMap.get(geneID).getRight();
 			params.put("subjectGene.curie", geneID);
-			int page = 0;
-			int pages;
-			do {
-				SearchResponse<GeneToGeneOrthologyGenerated> response = orthologyApi.find(page, batchSize, params);
-				for (GeneToGeneOrthologyGenerated geneGeneOrthology : response.getResults()) {
-					Gene orthologousGene = geneGeneOrthology.getObjectGene();
-					if (!isValidEntity(allGeneIDs, orthologousGene.getCurie())) {
-						continue;
-					}
-
-					// create orthologous DAs for each focus DA that is a Gene DA
-					focusDiseaseAnnotations.stream().filter(diseaseAnnotation -> diseaseAnnotation instanceof GeneDiseaseAnnotation)
-						.forEach(focusDiseaseAnnotation -> {
-							GeneDiseaseAnnotation gda = new GeneDiseaseAnnotation();
-
-							VocabularyTerm relation = null;
-							if (focusDiseaseAnnotation.getRelation().getName().equals("is_marker_for")) {
-								relation = vocabService.getVocabularyTerm("is_marker_via_orthology");
-							} else if (focusDiseaseAnnotation.getRelation().getName().equals("is_implicated_in")) {
-								relation = vocabService.getVocabularyTerm("is_implicated_via_orthology");
-							}
-							if (relation == null) {
-								throw new RuntimeException("No valid association type found for gene DA for given geneID: " + geneID);
-							}
-							gda.setRelation(relation);
-							DataProvider dataProvider = new DataProvider();
-							dataProvider.setSourceOrganization(orgService.getOrganization("Alliance"));
-							gda.setDataProvider(dataProvider);
-							gda.setWith(List.of(geneGeneOrthology.getSubjectGene()));
-							gda.setSubject(orthologousGene);
-							// hard code MGI:6194238 with corresponding AGRKB ID
-							Reference reference = referenceService.getReference("AGRKB:101000000828456");
-							gda.setSingleReference(reference);
-							gda.setObject(focusDiseaseAnnotation.getObject());
-							gda.setEvidenceCodes(focusDiseaseAnnotation.getEvidenceCodes());
-							ret.add(gda);
-						});
+			SearchResponse<GeneToGeneOrthologyGenerated> response = orthologyApi.find(0, 500, params);
+			for (GeneToGeneOrthologyGenerated geneGeneOrthology : response.getResults()) {
+				Gene orthologousGene = geneGeneOrthology.getObjectGene();
+				if (!isValidEntity(allGeneIDs, orthologousGene.getCurie())) {
+					continue;
 				}
 
-				if (page == 0) {
-					display.startProcess("Creating Gene DA's via orthology", response.getTotalResults());
-				}
-				display.progressProcess(response.getReturnedRecords().longValue());
-				pages = (int) (response.getTotalResults() / batchSize);
-				page++;
-			} while (page <= pages);
+				// create orthologous DAs for each focus DA that is a Gene DA
+				focusDiseaseAnnotations.stream().filter(diseaseAnnotation -> diseaseAnnotation instanceof GeneDiseaseAnnotation)
+					.forEach(focusDiseaseAnnotation -> {
+						GeneDiseaseAnnotation gda = new GeneDiseaseAnnotation();
+
+						VocabularyTerm relation = null;
+						if (focusDiseaseAnnotation.getRelation().getName().equals("is_marker_for")) {
+							relation = vocabService.getVocabularyTerm("is_marker_via_orthology");
+						} else if (focusDiseaseAnnotation.getRelation().getName().equals("is_implicated_in")) {
+							relation = vocabService.getVocabularyTerm("is_implicated_via_orthology");
+						}
+						if (relation == null) {
+							throw new RuntimeException("No valid association type found for gene DA for given geneID: " + geneID);
+						}
+						gda.setRelation(relation);
+						DataProvider dataProvider = new DataProvider();
+						dataProvider.setSourceOrganization(orgService.getOrganization("Alliance"));
+						gda.setDataProvider(dataProvider);
+						gda.setWith(List.of(geneGeneOrthology.getSubjectGene()));
+						gda.setSubject(orthologousGene);
+						// hard code MGI:6194238 with corresponding AGRKB ID
+						Reference reference = referenceService.getReference("AGRKB:101000000828456");
+						gda.setSingleReference(reference);
+						gda.setObject(focusDiseaseAnnotation.getObject());
+						gda.setEvidenceCodes(focusDiseaseAnnotation.getEvidenceCodes());
+						ret.add(gda);
+					});
+			}
+			display.progressProcess(1L);
 		}
 		display.finishProcess();
 		geneRepository.close();
-
+		System.out.println("Number of DAs with via orthology: " + ret.size());
 		return ret;
 	}
 
