@@ -1,8 +1,6 @@
 package org.alliancegenome.indexer.indexers.curation.service;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 
 import org.alliancegenome.core.config.ConfigHelper;
@@ -12,22 +10,21 @@ import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.indexers.curation.interfaces.AGMDiseaseAnnotationInterface;
-import org.alliancegenome.neo4j.repository.AlleleRepository;
-import org.alliancegenome.neo4j.repository.GeneRepository;
 
 import si.mazi.rescu.RestProxyFactory;
 
 public class AGMDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 
 	private AGMDiseaseAnnotationInterface agmApi = RestProxyFactory.createProxy(AGMDiseaseAnnotationInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
-
+	
+	private String cacheFileName = "agm_disease_annotation.json.gz";
+	
 	public List<AGMDiseaseAnnotation> getFiltered() {
+		
+		List<AGMDiseaseAnnotation> ret = readFromCache(cacheFileName, AGMDiseaseAnnotation.class);
+		if(ret.size() > 0) return ret;
 
 		ProcessDisplayHelper display = new ProcessDisplayHelper(10000);
-		AlleleRepository alleleRepository = new AlleleRepository();
-		GeneRepository geneRepository = new GeneRepository();
-
-		List<AGMDiseaseAnnotation> ret = new ArrayList<>();
 
 		int batchSize = 1000;
 		int page = 0;
@@ -38,15 +35,12 @@ public class AGMDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 		params.put("obsolete", false);
 //		params.put("subject.curie", "MGI:3707539");
 
-		HashSet<String> alleleIds = new HashSet<>(alleleRepository.getAllAlleleIDs());
-		HashSet<String> allGeneIDs = new HashSet<>(geneRepository.getAllGeneKeys());
-		HashSet<String> allModelIDs = new HashSet<>(alleleRepository.getAllModelKeys());
 		do {
 			SearchResponse<AGMDiseaseAnnotation> response = agmApi.findForPublic(page, batchSize, params);
 
 			for(AGMDiseaseAnnotation da: response.getResults()) {
 				if(isValidEntity(allModelIDs, da.getSubjectCurie())) {
-					if (hasValidEntities(da, allGeneIDs, alleleIds, allModelIDs)) {
+					if (hasValidEntities(da, allGeneIDs, allAlleleIds, allModelIDs)) {
 						if(da.getInferredGene() != null && da.getInferredGene().getConstructGenomicEntityAssociations() != null) {
 							da.getInferredGene().getConstructGenomicEntityAssociations().clear();
 						}
@@ -71,8 +65,9 @@ public class AGMDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 			page++;
 		} while(page <= pages);
 		display.finishProcess();
-		alleleRepository.close();
-		geneRepository.close();
+
+		writeToCache(cacheFileName, ret);
+		
 		return ret;
 	}
 

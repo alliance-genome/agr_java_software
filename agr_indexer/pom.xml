@@ -27,6 +27,11 @@
 			<groupId>org.alliancegenome</groupId>
 			<artifactId>agr_curation_api</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>net.nilosplace</groupId>
+			<artifactId>process-display</artifactId>
+			<version>1.0.12</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<finalName>${project.artifactId}</finalName>

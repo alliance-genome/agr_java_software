@@ -1,9 +1,23 @@
 package org.alliancegenome.indexer.indexers;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
+
+import java.io.IOException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
+import org.alliancegenome.api.entity.AGMDiseaseAnnotationDocument;
+import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
+import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.util.StatsCollector;
 import org.alliancegenome.es.index.ESDocument;
@@ -24,21 +38,13 @@ import org.elasticsearch.common.unit.ByteSizeValue;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.core.TimeValue;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.extern.slf4j.Slf4j;
+import net.nilosplace.process_display.util.ObjectFileStorage;
+
 
 @Slf4j
 public abstract class Indexer extends Thread {
@@ -168,7 +174,44 @@ public abstract class Indexer extends Thread {
 				}
 				display.progressProcess();
 				stats.addDocument(json);
-				bulkProcessor.add(new IndexRequest(indexName).source(json, XContentType.JSON));
+				if(json.length() > 50_000_000) {
+					log.info("Dropping document: " + json.length());
+					
+					ObjectFileStorage<String> storage = new ObjectFileStorage<>();
+					
+					if(doc instanceof GeneDiseaseAnnotationDocument doc2) {
+						log.info("Id: " + doc2.getUniqueId());
+						log.info("Subject ID: " + doc2.getSubject().getCurie());
+						log.info("Primary Annotations Size: " + doc2.getPrimaryAnnotations().size());
+						try {
+							storage.writeObjectToFile(json, doc2.getSubject().getCurie() + ".json.gz");
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}
+					if(doc instanceof AlleleDiseaseAnnotationDocument doc2) {
+						log.info("Id: " + doc2.getUniqueId());
+						log.info("Subject ID: " + doc2.getSubject().getCurie());
+						log.info("Primary Annotations Size: " + doc2.getPrimaryAnnotations().size());
+						try {
+							storage.writeObjectToFile(json, doc2.getSubject().getCurie() + ".json.gz");
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}
+					if(doc instanceof AGMDiseaseAnnotationDocument doc2) {
+						log.info("Id: " + doc2.getUniqueId());
+						log.info("Subject ID: " + doc2.getSubject().getCurie());
+						log.info("Primary Annotations Size: " + doc2.getPrimaryAnnotations().size());
+						try {
+							storage.writeObjectToFile(json, doc2.getSubject().getCurie() + ".json.gz");
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}
+				} else {
+					bulkProcessor.add(new IndexRequest(indexName).source(json, XContentType.JSON));
+				}
 			} catch (JsonProcessingException e) {
 				e.printStackTrace();
 				log.error(e.getMessage());
