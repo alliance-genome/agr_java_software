@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
+import org.alliancegenome.curation_api.model.entities.GeneDiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.view.View;
@@ -175,9 +176,8 @@ public interface DiseaseRESTInterface {
 
 	@GET
 	@Path("/{id}/genes")
-	@JsonView(value = {View.DiseaseAnnotationSummary.class})
 	@Operation(summary = "Retrieve all DiseaseAnnotation records for a given disease id")
-	JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotationsByGene(
+	JsonResultResponse<GeneDiseaseAnnotationDocument> getDiseaseAnnotationsByGene(
 			@Parameter(in = ParameterIn.PATH, name = "id", description = "Search for a disease by ID", required = true, schema = @Schema(type = SchemaType.STRING))
 			@PathParam("id") String id,
 			@Parameter(in = ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
@@ -188,12 +188,14 @@ public interface DiseaseRESTInterface {
 			@QueryParam("sortBy") String sortBy,
 			@Parameter(in = ParameterIn.QUERY, name = "filter.geneName", description = "filter by gene symbol")
 			@QueryParam("filter.geneName") String geneSymbol,
+			@Parameter(in = ParameterIn.QUERY, name = "filter.geneID", description = "filter by gene ID")
+			@QueryParam("filter.geneID") String geneCurie,
 			@Parameter(in = ParameterIn.QUERY, name = "filter.species", description = "filter by species")
 			@QueryParam("filter.species") String species,
-			@Parameter(in = ParameterIn.QUERY, name = "filter.disease", description = "filter by disease")
-			@QueryParam("filter.disease") String disease,
-			@Parameter(in = ParameterIn.QUERY, name = "filter.provider", description = "filter by provider")
-			@QueryParam("filter.provider") String provider,
+			@Parameter(in = ParameterIn.QUERY, name = "filter.object.curie", description = "Ontology term name", schema = @Schema(type = SchemaType.STRING))
+			@QueryParam("filter.object.curie") String diseaseTerm,
+			@Parameter(in = ParameterIn.QUERY, name = "filter.dataProvider", description = "Source", schema = @Schema(type = SchemaType.STRING))
+			@QueryParam("filter.dataProvider") String filterSource,
 			@Parameter(in = ParameterIn.QUERY, name = "filter.reference", description = "filter by reference")
 			@QueryParam("filter.reference") String reference,
 			@Parameter(in = ParameterIn.QUERY, name = "filter.evidenceCode", description = "filter by evidence code")
@@ -202,6 +204,8 @@ public interface DiseaseRESTInterface {
 			@QueryParam("filter.basedOnGeneSymbol") String basedOnGeneSymbol,
 			@Parameter(in = ParameterIn.QUERY, name = "filter.associationType", description = "filter by association type")
 			@QueryParam("filter.associationType") String associationType,
+			@Parameter(in = ParameterIn.QUERY, name = "filter.diseaseQualifier", description = "diseaseQualifier", schema = @Schema(type = SchemaType.STRING))
+			@QueryParam("filter.diseaseQualifier") String diseaseQualifier,
 			@Parameter(in = ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))
 			@QueryParam("asc") String asc);
 

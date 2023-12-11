@@ -47,13 +47,17 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 		params.put("internal", false);
 		params.put("obsolete", false);
 		//params.put("subject.curie", "WB:WBGene00013606");
-		//params.put("subject.curie", "RGD:2004");
+		//params.put("subject.curie", "HGNC:6893");
+//		params.put("subject.curie", "HGNC:40");
 
 		do {
 			SearchResponse<GeneDiseaseAnnotation> response = geneApi.findForPublic(page, batchSize, params);
 			for(GeneDiseaseAnnotation da: response.getResults()) {
 				if(isValidEntity(allGeneIDs, da.getSubjectCurie())) {
 					if (hasValidGeneticModifiers(da, allGeneIDs, alleleIds, allModelIDs)) {
+						// TODO: add json view in curation endpoint to not retrieve construct info which
+						// makes the object huge. construct info is not needed for disease annotations
+						da.getSubject().getConstructGenomicEntityAssociations().clear();
 						ret.add(da);
 					}
 				}
@@ -88,8 +92,6 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 		display.startProcess("Creating Gene DA's via orthology", geneMap.size());
 		// loop over all Markers of validated GeneDiseaseAnnotation records
 		for (String geneID : geneMap.keySet()) {
-			if (count++ % 10 == 0)
-				System.out.println(count);
 			List<DiseaseAnnotation> focusDiseaseAnnotations = geneMap.get(geneID).getRight();
 			params.put("subjectGene.curie", geneID);
 			SearchResponse<GeneToGeneOrthologyGenerated> response = orthologyApi.find(0, 500, params);
@@ -124,6 +126,7 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 						gda.setSingleReference(reference);
 						gda.setObject(focusDiseaseAnnotation.getObject());
 						gda.setEvidenceCodes(focusDiseaseAnnotation.getEvidenceCodes());
+						gda.setDiseaseQualifiers(focusDiseaseAnnotation.getDiseaseQualifiers());
 						ret.add(gda);
 					});
 			}
