@@ -106,12 +106,14 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		ProcessDisplayHelper ph = new ProcessDisplayHelper(10000);
 		ph.startProcess("Creating Gene Disease Annotations", geneMap.size());
 
+		VocabularyTerm relation = vocabService.getDiseaseRelationTerms().get("is_implicated_in");
+		
 		for (Entry<String, Pair<Gene, ArrayList<DiseaseAnnotation>>> entry : geneMap.entrySet()) {
 			HashMap<String, GeneDiseaseAnnotationDocument> lookup = new HashMap<>();
 
 			for (DiseaseAnnotation da : entry.getValue().getRight()) {
 				
-				VocabularyTerm relation = vocabService.getVocabularyTerm("is_implicated_in");
+				
 				if (da instanceof GeneDiseaseAnnotation) {
 					relation = da.getRelation();
 				}
@@ -180,13 +182,14 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		ProcessDisplayHelper ph = new ProcessDisplayHelper(10000);
 		ph.startProcess("Creating Allele Disease Annotations", alleleMap.size());
 
+		VocabularyTerm relation = vocabService.getDiseaseRelationTerms().get("is_implicated_in");
+		
 		for (Entry<String, Pair<Allele, ArrayList<DiseaseAnnotation>>> entry : alleleMap.entrySet()) {
 			HashMap<String, AlleleDiseaseAnnotationDocument> lookup = new HashMap<>();
 
 			for (DiseaseAnnotation da : entry.getValue().getRight()) {
 
 				// use this relation if inherited (inferred or asserted) from an AGM DA.
-				VocabularyTerm relation = vocabService.getVocabularyTerm("is_implicated_in");
 				if (da instanceof AlleleDiseaseAnnotation) {
 					relation = da.getRelation();
 				}
