@@ -2,7 +2,6 @@ package org.alliancegenome.indexer.indexers.curation.service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -19,7 +18,6 @@ import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.indexers.curation.interfaces.GeneDiseaseAnnotationInterface;
 import org.alliancegenome.indexer.indexers.curation.interfaces.GeneToGeneOrthologyGeneratedInterface;
-import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.apache.commons.lang3.tuple.Pair;
 
 import lombok.extern.log4j.Log4j2;
@@ -85,8 +83,6 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 	public List<GeneDiseaseAnnotation> getOrthologousGeneDiseaseAnnotations(Map<String, Pair<Gene, ArrayList<DiseaseAnnotation>>> geneMap) {
 		ProcessDisplayHelper display = new ProcessDisplayHelper(10000);
 		List<GeneDiseaseAnnotation> ret = new ArrayList<>();
-		GeneRepository geneRepository = new GeneRepository();
-		HashSet<String> allGeneIDs = new HashSet<>(geneRepository.getAllGeneKeys());
 
 		HashMap<String, Object> params = new HashMap<>();
 		params.put("internal", false);
@@ -137,7 +133,8 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 			display.progressProcess(1L);
 		}
 		display.finishProcess();
-		geneRepository.close();
+
+		
 		System.out.println("Number of DAs with via orthology: " + ret.size());
 		return ret;
 	}
