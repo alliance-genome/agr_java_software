@@ -143,6 +143,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 				gdad.addReference(da.getSingleReference());
 				gdad.addPubMedPubModID(getPubmedPubModID(da.getSingleReference()));
 				gdad.addPrimaryAnnotation(da);
+				gdad.setBasedOnGenes(da.getWith());
 			}
 			ph.progressProcess();
 			ret.addAll(lookup.values());

@@ -363,4 +363,43 @@ public class DiseaseESService {
 		return ret;
 	}
 
+	public JsonResultResponse<GeneDiseaseAnnotationDocument> getDiseaseAnnotationsWithGenes(String diseaseID, Pagination pagination, boolean excludeNegatedAnnotation, boolean debug) {
+		BoolQueryBuilder bool = boolQuery();
+		BoolQueryBuilder bool2 = boolQuery();
+		bool.must(bool2);
+
+		bool.filter(new TermQueryBuilder("category", "gene_disease_annotation"));
+		bool2.should(new MatchQueryBuilder("parentSlimIDs.keyword", diseaseID));
+
+		// create histogram of select columns of unfiltered query
+
+		addTableFilter(pagination, bool);
+
+		SearchResponse searchResponse = getSearchResponse(bool, pagination, null, debug);
+
+		JsonResultResponse<GeneDiseaseAnnotationDocument> ret = new JsonResultResponse<>();
+		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
+
+		List<GeneDiseaseAnnotationDocument> list = new ArrayList<>();
+		ObjectMapper mapper2 = new ObjectMapper();
+		JavaTimeModule module = new JavaTimeModule();
+		mapper2.registerModule(module);
+		mapper2.registerModule(new Jdk8Module());
+
+		mapper2.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+		mapper2.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+		mapper2.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+
+		for (SearchHit searchHit : searchResponse.getHits().getHits()) {
+			try {
+				GeneDiseaseAnnotationDocument object = mapper.readValue(searchHit.getSourceAsString(), GeneDiseaseAnnotationDocument.class);
+				object.setUniqueId(searchHit.getId());
+				list.add(object);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		ret.setResults(list);
+		return ret;
+	}
 }

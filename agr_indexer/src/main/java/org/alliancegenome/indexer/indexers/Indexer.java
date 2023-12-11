@@ -1,19 +1,9 @@
 package org.alliancegenome.indexer.indexers;
 
-import java.io.IOException;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.util.StatsCollector;
 import org.alliancegenome.es.index.ESDocument;
@@ -34,11 +24,21 @@ import org.elasticsearch.common.unit.ByteSizeValue;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.core.TimeValue;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import lombok.extern.slf4j.Slf4j;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Slf4j
 public abstract class Indexer extends Thread {
@@ -53,7 +53,7 @@ public abstract class Indexer extends Thread {
 	private ProcessDisplayHelper display = new ProcessDisplayHelper();
 	private StatsCollector stats = new StatsCollector();
 
-	protected Map<String,Double> popularityScore;
+	protected Map<String, Double> popularityScore;
 
 	protected BulkProcessor bulkProcessor;
 
@@ -74,7 +74,7 @@ public abstract class Indexer extends Thread {
 
 			@Override
 			public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {
-				if(response.hasFailures()) {
+				if (response.hasFailures()) {
 					log.info("Size: " + request.requests().size() + " MB: " + request.estimatedSizeInBytes() + " Time: " + response.getTook() + " Bulk Requet Finished");
 					log.info(response.buildFailureMessage());
 				}
@@ -83,8 +83,8 @@ public abstract class Indexer extends Thread {
 			@Override
 			public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
 				log.error("Bulk Request Failure: " + failure.getMessage());
-				for(DocWriteRequest<?> req: request.requests()) {
-					IndexRequest idxreq = (IndexRequest)req;
+				for (DocWriteRequest<?> req : request.requests()) {
+					IndexRequest idxreq = (IndexRequest) req;
 					bulkProcessor.add(idxreq);
 				}
 				log.error("Finished Adding failed requests to bulkProcessor: ");
@@ -161,7 +161,7 @@ public abstract class Indexer extends Thread {
 		for (D doc : docs) {
 			try {
 				String json = "";
-				if(view != null) {
+				if (view != null) {
 					json = om.writerWithView(view).writeValueAsString(doc);
 				} else {
 					json = om.writeValueAsString(doc);
@@ -176,7 +176,7 @@ public abstract class Indexer extends Thread {
 			}
 		}
 	}
-	
+
 	public void initiateThreading(LinkedBlockingDeque<String> queue) throws InterruptedException {
 		Integer numberOfThreads = indexerConfig.getThreadCount();
 
@@ -190,7 +190,7 @@ public abstract class Indexer extends Thread {
 			threads.add(t);
 			t.start();
 		}
-		
+
 		while (queue.size() > 0) {
 			TimeUnit.SECONDS.sleep(10);
 		}
@@ -201,6 +201,10 @@ public abstract class Indexer extends Thread {
 	}
 
 	protected abstract void index();
+
 	protected abstract void startSingleThread(LinkedBlockingDeque<String> queue);
-	protected ObjectMapper customizeObjectMapper(ObjectMapper objectMapper) { return objectMapper; }
+
+	protected ObjectMapper customizeObjectMapper(ObjectMapper objectMapper) {
+		return objectMapper;
+	}
 }

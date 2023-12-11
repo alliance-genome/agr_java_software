@@ -13,6 +13,7 @@ import org.alliancegenome.curation_api.model.entities.VocabularyTerm;
 import org.alliancegenome.curation_api.model.entities.ontology.DOTerm;
 import org.alliancegenome.curation_api.model.entities.ontology.ECOTerm;
 import org.alliancegenome.es.index.site.document.SearchableItemDocument;
+import org.alliancegenome.curation_api.model.entities.Gene;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -33,7 +34,7 @@ public class DiseaseAnnotationDocument extends SearchableItemDocument {
 	private Set<String> pubmedPubModIDs;
 	private Set<String> parentSlimIDs;
 	private List<DiseaseAnnotation> primaryAnnotations;
-	
+	private List<Gene> basedOnGenes;
 	private HashMap<String, Integer> speciesOrder;
 
 	public DiseaseAnnotationDocument() {
