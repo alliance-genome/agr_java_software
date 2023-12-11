@@ -44,6 +44,7 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 			for(GeneDiseaseAnnotation da: response.getResults()) {
 				if(isValidEntity(allGeneIDs, da.getSubjectCurie())) {
 					if (hasValidGeneticModifiers(da, allGeneIDs, alleleIds, allModelIDs)) {
+						da.getSubject().getConstructGenomicEntityAssociations().clear();
 						ret.add(da);
 					}
 				}
