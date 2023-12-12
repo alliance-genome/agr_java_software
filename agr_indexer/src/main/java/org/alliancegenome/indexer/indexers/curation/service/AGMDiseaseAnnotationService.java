@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.Gene;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.RestConfig;
@@ -46,6 +47,16 @@ public class AGMDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 			for(AGMDiseaseAnnotation da: response.getResults()) {
 				if(isValidEntity(allModelIDs, da.getSubjectCurie())) {
 					if (hasValidEntities(da, allGeneIDs, alleleIds, allModelIDs)) {
+						if(da.getInferredGene() != null && da.getInferredGene().getConstructGenomicEntityAssociations() != null) {
+							da.getInferredGene().getConstructGenomicEntityAssociations().clear();
+						}
+						if(da.getAssertedGenes() != null) {
+							for(Gene g: da.getAssertedGenes()) {
+								if(g.getConstructGenomicEntityAssociations() != null) {
+									g.getConstructGenomicEntityAssociations().clear();
+								}
+							}
+						}
 						ret.add(da);
 					}
 				}
