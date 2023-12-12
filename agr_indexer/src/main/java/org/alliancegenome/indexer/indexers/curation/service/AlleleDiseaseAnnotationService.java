@@ -46,10 +46,10 @@ public class AlleleDiseaseAnnotationService extends BaseDiseaseAnnotationService
 			for(AlleleDiseaseAnnotation da: response.getResults()) {
 				if(isValidEntity(AllAlleleIds, da.getSubjectCurie())) {
 					if (hasValidEntities(da, allGeneIDs, AllAlleleIds, allModelIDs)) {
+						if(da.getInferredGene() != null && da.getInferredGene().getConstructGenomicEntityAssociations() != null) {
+							da.getInferredGene().getConstructGenomicEntityAssociations().clear();
+						}
 						if(da.getAssertedGenes() != null) {
-							if(da.getInferredGene() != null && da.getInferredGene().getConstructGenomicEntityAssociations() != null) {
-								da.getInferredGene().getConstructGenomicEntityAssociations().clear();
-							}
 							for(Gene g: da.getAssertedGenes()) {
 								if(g.getConstructGenomicEntityAssociations() != null) {
 									g.getConstructGenomicEntityAssociations().clear();
