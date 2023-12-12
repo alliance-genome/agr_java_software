@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.Gene;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.RestConfig;
@@ -27,7 +28,7 @@ public class AlleleDiseaseAnnotationService extends BaseDiseaseAnnotationService
 		AlleleRepository alleleRepository = new AlleleRepository();
 		GeneRepository geneRepository = new GeneRepository();
 
-		int batchSize = 300;
+		int batchSize = 100;
 		int page = 0;
 		int pages = 0;
 		
@@ -45,6 +46,16 @@ public class AlleleDiseaseAnnotationService extends BaseDiseaseAnnotationService
 			for(AlleleDiseaseAnnotation da: response.getResults()) {
 				if(isValidEntity(AllAlleleIds, da.getSubjectCurie())) {
 					if (hasValidEntities(da, allGeneIDs, AllAlleleIds, allModelIDs)) {
+						if(da.getAssertedGenes() != null) {
+							if(da.getInferredGene() != null && da.getInferredGene().getConstructGenomicEntityAssociations() != null) {
+								da.getInferredGene().getConstructGenomicEntityAssociations().clear();
+							}
+							for(Gene g: da.getAssertedGenes()) {
+								if(g.getConstructGenomicEntityAssociations() != null) {
+									g.getConstructGenomicEntityAssociations().clear();
+								}
+							}
+						}
 						ret.add(da);
 					}
 				}
