@@ -1,20 +1,18 @@
 package org.alliancegenome.data_extractor.config;
 
-import org.alliancegenome.data_extractor.extractors.DiseaseExtractor;
 import org.alliancegenome.data_extractor.extractors.FMSExtractor;
 import org.alliancegenome.data_extractor.extractors.GeneExtractor;
 
 public enum ExtractorConfig {
-	
-	//AlleleExtractor(AlleleExtractor.class),
+
+	// AlleleExtractor(AlleleExtractor.class),
+	// DiseaseExtractor(DiseaseExtractor.class),
 	GeneExtractor(GeneExtractor.class),
-	DiseaseExtractor(DiseaseExtractor.class),
-	FMSExtractor(FMSExtractor.class)
-	;
-	
+	FMSExtractor(FMSExtractor.class);
+
 	private String extractorName;
 	private Class<?> extractorClass;
-	
+
 	ExtractorConfig(Class<?> extractorClass) {
 		this.extractorName = extractorClass.getSimpleName();
 		this.extractorClass = extractorClass;
