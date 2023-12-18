@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ProcessDisplayHelper {
 
+	public static final int MINIMUM_TOTAL = 20;
 	private Runtime runtime = Runtime.getRuntime();
 	private DecimalFormat df = new DecimalFormat("#");
 
@@ -47,6 +48,9 @@ public class ProcessDisplayHelper {
 	}
 	
 	public void startProcess(String message, long totalSize) {
+		// do not do display processing when only few records in total are loaded.
+		if(totalSize < MINIMUM_TOTAL)
+			return;
 		this.message = message + ": ";
 		this.totalSize = totalSize;
 		lastSizeCounter = 0;
@@ -73,6 +77,10 @@ public class ProcessDisplayHelper {
 	}
 	
 	public void progressProcess(String data, long amount) {
+		// do not do display processing when only few records in total are loaded.
+		if(totalSize < MINIMUM_TOTAL)
+			return;
+
 		sizeCounter.getAndAdd(amount);
 
 		boolean permit = sem.tryAcquire();
@@ -125,6 +133,10 @@ public class ProcessDisplayHelper {
 	}
 	
 	public void finishProcess(String data) {
+		// do not do display processing when only few records in total are loaded.
+		if(totalSize < MINIMUM_TOTAL)
+			return;
+
 		Date now = new Date();
 		long duration = now.getTime() - startTime;
 		String result = getHumanReadableTimeDisplay(duration);
