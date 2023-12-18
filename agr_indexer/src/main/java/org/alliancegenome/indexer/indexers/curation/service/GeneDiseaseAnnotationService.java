@@ -33,12 +33,11 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 	private OrganizationService orgService = new OrganizationService();
 	private ReferenceService referenceService = new ReferenceService();
 
-	private String cacheFileName = "gene_disease_annotation.json.gz";
+	private final String cacheFileName = "gene_disease_annotation.json.gz";
 
 	public List<GeneDiseaseAnnotation> getFiltered() {
 		ProcessDisplayHelper display = new ProcessDisplayHelper(2000);
 		List<GeneDiseaseAnnotation> ret = new ArrayList<>();
-		GeneRepository geneRepository = new GeneRepository();
 		log.info("Gene IDs #: " + allGeneIDs);
 		log.info("AGM IDs #: " + allModelIDs);
 
@@ -89,7 +88,6 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 		params.put("obsolete", false);
 		params.put("strictFilter", true);
 
-		long count = 0;
 		display.startProcess("Creating Gene DA's via orthology", geneMap.size());
 		// loop over all Markers of validated GeneDiseaseAnnotation records
 		for (String geneID : geneMap.keySet()) {
@@ -133,8 +131,6 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 			display.progressProcess(1L);
 		}
 		display.finishProcess();
-
-		
 		System.out.println("Number of DAs with via orthology: " + ret.size());
 		return ret;
 	}
