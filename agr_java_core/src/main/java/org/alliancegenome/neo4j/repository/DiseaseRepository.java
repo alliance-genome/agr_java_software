@@ -114,6 +114,22 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 		}
 		return list;
 	}
+	
+	public DOTerm getOneTerm(String primaryKey) {
+		HashMap<String, String> map = new HashMap<>();
+
+		map.put("primaryKey", primaryKey);
+
+		String query = "MATCH (do:DOTerm) WHERE do.primaryKey = $primaryKey RETURN do";
+
+		Iterable<DOTerm> dots = query(query, map);
+		for(DOTerm doTerm: dots) {
+			if(doTerm.getPrimaryKey().equals(primaryKey)) {
+				return doTerm;
+			}
+		}
+		return null;
+	}
 
 	public DOTerm getDiseaseTerm(String primaryKey) {
 
