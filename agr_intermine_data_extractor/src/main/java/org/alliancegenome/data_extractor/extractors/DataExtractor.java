@@ -21,19 +21,21 @@ import lombok.extern.slf4j.Slf4j;
 public abstract class DataExtractor extends Thread {
 
 	protected abstract void extract(PrintWriter writer);
+
 	protected abstract String getFileName();
+
 	protected abstract String getDirName();
 
 	private ProcessDisplayHelper display = new ProcessDisplayHelper();
-	
+
 	@Override
 	public void run() {
 		try {
 			Date start = new Date();
 			log.info(this.getClass().getSimpleName() + " started: " + start);
-			if(getFileName() != null) {
+			if (getFileName() != null) {
 				File directory = new File(ConfigHelper.getDataExtractorDirectory() + "/" + getDirName());
-				if (! directory.exists()){
+				if (!directory.exists()) {
 					directory.mkdir();
 				}
 				PrintWriter output_writer = new PrintWriter(new File(ConfigHelper.getDataExtractorDirectory() + "/" + getDirName() + "/" + getFileName()));
@@ -42,7 +44,7 @@ public abstract class DataExtractor extends Thread {
 			} else {
 				extract(null);
 			}
-			
+
 			Date end = new Date();
 			log.info(this.getClass().getSimpleName() + " finished: " + ProcessDisplayHelper.getHumanReadableTimeDisplay(end.getTime() - start.getTime()));
 		} catch (Exception e) {
@@ -50,7 +52,7 @@ public abstract class DataExtractor extends Thread {
 			System.exit(-1);
 		}
 	}
-	
+
 	protected void startProcess(String message) {
 		startProcess(message, 0);
 	}
@@ -67,11 +69,10 @@ public abstract class DataExtractor extends Thread {
 	protected void finishProcess() {
 		display.finishProcess();
 	}
-	
+
 	protected void decompressGzip(File source, File target) throws IOException {
 		log.debug("decompressing file  " + source.getAbsolutePath() + "	 to " + target.getAbsolutePath());
-		try (GZIPInputStream gis = new GZIPInputStream(new FileInputStream(source));
-			 FileOutputStream fos = new FileOutputStream(target)) {
+		try (GZIPInputStream gis = new GZIPInputStream(new FileInputStream(source)); FileOutputStream fos = new FileOutputStream(target)) {
 			byte[] buffer = new byte[1024];
 			int len;
 			while ((len = gis.read(buffer)) > 0) {

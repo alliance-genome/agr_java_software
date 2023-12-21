@@ -10,7 +10,7 @@ import org.alliancegenome.neo4j.repository.DiseaseRepository;
 public class DiseaseExtractor extends DataExtractor {
 
 	DiseaseRepository repo = new DiseaseRepository();
-	
+
 	@Override
 	protected void extract(PrintWriter writer) {
 		
@@ -37,4 +37,3 @@ public class DiseaseExtractor extends DataExtractor {
 	}
 
 }
-

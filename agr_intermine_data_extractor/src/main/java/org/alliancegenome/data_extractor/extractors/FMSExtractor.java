@@ -43,24 +43,25 @@ public class FMSExtractor extends DataExtractor {
 		api2 = RestProxyFactory.createProxy(SnapShotRESTInterface.class, ConfigHelper.getFMSUrl());
 		SnapShotResponce res = api2.getSnapShot(ConfigHelper.getAllianceRelease());
 
-		for(DataFile df: res.getSnapShot().getDataFiles()) {
+		for (DataFile df : res.getSnapShot().getDataFiles()) {
 			FMSDownload fd = new FMSDownload(df);
 			executor.execute(fd);
 		}
 		try {
-			while (!runningQueue.isEmpty()) Thread.sleep(100);
+			while (!runningQueue.isEmpty())
+				Thread.sleep(100);
 			executor.awaitTermination(2, TimeUnit.MINUTES);
 		} catch (InterruptedException e1) {
 			e1.printStackTrace();
 		}
-		
+
 	}
 
 	@Override
 	protected String getFileName() {
 		return null;
 	}
-	
+
 	@Override
 	protected String getDirName() {
 		return "fms";
@@ -75,35 +76,34 @@ public class FMSExtractor extends DataExtractor {
 		}
 
 		public void run() {
-			
+
 			try {
 				URL url = new URL(df.getS3Url());
 				log.info("Downloading: " + url);
-				if(df.getS3Url().endsWith(".gz") && !df.getFileName().endsWith(".gz")) {
+				if (df.getS3Url().endsWith(".gz") && !df.getFileName().endsWith(".gz")) {
 					File out = new File(ConfigHelper.getDataExtractorDirectory() + "/" + getDirName() + "/" + df.getFileName() + ".gz");
-					if(!out.exists()) {
+					if (!out.exists()) {
 						FileUtils.copyURLToFile(url, out);
 						File outFile = new File(ConfigHelper.getDataExtractorDirectory() + "/" + getDirName() + "/" + df.getFileName());
 						decompressGzip(out, outFile);
 						out.delete();
-					}		
-					
-				}else {
-					
+					}
+
+				} else {
+
 					File out = new File(ConfigHelper.getDataExtractorDirectory() + "/" + getDirName() + "/" + df.getFileName());
-					 log.debug("saving file to " + out.getAbsolutePath());
-					if(!out.exists()) {
+					log.debug("saving file to " + out.getAbsolutePath());
+					if (!out.exists()) {
 						FileUtils.copyURLToFile(url, out);
 					} else {
 						log.info("File Exists Skipping: " + out.getAbsolutePath());
 					}
 				}
-				
+
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
-	
-	
+
 	}
 }
