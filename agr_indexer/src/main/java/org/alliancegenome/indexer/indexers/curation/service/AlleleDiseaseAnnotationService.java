@@ -28,7 +28,7 @@ public class AlleleDiseaseAnnotationService extends BaseDiseaseAnnotationService
 		AlleleRepository alleleRepository = new AlleleRepository();
 		GeneRepository geneRepository = new GeneRepository();
 
-		int batchSize = 100;
+		int batchSize = 1000;
 		int page = 0;
 		int pages = 0;
 		
@@ -41,7 +41,7 @@ public class AlleleDiseaseAnnotationService extends BaseDiseaseAnnotationService
 		HashSet<String> allModelIDs = new HashSet<>(alleleRepository.getAllModelKeys());
 
 		do {
-			SearchResponse<AlleleDiseaseAnnotation> response = alleleApi.find(page, batchSize, params);
+			SearchResponse<AlleleDiseaseAnnotation> response = alleleApi.findForPublic(page, batchSize, params);
 
 			for(AlleleDiseaseAnnotation da: response.getResults()) {
 				if(isValidEntity(AllAlleleIds, da.getSubjectCurie())) {

@@ -22,8 +22,8 @@ import jakarta.ws.rs.QueryParam;
 public interface AGMDiseaseAnnotationInterface extends BaseIdCrudInterface<AGMDiseaseAnnotation> {
 
 	@POST
-	@Path("/find")
-	@JsonView({View.FieldsAndLists.class})
-	SearchResponse<AGMDiseaseAnnotation> find(@DefaultValue("0") @QueryParam("page") Integer page, @DefaultValue("10") @QueryParam("limit") Integer limit, HashMap<String, Object> params);
+	@Path("/findForPublic")
+	@JsonView({View.DiseaseAnnotationForPublic.class})
+	SearchResponse<AGMDiseaseAnnotation> findForPublic(@DefaultValue("0") @QueryParam("page") Integer page, @DefaultValue("10") @QueryParam("limit") Integer limit, HashMap<String, Object> params);
 
 }

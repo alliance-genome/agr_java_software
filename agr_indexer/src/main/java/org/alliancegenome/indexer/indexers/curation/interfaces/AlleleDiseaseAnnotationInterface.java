@@ -22,8 +22,8 @@ import jakarta.ws.rs.QueryParam;
 public interface AlleleDiseaseAnnotationInterface extends BaseIdCrudInterface<AlleleDiseaseAnnotation> {
 
 	@POST
-	@Path("/find")
-	@JsonView({View.FieldsAndLists.class})
-	SearchResponse<AlleleDiseaseAnnotation> find(@DefaultValue("0") @QueryParam("page") Integer page, @DefaultValue("10") @QueryParam("limit") Integer limit, HashMap<String, Object> params);
+	@Path("/findForPublic")
+	@JsonView({View.DiseaseAnnotationForPublic.class})
+	SearchResponse<AlleleDiseaseAnnotation> findForPublic(@DefaultValue("0") @QueryParam("page") Integer page, @DefaultValue("10") @QueryParam("limit") Integer limit, HashMap<String, Object> params);
 
 }

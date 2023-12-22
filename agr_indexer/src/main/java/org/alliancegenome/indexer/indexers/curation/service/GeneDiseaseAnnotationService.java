@@ -22,7 +22,7 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 	private final GeneDiseaseAnnotationInterface geneApi = RestProxyFactory.createProxy(GeneDiseaseAnnotationInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 
 	public List<GeneDiseaseAnnotation> getFiltered() {
-		ProcessDisplayHelper display = new ProcessDisplayHelper(10000);
+		ProcessDisplayHelper display = new ProcessDisplayHelper(2000);
 		List<GeneDiseaseAnnotation> ret = new ArrayList<>();
 		GeneRepository geneRepository = new GeneRepository();
 		AlleleRepository alleleRepository = new AlleleRepository();
@@ -30,7 +30,7 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 		HashSet<String> allGeneIDs = new HashSet<>(geneRepository.getAllGeneKeys());
 		HashSet<String> allModelIDs = new HashSet<>(alleleRepository.getAllModelKeys());
 
-		int batchSize = 360;
+		int batchSize = 1000;
 		int page = 0;
 		int pages;
 
@@ -40,13 +40,10 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 		//params.put("subject.curie", "SGD:S000005450");
 
 		do {
-			SearchResponse<GeneDiseaseAnnotation> response = geneApi.find(page, batchSize, params);
+			SearchResponse<GeneDiseaseAnnotation> response = geneApi.findForPublic(page, batchSize, params);
 			for(GeneDiseaseAnnotation da: response.getResults()) {
 				if(isValidEntity(allGeneIDs, da.getSubjectCurie())) {
 					if (hasValidGeneticModifiers(da, allGeneIDs, alleleIds, allModelIDs)) {
-						if(da.getSubject() != null && da.getSubject().getConstructGenomicEntityAssociations() != null) {
-							da.getSubject().getConstructGenomicEntityAssociations().clear();
-						}
 						ret.add(da);
 					}
 				}
