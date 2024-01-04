@@ -53,6 +53,9 @@ public enum SpeciesType {
 				nameMap.put(type.name, type);
 			}
 		}
+		if(!nameMap.containsKey(name)) {
+			log.warn("SpeciesType Name not found: " + name);
+		}
 		return nameMap.get(name);
 	}
 
