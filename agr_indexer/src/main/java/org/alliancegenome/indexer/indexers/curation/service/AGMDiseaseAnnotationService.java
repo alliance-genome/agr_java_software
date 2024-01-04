@@ -29,7 +29,7 @@ public class AGMDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 
 		List<AGMDiseaseAnnotation> ret = new ArrayList<>();
 
-		int batchSize = 100;
+		int batchSize = 1000;
 		int page = 0;
 		int pages = 0;
 		
@@ -42,7 +42,7 @@ public class AGMDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 		HashSet<String> allGeneIDs = new HashSet<>(geneRepository.getAllGeneKeys());
 		HashSet<String> allModelIDs = new HashSet<>(alleleRepository.getAllModelKeys());
 		do {
-			SearchResponse<AGMDiseaseAnnotation> response = agmApi.find(page, batchSize, params);
+			SearchResponse<AGMDiseaseAnnotation> response = agmApi.findForPublic(page, batchSize, params);
 
 			for(AGMDiseaseAnnotation da: response.getResults()) {
 				if(isValidEntity(allModelIDs, da.getSubjectCurie())) {
