@@ -135,9 +135,9 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 					lookup.put(key, gdad);
 				}
 				
-				List <ECOTerm> evidenceCodes = new ArrayList<>();
-				evidenceCodes.addAll(da.getEvidenceCodes());
-				gdad.setEvidenceCodes(evidenceCodes);
+				Map<String, ECOTerm> evidenceCodesMap = new HashMap<String, ECOTerm>();
+				da.getEvidenceCodes().forEach( ecoTerm -> evidenceCodesMap.put(ecoTerm.getCurie(), ecoTerm));
+				gdad.setEvidenceCodes(evidenceCodesMap.values().stream().toList());
 
 				if(CollectionUtils.isNotEmpty(da.getDiseaseQualifiers())) {
 					Set<String> diseaseQualifiers = da.getDiseaseQualifiers().stream().map(term -> term.getName().replace("_", " ")).collect(Collectors.toSet());
