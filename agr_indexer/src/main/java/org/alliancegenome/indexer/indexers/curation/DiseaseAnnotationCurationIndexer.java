@@ -136,6 +136,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 				}
 				
 				Map<String, ECOTerm> evidenceCodesMap = new HashMap<String, ECOTerm>();
+				gdad.getEvidenceCodes().forEach( ecoTerm -> evidenceCodesMap.put(ecoTerm.getCurie(), ecoTerm));
 				da.getEvidenceCodes().forEach( ecoTerm -> evidenceCodesMap.put(ecoTerm.getCurie(), ecoTerm));
 				gdad.setEvidenceCodes(evidenceCodesMap.values().stream().toList());
 
