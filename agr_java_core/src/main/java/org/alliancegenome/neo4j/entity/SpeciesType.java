@@ -45,18 +45,15 @@ public enum SpeciesType {
 	private String assembly;
 
 	public static final String NCBITAXON = "NCBITaxon:";
-	public static final HashMap<String, SpeciesType> nameMap = new HashMap<String, SpeciesType>();
 
-	public static SpeciesType getTypeByName(String name) {
-		if(nameMap.isEmpty()) {
-			for (SpeciesType type : values()) {
-				nameMap.put(type.name, type);
+	public static SpeciesType getTypeByNameField(String name) {
+		for (SpeciesType type : values()) {
+			if(type.getName().equals(name)) {
+				return type;
 			}
 		}
-		if(!nameMap.containsKey(name)) {
-			log.warn("SpeciesType Name not found: " + name);
-		}
-		return nameMap.get(name);
+		log.warn("SpeciesType Name not found: " + name);
+		return null;
 	}
 
 	public static SpeciesType getTypeByID(String ID) {
@@ -164,7 +161,7 @@ public enum SpeciesType {
 		// if only a number is provided then prefix it with taxon...
 		if (StringUtils.isNumeric(species))
 			return NCBITAXON + species;
-		SpeciesType typeByName = getTypeByName(species);
+		SpeciesType typeByName = getTypeByNameField(species);
 		if (typeByName != null)
 			return typeByName.getTaxonID();
 		typeByName = getTypeByPartialName(species);

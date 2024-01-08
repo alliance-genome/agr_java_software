@@ -77,7 +77,7 @@ public class GoRepository extends Neo4jRepository<GOTerm> {
 			String geneSymbol = resultMap.get("gene.symbol").toString();
 			String speciesName = resultMap.get("species.name").toString();
 
-			SpeciesType speciesType = SpeciesType.getTypeByName(speciesName);
+			SpeciesType speciesType = SpeciesType.getTypeByNameField(speciesName);
 			String nameKey = geneSymbol + " (" + speciesType.getAbbreviation() + ")";
 
 			if (geneMap.get(primaryKey) == null) {
