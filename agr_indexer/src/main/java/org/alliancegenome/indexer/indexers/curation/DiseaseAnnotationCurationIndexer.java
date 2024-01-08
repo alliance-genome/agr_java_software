@@ -23,6 +23,7 @@ import org.alliancegenome.curation_api.model.entities.Gene;
 import org.alliancegenome.curation_api.model.entities.GeneDiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.Reference;
 import org.alliancegenome.curation_api.model.entities.VocabularyTerm;
+import org.alliancegenome.curation_api.model.entities.ontology.ECOTerm;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.config.IndexerConfig;
@@ -133,7 +134,12 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 					gdad.setParentSlimIDs(closureMap.get(da.getObject().getCurie()));
 					lookup.put(key, gdad);
 				}
-				gdad.setEvidenceCodes(da.getEvidenceCodes());
+				
+				Map<String, ECOTerm> evidenceCodesMap = new HashMap<String, ECOTerm>();
+				gdad.getEvidenceCodes().forEach( ecoTerm -> evidenceCodesMap.put(ecoTerm.getCurie(), ecoTerm));
+				da.getEvidenceCodes().forEach( ecoTerm -> evidenceCodesMap.put(ecoTerm.getCurie(), ecoTerm));
+				gdad.setEvidenceCodes(evidenceCodesMap.values().stream().toList());
+
 				if(CollectionUtils.isNotEmpty(da.getDiseaseQualifiers())) {
 					Set<String> diseaseQualifiers = da.getDiseaseQualifiers().stream().map(term -> term.getName().replace("_", " ")).collect(Collectors.toSet());
 					gdad.setDiseaseQualifiers(diseaseQualifiers);
