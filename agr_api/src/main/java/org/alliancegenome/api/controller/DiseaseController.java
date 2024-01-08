@@ -144,11 +144,26 @@ public class DiseaseController implements DiseaseRESTInterface {
 	}
 
 	@Override
-	public Response getDiseaseAnnotationsByGeneDownload(String id, String sortBy, String geneName, String species, String disease, String source, String reference, String evidenceCode, String basedOnGeneSymbol, String associationType, boolean fullDownload, String downloadFileType, String asc) {
-		//JsonResultResponse<DiseaseAnnotation> response = getDiseaseAnnotationsByGene(id, Integer.MAX_VALUE, null, sortBy, geneName, species, disease, source, reference, evidenceCode, basedOnGeneSymbol, associationType, asc);
-		JsonResultResponse<DiseaseAnnotation> response = null;
+	public Response getDiseaseAnnotationsByGeneDownload(String id,
+														Integer limit,
+														Integer page,
+														String sortBy,
+														String geneName,
+														String geneID,
+														String species,
+														String diseaseName,
+														String source,
+														String reference,
+														String evidenceCode,
+														String basedOnGeneSymbol,
+														String associationType,
+														String diseaseQualifier,
+														boolean fullDownload,
+														String downloadFileType,
+														String asc) {
+		JsonResultResponse<GeneDiseaseAnnotationDocument> response = getDiseaseAnnotationsByGene(id, 150000, page, sortBy, geneName, geneID, species, diseaseName, source, reference, evidenceCode, basedOnGeneSymbol, associationType,diseaseQualifier, asc);
 		Response.ResponseBuilder responseBuilder = null;
-		String allRowsForGenes = translator.getAllRowsForGenes(response.getResults());
+		String allRowsForGenes = translator.getAllRowsForAssociatedGenes(response.getResults());
 		if (fullDownload) {
 			if (downloadFileType == null || downloadFileType.equalsIgnoreCase("tsv")) {
 				String data = FileHelper.getFileContent("templates/all-disease-association-file-header.txt");

@@ -671,4 +671,45 @@ public class DiseaseAnnotationToTdfTranslator {
 	}
 
 
+	public String getAllRowsForAssociatedGenes(List<GeneDiseaseAnnotationDocument> diseaseAnnotations) {
+		// convert collection of DiseaseAnnotation records to DiseaseDownloadRow records
+		List<DiseaseDownloadRow> list = getDownloadRowsFromGeneDiseaseAnnotations(diseaseAnnotations);
+
+		List<DownloadHeader> headers = List.of(
+			new DownloadHeader<>("Gene ID", (DiseaseDownloadRow::getMainEntityID)),
+			new DownloadHeader<>("Gene Symbol", (DiseaseDownloadRow::getMainEntitySymbol)),
+			new DownloadHeader<>("Species ID", (DiseaseDownloadRow::getSpeciesID)),
+			new DownloadHeader<>("Species Name", (DiseaseDownloadRow::getSpeciesName)),
+			new DownloadHeader<>("Additional Implicated Gene ID", (DiseaseDownloadRow::getAssertedGeneID)),
+			new DownloadHeader<>("Additional Implicated Gene Symbol", (DiseaseDownloadRow::getAssertedGeneName)),
+			new DownloadHeader<>("Gene Association", (DiseaseDownloadRow::getAssociation)),
+			new DownloadHeader<>("Genetic Entity ID", (DiseaseDownloadRow::getGeneticEntityID)),
+			new DownloadHeader<>("Genetic Entity Name", (DiseaseDownloadRow::getGeneticEntityName)),
+			new DownloadHeader<>("Genetic Entity Type", (DiseaseDownloadRow::getGeneticEntityType)),
+			new DownloadHeader<>("Genetic Entity Association", (DiseaseDownloadRow::getGeneticEntityAssociation)),
+			new DownloadHeader<>("Disease Qualifier", (DiseaseDownloadRow::getDiseaseQualifier)),
+			new DownloadHeader<>("Disease ID", (DiseaseDownloadRow::getDiseaseID)),
+			new DownloadHeader<>("Disease Name", (DiseaseDownloadRow::getDiseaseName)),
+			new DownloadHeader<>("Evidence Code", (DiseaseDownloadRow::getEvidenceCode)),
+			new DownloadHeader<>("Evidence Code Abbreviation", (DiseaseDownloadRow::getEvidenceAbbreviation)),
+			new DownloadHeader<>("Evidence Code Name", (DiseaseDownloadRow::getEvidenceCodeName)),
+			new DownloadHeader<>("Experimental Conditions", (DiseaseDownloadRow::getExperimentalCondition)),
+			new DownloadHeader<>("Genetic Modifier Relation", (DiseaseDownloadRow::getDiseaseGeneticModifierRelation)),
+			new DownloadHeader<>("Genetic Modifier IDs", (DiseaseDownloadRow::getDiseaseGeneticModifierID)),
+			new DownloadHeader<>("Genetic Modifier Names", (DiseaseDownloadRow::getDiseaseGeneticModifierName)),
+			new DownloadHeader<>("Strain Background ID", (DiseaseDownloadRow::getStrainBackgroundID)),
+			new DownloadHeader<>("Strain Background Name", (DiseaseDownloadRow::getStrainBackgroundName)),
+			new DownloadHeader<>("Genetic Sex", (DiseaseDownloadRow::getGeneticSex)),
+			new DownloadHeader<>("Notes", (DiseaseDownloadRow::getNote)),
+			new DownloadHeader<>("Annotation Type", (DiseaseDownloadRow::getAnnotationType)),
+			new DownloadHeader<>("Based On ID", (DiseaseDownloadRow::getBasedOnID)),
+			new DownloadHeader<>("Based On Symbol", (DiseaseDownloadRow::getBasedOnName)),
+			new DownloadHeader<>("Source", (DiseaseDownloadRow::getSource)),
+			new DownloadHeader<>("Source URL", (DiseaseDownloadRow::getSourceUrl)),
+			new DownloadHeader<>("Reference", (DiseaseDownloadRow::getReference)),
+			new DownloadHeader<>("Date", (DiseaseDownloadRow::getDateAssigned))
+		);
+
+		return DownloadHeader.getDownloadOutput(list, headers);
+	}
 }

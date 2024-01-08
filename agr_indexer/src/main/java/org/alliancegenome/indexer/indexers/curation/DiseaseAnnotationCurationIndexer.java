@@ -107,15 +107,19 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		ph.startProcess("Creating Gene Disease Annotations", geneMap.size());
 
 		VocabularyTerm relation = vocabService.getDiseaseRelationTerms().get("is_implicated_in");
-		
+
 		for (Entry<String, Pair<Gene, ArrayList<DiseaseAnnotation>>> entry : geneMap.entrySet()) {
 			HashMap<String, GeneDiseaseAnnotationDocument> lookup = new HashMap<>();
 
 			for (DiseaseAnnotation da : entry.getValue().getRight()) {
-				
-				
-				if (da instanceof GeneDiseaseAnnotation) {
+
+				int phylogeneticSortOrder = 0;
+				if (da instanceof GeneDiseaseAnnotation gda) {
 					relation = da.getRelation();
+					SpeciesType speciesType = SpeciesType.getTypeByID(gda.getSubject().getTaxon().getCurie());
+					if (speciesType != null) {
+						phylogeneticSortOrder = speciesType.getOrderID();
+					}
 				}
 
 				String key = relation.getName() + "_" + da.getObject().getName() + "_" + da.getNegated();
@@ -142,7 +146,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 					gdad.setParentSlimIDs(closureMap.get(da.getObject().getCurie()));
 					lookup.put(key, gdad);
 				}
-				
+
 				Map<String, ECOTerm> evidenceCodesMap = new HashMap<String, ECOTerm>();
 				if(gdad.getEvidenceCodes() != null) {
 					gdad.getEvidenceCodes().forEach(ecoTerm -> evidenceCodesMap.put(ecoTerm.getCurie(), ecoTerm));
@@ -160,6 +164,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 				gdad.addPubMedPubModID(getPubmedPubModID(da.getSingleReference()));
 				gdad.addPrimaryAnnotation(da);
 				gdad.setBasedOnGenes(da.getWith());
+				gdad.setPhylogeneticSortingIndex(phylogeneticSortOrder);
 			}
 			ph.progressProcess();
 			ret.addAll(lookup.values());
@@ -197,7 +202,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		ph.startProcess("Creating Allele Disease Annotations", alleleMap.size());
 
 		VocabularyTerm relation = vocabService.getDiseaseRelationTerms().get("is_implicated_in");
-		
+
 		for (Entry<String, Pair<Allele, ArrayList<DiseaseAnnotation>>> entry : alleleMap.entrySet()) {
 			HashMap<String, AlleleDiseaseAnnotationDocument> lookup = new HashMap<>();
 
@@ -223,7 +228,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 					lookup.put(key, adad);
 				}
 				adad.setEvidenceCodes(da.getEvidenceCodes());
-				if(CollectionUtils.isNotEmpty(da.getDiseaseQualifiers())) {
+				if (CollectionUtils.isNotEmpty(da.getDiseaseQualifiers())) {
 					Set<String> diseaseQualifiers = da.getDiseaseQualifiers().stream().map(term -> term.getName().replace("_", " ")).collect(Collectors.toSet());
 					adad.setDiseaseQualifiers(diseaseQualifiers);
 				}

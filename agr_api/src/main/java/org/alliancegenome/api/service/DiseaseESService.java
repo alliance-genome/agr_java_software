@@ -392,8 +392,10 @@ public class DiseaseESService {
 		// create histogram of select columns of unfiltered query
 
 		addTableFilter(pagination, bool);
+		LinkedHashMap <String, SortOrder> sortingMap = new LinkedHashMap<>();
+		sortingMap.put("phylogeneticSortingIndex", SortOrder.ASC);
 
-		SearchResponse searchResponse = getSearchResponse(bool, pagination, null, debug);
+		SearchResponse searchResponse = getSearchResponse(bool, pagination, sortingMap, debug);
 
 		JsonResultResponse<GeneDiseaseAnnotationDocument> ret = new JsonResultResponse<>();
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
