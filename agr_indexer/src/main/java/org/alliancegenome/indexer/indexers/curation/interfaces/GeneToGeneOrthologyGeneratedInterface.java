@@ -15,7 +15,7 @@ import java.util.HashMap;
 public interface GeneToGeneOrthologyGeneratedInterface extends BaseIdCrudInterface<GeneToGeneOrthologyGenerated> {
 
 	@POST
-	@Path("/find")
+	@Path("/findForPublic")
 	@JsonView({View.FieldsAndLists.class})
 	SearchResponse<GeneToGeneOrthologyGenerated> find(@DefaultValue("0") @QueryParam("page") Integer page, @DefaultValue("10") @QueryParam("limit") Integer limit, HashMap<String, Object> params);
 
