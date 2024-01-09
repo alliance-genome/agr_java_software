@@ -59,7 +59,6 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 					if (hasValidGeneticModifiers(da, allGeneIDs, allAlleleIds, allModelIDs)) {
 						// TODO: add json view in curation endpoint to not retrieve construct info which
 						// makes the object huge. construct info is not needed for disease annotations
-						da.getSubject().getConstructGenomicEntityAssociations().clear();
 						ret.add(da);
 					}
 				}
