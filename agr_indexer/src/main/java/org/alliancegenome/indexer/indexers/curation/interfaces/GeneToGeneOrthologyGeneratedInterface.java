@@ -16,7 +16,7 @@ public interface GeneToGeneOrthologyGeneratedInterface extends BaseIdCrudInterfa
 
 	@POST
 	@Path("/findForPublic")
-	@JsonView({View.FieldsAndLists.class})
+	@JsonView({View.ForPublic.class})
 	SearchResponse<GeneToGeneOrthologyGenerated> find(@DefaultValue("0") @QueryParam("page") Integer page, @DefaultValue("10") @QueryParam("limit") Integer limit, HashMap<String, Object> params);
 
 }
