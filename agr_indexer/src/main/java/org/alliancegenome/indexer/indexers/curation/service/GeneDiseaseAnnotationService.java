@@ -87,6 +87,11 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 		params.put("obsolete", false);
 		params.put("strictFilter", true);
 
+		VocabularyTerm isMarkerViaOrthology = vocabService.getDiseaseRelationTerms().get("is_marker_via_orthology");
+		VocabularyTerm isImplicatedViaOrthology = vocabService.getDiseaseRelationTerms().get("is_implicated_via_orthology");
+		// hard code MGI:6194238 with corresponding AGRKB ID
+		Reference allianceReference = referenceService.getReference("AGRKB:101000000828456");
+
 		display.startProcess("Creating Gene DA's via orthology", geneMap.size());
 		// loop over all Markers of validated GeneDiseaseAnnotation records
 		for (String geneID : geneMap.keySet()) {
@@ -105,9 +110,9 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 
 					VocabularyTerm relation = null;
 					if (focusDiseaseAnnotation.getRelation().getName().equals("is_marker_for")) {
-						relation = vocabService.getDiseaseRelationTerms().get("is_marker_via_orthology");
+						relation = isMarkerViaOrthology;
 					} else if (focusDiseaseAnnotation.getRelation().getName().equals("is_implicated_in")) {
-						relation = vocabService.getDiseaseRelationTerms().get("is_implicated_via_orthology");
+						relation = isImplicatedViaOrthology;
 					}
 					if (relation == null) {
 						throw new RuntimeException("No valid association type found for gene DA for given geneID: " + geneID);
@@ -118,9 +123,7 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 					gda.setDataProvider(dataProvider);
 					gda.setWith(List.of(geneGeneOrthology.getSubjectGene()));
 					gda.setSubject(orthologousGene);
-					// hard code MGI:6194238 with corresponding AGRKB ID
-					Reference reference = referenceService.getReference("AGRKB:101000000828456");
-					gda.setSingleReference(reference);
+					gda.setSingleReference(allianceReference);
 					gda.setObject(focusDiseaseAnnotation.getObject());
 					gda.setEvidenceCodes(focusDiseaseAnnotation.getEvidenceCodes());
 					gda.setDiseaseQualifiers(focusDiseaseAnnotation.getDiseaseQualifiers());
