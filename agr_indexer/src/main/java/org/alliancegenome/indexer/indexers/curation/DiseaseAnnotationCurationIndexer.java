@@ -1,28 +1,11 @@
 package org.alliancegenome.indexer.indexers.curation;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.stream.Collectors;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.alliancegenome.api.entity.AGMDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
-import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.AffectedGenomicModel;
-import org.alliancegenome.curation_api.model.entities.Allele;
-import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.CrossReference;
-import org.alliancegenome.curation_api.model.entities.DiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.Gene;
-import org.alliancegenome.curation_api.model.entities.GeneDiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.Reference;
-import org.alliancegenome.curation_api.model.entities.VocabularyTerm;
+import org.alliancegenome.curation_api.model.entities.*;
 import org.alliancegenome.curation_api.model.entities.ontology.ECOTerm;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.RestConfig;
@@ -37,9 +20,10 @@ import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import lombok.extern.slf4j.Slf4j;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class DiseaseAnnotationCurationIndexer extends Indexer {
@@ -96,8 +80,13 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 	}
 
 	private void createDiseaseAnnotationsFromOrthology() {
-		List<GeneDiseaseAnnotation> geneDAs = geneService.getOrthologousGeneDiseaseAnnotations(geneMap);
-		addDiseaseAnnotationsToLGlobalMap(geneDAs);
+		Map<Gene, List<DiseaseAnnotation>> daMap = geneService.getOrthologousGeneDiseaseAnnotations(geneMap);
+		daMap.forEach((gene, diseaseAnnotations) -> {
+			diseaseAnnotations.forEach(diseaseAnnotation -> {
+				Pair<Gene, ArrayList<DiseaseAnnotation>> pair = geneMap.computeIfAbsent(gene.getCurie(), geneCurie -> Pair.of(gene, new ArrayList<>()));
+				pair.getRight().add(diseaseAnnotation);
+			});
+		});
 	}
 
 	private List<GeneDiseaseAnnotationDocument> createGeneDiseaseAnnotationDocuments() {
@@ -123,15 +112,15 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 				}
 
 				String key = relation.getName() + "_" + da.getObject().getName() + "_" + da.getNegated();
-				
-				if(da.getDiseaseQualifiers() != null) {
-					key += "_" + String.join("_", da.getDiseaseQualifiers().stream().map(VocabularyTerm::getName).sorted().collect(Collectors.toList()));
+
+				if (da.getDiseaseQualifiers() != null) {
+					key += "_" + da.getDiseaseQualifiers().stream().map(VocabularyTerm::getName).sorted().collect(Collectors.joining("_"));
 				}
-				
+
 				if (da.getWith() != null && da.getWith().size() > 0) {
-					key += "_" + String.join("_", da.getWith().stream().map(Gene::getCurie).sorted().collect(Collectors.toList()));
+					key += "_" + da.getWith().stream().map(Gene::getCurie).sorted().collect(Collectors.joining("_"));
 				}
-				
+
 				GeneDiseaseAnnotationDocument gdad = lookup.get(key);
 
 				if (gdad == null) {
@@ -147,23 +136,23 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 					lookup.put(key, gdad);
 				}
 
-				Map<String, ECOTerm> evidenceCodesMap = new HashMap<String, ECOTerm>();
-				if(gdad.getEvidenceCodes() != null) {
+				Map<String, ECOTerm> evidenceCodesMap = new HashMap<>();
+				if (gdad.getEvidenceCodes() != null) {
 					gdad.getEvidenceCodes().forEach(ecoTerm -> evidenceCodesMap.put(ecoTerm.getCurie(), ecoTerm));
 				}
-				if(da.getEvidenceCodes() != null) {
+				if (da.getEvidenceCodes() != null) {
 					da.getEvidenceCodes().forEach(ecoTerm -> evidenceCodesMap.put(ecoTerm.getCurie(), ecoTerm));
 				}
 				gdad.setEvidenceCodes(evidenceCodesMap.values().stream().toList());
 
-				if(CollectionUtils.isNotEmpty(da.getDiseaseQualifiers())) {
+				if (CollectionUtils.isNotEmpty(da.getDiseaseQualifiers())) {
 					Set<String> diseaseQualifiers = da.getDiseaseQualifiers().stream().map(term -> term.getName().replace("_", " ")).collect(Collectors.toSet());
 					gdad.setDiseaseQualifiers(diseaseQualifiers);
 				}
 				gdad.addReference(da.getSingleReference());
 				gdad.addPubMedPubModID(getPubmedPubModID(da.getSingleReference()));
 				gdad.addPrimaryAnnotation(da);
-				gdad.setBasedOnGenes(da.getWith());
+				gdad.addBasedOnGenes(da.getWith());
 				gdad.setPhylogeneticSortingIndex(phylogeneticSortOrder);
 			}
 			ph.progressProcess();

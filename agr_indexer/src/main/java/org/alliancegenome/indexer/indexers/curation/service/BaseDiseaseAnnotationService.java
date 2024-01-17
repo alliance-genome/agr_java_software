@@ -27,32 +27,35 @@ public class BaseDiseaseAnnotationService {
 	public BaseDiseaseAnnotationService() {
 		AlleleRepository alleleRepository = new AlleleRepository();
 		GeneRepository geneRepository = new GeneRepository();
+
+		String alleleIdsFileName = "allele_ids.gz";
+		List<String> alleleList = readFromCache(alleleIdsFileName, String.class);
 		
-		List<String> alleleList = readFromCache("allele_ids.gz", String.class);
-		
-		if(alleleList == null) {
+		if(alleleList != null) {
 			allAlleleIds = new HashSet<>(alleleList);
 		} else {
 			allAlleleIds = new HashSet<>(alleleRepository.getAllAlleleIDs());
-			writeToCache("allele_ids.gz", new ArrayList<>(allAlleleIds));
+			writeToCache(alleleIdsFileName, new ArrayList<>(allAlleleIds));
 		}
+
+		String geneIdsFileName = "gene_ids.gz";
+		List<String> geneList = readFromCache(geneIdsFileName, String.class);
 		
-		List<String> geneList = readFromCache("gene_ids.gz", String.class);
-		
-		if(geneList == null) {
+		if(geneList != null) {
 			allGeneIDs = new HashSet<>(geneList);
 		} else {
 			allGeneIDs = new HashSet<>(geneRepository.getAllGeneKeys());
-			writeToCache("gene_ids.gz", new ArrayList<>(allGeneIDs));
+			writeToCache(geneIdsFileName, new ArrayList<>(allGeneIDs));
 		}
+
+		String mdoelIdsFileName = "model_ids.gz";
+		List<String> modelList = readFromCache(mdoelIdsFileName, String.class);
 		
-		List<String> modelList = readFromCache("model_ids.gz", String.class);
-		
-		if(modelList == null) {
+		if(modelList != null) {
 			allModelIDs = new HashSet<>(modelList);
 		} else {
 			allModelIDs = new HashSet<>(alleleRepository.getAllModelKeys());
-			writeToCache("model_ids.gz", new ArrayList<>(allModelIDs));
+			writeToCache(mdoelIdsFileName, new ArrayList<>(allModelIDs));
 		}
 		
 		alleleRepository.close();

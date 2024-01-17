@@ -33,7 +33,7 @@ public class AGMDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 		HashMap<String, Object> params = new HashMap<>();
 		params.put("internal", false);
 		params.put("obsolete", false);
-//		params.put("subject.curie", "MGI:3707539");
+		//params.put("object.curie", "DOID:0090105");
 
 		do {
 			SearchResponse<AGMDiseaseAnnotation> response = agmApi.findForPublic(page, batchSize, params);

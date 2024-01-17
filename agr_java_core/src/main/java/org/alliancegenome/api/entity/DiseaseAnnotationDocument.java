@@ -1,22 +1,18 @@
 package org.alliancegenome.api.entity;
 
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.alliancegenome.curation_api.model.entities.DiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.Gene;
 import org.alliancegenome.curation_api.model.entities.Reference;
 import org.alliancegenome.curation_api.model.entities.VocabularyTerm;
 import org.alliancegenome.curation_api.model.entities.ontology.DOTerm;
 import org.alliancegenome.curation_api.model.entities.ontology.ECOTerm;
 import org.alliancegenome.es.index.site.document.SearchableItemDocument;
-import org.alliancegenome.curation_api.model.entities.Gene;
+import org.apache.commons.collections4.CollectionUtils;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import java.util.*;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -60,6 +56,19 @@ public class DiseaseAnnotationDocument extends SearchableItemDocument {
 			primaryAnnotations = new ArrayList<>();
 		}
 		primaryAnnotations.add(da);
+	}
+
+	public void addBasedOnGenes(List<Gene> genes) {
+		if(CollectionUtils.isEmpty(genes))
+			return;
+		if (basedOnGenes == null) {
+			basedOnGenes = new ArrayList<>();
+		}
+		genes.forEach(gene -> {
+			if(!basedOnGenes.contains(gene)){
+				basedOnGenes.add(gene);
+			}
+		});
 	}
 
 }
