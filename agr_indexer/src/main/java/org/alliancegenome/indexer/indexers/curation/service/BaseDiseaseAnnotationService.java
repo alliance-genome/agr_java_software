@@ -50,15 +50,16 @@ public class BaseDiseaseAnnotationService {
 			writeToCache(geneIdsFileName, new ArrayList<>(allGeneIDs));
 		}
 		log.info("Number of all Gene IDs from Neo4j: "+allGeneIDs);
+		System.out.println("Number of all Gene IDs from Neo4j: "+allGeneIDs);
 
-		String mdoelIdsFileName = "model_ids.gz";
-		List<String> modelList = readFromCache(mdoelIdsFileName, String.class);
+		String modelIdsFileName = "model_ids.gz";
+		List<String> modelList = readFromCache(modelIdsFileName, String.class);
 		
 		if(modelList != null) {
 			allModelIDs = new HashSet<>(modelList);
 		} else {
 			allModelIDs = new HashSet<>(alleleRepository.getAllModelKeys());
-			writeToCache(mdoelIdsFileName, new ArrayList<>(allModelIDs));
+			writeToCache(modelIdsFileName, new ArrayList<>(allModelIDs));
 		}
 		
 		alleleRepository.close();
