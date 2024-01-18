@@ -95,12 +95,13 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		ProcessDisplayHelper ph = new ProcessDisplayHelper(10000);
 		ph.startProcess("Creating Gene Disease Annotations", geneMap.size());
 
-		VocabularyTerm relation = vocabService.getDiseaseRelationTerms().get("is_implicated_in");
+		final VocabularyTerm relationIsImplicatedIn = vocabService.getDiseaseRelationTerms().get("is_implicated_in");
 
 		for (Entry<String, Pair<Gene, ArrayList<DiseaseAnnotation>>> entry : geneMap.entrySet()) {
 			HashMap<String, GeneDiseaseAnnotationDocument> lookup = new HashMap<>();
 
 			for (DiseaseAnnotation da : entry.getValue().getRight()) {
+				VocabularyTerm relation = relationIsImplicatedIn;
 
 				int phylogeneticSortOrder = 0;
 				if (da instanceof GeneDiseaseAnnotation gda) {

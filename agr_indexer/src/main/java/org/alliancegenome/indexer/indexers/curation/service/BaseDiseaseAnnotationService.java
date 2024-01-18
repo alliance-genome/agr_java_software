@@ -43,8 +43,7 @@ public class BaseDiseaseAnnotationService {
 			allGeneIDs = new HashSet<>(geneRepository.getAllGeneKeys());
 			writeToCache(geneIdsFileName, new ArrayList<>(allGeneIDs));
 		}
-		log.info("Number of all Gene IDs from Neo4j: " + allGeneIDs);
-		System.out.println("Number of all Gene IDs from Neo4j: " + allGeneIDs);
+		log.info("Number of all Gene IDs from Neo4j: " + allGeneIDs.size());
 
 		String modelIdsFileName = "model_ids.gz";
 		List<String> modelList = readFromCache(modelIdsFileName, String.class);

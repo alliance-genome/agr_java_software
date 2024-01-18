@@ -87,10 +87,9 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 		display.startProcess("Creating Gene DA's via orthology", geneMap.size());
 		// loop over all Markers of validated DiseaseAnnotation records
 		Set<String> geneIDs = geneMap.keySet();
-/*
 		geneIDs = new HashSet<>();
 		geneIDs.add("MGI:2140175");
-*/
+		geneIDs.add("HGNC:18640");
 		for (String geneID : geneIDs) {
 			List<DiseaseAnnotation> focusDiseaseAnnotations = geneMap.get(geneID).getRight();
 			params.put("subjectGene.curie", geneID);
