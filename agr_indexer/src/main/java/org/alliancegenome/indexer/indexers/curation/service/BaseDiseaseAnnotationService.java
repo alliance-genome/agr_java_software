@@ -1,39 +1,33 @@
 package org.alliancegenome.indexer.indexers.curation.service;
 
+import lombok.extern.log4j.Log4j2;
+import net.nilosplace.process_display.util.ObjectFileStorage;
+import org.alliancegenome.curation_api.model.entities.*;
+import org.alliancegenome.neo4j.repository.AlleleRepository;
+import org.alliancegenome.neo4j.repository.GeneRepository;
+import org.apache.commons.collections4.CollectionUtils;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import lombok.extern.log4j.Log4j2;
-import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.Allele;
-import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.DiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.Gene;
-import org.alliancegenome.curation_api.model.entities.GenomicEntity;
-import org.alliancegenome.neo4j.repository.AlleleRepository;
-import org.alliancegenome.neo4j.repository.GeneRepository;
-import org.apache.commons.collections4.CollectionUtils;
-
-import net.nilosplace.process_display.util.ObjectFileStorage;
-
 @Log4j2
 public class BaseDiseaseAnnotationService {
-	
+
 	protected HashSet<String> allAlleleIds;
 	protected HashSet<String> allGeneIDs;
 	protected HashSet<String> allModelIDs;
-	
+
 	public BaseDiseaseAnnotationService() {
 		AlleleRepository alleleRepository = new AlleleRepository();
 		GeneRepository geneRepository = new GeneRepository();
 
 		String alleleIdsFileName = "allele_ids.gz";
 		List<String> alleleList = readFromCache(alleleIdsFileName, String.class);
-		
-		if(alleleList != null) {
+
+		if (CollectionUtils.isNotEmpty(alleleList)) {
 			allAlleleIds = new HashSet<>(alleleList);
 		} else {
 			allAlleleIds = new HashSet<>(alleleRepository.getAllAlleleIDs());
@@ -42,30 +36,30 @@ public class BaseDiseaseAnnotationService {
 
 		String geneIdsFileName = "gene_ids.gz";
 		List<String> geneList = readFromCache(geneIdsFileName, String.class);
-		
-		if(geneList != null) {
+
+		if (CollectionUtils.isNotEmpty(geneList)) {
 			allGeneIDs = new HashSet<>(geneList);
 		} else {
 			allGeneIDs = new HashSet<>(geneRepository.getAllGeneKeys());
 			writeToCache(geneIdsFileName, new ArrayList<>(allGeneIDs));
 		}
-		log.info("Number of all Gene IDs from Neo4j: "+allGeneIDs);
-		System.out.println("Number of all Gene IDs from Neo4j: "+allGeneIDs);
+		log.info("Number of all Gene IDs from Neo4j: " + allGeneIDs);
+		System.out.println("Number of all Gene IDs from Neo4j: " + allGeneIDs);
 
 		String modelIdsFileName = "model_ids.gz";
 		List<String> modelList = readFromCache(modelIdsFileName, String.class);
-		
-		if(modelList != null) {
+
+		if (CollectionUtils.isNotEmpty(modelList)) {
 			allModelIDs = new HashSet<>(modelList);
 		} else {
 			allModelIDs = new HashSet<>(alleleRepository.getAllModelKeys());
 			writeToCache(modelIdsFileName, new ArrayList<>(allModelIDs));
 		}
-		
+
 		alleleRepository.close();
 		geneRepository.close();
 	}
-	
+
 	protected boolean hasValidEntities(AGMDiseaseAnnotation da, Set<String> allGeneIDs, Set<String> allAllelIDs, Set<String> allModelIDs) {
 		Gene inferredGene = da.getInferredGene();
 		List<Gene> assertedGenes = da.getAssertedGenes();
