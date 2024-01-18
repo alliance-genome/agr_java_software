@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.Allele;
 import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
@@ -18,6 +19,7 @@ import org.apache.commons.collections4.CollectionUtils;
 
 import net.nilosplace.process_display.util.ObjectFileStorage;
 
+@Log4j2
 public class BaseDiseaseAnnotationService {
 	
 	protected HashSet<String> allAlleleIds;
@@ -47,6 +49,7 @@ public class BaseDiseaseAnnotationService {
 			allGeneIDs = new HashSet<>(geneRepository.getAllGeneKeys());
 			writeToCache(geneIdsFileName, new ArrayList<>(allGeneIDs));
 		}
+		log.info("Number of all Gene IDs from Neo4j: "+allGeneIDs);
 
 		String mdoelIdsFileName = "model_ids.gz";
 		List<String> modelList = readFromCache(mdoelIdsFileName, String.class);
