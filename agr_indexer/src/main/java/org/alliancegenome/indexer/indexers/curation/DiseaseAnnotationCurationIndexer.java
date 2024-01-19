@@ -6,7 +6,9 @@ import org.alliancegenome.api.entity.AGMDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.curation_api.model.entities.*;
+import org.alliancegenome.curation_api.model.entities.ontology.DOTerm;
 import org.alliancegenome.curation_api.model.entities.ontology.ECOTerm;
+import org.alliancegenome.curation_api.model.entities.ontology.OntologyTerm;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.config.IndexerConfig;
@@ -25,6 +27,8 @@ import java.util.Map.Entry;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.groupingBy;
+
 @Slf4j
 public class DiseaseAnnotationCurationIndexer extends Indexer {
 
@@ -38,6 +42,8 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 	private Map<String, Pair<Gene, ArrayList<DiseaseAnnotation>>> geneMap = new HashMap<>();
 	private Map<String, Pair<Allele, ArrayList<DiseaseAnnotation>>> alleleMap = new HashMap<>();
 	private Map<String, Pair<AffectedGenomicModel, ArrayList<DiseaseAnnotation>>> agmMap = new HashMap<>();
+
+	private Map<Gene, List<DiseaseAnnotation>> geneViaOrthologyMap = new HashMap<>();
 
 	public DiseaseAnnotationCurationIndexer(IndexerConfig indexerConfig) {
 		super(indexerConfig);
@@ -65,6 +71,8 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		createDiseaseAnnotationsFromOrthology();
 
 		List<GeneDiseaseAnnotationDocument> list = createGeneDiseaseAnnotationDocuments();
+		List<GeneDiseaseAnnotationDocument> viaOrthologyList = getGeneDiseaseAnnotationViaOrthologyDocuments();
+		list.addAll(viaOrthologyList);
 		log.info("Indexing " + list.size() + " gene documents");
 		indexDocuments(list);
 
@@ -80,15 +88,82 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 	}
 
 	private void createDiseaseAnnotationsFromOrthology() {
-		Map<Gene, List<DiseaseAnnotation>> daMap = geneService.getOrthologousGeneDiseaseAnnotations(geneMap);
-/*
-		daMap.forEach((gene, diseaseAnnotations) -> {
-			diseaseAnnotations.forEach(diseaseAnnotation -> {
-				Pair<Gene, ArrayList<DiseaseAnnotation>> pair = geneMap.computeIfAbsent(gene.getCurie(), geneCurie -> Pair.of(gene, new ArrayList<>()));
-				pair.getRight().add(diseaseAnnotation);
+		geneViaOrthologyMap = geneService.getOrthologousGeneDiseaseAnnotations(geneMap);
+	}
+
+	private List<GeneDiseaseAnnotationDocument> getGeneDiseaseAnnotationViaOrthologyDocuments() {
+		return createGeneDiseaseAnnotationViaOrthologyDocuments();
+	}
+
+	private List<GeneDiseaseAnnotationDocument> createGeneDiseaseAnnotationViaOrthologyDocuments() {
+		ProcessDisplayHelper ph = new ProcessDisplayHelper(10000);
+		ph.startProcess("Creating Gene Disease Annotations via Orthology", geneViaOrthologyMap.size());
+		List<GeneDiseaseAnnotationDocument> returnList = new ArrayList<>();
+
+		geneViaOrthologyMap.forEach((gene, diseaseAnnotations) -> {
+
+			// Group By:
+			// Disease, Disease qualifiers, BasedOn Gene List (names),
+			Map<DOTerm, Map<String, Map<String, List<DiseaseAnnotation>>>> groupedByAnnotations = diseaseAnnotations.stream()
+				.collect(groupingBy(DiseaseAnnotation::getObject,
+					groupingBy(diseaseAnnotation -> {
+						List<VocabularyTerm> terms = diseaseAnnotation.getDiseaseQualifiers();
+						if (CollectionUtils.isEmpty(terms))
+							return "null";
+						return diseaseAnnotation.getDiseaseQualifiers().stream().map(VocabularyTerm::getName).sorted().collect(Collectors.joining("_"));
+					}, groupingBy(diseaseAnnotation -> {
+						List<Gene> genes = diseaseAnnotation.getWith();
+						if (CollectionUtils.isEmpty(genes))
+							return "null";
+						return diseaseAnnotation.getWith().stream().map(Gene::getCurie).sorted().collect(Collectors.joining("_"));
+					}))));
+
+			groupedByAnnotations.forEach((diseaseTerm, diseaseQualifierMap) -> {
+				diseaseQualifierMap.forEach((diseaseQualifier, stringListMap) -> {
+					stringListMap.forEach((basedOnGenesList, diseaseAnnotations1) -> {
+						DiseaseAnnotation diseaseAnnotation = diseaseAnnotations1.get(0);
+						GeneDiseaseAnnotationDocument gdad = new GeneDiseaseAnnotationDocument();
+						gdad.setSubject(gene);
+						gdad.setRelation(diseaseAnnotation.getRelation());
+						String generatedRelationString = getGeneratedRelationString(gdad.getRelation().getName(), diseaseAnnotation.getNegated());
+						gdad.setGeneratedRelationString(generatedRelationString);
+						gdad.setObject(diseaseTerm);
+						gdad.setParentSlimIDs(closureMap.get(diseaseAnnotation.getObject().getCurie()));
+
+						// create distinct and sorted list of ECOTerm objects
+						Set<ECOTerm> ecoTerms = diseaseAnnotations1.stream().map(DiseaseAnnotation::getEvidenceCodes).flatMap(Collection::stream).collect(Collectors.toSet());
+						gdad.setEvidenceCodes((new ArrayList<>(ecoTerms)).stream().sorted(Comparator.comparing(OntologyTerm::getName)).toList());
+
+						// Create distinct list of disease qualifier term names
+						Set<String> diseaseQualifiers = diseaseAnnotations1.stream().filter(diseaseAnnotation1 -> CollectionUtils.isNotEmpty(diseaseAnnotation1.getDiseaseQualifiers())).map(diseaseAnnotation1 ->
+							diseaseAnnotation1.getDiseaseQualifiers().stream().map(VocabularyTerm::getName).toList()).flatMap(Collection::stream).collect(Collectors.toSet());
+						if (CollectionUtils.isNotEmpty(diseaseQualifiers)) {
+							gdad.setDiseaseQualifiers(diseaseQualifiers);
+						}
+
+						// create distinct and sorted list of ECOTerm objects
+						List<Gene> basedOnGenes = diseaseAnnotations1.stream().map(DiseaseAnnotation::getWith).flatMap(Collection::stream).toList();
+						gdad.setBasedOnGenes(basedOnGenes);
+
+						gdad.addReference(diseaseAnnotation.getSingleReference());
+						gdad.addPubMedPubModID(getPubmedPubModID(diseaseAnnotation.getSingleReference()));
+
+						HashMap<String, Integer> order = SpeciesType.getSpeciesOrderByTaxonID(gene.getTaxon().getCurie());
+						gdad.setSpeciesOrder(order);
+						int phylogeneticSortOrder = 0;
+						SpeciesType speciesType = SpeciesType.getTypeByID(gene.getTaxon().getCurie());
+						if (speciesType != null) {
+							phylogeneticSortOrder = speciesType.getOrderID();
+						}
+						gdad.setPhylogeneticSortingIndex(phylogeneticSortOrder);
+						returnList.add(gdad);
+					});
+				});
 			});
+			ph.progressProcess();
 		});
-*/
+		ph.finishProcess();
+		return returnList;
 	}
 
 	private List<GeneDiseaseAnnotationDocument> createGeneDiseaseAnnotationDocuments() {
