@@ -81,12 +81,14 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 
 	private void createDiseaseAnnotationsFromOrthology() {
 		Map<Gene, List<DiseaseAnnotation>> daMap = geneService.getOrthologousGeneDiseaseAnnotations(geneMap);
+/*
 		daMap.forEach((gene, diseaseAnnotations) -> {
 			diseaseAnnotations.forEach(diseaseAnnotation -> {
 				Pair<Gene, ArrayList<DiseaseAnnotation>> pair = geneMap.computeIfAbsent(gene.getCurie(), geneCurie -> Pair.of(gene, new ArrayList<>()));
 				pair.getRight().add(diseaseAnnotation);
 			});
 		});
+*/
 	}
 
 	private List<GeneDiseaseAnnotationDocument> createGeneDiseaseAnnotationDocuments() {
