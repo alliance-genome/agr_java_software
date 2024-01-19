@@ -71,8 +71,10 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		createDiseaseAnnotationsFromOrthology();
 
 		List<GeneDiseaseAnnotationDocument> list = createGeneDiseaseAnnotationDocuments();
+/*
 		List<GeneDiseaseAnnotationDocument> viaOrthologyList = getGeneDiseaseAnnotationViaOrthologyDocuments();
 		list.addAll(viaOrthologyList);
+*/
 		log.info("Indexing " + list.size() + " gene documents");
 		indexDocuments(list);
 
