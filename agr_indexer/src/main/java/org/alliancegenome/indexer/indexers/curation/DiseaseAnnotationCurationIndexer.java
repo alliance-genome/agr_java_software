@@ -144,8 +144,8 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 							}
 
 							// create distinct list of basedOn Genes
-							List<Gene> basedOnGenes = diseaseAnnotations1.stream().map(DiseaseAnnotation::getWith).flatMap(Collection::stream).distinct().toList();
-							gdad.setBasedOnGenes(basedOnGenes);
+							Set<Gene> basedOnGenes = diseaseAnnotations1.stream().map(DiseaseAnnotation::getWith).flatMap(Collection::stream).distinct().collect(Collectors.toSet());
+							gdad.setBasedOnGenes(new ArrayList<>(basedOnGenes));
 
 							gdad.addReference(diseaseAnnotation.getSingleReference());
 							gdad.addPubMedPubModID(getPubmedPubModID(diseaseAnnotation.getSingleReference()));
