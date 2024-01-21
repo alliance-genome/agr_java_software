@@ -71,6 +71,8 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		createDiseaseAnnotationsFromOrthology();
 
 		List<GeneDiseaseAnnotationDocument> list = createGeneDiseaseAnnotationDocuments();
+		System.out.println("No of DAs for Alz2: "+list.stream().filter(document -> document.getSubject().getCurie().equals("HGNC:613") && document.getObject().getCurie().equals("DOID:0110035")).toList());
+
 /*
 		List<GeneDiseaseAnnotationDocument> viaOrthologyList = getGeneDiseaseAnnotationViaOrthologyDocuments();
 		list.addAll(viaOrthologyList);
