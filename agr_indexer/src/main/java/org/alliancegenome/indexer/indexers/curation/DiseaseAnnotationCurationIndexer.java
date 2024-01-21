@@ -71,7 +71,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 //		createDiseaseAnnotationsFromOrthology();
 
 		List<GeneDiseaseAnnotationDocument> list = createGeneDiseaseAnnotationDocuments();
-		System.out.println("No of DAs for Alz2: "+list.stream().filter(document -> document.getSubject().getCurie().equals("HGNC:613") && document.getObject().getCurie().equals("DOID:0110035")).toList().size());
+		System.out.println("No of DAs for Alz2: " + list.stream().filter(document -> document.getSubject().getCurie().equals("HGNC:613") && document.getObject().getCurie().equals("DOID:0110035")).toList().size());
 
 /*
 		List<GeneDiseaseAnnotationDocument> viaOrthologyList = getGeneDiseaseAnnotationViaOrthologyDocuments();
@@ -207,8 +207,14 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 				}
 
 				GeneDiseaseAnnotationDocument gdad = lookup.get(key);
+				if (da.getSubjectCurie().equals("HGN:613") && da.getObject().getCurie().equals("DOID:0110035")) {
+					System.out.println("Key for Alz2: " + key);
+				}
 
 				if (gdad == null) {
+					if (da.getSubjectCurie().equals("HGN:613") && da.getObject().getCurie().equals("DOID:0110035")) {
+						System.out.println("no Key for Alz2: found ");
+					}
 					gdad = new GeneDiseaseAnnotationDocument();
 					gdad.setSubject(entry.getValue().getLeft());
 					HashMap<String, Integer> order = SpeciesType.getSpeciesOrderByTaxonID(entry.getValue().getLeft().getTaxon().getCurie());
