@@ -165,6 +165,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 								phylogeneticSortOrder = speciesType.getOrderID();
 							}
 							gdad.setPhylogeneticSortingIndex(phylogeneticSortOrder);
+							gdad.addPrimaryAnnotation(diseaseAnnotation);
 							returnList.add(gdad);
 						});
 					});
@@ -210,14 +211,8 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 				}
 
 				GeneDiseaseAnnotationDocument gdad = lookup.get(key);
-				if (da.getSubjectCurie().equals("HGNC:613") && da.getObject().getCurie().equals("DOID:0110035")) {
-					System.out.println("Key for Alz2: " + key);
-				}
 
 				if (gdad == null) {
-					if (da.getSubjectCurie().equals("HGNC:613") && da.getObject().getCurie().equals("DOID:0110035")) {
-						System.out.println("no Key for Alz2: found ");
-					}
 					gdad = new GeneDiseaseAnnotationDocument();
 					gdad.setSubject(entry.getValue().getLeft());
 					HashMap<String, Integer> order = SpeciesType.getSpeciesOrderByTaxonID(entry.getValue().getLeft().getTaxon().getCurie());
