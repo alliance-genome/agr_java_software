@@ -6,6 +6,7 @@ import org.alliancegenome.api.entity.AGMDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.curation_api.model.entities.*;
+import org.alliancegenome.curation_api.model.entities.base.CurieAuditedObject;
 import org.alliancegenome.curation_api.model.entities.ontology.DOTerm;
 import org.alliancegenome.curation_api.model.entities.ontology.ECOTerm;
 import org.alliancegenome.curation_api.model.entities.ontology.OntologyTerm;
@@ -68,15 +69,13 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		indexGenes();
 		indexAlleles();
 		indexAGMs();
-//		createDiseaseAnnotationsFromOrthology();
+		createDiseaseAnnotationsFromOrthology();
 
 		List<GeneDiseaseAnnotationDocument> list = createGeneDiseaseAnnotationDocuments();
 		System.out.println("No of DAs for Alz2: " + list.stream().filter(document -> document.getSubject().getCurie().equals("HGNC:613") && document.getObject().getCurie().equals("DOID:0110035")).toList().size());
 
-/*
 		List<GeneDiseaseAnnotationDocument> viaOrthologyList = getGeneDiseaseAnnotationViaOrthologyDocuments();
 		list.addAll(viaOrthologyList);
-*/
 		log.info("Indexing " + list.size() + " gene documents");
 		indexDocuments(list);
 
@@ -148,7 +147,11 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 							}
 
 							// create distinct list of basedOn Genes
-							Set<Gene> basedOnGenes = diseaseAnnotations1.stream().map(DiseaseAnnotation::getWith).flatMap(Collection::stream).distinct().collect(Collectors.toSet());
+							Set<Gene> basedOnGenes = diseaseAnnotations1.stream().map(DiseaseAnnotation::getWith).flatMap(Collection::stream).collect(Collectors.toSet());
+							List<String> ids = basedOnGenes.stream().map(CurieAuditedObject::getCurie).toList();
+							if(ids.contains("HGNC:613")) {
+								System.out.println("Ortholog Genes: " + basedOnGenes);
+							}
 							gdad.setBasedOnGenes(new ArrayList<>(basedOnGenes));
 
 							gdad.addReference(diseaseAnnotation.getSingleReference());
