@@ -86,7 +86,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		List<AGMDiseaseAnnotationDocument> agmList = createAGMDiseaseAnnotationDocuments();
 		log.info("Indexing " + agmList.size() + " agm documents");
 		indexDocuments(agmList);
-
+		log.info("Finished Indexing Disease Annotations");
 		diseaseRepository.close();
 	}
 
@@ -112,11 +112,13 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 					groupingBy(DiseaseAnnotation::getRelation,
 						groupingBy(diseaseAnnotation -> {
 							List<VocabularyTerm> terms = diseaseAnnotation.getDiseaseQualifiers();
+							// allow for grouping by empty disease qualifiers
 							if (CollectionUtils.isEmpty(terms))
 								return "null";
 							return diseaseAnnotation.getDiseaseQualifiers().stream().map(VocabularyTerm::getName).sorted().collect(Collectors.joining("_"));
 						}, groupingBy(diseaseAnnotation -> {
 							List<Gene> genes = diseaseAnnotation.getWith();
+							// allow for grouping by missing based-on genes
 							if (CollectionUtils.isEmpty(genes))
 								return "null";
 							return diseaseAnnotation.getWith().stream().map(Gene::getCurie).sorted().collect(Collectors.joining("_"));
@@ -149,9 +151,6 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 							// create distinct list of basedOn Genes
 							Set<Gene> basedOnGenes = diseaseAnnotations1.stream().map(DiseaseAnnotation::getWith).flatMap(Collection::stream).collect(Collectors.toSet());
 							List<String> ids = basedOnGenes.stream().map(CurieAuditedObject::getCurie).toList();
-							if(ids.contains("HGNC:613")) {
-								System.out.println("Ortholog Genes: " + basedOnGenes);
-							}
 							gdad.setBasedOnGenes(new ArrayList<>(basedOnGenes));
 
 							gdad.addReference(diseaseAnnotation.getSingleReference());
