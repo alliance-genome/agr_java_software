@@ -223,7 +223,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 		pagination.addFilterOption("generatedRelationString.keyword", associationType);
 		pagination.addFilterOption("diseaseQualifiers.keyword", diseaseQualifier);
 		pagination.addFilterOption("pubmedPubModIDs", reference);
-		pagination.addFilterOption("primaryAnnotations.dataProvider.abbreviation", source);
+		pagination.addFilterOption("primaryAnnotations.dataProvider.sourceOrganization.abbreviation", source);
 		pagination.addFilterOption("primaryAnnotations.with.geneSymbol.displayText", basedOnGeneSymbol);
 		pagination.addFilterOption("object.name", diseaseName);
 		if (StringUtils.isNotEmpty(geneID)) {
