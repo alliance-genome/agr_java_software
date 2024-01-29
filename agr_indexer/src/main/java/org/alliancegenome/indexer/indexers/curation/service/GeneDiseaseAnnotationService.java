@@ -9,6 +9,7 @@ import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.indexers.curation.interfaces.GeneDiseaseAnnotationInterface;
 import org.alliancegenome.indexer.indexers.curation.interfaces.GeneToGeneOrthologyGeneratedInterface;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import si.mazi.rescu.RestProxyFactory;
 
@@ -89,8 +90,8 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 		Set<String> geneIDs = geneMap.keySet();
 /*
 		geneIDs = new HashSet<>();
-		geneIDs.add("MGI:2140175");
-		geneIDs.add("HGNC:18640");
+		geneIDs.add("HGNC:2865");
+		geneIDs.add("MGI:94891");
 */
 		for (String geneID : geneIDs) {
 			List<DiseaseAnnotation> focusDiseaseAnnotations = geneMap.get(geneID).getRight();
@@ -142,17 +143,24 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 			display.progressProcess(1L);
 		}
 		display.finishProcess();
-		// consolidating DAs
+		// consolidating DAs:
+		// by: disease, relation and disease qualifier
 		newDAMap.forEach((gene, diseaseAnnotations) -> {
-			Map<String, Map<String, List<DiseaseAnnotation>>> groupedDAs = diseaseAnnotations.stream().collect(groupingBy(da1 -> da1.getObject().getCurie(),
-				groupingBy(da -> da.getRelation().getName())));
-			groupedDAs.forEach((disease, relationListMap) -> {
-				relationListMap.forEach((relation, daList) -> {
+			Map<String, Map<String, Map<String, List<DiseaseAnnotation>>>> groupedDAs = diseaseAnnotations.stream().collect(groupingBy(da1 -> da1.getObject().getCurie(),
+				groupingBy(da -> da.getRelation().getName(), groupingBy(da -> {
+					List<VocabularyTerm> diseaseQualifiers = da.getDiseaseQualifiers();
+					// allow for grouping by missing based-on genes
+					if (CollectionUtils.isEmpty(diseaseQualifiers))
+						return "null";
+					return diseaseQualifiers.stream().map(VocabularyTerm::getName).sorted().collect(Collectors.joining("_"));
+				}))));
+			groupedDAs.forEach((disease, relationListMap) -> relationListMap.forEach((relation, daList1) -> {
+				daList1.forEach((s, daList) -> {
 					Set<Gene> geneList = daList.stream().map(DiseaseAnnotation::getWith).flatMap(Collection::stream).collect(Collectors.toSet());
 					daList.forEach(diseaseAnnotation -> diseaseAnnotation.setWith(new ArrayList<>(geneList)));
 				});
 
-			});
+			}));
 		});
 		System.out.println("Number of orthologous genes generating new DAs: " + newDAMap.size());
 		return newDAMap;
