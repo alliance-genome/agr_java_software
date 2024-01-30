@@ -41,6 +41,8 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 
 	private Map<String, Set<String>> closureMap;
 	private Map<String, Pair<Gene, ArrayList<DiseaseAnnotation>>> geneMap = new HashMap<>();
+	Map<String, Pair<Gene, ArrayList<DiseaseAnnotation>>> generatedImplicatedGeneMap = new HashMap<>();
+
 	private Map<String, Pair<Allele, ArrayList<DiseaseAnnotation>>> alleleMap = new HashMap<>();
 	private Map<String, Pair<AffectedGenomicModel, ArrayList<DiseaseAnnotation>>> agmMap = new HashMap<>();
 
@@ -91,7 +93,18 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 	}
 
 	private void createDiseaseAnnotationsFromOrthology() {
-		geneViaOrthologyMap = geneService.getOrthologousGeneDiseaseAnnotations(geneMap);
+		geneMap.forEach((geneID, geneArrayListPair) -> {
+			Pair<Gene, ArrayList<DiseaseAnnotation>> pairs = generatedImplicatedGeneMap.computeIfAbsent(geneID, id -> geneArrayListPair);
+			pairs.getRight().addAll(geneArrayListPair.getRight());
+		});
+		geneViaOrthologyMap = geneService.getOrthologousGeneDiseaseAnnotations(generatedImplicatedGeneMap);
+/*
+		Map<Gene, List<DiseaseAnnotation>> geneViaOrthologyMap = geneService.getOrthologousGeneDiseaseAnnotations(generatedImplicatedGeneMap);
+		geneViaOrthologyMap.forEach((gene, diseaseAnnotations) -> {
+			List<DiseaseAnnotation> das = geneViaOrthologyMap.computeIfAbsent(gene, gene1 -> new ArrayList<>());
+			das.addAll(diseaseAnnotations);
+		});
+*/
 	}
 
 	private List<GeneDiseaseAnnotationDocument> getGeneDiseaseAnnotationViaOrthologyDocuments() {
@@ -197,6 +210,9 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 					if (speciesType != null) {
 						phylogeneticSortOrder = speciesType.getOrderID();
 					}
+				} else {
+					DiseaseAnnotation generatedAnnotation = createImplicatedDA(da);
+					addCreatedDiseaseAnnotationsImplicatedToMap(generatedAnnotation, entry.getValue().getKey());
 				}
 
 				String key = relation.getName() + "_" + da.getObject().getName() + "_" + da.getNegated();
@@ -250,6 +266,26 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		ph.finishProcess();
 
 		return ret;
+	}
+
+	private DiseaseAnnotation createImplicatedDA(DiseaseAnnotation da) {
+		DiseaseAnnotation implicatedDA = null;
+		if (da instanceof AGMDiseaseAnnotation agmAnnotation) {
+			AGMDiseaseAnnotation agmAnno = new AGMDiseaseAnnotation();
+			agmAnno.setSubject(agmAnnotation.getSubject());
+			implicatedDA = agmAnno;
+		} else if (da instanceof AlleleDiseaseAnnotation alleleAnno) {
+			AlleleDiseaseAnnotation alleleDA = new AlleleDiseaseAnnotation();
+			alleleDA.setSubject(alleleAnno.getSubject());
+			implicatedDA = alleleDA;
+		}
+		implicatedDA.setRelation(da.getRelation());
+		implicatedDA.setObject(da.getObject());
+		implicatedDA.setDiseaseQualifiers(da.getDiseaseQualifiers());
+		implicatedDA.setDiseaseQualifiers(da.getDiseaseQualifiers());
+		implicatedDA.setSingleReference(da.getSingleReference());
+		implicatedDA.setEvidenceCodes(da.getEvidenceCodes());
+		return implicatedDA;
 	}
 
 	private String getPubmedPubModID(Reference singleReference) {
@@ -373,6 +409,11 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 			Pair<Gene, ArrayList<DiseaseAnnotation>> pair = geneMap.computeIfAbsent(gene.getCurie(), geneCurie -> Pair.of(gene, new ArrayList<>()));
 			pair.getRight().add(da);
 		}
+	}
+
+	private void addCreatedDiseaseAnnotationsImplicatedToMap(DiseaseAnnotation geneDiseaseAnnotations, Gene gene) {
+		Pair<Gene, ArrayList<DiseaseAnnotation>> pair = generatedImplicatedGeneMap.computeIfAbsent(gene.getCurie(), geneCurie -> Pair.of(gene, new ArrayList<>()));
+		pair.getRight().add(geneDiseaseAnnotations);
 	}
 
 	private void indexAlleles() {
