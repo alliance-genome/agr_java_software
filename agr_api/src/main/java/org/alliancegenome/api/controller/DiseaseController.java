@@ -331,7 +331,8 @@ public class DiseaseController implements DiseaseRESTInterface {
 		pagination.addFilterOption("subject.geneSymbol.displayText", filterGene);
 		pagination.addFilterOption("primaryAnnotations.with.geneSymbol.displayText", basedOnGeneSymbol);
 		pagination.addFilterOption("primaryAnnotations.dataProvider.sourceOrganization.abbreviation", filterSource);
-
+		pagination.addFilterOption("primaryAnnotations.secondaryDataProvider.sourceOrganization.abbreviation", filterSource);
+		
 		// TODO: remove when SC data is fixed:
 		String SC = "Saccharomyces cerevisiae";
 		String SC_288C = "Saccharomyces cerevisiae S288C";
