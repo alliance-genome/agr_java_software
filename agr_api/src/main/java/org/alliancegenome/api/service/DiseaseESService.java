@@ -190,13 +190,31 @@ public class DiseaseESService {
 			if (filterName.endsWith("keyword")) {
 				bool.must(QueryBuilders.termQuery(filterName, filterValue));
 			} else {
-				String[] elements = escapeValue(filterValue).split(" ");
-				BoolQueryBuilder andClause = boolQuery();
-				Arrays.stream(elements).forEach(element -> andClause.must(QueryBuilders.queryStringQuery("*" + element + "*").field(filterName)));
-				bool.must(andClause);
+				if (filterName.contains("OR")) {
+					BoolQueryBuilder outerAndClause = boolQuery();
+					String[] filterNames = filterName.split("OR");
+					Arrays.stream(filterNames).forEach(indivFilterName -> {
+						BoolQueryBuilder orClause = getBooleanAndedQueryBuilder(indivFilterName.trim(), filterValue);
+						outerAndClause.should(orClause);
+					});
+					bool.must(outerAndClause);
+				} else {
+					BoolQueryBuilder andClause = getBooleanAndedQueryBuilder(filterName, filterValue);
+					bool.must(andClause);
+				}
 			}
 		}
 		//Log.info(bool);
+	}
+
+	/*
+	 * split filter values by white spaces and create and ANDed boolean query
+	 */
+	private BoolQueryBuilder getBooleanAndedQueryBuilder(String filterName, String filterValue) {
+		BoolQueryBuilder andClause = boolQuery();
+		String[] elements = escapeValue(filterValue).split(" ");
+		Arrays.stream(elements).forEach(element -> andClause.must(QueryBuilders.queryStringQuery("*" + element + "*").field(filterName)));
+		return andClause;
 	}
 
 	private String escapeValue(String value) {
