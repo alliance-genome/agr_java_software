@@ -190,7 +190,7 @@ public class AlleleController implements AlleleRESTInterface {
 			throw new RestErrorException(message);
 		}
 		try {
-			JsonResultResponse<AlleleDiseaseAnnotationDocument> response = diseaseESService.getDiseaseAnnotations(alleleID, pagination, true, debug);
+			JsonResultResponse<AlleleDiseaseAnnotationDocument> response = diseaseESService.getDiseaseAnnotations(alleleID, pagination, false, debug);
 			response.setHttpServletRequest(null);
 			response.calculateRequestDuration(startDate);
 			return response;
