@@ -80,19 +80,21 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 		Iterable<Gene> genes = query(query, map);
 		if (genes.iterator().hasNext()) {
 			Gene gene = genes.iterator().next();
-			Iterable<CrossReference> crossReferences = query(CrossReference.class, query, map);
-			gene.setCrossReferences(StreamSupport.stream(crossReferences.spliterator(), false).toList());
-			Iterable<Synonym> synonyms = query(Synonym.class, query, map);
-			gene.setSynonyms(StreamSupport.stream(synonyms.spliterator(), false).toList());
-			Iterable<SecondaryId> secondaryIds = query(SecondaryId.class, query, map);
-			gene.setSecondaryIds(StreamSupport.stream(secondaryIds.spliterator(), false).toList());
-			Iterable<GenomeLocation> genomicLocations = query(GenomeLocation.class, query, map);
-			gene.setGenomeLocations(StreamSupport.stream(genomicLocations.spliterator(), false).toList());
-			Iterable<Species> species = query(Species.class, query, map);
-			gene.setSpecies(species.iterator().next());
-			Iterable<SOTerm> soTerm = query(SOTerm.class, query, map);
-			gene.setSoTerm(soTerm.iterator().next());
-			return gene;
+			if (gene.getPrimaryKey().equals(primaryKey)) {
+				Iterable<CrossReference> crossReferences = query(CrossReference.class, query, map);
+				gene.setCrossReferences(StreamSupport.stream(crossReferences.spliterator(), false).toList());
+				Iterable<Synonym> synonyms = query(Synonym.class, query, map);
+				gene.setSynonyms(StreamSupport.stream(synonyms.spliterator(), false).toList());
+				Iterable<SecondaryId> secondaryIds = query(SecondaryId.class, query, map);
+				gene.setSecondaryIds(StreamSupport.stream(secondaryIds.spliterator(), false).toList());
+				Iterable<GenomeLocation> genomicLocations = query(GenomeLocation.class, query, map);
+				gene.setGenomeLocations(StreamSupport.stream(genomicLocations.spliterator(), false).toList());
+				Iterable<Species> species = query(Species.class, query, map);
+				gene.setSpecies(species.iterator().next());
+				Iterable<SOTerm> soTerm = query(SOTerm.class, query, map);
+				gene.setSoTerm(soTerm.iterator().next());
+				return gene;
+			}
 		}
 		return null;
 	}
