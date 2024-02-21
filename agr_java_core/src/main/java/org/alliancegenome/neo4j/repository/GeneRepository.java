@@ -1,47 +1,28 @@
 package org.alliancegenome.neo4j.repository;
 
-import static java.util.stream.Collectors.joining;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.extern.slf4j.Slf4j;
+import org.alliancegenome.core.util.FileHelper;
+import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
+import org.alliancegenome.neo4j.view.OrthologyFilter;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.map.MultiKeyMap;
+import org.neo4j.ogm.model.Result;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.StringJoiner;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import org.alliancegenome.core.util.FileHelper;
-import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.node.AffectedGenomicModel;
-import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
-import org.alliancegenome.neo4j.entity.node.GOTerm;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.OrthoAlgorithm;
-import org.alliancegenome.neo4j.entity.node.ParaAlgorithm;
-import org.alliancegenome.neo4j.entity.node.SecondaryId;
-import org.alliancegenome.neo4j.entity.node.UBERONTerm;
-import org.alliancegenome.neo4j.view.OrthologyFilter;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections4.map.MultiKeyMap;
-import org.neo4j.ogm.model.Result;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import lombok.extern.slf4j.Slf4j;
+import static java.util.stream.Collectors.joining;
 
 @Slf4j
 public class GeneRepository extends Neo4jRepository<Gene> {
@@ -76,18 +57,43 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 		HashMap<String, String> map = new HashMap<>();
 
 		map.put("primaryKey", primaryKey);
-		String query = " MATCH p1=(q:Species)-[:FROM_SPECIES]-(g:Gene) WHERE g.primaryKey = $primaryKey "
-			+ "OPTIONAL MATCH p2=(g:Gene)--(:SOTerm) "
-			+ "OPTIONAL MATCH p3=(g:Gene)--(:Synonym) "
-			+ "OPTIONAL MATCH p4=(g:Gene)--(:SecondaryId) "
-			+ "OPTIONAL MATCH p5=(g:Gene)--(:GenomicLocation) "
-			+ "OPTIONAL MATCH p6=(g:Gene)--(:CrossReference) "
-			+ "RETURN p1, p2, p3, p4, p5, p6";
+		String query = """
+			MATCH (q:Species)-[:FROM_SPECIES]-(g:Gene {primaryKey: $primaryKey})
+			OPTIONAL MATCH (g)-[:ANNOTATED_TO]-(soTerm:SOTerm)
+			WITH g, q, COLLECT(soTerm) AS soTerms
+			OPTIONAL MATCH (g)-[:ALSO_KNOWN_AS]-(synonym:Synonym)
+			WITH g, q, soTerms, COLLECT(synonym) AS synonyms
+			OPTIONAL MATCH (g)-[:ALSO_KNOWN_AS]-(secondaryId:SecondaryId)
+			WITH g, q, soTerms, synonyms, COLLECT(secondaryId) AS secondaryIds
+			OPTIONAL MATCH (g)-[:ASSOCIATION]-(genomicLocation:GenomicLocation)
+			WITH g, q, soTerms, synonyms, secondaryIds, COLLECT(genomicLocation) AS genomicLocations
+			OPTIONAL MATCH (g)-[:CROSS_REFERENCE]->(crossRef:CrossReference)
+			RETURN q AS Species,
+			       soTerms AS SOTerms,
+			       synonyms AS Synonyms,
+			       secondaryIds AS SecondaryIds,
+			       genomicLocations AS GenomicLocations,
+			       g AS Gene,
+			       COLLECT(crossRef) AS CrossReferences
+			""";
 
 		Iterable<Gene> genes = query(query, map);
-		for (Gene g : genes) {
-			if (g.getPrimaryKey().equals(primaryKey)) {
-				return g;
+		if (genes.iterator().hasNext()) {
+			Gene gene = genes.iterator().next();
+			if (gene.getPrimaryKey().equals(primaryKey)) {
+				Iterable<CrossReference> crossReferences = query(CrossReference.class, query, map);
+				gene.setCrossReferences(StreamSupport.stream(crossReferences.spliterator(), false).toList());
+				Iterable<Synonym> synonyms = query(Synonym.class, query, map);
+				gene.setSynonyms(StreamSupport.stream(synonyms.spliterator(), false).toList());
+				Iterable<SecondaryId> secondaryIds = query(SecondaryId.class, query, map);
+				gene.setSecondaryIds(StreamSupport.stream(secondaryIds.spliterator(), false).toList());
+				Iterable<GenomeLocation> genomicLocations = query(GenomeLocation.class, query, map);
+				gene.setGenomeLocations(StreamSupport.stream(genomicLocations.spliterator(), false).toList());
+				Iterable<Species> species = query(Species.class, query, map);
+				gene.setSpecies(species.iterator().next());
+				Iterable<SOTerm> soTerm = query(SOTerm.class, query, map);
+				gene.setSoTerm(soTerm.iterator().next());
+				return gene;
 			}
 		}
 		return null;
