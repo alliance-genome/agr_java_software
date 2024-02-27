@@ -32,6 +32,8 @@ public class DiseaseAnnotationDocument extends SearchableItemDocument {
 	private List<DiseaseAnnotation> primaryAnnotations;
 	private List<Gene> basedOnGenes;
 	private HashMap<String, Integer> speciesOrder;
+	int phylogeneticSortingIndex;
+
 
 	public DiseaseAnnotationDocument() {
 		primaryAnnotations = new ArrayList<>();
