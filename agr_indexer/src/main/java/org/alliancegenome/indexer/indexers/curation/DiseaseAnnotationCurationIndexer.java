@@ -171,11 +171,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 
 							HashMap<String, Integer> order = SpeciesType.getSpeciesOrderByTaxonID(gene.getTaxon().getCurie());
 							gdad.setSpeciesOrder(order);
-							int phylogeneticSortOrder = 0;
-							SpeciesType speciesType = SpeciesType.getTypeByID(gene.getTaxon().getCurie());
-							if (speciesType != null) {
-								phylogeneticSortOrder = speciesType.getOrderID();
-							}
+							int phylogeneticSortOrder = getPhylogeneticSortOrder(gene.getTaxon().getCurie());
 							gdad.setPhylogeneticSortingIndex(phylogeneticSortOrder);
 							gdad.addPrimaryAnnotation(diseaseAnnotation);
 							returnList.add(gdad);
@@ -203,13 +199,8 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 			for (DiseaseAnnotation da : entry.getValue().getRight()) {
 				VocabularyTerm relation = relationIsImplicatedIn;
 
-				int phylogeneticSortOrder = 0;
 				if (da instanceof GeneDiseaseAnnotation gda) {
 					relation = da.getRelation();
-					SpeciesType speciesType = SpeciesType.getTypeByID(gda.getSubject().getTaxon().getCurie());
-					if (speciesType != null) {
-						phylogeneticSortOrder = speciesType.getOrderID();
-					}
 				} else {
 					DiseaseAnnotation generatedAnnotation = createImplicatedDA(da);
 					addCreatedDiseaseAnnotationsImplicatedToMap(generatedAnnotation, entry.getValue().getKey());
@@ -257,7 +248,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 				gdad.addPubMedPubModID(getPubmedPubModID(da.getSingleReference()));
 				gdad.addPrimaryAnnotation(da);
 				gdad.addBasedOnGenes(da.getWith());
-				gdad.setPhylogeneticSortingIndex(phylogeneticSortOrder);
+				gdad.setPhylogeneticSortingIndex(getPhylogeneticSortOrder(da.getSubjectTaxonCurie()));
 			}
 			ph.progressProcess();
 			ret.addAll(lookup.values());
@@ -266,6 +257,15 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		ph.finishProcess();
 
 		return ret;
+	}
+
+	private static int getPhylogeneticSortOrder(String da) {
+		int phylogeneticSortOrder = 0;
+		SpeciesType speciesType = SpeciesType.getTypeByID(da);
+		if (speciesType != null) {
+			phylogeneticSortOrder = speciesType.getOrderID();
+		}
+		return phylogeneticSortOrder;
 	}
 
 	private DiseaseAnnotation createImplicatedDA(DiseaseAnnotation da) {
