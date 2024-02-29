@@ -13,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ProcessDisplayHelper {
 
-	public static final int MINIMUM_TOTAL = 20;
 	private Runtime runtime = Runtime.getRuntime();
 	private DecimalFormat df = new DecimalFormat("#");
 
@@ -22,15 +21,15 @@ public class ProcessDisplayHelper {
 	private String message;
 	private long lastSizeCounter = 0;
 	private long totalSize;
-	
+
 	private final Semaphore sem = new Semaphore(1);
-	
+
 	private AtomicLong sizeCounter = new AtomicLong(0);
-	
+
 	private long displayTimeout = 30000; // How often to display to the console
 	private Logger logger = null;
 	private org.slf4j.Logger logger2 = null;
-	
+
 	public ProcessDisplayHelper() { }
 
 
@@ -38,7 +37,7 @@ public class ProcessDisplayHelper {
 		this.displayTimeout = displayTimeout;
 		this.logger	 = logger;
 	}
-	
+
 	public ProcessDisplayHelper(Integer displayTimeout) {
 		this.displayTimeout = displayTimeout;
 	}
@@ -46,11 +45,8 @@ public class ProcessDisplayHelper {
 	public void startProcess(String message) {
 		startProcess(message, 0);
 	}
-	
+
 	public void startProcess(String message, long totalSize) {
-		// do not do display processing when only few records in total are loaded.
-		if(totalSize < MINIMUM_TOTAL)
-			return;
 		this.message = message + ": ";
 		this.totalSize = totalSize;
 		lastSizeCounter = 0;
@@ -67,19 +63,16 @@ public class ProcessDisplayHelper {
 	public void progressProcess() {
 		progressProcess(null, 1);
 	}
-	
+
 	public void progressProcess(String data) {
 		progressProcess(data, 1);
 	}
-	
+
 	public void progressProcess(Long amount) {
 		progressProcess(null, amount);
 	}
-	
+
 	public void progressProcess(String data, long amount) {
-		// do not do display processing when only few records in total are loaded.
-		if(totalSize < MINIMUM_TOTAL)
-			return;
 
 		sizeCounter.getAndAdd(amount);
 
@@ -88,17 +81,17 @@ public class ProcessDisplayHelper {
 		if(permit) {
 			Date now = new Date();
 			long nowLong = now.getTime();
-			
+
 			long time = nowLong - lastTime;
-	
+
 			if (time < displayTimeout) {
 				sem.release();
 				return;
 			}
-			
+
 			long diff = nowLong - startTime;
 			checkMemory();
-			
+
 			double percent = 0;
 			if (totalSize > 0) {
 				percent = ((double) (sizeCounter.get()) / totalSize);
@@ -131,11 +124,8 @@ public class ProcessDisplayHelper {
 	public void finishProcess() {
 		finishProcess(null);
 	}
-	
+
 	public void finishProcess(String data) {
-		// do not do display processing when only few records in total are loaded.
-		if(totalSize < MINIMUM_TOTAL)
-			return;
 
 		Date now = new Date();
 		long duration = now.getTime() - startTime;
@@ -146,7 +136,7 @@ public class ProcessDisplayHelper {
 		} else {
 			localMessage += " records";
 		}
-		
+
 		if(data != null) {
 			localMessage += " " + data;
 		}
@@ -178,7 +168,7 @@ public class ProcessDisplayHelper {
 	private double memoryPercent() {
 		return ((double) runtime.totalMemory() - (double) runtime.freeMemory()) / (double) runtime.maxMemory();
 	}
-	
+
 	private void logWarnMessage(String message) {
 		if(logger != null) {
 			logger.warn(message);
@@ -188,7 +178,7 @@ public class ProcessDisplayHelper {
 			log.warn(message);
 		}
 	}
-	
+
 	private void logInfoMessage(String message) {
 		if(logger != null) {
 			logger.info(message);
