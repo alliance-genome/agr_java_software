@@ -6,10 +6,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import net.nilosplace.process_display.util.ObjectFileStorage;
-import org.alliancegenome.api.entity.AGMDiseaseAnnotationDocument;
-import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.DiseaseAnnotationDocument;
-import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.util.StatsCollector;
 import org.alliancegenome.es.index.ESDocument;
@@ -174,23 +171,7 @@ public abstract class Indexer extends Thread {
 				}
 				display.progressProcess();
 				stats.addDocument(json);
-				if(json.length() > 50_000_000) {
-					log.info("Dropping document: " + json.length());
-
-					ObjectFileStorage<String> storage = new ObjectFileStorage<>();
-
-					if (doc instanceof GeneDiseaseAnnotationDocument doc2) {
-						writeOutDebugInfo(json, storage, doc2.getSubject().getCurie(), doc2);
-					}
-					if (doc instanceof AlleleDiseaseAnnotationDocument doc2) {
-						writeOutDebugInfo(json, storage, doc2.getSubject().getCurie(), doc2);
-					}
-					if (doc instanceof AGMDiseaseAnnotationDocument doc2) {
-						writeOutDebugInfo(json, storage, doc2.getSubject().getCurie(), doc2);
-					}
-				} else {
-					bulkProcessor.add(new IndexRequest(indexName).source(json, XContentType.JSON));
-				}
+				bulkProcessor.add(new IndexRequest(indexName).source(json, XContentType.JSON));
 				display.progressProcess();
 			} catch (JsonProcessingException e) {
 				e.printStackTrace();

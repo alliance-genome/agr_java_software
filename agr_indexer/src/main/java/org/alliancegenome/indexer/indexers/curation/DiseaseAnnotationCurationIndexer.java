@@ -73,7 +73,6 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		indexAGMs();
 
 		List<GeneDiseaseAnnotationDocument> list = createGeneDiseaseAnnotationDocuments();
-		System.out.println("No of DAs for Alz2: " + list.stream().filter(document -> document.getSubject().getCurie().equals("HGNC:613") && document.getObject().getCurie().equals("DOID:0110035")).toList().size());
 		createDiseaseAnnotationsFromOrthology();
 
 		List<GeneDiseaseAnnotationDocument> viaOrthologyList = getGeneDiseaseAnnotationViaOrthologyDocuments();
@@ -259,9 +258,9 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		return ret;
 	}
 
-	private static int getPhylogeneticSortOrder(String da) {
+	private static int getPhylogeneticSortOrder(String taxonID) {
 		int phylogeneticSortOrder = 0;
-		SpeciesType speciesType = SpeciesType.getTypeByID(da);
+		SpeciesType speciesType = SpeciesType.getTypeByID(taxonID);
 		if (speciesType != null) {
 			phylogeneticSortOrder = speciesType.getOrderID();
 		}
