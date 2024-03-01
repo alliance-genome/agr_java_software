@@ -114,7 +114,8 @@ public class Mapping extends Builder {
 		new FieldBuilder(builder, "soTermName", "text").keyword().letterText().build();
 		new FieldBuilder(builder, "soTermId", "keyword").build();
 		new FieldBuilder(builder, "species", "text").keyword().synonym().sort().build();
-		
+		new FieldBuilder(builder, "displayText", "text").keyword().sort().build();
+
 		// speciesOrder will generate properly and it will be of type: long
 		
 		// new FieldBuilder(builder, "stage", "text").keyword().build();

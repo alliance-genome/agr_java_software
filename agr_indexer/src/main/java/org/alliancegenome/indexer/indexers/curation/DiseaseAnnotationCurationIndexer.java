@@ -142,6 +142,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 						stringListMap.forEach((basedOnGenesList, diseaseAnnotations1) -> {
 							DiseaseAnnotation diseaseAnnotation = diseaseAnnotations1.get(0);
 							GeneDiseaseAnnotationDocument gdad = new GeneDiseaseAnnotationDocument();
+							gdad.setViaOrthologyAnnotation(true);
 							gdad.setSubject(gene);
 							gdad.setRelation(associationType);
 							String generatedRelationString = getGeneratedRelationString(gdad.getRelation().getName(), diseaseAnnotation.getNegated());
