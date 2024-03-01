@@ -18,9 +18,4 @@ public class GeneDiseaseAnnotationDocument extends DiseaseAnnotationDocument {
 	public GeneDiseaseAnnotationDocument() {
 		setCategory("gene_disease_annotation");
 	}
-
-	@Override
-	public String toString() {
-		return subject.getCurie() + " | "+ getRelation().getName() +" | "+ getObject().getCurie();
-	}
 }
