@@ -1,18 +1,63 @@
 package org.alliancegenome.indexer.indexers.curation.service;
 
+import lombok.extern.log4j.Log4j2;
+import net.nilosplace.process_display.util.ObjectFileStorage;
+import org.alliancegenome.curation_api.model.entities.*;
+import org.alliancegenome.neo4j.repository.AlleleRepository;
+import org.alliancegenome.neo4j.repository.GeneRepository;
+import org.apache.commons.collections4.CollectionUtils;
+
+import java.io.File;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.Allele;
-import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.DiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.Gene;
-import org.alliancegenome.curation_api.model.entities.GenomicEntity;
-import org.apache.commons.collections4.CollectionUtils;
-
+@Log4j2
 public class BaseDiseaseAnnotationService {
+
+	protected HashSet<String> allAlleleIds;
+	protected HashSet<String> allGeneIDs;
+	protected HashSet<String> allModelIDs;
+
+	public BaseDiseaseAnnotationService() {
+		AlleleRepository alleleRepository = new AlleleRepository();
+		GeneRepository geneRepository = new GeneRepository();
+
+		String alleleIdsFileName = "allele_ids.gz";
+		List<String> alleleList = readFromCache(alleleIdsFileName, String.class);
+
+		if (CollectionUtils.isNotEmpty(alleleList)) {
+			allAlleleIds = new HashSet<>(alleleList);
+		} else {
+			allAlleleIds = new HashSet<>(alleleRepository.getAllAlleleIDs());
+			writeToCache(alleleIdsFileName, new ArrayList<>(allAlleleIds));
+		}
+
+		String geneIdsFileName = "gene_ids.gz";
+		List<String> geneList = readFromCache(geneIdsFileName, String.class);
+
+		if (CollectionUtils.isNotEmpty(geneList)) {
+			allGeneIDs = new HashSet<>(geneList);
+		} else {
+			allGeneIDs = new HashSet<>(geneRepository.getAllGeneKeys());
+			writeToCache(geneIdsFileName, new ArrayList<>(allGeneIDs));
+		}
+		log.info("Number of all Gene IDs from Neo4j: " + allGeneIDs.size());
+
+		String modelIdsFileName = "model_ids.gz";
+		List<String> modelList = readFromCache(modelIdsFileName, String.class);
+
+		if (CollectionUtils.isNotEmpty(modelList)) {
+			allModelIDs = new HashSet<>(modelList);
+		} else {
+			allModelIDs = new HashSet<>(alleleRepository.getAllModelKeys());
+			writeToCache(modelIdsFileName, new ArrayList<>(allModelIDs));
+		}
+
+		alleleRepository.close();
+		geneRepository.close();
+	}
 
 	protected boolean hasValidEntities(AGMDiseaseAnnotation da, Set<String> allGeneIDs, Set<String> allAllelIDs, Set<String> allModelIDs) {
 		Gene inferredGene = da.getInferredGene();
@@ -41,8 +86,7 @@ public class BaseDiseaseAnnotationService {
 		if (inferredEntity != null && !allEntityIDs.contains(inferredEntity.getCurie()))
 			return false;
 		if (CollectionUtils.isNotEmpty(assertedEntity)) {
-			if (assertedEntity.stream()
-				.anyMatch((entity -> !allEntityIDs.contains(entity.getCurie()))))
+			if (assertedEntity.stream().anyMatch((entity -> !allEntityIDs.contains(entity.getCurie()))))
 				return false;
 		}
 		return true;
@@ -50,10 +94,7 @@ public class BaseDiseaseAnnotationService {
 
 	protected static boolean hasValidGeneticModifiers(DiseaseAnnotation da, Set<String> allGeneIDs, Set<String> allAllelIDs, Set<String> allModelIDs) {
 		if (CollectionUtils.isNotEmpty(da.getDiseaseGeneticModifiers())) {
-			if (da.getDiseaseGeneticModifiers().stream()
-				.anyMatch((entity -> (!allGeneIDs.contains(entity.getCurie()) &&
-					!allAllelIDs.contains(entity.getCurie()) &&
-					!allModelIDs.contains(entity.getCurie())))))
+			if (da.getDiseaseGeneticModifiers().stream().anyMatch((entity -> (!allGeneIDs.contains(entity.getCurie()) && !allAllelIDs.contains(entity.getCurie()) && !allModelIDs.contains(entity.getCurie())))))
 				return false;
 		}
 		return true;
@@ -63,5 +104,26 @@ public class BaseDiseaseAnnotationService {
 		return allEntityIds.contains(curie);
 	}
 
+	protected <E> List<E> readFromCache(String fileName, Class<E> clazz) {
+		try {
+			ObjectFileStorage<E> storage = new ObjectFileStorage<>();
+			File cache = new File(fileName);
+			if (cache.exists()) {
+				return storage.readObjectsFromFile(cache);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return new ArrayList<>();
+	}
+
+	protected <E> void writeToCache(String fileName, List<E> objects) {
+		try {
+			ObjectFileStorage<E> storage = new ObjectFileStorage<>();
+			storage.writeObjectsToFile(objects, fileName);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 }
