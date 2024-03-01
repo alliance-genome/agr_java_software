@@ -394,10 +394,9 @@ public class DiseaseESService {
 
 		// Sorting sets for different names of the sorting selection box
 		Map<String, List<String>> sortingSetMap = new HashMap<>();
-		sortingSetMap.put("default", List.of("phylogeneticSortingIndex",
-			"subject.geneSymbol.displayText.keyword"));
+		sortingSetMap.put("default", List.of("viaOrthologyOrder","phylogeneticSortingIndex", "subject.geneSymbol.displayText.keyword"));
 		sortingSetMap.put("gene", List.of("subject.geneSymbol.displayText.keyword", "phylogeneticSortingIndex"));
-		sortingSetMap.put("disease", List.of("object.name.keyword", "phylogeneticSortingIndex","subject.geneSymbol.displayText.keyword"));
+		sortingSetMap.put("disease", List.of("object.name.keyword", "phylogeneticSortingIndex", "subject.geneSymbol.displayText.keyword"));
 		sortingSetMap.put("species", List.of("subject.taxon.name.keyword", "subject.geneSymbol.displayText.keyword"));
 
 		LinkedHashMap<String, SortOrder> sortingMap = new LinkedHashMap<>();
