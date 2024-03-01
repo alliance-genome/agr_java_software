@@ -1,5 +1,7 @@
 package org.alliancegenome.api.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Data;
@@ -17,5 +19,27 @@ public class GeneDiseaseAnnotationDocument extends DiseaseAnnotationDocument {
 
 	public GeneDiseaseAnnotationDocument() {
 		setCategory("gene_disease_annotation");
+	}
+
+	// 1 true
+	// 0 false
+	@JsonIgnore
+	private boolean isViaOrthologyAnnotation;
+
+	@JsonView({View.DiseaseAnnotationAll.class})
+	@JsonProperty("viaOrthologyOrder")
+	public int getViaOrthologyOrder() {
+		return isViaOrthologyAnnotation ? 1 : 0;
+	}
+
+	@JsonView({View.DiseaseAnnotationAll.class})
+	@JsonProperty("viaOrthologyOrder")
+	public void setViaOrthologyOrder(int order) {
+		isViaOrthologyAnnotation = order == 1;
+	}
+
+	@Override
+	public String toString() {
+		return subject.getCurie() + " | " + getRelation().getName() + " | " + getObject().getCurie();
 	}
 }

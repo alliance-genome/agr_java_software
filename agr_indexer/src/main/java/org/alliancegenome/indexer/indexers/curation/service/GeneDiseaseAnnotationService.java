@@ -44,7 +44,7 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 		params.put("internal", false);
 		params.put("obsolete", false);
 		//params.put("subject.curie", "MGI:2140175");
-		// params.put("subject.curie", "HGNC:6893");
+		//params.put("subject.curie", "HGNC:13625");
 //		params.put("subject.curie", "HGNC:40");
 
 		do {
