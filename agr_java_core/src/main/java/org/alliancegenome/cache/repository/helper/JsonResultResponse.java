@@ -10,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.alliancegenome.neo4j.view.View;
 
 import com.fasterxml.jackson.annotation.JsonView;
@@ -101,6 +102,7 @@ public class JsonResultResponse<T> {
 		supplementalData.put(DISTINCT_FIELD_VALUES, object);
 	}
 
+	@JsonIgnore
 	public Map<String, List<String>> getDistinctFieldValues() {
 		if(supplementalData == null)
 			return null;

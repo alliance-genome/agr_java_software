@@ -65,7 +65,7 @@ public class DiseaseESService {
 		BoolQueryBuilder query = getBaseQuery(geneIDs, termID, pagination, excludeNegated, "gene_disease_annotation");
 
 		JsonResultResponse<GeneDiseaseAnnotationDocument> ret = new JsonResultResponse<>();
-		ret.setSupplementalData(getSupplementalData(focusTaxonId, debug, query));
+		ret.setSupplementalData(getSupplementalData(focusTaxonId, true, debug, query));
 
 		// add table filter
 		addTableFilter(pagination, query);
@@ -87,15 +87,15 @@ public class DiseaseESService {
 		return ret;
 	}
 
-	private Map<String, Object> getSupplementalData(String focusTaxonId, boolean debug, BoolQueryBuilder unfilteredQuery) {
+	private Map<String, Object> getSupplementalData(String focusTaxonId, boolean useSpeciesAggregation, boolean debug, BoolQueryBuilder unfilteredQuery) {
 		// create histogram of select columns of unfiltered query
 		Map<String, String> aggregationFields = new HashMap<>();
-		if (StringUtils.isNotEmpty(focusTaxonId)) {
+		if (useSpeciesAggregation) {
 			aggregationFields.put("subject.taxon.name.keyword", "species");
 		}
 		aggregationFields.put("generatedRelationString.keyword", "associationType");
 		aggregationFields.put("diseaseQualifiers.keyword", "diseaseQualifiers");
-		Map<String, List<String>> distinctFieldValueMap = getAggregations(unfilteredQuery, aggregationFields, focusTaxonId, debug);
+		Map<String, List<String>> distinctFieldValueMap = getAggregations(unfilteredQuery, aggregationFields, focusTaxonId, useSpeciesAggregation, debug);
 		Map<String, Object> supplementalData = new LinkedHashMap<>();
 		supplementalData.put(DISTINCT_FIELD_VALUES, distinctFieldValueMap);
 		return supplementalData;
@@ -155,7 +155,7 @@ public class DiseaseESService {
 		BoolQueryBuilder query = getBaseQuery(List.of(alleleID), null, pagination, excludeNegated, "allele_disease_annotation");
 
 		JsonResultResponse<AlleleDiseaseAnnotationDocument> ret = new JsonResultResponse<>();
-		ret.setSupplementalData(getSupplementalData(null, debug, query));
+		ret.setSupplementalData(getSupplementalData(null, false, debug, query));
 
 		// add table filter
 		addTableFilter(pagination, query);
@@ -223,7 +223,7 @@ public class DiseaseESService {
 		return value;
 	}
 
-	private Map<String, List<String>> getAggregations(BoolQueryBuilder bool, Map<String, String> aggregationFields, String focusTaxonId, boolean debug) {
+	private Map<String, List<String>> getAggregations(BoolQueryBuilder bool, Map<String, String> aggregationFields, String focusTaxonId, boolean useSpeciesAggregation, boolean debug) {
 		List<AggregationBuilder> aggBuilders = new ArrayList<>();
 		aggregationFields.forEach((field, colName) -> {
 			String fieldNameAgg = field + "_agg";
@@ -235,7 +235,7 @@ public class DiseaseESService {
 
 		SearchResponse searchResponseHistogram = searchDAO.performQuery(
 			bool, aggBuilders, null, geneDiseaseSearchHelper.getResponseFields(),
-			0, 0, new HighlightBuilder(), focusTaxonId == null ? null : getAnnotationSorts(focusTaxonId, debug), debug);
+			0, 0, new HighlightBuilder(), useSpeciesAggregation ? getAnnotationSorts(focusTaxonId, debug) : null , debug);
 
 		Map<String, List<String>> distinctFieldValueMap = new HashMap<>();
 		aggregationFields.forEach((field, colName) -> {
@@ -389,6 +389,9 @@ public class DiseaseESService {
 		bool.filter(new TermQueryBuilder("category", "gene_disease_annotation"));
 		bool2.should(new MatchQueryBuilder("parentSlimIDs.keyword", diseaseID));
 
+		JsonResultResponse<GeneDiseaseAnnotationDocument> ret = new JsonResultResponse<>();
+		ret.setSupplementalData(getSupplementalData(null, true, debug, bool));
+
 		// create histogram of select columns of unfiltered query
 		addTableFilter(pagination, bool);
 
@@ -408,8 +411,6 @@ public class DiseaseESService {
 		sortFields.forEach(sortField -> sortingMap.put(sortField, SortOrder.ASC));
 
 		SearchResponse searchResponse = getSearchResponse(bool, pagination, sortingMap, debug);
-
-		JsonResultResponse<GeneDiseaseAnnotationDocument> ret = new JsonResultResponse<>();
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
 
 		List<GeneDiseaseAnnotationDocument> list = new ArrayList<>();
@@ -434,4 +435,6 @@ public class DiseaseESService {
 		ret.setResults(list);
 		return ret;
 	}
+
+
 }
