@@ -27,13 +27,11 @@ public class GeneDiseaseAnnotationDocument extends DiseaseAnnotationDocument {
 	private boolean isViaOrthologyAnnotation;
 
 	@JsonView({View.DiseaseAnnotationAll.class})
-	@JsonProperty("viaOrthologyOrder")
 	public int getViaOrthologyOrder() {
 		return isViaOrthologyAnnotation ? 1 : 0;
 	}
 
 	@JsonView({View.DiseaseAnnotationAll.class})
-	@JsonProperty("viaOrthologyOrder")
 	public void setViaOrthologyOrder(int order) {
 		isViaOrthologyAnnotation = order == 1;
 	}
