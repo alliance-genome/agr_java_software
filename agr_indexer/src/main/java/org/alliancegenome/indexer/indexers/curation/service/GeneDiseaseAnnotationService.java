@@ -3,8 +3,10 @@ package org.alliancegenome.indexer.indexers.curation.service;
 import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.model.entities.*;
+import org.alliancegenome.curation_api.model.entities.ontology.ECOTerm;
 import org.alliancegenome.curation_api.model.entities.orthology.GeneToGeneOrthologyGenerated;
 import org.alliancegenome.curation_api.response.SearchResponse;
+import org.alliancegenome.curation_api.services.ontology.EcoTermService;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.indexers.curation.interfaces.GeneDiseaseAnnotationInterface;
@@ -25,6 +27,7 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 	private final GeneToGeneOrthologyGeneratedInterface orthologyApi = RestProxyFactory.createProxy(GeneToGeneOrthologyGeneratedInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 
 	private VocabularyService vocabService = new VocabularyService();
+	private EcoTermService ecoTermService = new EcoTermService();
 	private OrganizationService orgService = new OrganizationService();
 	private ReferenceService referenceService = new ReferenceService();
 
@@ -81,6 +84,7 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 
 		VocabularyTerm isMarkerViaOrthology = vocabService.getDiseaseRelationTerms().get("is_marker_via_orthology");
 		VocabularyTerm isImplicatedViaOrthology = vocabService.getDiseaseRelationTerms().get("is_implicated_via_orthology");
+		ECOTerm ecoTermIEA = ecoTermService.findByCurieOrSecondaryId("ECO:0000256");
 		// hard code MGI:6194238 with corresponding AGRKB ID
 		Reference allianceReference = referenceService.getReference("AGRKB:101000000828456");
 
@@ -134,7 +138,7 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 					gda.setWith(List.of(geneGeneOrthology.getSubjectGene()));
 					gda.setSingleReference(allianceReference);
 					gda.setObject(focusDiseaseAnnotation.getObject());
-					gda.setEvidenceCodes(focusDiseaseAnnotation.getEvidenceCodes());
+					gda.setEvidenceCodes(List.of(ecoTermIEA));
 					gda.setDiseaseQualifiers(focusDiseaseAnnotation.getDiseaseQualifiers());
 					List<DiseaseAnnotation> geneAnnotations = newDAMap.computeIfAbsent(orthologousGene, k -> new ArrayList<>());
 					geneAnnotations.add(gda);
