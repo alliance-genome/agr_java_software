@@ -36,8 +36,4 @@ public class GeneDiseaseAnnotationDocument extends DiseaseAnnotationDocument {
 		isViaOrthologyAnnotation = order == 1;
 	}
 
-	@Override
-	public String toString() {
-		return subject.getCurie() + " | " + getRelation().getName() + " | " + getObject().getCurie();
-	}
 }
