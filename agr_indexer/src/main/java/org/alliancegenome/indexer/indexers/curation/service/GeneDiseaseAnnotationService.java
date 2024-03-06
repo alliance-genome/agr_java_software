@@ -6,7 +6,6 @@ import org.alliancegenome.curation_api.model.entities.*;
 import org.alliancegenome.curation_api.model.entities.ontology.ECOTerm;
 import org.alliancegenome.curation_api.model.entities.orthology.GeneToGeneOrthologyGenerated;
 import org.alliancegenome.curation_api.response.SearchResponse;
-import org.alliancegenome.curation_api.services.ontology.EcoTermService;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.indexers.curation.interfaces.GeneDiseaseAnnotationInterface;
@@ -84,7 +83,7 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 
 		VocabularyTerm isMarkerViaOrthology = vocabService.getDiseaseRelationTerms().get("is_marker_via_orthology");
 		VocabularyTerm isImplicatedViaOrthology = vocabService.getDiseaseRelationTerms().get("is_implicated_via_orthology");
-		ECOTerm ecoTermIEA = ecoTermService.findByCurieOrSecondaryId("ECO:0000256");
+		ECOTerm ecoTermIEA = ecoTermService.getEcoTerm("ECO:0000501");
 		// hard code MGI:6194238 with corresponding AGRKB ID
 		Reference allianceReference = referenceService.getReference("AGRKB:101000000828456");
 
