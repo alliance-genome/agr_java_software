@@ -1,8 +1,25 @@
 package org.alliancegenome.indexer.indexers.curation.service;
 
-import lombok.extern.log4j.Log4j2;
+import static java.util.stream.Collectors.groupingBy;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.curation_api.model.entities.*;
+import org.alliancegenome.curation_api.interfaces.crud.ontology.EcoTermCrudInterface;
+import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.DataProvider;
+import org.alliancegenome.curation_api.model.entities.DiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.Gene;
+import org.alliancegenome.curation_api.model.entities.GeneDiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.Reference;
+import org.alliancegenome.curation_api.model.entities.VocabularyTerm;
 import org.alliancegenome.curation_api.model.entities.ontology.ECOTerm;
 import org.alliancegenome.curation_api.model.entities.orthology.GeneToGeneOrthologyGenerated;
 import org.alliancegenome.curation_api.response.SearchResponse;
@@ -12,21 +29,18 @@ import org.alliancegenome.indexer.indexers.curation.interfaces.GeneDiseaseAnnota
 import org.alliancegenome.indexer.indexers.curation.interfaces.GeneToGeneOrthologyGeneratedInterface;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.Pair;
+
+import lombok.extern.log4j.Log4j2;
 import si.mazi.rescu.RestProxyFactory;
-
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.groupingBy;
 
 @Log4j2
 public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 
 	private final GeneDiseaseAnnotationInterface geneApi = RestProxyFactory.createProxy(GeneDiseaseAnnotationInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 	private final GeneToGeneOrthologyGeneratedInterface orthologyApi = RestProxyFactory.createProxy(GeneToGeneOrthologyGeneratedInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
-
+	private final EcoTermCrudInterface ecoTermApi = RestProxyFactory.createProxy(EcoTermCrudInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
+	
 	private VocabularyService vocabService = new VocabularyService();
-	private EcoTermService ecoTermService = new EcoTermService();
 	private OrganizationService orgService = new OrganizationService();
 	private ReferenceService referenceService = new ReferenceService();
 
@@ -83,7 +97,8 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 
 		VocabularyTerm isMarkerViaOrthology = vocabService.getDiseaseRelationTerms().get("is_marker_via_orthology");
 		VocabularyTerm isImplicatedViaOrthology = vocabService.getDiseaseRelationTerms().get("is_implicated_via_orthology");
-		ECOTerm ecoTermIEA = ecoTermService.getEcoTerm("ECO:0000501");
+		ECOTerm ecoTermIEA = ecoTermApi.get("ECO:0000501").getEntity();
+		
 		// hard code MGI:6194238 with corresponding AGRKB ID
 		Reference allianceReference = referenceService.getReference("AGRKB:101000000828456");
 
