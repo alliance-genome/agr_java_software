@@ -101,7 +101,7 @@ public class JsonResultResponse<T> {
 		supplementalData.put(DISTINCT_FIELD_VALUES, object);
 	}
 
-	public Map<String, List<String>> getDistinctFieldValues() {
+	public Map<String, List<String>> retrieveDistinctFieldValues() {
 		if(supplementalData == null)
 			return null;
 		return (Map<String, List<String>>) supplementalData.get(DISTINCT_FIELD_VALUES);

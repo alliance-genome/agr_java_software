@@ -72,7 +72,7 @@ public class DiseaseIT {
 		String diseaseID = "DOID:1838";
 		JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotationsWithAlleles(diseaseID, pagination);
 		assertLimitResponse(response, 10, 10);
-		assertEquals(response.getDistinctFieldValues().size(), 2);
+		assertEquals(response.retrieveDistinctFieldValues().size(), 2);
 	}
 
 	@Test
@@ -131,7 +131,7 @@ public class DiseaseIT {
 		String diseaseID = "DOID:10652";
 		JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotationsWithAlleles(diseaseID, pagination);
 		assertLimitResponse(response, 10, 10);
-		assertEquals(response.getDistinctFieldValues().size(), 2);
+		assertEquals(response.retrieveDistinctFieldValues().size(), 2);
 	}
 
 	@Test
@@ -191,7 +191,7 @@ public class DiseaseIT {
 		String diseaseID = "DOID:1838";
 		JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotationsWithAGM(diseaseID, pagination);
 		assertLimitResponse(response, 11, 11);
-		assertEquals(response.getDistinctFieldValues().size(), 1);
+		assertEquals(response.retrieveDistinctFieldValues().size(), 1);
 	}
 
 	@Test
@@ -264,7 +264,7 @@ public class DiseaseIT {
 		assertThat(annotation.getDisease().getName(), equalTo("choriocarcinoma"));
 		assertThat(annotation.getAssociationType().toLowerCase(), equalTo("is_implicated_in"));
 
-		assertEquals(response.getDistinctFieldValues().size(), 2);
+		assertEquals(response.retrieveDistinctFieldValues().size(), 2);
 		DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();
 		String output = translator.getAllRowsForGenes(response.getResults());
 		List<String> lines = Arrays.asList(output.split("\n"));

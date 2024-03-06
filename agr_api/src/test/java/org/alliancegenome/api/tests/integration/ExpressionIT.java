@@ -151,9 +151,9 @@ public class ExpressionIT extends AbstractIT{
 		JsonResultResponse<ExpressionDetail> summary = expressionService.getExpressionDetails(List.of("RGD:2129"), null, pagination);
 		assertNotNull(summary);
 		assertEquals(summary.getTotal(), 0);
-		assertNotNull(summary.getDistinctFieldValues());
+		assertNotNull(summary.retrieveDistinctFieldValues());
 		// Have at least one species value in the distinct value map.
-		assertEquals(summary.getDistinctFieldValues().values().size(), 1);
+		assertEquals(summary.retrieveDistinctFieldValues().values().size(), 1);
 	}
 
 }

@@ -73,7 +73,7 @@ public class InteractionsIT {
 		JsonResultResponse<InteractionGeneJoin> response = geneService.getInteractions("MGI:109583", new Pagination());
 		assertNotNull(response);
 
-		final Map<String, List<String>> distinctFieldValues = response.getDistinctFieldValues();
+		final Map<String, List<String>> distinctFieldValues = response.retrieveDistinctFieldValues();
 		assertNotNull(distinctFieldValues);
 		assertThat(3, greaterThanOrEqualTo(distinctFieldValues.size()));
 
