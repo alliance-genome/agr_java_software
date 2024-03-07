@@ -225,9 +225,14 @@ public class DiseaseAnnotationToTdfTranslator {
 		}
 		row.setReference(primaryAnnotation.getSingleReference().getReferenceID());
 		row.setSource(primaryAnnotation.getDataProviderString());
+		List<String> urlExpceptionHandler = List.of("MGI", "SGD", "OMIM");
 		DataProvider dataProvider = primaryAnnotation.getDataProvider();
 		if (dataProvider != null && dataProvider.getCrossReference() != null) {
 			String urlTemplate = dataProvider.getCrossReference().getResourceDescriptorPage().getUrlTemplate();
+			if(urlExpceptionHandler.contains(dataProvider.getSourceOrganization().getAbbreviation())){
+				// remove the prefix in the template as the prefix is already in the curie.
+				urlTemplate = urlTemplate.replace(dataProvider.getSourceOrganization().getAbbreviation()+":","");
+			}
 			urlTemplate = urlTemplate.replace("[%s]", dataProvider.getCrossReference().getReferencedCurie());
 			row.setSourceUrl(urlTemplate);
 		}
@@ -676,10 +681,10 @@ public class DiseaseAnnotationToTdfTranslator {
 		List<DiseaseDownloadRow> list = getDownloadRowsFromGeneDiseaseAnnotations(diseaseAnnotations);
 
 		List<DownloadHeader> headers = List.of(
-			new DownloadHeader<>("Gene ID", (DiseaseDownloadRow::getMainEntityID)),
-			new DownloadHeader<>("Gene Symbol", (DiseaseDownloadRow::getMainEntitySymbol)),
 			new DownloadHeader<>("Species ID", (DiseaseDownloadRow::getSpeciesID)),
 			new DownloadHeader<>("Species Name", (DiseaseDownloadRow::getSpeciesName)),
+			new DownloadHeader<>("Gene ID", (DiseaseDownloadRow::getMainEntityID)),
+			new DownloadHeader<>("Gene Symbol", (DiseaseDownloadRow::getMainEntitySymbol)),
 			new DownloadHeader<>("Additional Implicated Gene ID", (DiseaseDownloadRow::getAssertedGeneID)),
 			new DownloadHeader<>("Additional Implicated Gene Symbol", (DiseaseDownloadRow::getAssertedGeneName)),
 			new DownloadHeader<>("Gene Association", (DiseaseDownloadRow::getAssociation)),
