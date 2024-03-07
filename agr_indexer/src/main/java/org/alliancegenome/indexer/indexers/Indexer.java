@@ -1,12 +1,20 @@
 package org.alliancegenome.indexer.indexers;
 
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
-import net.nilosplace.process_display.util.ObjectFileStorage;
-import org.alliancegenome.api.entity.DiseaseAnnotationDocument;
+import java.io.IOException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.util.StatsCollector;
 import org.alliancegenome.es.index.ESDocument;
@@ -27,19 +35,11 @@ import org.elasticsearch.common.unit.ByteSizeValue;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.core.TimeValue;
 
-import java.io.IOException;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.extern.slf4j.Slf4j;
 
 
 @Slf4j
@@ -160,7 +160,6 @@ public abstract class Indexer extends Thread {
 	}
 
 	public <D extends ESDocument> void indexDocuments(Iterable<D> docs, Class<?> view) {
-		display.startProcess("Indexing ", docs.spliterator().getExactSizeIfKnown());
 		for (D doc : docs) {
 			try {
 				String json = "";
@@ -169,7 +168,6 @@ public abstract class Indexer extends Thread {
 				} else {
 					json = om.writeValueAsString(doc);
 				}
-				display.progressProcess();
 				stats.addDocument(json);
 				bulkProcessor.add(new IndexRequest(indexName).source(json, XContentType.JSON));
 				display.progressProcess();
@@ -178,18 +176,6 @@ public abstract class Indexer extends Thread {
 				log.error(e.getMessage());
 				System.exit(-1);
 			}
-		}
-		display.finishProcess();
-	}
-
-	private static void writeOutDebugInfo(String json, ObjectFileStorage<String> storage, String curie, DiseaseAnnotationDocument doc2) {
-		log.info("Id: " + doc2.getUniqueId());
-		log.info("Subject ID: " + curie);
-		log.info("Primary Annotations Size: " + doc2.getPrimaryAnnotations().size());
-		try {
-			storage.writeObjectToFile(json, curie.replace(":", ".") + ".json.gz");
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 
