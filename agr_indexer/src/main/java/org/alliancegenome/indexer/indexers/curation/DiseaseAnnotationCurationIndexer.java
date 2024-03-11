@@ -241,7 +241,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 				gdad.setEvidenceCodes(evidenceCodesMap.values().stream().toList());
 
 				if (CollectionUtils.isNotEmpty(da.getDiseaseQualifiers())) {
-					Set<String> diseaseQualifiers = da.getDiseaseQualifiers().stream().map(term -> term.getName().replace("_", " ")).collect(Collectors.toSet());
+					Set<String> diseaseQualifiers = da.getDiseaseQualifiers().stream().map(VocabularyTerm::getName).collect(Collectors.toSet());
 					gdad.setDiseaseQualifiers(diseaseQualifiers);
 				}
 				gdad.addReference(da.getSingleReference());
