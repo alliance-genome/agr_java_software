@@ -62,7 +62,7 @@ public class DiseaseESService {
 	public JsonResultResponse<GeneDiseaseAnnotationDocument> getRibbonDiseaseAnnotations(String focusTaxonId, List<String> geneIDs, String termID, Pagination pagination, boolean excludeNegated, boolean debug) {
 
 		// unfiltered query
-		BoolQueryBuilder query = getBaseQuery(geneIDs, termID, pagination, excludeNegated, "gene_disease_annotation");
+		BoolQueryBuilder query = getBaseQuery(geneIDs, termID, excludeNegated, "gene_disease_annotation", true);
 
 		JsonResultResponse<GeneDiseaseAnnotationDocument> ret = new JsonResultResponse<>();
 		ret.setSupplementalData(getSupplementalData(focusTaxonId, true, debug, query));
@@ -110,7 +110,7 @@ public class DiseaseESService {
 			pagination.getLimit(), pagination.getOffset(), hlb, focusTaxonId, debug);
 	}
 
-	private BoolQueryBuilder getBaseQuery(List<String> entityIDs, String termID, Pagination pagination, boolean excludeNegated, String recordType) {
+	private BoolQueryBuilder getBaseQuery(List<String> entityIDs, String termID, boolean excludeNegated, String recordType, boolean excludeViaOrthologyRecords) {
 		BoolQueryBuilder bool = boolQuery();
 		BoolQueryBuilder bool2 = boolQuery();
 		bool.must(bool2);
@@ -124,6 +124,9 @@ public class DiseaseESService {
 		}
 		if (excludeNegated) {
 			bool.must(matchQuery("primaryAnnotations.negated", false));
+		}
+		if (excludeViaOrthologyRecords) {
+			bool.must(matchQuery("viaOrthologyOrder", 0));
 		}
 		if (termID != null) {
 			BoolQueryBuilder bool3 = boolQuery();
@@ -152,7 +155,7 @@ public class DiseaseESService {
 																					 boolean excludeNegated,
 																					 boolean debug) {
 		// unfiltered base query
-		BoolQueryBuilder query = getBaseQuery(List.of(alleleID), null, pagination, excludeNegated, "allele_disease_annotation");
+		BoolQueryBuilder query = getBaseQuery(List.of(alleleID), null, excludeNegated, "allele_disease_annotation", true);
 
 		JsonResultResponse<AlleleDiseaseAnnotationDocument> ret = new JsonResultResponse<>();
 		ret.setSupplementalData(getSupplementalData(null, false, debug, query));
