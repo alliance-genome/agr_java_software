@@ -3,7 +3,6 @@ package org.alliancegenome.api.translators.tdf;
 import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.DiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
-import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.translators.tdf.DiseaseDownloadRow;
 import org.alliancegenome.core.translators.tdf.DownloadHeader;
 import org.alliancegenome.curation_api.model.entities.ExperimentalCondition;
@@ -207,8 +206,13 @@ public class DiseaseAnnotationToTdfTranslator {
 
 		}
 		if (primaryAnnotation instanceof GeneDiseaseAnnotation pAnnotation) {
-			row.setGeneticEntityID(pAnnotation.getSubject().getCurie());
-			row.setGeneticEntityName(pAnnotation.getSubject().getGeneSymbol().getDisplayText());
+			if (pAnnotation.getRelation().getName().contains("via_orthology")) {
+				row.setGeneticEntityID(subjectCurie);
+				row.setGeneticEntityName(subjectSymbol);
+			} else {
+				row.setGeneticEntityID(pAnnotation.getSubject().getCurie());
+				row.setGeneticEntityName(pAnnotation.getSubject().getGeneSymbol().getDisplayText());
+			}
 			if (pAnnotation.getSgdStrainBackground() != null) {
 				row.setStrainBackgroundID(pAnnotation.getSgdStrainBackground().getCurie());
 				row.setStrainBackgroundName(pAnnotation.getSgdStrainBackground().getName());
@@ -229,9 +233,9 @@ public class DiseaseAnnotationToTdfTranslator {
 		DataProvider dataProvider = primaryAnnotation.getDataProvider();
 		if (dataProvider != null && dataProvider.getCrossReference() != null) {
 			String urlTemplate = dataProvider.getCrossReference().getResourceDescriptorPage().getUrlTemplate();
-			if(urlExpceptionHandler.contains(dataProvider.getSourceOrganization().getAbbreviation())){
+			if (urlExpceptionHandler.contains(dataProvider.getSourceOrganization().getAbbreviation())) {
 				// remove the prefix in the template as the prefix is already in the curie.
-				urlTemplate = urlTemplate.replace(dataProvider.getSourceOrganization().getAbbreviation()+":","");
+				urlTemplate = urlTemplate.replace(dataProvider.getSourceOrganization().getAbbreviation() + ":", "");
 			}
 			urlTemplate = urlTemplate.replace("[%s]", dataProvider.getCrossReference().getReferencedCurie());
 			row.setSourceUrl(urlTemplate);
@@ -249,13 +253,13 @@ public class DiseaseAnnotationToTdfTranslator {
 		row.setGeneticEntityAssociation(primaryAnnotation.getRelation().getName());
 		if (CollectionUtils.isNotEmpty(primaryAnnotation.getRelatedNotes())) {
 			row.setNote(primaryAnnotation.getRelatedNotes().stream().map(note -> {
-				if (note.getNoteType().getName().equals("disease_note")) {
-					return "Note: " + note.getFreeText();
-				}
-				if (note.getNoteType().getName().equals("disease_summary")) {
-					return "Summary: " + note.getFreeText();
-				}
-				return "";
+				String freeNote = note.getFreeText().replace("\n", " ");
+				String noteType = note.getNoteType().getName();
+				return switch (noteType) {
+					case "disease_note" -> "Note: " + freeNote;
+					case "disease_summary" -> "Summary: " + freeNote;
+					default -> "";
+				};
 			}).collect(Collectors.joining("|")));
 		}
 		if (primaryAnnotation.getAnnotationType() != null) {
