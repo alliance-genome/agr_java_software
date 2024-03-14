@@ -197,13 +197,14 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 			HashMap<String, GeneDiseaseAnnotationDocument> lookup = new HashMap<>();
 
 			for (DiseaseAnnotation da : entry.getValue().getRight()) {
+				Gene gene = entry.getValue().getLeft();
 				VocabularyTerm relation = relationIsImplicatedIn;
 
-				if (da instanceof GeneDiseaseAnnotation gda) {
+				if (da instanceof GeneDiseaseAnnotation) {
 					relation = da.getRelation();
 				} else {
 					DiseaseAnnotation generatedAnnotation = createImplicatedDA(da);
-					addCreatedDiseaseAnnotationsImplicatedToMap(generatedAnnotation, entry.getValue().getKey());
+					addCreatedDiseaseAnnotationsImplicatedToMap(generatedAnnotation, gene);
 				}
 
 				String key = relation.getName() + "_" + da.getObject().getName() + "_" + da.getNegated();
@@ -220,8 +221,8 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 
 				if (gdad == null) {
 					gdad = new GeneDiseaseAnnotationDocument();
-					gdad.setSubject(entry.getValue().getLeft());
-					HashMap<String, Integer> order = SpeciesType.getSpeciesOrderByTaxonID(entry.getValue().getLeft().getTaxon().getCurie());
+					gdad.setSubject(gene);
+					HashMap<String, Integer> order = SpeciesType.getSpeciesOrderByTaxonID(gene.getTaxon().getCurie());
 					gdad.setSpeciesOrder(order);
 					gdad.setRelation(relation);
 					String generatedRelationString = getGeneratedRelationString(gdad.getRelation().getName(), da.getNegated());
@@ -248,7 +249,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 				gdad.addPubMedPubModID(getPubmedPubModID(da.getSingleReference()));
 				gdad.addPrimaryAnnotation(da);
 				gdad.addBasedOnGenes(da.getWith());
-				gdad.setPhylogeneticSortingIndex(getPhylogeneticSortOrder(da.getSubjectTaxonCurie()));
+				gdad.setPhylogeneticSortingIndex(getPhylogeneticSortOrder(gene.getTaxon().getCurie()));
 			}
 			ph.progressProcess();
 			ret.addAll(lookup.values());
