@@ -21,19 +21,4 @@ public class GeneDiseaseAnnotationDocument extends DiseaseAnnotationDocument {
 		setCategory("gene_disease_annotation");
 	}
 
-	// 1 true
-	// 0 false
-	@JsonIgnore
-	private boolean isViaOrthologyAnnotation;
-
-	@JsonView({View.DiseaseAnnotationAll.class})
-	public int getViaOrthologyOrder() {
-		return isViaOrthologyAnnotation ? 1 : 0;
-	}
-
-	@JsonView({View.DiseaseAnnotationAll.class})
-	public void setViaOrthologyOrder(int order) {
-		isViaOrthologyAnnotation = order == 1;
-	}
-
 }
