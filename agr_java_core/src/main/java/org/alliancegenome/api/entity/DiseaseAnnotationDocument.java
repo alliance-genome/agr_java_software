@@ -1,6 +1,8 @@
 package org.alliancegenome.api.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.alliancegenome.curation_api.model.entities.DiseaseAnnotation;
@@ -10,6 +12,7 @@ import org.alliancegenome.curation_api.model.entities.VocabularyTerm;
 import org.alliancegenome.curation_api.model.entities.ontology.DOTerm;
 import org.alliancegenome.curation_api.model.entities.ontology.ECOTerm;
 import org.alliancegenome.es.index.site.document.SearchableItemDocument;
+import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.*;
@@ -34,6 +37,10 @@ public class DiseaseAnnotationDocument extends SearchableItemDocument {
 	private HashMap<String, Integer> speciesOrder;
 	int phylogeneticSortingIndex;
 
+	// 1 true
+	// 0 false
+	@JsonIgnore
+	private boolean isViaOrthologyAnnotation;
 
 	public DiseaseAnnotationDocument() {
 		primaryAnnotations = new ArrayList<>();
@@ -71,6 +78,15 @@ public class DiseaseAnnotationDocument extends SearchableItemDocument {
 				basedOnGenes.add(gene);
 			}
 		});
+	}
+	@JsonView({View.DiseaseAnnotationAll.class})
+	public int getViaOrthologyOrder() {
+		return isViaOrthologyAnnotation ? 1 : 0;
+	}
+
+	@JsonView({View.DiseaseAnnotationAll.class})
+	public void setViaOrthologyOrder(int order) {
+		isViaOrthologyAnnotation = order == 1;
 	}
 
 }
