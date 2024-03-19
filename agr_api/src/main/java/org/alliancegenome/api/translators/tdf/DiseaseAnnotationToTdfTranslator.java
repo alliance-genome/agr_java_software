@@ -205,24 +205,25 @@ public class DiseaseAnnotationToTdfTranslator {
 			}
 
 		}
-		if (primaryAnnotation instanceof GeneDiseaseAnnotation pAnnotation) {
-			if (pAnnotation.getRelation().getName().contains("via_orthology")) {
-				row.setGeneticEntityID(subjectCurie);
-				row.setGeneticEntityName(subjectSymbol);
-			} else {
+		if (annotation.getGeneratedRelationString().contains("via_orthology")) {
+			row.setGeneticEntityID(subjectCurie);
+			row.setGeneticEntityName(subjectSymbol);
+			row.setGeneticEntityType("gene");
+		} else {
+			if (primaryAnnotation instanceof GeneDiseaseAnnotation pAnnotation) {
 				row.setGeneticEntityID(pAnnotation.getSubject().getCurie());
 				row.setGeneticEntityName(pAnnotation.getSubject().getGeneSymbol().getDisplayText());
+				if (pAnnotation.getSgdStrainBackground() != null) {
+					row.setStrainBackgroundID(pAnnotation.getSgdStrainBackground().getCurie());
+					row.setStrainBackgroundName(pAnnotation.getSgdStrainBackground().getName());
+				}
+				row.setGeneticEntityType("gene");
 			}
-			if (pAnnotation.getSgdStrainBackground() != null) {
-				row.setStrainBackgroundID(pAnnotation.getSgdStrainBackground().getCurie());
-				row.setStrainBackgroundName(pAnnotation.getSgdStrainBackground().getName());
+			if (primaryAnnotation instanceof AlleleDiseaseAnnotation pAnnotation) {
+				row.setGeneticEntityID(pAnnotation.getSubject().getCurie());
+				row.setGeneticEntityName(pAnnotation.getSubject().getAlleleSymbol().getDisplayText());
+				row.setGeneticEntityType("Allele");
 			}
-			row.setGeneticEntityType("gene");
-		}
-		if (primaryAnnotation instanceof AlleleDiseaseAnnotation pAnnotation) {
-			row.setGeneticEntityID(pAnnotation.getSubject().getCurie());
-			row.setGeneticEntityName(pAnnotation.getSubject().getAlleleSymbol().getDisplayText());
-			row.setGeneticEntityType("Allele");
 		}
 		if (primaryAnnotation.getDiseaseGeneticModifierRelation() != null) {
 			row.setDiseaseGeneticModifierRelation(primaryAnnotation.getDiseaseGeneticModifierRelation().getName());
