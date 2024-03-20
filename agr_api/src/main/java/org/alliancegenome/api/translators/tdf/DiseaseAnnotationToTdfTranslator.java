@@ -251,7 +251,7 @@ public class DiseaseAnnotationToTdfTranslator {
 		if (primaryAnnotation.getGeneticSex() != null) {
 			row.setGeneticSex(primaryAnnotation.getGeneticSex().getName());
 		}
-		row.setGeneticEntityAssociation(primaryAnnotation.getRelation().getName());
+		row.setGeneticEntityAssociation(getGeneratedRelationString(primaryAnnotation.getRelation().getName(), primaryAnnotation.getNegated()));
 		if (CollectionUtils.isNotEmpty(primaryAnnotation.getRelatedNotes())) {
 			row.setNote(primaryAnnotation.getRelatedNotes().stream().map(note -> {
 				String freeNote = note.getFreeText().replace("\n", " ");
@@ -293,6 +293,13 @@ public class DiseaseAnnotationToTdfTranslator {
 			}).collect(Collectors.joining("|"));
 			row.setExperimentalCondition(condition);
 		}
+	}
+
+
+	private static String getGeneratedRelationString(String relation, Boolean negated) {
+		if (!negated)
+			return relation;
+		return relation.replaceFirst("_", "_not_");
 	}
 
 	private DiseaseDownloadRow getDiseaseDownloadRow(DiseaseAnnotation annotation, PrimaryAnnotatedEntity entity, PublicationJoin join, Gene homologousGene) {
