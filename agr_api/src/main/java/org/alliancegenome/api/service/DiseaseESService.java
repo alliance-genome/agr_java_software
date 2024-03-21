@@ -10,11 +10,8 @@ import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import org.alliancegenome.api.entity.*;
 import org.alliancegenome.api.service.helper.GeneDiseaseSearchHelper;
-
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.core.api.service.*;
-
-
+import org.alliancegenome.core.api.service.DiseaseRibbonService;
 import org.alliancegenome.es.index.site.dao.SearchDAO;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.SpeciesType;
@@ -240,7 +237,7 @@ public class DiseaseESService {
 
 		SearchResponse searchResponseHistogram = searchDAO.performQuery(
 			bool, aggBuilders, null, geneDiseaseSearchHelper.getResponseFields(),
-			0, 0, new HighlightBuilder(), useSpeciesAggregation ? getAnnotationSorts(focusTaxonId, debug) : null , debug);
+			0, 0, new HighlightBuilder(), useSpeciesAggregation ? getAnnotationSorts(focusTaxonId, debug) : null, debug);
 
 		Map<String, List<String>> distinctFieldValueMap = new HashMap<>();
 		aggregationFields.forEach((field, colName) -> {
@@ -402,7 +399,7 @@ public class DiseaseESService {
 
 		// Sorting sets for different names of the sorting selection box
 		Map<String, List<String>> sortingSetMap = new HashMap<>();
-		sortingSetMap.put("default", List.of("viaOrthologyOrder","phylogeneticSortingIndex", "subject.geneSymbol.displayText.keyword"));
+		sortingSetMap.put("default", List.of("viaOrthologyOrder", "phylogeneticSortingIndex", "subject.geneSymbol.displayText.keyword"));
 		sortingSetMap.put("gene", List.of("subject.geneSymbol.displayText.keyword", "phylogeneticSortingIndex"));
 		sortingSetMap.put("disease", List.of("object.name.keyword", "phylogeneticSortingIndex", "subject.geneSymbol.displayText.keyword"));
 		sortingSetMap.put("species", List.of("subject.taxon.name.keyword", "subject.geneSymbol.displayText.keyword"));
@@ -435,11 +432,11 @@ public class DiseaseESService {
 
 	public JsonResultResponse<AlleleDiseaseAnnotationDocument> getDiseaseAnnotationsWithAlleles(String diseaseID, Pagination pagination) {
 		BoolQueryBuilder bool = boolQuery();
-//		BoolQueryBuilder bool2 = boolQuery();  TODO: add the parentSlimIDs in the indexer
-//		bool.must(bool2);
+		BoolQueryBuilder bool2 = boolQuery();
+		bool.must(bool2);
 
 		bool.filter(new TermQueryBuilder("category", "allele_disease_annotation"));
-//		bool2.should(new MatchQueryBuilder("parentSlimIDs.keyword", diseaseID));
+		bool2.should(new MatchQueryBuilder("parentSlimIDs.keyword", diseaseID));
 
 		JsonResultResponse<AlleleDiseaseAnnotationDocument> ret = new JsonResultResponse<>();
 		Map<String, Object> supData = getSupplementalData(null, true, false, bool);
@@ -448,7 +445,16 @@ public class DiseaseESService {
 		// create histogram of select columns of unfiltered query
 		addTableFilter(pagination, bool);
 
+		// Sorting sets for different names of the sorting selection box
+		Map<String, List<String>> sortingSetMap = new HashMap<>();
+		sortingSetMap.put("default", List.of("phylogeneticSortingIndex", "subject.geneSymbol.displayText.keyword"));
 		LinkedHashMap<String, SortOrder> sortingMap = new LinkedHashMap<>();
+
+		List<String> sortFields = sortingSetMap.get(pagination.getSortBy());
+		if (sortFields == null) {
+			sortFields = sortingSetMap.get("default");
+		}
+		sortFields.forEach(sortField -> sortingMap.put(sortField, SortOrder.ASC));
 
 		SearchResponse searchResponse = getSearchResponse(bool, pagination, sortingMap, false);
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
@@ -456,7 +462,7 @@ public class DiseaseESService {
 
 		for (SearchHit searchHit : searchResponse.getHits().getHits()) {
 			try {
-				AlleleDiseaseAnnotationDocument annotationDocument =  mapper.readValue(searchHit.getSourceAsString(), AlleleDiseaseAnnotationDocument.class);
+				AlleleDiseaseAnnotationDocument annotationDocument = mapper.readValue(searchHit.getSourceAsString(), AlleleDiseaseAnnotationDocument.class);
 				annotationDocument.setUniqueId(searchHit.getId());
 				list.add(annotationDocument);
 			} catch (Exception e) {
