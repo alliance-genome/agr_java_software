@@ -10,8 +10,11 @@ import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import org.alliancegenome.api.entity.*;
 import org.alliancegenome.api.service.helper.GeneDiseaseSearchHelper;
+
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.core.api.service.DiseaseRibbonService;
+import org.alliancegenome.core.api.service.*;
+
+
 import org.alliancegenome.es.index.site.dao.SearchDAO;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.SpeciesType;
@@ -22,7 +25,6 @@ import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -417,14 +419,6 @@ public class DiseaseESService {
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
 
 		List<GeneDiseaseAnnotationDocument> list = new ArrayList<>();
-		ObjectMapper mapper2 = new ObjectMapper();
-		JavaTimeModule module = new JavaTimeModule();
-		mapper2.registerModule(module);
-		mapper2.registerModule(new Jdk8Module());
-
-		mapper2.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-		mapper2.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-		mapper2.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 
 		for (SearchHit searchHit : searchResponse.getHits().getHits()) {
 			try {
@@ -439,5 +433,37 @@ public class DiseaseESService {
 		return ret;
 	}
 
+	public JsonResultResponse<AlleleDiseaseAnnotationDocument> getDiseaseAnnotationsWithAlleles(String diseaseID, Pagination pagination) {
+		BoolQueryBuilder bool = boolQuery();
+//		BoolQueryBuilder bool2 = boolQuery();  TODO: add the parentSlimIDs in the indexer
+//		bool.must(bool2);
 
+		bool.filter(new TermQueryBuilder("category", "allele_disease_annotation"));
+//		bool2.should(new MatchQueryBuilder("parentSlimIDs.keyword", diseaseID));
+
+		JsonResultResponse<AlleleDiseaseAnnotationDocument> ret = new JsonResultResponse<>();
+		Map<String, Object> supData = getSupplementalData(null, true, false, bool);
+		ret.setSupplementalData(supData);
+
+		// create histogram of select columns of unfiltered query
+		addTableFilter(pagination, bool);
+
+		LinkedHashMap<String, SortOrder> sortingMap = new LinkedHashMap<>();
+
+		SearchResponse searchResponse = getSearchResponse(bool, pagination, sortingMap, false);
+		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
+		List<AlleleDiseaseAnnotationDocument> list = new ArrayList<>();
+
+		for (SearchHit searchHit : searchResponse.getHits().getHits()) {
+			try {
+				AlleleDiseaseAnnotationDocument annotationDocument =  mapper.readValue(searchHit.getSourceAsString(), AlleleDiseaseAnnotationDocument.class);
+				annotationDocument.setUniqueId(searchHit.getId());
+				list.add(annotationDocument);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		ret.setResults(list);
+		return ret;
+	}
 }

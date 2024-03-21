@@ -2,9 +2,9 @@ package org.alliancegenome.api.rest.interfaces;
 
 import java.util.List;
 
+import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.curation_api.model.entities.GeneDiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.view.View;
@@ -111,9 +111,8 @@ public interface DiseaseRESTInterface {
 
 	@GET
 	@Path("/{id}/alleles")
-	@JsonView(value = {View.DiseaseAnnotationSummary.class})
 	@Operation(summary = "Retrieve all DiseaseAnnotation records for a given disease id")
-	JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotationsByAllele(
+	JsonResultResponse<AlleleDiseaseAnnotationDocument> getDiseaseAnnotationsByAllele(
 			@Parameter(in = ParameterIn.PATH, name = "id", description = "Disease by DOID: e.g. DOID:9952", required = true, schema = @Schema(type = SchemaType.STRING))
 			@PathParam("id") String id,
 			@Parameter(in = ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))

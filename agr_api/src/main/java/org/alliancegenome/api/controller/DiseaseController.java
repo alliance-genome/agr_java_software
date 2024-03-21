@@ -7,6 +7,8 @@ import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
+import org.alliancegenome.api.entity.DiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.api.rest.interfaces.DiseaseRESTInterface;
 import org.alliancegenome.api.service.DiseaseESService;
@@ -101,7 +103,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 	}
 
 	@Override
-	public JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotationsByAllele(String id, Integer limit, Integer page, String sortBy, String geneName, String alleleName, String species, String disease, String source, String reference, String evidenceCode, String associationType, String asc) {
+	public JsonResultResponse<AlleleDiseaseAnnotationDocument> getDiseaseAnnotationsByAllele(String id, Integer limit, Integer page, String sortBy, String geneName, String alleleName, String species, String disease, String source, String reference, String evidenceCode, String associationType, String asc) {
 		long startTime = System.currentTimeMillis();
 		// The @DefaultValue only kicks in if the value is null.
 		// need to handle an empty value manually here.
@@ -122,10 +124,9 @@ public class DiseaseController implements DiseaseRESTInterface {
 			throw new RestErrorException(message);
 		}
 		try {
-			JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotationsWithAlleles(id, pagination);
+			JsonResultResponse<AlleleDiseaseAnnotationDocument> response = diseaseESService.getDiseaseAnnotationsWithAlleles(id, pagination);
 			response.setHttpServletRequest(null);
 			response.calculateRequestDuration(startTime);
-
 			return response;
 		} catch (Exception e) {
 			Log.error("Error while retrieving disease annotations by allele", e);
@@ -137,10 +138,12 @@ public class DiseaseController implements DiseaseRESTInterface {
 
 	@Override
 	public Response getDiseaseAnnotationsByAlleleDownload(String id, String sortBy, String geneName, String alleleName, String species, String disease, String source, String reference, String evidenceCode, String associationType, String asc) {
-		JsonResultResponse<DiseaseAnnotation> response = getDiseaseAnnotationsByAllele(id, Integer.MAX_VALUE, null, sortBy, geneName, alleleName, species, disease, source, reference, evidenceCode, associationType, asc);
-		Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRowsForAllele(response.getResults()));
-		APIServiceHelper.setDownloadHeader(id, EntityType.DISEASE, EntityType.ALLELE, responseBuilder);
-		return responseBuilder.build();
+		JsonResultResponse<AlleleDiseaseAnnotationDocument> response = getDiseaseAnnotationsByAllele(id, Integer.MAX_VALUE, null, sortBy, geneName, alleleName, species, disease, source, reference, evidenceCode, associationType, asc);
+//		Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRowsForAllele(response.getResults());
+
+//		APIServiceHelper.setDownloadHeader(id, EntityType.DISEASE, EntityType.ALLELE, responseBuilder);
+//		return responseBuilder.build();
+		return Response.ok().build();
 	}
 
 	@Override
@@ -429,7 +432,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 		List<DiseaseAnnotation> geneAnnotations = new ArrayList<>();
 		List<DiseaseAnnotation> modelAnnotations = new ArrayList<>();
 		speciesIDs.forEach(species -> {
-			alleleAnnotations.addAll(getDiseaseAnnotationsByAllele(diseaseID, Integer.MAX_VALUE, null, sortBy, null, null, species, null, null, null, null, null, null).getResults());
+//			alleleAnnotations.addAll(getDiseaseAnnotationsByAllele(diseaseID, Integer.MAX_VALUE, null, sortBy, null, null, species, null, null, null, null, null, null).getResults());
 			modelAnnotations.addAll(getDiseaseAnnotationsForModel(diseaseID, Integer.MAX_VALUE, null, sortBy, null, null, species, null, null, null, null, null, null).getResults());
 			//geneAnnotations.addAll(getDiseaseAnnotationsByGene(diseaseID, Integer.MAX_VALUE, null, sortBy, null, species, null, null, null, null, null, null, null).getResults());
 		});
