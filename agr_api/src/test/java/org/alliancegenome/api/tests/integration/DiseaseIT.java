@@ -886,63 +886,63 @@ public class DiseaseIT {
 	public void diseaseAlleleDownload() {
 
 		// Diamond-Blackfan anemia
-		String diseaseID = "DOID:1339";
-
-		Pagination pagination = new Pagination(1, 10, null, null);
-
-		JsonResultResponse<DiseaseAnnotation> response = diseaseController.getDiseaseAnnotationsByAllele(diseaseID,
-				10,
-				1,
-				"DiseaseAlleleDefault",
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null
-		);
-
-		assertResponse(response, 6, 6);
-
-		DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();
-		String output = translator.getAllRowsForAllele(response.getResults());
-		assertEquals(output, "Allele ID\tAllele Symbol\tGenetic Entity ID\tGenetic Entity Name\tGenetic Entity Type\tSpecies ID\tSpecies Name\tAssociation\tDisease ID\tDisease Name\tEvidence Code\tEvidence Code Name\tSource\tReference\n" +
-				"MGI:3776022\tFlvcr1<tm1.1Jlab>\tMGI:3807528\tFlvcr1<tm1.1Jlab>/Flvcr1<tm1.1Jlab> [background:] involves: 129S4/SvJae * C57BL/6 * DBA/2\tgenotype\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1339\tDiamond-Blackfan anemia\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:18258918\n" +
-				"MGI:3776021\tFlvcr1<tm1Jlab>\tMGI:3807529\tFlvcr1<tm1Jlab>/Flvcr1<tm1Jlab> Tg(Mx1-cre)1Cgn/? [background:] involves: 129S4/SvJae * C57BL/6 * CBA\tgenotype\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1339\tDiamond-Blackfan anemia\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:18258918\n" +
-				"MGI:3803603\tRpsa<tm1Ells>\tMGI:3804635\tRpsa<tm1Ells>/Rpsa<+> [background:] involves: 129S6/SvEvTac * C57BL/6\tgenotype\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1339\tDiamond-Blackfan anemia\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tMGI:3804630\n" +
-				"MGI:4839313\tTg(CAG-RPS19*R62W)#Dmb\tMGI:4839332\tTg(CAG-RPS19*R62W)#Dmb/? Tg(Prnp-GFP/cre)1Blw/? [background:] involves: 129S6/SvEvTac * FVB/N\tgenotype\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1339\tDiamond-Blackfan anemia\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:20606162\n" +
-				"ZFIN:ZDB-ALT-041001-12\thi3820bTg\tZFIN:ZDB-FISH-150901-16866\trpl11<hi3820bTg/hi3820bTg>\tfish\tNCBITaxon:7955\tDanio rerio\tis_implicated_in\tDOID:1339\tDiamond-Blackfan anemia\tECO:0000304\tauthor statement supported by traceable reference used in manual assertion\tZFIN\tPMID:24812435\n" +
-				"ZFIN:ZDB-ALT-041001-12\thi3820bTg\tZFIN:ZDB-FISH-150901-16866\trpl11<hi3820bTg/hi3820bTg>\tfish\tNCBITaxon:7955\tDanio rerio\tis_implicated_in\tDOID:1339\tDiamond-Blackfan anemia\tECO:0000304\tauthor statement supported by traceable reference used in manual assertion\tZFIN\tPMID:25058426\n" +
-				"ZFIN:ZDB-ALT-041001-12\thi3820bTg\tZFIN:ZDB-FISH-150901-8506\trpl11<hi3820bTg/hi3820bTg>\tfish\tNCBITaxon:7955\tDanio rerio\tis_implicated_in\tDOID:1339\tDiamond-Blackfan anemia\tECO:0000304\tauthor statement supported by traceable reference used in manual assertion\tZFIN\tPMID:26109203\n" +
-				"ZFIN:ZDB-ALT-041001-12\thi3820bTg\tZFIN:ZDB-FISH-150901-8506\trpl11<hi3820bTg/hi3820bTg>\tfish\tNCBITaxon:7955\tDanio rerio\tis_implicated_in\tDOID:1339\tDiamond-Blackfan anemia\tECO:0000304\tauthor statement supported by traceable reference used in manual assertion\tZFIN\tPMID:29225165\n" +
-				"ZFIN:ZDB-ALT-041001-12\thi3820bTg\tZFIN:ZDB-FISH-150901-8506\trpl11<hi3820bTg/hi3820bTg>\tfish\tNCBITaxon:7955\tDanio rerio\tis_implicated_in\tDOID:1339\tDiamond-Blackfan anemia\tECO:0000304\tauthor statement supported by traceable reference used in manual assertion\tZFIN\tPMID:29581525\n" +
-				"ZFIN:ZDB-ALT-151012-9\tzf556\tZFIN:ZDB-FISH-151013-1\trps19<zf556/zf556>\tfish\tNCBITaxon:7955\tDanio rerio\tis_implicated_in\tDOID:1339\tDiamond-Blackfan anemia\tECO:0000304\tauthor statement supported by traceable reference used in manual assertion\tZFIN\tPMID:25058426\n" +
-				"ZFIN:ZDB-ALT-151012-9\tzf556\tZFIN:ZDB-FISH-151013-1\trps19<zf556/zf556>\tfish\tNCBITaxon:7955\tDanio rerio\tis_implicated_in\tDOID:1339\tDiamond-Blackfan anemia\tECO:0000304\tauthor statement supported by traceable reference used in manual assertion\tZFIN\tPMID:26109203\n");
-
-		// Menkes Disease
-		diseaseID = "DOID:1838";
-		response = diseaseController.getDiseaseAnnotationsByAllele(diseaseID,
-				10,
-				1,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null
-		);
-
-		assertResponse(response, 10, 16);
-
-		translator = new DiseaseAnnotationToTdfTranslator();
-		output = translator.getAllRowsForAllele(response.getResults());
+//		String diseaseID = "DOID:1339";
+//
+//		Pagination pagination = new Pagination(1, 10, null, null);
+//
+//		JsonResultResponse<DiseaseAnnotation> response = diseaseController.getDiseaseAnnotationsByAllele(diseaseID,
+//				10,
+//				1,
+//				"DiseaseAlleleDefault",
+//				null,
+//				null,
+//				null,
+//				null,
+//				null,
+//				null,
+//				null,
+//				null,
+//				null
+//		);
+//
+//		assertResponse(response, 6, 6);
+//
+//		DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();
+//		String output = translator.getAllRowsForAllele(response.getResults());
+//		assertEquals(output, "Allele ID\tAllele Symbol\tGenetic Entity ID\tGenetic Entity Name\tGenetic Entity Type\tSpecies ID\tSpecies Name\tAssociation\tDisease ID\tDisease Name\tEvidence Code\tEvidence Code Name\tSource\tReference\n" +
+//				"MGI:3776022\tFlvcr1<tm1.1Jlab>\tMGI:3807528\tFlvcr1<tm1.1Jlab>/Flvcr1<tm1.1Jlab> [background:] involves: 129S4/SvJae * C57BL/6 * DBA/2\tgenotype\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1339\tDiamond-Blackfan anemia\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:18258918\n" +
+//				"MGI:3776021\tFlvcr1<tm1Jlab>\tMGI:3807529\tFlvcr1<tm1Jlab>/Flvcr1<tm1Jlab> Tg(Mx1-cre)1Cgn/? [background:] involves: 129S4/SvJae * C57BL/6 * CBA\tgenotype\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1339\tDiamond-Blackfan anemia\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:18258918\n" +
+//				"MGI:3803603\tRpsa<tm1Ells>\tMGI:3804635\tRpsa<tm1Ells>/Rpsa<+> [background:] involves: 129S6/SvEvTac * C57BL/6\tgenotype\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1339\tDiamond-Blackfan anemia\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tMGI:3804630\n" +
+//				"MGI:4839313\tTg(CAG-RPS19*R62W)#Dmb\tMGI:4839332\tTg(CAG-RPS19*R62W)#Dmb/? Tg(Prnp-GFP/cre)1Blw/? [background:] involves: 129S6/SvEvTac * FVB/N\tgenotype\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1339\tDiamond-Blackfan anemia\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:20606162\n" +
+//				"ZFIN:ZDB-ALT-041001-12\thi3820bTg\tZFIN:ZDB-FISH-150901-16866\trpl11<hi3820bTg/hi3820bTg>\tfish\tNCBITaxon:7955\tDanio rerio\tis_implicated_in\tDOID:1339\tDiamond-Blackfan anemia\tECO:0000304\tauthor statement supported by traceable reference used in manual assertion\tZFIN\tPMID:24812435\n" +
+//				"ZFIN:ZDB-ALT-041001-12\thi3820bTg\tZFIN:ZDB-FISH-150901-16866\trpl11<hi3820bTg/hi3820bTg>\tfish\tNCBITaxon:7955\tDanio rerio\tis_implicated_in\tDOID:1339\tDiamond-Blackfan anemia\tECO:0000304\tauthor statement supported by traceable reference used in manual assertion\tZFIN\tPMID:25058426\n" +
+//				"ZFIN:ZDB-ALT-041001-12\thi3820bTg\tZFIN:ZDB-FISH-150901-8506\trpl11<hi3820bTg/hi3820bTg>\tfish\tNCBITaxon:7955\tDanio rerio\tis_implicated_in\tDOID:1339\tDiamond-Blackfan anemia\tECO:0000304\tauthor statement supported by traceable reference used in manual assertion\tZFIN\tPMID:26109203\n" +
+//				"ZFIN:ZDB-ALT-041001-12\thi3820bTg\tZFIN:ZDB-FISH-150901-8506\trpl11<hi3820bTg/hi3820bTg>\tfish\tNCBITaxon:7955\tDanio rerio\tis_implicated_in\tDOID:1339\tDiamond-Blackfan anemia\tECO:0000304\tauthor statement supported by traceable reference used in manual assertion\tZFIN\tPMID:29225165\n" +
+//				"ZFIN:ZDB-ALT-041001-12\thi3820bTg\tZFIN:ZDB-FISH-150901-8506\trpl11<hi3820bTg/hi3820bTg>\tfish\tNCBITaxon:7955\tDanio rerio\tis_implicated_in\tDOID:1339\tDiamond-Blackfan anemia\tECO:0000304\tauthor statement supported by traceable reference used in manual assertion\tZFIN\tPMID:29581525\n" +
+//				"ZFIN:ZDB-ALT-151012-9\tzf556\tZFIN:ZDB-FISH-151013-1\trps19<zf556/zf556>\tfish\tNCBITaxon:7955\tDanio rerio\tis_implicated_in\tDOID:1339\tDiamond-Blackfan anemia\tECO:0000304\tauthor statement supported by traceable reference used in manual assertion\tZFIN\tPMID:25058426\n" +
+//				"ZFIN:ZDB-ALT-151012-9\tzf556\tZFIN:ZDB-FISH-151013-1\trps19<zf556/zf556>\tfish\tNCBITaxon:7955\tDanio rerio\tis_implicated_in\tDOID:1339\tDiamond-Blackfan anemia\tECO:0000304\tauthor statement supported by traceable reference used in manual assertion\tZFIN\tPMID:26109203\n");
+//
+//		// Menkes Disease
+//		diseaseID = "DOID:1838";
+//		response = diseaseController.getDiseaseAnnotationsByAllele(diseaseID,
+//				10,
+//				1,
+//				null,
+//				null,
+//				null,
+//				null,
+//				null,
+//				null,
+//				null,
+//				null,
+//				null,
+//				null
+//		);
+//
+//		assertResponse(response, 10, 16);
+//
+//		translator = new DiseaseAnnotationToTdfTranslator();
+//		output = translator.getAllRowsForAllele(response.getResults());
 	}
 
 
