@@ -21,6 +21,7 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+import jakarta.validation.constraints.Null;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
@@ -361,6 +362,12 @@ public interface DiseaseRESTInterface {
 	@GET
 	@Path("")
 	@Operation(summary = "Retrieve all disease annotations of a given set of genes")
+	@APIResponses(
+			value = {
+					@APIResponse(
+							responseCode = "200",
+							content = @Content(mediaType = "application/json",
+									schema = @Schema(implementation = Null.class))) })
 	JsonResultResponse<GeneDiseaseAnnotationDocument> getDiseaseAnnotationsRibbonDetails(
 			@Parameter(in = ParameterIn.QUERY, name = "focusTaxonId", description = "Focus Taxon ID", required = true)
 			@QueryParam("focusTaxonId") String focusTaxonId,
