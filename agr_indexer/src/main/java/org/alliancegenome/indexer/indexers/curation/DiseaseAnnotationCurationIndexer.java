@@ -346,6 +346,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 					Set<String> diseaseQualifiers = da.getDiseaseQualifiers().stream().map(term -> term.getName().replace("_", " ")).collect(Collectors.toSet());
 					adad.setDiseaseQualifiers(diseaseQualifiers);
 				}
+				adad.setParentSlimIDs(closureMap.get(da.getObject().getCurie()));
 
 				// gdad.setDataProvider(da.getDataProvider());
 				adad.addReference(da.getSingleReference());
