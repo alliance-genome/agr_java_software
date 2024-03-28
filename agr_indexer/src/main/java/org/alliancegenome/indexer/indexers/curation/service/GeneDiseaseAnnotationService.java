@@ -110,17 +110,17 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 					DiseaseAnnotation gda = null;
 					if (focusDiseaseAnnotation instanceof AGMDiseaseAnnotation agmda) {
 						AGMDiseaseAnnotation da = new AGMDiseaseAnnotation();
-						da.setSubject(agmda.getSubject());
+						da.setDiseaseAnnotationSubject(agmda.getDiseaseAnnotationSubject());
 						gda = da;
 					}
 					if (focusDiseaseAnnotation instanceof AlleleDiseaseAnnotation ada) {
 						AlleleDiseaseAnnotation da = new AlleleDiseaseAnnotation();
-						da.setSubject(ada.getSubject());
+						da.setDiseaseAnnotationSubject(ada.getDiseaseAnnotationSubject());
 						gda = da;
 					}
 					if (focusDiseaseAnnotation instanceof GeneDiseaseAnnotation gdann) {
 						GeneDiseaseAnnotation da = new GeneDiseaseAnnotation();
-						da.setSubject(gdann.getSubject());
+						da.setDiseaseAnnotationSubject(gdann.getDiseaseAnnotationSubject());
 						gda = da;
 					}
 
@@ -136,7 +136,7 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 					gda.setDataProvider(dataProvider);
 					gda.setWith(List.of(geneGeneOrthology.getSubjectGene()));
 					gda.setSingleReference(allianceReference);
-					gda.setObject(focusDiseaseAnnotation.getObject());
+					gda.setDiseaseAnnotationObject(focusDiseaseAnnotation.getDiseaseAnnotationObject());
 					gda.setEvidenceCodes(List.of(ecoTermIEA));
 					gda.setDiseaseQualifiers(focusDiseaseAnnotation.getDiseaseQualifiers());
 					List<DiseaseAnnotation> geneAnnotations = newDAMap.computeIfAbsent(orthologousGene, k -> new ArrayList<>());
@@ -149,7 +149,7 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 		// consolidating DAs:
 		// by: disease, relation and disease qualifier
 		newDAMap.forEach((gene, diseaseAnnotations) -> {
-			Map<String, Map<String, Map<String, List<DiseaseAnnotation>>>> groupedDAs = diseaseAnnotations.stream().collect(groupingBy(da1 -> da1.getObject().getCurie(),
+			Map<String, Map<String, Map<String, List<DiseaseAnnotation>>>> groupedDAs = diseaseAnnotations.stream().collect(groupingBy(da1 -> da1.getDiseaseAnnotationObject().getCurie(),
 				groupingBy(da -> da.getRelation().getName(), groupingBy(da -> {
 					List<VocabularyTerm> diseaseQualifiers = da.getDiseaseQualifiers();
 					// allow for grouping by missing based-on genes
