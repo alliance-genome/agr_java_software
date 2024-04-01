@@ -45,14 +45,12 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 		HashMap<String, Object> params = new HashMap<>();
 		params.put("internal", false);
 		params.put("obsolete", false);
-		//params.put("subject.curie", "MGI:2140175");
-		//params.put("subject.curie", "HGNC:13625");
-//		params.put("subject.curie", "HGNC:40");
+		//params.put("diseaseAnnotationSubject.modEntityId", "HGNC:40");
 
 		do {
 			SearchResponse<GeneDiseaseAnnotation> response = geneApi.findForPublic(page, batchSize, params);
 			for (GeneDiseaseAnnotation da : response.getResults()) {
-				if (isValidEntity(allGeneIDs, da.getSubjectCurie())) {
+				if (isValidEntity(allGeneIDs, da.getDiseaseAnnotationSubject().getIdentifier())) {
 					if (hasValidGeneticModifiers(da, allGeneIDs, allAlleleIds, allModelIDs)) {
 						ret.add(da);
 					}
@@ -102,7 +100,7 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 			SearchResponse<GeneToGeneOrthologyGenerated> response = orthologyApi.find(0, 500, params);
 			for (GeneToGeneOrthologyGenerated geneGeneOrthology : response.getResults()) {
 				Gene orthologousGene = geneGeneOrthology.getObjectGene();
-				if (!isValidEntity(allGeneIDs, orthologousGene.getCurie())) {
+				if (!isValidEntity(allGeneIDs, orthologousGene.getIdentifier())) {
 					continue;
 				}
 				// create orthologous DAs for each focus DA

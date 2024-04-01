@@ -33,13 +33,13 @@ public class AlleleDiseaseAnnotationService extends BaseDiseaseAnnotationService
 		HashMap<String, Object> params = new HashMap<>();
 		params.put("internal", false);
 		params.put("obsolete", false);
-		//params.put("subject.curie", "FB:FBal0065871");
+		//params.put("diseaseAnnotationSubject.curie", "MGI:1930937");
 
 		do {
 			SearchResponse<AlleleDiseaseAnnotation> response = alleleApi.findForPublic(page, batchSize, params);
 
 			for(AlleleDiseaseAnnotation da: response.getResults()) {
-				if(isValidEntity(allAlleleIds, da.getSubjectCurie())) {
+				if(isValidEntity(allAlleleIds, da.getDiseaseAnnotationSubject().getIdentifier())) {
 					if (hasValidEntities(da, allGeneIDs, allAlleleIds, allModelIDs)) {
 						if(da.getInferredGene() != null && da.getInferredGene().getConstructGenomicEntityAssociations() != null) {
 							da.getInferredGene().getConstructGenomicEntityAssociations().clear();

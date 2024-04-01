@@ -83,10 +83,10 @@ public class BaseDiseaseAnnotationService {
 	}
 
 	private static boolean hasValidInferredAssertedEntities(Set<String> allEntityIDs, GenomicEntity inferredEntity, List<? extends GenomicEntity> assertedEntity) {
-		if (inferredEntity != null && !allEntityIDs.contains(inferredEntity.getCurie()))
+		if (inferredEntity != null && !allEntityIDs.contains(inferredEntity.getIdentifier()))
 			return false;
 		if (CollectionUtils.isNotEmpty(assertedEntity)) {
-			if (assertedEntity.stream().anyMatch((entity -> !allEntityIDs.contains(entity.getCurie()))))
+			if (assertedEntity.stream().anyMatch((entity -> !allEntityIDs.contains(entity.getIdentifier()))))
 				return false;
 		}
 		return true;
@@ -94,7 +94,7 @@ public class BaseDiseaseAnnotationService {
 
 	protected static boolean hasValidGeneticModifiers(DiseaseAnnotation da, Set<String> allGeneIDs, Set<String> allAllelIDs, Set<String> allModelIDs) {
 		if (CollectionUtils.isNotEmpty(da.getDiseaseGeneticModifiers())) {
-			if (da.getDiseaseGeneticModifiers().stream().anyMatch((entity -> (!allGeneIDs.contains(entity.getCurie()) && !allAllelIDs.contains(entity.getCurie()) && !allModelIDs.contains(entity.getCurie())))))
+			if (da.getDiseaseGeneticModifiers().stream().anyMatch((entity -> (!allGeneIDs.contains(entity.getIdentifier()) && !allAllelIDs.contains(entity.getIdentifier()) && !allModelIDs.contains(entity.getIdentifier())))))
 				return false;
 		}
 		return true;
