@@ -6,7 +6,7 @@ import org.alliancegenome.api.entity.AGMDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.curation_api.model.entities.*;
-import org.alliancegenome.curation_api.model.entities.base.CurieAuditedObject;
+import org.alliancegenome.curation_api.model.entities.base.SubmittedObject;
 import org.alliancegenome.curation_api.model.entities.ontology.DOTerm;
 import org.alliancegenome.curation_api.model.entities.ontology.ECOTerm;
 import org.alliancegenome.curation_api.model.entities.ontology.OntologyTerm;
@@ -120,7 +120,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 			// Group By:
 			// Disease, association type, Disease qualifiers, BasedOn Gene List (names),
 			Map<DOTerm, Map<VocabularyTerm, Map<String, Map<String, List<DiseaseAnnotation>>>>> groupedByAnnotations = diseaseAnnotations.stream()
-				.collect(groupingBy(DiseaseAnnotation::getObject,
+				.collect(groupingBy(DiseaseAnnotation::getDiseaseAnnotationObject,
 					groupingBy(DiseaseAnnotation::getRelation,
 						groupingBy(diseaseAnnotation -> {
 							List<VocabularyTerm> terms = diseaseAnnotation.getDiseaseQualifiers();
@@ -148,7 +148,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 							String generatedRelationString = getGeneratedRelationString(gdad.getRelation().getName(), diseaseAnnotation.getNegated());
 							gdad.setGeneratedRelationString(generatedRelationString);
 							gdad.setObject(diseaseTerm);
-							gdad.setParentSlimIDs(closureMap.get(diseaseAnnotation.getObject().getCurie()));
+							gdad.setParentSlimIDs(closureMap.get(diseaseAnnotation.getDiseaseAnnotationObject().getCurie()));
 
 							// create distinct and sorted list of ECOTerm objects
 							Set<ECOTerm> ecoTerms = diseaseAnnotations1.stream().map(DiseaseAnnotation::getEvidenceCodes).flatMap(Collection::stream).collect(Collectors.toSet());
@@ -163,7 +163,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 
 							// create distinct list of basedOn Genes
 							Set<Gene> basedOnGenes = diseaseAnnotations1.stream().map(DiseaseAnnotation::getWith).flatMap(Collection::stream).collect(Collectors.toSet());
-							List<String> ids = basedOnGenes.stream().map(CurieAuditedObject::getCurie).toList();
+							List<String> ids = basedOnGenes.stream().map(SubmittedObject::getIdentifier).toList();
 							gdad.setBasedOnGenes(new ArrayList<>(basedOnGenes));
 
 							gdad.addReference(diseaseAnnotation.getSingleReference());
@@ -207,7 +207,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 					addCreatedDiseaseAnnotationsImplicatedToMap(generatedAnnotation, gene);
 				}
 
-				String key = relation.getName() + "_" + da.getObject().getName() + "_" + da.getNegated();
+				String key = relation.getName() + "_" + da.getDiseaseAnnotationObject().getName() + "_" + da.getNegated();
 
 				if (da.getDiseaseQualifiers() != null) {
 					key += "_" + da.getDiseaseQualifiers().stream().map(VocabularyTerm::getName).sorted().collect(Collectors.joining("_"));
@@ -227,8 +227,8 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 					gdad.setRelation(relation);
 					String generatedRelationString = getGeneratedRelationString(gdad.getRelation().getName(), da.getNegated());
 					gdad.setGeneratedRelationString(generatedRelationString);
-					gdad.setObject(da.getObject());
-					gdad.setParentSlimIDs(closureMap.get(da.getObject().getCurie()));
+					gdad.setObject(da.getDiseaseAnnotationObject());
+					gdad.setParentSlimIDs(closureMap.get(da.getDiseaseAnnotationObject().getCurie()));
 					lookup.put(key, gdad);
 				}
 
@@ -273,15 +273,15 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		DiseaseAnnotation implicatedDA = null;
 		if (da instanceof AGMDiseaseAnnotation agmAnnotation) {
 			AGMDiseaseAnnotation agmAnno = new AGMDiseaseAnnotation();
-			agmAnno.setSubject(agmAnnotation.getSubject());
+			agmAnno.setDiseaseAnnotationSubject(agmAnnotation.getDiseaseAnnotationSubject());
 			implicatedDA = agmAnno;
 		} else if (da instanceof AlleleDiseaseAnnotation alleleAnno) {
 			AlleleDiseaseAnnotation alleleDA = new AlleleDiseaseAnnotation();
-			alleleDA.setSubject(alleleAnno.getSubject());
+			alleleDA.setDiseaseAnnotationSubject(alleleAnno.getDiseaseAnnotationSubject());
 			implicatedDA = alleleDA;
 		}
 		implicatedDA.setRelation(da.getRelation());
-		implicatedDA.setObject(da.getObject());
+		implicatedDA.setDiseaseAnnotationObject(da.getDiseaseAnnotationObject());
 		implicatedDA.setDiseaseQualifiers(da.getDiseaseQualifiers());
 		implicatedDA.setDiseaseQualifiers(da.getDiseaseQualifiers());
 		implicatedDA.setSingleReference(da.getSingleReference());
@@ -327,7 +327,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 					relation = da.getRelation();
 				}
 
-				String key = relation.getName() + "_" + da.getObject().getName() + "_" + da.getNegated();
+				String key = relation.getName() + "_" + da.getDiseaseAnnotationObject().getName() + "_" + da.getNegated();
 				AlleleDiseaseAnnotationDocument adad = lookup.get(key);
 
 				if (adad == null) {
@@ -338,7 +338,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 					adad.setRelation(relation);
 					String generatedRelationString = getGeneratedRelationString(relation.getName(), da.getNegated());
 					adad.setGeneratedRelationString(generatedRelationString);
-					adad.setObject(da.getObject());
+					adad.setObject(da.getDiseaseAnnotationObject());
 					lookup.put(key, adad);
 				}
 				adad.setEvidenceCodes(da.getEvidenceCodes());
@@ -346,7 +346,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 					Set<String> diseaseQualifiers = da.getDiseaseQualifiers().stream().map(term -> term.getName().replace("_", " ")).collect(Collectors.toSet());
 					adad.setDiseaseQualifiers(diseaseQualifiers);
 				}
-				adad.setParentSlimIDs(closureMap.get(da.getObject().getCurie()));
+				adad.setParentSlimIDs(closureMap.get(da.getDiseaseAnnotationObject().getCurie()));
 
 				// gdad.setDataProvider(da.getDataProvider());
 				adad.addReference(da.getSingleReference());
@@ -375,7 +375,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 			HashMap<String, AGMDiseaseAnnotationDocument> lookup = new HashMap<>();
 
 			for (DiseaseAnnotation da : entry.getValue().getRight()) {
-				String key = da.getRelation().getName() + "_" + da.getObject().getName() + "_" + da.getNegated();
+				String key = da.getRelation().getName() + "_" + da.getDiseaseAnnotationObject().getName() + "_" + da.getNegated();
 				AGMDiseaseAnnotationDocument adad = lookup.get(key);
 
 				if (adad == null) {
@@ -384,7 +384,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 					adad.setSpeciesOrder(order);
 					adad.setSubject(entry.getValue().getLeft());
 					adad.setRelation(da.getRelation());
-					adad.setObject(da.getObject());
+					adad.setObject(da.getDiseaseAnnotationObject());
 					lookup.put(key, adad);
 				}
 				adad.setEvidenceCodes(da.getEvidenceCodes());
@@ -407,7 +407,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 	private void addDiseaseAnnotationsToLGlobalMap(List<GeneDiseaseAnnotation> geneDiseaseAnnotations) {
 		log.info("Filtered Genes: " + geneDiseaseAnnotations.size());
 		for (GeneDiseaseAnnotation da : geneDiseaseAnnotations) {
-			Gene gene = da.getSubject();
+			Gene gene = da.getDiseaseAnnotationSubject();
 			Pair<Gene, ArrayList<DiseaseAnnotation>> pair = geneMap.computeIfAbsent(gene.getCurie(), geneCurie -> Pair.of(gene, new ArrayList<>()));
 			pair.getRight().add(da);
 		}
@@ -423,7 +423,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		List<AlleleDiseaseAnnotation> alleleDiseaseAnnotations = alleleService.getFiltered();
 		log.info("Filtered Alleles: " + alleleDiseaseAnnotations.size());
 		for (AlleleDiseaseAnnotation da : alleleDiseaseAnnotations) {
-			Allele allele = da.getSubject();
+			Allele allele = da.getDiseaseAnnotationSubject();
 			Pair<Allele, ArrayList<DiseaseAnnotation>> allelePair = alleleMap.computeIfAbsent(allele.getCurie(), alleleCurie -> Pair.of(allele, new ArrayList<>()));
 			allelePair.getRight().add(da);
 
@@ -458,7 +458,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		log.info("Filtered AGMs: " + agmDiseaseAnnotations.size());
 
 		for (AGMDiseaseAnnotation da : agmDiseaseAnnotations) {
-			AffectedGenomicModel genomicModel = da.getSubject();
+			AffectedGenomicModel genomicModel = da.getDiseaseAnnotationSubject();
 			Pair<AffectedGenomicModel, ArrayList<DiseaseAnnotation>> allelePair = agmMap.computeIfAbsent(genomicModel.getCurie(), agmCurie -> Pair.of(genomicModel, new ArrayList<>()));
 			allelePair.getRight().add(da);
 
