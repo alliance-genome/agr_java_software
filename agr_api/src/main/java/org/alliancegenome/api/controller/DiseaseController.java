@@ -104,21 +104,27 @@ public class DiseaseController implements DiseaseRESTInterface {
 	}
 
 	@Override
-	public JsonResultResponse<AlleleDiseaseAnnotationDocument> getDiseaseAnnotationsByAllele(String id, Integer limit, Integer page, String sortBy, String geneName, String alleleName, String species, String disease, String source, String reference, String evidenceCode, String associationType, String asc) {
+	public JsonResultResponse<AlleleDiseaseAnnotationDocument> getDiseaseAnnotationsByAllele(String id, Integer limit, Integer page, String sortBy, String geneName, String alleleName, String diseaseName, String species, String disease, String source, String reference, String evidenceCode, String associationType, String asc) {
 		long startTime = System.currentTimeMillis();
 		// The @DefaultValue only kicks in if the value is null.
 		// need to handle an empty value manually here.
 		if (sortBy.trim().isEmpty())
 			sortBy = SortingField.DISEASE_ALLELE_DEFAULT.toString();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
-		pagination.addFieldFilter(FieldFilter.GENE_NAME, geneName);
-		pagination.addFieldFilter(FieldFilter.ALLELE, alleleName);
-		pagination.addFieldFilter(FieldFilter.SPECIES, species);
-		pagination.addFieldFilter(FieldFilter.DISEASE, disease);
-		pagination.addFieldFilter(FieldFilter.SOURCE, source);
-		pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
-		pagination.addFieldFilter(FieldFilter.EVIDENCE_CODE, evidenceCode);
-		pagination.addFieldFilter(FieldFilter.ASSOCIATION_TYPE, associationType);
+		pagination.addFilterOption("subject.taxon.name.keyword", species);
+		pagination.addFilterOption("subject.alleleSymbol.displayText", alleleName);
+		pagination.addFilterOption("subject.taxon.name.keyword", species);
+		pagination.addFilterOption("evidenceCodes.abbreviation", evidenceCode);
+		pagination.addFilterOption("generatedRelationString.keyword", associationType);
+//		pagination.addFilterOption("diseaseQualifiers.keyword", diseaseQualifier);
+		pagination.addFilterOption("pubmedPubModIDs", reference);
+		pagination.addFilterOption("primaryAnnotations.dataProvider.sourceOrganization.abbreviation", source);
+		pagination.addFilterOption("object.name", diseaseName);
+/*
+		if (StringUtils.isNotEmpty(geneID)) {
+			pagination.addFilterOption("subject.curie", geneID);
+		}
+*/
 		if (pagination.hasErrors()) {
 			RestErrorMessage message = new RestErrorMessage();
 			message.setErrors(pagination.getErrors());
@@ -139,7 +145,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 
 	@Override
 	public Response getDiseaseAnnotationsByAlleleDownload(String id, String sortBy, String geneName, String alleleName, String species, String disease, String source, String reference, String evidenceCode, String associationType, String asc) {
-		JsonResultResponse<AlleleDiseaseAnnotationDocument> response = getDiseaseAnnotationsByAllele(id, Integer.MAX_VALUE, null, sortBy, geneName, alleleName, species, disease, source, reference, evidenceCode, associationType, asc);
+		JsonResultResponse<AlleleDiseaseAnnotationDocument> response = getDiseaseAnnotationsByAllele(id, Integer.MAX_VALUE, null, sortBy, geneName, alleleName, disease,species, disease, source, reference, evidenceCode, associationType, asc);
 //		Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRowsForAllele(response.getResults());
 
 //		APIServiceHelper.setDownloadHeader(id, EntityType.DISEASE, EntityType.ALLELE, responseBuilder);

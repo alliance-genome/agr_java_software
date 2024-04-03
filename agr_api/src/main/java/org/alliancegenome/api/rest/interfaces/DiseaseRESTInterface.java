@@ -126,6 +126,8 @@ public interface DiseaseRESTInterface {
 			@QueryParam("filter.geneName") String geneName,
 			@Parameter(in = ParameterIn.QUERY, name = "filter.alleleName", description = "filter by allele symbol", schema = @Schema(type = SchemaType.STRING))
 			@QueryParam("filter.alleleName") String alleleName,
+			@Parameter(in = ParameterIn.QUERY, name = "filter.disease", description = "Ontology term name", schema = @Schema(type = SchemaType.STRING))
+			@QueryParam("filter.disease") String diseaseTerm,
 			@Parameter(in = ParameterIn.QUERY, name = "filter.species", description = "filter by species", schema = @Schema(type = SchemaType.STRING))
 			@QueryParam("filter.species") String species,
 			@Parameter(in = ParameterIn.QUERY, name = "filter.disease", description = "filter by disease", schema = @Schema(type = SchemaType.STRING))
