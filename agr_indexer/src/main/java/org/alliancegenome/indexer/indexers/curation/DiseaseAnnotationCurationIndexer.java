@@ -330,11 +330,12 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 				String key = relation.getName() + "_" + da.getDiseaseAnnotationObject().getName() + "_" + da.getNegated();
 				AlleleDiseaseAnnotationDocument adad = lookup.get(key);
 
+				Allele allele = entry.getValue().getLeft();
 				if (adad == null) {
 					adad = new AlleleDiseaseAnnotationDocument();
-					HashMap<String, Integer> order = SpeciesType.getSpeciesOrderByTaxonID(entry.getValue().getLeft().getTaxon().getCurie());
+					HashMap<String, Integer> order = SpeciesType.getSpeciesOrderByTaxonID(allele.getTaxon().getCurie());
 					adad.setSpeciesOrder(order);
-					adad.setSubject(entry.getValue().getLeft());
+					adad.setSubject(allele);
 					adad.setRelation(relation);
 					String generatedRelationString = getGeneratedRelationString(relation.getName(), da.getNegated());
 					adad.setGeneratedRelationString(generatedRelationString);
@@ -354,6 +355,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 				if (da instanceof AlleleDiseaseAnnotation || da instanceof AGMDiseaseAnnotation) {
 					adad.addPrimaryAnnotation(da);
 				}
+				adad.setPhylogeneticSortingIndex(getPhylogeneticSortOrder(allele.getTaxon().getCurie()));
 
 			}
 			ph.progressProcess();
