@@ -104,7 +104,20 @@ public class DiseaseController implements DiseaseRESTInterface {
 	}
 
 	@Override
-	public JsonResultResponse<AlleleDiseaseAnnotationDocument> getDiseaseAnnotationsByAllele(String id, Integer limit, Integer page, String sortBy, String geneName, String alleleName, String diseaseName, String species, String disease, String source, String reference, String evidenceCode, String associationType, String asc) {
+	public JsonResultResponse<AlleleDiseaseAnnotationDocument> getDiseaseAnnotationsByAllele(String id,
+																							 Integer limit,
+																							 Integer page,
+																							 String sortBy,
+																							 String geneName,
+																							 String alleleName,
+																							 String diseaseName,
+																							 String species,
+																							 String disease,
+																							 String dataProvider,
+																							 String reference,
+																							 String evidenceCode,
+																							 String associationType,
+																							 String asc) {
 		long startTime = System.currentTimeMillis();
 		// The @DefaultValue only kicks in if the value is null.
 		// need to handle an empty value manually here.
@@ -118,7 +131,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 		pagination.addFilterOption("generatedRelationString.keyword", associationType);
 //		pagination.addFilterOption("diseaseQualifiers.keyword", diseaseQualifier);
 		pagination.addFilterOption("pubmedPubModIDs", reference);
-		pagination.addFilterOption("primaryAnnotations.dataProvider.sourceOrganization.abbreviation", source);
+		pagination.addFilterOption("primaryAnnotations.dataProvider.sourceOrganization.abbreviation", dataProvider);
 		pagination.addFilterOption("object.name", diseaseName);
 /*
 		if (StringUtils.isNotEmpty(geneID)) {
