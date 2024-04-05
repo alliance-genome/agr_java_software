@@ -117,6 +117,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 																							 String reference,
 																							 String evidenceCode,
 																							 String associationType,
+																							 String diseaseQualifier,
 																							 String asc) {
 		long startTime = System.currentTimeMillis();
 		// The @DefaultValue only kicks in if the value is null.
@@ -129,7 +130,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 		pagination.addFilterOption("subject.taxon.name.keyword", species);
 		pagination.addFilterOption("evidenceCodes.abbreviation", evidenceCode);
 		pagination.addFilterOption("generatedRelationString.keyword", associationType);
-//		pagination.addFilterOption("diseaseQualifiers.keyword", diseaseQualifier);
+		pagination.addFilterOption("diseaseQualifiers.keyword", diseaseQualifier);
 		pagination.addFilterOption("pubmedPubModIDs", reference);
 		pagination.addFilterOption("primaryAnnotations.dataProvider.sourceOrganization.abbreviation", dataProvider);
 		pagination.addFilterOption("object.name", diseaseName);
@@ -157,8 +158,19 @@ public class DiseaseController implements DiseaseRESTInterface {
 	}
 
 	@Override
-	public Response getDiseaseAnnotationsByAlleleDownload(String id, String sortBy, String geneName, String alleleName, String species, String disease, String source, String reference, String evidenceCode, String associationType, String asc) {
-		JsonResultResponse<AlleleDiseaseAnnotationDocument> response = getDiseaseAnnotationsByAllele(id, Integer.MAX_VALUE, null, sortBy, geneName, alleleName, disease,species, disease, source, reference, evidenceCode, associationType, asc);
+	public Response getDiseaseAnnotationsByAlleleDownload(String id,
+														  String sortBy,
+														  String geneName,
+														  String alleleName,
+														  String species,
+														  String disease,
+														  String source,
+														  String reference,
+														  String evidenceCode,
+														  String associationType,
+														  String diseaseQualifier,
+														  String asc) {
+		JsonResultResponse<AlleleDiseaseAnnotationDocument> response = getDiseaseAnnotationsByAllele(id, Integer.MAX_VALUE, null, sortBy, geneName, alleleName, disease,species, disease, source, reference, evidenceCode, associationType, diseaseQualifier,asc);
 //		Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRowsForAllele(response.getResults());
 
 //		APIServiceHelper.setDownloadHeader(id, EntityType.DISEASE, EntityType.ALLELE, responseBuilder);
