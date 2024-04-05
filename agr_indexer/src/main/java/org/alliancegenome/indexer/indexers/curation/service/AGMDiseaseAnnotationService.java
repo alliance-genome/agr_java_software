@@ -33,12 +33,13 @@ public class AGMDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 		HashMap<String, Object> params = new HashMap<>();
 		params.put("internal", false);
 		params.put("obsolete", false);
+		//params.put("diseaseAnnotationSubject.modEntityId", "ZFIN:ZDB-FISH-221207-4");
 
 		do {
 			SearchResponse<AGMDiseaseAnnotation> response = agmApi.findForPublic(page, batchSize, params);
 
 			for(AGMDiseaseAnnotation da: response.getResults()) {
-				if(isValidEntity(allModelIDs, da.getSubjectCurie())) {
+				if(isValidEntity(allModelIDs, da.getDiseaseAnnotationSubject().getIdentifier())) {
 					if (hasValidEntities(da, allGeneIDs, allAlleleIds, allModelIDs)) {
 						if(da.getInferredGene() != null && da.getInferredGene().getConstructGenomicEntityAssociations() != null) {
 							da.getInferredGene().getConstructGenomicEntityAssociations().clear();

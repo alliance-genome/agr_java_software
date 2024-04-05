@@ -133,7 +133,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 							// allow for grouping by missing based-on genes
 							if (CollectionUtils.isEmpty(genes))
 								return "null";
-							return diseaseAnnotation.getWith().stream().map(Gene::getCurie).sorted().collect(Collectors.joining("_"));
+							return diseaseAnnotation.getWith().stream().map(Gene::getIdentifier).sorted().collect(Collectors.joining("_"));
 						})))));
 
 			groupedByAnnotations.forEach((diseaseTerm, associationTypeMap) -> {
@@ -214,7 +214,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 				}
 
 				if (da.getWith() != null && da.getWith().size() > 0) {
-					key += "_" + da.getWith().stream().map(Gene::getCurie).sorted().collect(Collectors.joining("_"));
+					key += "_" + da.getWith().stream().map(Gene::getIdentifier).sorted().collect(Collectors.joining("_"));
 				}
 
 				GeneDiseaseAnnotationDocument gdad = lookup.get(key);
@@ -408,13 +408,13 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		log.info("Filtered Genes: " + geneDiseaseAnnotations.size());
 		for (GeneDiseaseAnnotation da : geneDiseaseAnnotations) {
 			Gene gene = da.getDiseaseAnnotationSubject();
-			Pair<Gene, ArrayList<DiseaseAnnotation>> pair = geneMap.computeIfAbsent(gene.getCurie(), geneCurie -> Pair.of(gene, new ArrayList<>()));
+			Pair<Gene, ArrayList<DiseaseAnnotation>> pair = geneMap.computeIfAbsent(gene.getIdentifier(), geneCurie -> Pair.of(gene, new ArrayList<>()));
 			pair.getRight().add(da);
 		}
 	}
 
 	private void addCreatedDiseaseAnnotationsImplicatedToMap(DiseaseAnnotation geneDiseaseAnnotations, Gene gene) {
-		Pair<Gene, ArrayList<DiseaseAnnotation>> pair = generatedImplicatedGeneMap.computeIfAbsent(gene.getCurie(), geneCurie -> Pair.of(gene, new ArrayList<>()));
+		Pair<Gene, ArrayList<DiseaseAnnotation>> pair = generatedImplicatedGeneMap.computeIfAbsent(gene.getIdentifier(), geneCurie -> Pair.of(gene, new ArrayList<>()));
 		pair.getRight().add(geneDiseaseAnnotations);
 	}
 
@@ -424,7 +424,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		log.info("Filtered Alleles: " + alleleDiseaseAnnotations.size());
 		for (AlleleDiseaseAnnotation da : alleleDiseaseAnnotations) {
 			Allele allele = da.getDiseaseAnnotationSubject();
-			Pair<Allele, ArrayList<DiseaseAnnotation>> allelePair = alleleMap.computeIfAbsent(allele.getCurie(), alleleCurie -> Pair.of(allele, new ArrayList<>()));
+			Pair<Allele, ArrayList<DiseaseAnnotation>> allelePair = alleleMap.computeIfAbsent(allele.getIdentifier(), alleleCurie -> Pair.of(allele, new ArrayList<>()));
 			allelePair.getRight().add(da);
 
 			Gene inferredGene = da.getInferredGene();
@@ -440,14 +440,14 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 
 	private void extractGeneDiseaseAnnotations(DiseaseAnnotation da, Gene inferredGene) {
 		if (inferredGene != null && !inferredGene.getInternal()) {
-			Pair<Gene, ArrayList<DiseaseAnnotation>> pair = geneMap.computeIfAbsent(inferredGene.getCurie(), k -> Pair.of(inferredGene, new ArrayList<>()));
+			Pair<Gene, ArrayList<DiseaseAnnotation>> pair = geneMap.computeIfAbsent(inferredGene.getIdentifier(), k -> Pair.of(inferredGene, new ArrayList<>()));
 			pair.getRight().add(da);
 		}
 	}
 
 	private void extractAlleleDiseaseAnnotations(DiseaseAnnotation da, Allele inferredAllele) {
 		if (inferredAllele != null && !inferredAllele.getInternal()) {
-			Pair<Allele, ArrayList<DiseaseAnnotation>> pair = alleleMap.computeIfAbsent(inferredAllele.getCurie(), k -> Pair.of(inferredAllele, new ArrayList<>()));
+			Pair<Allele, ArrayList<DiseaseAnnotation>> pair = alleleMap.computeIfAbsent(inferredAllele.getIdentifier(), k -> Pair.of(inferredAllele, new ArrayList<>()));
 			pair.getRight().add(da);
 		}
 	}
@@ -459,7 +459,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 
 		for (AGMDiseaseAnnotation da : agmDiseaseAnnotations) {
 			AffectedGenomicModel genomicModel = da.getDiseaseAnnotationSubject();
-			Pair<AffectedGenomicModel, ArrayList<DiseaseAnnotation>> allelePair = agmMap.computeIfAbsent(genomicModel.getCurie(), agmCurie -> Pair.of(genomicModel, new ArrayList<>()));
+			Pair<AffectedGenomicModel, ArrayList<DiseaseAnnotation>> allelePair = agmMap.computeIfAbsent(genomicModel.getIdentifier(), agmCurie -> Pair.of(genomicModel, new ArrayList<>()));
 			allelePair.getRight().add(da);
 
 			Gene inferredGene = da.getInferredGene();
