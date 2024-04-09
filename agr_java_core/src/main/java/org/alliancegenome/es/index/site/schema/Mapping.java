@@ -5,7 +5,7 @@ import java.io.IOException;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 
 public class Mapping extends Builder {
-	
+
 	public Mapping(Boolean pretty) {
 		super(pretty);
 	}
@@ -76,6 +76,7 @@ public class Mapping extends Builder {
 				.keyword()
 				.keywordAutocomplete()
 				.htmlSmoosh()
+			.sort()
 				.standardBigrams()
 				.build();
 		new FieldBuilder(builder, "nameText", "text").keyword().standardText().build();
@@ -92,9 +93,9 @@ public class Mapping extends Builder {
 				.build();
 		new FieldBuilder(builder, "popularity", "double").build();
 		new FieldBuilder(builder, "primaryKey", "keyword").build();
-		
+
 		new FieldBuilder(builder, "references.crossReferences", "nested").build();
-		
+
 		new FieldBuilder(builder, "sampleIds", "keyword").build();
 		new FieldBuilder(builder, "symbol", "text").analyzer("symbols")
 				.autocomplete()
@@ -118,7 +119,7 @@ public class Mapping extends Builder {
 		new FieldBuilder(builder, "subject.geneSymbol.displayText", "text").keyword().sort().build();
 
 		// speciesOrder will generate properly and it will be of type: long
-		
+
 		// new FieldBuilder(builder, "stage", "text").keyword().build();
 		new FieldBuilder(builder, "strictOrthologySymbols", "text").keyword().autocomplete().build();
 		new FieldBuilder(builder, "summary", "text").build();
@@ -256,7 +257,7 @@ public class Mapping extends Builder {
 			this.synonym = true;
 			return this;
 		}
-		
+
 		public FieldBuilder notIndexed() {
 			this.index = false;
 			return this;
