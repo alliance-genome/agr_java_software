@@ -76,7 +76,6 @@ public class Mapping extends Builder {
 				.keyword()
 				.keywordAutocomplete()
 				.htmlSmoosh()
-			.sort()
 				.standardBigrams()
 				.build();
 		new FieldBuilder(builder, "nameText", "text").keyword().standardText().build();
