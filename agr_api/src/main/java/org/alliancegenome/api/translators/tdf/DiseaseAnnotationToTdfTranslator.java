@@ -198,9 +198,9 @@ public class DiseaseAnnotationToTdfTranslator {
 			row.setGeneticEntityType(pAnnotation.getDiseaseAnnotationSubject().getSubtype().getName());
 			List<org.alliancegenome.curation_api.model.entities.Gene> assertedGenes = pAnnotation.getAssertedGenes();
 			if (CollectionUtils.isNotEmpty(assertedGenes)) {
-				row.setAssertedGeneID(assertedGenes.stream().filter(gene -> !gene.getCurie().equals(subjectCurie))
+				row.setAssertedGeneID(assertedGenes.stream().filter(gene -> !gene.getIdentifier().equals(subjectCurie))
 					.map(SubmittedObject::getIdentifier).collect(Collectors.joining("|")));
-				row.setAssertedGeneName(assertedGenes.stream().filter(gene -> !gene.getCurie().equals(subjectCurie))
+				row.setAssertedGeneName(assertedGenes.stream().filter(gene -> !gene.getIdentifier().equals(subjectCurie))
 					.map(gene -> gene.getGeneSymbol().getDisplayText()).collect(Collectors.joining("|")));
 			}
 
@@ -214,7 +214,7 @@ public class DiseaseAnnotationToTdfTranslator {
 				row.setGeneticEntityID(pAnnotation.getDiseaseAnnotationSubject().getIdentifier());
 				row.setGeneticEntityName(pAnnotation.getDiseaseAnnotationSubject().getGeneSymbol().getDisplayText());
 				if (pAnnotation.getSgdStrainBackground() != null) {
-					row.setStrainBackgroundID(pAnnotation.getSgdStrainBackground().getCurie());
+					row.setStrainBackgroundID(pAnnotation.getSgdStrainBackground().getIdentifier());
 					row.setStrainBackgroundName(pAnnotation.getSgdStrainBackground().getName());
 				}
 				row.setGeneticEntityType("gene");
