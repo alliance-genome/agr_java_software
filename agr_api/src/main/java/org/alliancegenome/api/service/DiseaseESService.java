@@ -119,9 +119,7 @@ public class DiseaseESService {
 
 		if (CollectionUtils.isNotEmpty(entityIDs)) {
 			for (String geneId : entityIDs) {
-				bool2.should(new MatchQueryBuilder("subject.curie.keyword", geneId));
-				bool2.should(new MatchQueryBuilder("subject.modEntityId.keyword", geneId));
-				bool2.should(new MatchQueryBuilder("subject.modInternalId.keyword", geneId));
+				setEntityIdMatcher(geneId, bool2);
 			}
 		}
 		if (excludeNegated) {
@@ -349,7 +347,7 @@ public class DiseaseESService {
 		bool.must(bool2);
 
 		bool.filter(new TermQueryBuilder("category", "gene_disease_annotation"));
-		bool2.should(new MatchQueryBuilder("subject.curie.keyword", geneID));
+		setEntityIdMatcher(geneID, bool2);
 		if (excludeNegatedAnnotation) {
 			bool.must(matchQuery("primaryAnnotations.negated", false));
 		}
@@ -384,6 +382,12 @@ public class DiseaseESService {
 		}
 		ret.setResults(list);
 		return ret;
+	}
+
+	private static void setEntityIdMatcher(String geneID, BoolQueryBuilder bool2) {
+		bool2.should(new MatchQueryBuilder("subject.curie.keyword", geneID));
+		bool2.should(new MatchQueryBuilder("subject.modEntityId.keyword", geneID));
+		bool2.should(new MatchQueryBuilder("subject.modInternalId.keyword", geneID));
 	}
 
 	public JsonResultResponse<GeneDiseaseAnnotationDocument> getDiseaseAnnotationsWithGenes(String diseaseID, Pagination pagination, boolean excludeNegatedAnnotation, boolean debug) {
