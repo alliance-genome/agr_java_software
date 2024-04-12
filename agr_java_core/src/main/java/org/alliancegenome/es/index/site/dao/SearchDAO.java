@@ -108,7 +108,7 @@ public class SearchDAO extends ESDAO {
 		SearchResponse response = null;
 
 		try {
-			response = EsClientFactory.getDefaultEsClient().search(searchRequest, RequestOptions.DEFAULT);
+			response = EsClientFactory.getDefaultEsClient().search(searchRequest, EsClientFactory.LARGE_RESPONSE_REQUEST_OPTIONS);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
