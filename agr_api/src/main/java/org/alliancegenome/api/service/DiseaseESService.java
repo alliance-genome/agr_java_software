@@ -120,6 +120,8 @@ public class DiseaseESService {
 		if (CollectionUtils.isNotEmpty(entityIDs)) {
 			for (String geneId : entityIDs) {
 				bool2.should(new MatchQueryBuilder("subject.curie.keyword", geneId));
+				bool2.should(new MatchQueryBuilder("subject.modEntityId.keyword", geneId));
+				bool2.should(new MatchQueryBuilder("subject.modInternalId.keyword", geneId));
 			}
 		}
 		if (excludeNegated) {
