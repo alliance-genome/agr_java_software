@@ -161,7 +161,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 														boolean fullDownload,
 														String downloadFileType,
 														String asc) {
-		JsonResultResponse<GeneDiseaseAnnotationDocument> response = getDiseaseAnnotationsByGene(id, 150000, page, sortBy, geneName, geneID, species, diseaseName, source, reference, evidenceCode, basedOnGeneSymbol, associationType,diseaseQualifier, asc);
+		JsonResultResponse<GeneDiseaseAnnotationDocument> response = getDiseaseAnnotationsByGene(id, 250000, page, sortBy, geneName, geneID, species, diseaseName, source, reference, evidenceCode, basedOnGeneSymbol, associationType,diseaseQualifier, asc);
 		Response.ResponseBuilder responseBuilder = null;
 		String allRowsForGenes = translator.getAllRowsForAssociatedGenes(response.getResults());
 		if (fullDownload) {
