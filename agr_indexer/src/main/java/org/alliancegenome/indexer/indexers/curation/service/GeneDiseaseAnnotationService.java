@@ -96,7 +96,7 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 */
 		for (String geneID : geneIDs) {
 			List<DiseaseAnnotation> focusDiseaseAnnotations = geneMap.get(geneID).getRight();
-			params.put("subjectGene.curie", geneID);
+			params.put("subjectGene.modEntityId", geneID);
 			SearchResponse<GeneToGeneOrthologyGenerated> response = orthologyApi.find(0, 500, params);
 			for (GeneToGeneOrthologyGenerated geneGeneOrthology : response.getResults()) {
 				Gene orthologousGene = geneGeneOrthology.getObjectGene();
