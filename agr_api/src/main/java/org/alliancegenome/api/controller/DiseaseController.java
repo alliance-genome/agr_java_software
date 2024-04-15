@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
 
 import static org.alliancegenome.api.service.EntityType.DISEASE;
 import static org.alliancegenome.api.service.EntityType.GENE;
+import static org.alliancegenome.neo4j.entity.SpeciesType.YEAST;
 
 @RequestScoped
 public class DiseaseController implements DiseaseRESTInterface {
@@ -161,7 +162,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 														boolean fullDownload,
 														String downloadFileType,
 														String asc) {
-		JsonResultResponse<GeneDiseaseAnnotationDocument> response = getDiseaseAnnotationsByGene(id, 250000, page, sortBy, geneName, geneID, species, diseaseName, source, reference, evidenceCode, basedOnGeneSymbol, associationType,diseaseQualifier, asc);
+		JsonResultResponse<GeneDiseaseAnnotationDocument> response = getDiseaseAnnotationsByGene(id, 250000, page, sortBy, geneName, geneID, species, diseaseName, source, reference, evidenceCode, basedOnGeneSymbol, associationType, diseaseQualifier, asc);
 		Response.ResponseBuilder responseBuilder = null;
 		String allRowsForGenes = translator.getAllRowsForAssociatedGenes(response.getResults());
 		if (fullDownload) {
@@ -218,7 +219,6 @@ public class DiseaseController implements DiseaseRESTInterface {
 		long startTime = System.currentTimeMillis();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
 		pagination.addFilterOption("subject.geneSymbol.displayText", geneName);
-		pagination.addFilterOption("subject.taxon.name.keyword", species);
 		pagination.addFilterOption("evidenceCodes.abbreviation", evidenceCode);
 		pagination.addFilterOption("generatedRelationString.keyword", associationType);
 		pagination.addFilterOption("diseaseQualifiers.keyword", diseaseQualifier);
@@ -229,6 +229,10 @@ public class DiseaseController implements DiseaseRESTInterface {
 		if (StringUtils.isNotEmpty(geneID)) {
 			pagination.addFilterOption("subject.curie", geneID);
 		}
+		if (species != null) {
+			pagination.addFilterOption("subject.taxon.name.keyword", species.equals(YEAST.getName()) ? YEAST.getName() + " S288C" : species);
+		}
+
 
 		if (pagination.hasErrors()) {
 			RestErrorMessage message = new RestErrorMessage();
