@@ -159,9 +159,12 @@ public class DiseaseController implements DiseaseRESTInterface {
 
 	@Override
 	public Response getDiseaseAnnotationsByAlleleDownload(String id,
+														  Integer limit,
+														  Integer page,
 														  String sortBy,
 														  String geneName,
 														  String alleleName,
+														  String diseaseName,
 														  String species,
 														  String disease,
 														  String source,
@@ -169,13 +172,49 @@ public class DiseaseController implements DiseaseRESTInterface {
 														  String evidenceCode,
 														  String associationType,
 														  String diseaseQualifier,
+														  boolean fullDownload,
+														  String downloadFileType,
 														  String asc) {
-		JsonResultResponse<AlleleDiseaseAnnotationDocument> response = getDiseaseAnnotationsByAllele(id, Integer.MAX_VALUE, null, sortBy, geneName, alleleName, disease,species, disease, source, reference, evidenceCode, associationType, diseaseQualifier,asc);
+		JsonResultResponse<AlleleDiseaseAnnotationDocument> response = getDiseaseAnnotationsByAllele(id, 150000, null, sortBy, geneName, alleleName, disease,species, disease, source, reference, evidenceCode, associationType, diseaseQualifier,asc);
+		Response.ResponseBuilder responseBuilder = null;
+		String allRowsForAlleles = translator.getAllRowsForAlleleDiseaseAnnotations(response.getResults());
+		
+		if (fullDownload) {
+			if (downloadFileType == null || downloadFileType.equalsIgnoreCase("tsv")) {
+				String data = FileHelper.getFileContent("templates/all-disease-association-file-header.txt");
+				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+				String dateString = format.format(new Date());
+				data = data.replace("${date}", dateString);
+
+				String taxonIDs = species;
+				if (StringUtils.isEmpty(taxonIDs)) {
+					taxonIDs = SpeciesType.getAllTaxonIDs();
+				}
+				data = data.replace("${taxonIDs}", taxonIDs);
+				data += allRowsForAlleles;
+				responseBuilder = Response.ok(data);
+				APIServiceHelper.setDownloadHeader(id, EntityType.DISEASE, EntityType.ALLELE, responseBuilder);
+			} else if (downloadFileType.equalsIgnoreCase("JSON")) {
+				try {
+					String data = mapper.writerWithView(View.DiseaseAnnotationSummary.class).writeValueAsString(response);
+					responseBuilder = Response.ok(data);
+					APIServiceHelper.setDownloadHeader(id, EntityType.DISEASE, EntityType.ALLELE, responseBuilder);
+				} catch (JsonProcessingException e) {
+					e.printStackTrace();
+				}
+			} else {
+				responseBuilder = Response.ok("The file type [" + downloadFileType + "] is not supported. Please use tsv or JSON");
+				APIServiceHelper.setDownloadHeader(id, EntityType.DISEASE, EntityType.ALLELE, responseBuilder);
+			}
+		} else {
+			responseBuilder = Response.ok(allRowsForAlleles);
+			APIServiceHelper.setDownloadHeader(id, EntityType.DISEASE, EntityType.ALLELE, responseBuilder);
+		}
 //		Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRowsForAllele(response.getResults());
 
 //		APIServiceHelper.setDownloadHeader(id, EntityType.DISEASE, EntityType.ALLELE, responseBuilder);
 //		return responseBuilder.build();
-		return Response.ok().build();
+		return responseBuilder.build();
 	}
 
 	@Override
