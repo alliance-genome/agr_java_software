@@ -181,7 +181,7 @@ public interface DiseaseRESTInterface {
 		@QueryParam("filter.associationType") String associationType,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.diseaseQualifier", description = "diseaseQualifier", schema = @Schema(type = SchemaType.STRING))
 		@QueryParam("filter.diseaseQualifier") String diseaseQualifier,
-        @QueryParam("fullDownload") boolean fullDownload,
+		@QueryParam("fullDownload") boolean fullDownload,
 		//@ApiParam(value = "download file type")
 		@QueryParam("fileType") String downloadFileType,
 		@Parameter(in = ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))
