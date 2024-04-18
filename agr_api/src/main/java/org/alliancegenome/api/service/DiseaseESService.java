@@ -351,6 +351,7 @@ public class DiseaseESService {
 		if (excludeNegatedAnnotation) {
 			bool.must(matchQuery("primaryAnnotations.negated", false));
 		}
+		bool.must(matchQuery("viaOrthologyOrder", 0));
 
 		// create histogram of select columns of unfiltered query
 

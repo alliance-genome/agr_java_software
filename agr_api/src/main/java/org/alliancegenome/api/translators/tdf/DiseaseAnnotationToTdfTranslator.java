@@ -170,26 +170,26 @@ public class DiseaseAnnotationToTdfTranslator {
 	private static void extracted(DiseaseAnnotationDocument annotation, org.alliancegenome.curation_api.model.entities.DiseaseAnnotation primaryAnnotation, DiseaseDownloadRow row) {
 		String subjectTaxonCurie = null;
 		String subjectTaxonName = null;
-		final String subjectCurie;
+		final String subjectID;
 		String subjectSymbol = null;
 		if (annotation instanceof GeneDiseaseAnnotationDocument document) {
 			org.alliancegenome.curation_api.model.entities.Gene subject = document.getSubject();
 			subjectTaxonCurie = subject.getTaxon().getCurie();
 			subjectTaxonName = subject.getTaxon().getName();
-			subjectCurie = subject.getCurie();
+			subjectID = subject.getIdentifier();
 			subjectSymbol = subject.getGeneSymbol().getDisplayText();
 		} else if (annotation instanceof AlleleDiseaseAnnotationDocument document) {
 			org.alliancegenome.curation_api.model.entities.Allele subject = document.getSubject();
 			subjectTaxonCurie = subject.getTaxon().getCurie();
 			subjectTaxonName = subject.getTaxon().getName();
-			subjectCurie = subject.getCurie();
+			subjectID = subject.getIdentifier();
 			subjectSymbol = subject.getAlleleSymbol().getDisplayText();
 		} else {
-			subjectCurie = null;
+			subjectID = null;
 		}
 		row.setSpeciesID(subjectTaxonCurie);
 		row.setSpeciesName(subjectTaxonName);
-		row.setMainEntityID(subjectCurie);
+		row.setMainEntityID(subjectID);
 		row.setMainEntitySymbol(subjectSymbol);
 		// needs better generics or have subject attribute on the parent class (DiseaseAnnotation)
 		if (primaryAnnotation instanceof AGMDiseaseAnnotation pAnnotation) {
@@ -198,15 +198,15 @@ public class DiseaseAnnotationToTdfTranslator {
 			row.setGeneticEntityType(pAnnotation.getDiseaseAnnotationSubject().getSubtype().getName());
 			List<org.alliancegenome.curation_api.model.entities.Gene> assertedGenes = pAnnotation.getAssertedGenes();
 			if (CollectionUtils.isNotEmpty(assertedGenes)) {
-				row.setAssertedGeneID(assertedGenes.stream().filter(gene -> !gene.getIdentifier().equals(subjectCurie))
+				row.setAssertedGeneID(assertedGenes.stream().filter(gene -> !gene.getIdentifier().equals(subjectID))
 					.map(SubmittedObject::getIdentifier).collect(Collectors.joining("|")));
-				row.setAssertedGeneName(assertedGenes.stream().filter(gene -> !gene.getIdentifier().equals(subjectCurie))
+				row.setAssertedGeneName(assertedGenes.stream().filter(gene -> !gene.getIdentifier().equals(subjectID))
 					.map(gene -> gene.getGeneSymbol().getDisplayText()).collect(Collectors.joining("|")));
 			}
 
 		}
 		if (annotation.getGeneratedRelationString().contains("via_orthology")) {
-			row.setGeneticEntityID(subjectCurie);
+			row.setGeneticEntityID(subjectID);
 			row.setGeneticEntityName(subjectSymbol);
 			row.setGeneticEntityType("gene");
 		} else {
