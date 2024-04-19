@@ -147,7 +147,7 @@ public interface DiseaseRESTInterface {
 	@GET
 	@Path("/{id}/alleles/download")
 	@Produces(MediaType.TEXT_PLAIN)
-	@Operation(summary = "downlaod all DiseaseAnnotation records for a given allele id")
+	@Operation(summary = "downlaod all DiseaseAnnotation records for a given disease id")
 	Response getDiseaseAnnotationsByAlleleDownload(
 			@Parameter(in = ParameterIn.PATH, name = "id", description = "Search for a allele by ID", required = true, schema = @Schema(type = SchemaType.STRING))
 			@PathParam("id") String id,
@@ -178,6 +178,12 @@ public interface DiseaseRESTInterface {
 	@GET
 	@Path("/{id}/genes")
 	@Operation(summary = "Retrieve all DiseaseAnnotation records for a given disease id")
+	@APIResponses(
+			value = {
+					@APIResponse(
+							responseCode = "200",
+							content = @Content(mediaType = "application/json",
+									schema = @Schema(implementation = Null.class))) })
 	JsonResultResponse<GeneDiseaseAnnotationDocument> getDiseaseAnnotationsByGene(
 			@Parameter(in = ParameterIn.PATH, name = "id", description = "Search for a disease by ID", required = true, schema = @Schema(type = SchemaType.STRING))
 			@PathParam("id") String id,
