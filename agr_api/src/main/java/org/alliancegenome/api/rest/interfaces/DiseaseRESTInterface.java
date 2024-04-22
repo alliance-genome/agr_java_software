@@ -149,7 +149,7 @@ public interface DiseaseRESTInterface {
 	@Produces(MediaType.TEXT_PLAIN)
 	@Operation(summary = "downlaod all DiseaseAnnotation records for a given disease id")
 	Response getDiseaseAnnotationsByAlleleDownload(
-			@Parameter(in = ParameterIn.PATH, name = "id", description = "Search for a allele by ID", required = true, schema = @Schema(type = SchemaType.STRING))
+			@Parameter(in = ParameterIn.PATH, name = "id", description = "Search for a disease by ID", required = true, schema = @Schema(type = SchemaType.STRING))
 			@PathParam("id") String id,
 			@Parameter(in = ParameterIn.QUERY, name = "sortBy", description = "Field name by which to sort", schema = @Schema(type = SchemaType.STRING))
 			@DefaultValue("diseaseAlleleDefault") @QueryParam("sortBy") String sortBy,
