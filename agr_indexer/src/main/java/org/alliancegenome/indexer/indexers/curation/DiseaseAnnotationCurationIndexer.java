@@ -328,6 +328,10 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 				}
 
 				String key = relation.getName() + "_" + da.getDiseaseAnnotationObject().getName() + "_" + da.getNegated();
+				if (da.getDiseaseQualifiers() != null) {
+					key += "_" + da.getDiseaseQualifiers().stream().map(VocabularyTerm::getName).sorted().collect(Collectors.joining("_"));
+				}
+
 				AlleleDiseaseAnnotationDocument adad = lookup.get(key);
 
 				Allele allele = entry.getValue().getLeft();

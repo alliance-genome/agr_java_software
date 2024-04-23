@@ -33,7 +33,7 @@ public class AlleleDiseaseAnnotationService extends BaseDiseaseAnnotationService
 		HashMap<String, Object> params = new HashMap<>();
 		params.put("internal", false);
 		params.put("obsolete", false);
-		//params.put("diseaseAnnotationSubject.curie", "MGI:1930937");
+		//params.put("diseaseAnnotationSubject.modEntityId", "RGD:5144089");
 
 		do {
 			SearchResponse<AlleleDiseaseAnnotation> response = alleleApi.findForPublic(page, batchSize, params);
