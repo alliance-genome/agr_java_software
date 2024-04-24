@@ -382,20 +382,30 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 
 			for (DiseaseAnnotation da : entry.getValue().getRight()) {
 				String key = da.getRelation().getName() + "_" + da.getDiseaseAnnotationObject().getName() + "_" + da.getNegated();
+				if (da.getDiseaseQualifiers() != null) {
+					key += "_" + da.getDiseaseQualifiers().stream().map(VocabularyTerm::getName).sorted().collect(Collectors.joining("_"));
+				}
 				AGMDiseaseAnnotationDocument adad = lookup.get(key);
+				AffectedGenomicModel model = entry.getValue().getLeft();
 
 				if (adad == null) {
 					adad = new AGMDiseaseAnnotationDocument();
-					HashMap<String, Integer> order = SpeciesType.getSpeciesOrderByTaxonID(entry.getValue().getLeft().getTaxon().getCurie());
+					HashMap<String, Integer> order = SpeciesType.getSpeciesOrderByTaxonID(model.getTaxon().getCurie());
 					adad.setSpeciesOrder(order);
-					adad.setSubject(entry.getValue().getLeft());
+					adad.setSubject(model);
 					adad.setRelation(da.getRelation());
 					adad.setObject(da.getDiseaseAnnotationObject());
 					lookup.put(key, adad);
 				}
 				adad.setEvidenceCodes(da.getEvidenceCodes());
+				if (CollectionUtils.isNotEmpty(da.getDiseaseQualifiers())) {
+					Set<String> diseaseQualifiers = da.getDiseaseQualifiers().stream().map(term -> term.getName().replace("_", " ")).collect(Collectors.toSet());
+					adad.setDiseaseQualifiers(diseaseQualifiers);
+				}
+				adad.setParentSlimIDs(closureMap.get(da.getDiseaseAnnotationObject().getCurie()));
 				// gdad.setDataProvider(da.getDataProvider());
 				adad.addReference(da.getSingleReference());
+				adad.setPhylogeneticSortingIndex(getPhylogeneticSortOrder(model.getTaxon().getCurie()));
 			}
 			ph.progressProcess();
 			ret.addAll(lookup.values());

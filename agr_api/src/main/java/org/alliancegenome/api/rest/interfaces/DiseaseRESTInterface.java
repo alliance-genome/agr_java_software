@@ -2,6 +2,7 @@ package org.alliancegenome.api.rest.interfaces;
 
 import java.util.List;
 
+import org.alliancegenome.api.entity.AGMDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
@@ -274,7 +275,7 @@ public interface DiseaseRESTInterface {
 	@Path("/{id}/models")
 	@JsonView(value = {View.DiseaseAnnotationSummary.class})
 	@Operation(summary = "Retrieve all DiseaseAnnotation records for a given disease id")
-	JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotationsForModel(
+	JsonResultResponse<AGMDiseaseAnnotationDocument> getDiseaseAnnotationsForModel(
 			@Parameter(in = ParameterIn.PATH, name = "id", description = "Search for a disease by ID", required = true, schema = @Schema(type = SchemaType.STRING))
 			@PathParam("id") String id,
 			@Parameter(in = ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
