@@ -339,17 +339,19 @@ public class DiseaseController implements DiseaseRESTInterface {
 																						  String reference,
 																						  String evidenceCode,
 																						  String associationType,
+																						  String diseaseQualifier,
 																						  String asc) {
 		long startTime = System.currentTimeMillis();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
-		pagination.addFieldFilter(FieldFilter.GENE_NAME, geneName);
-		pagination.addFieldFilter(FieldFilter.SPECIES, species);
-		pagination.addFieldFilter(FieldFilter.DISEASE, disease);
-		pagination.addFieldFilter(FieldFilter.SOURCE, source);
-		pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
-		pagination.addFieldFilter(FieldFilter.EVIDENCE_CODE, evidenceCode);
-		pagination.addFieldFilter(FieldFilter.MODEL_NAME, modelName);
-		pagination.addFieldFilter(FieldFilter.ASSOCIATION_TYPE, associationType);
+		pagination.addFilterOption("subject.name", modelName);
+		pagination.addFilterOption("subject.taxon.name.keyword", species);
+		pagination.addFilterOption("evidenceCodes.abbreviation", evidenceCode);
+		pagination.addFilterOption("generatedRelationString.keyword", associationType);
+		pagination.addFilterOption("diseaseQualifiers.keyword", diseaseQualifier);
+		pagination.addFilterOption("pubmedPubModIDs", reference);
+		pagination.addFilterOption("primaryAnnotations.dataProvider.sourceOrganization.abbreviation", source);
+		pagination.addFilterOption("object.name", disease);
+
 		if (pagination.hasErrors()) {
 			RestErrorMessage message = new RestErrorMessage();
 			message.setErrors(pagination.getErrors());
@@ -370,8 +372,8 @@ public class DiseaseController implements DiseaseRESTInterface {
 	}
 
 	@Override
-	public Response getDiseaseAnnotationsForModelDownload(String id, String sortBy, String modelName, String geneName, String species, String disease, String source, String reference, String evidenceCode, String associationType, String asc) {
-		JsonResultResponse<AGMDiseaseAnnotationDocument> response = getDiseaseAnnotationsForModel(id, Integer.MAX_VALUE, null, sortBy, modelName, geneName, species, disease, source, reference, evidenceCode, associationType, asc);
+	public Response getDiseaseAnnotationsForModelDownload(String id, String sortBy, String modelName, String geneName, String species, String disease, String source, String reference, String evidenceCode, String associationType,String diseaseQualifier, String asc) {
+		JsonResultResponse<AGMDiseaseAnnotationDocument> response = getDiseaseAnnotationsForModel(id, Integer.MAX_VALUE, null, sortBy, modelName, geneName, species, disease, source, reference, evidenceCode, associationType,diseaseQualifier, asc);
 ////		Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRowsForModel(response.getResults()));
 /*
 		APIServiceHelper.setDownloadHeader(id, EntityType.DISEASE, EntityType.MODEL, responseBuilder);

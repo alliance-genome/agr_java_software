@@ -305,6 +305,9 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 	private String getGeneratedRelationString(String relation, Boolean negated) {
 		if (!negated)
 			return relation;
+		if (relation.equals("is_model_of")) {
+			return "does_not_model";
+		}
 		return relation.replaceFirst("_", "_not_");
 	}
 
@@ -394,6 +397,8 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 					adad.setSpeciesOrder(order);
 					adad.setSubject(model);
 					adad.setRelation(da.getRelation());
+					String generatedRelationString = getGeneratedRelationString(da.getRelation().getName(), da.getNegated());
+					adad.setGeneratedRelationString(generatedRelationString);
 					adad.setObject(da.getDiseaseAnnotationObject());
 					lookup.put(key, adad);
 				}
@@ -405,6 +410,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 				adad.setParentSlimIDs(closureMap.get(da.getDiseaseAnnotationObject().getCurie()));
 				// gdad.setDataProvider(da.getDataProvider());
 				adad.addReference(da.getSingleReference());
+				adad.addPubMedPubModID(getPubmedPubModID(da.getSingleReference()));
 				adad.setPhylogeneticSortingIndex(getPhylogeneticSortOrder(model.getTaxon().getCurie()));
 			}
 			ph.progressProcess();

@@ -291,14 +291,16 @@ public interface DiseaseRESTInterface {
 			@QueryParam("filter.species") String species,
 			@Parameter(in = ParameterIn.QUERY, name = "filter.disease", description = "filter by disease", schema = @Schema(type = SchemaType.STRING))
 			@QueryParam("filter.disease") String disease,
-			@Parameter(in = ParameterIn.QUERY, name = "filter.source", description = "filter by source", schema = @Schema(type = SchemaType.STRING))
-			@QueryParam("filter.source") String source,
+			@Parameter(in = ParameterIn.QUERY, name = "filter.dataProvider", description = "filter by source", schema = @Schema(type = SchemaType.STRING))
+			@QueryParam("filter.dataProvider") String source,
 			@Parameter(in = ParameterIn.QUERY, name = "filter.reference", description = "filter by reference", schema = @Schema(type = SchemaType.STRING))
 			@QueryParam("filter.reference") String reference,
 			@Parameter(in = ParameterIn.QUERY, name = "filter.evidenceCode", description = "filter by evidence code", schema = @Schema(type = SchemaType.STRING))
 			@QueryParam("filter.evidenceCode") String evidenceCode,
 			@Parameter(in = ParameterIn.QUERY, name = "filter.associationType", description = "filter by association type", schema = @Schema(type = SchemaType.STRING))
 			@QueryParam("filter.associationType") String associationType,
+			@Parameter(in = ParameterIn.QUERY, name = "filter.diseaseQualifier", description = "diseaseQualifier", schema = @Schema(type = SchemaType.STRING))
+			@QueryParam("filter.diseaseQualifier") String diseaseQualifier,
 			@Parameter(in = ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))
 //,allowedValues = "true,false")
 			@DefaultValue("true")
@@ -330,6 +332,8 @@ public interface DiseaseRESTInterface {
 			@QueryParam("filter.evidenceCode") String evidenceCode,
 			@Parameter(in = ParameterIn.QUERY, name = "filter.associationType", description = "filter by association type", schema = @Schema(type = SchemaType.STRING))
 			@QueryParam("filter.associationType") String associationType,
+			@Parameter(in = ParameterIn.QUERY, name = "filter.diseaseQualifier", description = "diseaseQualifier", schema = @Schema(type = SchemaType.STRING))
+			@QueryParam("filter.diseaseQualifier") String diseaseQualifier,
 			@Parameter(in = ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))
 //,allowedValues = "true,false")
 			@DefaultValue("true")
