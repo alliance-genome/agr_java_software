@@ -273,7 +273,6 @@ public interface DiseaseRESTInterface {
 
 	@GET
 	@Path("/{id}/models")
-	@JsonView(value = {View.DiseaseAnnotationSummary.class})
 	@Operation(summary = "Retrieve all DiseaseAnnotation records for a given disease id")
 	JsonResultResponse<AGMDiseaseAnnotationDocument> getDiseaseAnnotationsForModel(
 			@Parameter(in = ParameterIn.PATH, name = "id", description = "Search for a disease by ID", required = true, schema = @Schema(type = SchemaType.STRING))
