@@ -1,5 +1,6 @@
 package org.alliancegenome.api.translators.tdf;
 
+import org.alliancegenome.api.entity.AGMDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.DiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
@@ -423,9 +424,9 @@ public class DiseaseAnnotationToTdfTranslator {
 		return row;
 	}
 
-	public String getAllRowsForModel(List<DiseaseAnnotation> diseaseAnnotations) {
+	public String getAllRowsForModel(List<AGMDiseaseAnnotationDocument> diseaseAnnotations) {
 
-		List<DiseaseDownloadRow> list = getDiseaseModelDownloadRows(diseaseAnnotations);
+		List<DiseaseDownloadRow> list = getDownloadRowsFromGeneDiseaseAnnotations(diseaseAnnotations);
 
 		List<DownloadHeader> headers = List.of(
 			new DownloadHeader<>("Model ID", (DiseaseDownloadRow::getMainEntityID)),

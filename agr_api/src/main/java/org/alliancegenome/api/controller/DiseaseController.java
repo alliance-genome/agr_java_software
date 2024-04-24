@@ -373,13 +373,10 @@ public class DiseaseController implements DiseaseRESTInterface {
 
 	@Override
 	public Response getDiseaseAnnotationsForModelDownload(String id, String sortBy, String modelName, String geneName, String species, String disease, String source, String reference, String evidenceCode, String associationType,String diseaseQualifier, String asc) {
-		JsonResultResponse<AGMDiseaseAnnotationDocument> response = getDiseaseAnnotationsForModel(id, Integer.MAX_VALUE, null, sortBy, modelName, geneName, species, disease, source, reference, evidenceCode, associationType,diseaseQualifier, asc);
-////		Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRowsForModel(response.getResults()));
-/*
+		JsonResultResponse<AGMDiseaseAnnotationDocument> response = getDiseaseAnnotationsForModel(id, 20_000, null, sortBy, modelName, geneName, species, disease, source, reference, evidenceCode, associationType,diseaseQualifier, asc);
+		Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRowsForModel(response.getResults()));
 		APIServiceHelper.setDownloadHeader(id, EntityType.DISEASE, EntityType.MODEL, responseBuilder);
 		return responseBuilder.build();
-*/
-		return null;
 	}
 
 	@Override

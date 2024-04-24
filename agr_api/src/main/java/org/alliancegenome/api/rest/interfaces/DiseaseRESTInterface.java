@@ -325,7 +325,7 @@ public interface DiseaseRESTInterface {
 			@Parameter(in = ParameterIn.QUERY, name = "filter.disease", description = "filter by disease", schema = @Schema(type = SchemaType.STRING))
 			@QueryParam("filter.disease") String disease,
 			@Parameter(in = ParameterIn.QUERY, name = "filter.source", description = "filter by source", schema = @Schema(type = SchemaType.STRING))
-			@QueryParam("filter.source") String source,
+			@QueryParam("filter.dataProvider") String source,
 			@Parameter(in = ParameterIn.QUERY, name = "filter.reference", description = "filter by reference", schema = @Schema(type = SchemaType.STRING))
 			@QueryParam("filter.reference") String reference,
 			@Parameter(in = ParameterIn.QUERY, name = "filter.evidenceCode", description = "filter by evidence code", schema = @Schema(type = SchemaType.STRING))
