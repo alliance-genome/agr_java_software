@@ -1,21 +1,8 @@
 package org.alliancegenome.api.tests.integration;
 
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.alliancegenome.api.controller.DiseaseController;
 import org.alliancegenome.api.entity.AGMDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
@@ -30,11 +17,7 @@ import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.DiseaseSummary;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
-import org.alliancegenome.neo4j.entity.node.DOTerm;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.GeneticEntity;
-import org.alliancegenome.neo4j.entity.node.Publication;
-import org.alliancegenome.neo4j.entity.node.Synonym;
+import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.alliancegenome.neo4j.view.OrthologyModule;
 import org.apache.commons.collections.CollectionUtils;
@@ -43,9 +26,13 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 
 public class DiseaseIT {
 
@@ -214,7 +201,8 @@ public class DiseaseIT {
 		String geneID = "ZFIN:ZDB-GENE-030219-1";
 		JsonResultResponse<PrimaryAnnotatedEntity> response = diseaseService.getDiseaseAnnotationsWithGeneAndAGM(geneID, pagination);
 		assertLimitResponse(response, 1, 1);
-		assertThat(response.getResults().get(0).getDiseaseModels().stream().map(diseaseModel -> diseaseModel.getDisease().getName()).collect(Collectors.joining()), equalTo("anxiety disorder"));		 assertThat(response.getResults().get(0).getId(), equalTo("ZFIN:ZDB-FISH-160331-6"));
+		assertThat(response.getResults().get(0).getDiseaseModels().stream().map(diseaseModel -> diseaseModel.getDisease().getName()).collect(Collectors.joining()), equalTo("anxiety disorder"));
+		assertThat(response.getResults().get(0).getId(), equalTo("ZFIN:ZDB-FISH-160331-6"));
 	}
 
 	@Test
@@ -233,8 +221,8 @@ public class DiseaseIT {
 		assertLimitResponse(response, 16, 16);
 
 		response.getResults().stream()
-				.filter(annotation -> annotation.getGene().getPrimaryKey().equals("HGNC:869"))
-				.forEach(diseaseAnnotation -> assertThat(4, greaterThanOrEqualTo(diseaseAnnotation.getOrthologyGenes().size())));
+			.filter(annotation -> annotation.getGene().getPrimaryKey().equals("HGNC:869"))
+			.forEach(diseaseAnnotation -> assertThat(4, greaterThanOrEqualTo(diseaseAnnotation.getOrthologyGenes().size())));
 	}
 
 	@Test
@@ -271,39 +259,39 @@ public class DiseaseIT {
 		List<String> lines = Arrays.asList(output.split("\n"));
 		assertNotNull(lines);
 		String result = "Species ID\tSpecies Name\tGene ID\tGene Symbol\tGenetic Entity ID\tGenetic Entity Name\tGenetic Entity Type\tAssociation\tDisease ID\tDisease Name\tEvidence Code\tEvidence Code Name\tBased On ID\tBased On Name\tSource\tReference\n" +
-				"NCBITaxon:9606\tHomo sapiens\tHGNC:3686\tFGF8\tHGNC:3686\t\tgene\tis_marker_for\tDOID:3594\tchoriocarcinoma\tECO:0000270\texpression pattern evidence used in manual assertion\t\t\tRGD\tPMID:11764380\n" +
-				"NCBITaxon:9606\tHomo sapiens\tHGNC:5466\tIGF2\tHGNC:5466\t\tgene\tis_implicated_in\tDOID:3594\tchoriocarcinoma\tECO:0000314\tdirect assay evidence used in manual assertion\t\t\tRGD\tPMID:17556377\n" +
-				"NCBITaxon:9606\tHomo sapiens\tHGNC:6091\tINSR\tHGNC:6091\t\tgene\tis_implicated_in\tDOID:3594\tchoriocarcinoma\tECO:0000314\tdirect assay evidence used in manual assertion\t\t\tRGD\tPMID:17556377\n" +
-				"NCBITaxon:9606\tHomo sapiens\tHGNC:8800\tPDGFB\tHGNC:8800\t\tgene\tis_marker_for\tDOID:3594\tchoriocarcinoma\tECO:0000270\texpression pattern evidence used in manual assertion\t\t\tRGD\tPMID:8504434\n" +
-				"NCBITaxon:9606\tHomo sapiens\tHGNC:8804\tPDGFRB\tHGNC:8804\t\tgene\tis_marker_for\tDOID:3594\tchoriocarcinoma\tECO:0000270\texpression pattern evidence used in manual assertion\t\t\tRGD\tPMID:8504434\n" +
-				"NCBITaxon:9606\tHomo sapiens\tHGNC:11822\tTIMP3\tHGNC:11822\t\tgene\tis_marker_for\tDOID:3594\tchoriocarcinoma\tECO:0000270\texpression pattern evidence used in manual assertion\t\t\tRGD\tPMID:15507671\n" +
-				"NCBITaxon:10116\tRattus norvegicus\tRGD:70891\tFgf8\tRGD:70891\t\tgene\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:3686\tFGF8\tAlliance\tMGI:6194238\n" +
-				"NCBITaxon:10116\tRattus norvegicus\tRGD:2870\tIgf2\tRGD:2870\t\tgene\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:5466\tIGF2\tAlliance\tMGI:6194238\n" +
-				"NCBITaxon:10116\tRattus norvegicus\tRGD:2917\tInsr\tRGD:2917\t\tgene\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:6091\tINSR\tAlliance\tMGI:6194238\n" +
-				"NCBITaxon:10116\tRattus norvegicus\tRGD:3283\tPdgfb\tRGD:3283\t\tgene\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:8800\tPDGFB\tAlliance\tMGI:6194238\n" +
-				"NCBITaxon:10116\tRattus norvegicus\tRGD:3285\tPdgfrb\tRGD:3285\t\tgene\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:8804\tPDGFRB\tAlliance\tMGI:6194238\n" +
-				"NCBITaxon:10116\tRattus norvegicus\tRGD:3865\tTimp3\tRGD:3865\t\tgene\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:11822\tTIMP3\tAlliance\tMGI:6194238\n" +
-				"NCBITaxon:10090\tMus musculus\tMGI:99604\tFgf8\tMGI:99604\t\tgene\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:3686\tFGF8\tAlliance\tMGI:6194238\n" +
-				"NCBITaxon:10090\tMus musculus\tMGI:96434\tIgf2\tMGI:96434\t\tgene\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:5466\tIGF2\tAlliance\tMGI:6194238\n" +
-				"NCBITaxon:10090\tMus musculus\tMGI:96575\tInsr\tMGI:96575\t\tgene\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:6091\tINSR\tAlliance\tMGI:6194238\n" +
-				"NCBITaxon:10090\tMus musculus\tMGI:97528\tPdgfb\tMGI:97528\t\tgene\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:8800\tPDGFB\tAlliance\tMGI:6194238\n" +
-				"NCBITaxon:10090\tMus musculus\tMGI:97531\tPdgfrb\tMGI:97531\t\tgene\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:8804\tPDGFRB\tAlliance\tMGI:6194238\n" +
-				"NCBITaxon:10090\tMus musculus\tMGI:98754\tTimp3\tMGI:98754\t\tgene\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:11822\tTIMP3\tAlliance\tMGI:6194238\n" +
-				"NCBITaxon:7955\tDanio rerio\tZFIN:ZDB-GENE-990415-72\tfgf8a\tZFIN:ZDB-GENE-990415-72\t\tgene\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:3686\tFGF8\tAlliance\tMGI:6194238\n" +
-				"NCBITaxon:7955\tDanio rerio\tZFIN:ZDB-GENE-010122-1\tfgf8b\tZFIN:ZDB-GENE-010122-1\t\tgene\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:3686\tFGF8\tAlliance\tMGI:6194238\n" +
-				"NCBITaxon:7955\tDanio rerio\tZFIN:ZDB-GENE-991111-3\tigf2a\tZFIN:ZDB-GENE-991111-3\t\tgene\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:5466\tIGF2\tAlliance\tMGI:6194238\n" +
-				"NCBITaxon:7955\tDanio rerio\tZFIN:ZDB-GENE-030131-2935\tigf2b\tZFIN:ZDB-GENE-030131-2935\t\tgene\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:5466\tIGF2\tAlliance\tMGI:6194238\n" +
-				"NCBITaxon:7955\tDanio rerio\tZFIN:ZDB-GENE-020503-3\tinsra\tZFIN:ZDB-GENE-020503-3\t\tgene\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:6091\tINSR\tAlliance\tMGI:6194238\n" +
-				"NCBITaxon:7955\tDanio rerio\tZFIN:ZDB-GENE-020503-4\tinsrb\tZFIN:ZDB-GENE-020503-4\t\tgene\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:6091\tINSR\tAlliance\tMGI:6194238\n" +
-				"NCBITaxon:7955\tDanio rerio\tZFIN:ZDB-GENE-050208-525\tpdgfba\tZFIN:ZDB-GENE-050208-525\t\tgene\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:8800\tPDGFB\tAlliance\tMGI:6194238\n" +
-				"NCBITaxon:7955\tDanio rerio\tZFIN:ZDB-GENE-131121-332\tpdgfbb\tZFIN:ZDB-GENE-131121-332\t\tgene\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:8800\tPDGFB\tAlliance\tMGI:6194238\n" +
-				"NCBITaxon:7955\tDanio rerio\tZFIN:ZDB-GENE-030805-2\tpdgfrb\tZFIN:ZDB-GENE-030805-2\t\tgene\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:8804\tPDGFRB\tAlliance\tMGI:6194238\n" +
-				"NCBITaxon:7227\tDrosophila melanogaster\tFB:FBgn0283499\tInR\tFB:FBgn0283499\t\tgene\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:6091\tINSR\tAlliance\tMGI:6194238\n" +
-				"NCBITaxon:7227\tDrosophila melanogaster\tFB:FBgn0030964\tPvf1\tFB:FBgn0030964\t\tgene\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:8800\tPDGFB\tAlliance\tMGI:6194238\n" +
-				"NCBITaxon:7227\tDrosophila melanogaster\tFB:FBgn0032006\tPvr\tFB:FBgn0032006\t\tgene\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:8804\tPDGFRB\tAlliance\tMGI:6194238\n" +
-				"NCBITaxon:7227\tDrosophila melanogaster\tFB:FBgn0025879\tTimp\tFB:FBgn0025879\t\tgene\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:11822\tTIMP3\tAlliance\tMGI:6194238\n" +
-				"NCBITaxon:6239\tCaenorhabditis elegans\tWB:WBGene00019478\tcri-2\tWB:WBGene00019478\t\tgene\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:11822\tTIMP3\tAlliance\tMGI:6194238\n" +
-				"NCBITaxon:6239\tCaenorhabditis elegans\tWB:WBGene00000898\tdaf-2\tWB:WBGene00000898\t\tgene\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:6091\tINSR\tAlliance\tMGI:6194238\n";
+			"NCBITaxon:9606\tHomo sapiens\tHGNC:3686\tFGF8\tHGNC:3686\t\tgene\tis_marker_for\tDOID:3594\tchoriocarcinoma\tECO:0000270\texpression pattern evidence used in manual assertion\t\t\tRGD\tPMID:11764380\n" +
+			"NCBITaxon:9606\tHomo sapiens\tHGNC:5466\tIGF2\tHGNC:5466\t\tgene\tis_implicated_in\tDOID:3594\tchoriocarcinoma\tECO:0000314\tdirect assay evidence used in manual assertion\t\t\tRGD\tPMID:17556377\n" +
+			"NCBITaxon:9606\tHomo sapiens\tHGNC:6091\tINSR\tHGNC:6091\t\tgene\tis_implicated_in\tDOID:3594\tchoriocarcinoma\tECO:0000314\tdirect assay evidence used in manual assertion\t\t\tRGD\tPMID:17556377\n" +
+			"NCBITaxon:9606\tHomo sapiens\tHGNC:8800\tPDGFB\tHGNC:8800\t\tgene\tis_marker_for\tDOID:3594\tchoriocarcinoma\tECO:0000270\texpression pattern evidence used in manual assertion\t\t\tRGD\tPMID:8504434\n" +
+			"NCBITaxon:9606\tHomo sapiens\tHGNC:8804\tPDGFRB\tHGNC:8804\t\tgene\tis_marker_for\tDOID:3594\tchoriocarcinoma\tECO:0000270\texpression pattern evidence used in manual assertion\t\t\tRGD\tPMID:8504434\n" +
+			"NCBITaxon:9606\tHomo sapiens\tHGNC:11822\tTIMP3\tHGNC:11822\t\tgene\tis_marker_for\tDOID:3594\tchoriocarcinoma\tECO:0000270\texpression pattern evidence used in manual assertion\t\t\tRGD\tPMID:15507671\n" +
+			"NCBITaxon:10116\tRattus norvegicus\tRGD:70891\tFgf8\tRGD:70891\t\tgene\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:3686\tFGF8\tAlliance\tMGI:6194238\n" +
+			"NCBITaxon:10116\tRattus norvegicus\tRGD:2870\tIgf2\tRGD:2870\t\tgene\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:5466\tIGF2\tAlliance\tMGI:6194238\n" +
+			"NCBITaxon:10116\tRattus norvegicus\tRGD:2917\tInsr\tRGD:2917\t\tgene\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:6091\tINSR\tAlliance\tMGI:6194238\n" +
+			"NCBITaxon:10116\tRattus norvegicus\tRGD:3283\tPdgfb\tRGD:3283\t\tgene\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:8800\tPDGFB\tAlliance\tMGI:6194238\n" +
+			"NCBITaxon:10116\tRattus norvegicus\tRGD:3285\tPdgfrb\tRGD:3285\t\tgene\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:8804\tPDGFRB\tAlliance\tMGI:6194238\n" +
+			"NCBITaxon:10116\tRattus norvegicus\tRGD:3865\tTimp3\tRGD:3865\t\tgene\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:11822\tTIMP3\tAlliance\tMGI:6194238\n" +
+			"NCBITaxon:10090\tMus musculus\tMGI:99604\tFgf8\tMGI:99604\t\tgene\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:3686\tFGF8\tAlliance\tMGI:6194238\n" +
+			"NCBITaxon:10090\tMus musculus\tMGI:96434\tIgf2\tMGI:96434\t\tgene\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:5466\tIGF2\tAlliance\tMGI:6194238\n" +
+			"NCBITaxon:10090\tMus musculus\tMGI:96575\tInsr\tMGI:96575\t\tgene\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:6091\tINSR\tAlliance\tMGI:6194238\n" +
+			"NCBITaxon:10090\tMus musculus\tMGI:97528\tPdgfb\tMGI:97528\t\tgene\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:8800\tPDGFB\tAlliance\tMGI:6194238\n" +
+			"NCBITaxon:10090\tMus musculus\tMGI:97531\tPdgfrb\tMGI:97531\t\tgene\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:8804\tPDGFRB\tAlliance\tMGI:6194238\n" +
+			"NCBITaxon:10090\tMus musculus\tMGI:98754\tTimp3\tMGI:98754\t\tgene\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:11822\tTIMP3\tAlliance\tMGI:6194238\n" +
+			"NCBITaxon:7955\tDanio rerio\tZFIN:ZDB-GENE-990415-72\tfgf8a\tZFIN:ZDB-GENE-990415-72\t\tgene\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:3686\tFGF8\tAlliance\tMGI:6194238\n" +
+			"NCBITaxon:7955\tDanio rerio\tZFIN:ZDB-GENE-010122-1\tfgf8b\tZFIN:ZDB-GENE-010122-1\t\tgene\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:3686\tFGF8\tAlliance\tMGI:6194238\n" +
+			"NCBITaxon:7955\tDanio rerio\tZFIN:ZDB-GENE-991111-3\tigf2a\tZFIN:ZDB-GENE-991111-3\t\tgene\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:5466\tIGF2\tAlliance\tMGI:6194238\n" +
+			"NCBITaxon:7955\tDanio rerio\tZFIN:ZDB-GENE-030131-2935\tigf2b\tZFIN:ZDB-GENE-030131-2935\t\tgene\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:5466\tIGF2\tAlliance\tMGI:6194238\n" +
+			"NCBITaxon:7955\tDanio rerio\tZFIN:ZDB-GENE-020503-3\tinsra\tZFIN:ZDB-GENE-020503-3\t\tgene\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:6091\tINSR\tAlliance\tMGI:6194238\n" +
+			"NCBITaxon:7955\tDanio rerio\tZFIN:ZDB-GENE-020503-4\tinsrb\tZFIN:ZDB-GENE-020503-4\t\tgene\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:6091\tINSR\tAlliance\tMGI:6194238\n" +
+			"NCBITaxon:7955\tDanio rerio\tZFIN:ZDB-GENE-050208-525\tpdgfba\tZFIN:ZDB-GENE-050208-525\t\tgene\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:8800\tPDGFB\tAlliance\tMGI:6194238\n" +
+			"NCBITaxon:7955\tDanio rerio\tZFIN:ZDB-GENE-131121-332\tpdgfbb\tZFIN:ZDB-GENE-131121-332\t\tgene\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:8800\tPDGFB\tAlliance\tMGI:6194238\n" +
+			"NCBITaxon:7955\tDanio rerio\tZFIN:ZDB-GENE-030805-2\tpdgfrb\tZFIN:ZDB-GENE-030805-2\t\tgene\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:8804\tPDGFRB\tAlliance\tMGI:6194238\n" +
+			"NCBITaxon:7227\tDrosophila melanogaster\tFB:FBgn0283499\tInR\tFB:FBgn0283499\t\tgene\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:6091\tINSR\tAlliance\tMGI:6194238\n" +
+			"NCBITaxon:7227\tDrosophila melanogaster\tFB:FBgn0030964\tPvf1\tFB:FBgn0030964\t\tgene\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:8800\tPDGFB\tAlliance\tMGI:6194238\n" +
+			"NCBITaxon:7227\tDrosophila melanogaster\tFB:FBgn0032006\tPvr\tFB:FBgn0032006\t\tgene\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:8804\tPDGFRB\tAlliance\tMGI:6194238\n" +
+			"NCBITaxon:7227\tDrosophila melanogaster\tFB:FBgn0025879\tTimp\tFB:FBgn0025879\t\tgene\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:11822\tTIMP3\tAlliance\tMGI:6194238\n" +
+			"NCBITaxon:6239\tCaenorhabditis elegans\tWB:WBGene00019478\tcri-2\tWB:WBGene00019478\t\tgene\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:11822\tTIMP3\tAlliance\tMGI:6194238\n" +
+			"NCBITaxon:6239\tCaenorhabditis elegans\tWB:WBGene00000898\tdaf-2\tWB:WBGene00000898\t\tgene\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:6091\tINSR\tAlliance\tMGI:6194238\n";
 		assertEquals(result, output);
 
 	}
@@ -336,31 +324,31 @@ public class DiseaseIT {
 		List<String> lines = Arrays.asList(output.split("\n"));
 		assertNotNull(lines);
 		String result = "Gene ID\tGene Symbol\tSpecies\tGenetic Entity ID\tGenetic Entity Symbol\tGenetic Entity Type\tAssociation Type\tDisease ID\tDisease Name\tEvidence Code\tSource\tReferences\n" +
-				"HGNC:24948\tDOT1L\tHomo sapiens\t\t\t\tis_implicated_in\tDOID:9953\tB- and T-cell mixed leukemia\tIDA\tRGD\tPMID:23801631\n" +
-				"HGNC:7132\tKMT2A\tHomo sapiens\t\t\t\tis_implicated_in\tDOID:9953\tB- and T-cell mixed leukemia\tIAGP\tRGD\tRGD:7240710\n" +
-				"MGI:104518\tCntn2\tMus musculus\t\t\t\tis_implicated_in\tDOID:5602\tT-cell adult acute lymphocytic leukemia\tTAS\tMGI\tPMID:16550188,PMID:25035162\n" +
-				"MGI:107940\tEzh2\tMus musculus\tMGI:3823217\tEzh2<sup>tm2Sho</sup>\tallele\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tTAS\tMGI\tPMID:22431509\n" +
-				"MGI:107940\tEzh2\tMus musculus\tMGI:3823218\tEzh2<sup>tm2.1Sho</sup>\tallele\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tTAS\tMGI\tPMID:22431509\n" +
-				"MGI:107940\tEzh2\tMus musculus\t\t\t\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tTAS\tMGI\tPMID:22431509\n" +
-				"MGI:96995\tKmt2a\tMus musculus\tMGI:3814567\tKmt2a<sup>tm1Saam</sup>\tallele\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tTAS\tMGI\tPMID:18977325\n" +
-				"MGI:96995\tKmt2a\tMus musculus\t\t\t\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tTAS\tMGI\tPMID:18977325\n" +
-				"MGI:102811\tLmo2\tMus musculus\t\t\t\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tTAS\tMGI\tPMID:1461647\n" +
-				"MGI:99460\tNotch3\tMus musculus\t\t\t\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tTAS\tMGI\tPMID:10880446\n" +
-				"MGI:109583\tPten\tMus musculus\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tTAS\tMGI\tPMID:21262837\n" +
-				"MGI:109583\tPten\tMus musculus\t\t\t\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tTAS\tMGI\tPMID:21262837\n" +
-				"MGI:1344407\tZeb2\tMus musculus\t\t\t\tis_implicated_in\tDOID:5602\tT-cell adult acute lymphocytic leukemia\tTAS\tMGI\tPMID:25565005\n" +
-				"WB:WBGene00000469\tces-2\tCaenorhabditis elegans\tWB:WBVar00089714\tn732\tallele\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tIMP\tWB\tPMID:8700229\n" +
-				"WB:WBGene00000469\tces-2\tCaenorhabditis elegans\t\t\t\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tIMP\tWB\tPMID:8700229\n" +
-				"HGNC:2172\tCNTN2\tHomo sapiens\t\t\t\timplicated_via_orthology\tDOID:5602\tT-cell adult acute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
-				"HGNC:2697\tDBP\tHomo sapiens\t\t\t\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
-				"HGNC:3527\tEZH2\tHomo sapiens\t\t\t\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
-				"HGNC:7132\tKMT2A\tHomo sapiens\t\t\t\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
-				"HGNC:6642\tLMO2\tHomo sapiens\t\t\t\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
-				"HGNC:7883\tNOTCH3\tHomo sapiens\t\t\t\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
-				"HGNC:9588\tPTEN\tHomo sapiens\t\t\t\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
-				"HGNC:11722\tTEF\tHomo sapiens\t\t\t\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
-				"HGNC:14881\tZEB2\tHomo sapiens\t\t\t\timplicated_via_orthology\tDOID:5602\tT-cell adult acute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
-				"RGD:3821\tCntn2\tRattus norvegicus\t\t\t\timplicated_via_orthology\tDOID:5602\tT-cell adult acute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n";
+			"HGNC:24948\tDOT1L\tHomo sapiens\t\t\t\tis_implicated_in\tDOID:9953\tB- and T-cell mixed leukemia\tIDA\tRGD\tPMID:23801631\n" +
+			"HGNC:7132\tKMT2A\tHomo sapiens\t\t\t\tis_implicated_in\tDOID:9953\tB- and T-cell mixed leukemia\tIAGP\tRGD\tRGD:7240710\n" +
+			"MGI:104518\tCntn2\tMus musculus\t\t\t\tis_implicated_in\tDOID:5602\tT-cell adult acute lymphocytic leukemia\tTAS\tMGI\tPMID:16550188,PMID:25035162\n" +
+			"MGI:107940\tEzh2\tMus musculus\tMGI:3823217\tEzh2<sup>tm2Sho</sup>\tallele\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tTAS\tMGI\tPMID:22431509\n" +
+			"MGI:107940\tEzh2\tMus musculus\tMGI:3823218\tEzh2<sup>tm2.1Sho</sup>\tallele\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tTAS\tMGI\tPMID:22431509\n" +
+			"MGI:107940\tEzh2\tMus musculus\t\t\t\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tTAS\tMGI\tPMID:22431509\n" +
+			"MGI:96995\tKmt2a\tMus musculus\tMGI:3814567\tKmt2a<sup>tm1Saam</sup>\tallele\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tTAS\tMGI\tPMID:18977325\n" +
+			"MGI:96995\tKmt2a\tMus musculus\t\t\t\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tTAS\tMGI\tPMID:18977325\n" +
+			"MGI:102811\tLmo2\tMus musculus\t\t\t\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tTAS\tMGI\tPMID:1461647\n" +
+			"MGI:99460\tNotch3\tMus musculus\t\t\t\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tTAS\tMGI\tPMID:10880446\n" +
+			"MGI:109583\tPten\tMus musculus\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tTAS\tMGI\tPMID:21262837\n" +
+			"MGI:109583\tPten\tMus musculus\t\t\t\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tTAS\tMGI\tPMID:21262837\n" +
+			"MGI:1344407\tZeb2\tMus musculus\t\t\t\tis_implicated_in\tDOID:5602\tT-cell adult acute lymphocytic leukemia\tTAS\tMGI\tPMID:25565005\n" +
+			"WB:WBGene00000469\tces-2\tCaenorhabditis elegans\tWB:WBVar00089714\tn732\tallele\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tIMP\tWB\tPMID:8700229\n" +
+			"WB:WBGene00000469\tces-2\tCaenorhabditis elegans\t\t\t\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tIMP\tWB\tPMID:8700229\n" +
+			"HGNC:2172\tCNTN2\tHomo sapiens\t\t\t\timplicated_via_orthology\tDOID:5602\tT-cell adult acute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
+			"HGNC:2697\tDBP\tHomo sapiens\t\t\t\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
+			"HGNC:3527\tEZH2\tHomo sapiens\t\t\t\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
+			"HGNC:7132\tKMT2A\tHomo sapiens\t\t\t\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
+			"HGNC:6642\tLMO2\tHomo sapiens\t\t\t\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
+			"HGNC:7883\tNOTCH3\tHomo sapiens\t\t\t\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
+			"HGNC:9588\tPTEN\tHomo sapiens\t\t\t\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
+			"HGNC:11722\tTEF\tHomo sapiens\t\t\t\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
+			"HGNC:14881\tZEB2\tHomo sapiens\t\t\t\timplicated_via_orthology\tDOID:5602\tT-cell adult acute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
+			"RGD:3821\tCntn2\tRattus norvegicus\t\t\t\timplicated_via_orthology\tDOID:5602\tT-cell adult acute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n";
 		assertEquals(result, output);
 
 	}
@@ -379,11 +367,11 @@ public class DiseaseIT {
 		List<String> lines = Arrays.asList(output.split("\n"));
 		assertNotNull(lines);
 		String result = "Gene ID\tGene Symbol\tSpecies\tAssociation Type\tDisease ID\tDisease Name\tEvidence Code\tBased On\tSource\tReferences\n" +
-				"WB:WBGene00000469\tces-2\tCaenorhabditis elegans\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tECO:0000315\t\tWB\tPMID:8700229\n" +
-				"WB:WBGene00000469\tces-2\tCaenorhabditis elegans\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tECO:0000315\t\tWB\tPMID:8700229\n" +
-				"WB:WBGene00000913\tdaf-18\tCaenorhabditis elegans\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tECO:0000501\tMGI:109583:Pten\tAlliance\tMGI:6194238\n" +
-				"WB:WBGene00021474\tdot-1.1\tCaenorhabditis elegans\timplicated_via_orthology\tDOID:9953\tB- and T-cell mixed leukemia\tECO:0000501\tHGNC:24948:DOT1L\tAlliance\tMGI:6194238\n" +
-				"WB:WBGene00010067\tdot-1.2\tCaenorhabditis elegans\timplicated_via_orthology\tDOID:9953\tB- and T-cell mixed leukemia\tECO:0000501\tHGNC:24948:DOT1L\tAlliance\tMGI:6194238\n";
+			"WB:WBGene00000469\tces-2\tCaenorhabditis elegans\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tECO:0000315\t\tWB\tPMID:8700229\n" +
+			"WB:WBGene00000469\tces-2\tCaenorhabditis elegans\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tECO:0000315\t\tWB\tPMID:8700229\n" +
+			"WB:WBGene00000913\tdaf-18\tCaenorhabditis elegans\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tECO:0000501\tMGI:109583:Pten\tAlliance\tMGI:6194238\n" +
+			"WB:WBGene00021474\tdot-1.1\tCaenorhabditis elegans\timplicated_via_orthology\tDOID:9953\tB- and T-cell mixed leukemia\tECO:0000501\tHGNC:24948:DOT1L\tAlliance\tMGI:6194238\n" +
+			"WB:WBGene00010067\tdot-1.2\tCaenorhabditis elegans\timplicated_via_orthology\tDOID:9953\tB- and T-cell mixed leukemia\tECO:0000501\tHGNC:24948:DOT1L\tAlliance\tMGI:6194238\n";
 		assertEquals(result, output);
 
 		// descending sorting
@@ -512,8 +500,8 @@ public class DiseaseIT {
 		List<String> lines = Arrays.asList(output.split("\n"));
 		assertNotNull(lines);
 		assertEquals(output, "Species ID\tSpecies Name\tGene ID\tGene Symbol\tGenetic Entity ID\tGenetic Entity Name\tGenetic Entity Type\tDisease ID\tDisease Name\tAssociation\tEvidence Code\tEvidence Code Name\tSource\tBased On ID\tBased On Name\tReference\n" +
-				"NCBITaxon:559292\tSaccharomyces cerevisiae\tSGD:S000005844\tFAA1\tSGD:S000005844\tFAA1\tgene\tDOID:14501\tSjogren-Larsson syndrome\tis_implicated_in\tECO:0000316|ECO:0000250\tgenetic interaction evidence used in manual assertion|sequence similarity evidence used in manual assertion\tSGD\t\t\tPMID:24269233\n" +
-				"NCBITaxon:559292\tSaccharomyces cerevisiae\tSGD:S000005844\tFAA1\tSGD:S000005844\tFAA1\tgene\tDOID:14501\tSjogren-Larsson syndrome\tis_implicated_in\tECO:0000316|ECO:0000250\tgenetic interaction evidence used in manual assertion|sequence similarity evidence used in manual assertion\tSGD\t\t\tPMID:22633490\n"
+			"NCBITaxon:559292\tSaccharomyces cerevisiae\tSGD:S000005844\tFAA1\tSGD:S000005844\tFAA1\tgene\tDOID:14501\tSjogren-Larsson syndrome\tis_implicated_in\tECO:0000316|ECO:0000250\tgenetic interaction evidence used in manual assertion|sequence similarity evidence used in manual assertion\tSGD\t\t\tPMID:24269233\n" +
+			"NCBITaxon:559292\tSaccharomyces cerevisiae\tSGD:S000005844\tFAA1\tSGD:S000005844\tFAA1\tgene\tDOID:14501\tSjogren-Larsson syndrome\tis_implicated_in\tECO:0000316|ECO:0000250\tgenetic interaction evidence used in manual assertion|sequence similarity evidence used in manual assertion\tSGD\t\t\tPMID:22633490\n"
 		);
 	}
 
@@ -653,8 +641,8 @@ public class DiseaseIT {
 		assertResponse(response, 1, 1);
 
 		Set<String> pubIds = response.getResults().get(0).getPublicationJoins().stream()
-				.map(join -> join.getPublication().getPubId())
-				.collect(Collectors.toSet());
+			.map(join -> join.getPublication().getPubId())
+			.collect(Collectors.toSet());
 
 		assertFalse(pubIds.contains("PMID:25486933"));
 	}
@@ -735,19 +723,21 @@ public class DiseaseIT {
 		String diseaseID = "DOID:1838";
 
 		JsonResultResponse<AGMDiseaseAnnotationDocument> response = diseaseController.getDiseaseAnnotationsForModel(diseaseID,
-				15,
-				1,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null
+			15,
+			1,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null
 		);
 
 		assertResponse(response, 15, 17);
@@ -777,19 +767,21 @@ public class DiseaseIT {
 		diseaseID = "DOID:1324";
 
 		response = diseaseController.getDiseaseAnnotationsForModel(diseaseID,
-				100,
-				1,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null
+			100,
+			1,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null
 		);
 
 /*
@@ -822,20 +814,20 @@ public class DiseaseIT {
 		String diseaseID = "DOID:1838";
 
 		JsonResultResponse<GeneDiseaseAnnotationDocument> response = diseaseController.getDiseaseAnnotationsByGene(diseaseID,
-				7,
-				1,
-				null,
-				null,
-				null,
-				null,
-				"Alliance",
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null
+			7,
+			1,
+			null,
+			null,
+			null,
+			null,
+			"Alliance",
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null
 		);
 
 		assertResponse(response, 7, 20);
@@ -868,20 +860,20 @@ public class DiseaseIT {
 		diseaseID = "DOID:1324";
 
 		response = diseaseController.getDiseaseAnnotationsByGene(diseaseID,
-				2000,
-				1,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null
+			2000,
+			1,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null
 		);
 		int rowSize = 0;
 		//int rowSize = translator.getDownloadRowsFromGenes(response.getResults()).size();
