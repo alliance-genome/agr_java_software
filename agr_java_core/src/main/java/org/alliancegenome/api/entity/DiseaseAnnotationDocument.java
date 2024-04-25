@@ -5,10 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.alliancegenome.curation_api.model.entities.DiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.Gene;
-import org.alliancegenome.curation_api.model.entities.Reference;
-import org.alliancegenome.curation_api.model.entities.VocabularyTerm;
+import org.alliancegenome.curation_api.model.entities.*;
 import org.alliancegenome.curation_api.model.entities.ontology.DOTerm;
 import org.alliancegenome.curation_api.model.entities.ontology.ECOTerm;
 import org.alliancegenome.es.index.site.document.SearchableItemDocument;
@@ -36,7 +33,10 @@ public class DiseaseAnnotationDocument extends SearchableItemDocument {
 	private List<Gene> basedOnGenes;
 	private HashMap<String, Integer> speciesOrder;
 	int phylogeneticSortingIndex;
-
+	private List<ConditionRelation> conditionModifierList;
+	private String conditionModifierAggregated;
+	private List<ConditionRelation> experimentalConditionList;
+	private String experimentalConditionsAggregated;
 	// 1 true
 	// 0 false
 	@JsonIgnore

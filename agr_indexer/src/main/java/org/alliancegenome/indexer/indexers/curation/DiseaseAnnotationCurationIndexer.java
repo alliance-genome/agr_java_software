@@ -413,6 +413,8 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 				adad.addPubMedPubModID(getPubmedPubModID(da.getSingleReference()));
 				adad.addPrimaryAnnotation(da);
 				adad.setPhylogeneticSortingIndex(getPhylogeneticSortOrder(model.getTaxon().getCurie()));
+				populateConditionModifier(da, adad);
+				populateConditionModifier(da, adad);
 			}
 			ph.progressProcess();
 			ret.addAll(lookup.values());
@@ -420,6 +422,38 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		}
 		ph.finishProcess();
 		return ret;
+	}
+
+	private static void populateConditionModifier(DiseaseAnnotation da, AGMDiseaseAnnotationDocument adad) {
+		if(CollectionUtils.isNotEmpty(da.getConditionRelations())) {
+			List<ConditionRelation> conditionModifiers = da.getConditionRelations().stream()
+				.filter(conditionRelation -> conditionRelation.getConditionRelationType() != null)
+				.filter(conditionRelation -> conditionRelation.getConditionRelationType().getName().contains("ameliorated") ||
+					conditionRelation.getConditionRelationType().getName().contains("exacerbated"))
+				.toList();
+			adad.setConditionModifierList(conditionModifiers);
+			List<String> conditionComponents = new ArrayList<>(conditionModifiers.stream().map(conditionRelation -> conditionRelation.getConditionRelationType().getName()).toList());
+			conditionModifiers.forEach(conditionRelation -> conditionRelation.getConditions().forEach(experimentalCondition -> {
+				conditionComponents.add(experimentalCondition.getConditionSummary());
+			}));
+			adad.setConditionModifierAggregated(String.join(",", conditionComponents));
+		}
+	}
+
+	private static void populateExperimentalConditions(DiseaseAnnotation da, AGMDiseaseAnnotationDocument adad) {
+		if(CollectionUtils.isNotEmpty(da.getConditionRelations())) {
+			List<ConditionRelation> conditionModifiers = da.getConditionRelations().stream()
+				.filter(conditionRelation -> conditionRelation.getConditionRelationType() != null)
+				.filter(conditionRelation -> conditionRelation.getConditionRelationType().getName().contains("has_condition") ||
+					conditionRelation.getConditionRelationType().getName().contains("induced"))
+				.toList();
+			adad.setExperimentalConditionList(conditionModifiers);
+			List<String> experimentalConditionComponents = new ArrayList<>(conditionModifiers.stream().map(conditionRelation -> conditionRelation.getConditionRelationType().getName()).toList());
+			conditionModifiers.forEach(conditionRelation -> conditionRelation.getConditions().forEach(experimentalCondition -> {
+				experimentalConditionComponents.add(experimentalCondition.getConditionSummary());
+			}));
+			adad.setExperimentalConditionsAggregated(String.join(",", experimentalConditionComponents));
+		}
 	}
 
 	private void indexGenes() {
