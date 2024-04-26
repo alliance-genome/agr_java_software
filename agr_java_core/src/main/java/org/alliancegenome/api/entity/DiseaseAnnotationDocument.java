@@ -34,7 +34,10 @@ public class DiseaseAnnotationDocument extends SearchableItemDocument {
 	private HashMap<String, Integer> speciesOrder;
 	int phylogeneticSortingIndex;
 	private List<ConditionRelation> conditionModifierList;
+	private List<BiologicalEntity> geneticModifierList;
+	private VocabularyTerm geneticModifierRelation;
 	private String conditionModifierAggregated;
+	private String geneticModifierAggregated;
 	private List<ConditionRelation> experimentalConditionList;
 	private String experimentalConditionsAggregated;
 	// 1 true

@@ -14,6 +14,7 @@ import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.CrossReference;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.service.DiseaseAnnotationService;
 import org.apache.commons.collections.CollectionUtils;
 
 import java.util.*;
@@ -282,17 +283,7 @@ public class DiseaseAnnotationToTdfTranslator {
 		if (CollectionUtils.isNotEmpty(diseaseGeneticModifiers)) {
 			row.setDiseaseGeneticModifierID(diseaseGeneticModifiers.stream().map(SubmittedObject::getIdentifier).collect(Collectors.joining("|")));
 			StringJoiner joiner = new StringJoiner("|");
-			diseaseGeneticModifiers.forEach(entity -> {
-				if (entity instanceof org.alliancegenome.curation_api.model.entities.Gene gene) {
-					joiner.add(gene.getGeneSymbol().getFormatText());
-				}
-				if (entity instanceof org.alliancegenome.curation_api.model.entities.Allele allele) {
-					joiner.add(allele.getAlleleSymbol().getFormatText());
-				}
-				if (entity instanceof org.alliancegenome.curation_api.model.entities.AffectedGenomicModel model) {
-					joiner.add(model.getName());
-				}
-			});
+			diseaseGeneticModifiers.forEach(entity -> joiner.add(DiseaseAnnotationService.getEntityName(entity)));
 			row.setDiseaseGeneticModifierName(joiner.toString());
 		}
 		if (CollectionUtils.isNotEmpty(primaryAnnotation.getConditionRelations())) {

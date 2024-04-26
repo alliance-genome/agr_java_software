@@ -14,12 +14,10 @@ import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
-import org.alliancegenome.indexer.indexers.curation.service.AGMDiseaseAnnotationService;
-import org.alliancegenome.indexer.indexers.curation.service.AlleleDiseaseAnnotationService;
-import org.alliancegenome.indexer.indexers.curation.service.GeneDiseaseAnnotationService;
-import org.alliancegenome.indexer.indexers.curation.service.VocabularyService;
+import org.alliancegenome.indexer.indexers.curation.service.*;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
+import org.alliancegenome.service.DiseaseAnnotationService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -97,13 +95,6 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 			pairs.getRight().addAll(geneArrayListPair.getRight());
 		});
 		geneViaOrthologyMap = geneService.getOrthologousGeneDiseaseAnnotations(generatedImplicatedGeneMap);
-/*
-		Map<Gene, List<DiseaseAnnotation>> geneViaOrthologyMap = geneService.getOrthologousGeneDiseaseAnnotations(generatedImplicatedGeneMap);
-		geneViaOrthologyMap.forEach((gene, diseaseAnnotations) -> {
-			List<DiseaseAnnotation> das = geneViaOrthologyMap.computeIfAbsent(gene, gene1 -> new ArrayList<>());
-			das.addAll(diseaseAnnotations);
-		});
-*/
 	}
 
 	private List<GeneDiseaseAnnotationDocument> getGeneDiseaseAnnotationViaOrthologyDocuments() {
@@ -382,14 +373,13 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 
 		for (Entry<String, Pair<AffectedGenomicModel, ArrayList<DiseaseAnnotation>>> entry : agmMap.entrySet()) {
 			HashMap<String, AGMDiseaseAnnotationDocument> lookup = new HashMap<>();
-
+			AffectedGenomicModel model = entry.getValue().getLeft();
 			for (DiseaseAnnotation da : entry.getValue().getRight()) {
 				String key = da.getRelation().getName() + "_" + da.getDiseaseAnnotationObject().getName() + "_" + da.getNegated();
 				if (da.getDiseaseQualifiers() != null) {
 					key += "_" + da.getDiseaseQualifiers().stream().map(VocabularyTerm::getName).sorted().collect(Collectors.joining("_"));
 				}
 				AGMDiseaseAnnotationDocument adad = lookup.get(key);
-				AffectedGenomicModel model = entry.getValue().getLeft();
 
 				if (adad == null) {
 					adad = new AGMDiseaseAnnotationDocument();
@@ -415,6 +405,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 				adad.setPhylogeneticSortingIndex(getPhylogeneticSortOrder(model.getTaxon().getCurie()));
 				populateConditionModifier(da, adad);
 				populateExperimentalConditions(da, adad);
+				populateGeneticModifier(da, adad);
 			}
 			ph.progressProcess();
 			ret.addAll(lookup.values());
@@ -424,8 +415,22 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		return ret;
 	}
 
+	private static void populateGeneticModifier(DiseaseAnnotation da, AGMDiseaseAnnotationDocument adad) {
+		if (CollectionUtils.isNotEmpty(da.getDiseaseGeneticModifiers())) {
+			List<BiologicalEntity> geneticModifiers = da.getDiseaseGeneticModifiers().stream()
+				.filter(Objects::nonNull)
+				.toList();
+			adad.setGeneticModifierList(geneticModifiers);
+			List<String> geneticModifierComponents = new ArrayList<>();
+			geneticModifierComponents.add(da.getDiseaseGeneticModifierRelation().getName());
+			geneticModifierComponents.addAll(geneticModifiers.stream().map(DiseaseAnnotationService::getEntityName).toList());
+			adad.setGeneticModifierAggregated(String.join(",", geneticModifierComponents));
+			adad.setGeneticModifierRelation(da.getDiseaseGeneticModifierRelation());
+		}
+	}
+
 	private static void populateConditionModifier(DiseaseAnnotation da, AGMDiseaseAnnotationDocument adad) {
-		if(CollectionUtils.isNotEmpty(da.getConditionRelations())) {
+		if (CollectionUtils.isNotEmpty(da.getConditionRelations())) {
 			List<ConditionRelation> conditionModifiers = da.getConditionRelations().stream()
 				.filter(conditionRelation -> conditionRelation.getConditionRelationType() != null)
 				.filter(conditionRelation -> conditionRelation.getConditionRelationType().getName().contains("ameliorated") ||
@@ -441,7 +446,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 	}
 
 	private static void populateExperimentalConditions(DiseaseAnnotation da, AGMDiseaseAnnotationDocument adad) {
-		if(CollectionUtils.isNotEmpty(da.getConditionRelations())) {
+		if (CollectionUtils.isNotEmpty(da.getConditionRelations())) {
 			List<ConditionRelation> conditionModifiers = da.getConditionRelations().stream()
 				.filter(conditionRelation -> conditionRelation.getConditionRelationType() != null)
 				.filter(conditionRelation -> conditionRelation.getConditionRelationType().getName().contains("has_condition") ||
