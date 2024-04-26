@@ -415,6 +415,8 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 	}
 
 	private static String getGeneticModifierConsolidatedKey(DiseaseAnnotation da) {
+		if (da.getDiseaseGeneticModifierRelation() == null && CollectionUtils.isEmpty(da.getDiseaseGeneticModifiers()))
+			return null;
 		return da.getDiseaseGeneticModifierRelation() + "_"
 			+ da.getDiseaseGeneticModifiers().stream().map(SubmittedObject::getIdentifier).collect(Collectors.joining(","));
 	}
