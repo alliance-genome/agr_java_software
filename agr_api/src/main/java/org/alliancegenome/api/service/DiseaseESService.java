@@ -409,7 +409,7 @@ public class DiseaseESService {
 		Map<String, List<String>> sortingSetMap = new HashMap<>();
 		sortingSetMap.put("default", List.of("viaOrthologyOrder","phylogeneticSortingIndex", "subject.geneSymbol.displayText.sort"));
 		sortingSetMap.put("gene", List.of("subject.geneSymbol.displayText.sort", "phylogeneticSortingIndex"));
-		sortingSetMap.put("disease", List.of("object.name.keyword", "phylogeneticSortingIndex", "subject.geneSymbol.displayText.sort"));
+		sortingSetMap.put("disease", List.of("object.name.sort", "phylogeneticSortingIndex", "subject.geneSymbol.displayText.sort"));
 		sortingSetMap.put("species", List.of("subject.taxon.name.keyword", "subject.geneSymbol.displayText.sort"));
 
 		LinkedHashMap<String, SortOrder> sortingMap = new LinkedHashMap<>();
