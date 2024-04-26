@@ -14,7 +14,10 @@ import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
-import org.alliancegenome.indexer.indexers.curation.service.*;
+import org.alliancegenome.indexer.indexers.curation.service.AGMDiseaseAnnotationService;
+import org.alliancegenome.indexer.indexers.curation.service.AlleleDiseaseAnnotationService;
+import org.alliancegenome.indexer.indexers.curation.service.GeneDiseaseAnnotationService;
+import org.alliancegenome.indexer.indexers.curation.service.VocabularyService;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.service.DiseaseAnnotationService;
@@ -321,13 +324,8 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 					relation = da.getRelation();
 				}
 
-				String key = relation.getName() + "_" + da.getDiseaseAnnotationObject().getName() + "_" + da.getNegated();
-				if (da.getDiseaseQualifiers() != null) {
-					key += "_" + da.getDiseaseQualifiers().stream().map(VocabularyTerm::getName).sorted().collect(Collectors.joining("_"));
-				}
-
+				String key = getConsolidationKey(da, relation.getName());
 				AlleleDiseaseAnnotationDocument adad = lookup.get(key);
-
 				Allele allele = entry.getValue().getLeft();
 				if (adad == null) {
 					adad = new AlleleDiseaseAnnotationDocument();
@@ -375,10 +373,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 			HashMap<String, AGMDiseaseAnnotationDocument> lookup = new HashMap<>();
 			AffectedGenomicModel model = entry.getValue().getLeft();
 			for (DiseaseAnnotation da : entry.getValue().getRight()) {
-				String key = da.getRelation().getName() + "_" + da.getDiseaseAnnotationObject().getName() + "_" + da.getNegated();
-				if (da.getDiseaseQualifiers() != null) {
-					key += "_" + da.getDiseaseQualifiers().stream().map(VocabularyTerm::getName).sorted().collect(Collectors.joining("_"));
-				}
+				String key = getConsolidationKey(da);
 				AGMDiseaseAnnotationDocument adad = lookup.get(key);
 
 				if (adad == null) {
@@ -413,6 +408,27 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		}
 		ph.finishProcess();
 		return ret;
+	}
+
+	private static String getConsolidationKey(DiseaseAnnotation da) {
+		return getConsolidationKey(da, null);
+	}
+
+	// Consolidated fields
+	// association type
+	// disease name
+	// negation
+	// disease qualifier
+	private static String getConsolidationKey(DiseaseAnnotation da, String relation) {
+		String key = da.getRelation().getName();
+		if (relation != null) {
+			key = relation;
+		}
+		key += "_" + da.getDiseaseAnnotationObject().getName() + "_" + da.getNegated();
+		if (da.getDiseaseQualifiers() != null) {
+			key += "_" + da.getDiseaseQualifiers().stream().map(VocabularyTerm::getName).sorted().collect(Collectors.joining("_"));
+		}
+		return key;
 	}
 
 	private static void populateGeneticModifier(DiseaseAnnotation da, AGMDiseaseAnnotationDocument adad) {
