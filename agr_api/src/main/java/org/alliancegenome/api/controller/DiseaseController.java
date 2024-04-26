@@ -342,6 +342,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 																						  String diseaseQualifier,
 																						  String conditionModifier,
 																						  String experimentalCondition,
+																						  String geneticModifier,
 																						  String asc) {
 		long startTime = System.currentTimeMillis();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
@@ -351,6 +352,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 		pagination.addFilterOption("generatedRelationString.keyword", associationType);
 		pagination.addFilterOption("conditionModifierAggregated", conditionModifier);
 		pagination.addFilterOption("experimentalConditionsAggregated", experimentalCondition);
+		pagination.addFilterOption("geneticModifierAggregated", geneticModifier);
 		pagination.addFilterOption("diseaseQualifiers.keyword", diseaseQualifier);
 		pagination.addFilterOption("pubmedPubModIDs", reference);
 		pagination.addFilterOption("primaryAnnotations.dataProvider.sourceOrganization.abbreviation", source);
@@ -389,8 +391,9 @@ public class DiseaseController implements DiseaseRESTInterface {
 														  String diseaseQualifier,
 														  String conditionModifier,
 														  String experimentalCondition,
+														  String geneticModifier,
 														  String asc) {
-		JsonResultResponse<AGMDiseaseAnnotationDocument> response = getDiseaseAnnotationsForModel(id, 20_000, null, sortBy, modelName, geneName, species, disease, source, reference, evidenceCode, associationType, diseaseQualifier, conditionModifier, experimentalCondition, asc);
+		JsonResultResponse<AGMDiseaseAnnotationDocument> response = getDiseaseAnnotationsForModel(id, 20_000, null, sortBy, modelName, geneName, species, disease, source, reference, evidenceCode, associationType, diseaseQualifier, conditionModifier, experimentalCondition, geneticModifier, asc);
 		Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRowsForModel(response.getResults()));
 		APIServiceHelper.setDownloadHeader(id, EntityType.DISEASE, EntityType.MODEL, responseBuilder);
 		return responseBuilder.build();

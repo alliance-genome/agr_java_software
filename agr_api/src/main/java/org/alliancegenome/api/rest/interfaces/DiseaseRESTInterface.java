@@ -303,8 +303,10 @@ public interface DiseaseRESTInterface {
 			@QueryParam("filter.diseaseQualifier") String diseaseQualifier,
 			@Parameter(in = ParameterIn.QUERY, name = "filter.conditionModifier", description = "conditionModifier", schema = @Schema(type = SchemaType.STRING))
 			@QueryParam("filter.conditionModifier") String conditionModifier,
-			@Parameter(in = ParameterIn.QUERY, name = "filter.experimentalCondition", description = "diseaseQualifier", schema = @Schema(type = SchemaType.STRING))
+			@Parameter(in = ParameterIn.QUERY, name = "filter.experimentalCondition", description = "experimentalCondition", schema = @Schema(type = SchemaType.STRING))
 			@QueryParam("filter.experimentalCondition") String experimentalCondition,
+			@Parameter(in = ParameterIn.QUERY, name = "filter.geneticModifier", description = "geneticModifier", schema = @Schema(type = SchemaType.STRING))
+			@QueryParam("filter.geneticModifier") String geneticModifier,
 			@Parameter(in = ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))
 //,allowedValues = "true,false")
 			@DefaultValue("true")
@@ -342,6 +344,8 @@ public interface DiseaseRESTInterface {
 			@QueryParam("filter.conditionModifier") String conditionModifier,
 			@Parameter(in = ParameterIn.QUERY, name = "filter.experimentalCondition", description = "diseaseQualifier", schema = @Schema(type = SchemaType.STRING))
 			@QueryParam("filter.experimentalCondition") String experimentalCondition,
+			@Parameter(in = ParameterIn.QUERY, name = "filter.geneticModifier", description = "geneticModifier", schema = @Schema(type = SchemaType.STRING))
+			@QueryParam("filter.geneticModifier") String geneticModifier,
 			@Parameter(in = ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))
 //,allowedValues = "true,false")
 			@DefaultValue("true")

@@ -374,6 +374,10 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 			AffectedGenomicModel model = entry.getValue().getLeft();
 			for (DiseaseAnnotation da : entry.getValue().getRight()) {
 				String key = getConsolidationKey(da);
+				// include genetic modifier info
+				key += getGeneticModifierConsolidatedKey(da);
+				// include experiment condition info
+				key += getExperimentConditionConsolidatedKey(da);
 				AGMDiseaseAnnotationDocument adad = lookup.get(key);
 
 				if (adad == null) {
@@ -408,6 +412,20 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		}
 		ph.finishProcess();
 		return ret;
+	}
+
+	private static String getGeneticModifierConsolidatedKey(DiseaseAnnotation da) {
+		return da.getDiseaseGeneticModifierRelation() + "_"
+			+ da.getDiseaseGeneticModifiers().stream().map(SubmittedObject::getIdentifier).collect(Collectors.joining(","));
+	}
+
+	private static String getConditionRelationConsolidatedKey(ConditionRelation relation) {
+		return relation.getConditions().stream().map(ExperimentalCondition::getConditionSummary).collect(Collectors.joining(","));
+	}
+
+	private static String getExperimentConditionConsolidatedKey(DiseaseAnnotation da) {
+		return da.getConditionRelations().stream().map(conditionRelation ->
+			conditionRelation.getConditionRelationType().getName() + "_" + getConditionRelationConsolidatedKey(conditionRelation)).collect(Collectors.joining(","));
 	}
 
 	private static String getConsolidationKey(DiseaseAnnotation da) {
