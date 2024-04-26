@@ -422,10 +422,14 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 	}
 
 	private static String getConditionRelationConsolidatedKey(ConditionRelation relation) {
+		if (relation == null)
+			return null;
 		return relation.getConditions().stream().map(ExperimentalCondition::getConditionSummary).collect(Collectors.joining(","));
 	}
 
 	private static String getExperimentConditionConsolidatedKey(DiseaseAnnotation da) {
+		if (CollectionUtils.isEmpty(da.getConditionRelations()))
+			return null;
 		return da.getConditionRelations().stream().map(conditionRelation ->
 			conditionRelation.getConditionRelationType().getName() + "_" + getConditionRelationConsolidatedKey(conditionRelation)).collect(Collectors.joining(","));
 	}
