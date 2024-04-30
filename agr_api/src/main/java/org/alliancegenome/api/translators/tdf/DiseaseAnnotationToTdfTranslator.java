@@ -292,12 +292,14 @@ public class DiseaseAnnotationToTdfTranslator {
 			diseaseGeneticModifiers.forEach(entity -> joiner.add(DiseaseAnnotationService.getEntityName(entity)));
 			row.setDiseaseGeneticModifierName(joiner.toString());
 		}
+/*
 		if (CollectionUtils.isNotEmpty(primaryAnnotation.getConditionRelations())) {
 			String condition = primaryAnnotation.getConditionRelations().stream().map(conditionRelation -> {
 				return conditionRelation.getConditionRelationType().getName() + ": " + conditionRelation.getConditions().stream().map(ExperimentalCondition::getConditionSummary).collect(Collectors.joining(";"));
 			}).collect(Collectors.joining("|"));
 			row.setExperimentalCondition(condition);
 		}
+*/
 	}
 
 
@@ -446,7 +448,7 @@ public class DiseaseAnnotationToTdfTranslator {
 			new DownloadHeader<>("Evidence Code Abbreviation", (DiseaseDownloadRow::getEvidenceAbbreviation)),
 			new DownloadHeader<>("Evidence Code Name", (DiseaseDownloadRow::getEvidenceCodeName)),
 			new DownloadHeader<>("Experimental Conditions", (DiseaseDownloadRow::getExperimentalCondition)),
-			new DownloadHeader<>("Condition Modifiers", (DiseaseDownloadRow::getExperimentalCondition)),
+			new DownloadHeader<>("Condition Modifiers", (DiseaseDownloadRow::getConditionModifier)),
 			new DownloadHeader<>("Genetic Modifier Relation", (DiseaseDownloadRow::getDiseaseGeneticModifierRelation)),
 			new DownloadHeader<>("Genetic Modifier IDs", (DiseaseDownloadRow::getDiseaseGeneticModifierID)),
 			new DownloadHeader<>("Genetic Modifier Names", (DiseaseDownloadRow::getDiseaseGeneticModifierName)),
