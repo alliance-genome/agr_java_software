@@ -24,6 +24,7 @@ public class DiseaseDownloadRow {
 	private String diseaseGeneticModifierName;
 	private String diseaseGeneticModifierRelation;
 	private String experimentalCondition;
+	private String conditionModifier;
 	private String diseaseID;
 	private String strainBackgroundID;
 	private String strainBackgroundName;

@@ -237,13 +237,19 @@ public class DiseaseAnnotationToTdfTranslator {
 		if (primaryAnnotation.getDiseaseGeneticModifierRelation() != null) {
 			row.setDiseaseGeneticModifierRelation(primaryAnnotation.getDiseaseGeneticModifierRelation().getName());
 		}
+		if (annotation.getExperimentalConditionList() != null) {
+			row.setExperimentalCondition(annotation.getExperimentalConditionsAggregated());
+		}
+		if (annotation.getConditionModifierAggregated() != null) {
+			row.setConditionModifier(annotation.getConditionModifierAggregated());
+		}
 		row.setReference(primaryAnnotation.getSingleReference().getReferenceID());
 		row.setSource(primaryAnnotation.getDataProviderString());
-		List<String> urlExpceptionHandler = List.of("MGI", "SGD", "OMIM");
+		List<String> urlExceptionHandler = List.of("MGI", "SGD", "OMIM");
 		DataProvider dataProvider = primaryAnnotation.getDataProvider();
 		if (dataProvider != null && dataProvider.getCrossReference() != null) {
 			String urlTemplate = dataProvider.getCrossReference().getResourceDescriptorPage().getUrlTemplate();
-			if (urlExpceptionHandler.contains(dataProvider.getSourceOrganization().getAbbreviation())) {
+			if (urlExceptionHandler.contains(dataProvider.getSourceOrganization().getAbbreviation())) {
 				// remove the prefix in the template as the prefix is already in the curie.
 				urlTemplate = urlTemplate.replace(dataProvider.getSourceOrganization().getAbbreviation() + ":", "");
 			}
@@ -440,6 +446,7 @@ public class DiseaseAnnotationToTdfTranslator {
 			new DownloadHeader<>("Evidence Code Abbreviation", (DiseaseDownloadRow::getEvidenceAbbreviation)),
 			new DownloadHeader<>("Evidence Code Name", (DiseaseDownloadRow::getEvidenceCodeName)),
 			new DownloadHeader<>("Experimental Conditions", (DiseaseDownloadRow::getExperimentalCondition)),
+			new DownloadHeader<>("Condition Modifiers", (DiseaseDownloadRow::getExperimentalCondition)),
 			new DownloadHeader<>("Genetic Modifier Relation", (DiseaseDownloadRow::getDiseaseGeneticModifierRelation)),
 			new DownloadHeader<>("Genetic Modifier IDs", (DiseaseDownloadRow::getDiseaseGeneticModifierID)),
 			new DownloadHeader<>("Genetic Modifier Names", (DiseaseDownloadRow::getDiseaseGeneticModifierName)),
