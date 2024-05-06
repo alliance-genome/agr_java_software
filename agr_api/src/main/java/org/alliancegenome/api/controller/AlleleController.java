@@ -181,7 +181,7 @@ public class AlleleController implements AlleleRESTInterface {
 		pagination.addFilterOption("generatedRelationString.keyword", associationType);
 		pagination.addFilterOption("diseaseQualifiers.keyword", diseaseQualifier);
 		pagination.addFilterOption("pubmedPubModIDs", filterReference);
-		pagination.addFilterOption("primaryAnnotations.dataProvider.abbreviation", filterSource);
+		pagination.addFilterOption("primaryAnnotations.dataProvider.sourceOrganization.abbreviation", filterSource);
 
 
 		if (pagination.hasErrors()) {
