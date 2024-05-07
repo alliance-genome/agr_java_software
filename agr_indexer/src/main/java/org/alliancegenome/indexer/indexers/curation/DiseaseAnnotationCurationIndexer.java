@@ -391,7 +391,6 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 					adad.setObject(da.getDiseaseAnnotationObject());
 					lookup.put(key, adad);
 				}
-				adad.setEvidenceCodes(da.getEvidenceCodes());
 				if (CollectionUtils.isNotEmpty(da.getDiseaseQualifiers())) {
 					Set<String> diseaseQualifiers = da.getDiseaseQualifiers().stream().map(term -> term.getName().replace("_", " ")).collect(Collectors.toSet());
 					adad.setDiseaseQualifiers(diseaseQualifiers);
@@ -402,6 +401,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 				adad.addPubMedPubModID(getPubmedPubModID(da.getSingleReference()));
 				adad.addPrimaryAnnotation(da);
 				adad.setPhylogeneticSortingIndex(getPhylogeneticSortOrder(model.getTaxon().getCurie()));
+				adad.addEvidenceCodes(da.getEvidenceCodes());
 				populateConditionModifier(da, adad);
 				populateExperimentalConditions(da, adad);
 				populateGeneticModifier(da, adad);

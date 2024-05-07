@@ -56,6 +56,20 @@ public class DiseaseAnnotationDocument extends SearchableItemDocument {
 		references.add(singleReference);
 	}
 
+	public void addEvidenceCodes(List<ECOTerm> ecoTerms) {
+		if(CollectionUtils.isEmpty(ecoTerms))
+			return;
+		if (evidenceCodes == null) {
+			evidenceCodes = new ArrayList<>();
+		}
+		// make unique list
+		ecoTerms.forEach(ecoTerm -> {
+			if(!evidenceCodes.contains(ecoTerm)){
+				evidenceCodes.add(ecoTerm);
+			}
+		});
+	}
+
 	public void addPubMedPubModID(String id) {
 		if (pubmedPubModIDs == null) {
 			pubmedPubModIDs = new HashSet<>();
@@ -71,17 +85,18 @@ public class DiseaseAnnotationDocument extends SearchableItemDocument {
 	}
 
 	public void addBasedOnGenes(List<Gene> genes) {
-		if(CollectionUtils.isEmpty(genes))
+		if (CollectionUtils.isEmpty(genes))
 			return;
 		if (basedOnGenes == null) {
 			basedOnGenes = new ArrayList<>();
 		}
 		genes.forEach(gene -> {
-			if(!basedOnGenes.contains(gene)){
+			if (!basedOnGenes.contains(gene)) {
 				basedOnGenes.add(gene);
 			}
 		});
 	}
+
 	@JsonView({View.DiseaseAnnotationAll.class})
 	public int getViaOrthologyOrder() {
 		return isViaOrthologyAnnotation ? 1 : 0;
