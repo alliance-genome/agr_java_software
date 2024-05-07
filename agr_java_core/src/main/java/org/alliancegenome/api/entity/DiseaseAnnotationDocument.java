@@ -13,6 +13,7 @@ import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -57,14 +58,15 @@ public class DiseaseAnnotationDocument extends SearchableItemDocument {
 	}
 
 	public void addEvidenceCodes(List<ECOTerm> ecoTerms) {
-		if(CollectionUtils.isEmpty(ecoTerms))
+		if (CollectionUtils.isEmpty(ecoTerms))
 			return;
 		if (evidenceCodes == null) {
 			evidenceCodes = new ArrayList<>();
 		}
+		String ecoValues = evidenceCodes.stream().map(ECOTerm::getCurie).collect(Collectors.joining());
 		// make unique list
 		ecoTerms.forEach(ecoTerm -> {
-			if(!evidenceCodes.contains(ecoTerm)){
+			if (!ecoValues.contains(ecoTerm.getCurie())) {
 				evidenceCodes.add(ecoTerm);
 			}
 		});
