@@ -226,15 +226,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 					lookup.put(key, gdad);
 				}
 
-				Map<String, ECOTerm> evidenceCodesMap = new HashMap<>();
-				if (gdad.getEvidenceCodes() != null) {
-					gdad.getEvidenceCodes().forEach(ecoTerm -> evidenceCodesMap.put(ecoTerm.getCurie(), ecoTerm));
-				}
-				if (da.getEvidenceCodes() != null) {
-					da.getEvidenceCodes().forEach(ecoTerm -> evidenceCodesMap.put(ecoTerm.getCurie(), ecoTerm));
-				}
-				gdad.setEvidenceCodes(evidenceCodesMap.values().stream().toList());
-
+				gdad.addEvidenceCodes(da.getEvidenceCodes());
 				if (CollectionUtils.isNotEmpty(da.getDiseaseQualifiers())) {
 					Set<String> diseaseQualifiers = da.getDiseaseQualifiers().stream().map(VocabularyTerm::getName).collect(Collectors.toSet());
 					gdad.setDiseaseQualifiers(diseaseQualifiers);
@@ -338,7 +330,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 					adad.setObject(da.getDiseaseAnnotationObject());
 					lookup.put(key, adad);
 				}
-				adad.setEvidenceCodes(da.getEvidenceCodes());
+				adad.addEvidenceCodes(da.getEvidenceCodes());
 				if (CollectionUtils.isNotEmpty(da.getDiseaseQualifiers())) {
 					Set<String> diseaseQualifiers = da.getDiseaseQualifiers().stream().map(term -> term.getName().replace("_", " ")).collect(Collectors.toSet());
 					adad.setDiseaseQualifiers(diseaseQualifiers);

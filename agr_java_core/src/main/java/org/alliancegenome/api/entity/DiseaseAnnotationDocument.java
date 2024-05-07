@@ -63,7 +63,7 @@ public class DiseaseAnnotationDocument extends SearchableItemDocument {
 		if (evidenceCodes == null) {
 			evidenceCodes = new ArrayList<>();
 		}
-		String ecoValues = evidenceCodes.stream().map(ECOTerm::getCurie).collect(Collectors.joining());
+		List<String> ecoValues = evidenceCodes.stream().map(ECOTerm::getCurie).toList();
 		// make unique list
 		ecoTerms.forEach(ecoTerm -> {
 			if (!ecoValues.contains(ecoTerm.getCurie())) {
