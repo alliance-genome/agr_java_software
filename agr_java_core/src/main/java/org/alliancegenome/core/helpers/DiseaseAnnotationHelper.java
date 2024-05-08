@@ -1,4 +1,4 @@
-package org.alliancegenome.service;
+package org.alliancegenome.core.helpers;
 
 import org.alliancegenome.curation_api.model.entities.BiologicalEntity;
 

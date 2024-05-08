@@ -13,7 +13,7 @@ import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.CrossReference;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.*;
-import org.alliancegenome.service.DiseaseAnnotationHelper;
+import org.alliancegenome.core.helpers.DiseaseAnnotationHelper;
 import org.apache.commons.collections.CollectionUtils;
 
 import java.util.*;

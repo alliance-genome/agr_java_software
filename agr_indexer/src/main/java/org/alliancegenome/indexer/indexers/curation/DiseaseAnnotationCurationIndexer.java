@@ -21,7 +21,7 @@ import org.alliancegenome.indexer.indexers.curation.service.GeneDiseaseAnnotatio
 import org.alliancegenome.indexer.indexers.curation.service.VocabularyService;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
-import org.alliancegenome.service.DiseaseAnnotationHelper;
+import org.alliancegenome.core.helpers.DiseaseAnnotationHelper;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
