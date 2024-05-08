@@ -134,11 +134,6 @@ public class DiseaseController implements DiseaseRESTInterface {
 		pagination.addFilterOption("pubmedPubModIDs", reference);
 		pagination.addFilterOption("primaryAnnotations.dataProvider.sourceOrganization.abbreviation", dataProvider);
 		pagination.addFilterOption("object.name", diseaseName);
-/*
-		if (StringUtils.isNotEmpty(geneID)) {
-			pagination.addFilterOption("subject.curie", geneID);
-		}
-*/
 		if (pagination.hasErrors()) {
 			RestErrorMessage message = new RestErrorMessage();
 			message.setErrors(pagination.getErrors());
@@ -210,10 +205,6 @@ public class DiseaseController implements DiseaseRESTInterface {
 			responseBuilder = Response.ok(allRowsForAlleles);
 			APIServiceHelper.setDownloadHeader(id, EntityType.DISEASE, EntityType.ALLELE, responseBuilder);
 		}
-//		Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRowsForAllele(response.getResults());
-
-//		APIServiceHelper.setDownloadHeader(id, EntityType.DISEASE, EntityType.ALLELE, responseBuilder);
-//		return responseBuilder.build();
 		return responseBuilder.build();
 	}
 
