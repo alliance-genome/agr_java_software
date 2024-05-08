@@ -539,11 +539,6 @@ public class DiseaseController implements DiseaseRESTInterface {
 		List<DiseaseAnnotation> alleleAnnotations = new ArrayList<>();
 		List<DiseaseAnnotation> geneAnnotations = new ArrayList<>();
 		List<DiseaseAnnotation> modelAnnotations = new ArrayList<>();
-		speciesIDs.forEach(species -> {
-//			alleleAnnotations.addAll(getDiseaseAnnotationsByAllele(diseaseID, Integer.MAX_VALUE, null, sortBy, null, null, species, null, null, null, null, null, null).getResults());
-////			modelAnnotations.addAll(getDiseaseAnnotationsForModel(diseaseID, Integer.MAX_VALUE, null, sortBy, null, null, species, null, null, null, null, null, null).getResults());
-			//geneAnnotations.addAll(getDiseaseAnnotationsByGene(diseaseID, Integer.MAX_VALUE, null, sortBy, null, species, null, null, null, null, null, null, null).getResults());
-		});
 		Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRowsForGenesAndAlleles(geneAnnotations, alleleAnnotations, modelAnnotations));
 		return responseBuilder.build();
 	}

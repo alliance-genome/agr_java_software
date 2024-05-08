@@ -21,7 +21,7 @@ import org.alliancegenome.indexer.indexers.curation.service.GeneDiseaseAnnotatio
 import org.alliancegenome.indexer.indexers.curation.service.VocabularyService;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
-import org.alliancegenome.service.DiseaseAnnotationService;
+import org.alliancegenome.service.DiseaseAnnotationHelper;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -425,7 +425,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 			adad.setGeneticModifierList(geneticModifiers);
 			List<String> geneticModifierComponents = new ArrayList<>();
 			geneticModifierComponents.add(da.getDiseaseGeneticModifierRelation().getName());
-			geneticModifierComponents.addAll(geneticModifiers.stream().map(DiseaseAnnotationService::getEntityName).toList());
+			geneticModifierComponents.addAll(geneticModifiers.stream().map(DiseaseAnnotationHelper::getEntityName).toList());
 			adad.setGeneticModifierAggregated(String.join(",", geneticModifierComponents));
 			adad.setGeneticModifierRelation(da.getDiseaseGeneticModifierRelation());
 		}

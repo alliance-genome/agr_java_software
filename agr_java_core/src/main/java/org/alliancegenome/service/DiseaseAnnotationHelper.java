@@ -2,7 +2,7 @@ package org.alliancegenome.service;
 
 import org.alliancegenome.curation_api.model.entities.BiologicalEntity;
 
-public class DiseaseAnnotationService {
+public class DiseaseAnnotationHelper {
 
 	// convenience method to extract the entity name from a biological Entity, which is either
 	// gene

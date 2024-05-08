@@ -6,7 +6,6 @@ import org.alliancegenome.api.entity.DiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.core.translators.tdf.DiseaseDownloadRow;
 import org.alliancegenome.core.translators.tdf.DownloadHeader;
-import org.alliancegenome.curation_api.model.entities.ExperimentalCondition;
 import org.alliancegenome.curation_api.model.entities.*;
 import org.alliancegenome.curation_api.model.entities.base.SubmittedObject;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
@@ -14,7 +13,7 @@ import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.CrossReference;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.*;
-import org.alliancegenome.service.DiseaseAnnotationService;
+import org.alliancegenome.service.DiseaseAnnotationHelper;
 import org.apache.commons.collections.CollectionUtils;
 
 import java.util.*;
@@ -289,17 +288,9 @@ public class DiseaseAnnotationToTdfTranslator {
 		if (CollectionUtils.isNotEmpty(diseaseGeneticModifiers)) {
 			row.setDiseaseGeneticModifierID(diseaseGeneticModifiers.stream().map(SubmittedObject::getIdentifier).collect(Collectors.joining("|")));
 			StringJoiner joiner = new StringJoiner("|");
-			diseaseGeneticModifiers.forEach(entity -> joiner.add(DiseaseAnnotationService.getEntityName(entity)));
+			diseaseGeneticModifiers.forEach(entity -> joiner.add(DiseaseAnnotationHelper.getEntityName(entity)));
 			row.setDiseaseGeneticModifierName(joiner.toString());
 		}
-/*
-		if (CollectionUtils.isNotEmpty(primaryAnnotation.getConditionRelations())) {
-			String condition = primaryAnnotation.getConditionRelations().stream().map(conditionRelation -> {
-				return conditionRelation.getConditionRelationType().getName() + ": " + conditionRelation.getConditions().stream().map(ExperimentalCondition::getConditionSummary).collect(Collectors.joining(";"));
-			}).collect(Collectors.joining("|"));
-			row.setExperimentalCondition(condition);
-		}
-*/
 	}
 
 
