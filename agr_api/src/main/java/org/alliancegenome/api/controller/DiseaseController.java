@@ -7,6 +7,8 @@ import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.alliancegenome.api.entity.AGMDiseaseAnnotationDocument;
+import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.api.rest.interfaces.DiseaseRESTInterface;
 import org.alliancegenome.api.service.DiseaseESService;
@@ -102,31 +104,45 @@ public class DiseaseController implements DiseaseRESTInterface {
 	}
 
 	@Override
-	public JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotationsByAllele(String id, Integer limit, Integer page, String sortBy, String geneName, String alleleName, String species, String disease, String source, String reference, String evidenceCode, String associationType, String asc) {
+	public JsonResultResponse<AlleleDiseaseAnnotationDocument> getDiseaseAnnotationsByAllele(String id,
+																							 Integer limit,
+																							 Integer page,
+																							 String sortBy,
+																							 String geneName,
+																							 String alleleName,
+																							 String diseaseName,
+																							 String species,
+																							 String disease,
+																							 String dataProvider,
+																							 String reference,
+																							 String evidenceCode,
+																							 String associationType,
+																							 String diseaseQualifier,
+																							 String asc) {
 		long startTime = System.currentTimeMillis();
 		// The @DefaultValue only kicks in if the value is null.
 		// need to handle an empty value manually here.
 		if (sortBy.trim().isEmpty())
 			sortBy = SortingField.DISEASE_ALLELE_DEFAULT.toString();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
-		pagination.addFieldFilter(FieldFilter.GENE_NAME, geneName);
-		pagination.addFieldFilter(FieldFilter.ALLELE, alleleName);
-		pagination.addFieldFilter(FieldFilter.SPECIES, species);
-		pagination.addFieldFilter(FieldFilter.DISEASE, disease);
-		pagination.addFieldFilter(FieldFilter.SOURCE, source);
-		pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
-		pagination.addFieldFilter(FieldFilter.EVIDENCE_CODE, evidenceCode);
-		pagination.addFieldFilter(FieldFilter.ASSOCIATION_TYPE, associationType);
+		pagination.addFilterOption("subject.taxon.name.keyword", species);
+		pagination.addFilterOption("subject.alleleSymbol.displayText", alleleName);
+		pagination.addFilterOption("subject.taxon.name.keyword", species);
+		pagination.addFilterOption("evidenceCodes.abbreviation", evidenceCode);
+		pagination.addFilterOption("generatedRelationString.keyword", associationType);
+		pagination.addFilterOption("diseaseQualifiers.keyword", diseaseQualifier);
+		pagination.addFilterOption("pubmedPubModIDs", reference);
+		pagination.addFilterOption("primaryAnnotations.dataProvider.sourceOrganization.abbreviation", dataProvider);
+		pagination.addFilterOption("object.name", diseaseName);
 		if (pagination.hasErrors()) {
 			RestErrorMessage message = new RestErrorMessage();
 			message.setErrors(pagination.getErrors());
 			throw new RestErrorException(message);
 		}
 		try {
-			JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotationsWithAlleles(id, pagination);
+			JsonResultResponse<AlleleDiseaseAnnotationDocument> response = diseaseESService.getDiseaseAnnotationsWithAlleles(id, pagination);
 			response.setHttpServletRequest(null);
 			response.calculateRequestDuration(startTime);
-
 			return response;
 		} catch (Exception e) {
 			Log.error("Error while retrieving disease annotations by allele", e);
@@ -137,10 +153,58 @@ public class DiseaseController implements DiseaseRESTInterface {
 	}
 
 	@Override
-	public Response getDiseaseAnnotationsByAlleleDownload(String id, String sortBy, String geneName, String alleleName, String species, String disease, String source, String reference, String evidenceCode, String associationType, String asc) {
-		JsonResultResponse<DiseaseAnnotation> response = getDiseaseAnnotationsByAllele(id, Integer.MAX_VALUE, null, sortBy, geneName, alleleName, species, disease, source, reference, evidenceCode, associationType, asc);
-		Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRowsForAllele(response.getResults()));
-		APIServiceHelper.setDownloadHeader(id, EntityType.DISEASE, EntityType.ALLELE, responseBuilder);
+	public Response getDiseaseAnnotationsByAlleleDownload(String id,
+														  Integer limit,
+														  Integer page,
+														  String sortBy,
+														  String geneName,
+														  String alleleName,
+														  String diseaseName,
+														  String species,
+														  String disease,
+														  String source,
+														  String reference,
+														  String evidenceCode,
+														  String associationType,
+														  String diseaseQualifier,
+														  boolean fullDownload,
+														  String downloadFileType,
+														  String asc) {
+		JsonResultResponse<AlleleDiseaseAnnotationDocument> response = getDiseaseAnnotationsByAllele(id, 150000, null, sortBy, geneName, alleleName, disease, species, disease, source, reference, evidenceCode, associationType, diseaseQualifier, asc);
+		Response.ResponseBuilder responseBuilder = null;
+		String allRowsForAlleles = translator.getAllRowsForAlleleDiseaseAnnotations(response.getResults());
+
+		if (fullDownload) {
+			if (downloadFileType == null || downloadFileType.equalsIgnoreCase("tsv")) {
+				String data = FileHelper.getFileContent("templates/all-disease-association-file-header.txt");
+				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+				String dateString = format.format(new Date());
+				data = data.replace("${date}", dateString);
+
+				String taxonIDs = species;
+				if (StringUtils.isEmpty(taxonIDs)) {
+					taxonIDs = SpeciesType.getAllTaxonIDs();
+				}
+				data = data.replace("${taxonIDs}", taxonIDs);
+				data += allRowsForAlleles;
+				responseBuilder = Response.ok(data);
+				APIServiceHelper.setDownloadHeader(id, EntityType.DISEASE, EntityType.ALLELE, responseBuilder);
+			} else if (downloadFileType.equalsIgnoreCase("JSON")) {
+				try {
+					String data = mapper.writerWithView(View.DiseaseAnnotationSummary.class).writeValueAsString(response);
+					responseBuilder = Response.ok(data);
+					APIServiceHelper.setDownloadHeader(id, EntityType.DISEASE, EntityType.ALLELE, responseBuilder);
+				} catch (JsonProcessingException e) {
+					e.printStackTrace();
+				}
+			} else {
+				responseBuilder = Response.ok("The file type [" + downloadFileType + "] is not supported. Please use tsv or JSON");
+				APIServiceHelper.setDownloadHeader(id, EntityType.DISEASE, EntityType.ALLELE, responseBuilder);
+			}
+		} else {
+			responseBuilder = Response.ok(allRowsForAlleles);
+			APIServiceHelper.setDownloadHeader(id, EntityType.DISEASE, EntityType.ALLELE, responseBuilder);
+		}
 		return responseBuilder.build();
 	}
 
@@ -254,24 +318,44 @@ public class DiseaseController implements DiseaseRESTInterface {
 	}
 
 	@Override
-	public JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotationsForModel(String id, Integer limit, Integer page, String sortBy, String modelName, String geneName, String species, String disease, String source, String reference, String evidenceCode, String associationType, String asc) {
+	public JsonResultResponse<AGMDiseaseAnnotationDocument> getDiseaseAnnotationsForModel(String diseaseID,
+																						  Integer limit,
+																						  Integer page,
+																						  String sortBy,
+																						  String modelName,
+																						  String geneName,
+																						  String species,
+																						  String disease,
+																						  String source,
+																						  String reference,
+																						  String evidenceCode,
+																						  String associationType,
+																						  String diseaseQualifier,
+																						  String conditionModifier,
+																						  String experimentalCondition,
+																						  String geneticModifier,
+																						  String asc) {
 		long startTime = System.currentTimeMillis();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
-		pagination.addFieldFilter(FieldFilter.GENE_NAME, geneName);
-		pagination.addFieldFilter(FieldFilter.SPECIES, species);
-		pagination.addFieldFilter(FieldFilter.DISEASE, disease);
-		pagination.addFieldFilter(FieldFilter.SOURCE, source);
-		pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
-		pagination.addFieldFilter(FieldFilter.EVIDENCE_CODE, evidenceCode);
-		pagination.addFieldFilter(FieldFilter.MODEL_NAME, modelName);
-		pagination.addFieldFilter(FieldFilter.ASSOCIATION_TYPE, associationType);
+		pagination.addFilterOption("subject.name", modelName);
+		pagination.addFilterOption("subject.taxon.name.keyword", species);
+		pagination.addFilterOption("evidenceCodes.abbreviation", evidenceCode);
+		pagination.addFilterOption("generatedRelationString.keyword", associationType);
+		pagination.addFilterOption("conditionModifierAggregated", conditionModifier);
+		pagination.addFilterOption("experimentalConditionsAggregated", experimentalCondition);
+		pagination.addFilterOption("geneticModifierAggregated", geneticModifier);
+		pagination.addFilterOption("diseaseQualifiers.keyword", diseaseQualifier);
+		pagination.addFilterOption("pubmedPubModIDs", reference);
+		pagination.addFilterOption("primaryAnnotations.dataProvider.sourceOrganization.abbreviation", source);
+		pagination.addFilterOption("object.name", disease);
+
 		if (pagination.hasErrors()) {
 			RestErrorMessage message = new RestErrorMessage();
 			message.setErrors(pagination.getErrors());
 			throw new RestErrorException(message);
 		}
 		try {
-			JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotationsWithAGM(id, pagination);
+			JsonResultResponse<AGMDiseaseAnnotationDocument> response = diseaseESService.getDiseaseAnnotationsWithModels(diseaseID, pagination, true, false);
 			response.setHttpServletRequest(null);
 			response.calculateRequestDuration(startTime);
 
@@ -285,8 +369,22 @@ public class DiseaseController implements DiseaseRESTInterface {
 	}
 
 	@Override
-	public Response getDiseaseAnnotationsForModelDownload(String id, String sortBy, String modelName, String geneName, String species, String disease, String source, String reference, String evidenceCode, String associationType, String asc) {
-		JsonResultResponse<DiseaseAnnotation> response = getDiseaseAnnotationsForModel(id, Integer.MAX_VALUE, null, sortBy, modelName, geneName, species, disease, source, reference, evidenceCode, associationType, asc);
+	public Response getDiseaseAnnotationsForModelDownload(String id,
+														  String sortBy,
+														  String modelName,
+														  String geneName,
+														  String species,
+														  String disease,
+														  String source,
+														  String reference,
+														  String evidenceCode,
+														  String associationType,
+														  String diseaseQualifier,
+														  String conditionModifier,
+														  String experimentalCondition,
+														  String geneticModifier,
+														  String asc) {
+		JsonResultResponse<AGMDiseaseAnnotationDocument> response = getDiseaseAnnotationsForModel(id, 20_000, null, sortBy, modelName, geneName, species, disease, source, reference, evidenceCode, associationType, diseaseQualifier, conditionModifier, experimentalCondition, geneticModifier, asc);
 		Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRowsForModel(response.getResults()));
 		APIServiceHelper.setDownloadHeader(id, EntityType.DISEASE, EntityType.MODEL, responseBuilder);
 		return responseBuilder.build();
@@ -432,11 +530,6 @@ public class DiseaseController implements DiseaseRESTInterface {
 		List<DiseaseAnnotation> alleleAnnotations = new ArrayList<>();
 		List<DiseaseAnnotation> geneAnnotations = new ArrayList<>();
 		List<DiseaseAnnotation> modelAnnotations = new ArrayList<>();
-		speciesIDs.forEach(species -> {
-			alleleAnnotations.addAll(getDiseaseAnnotationsByAllele(diseaseID, Integer.MAX_VALUE, null, sortBy, null, null, species, null, null, null, null, null, null).getResults());
-			modelAnnotations.addAll(getDiseaseAnnotationsForModel(diseaseID, Integer.MAX_VALUE, null, sortBy, null, null, species, null, null, null, null, null, null).getResults());
-			//geneAnnotations.addAll(getDiseaseAnnotationsByGene(diseaseID, Integer.MAX_VALUE, null, sortBy, null, species, null, null, null, null, null, null, null).getResults());
-		});
 		Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRowsForGenesAndAlleles(geneAnnotations, alleleAnnotations, modelAnnotations));
 		return responseBuilder.build();
 	}

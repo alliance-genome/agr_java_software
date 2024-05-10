@@ -22,7 +22,6 @@ import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -238,7 +237,7 @@ public class DiseaseESService {
 
 		SearchResponse searchResponseHistogram = searchDAO.performQuery(
 			bool, aggBuilders, null, geneDiseaseSearchHelper.getResponseFields(),
-			0, 0, new HighlightBuilder(), useSpeciesAggregation ? getAnnotationSorts(focusTaxonId, debug) : null , debug);
+			0, 0, new HighlightBuilder(), useSpeciesAggregation ? getAnnotationSorts(focusTaxonId, debug) : null, debug);
 
 		Map<String, List<String>> distinctFieldValueMap = new HashMap<>();
 		aggregationFields.forEach((field, colName) -> {
@@ -424,14 +423,6 @@ public class DiseaseESService {
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
 
 		List<GeneDiseaseAnnotationDocument> list = new ArrayList<>();
-		ObjectMapper mapper2 = new ObjectMapper();
-		JavaTimeModule module = new JavaTimeModule();
-		mapper2.registerModule(module);
-		mapper2.registerModule(new Jdk8Module());
-
-		mapper2.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-		mapper2.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-		mapper2.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 
 		for (SearchHit searchHit : searchResponse.getHits().getHits()) {
 			try {
@@ -446,5 +437,97 @@ public class DiseaseESService {
 		return ret;
 	}
 
+	public JsonResultResponse<AGMDiseaseAnnotationDocument> getDiseaseAnnotationsWithModels(String diseaseID, Pagination pagination, boolean excludeNegatedAnnotation, boolean debug) {
+		BoolQueryBuilder bool = boolQuery();
+		BoolQueryBuilder bool2 = boolQuery();
+		bool.must(bool2);
 
+		bool.filter(new TermQueryBuilder("category", "agm_disease_annotation"));
+		bool2.should(new MatchQueryBuilder("parentSlimIDs.keyword", diseaseID));
+
+		JsonResultResponse<AGMDiseaseAnnotationDocument> ret = new JsonResultResponse<>();
+		ret.setSupplementalData(getSupplementalData(null, true, debug, bool));
+
+		// create histogram of select columns of unfiltered query
+		addTableFilter(pagination, bool);
+
+		// Sorting sets for different names of the sorting selection box
+		Map<String, List<String>> sortingSetMap = new HashMap<>();
+		sortingSetMap.put("default", List.of("phylogeneticSortingIndex", "subject.name.sort"));
+		sortingSetMap.put("model", List.of("subject.name.sort", "phylogeneticSortingIndex"));
+		sortingSetMap.put("disease", List.of("object.name.sort", "phylogeneticSortingIndex", "subject.name.sort"));
+		sortingSetMap.put("species", List.of("subject.taxon.name.keyword", "subject.name.sort"));
+
+		LinkedHashMap<String, SortOrder> sortingMap = new LinkedHashMap<>();
+
+		List<String> sortFields = sortingSetMap.get(pagination.getSortBy());
+		if (sortFields == null) {
+			sortFields = sortingSetMap.get("default");
+		}
+		sortFields.forEach(sortField -> sortingMap.put(sortField, SortOrder.ASC));
+
+		SearchResponse searchResponse = getSearchResponse(bool, pagination, sortingMap, debug);
+		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
+
+		List<AGMDiseaseAnnotationDocument> list = new ArrayList<>();
+
+		for (SearchHit searchHit : searchResponse.getHits().getHits()) {
+			try {
+				AGMDiseaseAnnotationDocument object = mapper.readValue(searchHit.getSourceAsString(), AGMDiseaseAnnotationDocument.class);
+				object.setUniqueId(searchHit.getId());
+				list.add(object);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		ret.setResults(list);
+		return ret;
+	}
+
+	public JsonResultResponse<AlleleDiseaseAnnotationDocument> getDiseaseAnnotationsWithAlleles(String diseaseID, Pagination pagination) {
+		BoolQueryBuilder bool = boolQuery();
+		BoolQueryBuilder bool2 = boolQuery();
+		bool.must(bool2);
+
+		bool.filter(new TermQueryBuilder("category", "allele_disease_annotation"));
+		bool2.should(new MatchQueryBuilder("parentSlimIDs.keyword", diseaseID));
+
+		JsonResultResponse<AlleleDiseaseAnnotationDocument> ret = new JsonResultResponse<>();
+		Map<String, Object> supData = getSupplementalData(null, true, false, bool);
+		ret.setSupplementalData(supData);
+
+		// create histogram of select columns of unfiltered query
+		addTableFilter(pagination, bool);
+
+		// Sorting sets for different names of the sorting selection box
+		Map<String, List<String>> sortingSetMap = new HashMap<>();
+		sortingSetMap.put("default", List.of("phylogeneticSortingIndex", "subject.alleleSymbol.displayText.sort"));
+		sortingSetMap.put("allele", List.of("subject.alleleSymbol.displayText.sort", "phylogeneticSortingIndex"));
+		sortingSetMap.put("disease", List.of("object.name.sort", "phylogeneticSortingIndex", "subject.alleleSymbol.displayText.sort"));
+		sortingSetMap.put("species", List.of("subject.taxon.name.keyword", "subject.alleleSymbol.displayText.sort"));
+
+		LinkedHashMap<String, SortOrder> sortingMap = new LinkedHashMap<>();
+
+		List<String> sortFields = sortingSetMap.get(pagination.getSortBy());
+		if (sortFields == null) {
+			sortFields = sortingSetMap.get("default");
+		}
+		sortFields.forEach(sortField -> sortingMap.put(sortField, SortOrder.ASC));
+
+		SearchResponse searchResponse = getSearchResponse(bool, pagination, sortingMap, false);
+		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
+		List<AlleleDiseaseAnnotationDocument> list = new ArrayList<>();
+
+		for (SearchHit searchHit : searchResponse.getHits().getHits()) {
+			try {
+				AlleleDiseaseAnnotationDocument annotationDocument = mapper.readValue(searchHit.getSourceAsString(), AlleleDiseaseAnnotationDocument.class);
+				annotationDocument.setUniqueId(searchHit.getId());
+				list.add(annotationDocument);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		ret.setResults(list);
+		return ret;
+	}
 }

@@ -1,11 +1,11 @@
 package org.alliancegenome.api.translators.tdf;
 
+import org.alliancegenome.api.entity.AGMDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.DiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.core.translators.tdf.DiseaseDownloadRow;
 import org.alliancegenome.core.translators.tdf.DownloadHeader;
-import org.alliancegenome.curation_api.model.entities.ExperimentalCondition;
 import org.alliancegenome.curation_api.model.entities.*;
 import org.alliancegenome.curation_api.model.entities.base.SubmittedObject;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
@@ -13,6 +13,7 @@ import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.CrossReference;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.core.helpers.DiseaseAnnotationHelper;
 import org.apache.commons.collections.CollectionUtils;
 
 import java.util.*;
@@ -184,6 +185,13 @@ public class DiseaseAnnotationToTdfTranslator {
 			subjectTaxonName = subject.getTaxon().getName();
 			subjectID = subject.getIdentifier();
 			subjectSymbol = subject.getAlleleSymbol().getDisplayText();
+		} else if (annotation instanceof AGMDiseaseAnnotationDocument document) {
+			org.alliancegenome.curation_api.model.entities.AffectedGenomicModel subject = document.getSubject();
+			subjectTaxonCurie = subject.getTaxon().getCurie();
+			subjectTaxonName = subject.getTaxon().getName();
+			subjectID = subject.getIdentifier();
+			subjectSymbol = subject.getName();
+			row.setEntityType(subject.getSubtype().getName());
 		} else {
 			subjectID = null;
 		}
@@ -228,13 +236,19 @@ public class DiseaseAnnotationToTdfTranslator {
 		if (primaryAnnotation.getDiseaseGeneticModifierRelation() != null) {
 			row.setDiseaseGeneticModifierRelation(primaryAnnotation.getDiseaseGeneticModifierRelation().getName());
 		}
+		if (annotation.getExperimentalConditionList() != null) {
+			row.setExperimentalCondition(annotation.getExperimentalConditionsAggregated());
+		}
+		if (annotation.getConditionModifierAggregated() != null) {
+			row.setConditionModifier(annotation.getConditionModifierAggregated());
+		}
 		row.setReference(primaryAnnotation.getSingleReference().getReferenceID());
 		row.setSource(primaryAnnotation.getDataProviderString());
-		List<String> urlExpceptionHandler = List.of("MGI", "SGD", "OMIM");
+		List<String> urlExceptionHandler = List.of("MGI", "SGD", "OMIM");
 		DataProvider dataProvider = primaryAnnotation.getDataProvider();
 		if (dataProvider != null && dataProvider.getCrossReference() != null) {
 			String urlTemplate = dataProvider.getCrossReference().getResourceDescriptorPage().getUrlTemplate();
-			if (urlExpceptionHandler.contains(dataProvider.getSourceOrganization().getAbbreviation())) {
+			if (urlExceptionHandler.contains(dataProvider.getSourceOrganization().getAbbreviation())) {
 				// remove the prefix in the template as the prefix is already in the curie.
 				urlTemplate = urlTemplate.replace(dataProvider.getSourceOrganization().getAbbreviation() + ":", "");
 			}
@@ -274,24 +288,8 @@ public class DiseaseAnnotationToTdfTranslator {
 		if (CollectionUtils.isNotEmpty(diseaseGeneticModifiers)) {
 			row.setDiseaseGeneticModifierID(diseaseGeneticModifiers.stream().map(SubmittedObject::getIdentifier).collect(Collectors.joining("|")));
 			StringJoiner joiner = new StringJoiner("|");
-			diseaseGeneticModifiers.forEach(entity -> {
-				if (entity instanceof org.alliancegenome.curation_api.model.entities.Gene gene) {
-					joiner.add(gene.getGeneSymbol().getFormatText());
-				}
-				if (entity instanceof org.alliancegenome.curation_api.model.entities.Allele allele) {
-					joiner.add(allele.getAlleleSymbol().getFormatText());
-				}
-				if (entity instanceof org.alliancegenome.curation_api.model.entities.AffectedGenomicModel model) {
-					joiner.add(model.getName());
-				}
-			});
+			diseaseGeneticModifiers.forEach(entity -> joiner.add(DiseaseAnnotationHelper.getEntityName(entity)));
 			row.setDiseaseGeneticModifierName(joiner.toString());
-		}
-		if (CollectionUtils.isNotEmpty(primaryAnnotation.getConditionRelations())) {
-			String condition = primaryAnnotation.getConditionRelations().stream().map(conditionRelation -> {
-				return conditionRelation.getConditionRelationType().getName() + ": " + conditionRelation.getConditions().stream().map(ExperimentalCondition::getConditionSummary).collect(Collectors.joining(";"));
-			}).collect(Collectors.joining("|"));
-			row.setExperimentalCondition(condition);
 		}
 	}
 
@@ -423,21 +421,35 @@ public class DiseaseAnnotationToTdfTranslator {
 		return row;
 	}
 
-	public String getAllRowsForModel(List<DiseaseAnnotation> diseaseAnnotations) {
+	public String getAllRowsForModel(List<AGMDiseaseAnnotationDocument> diseaseAnnotations) {
 
-		List<DiseaseDownloadRow> list = getDiseaseModelDownloadRows(diseaseAnnotations);
+		List<DiseaseDownloadRow> list = getDownloadRowsFromGeneDiseaseAnnotations(diseaseAnnotations);
 
 		List<DownloadHeader> headers = List.of(
+			new DownloadHeader<>("Species Name", (DiseaseDownloadRow::getSpeciesName)),
+			new DownloadHeader<>("Species ID", (DiseaseDownloadRow::getSpeciesID)),
 			new DownloadHeader<>("Model ID", (DiseaseDownloadRow::getMainEntityID)),
 			new DownloadHeader<>("Model Symbol", (DiseaseDownloadRow::getMainEntitySymbol)),
-			new DownloadHeader<>("Species ID", (DiseaseDownloadRow::getSpeciesID)),
-			new DownloadHeader<>("Species Name", (DiseaseDownloadRow::getSpeciesName)),
+			new DownloadHeader<>("Model Type", (DiseaseDownloadRow::getEntityType)),
+			new DownloadHeader<>("Model Association", (DiseaseDownloadRow::getAssociation)),
+			new DownloadHeader<>("Disease Qualifier", (DiseaseDownloadRow::getDiseaseQualifier)),
 			new DownloadHeader<>("Disease ID", (DiseaseDownloadRow::getDiseaseID)),
 			new DownloadHeader<>("Disease Name", (DiseaseDownloadRow::getDiseaseName)),
 			new DownloadHeader<>("Evidence Code", (DiseaseDownloadRow::getEvidenceCode)),
+			new DownloadHeader<>("Evidence Code Abbreviation", (DiseaseDownloadRow::getEvidenceAbbreviation)),
 			new DownloadHeader<>("Evidence Code Name", (DiseaseDownloadRow::getEvidenceCodeName)),
+			new DownloadHeader<>("Experimental Conditions", (DiseaseDownloadRow::getExperimentalCondition)),
+			new DownloadHeader<>("Condition Modifiers", (DiseaseDownloadRow::getConditionModifier)),
+			new DownloadHeader<>("Genetic Modifier Relation", (DiseaseDownloadRow::getDiseaseGeneticModifierRelation)),
+			new DownloadHeader<>("Genetic Modifier IDs", (DiseaseDownloadRow::getDiseaseGeneticModifierID)),
+			new DownloadHeader<>("Genetic Modifier Names", (DiseaseDownloadRow::getDiseaseGeneticModifierName)),
+			new DownloadHeader<>("Genetic Sex", (DiseaseDownloadRow::getGeneticSex)),
+			new DownloadHeader<>("Notes", (DiseaseDownloadRow::getNote)),
+			new DownloadHeader<>("Annotation Type", (DiseaseDownloadRow::getAnnotationType)),
 			new DownloadHeader<>("Source", (DiseaseDownloadRow::getSource)),
-			new DownloadHeader<>("Reference", (DiseaseDownloadRow::getReference))
+			new DownloadHeader<>("Source URL", (DiseaseDownloadRow::getSourceUrl)),
+			new DownloadHeader<>("Reference", (DiseaseDownloadRow::getReference)),
+			new DownloadHeader<>("Date", (DiseaseDownloadRow::getDateAssigned))
 		);
 
 		return DownloadHeader.getDownloadOutput(list, headers);

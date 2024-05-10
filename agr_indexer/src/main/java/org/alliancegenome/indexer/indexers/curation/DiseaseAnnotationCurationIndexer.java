@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.alliancegenome.api.entity.AGMDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
+import org.alliancegenome.api.entity.DiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.curation_api.model.entities.*;
 import org.alliancegenome.curation_api.model.entities.base.SubmittedObject;
@@ -20,6 +21,7 @@ import org.alliancegenome.indexer.indexers.curation.service.GeneDiseaseAnnotatio
 import org.alliancegenome.indexer.indexers.curation.service.VocabularyService;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
+import org.alliancegenome.core.helpers.DiseaseAnnotationHelper;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -97,13 +99,6 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 			pairs.getRight().addAll(geneArrayListPair.getRight());
 		});
 		geneViaOrthologyMap = geneService.getOrthologousGeneDiseaseAnnotations(generatedImplicatedGeneMap);
-/*
-		Map<Gene, List<DiseaseAnnotation>> geneViaOrthologyMap = geneService.getOrthologousGeneDiseaseAnnotations(generatedImplicatedGeneMap);
-		geneViaOrthologyMap.forEach((gene, diseaseAnnotations) -> {
-			List<DiseaseAnnotation> das = geneViaOrthologyMap.computeIfAbsent(gene, gene1 -> new ArrayList<>());
-			das.addAll(diseaseAnnotations);
-		});
-*/
 	}
 
 	private List<GeneDiseaseAnnotationDocument> getGeneDiseaseAnnotationViaOrthologyDocuments() {
@@ -207,20 +202,14 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 					addCreatedDiseaseAnnotationsImplicatedToMap(generatedAnnotation, gene);
 				}
 
-				String key = relation.getName() + "_" + da.getDiseaseAnnotationObject().getName() + "_" + da.getNegated();
-
-				if (da.getDiseaseQualifiers() != null) {
-					key += "_" + da.getDiseaseQualifiers().stream().map(VocabularyTerm::getName).sorted().collect(Collectors.joining("_"));
-				}
+				String key = getConsolidationKey(da, relation.getName());
 
 				if (da.getWith() != null && da.getWith().size() > 0) {
 					key += "_" + da.getWith().stream().map(Gene::getIdentifier).sorted().collect(Collectors.joining("_"));
 				}
 
-				GeneDiseaseAnnotationDocument gdad = lookup.get(key);
-
-				if (gdad == null) {
-					gdad = new GeneDiseaseAnnotationDocument();
+				GeneDiseaseAnnotationDocument gdad = lookup.computeIfAbsent(key, (k) ->new GeneDiseaseAnnotationDocument());
+				if (gdad.getSubject() == null) {
 					gdad.setSubject(gene);
 					HashMap<String, Integer> order = SpeciesType.getSpeciesOrderByTaxonID(gene.getTaxon().getCurie());
 					gdad.setSpeciesOrder(order);
@@ -228,28 +217,9 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 					String generatedRelationString = getGeneratedRelationString(gdad.getRelation().getName(), da.getNegated());
 					gdad.setGeneratedRelationString(generatedRelationString);
 					gdad.setObject(da.getDiseaseAnnotationObject());
-					gdad.setParentSlimIDs(closureMap.get(da.getDiseaseAnnotationObject().getCurie()));
-					lookup.put(key, gdad);
 				}
-
-				Map<String, ECOTerm> evidenceCodesMap = new HashMap<>();
-				if (gdad.getEvidenceCodes() != null) {
-					gdad.getEvidenceCodes().forEach(ecoTerm -> evidenceCodesMap.put(ecoTerm.getCurie(), ecoTerm));
-				}
-				if (da.getEvidenceCodes() != null) {
-					da.getEvidenceCodes().forEach(ecoTerm -> evidenceCodesMap.put(ecoTerm.getCurie(), ecoTerm));
-				}
-				gdad.setEvidenceCodes(evidenceCodesMap.values().stream().toList());
-
-				if (CollectionUtils.isNotEmpty(da.getDiseaseQualifiers())) {
-					Set<String> diseaseQualifiers = da.getDiseaseQualifiers().stream().map(VocabularyTerm::getName).collect(Collectors.toSet());
-					gdad.setDiseaseQualifiers(diseaseQualifiers);
-				}
-				gdad.addReference(da.getSingleReference());
-				gdad.addPubMedPubModID(getPubmedPubModID(da.getSingleReference()));
-				gdad.addPrimaryAnnotation(da);
+				populateBaseDiseaseAnnotationDocument(gene, da, gdad);
 				gdad.addBasedOnGenes(da.getWith());
-				gdad.setPhylogeneticSortingIndex(getPhylogeneticSortOrder(gene.getTaxon().getCurie()));
 			}
 			ph.progressProcess();
 			ret.addAll(lookup.values());
@@ -305,6 +275,9 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 	private String getGeneratedRelationString(String relation, Boolean negated) {
 		if (!negated)
 			return relation;
+		if (relation.equals("is_model_of")) {
+			return "does_not_model";
+		}
 		return relation.replaceFirst("_", "_not_");
 	}
 
@@ -327,34 +300,19 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 					relation = da.getRelation();
 				}
 
-				String key = relation.getName() + "_" + da.getDiseaseAnnotationObject().getName() + "_" + da.getNegated();
-				AlleleDiseaseAnnotationDocument adad = lookup.get(key);
-
-				if (adad == null) {
-					adad = new AlleleDiseaseAnnotationDocument();
-					HashMap<String, Integer> order = SpeciesType.getSpeciesOrderByTaxonID(entry.getValue().getLeft().getTaxon().getCurie());
+				String key = getConsolidationKey(da, relation.getName());
+				AlleleDiseaseAnnotationDocument adad = lookup.computeIfAbsent(key, (k) ->new AlleleDiseaseAnnotationDocument());
+				Allele allele = entry.getValue().getLeft();
+				if (adad.getSubject() == null) {
+					HashMap<String, Integer> order = SpeciesType.getSpeciesOrderByTaxonID(allele.getTaxon().getCurie());
 					adad.setSpeciesOrder(order);
-					adad.setSubject(entry.getValue().getLeft());
+					adad.setSubject(allele);
 					adad.setRelation(relation);
 					String generatedRelationString = getGeneratedRelationString(relation.getName(), da.getNegated());
 					adad.setGeneratedRelationString(generatedRelationString);
 					adad.setObject(da.getDiseaseAnnotationObject());
-					lookup.put(key, adad);
 				}
-				adad.setEvidenceCodes(da.getEvidenceCodes());
-				if (CollectionUtils.isNotEmpty(da.getDiseaseQualifiers())) {
-					Set<String> diseaseQualifiers = da.getDiseaseQualifiers().stream().map(term -> term.getName().replace("_", " ")).collect(Collectors.toSet());
-					adad.setDiseaseQualifiers(diseaseQualifiers);
-				}
-				adad.setParentSlimIDs(closureMap.get(da.getDiseaseAnnotationObject().getCurie()));
-
-				// gdad.setDataProvider(da.getDataProvider());
-				adad.addReference(da.getSingleReference());
-				adad.addPubMedPubModID(getPubmedPubModID(da.getSingleReference()));
-				if (da instanceof AlleleDiseaseAnnotation || da instanceof AGMDiseaseAnnotation) {
-					adad.addPrimaryAnnotation(da);
-				}
-
+				populateBaseDiseaseAnnotationDocument(allele, da, adad);
 			}
 			ph.progressProcess();
 			ret.addAll(lookup.values());
@@ -373,23 +331,28 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 
 		for (Entry<String, Pair<AffectedGenomicModel, ArrayList<DiseaseAnnotation>>> entry : agmMap.entrySet()) {
 			HashMap<String, AGMDiseaseAnnotationDocument> lookup = new HashMap<>();
-
+			AffectedGenomicModel model = entry.getValue().getLeft();
 			for (DiseaseAnnotation da : entry.getValue().getRight()) {
-				String key = da.getRelation().getName() + "_" + da.getDiseaseAnnotationObject().getName() + "_" + da.getNegated();
-				AGMDiseaseAnnotationDocument adad = lookup.get(key);
+				String key = getConsolidationKey(da);
+				// include genetic modifier info
+				key += getGeneticModifierConsolidatedKey(da);
+				// include experiment condition info
+				key += getExperimentConditionConsolidatedKey(da);
 
-				if (adad == null) {
-					adad = new AGMDiseaseAnnotationDocument();
-					HashMap<String, Integer> order = SpeciesType.getSpeciesOrderByTaxonID(entry.getValue().getLeft().getTaxon().getCurie());
+				AGMDiseaseAnnotationDocument adad = lookup.computeIfAbsent(key, (k) ->new AGMDiseaseAnnotationDocument());
+				if (adad.getSubject() == null) {
+					HashMap<String, Integer> order = SpeciesType.getSpeciesOrderByTaxonID(model.getTaxon().getCurie());
 					adad.setSpeciesOrder(order);
-					adad.setSubject(entry.getValue().getLeft());
+					adad.setSubject(model);
 					adad.setRelation(da.getRelation());
+					String generatedRelationString = getGeneratedRelationString(da.getRelation().getName(), da.getNegated());
+					adad.setGeneratedRelationString(generatedRelationString);
 					adad.setObject(da.getDiseaseAnnotationObject());
-					lookup.put(key, adad);
 				}
-				adad.setEvidenceCodes(da.getEvidenceCodes());
-				// gdad.setDataProvider(da.getDataProvider());
-				adad.addReference(da.getSingleReference());
+				populateBaseDiseaseAnnotationDocument(model, da, adad);
+				populateConditionModifier(da, adad);
+				populateExperimentalConditions(da, adad);
+				populateGeneticModifier(da, adad);
 			}
 			ph.progressProcess();
 			ret.addAll(lookup.values());
@@ -397,6 +360,107 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		}
 		ph.finishProcess();
 		return ret;
+	}
+
+	private void populateBaseDiseaseAnnotationDocument(BiologicalEntity biologicalEntity, DiseaseAnnotation da, DiseaseAnnotationDocument dad) {
+		dad.setParentSlimIDs(closureMap.get(da.getDiseaseAnnotationObject().getCurie()));
+		// gdad.setDataProvider(da.getDataProvider());
+		dad.addReference(da.getSingleReference());
+		dad.addPubMedPubModID(getPubmedPubModID(da.getSingleReference()));
+		dad.addPrimaryAnnotation(da);
+		dad.setPhylogeneticSortingIndex(getPhylogeneticSortOrder(biologicalEntity.getTaxon().getCurie()));
+		dad.addEvidenceCodes(da.getEvidenceCodes());
+		if (CollectionUtils.isNotEmpty(da.getDiseaseQualifiers())) {
+			Set<String> diseaseQualifiers = da.getDiseaseQualifiers().stream().map(term -> term.getName().replace("_", " ")).collect(Collectors.toSet());
+			dad.setDiseaseQualifiers(diseaseQualifiers);
+		}
+	}
+
+	private static String getGeneticModifierConsolidatedKey(DiseaseAnnotation da) {
+		if (da.getDiseaseGeneticModifierRelation() == null && CollectionUtils.isEmpty(da.getDiseaseGeneticModifiers()))
+			return null;
+		return da.getDiseaseGeneticModifierRelation() + "_"
+			+ da.getDiseaseGeneticModifiers().stream().map(SubmittedObject::getIdentifier).collect(Collectors.joining(","));
+	}
+
+	private static String getConditionRelationConsolidatedKey(ConditionRelation relation) {
+		if (relation == null)
+			return null;
+		return relation.getConditions().stream().map(ExperimentalCondition::getConditionSummary).collect(Collectors.joining(","));
+	}
+
+	private static String getExperimentConditionConsolidatedKey(DiseaseAnnotation da) {
+		if (CollectionUtils.isEmpty(da.getConditionRelations()))
+			return null;
+		return da.getConditionRelations().stream().map(conditionRelation ->
+			conditionRelation.getConditionRelationType().getName() + "_" + getConditionRelationConsolidatedKey(conditionRelation)).collect(Collectors.joining(","));
+	}
+
+	private static String getConsolidationKey(DiseaseAnnotation da) {
+		return getConsolidationKey(da, null);
+	}
+
+	// Consolidated fields
+	// association type
+	// disease name
+	// negation
+	// disease qualifier
+	private static String getConsolidationKey(DiseaseAnnotation da, String relation) {
+		String key = da.getRelation().getName();
+		if (relation != null) {
+			key = relation;
+		}
+		key += "_" + da.getDiseaseAnnotationObject().getName() + "_" + da.getNegated();
+		if (da.getDiseaseQualifiers() != null) {
+			key += "_" + da.getDiseaseQualifiers().stream().map(VocabularyTerm::getName).sorted().collect(Collectors.joining("_"));
+		}
+		return key;
+	}
+
+	private static void populateGeneticModifier(DiseaseAnnotation da, DiseaseAnnotationDocument adad) {
+		if (CollectionUtils.isNotEmpty(da.getDiseaseGeneticModifiers())) {
+			List<BiologicalEntity> geneticModifiers = da.getDiseaseGeneticModifiers().stream()
+				.filter(Objects::nonNull)
+				.toList();
+			adad.setGeneticModifierList(geneticModifiers);
+			List<String> geneticModifierComponents = new ArrayList<>();
+			geneticModifierComponents.add(da.getDiseaseGeneticModifierRelation().getName());
+			geneticModifierComponents.addAll(geneticModifiers.stream().map(DiseaseAnnotationHelper::getEntityName).toList());
+			adad.setGeneticModifierAggregated(String.join(",", geneticModifierComponents));
+			adad.setGeneticModifierRelation(da.getDiseaseGeneticModifierRelation());
+		}
+	}
+
+	private static void populateConditionModifier(DiseaseAnnotation da, DiseaseAnnotationDocument adad) {
+		if (CollectionUtils.isNotEmpty(da.getConditionRelations())) {
+			List<ConditionRelation> conditionModifiers = da.getConditionRelations().stream()
+				.filter(conditionRelation -> conditionRelation.getConditionRelationType() != null)
+				.filter(conditionRelation -> conditionRelation.getConditionRelationType().getName().contains("ameliorated") ||
+					conditionRelation.getConditionRelationType().getName().contains("exacerbated"))
+				.toList();
+			adad.setConditionModifierList(conditionModifiers);
+			List<String> conditionComponents = new ArrayList<>(conditionModifiers.stream().map(conditionRelation -> conditionRelation.getConditionRelationType().getName()).toList());
+			conditionModifiers.forEach(conditionRelation -> conditionRelation.getConditions().forEach(experimentalCondition -> {
+				conditionComponents.add(experimentalCondition.getConditionSummary());
+			}));
+			adad.setConditionModifierAggregated(String.join(",", conditionComponents));
+		}
+	}
+
+	private static void populateExperimentalConditions(DiseaseAnnotation da, AGMDiseaseAnnotationDocument adad) {
+		if (CollectionUtils.isNotEmpty(da.getConditionRelations())) {
+			List<ConditionRelation> conditionModifiers = da.getConditionRelations().stream()
+				.filter(conditionRelation -> conditionRelation.getConditionRelationType() != null)
+				.filter(conditionRelation -> conditionRelation.getConditionRelationType().getName().contains("has_condition") ||
+					conditionRelation.getConditionRelationType().getName().contains("induced"))
+				.toList();
+			adad.setExperimentalConditionList(conditionModifiers);
+			List<String> experimentalConditionComponents = new ArrayList<>(conditionModifiers.stream().map(conditionRelation -> conditionRelation.getConditionRelationType().getName()).toList());
+			conditionModifiers.forEach(conditionRelation -> conditionRelation.getConditions().forEach(experimentalCondition -> {
+				experimentalConditionComponents.add(experimentalCondition.getConditionSummary());
+			}));
+			adad.setExperimentalConditionsAggregated(String.join(",", experimentalConditionComponents));
+		}
 	}
 
 	private void indexGenes() {

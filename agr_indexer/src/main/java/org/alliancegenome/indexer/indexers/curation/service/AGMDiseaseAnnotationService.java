@@ -33,7 +33,8 @@ public class AGMDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 		HashMap<String, Object> params = new HashMap<>();
 		params.put("internal", false);
 		params.put("obsolete", false);
-		//params.put("diseaseAnnotationSubject.modEntityId", "ZFIN:ZDB-FISH-221207-4");
+		//params.put("diseaseAnnotationSubject.modEntityId", "WB:WBStrain00024340");
+		//params.put("diseaseAnnotationSubject.modEntityId", "ZFIN:ZDB-FISH-150901-27842");
 
 		do {
 			SearchResponse<AGMDiseaseAnnotation> response = agmApi.findForPublic(page, batchSize, params);
