@@ -25,7 +25,7 @@ public class GenePhenotypeAnnotationService extends BaseDiseaseAnnotationService
 	private OrganizationService orgService = new OrganizationService();
 	private ReferenceService referenceService = new ReferenceService();
 
-	private final String cacheFileName = "gene_disease_annotation.json.gz";
+	private final String cacheFileName = "gene_phenotype_annotation.json.gz";
 
 	public List<GenePhenotypeAnnotation> getFiltered() {
 		ProcessDisplayHelper display = new ProcessDisplayHelper(2000);

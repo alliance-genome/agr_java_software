@@ -74,7 +74,7 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 		indexAGMs();
 
 		List<GenePhenotypeAnnotationDocument> geneList = createGeneDiseaseAnnotationDocuments();
-		log.info("Indexing " + geneList.size() + " Gene PA documents");
+		log.info("Indexing " + String.format("%,d", geneList.size()) + " Gene PA documents");
 		indexDocuments(geneList);
 
 /*
@@ -82,16 +82,12 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 		log.info("Indexing " + alleleList.size() + " allele documents");
 		indexDocuments(alleleList);
 
-*/
-		List<AGMPhenotypeAnnotationDocument> agmList = createAGMDiseaseAnnotationDocuments();
-		log.info("Indexing " + agmList.size() + " AGM PA documents");
+		List<AGMPhenotypeAnnotationDocument> agmList = createAGMPhenotypeAnnotationDocuments();
+		log.info("Indexing " + String.format("%,d", agmList.size()) + " AGM PA documents");
 		indexDocuments(agmList);
+*/
 		log.info("Finished Indexing Phenotype Annotations");
 		diseaseRepository.close();
-	}
-
-	private List<GeneDiseaseAnnotationDocument> getGeneDiseaseAnnotationViaOrthologyDocuments() {
-		return createGeneDiseaseAnnotationViaOrthologyDocuments();
 	}
 
 	private List<GeneDiseaseAnnotationDocument> createGeneDiseaseAnnotationViaOrthologyDocuments() {
@@ -263,55 +259,12 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 		return relation.replaceFirst("_", "_not_");
 	}
 
-/*
-	private List<AllelePhenotypeAnnotationDocument> createAlleleDiseaseAnnotationDocuments() {
-
-		List<AlleleDiseaseAnnotationDocument> ret = new ArrayList<>();
-
-		ProcessDisplayHelper ph = new ProcessDisplayHelper(10000);
-		ph.startProcess("Creating Allele Disease Annotations", alleleMap.size());
-
-		VocabularyTerm relation = vocabService.getDiseaseRelationTerms().get("is_implicated_in");
-
-		for (Entry<String, Pair<Allele, ArrayList<DiseaseAnnotation>>> entry : alleleMap.entrySet()) {
-			HashMap<String, AlleleDiseaseAnnotationDocument> lookup = new HashMap<>();
-
-			for (DiseaseAnnotation da : entry.getValue().getRight()) {
-
-				// use this relation if inherited (inferred or asserted) from an AGM DA.
-				if (da instanceof AlleleDiseaseAnnotation) {
-					relation = da.getRelation();
-				}
-
-				String key = getConsolidationKey(da);
-				AlleleDiseaseAnnotationDocument adad = lookup.computeIfAbsent(key, (k) -> new AlleleDiseaseAnnotationDocument());
-				Allele allele = entry.getValue().getLeft();
-				if (adad.getSubject() == null) {
-					HashMap<String, Integer> order = SpeciesType.getSpeciesOrderByTaxonID(allele.getTaxon().getCurie());
-					adad.setSpeciesOrder(order);
-					adad.setSubject(allele);
-					adad.setRelation(relation);
-					String generatedRelationString = getGeneratedRelationString(relation.getName(), da.getNegated());
-					adad.setGeneratedRelationString(generatedRelationString);
-					adad.setObject(da.getDiseaseAnnotationObject());
-				}
-				populateBasePhenotypeAnnotationDocument(allele, da, adad);
-			}
-			ph.progressProcess();
-			ret.addAll(lookup.values());
-			lookup.clear();
-		}
-		ph.finishProcess();
-		return ret;
-	}
-*/
-
-	private List<AGMPhenotypeAnnotationDocument> createAGMDiseaseAnnotationDocuments() {
+	private List<AGMPhenotypeAnnotationDocument> createAGMPhenotypeAnnotationDocuments() {
 
 		List<AGMPhenotypeAnnotationDocument> ret = new ArrayList<>();
 
 		ProcessDisplayHelper ph = new ProcessDisplayHelper(10000);
-		ph.startProcess("Creating AGM Disease Annotations", agmMap.size());
+		ph.startProcess("Creating AGM PS Annotations", agmMap.size());
 
 		for (Entry<String, Pair<AffectedGenomicModel, ArrayList<PhenotypeAnnotation>>> entry : agmMap.entrySet()) {
 			HashMap<String, AGMPhenotypeAnnotationDocument> lookup = new HashMap<>();
@@ -425,13 +378,13 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 	}
 
 	private void indexGenes() {
-		List<GenePhenotypeAnnotation> geneDiseaseAnnotations = geneService.getFiltered();
-		addDiseaseAnnotationsToLGlobalMap(geneDiseaseAnnotations);
+		List<GenePhenotypeAnnotation> genePhenotypeAnnotations = geneService.getFiltered();
+		addPhenotypeAnnotationsToLGlobalMap(genePhenotypeAnnotations);
 	}
 
-	private void addDiseaseAnnotationsToLGlobalMap(List<GenePhenotypeAnnotation> geneDiseaseAnnotations) {
-		log.info("Filtered Genes: " + geneDiseaseAnnotations.size());
-		for (GenePhenotypeAnnotation da : geneDiseaseAnnotations) {
+	private void addPhenotypeAnnotationsToLGlobalMap(List<GenePhenotypeAnnotation> genePhenotypeAnnotations) {
+		log.info("Filtered Gene PAs: " + String.format("%,d", genePhenotypeAnnotations.size()));
+		for (GenePhenotypeAnnotation da : genePhenotypeAnnotations) {
 			Gene gene = da.getPhenotypeAnnotationSubject();
 			Pair<Gene, ArrayList<PhenotypeAnnotation>> pair = geneMap.computeIfAbsent(gene.getIdentifier(), geneCurie -> Pair.of(gene, new ArrayList<>()));
 			pair.getRight().add(da);
@@ -465,16 +418,9 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 	}
 */
 
-	private void extractGeneDiseaseAnnotations(PhenotypeAnnotation da, Gene inferredGene) {
+	private void extractGenePhenotypeAnnotations(PhenotypeAnnotation da, Gene inferredGene) {
 		if (inferredGene != null && !inferredGene.getInternal()) {
 			Pair<Gene, ArrayList<PhenotypeAnnotation>> pair = geneMap.computeIfAbsent(inferredGene.getIdentifier(), k -> Pair.of(inferredGene, new ArrayList<>()));
-			pair.getRight().add(da);
-		}
-	}
-
-	private void extractAlleleDiseaseAnnotations(DiseaseAnnotation da, Allele inferredAllele) {
-		if (inferredAllele != null && !inferredAllele.getInternal()) {
-			Pair<Allele, ArrayList<DiseaseAnnotation>> pair = alleleMap.computeIfAbsent(inferredAllele.getIdentifier(), k -> Pair.of(inferredAllele, new ArrayList<>()));
 			pair.getRight().add(da);
 		}
 	}
@@ -482,7 +428,7 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 	private void indexAGMs() {
 
 		List<AGMPhenotypeAnnotation> agmDiseaseAnnotations = agmService.getFiltered();
-		log.info("Filtered AGMs: " + agmDiseaseAnnotations.size());
+		log.info("Filtered AGM PAs: " + String.format("%,d", agmDiseaseAnnotations.size()));
 
 		for (AGMPhenotypeAnnotation da : agmDiseaseAnnotations) {
 			AffectedGenomicModel genomicModel = da.getPhenotypeAnnotationSubject();
@@ -490,20 +436,12 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 			allelePair.getRight().add(da);
 
 			Gene inferredGene = da.getInferredGene();
-			extractGeneDiseaseAnnotations(da, inferredGene);
+			extractGenePhenotypeAnnotations(da, inferredGene);
 			if (da.getAssertedGenes() != null) {
 				for (Gene gene : da.getAssertedGenes()) {
-					extractGeneDiseaseAnnotations(da, gene);
+					extractGenePhenotypeAnnotations(da, gene);
 				}
 			}
-
-			Allele inferredAllele = da.getInferredAllele();
-/*
-			extractAlleleDiseaseAnnotations(da, inferredAllele);
-			if (da.getAssertedAllele() != null) {
-				extractAlleleDiseaseAnnotations(da, da.getAssertedAllele());
-			}
-*/
 		}
 	}
 
