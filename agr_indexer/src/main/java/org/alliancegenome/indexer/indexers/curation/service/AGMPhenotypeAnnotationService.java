@@ -22,7 +22,7 @@ public class AGMPhenotypeAnnotationService extends BaseDiseaseAnnotationService 
 	private OrganizationService orgService = new OrganizationService();
 	private ReferenceService referenceService = new ReferenceService();
 
-	private final String cacheFileName = "agm_disease_annotation.json.gz";
+	private final String cacheFileName = "agm_phenotype_annotation.json.gz";
 
 	public List<AGMPhenotypeAnnotation> getFiltered() {
 		ProcessDisplayHelper display = new ProcessDisplayHelper(2000);
@@ -43,7 +43,7 @@ public class AGMPhenotypeAnnotationService extends BaseDiseaseAnnotationService 
 		do {
 			SearchResponse<AGMPhenotypeAnnotation> response = agmApi.findForPublic(page, batchSize, params);
 			for (AGMPhenotypeAnnotation da : response.getResults()) {
-				if (isValidEntity(allGeneIDs, da.getPhenotypeAnnotationSubject().getIdentifier())) {
+				if (isValidEntity(allModelIDs, da.getPhenotypeAnnotationSubject().getIdentifier())) {
 					ret.add(da);
 				}
 			}

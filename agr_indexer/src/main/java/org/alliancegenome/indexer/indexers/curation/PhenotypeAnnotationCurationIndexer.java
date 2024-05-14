@@ -67,7 +67,7 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 		diseaseRepository = new DiseaseRepository();
 		closureMap = diseaseRepository.getDOClosureChildMapping();
 
-		//indexGenes();
+		indexGenes();
 /*
 		indexAlleles();
 */
