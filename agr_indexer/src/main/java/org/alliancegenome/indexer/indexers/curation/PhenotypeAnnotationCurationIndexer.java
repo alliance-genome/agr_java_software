@@ -73,8 +73,9 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 */
 		indexAGMs();
 
-		List<GenePhenotypeAnnotationDocument> list = createGeneDiseaseAnnotationDocuments();
-		indexDocuments(list);
+		List<GenePhenotypeAnnotationDocument> geneList = createGeneDiseaseAnnotationDocuments();
+		log.info("Indexing " + geneList.size() + " Gene PA documents");
+		indexDocuments(geneList);
 
 /*
 		List<AlleleDiseaseAnnotationDocument> alleleList = createAlleleDiseaseAnnotationDocuments();
@@ -83,7 +84,7 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 
 */
 		List<AGMPhenotypeAnnotationDocument> agmList = createAGMDiseaseAnnotationDocuments();
-		log.info("Indexing " + agmList.size() + " agm documents");
+		log.info("Indexing " + agmList.size() + " AGM PA documents");
 		indexDocuments(agmList);
 		log.info("Finished Indexing Phenotype Annotations");
 		diseaseRepository.close();
@@ -172,7 +173,7 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 
 		List<GenePhenotypeAnnotationDocument> ret = new ArrayList<>();
 		ProcessDisplayHelper ph = new ProcessDisplayHelper(10000);
-		ph.startProcess("Creating Gene Disease Annotations", geneMap.size());
+		ph.startProcess("Creating Gene Phenotype Annotations", geneMap.size());
 
 		final VocabularyTerm relationIsImplicatedIn = vocabService.getDiseaseRelationTerms().get("is_implicated_in");
 

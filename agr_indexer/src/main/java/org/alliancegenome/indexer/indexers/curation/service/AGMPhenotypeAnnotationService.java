@@ -49,7 +49,7 @@ public class AGMPhenotypeAnnotationService extends BaseDiseaseAnnotationService 
 			}
 
 			if (page == 0) {
-				display.startProcess("Pulling Gene PA's from curation", response.getTotalResults());
+				display.startProcess("Pulling AGM PA's from curation", response.getTotalResults());
 			}
 			display.progressProcess(response.getReturnedRecords().longValue());
 			pages = (int) (response.getTotalResults() / batchSize);
