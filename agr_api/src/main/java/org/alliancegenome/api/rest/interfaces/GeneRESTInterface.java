@@ -7,6 +7,7 @@ import org.alliancegenome.api.dto.ExpressionSummary;
 import org.alliancegenome.api.dto.JoinTypeValue;
 import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
+import org.alliancegenome.api.entity.GenePhenotypeAnnotationDocument;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.DiseaseSummary;
@@ -243,7 +244,7 @@ public interface GeneRESTInterface {
 
 	@GET
 	@Path("/{id}/phenotypes")
-	@JsonView(value = {View.PhenotypeAPI.class})
+	@JsonView(value = {View.PhenotypeAnnotationAll.class})
 	@Operation(summary = "Retrieve phenotype term name annotations for a given gene")
 	@APIResponses(
 		value = {
@@ -255,8 +256,8 @@ public interface GeneRESTInterface {
 				responseCode = "200",
 				description = "Phenotype annotations for a gene.",
 				content = @Content(mediaType = "application/json",
-					schema = @Schema(implementation = Null.class)))})
-	JsonResultResponse<PhenotypeAnnotation> getPhenotypeAnnotations(
+					schema = @Schema(implementation = PhenotypeAnnotation.class)))})
+	JsonResultResponse<GenePhenotypeAnnotationDocument> getPhenotypeAnnotations(
 		@Parameter(in = ParameterIn.PATH, name = "id", description = "Gene by ID: e.g. ZFIN:ZDB-GENE-990415-8", required = true, schema = @Schema(type = SchemaType.STRING))
 		@PathParam("id") String id,
 		@Parameter(in = ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))

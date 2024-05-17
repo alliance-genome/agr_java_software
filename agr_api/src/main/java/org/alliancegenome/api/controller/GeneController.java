@@ -12,6 +12,7 @@ import org.alliancegenome.api.dto.ExpressionSummary;
 import org.alliancegenome.api.dto.JoinTypeValue;
 import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
+import org.alliancegenome.api.entity.GenePhenotypeAnnotationDocument;
 import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
 import org.alliancegenome.api.service.AlleleService;
 import org.alliancegenome.api.service.DiseaseESService;
@@ -370,10 +371,15 @@ public class GeneController implements GeneRESTInterface {
 	}
 
 	@Override
-	public JsonResultResponse<PhenotypeAnnotation> getPhenotypeAnnotations(String id, Integer limit, Integer page, String sortBy, String geneticEntity, String geneticEntityType, String phenotype, String reference, String asc) {
+	public JsonResultResponse<GenePhenotypeAnnotationDocument> getPhenotypeAnnotations(String id, Integer limit, Integer page, String sortBy,
+																		   String geneticEntity,
+																		   String geneticEntityType,
+																		   String phenotype,
+																		   String reference,
+																		   String asc) {
 		long startTime = System.currentTimeMillis();
 		try {
-			JsonResultResponse<PhenotypeAnnotation> phenotypes = getPhenotypeAnnotationDocumentJsonResultResponse(id, limit, page, sortBy, geneticEntity, geneticEntityType, phenotype, reference, asc);
+			JsonResultResponse<GenePhenotypeAnnotationDocument> phenotypes = getPhenotypeAnnotationDocumentJsonResultResponse(id, limit, page, sortBy, geneticEntity, geneticEntityType, phenotype, reference, asc);
 			phenotypes.setHttpServletRequest(null);
 			phenotypes.calculateRequestDuration(startTime);
 			return phenotypes;
@@ -395,16 +401,19 @@ public class GeneController implements GeneRESTInterface {
 			String reference,
 			String asc) {
 		// retrieve all records
-		JsonResultResponse<PhenotypeAnnotation> response =
+		JsonResultResponse<GenePhenotypeAnnotationDocument> response =
 				getPhenotypeAnnotationDocumentJsonResultResponse(id, Integer.MAX_VALUE, 1, sortBy,
 						geneticEntity,
 						geneticEntityType,
 						phenotype,
 						reference,
 						asc);
+/*
 		Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRows(response.getResults()));
 		APIServiceHelper.setDownloadHeader(id, EntityType.GENE, EntityType.PHENOTYPE, responseBuilder);
 		return responseBuilder.build();
+*/
+		return null;
 	}
 
 
@@ -483,8 +492,16 @@ public class GeneController implements GeneRESTInterface {
 		}
 	}
 
-	private JsonResultResponse<PhenotypeAnnotation> getPhenotypeAnnotationDocumentJsonResultResponse(String id, Integer limit, Integer page, String sortBy, String geneticEntity, String geneticEntityType, String phenotype, String reference, String asc) {
-		if (sortBy.isEmpty()) {
+	private JsonResultResponse<GenePhenotypeAnnotationDocument> getPhenotypeAnnotationDocumentJsonResultResponse(String id,
+																									 Integer limit,
+																									 Integer page,
+																									 String sortBy,
+																									 String geneticEntity,
+																									 String geneticEntityType,
+																									 String phenotype,
+																									 String reference,
+																									 String asc) {
+		if (sortBy.isEmpty()){
 			sortBy = FieldFilter.PHENOTYPE.getName();
 		}
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
@@ -492,7 +509,7 @@ public class GeneController implements GeneRESTInterface {
 		pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY_TYPE, geneticEntityType);
 		pagination.addFieldFilter(FieldFilter.PHENOTYPE, phenotype);
 		pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
-		JsonResultResponse<PhenotypeAnnotation> phenotypeAnnotations = geneService.getPhenotypeAnnotations(id, pagination);
+		JsonResultResponse<GenePhenotypeAnnotationDocument> phenotypeAnnotations = geneService.getPhenotypeAnnotations(id, pagination);
 		phenotypeAnnotations.addAnnotationSummarySupplementalData(getPhenotypeSummary(id));
 		return phenotypeAnnotations;
 	}

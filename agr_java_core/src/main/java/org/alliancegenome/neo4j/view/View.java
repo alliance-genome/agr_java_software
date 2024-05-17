@@ -12,6 +12,12 @@ public class View {
 	public static class SimpleView {
 	}
 
+	public static class PhenotypeAnnotation extends API {
+	}
+
+	public static class PhenotypeAnnotationAll extends PhenotypeAnnotation {
+	}
+
 	public static class API extends Default {
 	}
 
@@ -83,5 +89,5 @@ public class View {
 
 	public static class AlleleVariantSequenceConverterForES {
 	} // This needs to NOT extend Default as this controls specifically what gets
-		// serialized and what doesn't.
+	// serialized and what doesn't.
 }

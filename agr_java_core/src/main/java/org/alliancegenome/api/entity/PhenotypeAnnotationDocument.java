@@ -17,6 +17,8 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper = true)
 public class PhenotypeAnnotationDocument extends SearchableItemDocument {
 
+	public static final String GENE_PHENOTYPE_ANNOTATION = "gene_phenotype_annotation";
+
 	private String uniqueId;
 	private VocabularyTerm relation;
 	private String phenotypeStatement;

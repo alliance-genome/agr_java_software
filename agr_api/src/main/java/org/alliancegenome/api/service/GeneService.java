@@ -1,19 +1,16 @@
 package org.alliancegenome.api.service;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
-
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
 import org.alliancegenome.api.entity.AlleleVariantSequence;
+import org.alliancegenome.api.entity.GenePhenotypeAnnotationDocument;
 import org.alliancegenome.cache.repository.AlleleCacheRepository;
 import org.alliancegenome.cache.repository.InteractionCacheRepository;
-import org.alliancegenome.cache.repository.PhenotypeCacheRepository;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.cache.repository.helper.PaginationResult;
 import org.alliancegenome.core.variant.service.AlleleVariantIndexService;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.EntitySummary;
-import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
@@ -24,8 +21,9 @@ import org.alliancegenome.neo4j.repository.InteractionRepository;
 import org.alliancegenome.neo4j.repository.PhenotypeRepository;
 import org.apache.commons.collections.CollectionUtils;
 
-import jakarta.enterprise.context.RequestScoped;
-import jakarta.inject.Inject;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RequestScoped
 public class GeneService {
@@ -33,14 +31,18 @@ public class GeneService {
 	private static GeneRepository geneRepo = new GeneRepository();
 	private static InteractionRepository interRepo = new InteractionRepository();
 	private static PhenotypeRepository phenoRepo = new PhenotypeRepository();
-	
-	@Inject AlleleVariantIndexService alleleVariantIndexService;
-	
-	@Inject AlleleCacheRepository alleleCacheRepository;
 
-	@Inject InteractionCacheRepository interCacheRepo;
+	@Inject
+	AlleleVariantIndexService alleleVariantIndexService;
 
-	@Inject PhenotypeCacheRepository phenoCacheRepo;
+	@Inject
+	AlleleCacheRepository alleleCacheRepository;
+
+	@Inject
+	InteractionCacheRepository interCacheRepo;
+
+	@Inject
+	PhenotypeESService phenotypeESService;
 
 	public Gene getById(String id) {
 		Gene gene = geneRepo.getOneGene(id);
@@ -50,7 +52,7 @@ public class GeneService {
 		}
 		return gene;
 	}
-	
+
 	public List<BioEntityGeneExpressionJoin> getExpressionAnnotationsByTaxon(String taxon, String termID, Pagination pagination) {
 		return geneRepo.getExpressionAnnotationsByTaxon(taxon, termID, pagination);
 	}
@@ -97,13 +99,10 @@ public class GeneService {
 		return getInteractions(id, pagination, "");
 	}
 
-	public JsonResultResponse<PhenotypeAnnotation> getPhenotypeAnnotations(String geneID, Pagination pagination) {
+	public JsonResultResponse<GenePhenotypeAnnotationDocument> getPhenotypeAnnotations(String geneID, Pagination pagination) {
 		LocalDateTime startDate = LocalDateTime.now();
-		PaginationResult<PhenotypeAnnotation> list = phenoCacheRepo.getPhenotypeAnnotationList(geneID, pagination);
-		JsonResultResponse<PhenotypeAnnotation> response = new JsonResultResponse<>();
+		JsonResultResponse<GenePhenotypeAnnotationDocument> response = phenotypeESService.getGenePhenotypeAnnotations(geneID, pagination, false);
 		response.calculateRequestDuration(startDate);
-		response.setResults(list.getResult());
-		response.setTotal(list.getTotalNumber());
 		return response;
 	}
 
@@ -127,15 +126,15 @@ public class GeneService {
 			taxonIDs = SpeciesType.getAllTaxonIDList();
 		} else {
 			taxonIDs = species.stream()
-					.map(SpeciesType::getTaxonId)
-					.collect(Collectors.toList());
+				.map(SpeciesType::getTaxonId)
+				.collect(Collectors.toList());
 		}
 		if (CollectionUtils.isEmpty(taxonIDs)) {
 			return null;
 		}
 		List<String> taxIDs = taxonIDs.stream()
-				.map(SpeciesType::getTaxonId)
-				.collect(Collectors.toList());
+			.map(SpeciesType::getTaxonId)
+			.collect(Collectors.toList());
 		return geneRepo.getAllGenes(taxIDs);
 	}
 

@@ -10,13 +10,13 @@ import org.alliancegenome.neo4j.view.View;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @JsonPropertyOrder({"subject", "gene", "relation", "object", "primaryAnnotations"})
-@JsonView({View.DiseaseAnnotationAll.class})
+@JsonView({View.PhenotypeAnnotationAll.class})
 public class GenePhenotypeAnnotationDocument extends PhenotypeAnnotationDocument {
 
 	private Gene subject;
 
 	public GenePhenotypeAnnotationDocument() {
-		setCategory("gene_phenotype_annotation");
+		setCategory(GENE_PHENOTYPE_ANNOTATION);
 	}
 
 }
