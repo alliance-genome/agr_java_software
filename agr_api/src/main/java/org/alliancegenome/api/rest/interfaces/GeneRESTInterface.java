@@ -244,7 +244,6 @@ public interface GeneRESTInterface {
 
 	@GET
 	@Path("/{id}/phenotypes")
-	@JsonView(value = {View.PhenotypeAnnotationAll.class})
 	@Operation(summary = "Retrieve phenotype term name annotations for a given gene")
 	@APIResponses(
 		value = {
