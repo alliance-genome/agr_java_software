@@ -92,9 +92,9 @@ public class Mapping extends Builder {
 		new FieldBuilder(builder, "subject.geneSymbol.displayText", "text").keyword().sort().build();
 		new FieldBuilder(builder, "subject.name", "text").keyword().sort().build();
 		new FieldBuilder(builder, "subject.modEntityId", "text").keyword().sort().build();
+		new FieldBuilder(builder, "phenotypeStatement", "text").keyword().sort().build();
 		new FieldBuilder(builder, "phenotypeStatements", "text")
 				.keyword()
-				.sort()
 				.build();
 		new FieldBuilder(builder, "popularity", "double").build();
 		new FieldBuilder(builder, "primaryKey", "keyword").build();
