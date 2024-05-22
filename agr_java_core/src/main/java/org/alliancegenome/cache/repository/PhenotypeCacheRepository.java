@@ -27,23 +27,6 @@ public class PhenotypeCacheRepository {
 	@Inject
 	CacheService cacheService;
 
-	public PaginationResult<PhenotypeAnnotation> getPhenotypeAnnotationList(String geneID, Pagination pagination) {
-
-		List<PhenotypeAnnotation> fullPhenotypeAnnotationList = getPhenotypeAnnotationList(geneID);
-
-		// remove GENE annotations from PAE list
-		// filtering
-		PaginationResult<PhenotypeAnnotation> result = new PaginationResult<>();
-		FilterService<PhenotypeAnnotation> filterService = new FilterService<>(new PhenotypeAnnotationFiltering());
-		if (CollectionUtils.isNotEmpty(fullPhenotypeAnnotationList)) {
-			List<PhenotypeAnnotation> filteredAnnotations = filterService.filterAnnotations(fullPhenotypeAnnotationList, pagination.getFieldFilterValueMap());
-			filterService.getSortedAndPaginatedAnnotations(pagination, filteredAnnotations, new PhenotypeAnnotationSorting());
-			result.setTotalNumber(filteredAnnotations.size());
-			result.setResult(filterService.getPaginatedAnnotations(pagination, filteredAnnotations));
-		}
-		return result;
-	}
-
 	private List<PhenotypeAnnotation> getSortedAndPaginatedDiseaseAnnotations(Pagination pagination, List<PhenotypeAnnotation> fullDiseaseAnnotationList) {
 		// sorting
 		SortingField sortingField = null;
