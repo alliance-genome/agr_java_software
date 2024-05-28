@@ -71,8 +71,10 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		closureMap = diseaseRepository.getDOClosureChildMapping();
 
 		indexGenes();
+/*
 		indexAlleles();
 		indexAGMs();
+*/
 
 		List<GeneDiseaseAnnotationDocument> list = createGeneDiseaseAnnotationDocuments();
 		createDiseaseAnnotationsFromOrthology();
@@ -256,6 +258,27 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		return phylogeneticSortOrder;
 	}
 
+	private DiseaseAnnotation createImplicatedDA(DiseaseAnnotation da) {
+		DiseaseAnnotation implicatedDA;
+		if (da instanceof AGMDiseaseAnnotation agmAnnotation) {
+			AGMDiseaseAnnotation agmAnno = new AGMDiseaseAnnotation();
+			agmAnno.setDiseaseAnnotationSubject(agmAnnotation.getDiseaseAnnotationSubject());
+			implicatedDA = agmAnno;
+		} else if (da instanceof AlleleDiseaseAnnotation alleleAnno) {
+			AlleleDiseaseAnnotation alleleDA = new AlleleDiseaseAnnotation();
+			alleleDA.setDiseaseAnnotationSubject(alleleAnno.getDiseaseAnnotationSubject());
+			implicatedDA = alleleDA;
+		} else {
+			throw new RuntimeException("CreateImplicatedDA() Disease Annotations can only be used for AGM DAs or Allele DAs.");
+		}
+
+		implicatedDA.setRelation(da.getRelation());
+		implicatedDA.setDiseaseAnnotationObject(da.getDiseaseAnnotationObject());
+		implicatedDA.setDiseaseQualifiers(da.getDiseaseQualifiers());
+		implicatedDA.setSingleReference(da.getSingleReference());
+		implicatedDA.setEvidenceCodes(da.getEvidenceCodes());
+		return implicatedDA;
+	}
 
 	private String getPubmedPubModID(Reference singleReference) {
 		if (singleReference == null || CollectionUtils.isEmpty(singleReference.getCrossReferences())) {
