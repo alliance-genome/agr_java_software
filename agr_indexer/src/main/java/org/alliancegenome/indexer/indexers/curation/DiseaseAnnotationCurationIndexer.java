@@ -71,10 +71,8 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		closureMap = diseaseRepository.getDOClosureChildMapping();
 
 		indexGenes();
-/*
 		indexAlleles();
 		indexAGMs();
-*/
 
 		List<GeneDiseaseAnnotationDocument> list = createGeneDiseaseAnnotationDocuments();
 		createDiseaseAnnotationsFromOrthology();
