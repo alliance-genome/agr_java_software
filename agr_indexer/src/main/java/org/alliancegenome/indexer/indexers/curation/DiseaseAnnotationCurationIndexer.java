@@ -6,6 +6,7 @@ import org.alliancegenome.api.entity.AGMDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.DiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
+import org.alliancegenome.core.helpers.DiseaseAnnotationHelper;
 import org.alliancegenome.curation_api.model.entities.*;
 import org.alliancegenome.curation_api.model.entities.base.SubmittedObject;
 import org.alliancegenome.curation_api.model.entities.ontology.DOTerm;
@@ -21,7 +22,6 @@ import org.alliancegenome.indexer.indexers.curation.service.GeneDiseaseAnnotatio
 import org.alliancegenome.indexer.indexers.curation.service.VocabularyService;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
-import org.alliancegenome.core.helpers.DiseaseAnnotationHelper;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -208,7 +208,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 					key += "_" + da.getWith().stream().map(Gene::getIdentifier).sorted().collect(Collectors.joining("_"));
 				}
 
-				GeneDiseaseAnnotationDocument gdad = lookup.computeIfAbsent(key, (k) ->new GeneDiseaseAnnotationDocument());
+				GeneDiseaseAnnotationDocument gdad = lookup.computeIfAbsent(key, (k) -> new GeneDiseaseAnnotationDocument());
 				if (gdad.getSubject() == null) {
 					gdad.setSubject(gene);
 					HashMap<String, Integer> order = SpeciesType.getSpeciesOrderByTaxonID(gene.getTaxon().getCurie());
@@ -240,7 +240,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 	}
 
 	private DiseaseAnnotation createImplicatedDA(DiseaseAnnotation da) {
-		DiseaseAnnotation implicatedDA = null;
+		DiseaseAnnotation implicatedDA;
 		if (da instanceof AGMDiseaseAnnotation agmAnnotation) {
 			AGMDiseaseAnnotation agmAnno = new AGMDiseaseAnnotation();
 			agmAnno.setDiseaseAnnotationSubject(agmAnnotation.getDiseaseAnnotationSubject());
@@ -249,10 +249,12 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 			AlleleDiseaseAnnotation alleleDA = new AlleleDiseaseAnnotation();
 			alleleDA.setDiseaseAnnotationSubject(alleleAnno.getDiseaseAnnotationSubject());
 			implicatedDA = alleleDA;
+		} else {
+			throw new RuntimeException("CreateImplicatedDA() Disease Annotations can only be used for AGM DAs or Allele DAs.");
 		}
+
 		implicatedDA.setRelation(da.getRelation());
 		implicatedDA.setDiseaseAnnotationObject(da.getDiseaseAnnotationObject());
-		implicatedDA.setDiseaseQualifiers(da.getDiseaseQualifiers());
 		implicatedDA.setDiseaseQualifiers(da.getDiseaseQualifiers());
 		implicatedDA.setSingleReference(da.getSingleReference());
 		implicatedDA.setEvidenceCodes(da.getEvidenceCodes());
@@ -301,7 +303,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 				}
 
 				String key = getConsolidationKey(da, relation.getName());
-				AlleleDiseaseAnnotationDocument adad = lookup.computeIfAbsent(key, (k) ->new AlleleDiseaseAnnotationDocument());
+				AlleleDiseaseAnnotationDocument adad = lookup.computeIfAbsent(key, (k) -> new AlleleDiseaseAnnotationDocument());
 				Allele allele = entry.getValue().getLeft();
 				if (adad.getSubject() == null) {
 					HashMap<String, Integer> order = SpeciesType.getSpeciesOrderByTaxonID(allele.getTaxon().getCurie());
@@ -339,7 +341,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 				// include experiment condition info
 				key += getExperimentConditionConsolidatedKey(da);
 
-				AGMDiseaseAnnotationDocument adad = lookup.computeIfAbsent(key, (k) ->new AGMDiseaseAnnotationDocument());
+				AGMDiseaseAnnotationDocument adad = lookup.computeIfAbsent(key, (k) -> new AGMDiseaseAnnotationDocument());
 				if (adad.getSubject() == null) {
 					HashMap<String, Integer> order = SpeciesType.getSpeciesOrderByTaxonID(model.getTaxon().getCurie());
 					adad.setSpeciesOrder(order);
@@ -371,7 +373,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		dad.setPhylogeneticSortingIndex(getPhylogeneticSortOrder(biologicalEntity.getTaxon().getCurie()));
 		dad.addEvidenceCodes(da.getEvidenceCodes());
 		if (CollectionUtils.isNotEmpty(da.getDiseaseQualifiers())) {
-			Set<String> diseaseQualifiers = da.getDiseaseQualifiers().stream().map(term -> term.getName().replace("_", " ")).collect(Collectors.toSet());
+			Set<String> diseaseQualifiers = da.getDiseaseQualifiers().stream().map(VocabularyTerm::getName).collect(Collectors.toSet());
 			dad.setDiseaseQualifiers(diseaseQualifiers);
 		}
 	}
