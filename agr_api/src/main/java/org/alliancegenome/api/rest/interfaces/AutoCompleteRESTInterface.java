@@ -17,7 +17,7 @@ import jakarta.ws.rs.core.MediaType;
 public interface AutoCompleteRESTInterface {
 
 	@GET
-	public AutoCompleteResult searchAutoComplete(
+	AutoCompleteResult searchAutoComplete(
 			@QueryParam("q") String q,
 			@QueryParam("category") String category
 	);

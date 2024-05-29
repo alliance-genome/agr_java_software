@@ -30,12 +30,15 @@ public class PublicationDoclet extends ESDoclet implements Comparable<Publicatio
 
 	@Override
 	public int compareTo(PublicationDoclet comp) {
-		if (pubMedId != null && comp.pubMedId != null)
+		if (pubMedId != null && comp.pubMedId != null) {
 			return pubMedId.compareTo(comp.pubMedId);
-		if (comp.pubModId == null)
+		}
+		if (comp.pubModId == null) {
 			return -1;
-		if (pubModId == null)
+		}
+		if (pubModId == null) {
 			return +1;
+		}
 		return pubModId.compareToIgnoreCase(comp.pubModId);
 	}
 
@@ -43,8 +46,9 @@ public class PublicationDoclet extends ESDoclet implements Comparable<Publicatio
 	// otherwise the mod id
 	@JsonIgnore
 	public String getPubId() {
-		if (StringUtils.isNotEmpty(pubMedId))
+		if (StringUtils.isNotEmpty(pubMedId)) {
 			return pubMedId;
+		}
 		return pubModId;
 
 	}

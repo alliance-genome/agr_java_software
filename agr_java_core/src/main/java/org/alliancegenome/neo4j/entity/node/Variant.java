@@ -34,61 +34,48 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
 		this.crossReferenceType = CrossReferenceType.ALLELE;
 	}
 
-	@JsonView({View.Default.class, View.API.class,View.AlleleVariantSequenceConverterForES.class})
-	@JsonProperty(value = "displayName")
-	private String hgvsNomenclature;
-	
+	@JsonView({ View.Default.class, View.API.class, View.AlleleVariantSequenceConverterForES.class })
+	@JsonProperty(value = "displayName") private String hgvsNomenclature;
+
 	private List<String> hgvsNames;
 
-	@JsonView({View.Default.class, View.API.class,View.AlleleVariantSequenceConverterForES.class})
-	private String name;
+	@JsonView({ View.Default.class, View.API.class, View.AlleleVariantSequenceConverterForES.class }) private String name;
 
 	private String dataProvider;
-	@JsonView({View.API.class, View.AlleleVariantSequenceConverterForES.class})
-	private String genomicReferenceSequence;
-	@JsonView({View.API.class, View.AlleleVariantSequenceConverterForES.class})
-	private String genomicVariantSequence;
+	@JsonView({ View.API.class, View.AlleleVariantSequenceConverterForES.class }) private String genomicReferenceSequence;
+	@JsonView({ View.API.class, View.AlleleVariantSequenceConverterForES.class }) private String genomicVariantSequence;
 
 	private String paddingLeft = "";
 	private String paddingRight = "";
 
-	@Convert(value = DateConverter.class)
-	private Date dateProduced;
+	@Convert(value = DateConverter.class) private Date dateProduced;
 	private String release;
 
-	@JsonView({View.Default.class, View.API.class, View.AlleleVariantSequenceConverterForES.class})
-	@Relationship(type = "VARIATION_TYPE")
-	private SOTerm variantType;
+	@JsonView({ View.Default.class, View.API.class, View.AlleleVariantSequenceConverterForES.class })
+	@Relationship(type = "VARIATION_TYPE") private SOTerm variantType;
 
-	@JsonView({View.API.class, View.AlleleVariantSequenceConverterForES.class})
-	@Relationship(type = "COMPUTED_GENE", direction = Relationship.Direction.INCOMING)
-	private Gene gene;
+	@JsonView({ View.API.class, View.AlleleVariantSequenceConverterForES.class })
+	@Relationship(type = "COMPUTED_GENE", direction = Relationship.Direction.INCOMING) private Gene gene;
 
-	@JsonView({View.AlleleVariantSequenceConverterForES.class})
-	@Relationship(type = "ASSOCIATION")
-	protected GeneLevelConsequence geneLevelConsequence;
+	@JsonView({ View.AlleleVariantSequenceConverterForES.class })
+	@Relationship(type = "ASSOCIATION") protected GeneLevelConsequence geneLevelConsequence;
 
-	@JsonView({View.VariantAPI.class})
-	@Relationship(type = "ASSOCIATION")
-	protected Set<Note> notes;
+	@JsonView({ View.VariantAPI.class })
+	@Relationship(type = "ASSOCIATION") protected Set<Note> notes;
 
-	@JsonView({View.API.class})
-	@Relationship(type = "ASSOCIATION")
-	protected Set<Publication> publications;
+	@JsonView({ View.API.class })
+	@Relationship(type = "ASSOCIATION") protected Set<Publication> publications;
 
-	@JsonView({View.API.class, View.AlleleVariantSequenceConverterForES.class})
-	@Relationship(type = "ASSOCIATION")
-	private GenomeLocation location;
+	@JsonView({ View.API.class, View.AlleleVariantSequenceConverterForES.class })
+	@Relationship(type = "ASSOCIATION") private GenomeLocation location;
 
-	@JsonView({View.API.class})
-	@Relationship(type = "ASSOCIATION", direction = Relationship.Direction.INCOMING)
-	protected List<Transcript> transcriptList;
+	@JsonView({ View.API.class })
+	@Relationship(type = "ASSOCIATION", direction = Relationship.Direction.INCOMING) protected List<Transcript> transcriptList;
 
-	@JsonView({View.API.class, View.AlleleVariantSequenceConverterForES.class})
-	@Relationship(type = "ASSOCIATION")
-	protected List<TranscriptLevelConsequence> transcriptLevelConsequence;
+	@JsonView({ View.API.class, View.AlleleVariantSequenceConverterForES.class })
+	@Relationship(type = "ASSOCIATION") protected List<TranscriptLevelConsequence> transcriptLevelConsequence;
 
-	@JsonView({View.API.class,View.AlleleVariantSequenceConverterForES.class})
+	@JsonView({ View.API.class, View.AlleleVariantSequenceConverterForES.class })
 	@JsonProperty(value = "consequence")
 	public String getConsequence() {
 		return geneLevelConsequence != null ? geneLevelConsequence.getGeneLevelConsequence() : null;
@@ -96,8 +83,9 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
 
 	@JsonProperty(value = "consequence")
 	public void setConsequence(String consequence) {
-		if (geneLevelConsequence != null)
+		if (geneLevelConsequence != null) {
 			return;
+		}
 		GeneLevelConsequence co = new GeneLevelConsequence();
 		co.setGeneLevelConsequence(consequence);
 		this.geneLevelConsequence = co;
@@ -119,21 +107,21 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
 		nucleotideChange = change;
 	}
 
-
-	@JsonView({View.Default.class, View.API.class})
+	@JsonView({ View.Default.class, View.API.class })
 	@JsonProperty(value = "nucleotideChange")
 	public String getNucleotideChange() {
-		if (StringUtils.isNotEmpty(nucleotideChange))
+		if (StringUtils.isNotEmpty(nucleotideChange)) {
 			return nucleotideChange;
+		}
 		StringBuilder builder = new StringBuilder();
 		if (variantType != null && variantType.getPrimaryKey() != null && (variantType.isInsertion() || variantType.isDeletion())) {
 			builder.append(getGenomicReferenceSequence());
 			builder.append(">");
 			builder.append(getPaddedChange(getGenomicVariantSequence()));
 			// if no genomic sequence is available add 'N+'
-			if (StringUtils.isEmpty(getGenomicReferenceSequence()) &&
-					StringUtils.isEmpty(getGenomicVariantSequence()))
+			if (StringUtils.isEmpty(getGenomicReferenceSequence()) && StringUtils.isEmpty(getGenomicVariantSequence())) {
 				builder.append("N+");
+			}
 		} else {
 			builder.append(getGenomicReferenceSequence());
 			builder.append(">");
@@ -144,19 +132,20 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
 	}
 
 	private String getPaddedChange(String change) {
-		if (getPaddingLeft().length() == 0)
+		if (getPaddingLeft().length() == 0) {
 			return change;
-		return (getPaddingLeft().charAt(getPaddingLeft().length() - 1) + change);
+		}
+		return getPaddingLeft().charAt(getPaddingLeft().length() - 1) + change;
 	}
 
-	@JsonView({View.VariantAPI.class, View.AlleleVariantSequenceConverterForES.class})
+	@JsonView({ View.VariantAPI.class, View.AlleleVariantSequenceConverterForES.class })
 	public List<String> getHgvsG() {
-		if(hgvsNames == null) {
+		if (hgvsNames == null) {
 			HashSet<String> names = new HashSet<>();
 			names.add(name);
 			names.add(hgvsNomenclature);
 			if (transcriptLevelConsequence != null) {
-				for(TranscriptLevelConsequence tlc: transcriptLevelConsequence) {
+				for (TranscriptLevelConsequence tlc : transcriptLevelConsequence) {
 					names.add(tlc.getHgvsVEPGeneNomenclature());
 				}
 			}
@@ -165,29 +154,18 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
 		return hgvsNames;
 	}
 
-	@JsonView({View.VariantAPI.class})
+	@JsonView({ View.VariantAPI.class })
 	public List<String> getHgvsC() {
 		if (CollectionUtils.isNotEmpty(transcriptLevelConsequence)) {
-			return transcriptLevelConsequence.stream()
-					.filter(Objects::nonNull)
-					.map(TranscriptLevelConsequence::getHgvsCodingNomenclature)
-					.distinct()
-					.sorted()
-					.collect(Collectors.toList());
+			return transcriptLevelConsequence.stream().filter(Objects::nonNull).map(TranscriptLevelConsequence::getHgvsCodingNomenclature).distinct().sorted().collect(Collectors.toList());
 		}
 		return null;
 	}
 
-	@JsonView({View.VariantAPI.class})
+	@JsonView({ View.VariantAPI.class })
 	public List<String> getHgvsP() {
 		if (CollectionUtils.isNotEmpty(transcriptLevelConsequence)) {
-			return transcriptLevelConsequence.stream()
-					.filter(Objects::nonNull)
-					.filter(consequence -> consequence.getHgvsProteinNomenclature() != null)
-					.map(TranscriptLevelConsequence::getHgvsProteinNomenclature)
-					.distinct()
-					.sorted()
-					.collect(Collectors.toList());
+			return transcriptLevelConsequence.stream().filter(Objects::nonNull).filter(consequence -> consequence.getHgvsProteinNomenclature() != null).map(TranscriptLevelConsequence::getHgvsProteinNomenclature).distinct().sorted().collect(Collectors.toList());
 		}
 		return null;
 	}

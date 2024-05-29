@@ -38,9 +38,9 @@ public abstract class DataExtractor extends Thread {
 				if (!directory.exists()) {
 					directory.mkdir();
 				}
-				PrintWriter output_writer = new PrintWriter(new File(ConfigHelper.getDataExtractorDirectory() + "/" + getDirName() + "/" + getFileName()));
-				extract(output_writer);
-				output_writer.close();
+				PrintWriter outputWriter = new PrintWriter(new File(ConfigHelper.getDataExtractorDirectory() + "/" + getDirName() + "/" + getFileName()));
+				extract(outputWriter);
+				outputWriter.close();
 			} else {
 				extract(null);
 			}

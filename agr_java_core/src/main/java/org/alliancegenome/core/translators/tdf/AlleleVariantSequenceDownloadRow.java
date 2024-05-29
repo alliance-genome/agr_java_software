@@ -29,10 +29,10 @@ public class AlleleVariantSequenceDownloadRow {
 	private String siftScore;
 	private String polyphenPrediction;
 	private String polyphenScore;
-	
+
 	public String getMolecularConsequences() {
 		StringJoiner dataJoiner = new StringJoiner(",");
-		for(String s: molecularConsequences) {
+		for (String s : molecularConsequences) {
 			dataJoiner.add(s);
 		}
 		return dataJoiner.toString();

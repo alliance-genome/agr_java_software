@@ -14,16 +14,19 @@ import lombok.Setter;
 @NodeEntity
 @Getter
 @Setter
-@JsonPropertyOrder({"id", "name", "definition"})
+@JsonPropertyOrder({ "id", "name", "definition" })
 public class ZECOTerm extends SimpleTerm implements Comparable<ZECOTerm> {
 
-	@JsonView({View.DiseaseAPI.class})
-	private String definition;
+	@JsonView({ View.DiseaseAPI.class }) private String definition;
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 		ZECOTerm ecoTerm = (ZECOTerm) o;
 		return Objects.equals(primaryKey, ecoTerm.primaryKey);
 	}

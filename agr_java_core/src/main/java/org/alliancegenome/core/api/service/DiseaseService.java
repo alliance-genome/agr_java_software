@@ -267,8 +267,9 @@ public class DiseaseService {
 								key.append(experimentalCondition.getConditionStatement()).append(":");
 							});
 							return key.toString();
-						} else
+						} else {
 							return "No-ExperimentalConditions";
+						}
 					}
 				)));
 	}
@@ -287,8 +288,9 @@ public class DiseaseService {
 			note += ". Filtering for these elements is ignored! ";
 			note += "Allowed values are (case insensitive): " + FieldFilter.getAllValues();
 		}
-		if (!note.isEmpty())
+		if (!note.isEmpty()) {
 			response.setNote(note);
+		}
 		response.calculateRequestDuration(startDate);
 		return response;
 	}
@@ -306,8 +308,8 @@ public class DiseaseService {
 			response.setResults(paginationResult.getResult());
 			response.setTotal(paginationResult.getTotalNumber());
 			Map<String, List<String>> distinctFieldValueMap = paginationResult.getDistinctFieldValueMap();
-			if (pagination.getFieldFilterValueMap().get(FieldFilter.INCLUDE_NEGATION) == null ||
-				pagination.getFieldFilterValueMap().get(FieldFilter.INCLUDE_NEGATION).equals("false")) {
+			if (pagination.getFieldFilterValueMap().get(FieldFilter.INCLUDE_NEGATION) == null
+				|| pagination.getFieldFilterValueMap().get(FieldFilter.INCLUDE_NEGATION).equals("false")) {
 				distinctFieldValueMap.get("associationType").removeIf(o -> o.toLowerCase().contains(NOT_ASSOCIATION_TYPE));
 			}
 			response.addDistinctFieldValueSupplementalData(distinctFieldValueMap);
@@ -316,4 +318,3 @@ public class DiseaseService {
 	}
 
 }
-

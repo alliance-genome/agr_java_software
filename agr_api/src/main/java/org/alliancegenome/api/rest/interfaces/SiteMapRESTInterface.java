@@ -18,11 +18,11 @@ public interface SiteMapRESTInterface {
 
 	@GET
 	@Path("/sitemap.xml")
-	public SiteMapIndex getSiteMap();
+	SiteMapIndex getSiteMap();
 
 	@GET
 	@Path("/sitemap/{category}-sitemap-{page}.xml")
-	public XMLURLSet getCategorySiteMap(@PathParam("category") String category, @PathParam("page") Integer page);
+	XMLURLSet getCategorySiteMap(@PathParam("category") String category, @PathParam("page") Integer page);
 
 	@GET
 	@Path("/accession/{id}")

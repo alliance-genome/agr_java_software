@@ -16,14 +16,12 @@ import lombok.Setter;
 @NodeEntity
 @Getter
 @Setter
-@Schema(name="Stage", description="POJO that represents the Stage")
+@Schema(name = "Stage", description = "POJO that represents the Stage")
 public class Stage extends Neo4jEntity implements Comparable<Stage> {
 
-	@JsonView({View.Homology.class, View.Interaction.class, View.Expression.class})
-	@JsonProperty("stageID")
-	private String primaryKey;
-	@JsonView({View.Expression.class})
-	private String name;
+	@JsonView({ View.Homology.class, View.Interaction.class, View.Expression.class })
+	@JsonProperty("stageID") private String primaryKey;
+	@JsonView({ View.Expression.class }) private String name;
 
 	@Override
 	public String toString() {
@@ -37,8 +35,12 @@ public class Stage extends Neo4jEntity implements Comparable<Stage> {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 		Stage stage = (Stage) o;
 		return Objects.equals(primaryKey, stage.primaryKey);
 	}

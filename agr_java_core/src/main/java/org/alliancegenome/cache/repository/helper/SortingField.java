@@ -10,16 +10,17 @@ public enum SortingField {
 
 	SPECIES_PHYLOGENETIC, EXPERIMENT_ORTHOLOGY, GENESYMBOL, SPECIES, DISEASE, ASSOCIATIONTYPE, PHENOTYPE,
 	SYMBOL, SYNONYM, ALLELESYMBOL, GENETIC_ENTITY, GENETIC_ENTITY_TYPE, INTERACTOR_GENE_SYMBOL,
-	MOLECULE_TYPE, INTERACTOR_MOLECULE_TYPE, INTERACTOR_DETECTION_METHOD, INTERACTOR_SPECIES, 
-	ROLE,INTERACTOR_ROLE, INTERACTOR_A_GENETIC_PERTURBATION, INTERACTOR_B_GENETIC_PERTURBATION, 
-	EXPRESSION, STAGE, ASSAY, REFERENCE, GENE, LOCATION, DEFAULT,DISEASE_ALLELE_DEFAULT, ALLELE, MODEL, VARIANT,
+	MOLECULE_TYPE, INTERACTOR_MOLECULE_TYPE, INTERACTOR_DETECTION_METHOD, INTERACTOR_SPECIES, ROLE, INTERACTOR_ROLE,
+	INTERACTOR_A_GENETIC_PERTURBATION, INTERACTOR_B_GENETIC_PERTURBATION,
+	EXPRESSION, STAGE, ASSAY, REFERENCE, GENE, LOCATION, DEFAULT, DISEASE_ALLELE_DEFAULT, ALLELE, MODEL, VARIANT,
 	VARIANT_TYPE, MOLECULAR_CONSEQUENCE, VARIANT_HGVS_NAME, TRANSCRIPT, TRANSGENIC_ALLELE;
 
 	public static SortingField getSortingField(String name) {
 		return Arrays.stream(values())
 				.filter(sortingField -> {
-					if (sortingField.name().equalsIgnoreCase(name))
+					if (sortingField.name().equalsIgnoreCase(name)) {
 						return true;
+					}
 					// allow snake case to be recognized as well
 					// e.g. genetic_entity ~= geneticEntity
 					return sortingField.name().replace("_", "").equalsIgnoreCase(name);
@@ -29,8 +30,9 @@ public enum SortingField {
 	}
 
 	public static boolean isValidSortingFieldValue(String value) {
-		if (value == null || StringUtils.isBlank(value))
+		if (value == null || StringUtils.isBlank(value)) {
 			return true;
+		}
 		return getSortingField(value) != null;
 	}
 

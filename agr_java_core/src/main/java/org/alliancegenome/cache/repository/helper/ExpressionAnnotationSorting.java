@@ -69,9 +69,11 @@ public class ExpressionAnnotationSorting implements Sorting<ExpressionDetail> {
 		geneList.add(assayOrder);
 	}
 
+	@Override
 	public Comparator<ExpressionDetail> getComparator(SortingField field, Boolean ascending) {
-		if (field == null)
+		if (field == null) {
 			return getJoinedComparator(defaultList);
+		}
 
 		switch (field) {
 			case DEFAULT:
@@ -98,5 +100,5 @@ public class ExpressionAnnotationSorting implements Sorting<ExpressionDetail> {
 		comparatorList.add(assayOrder);
 		return getJoinedComparator(comparatorList);
 	}
-
+	
 }

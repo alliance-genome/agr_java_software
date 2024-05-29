@@ -34,8 +34,9 @@ public class OrthologyFilter {
 					.filter(method -> method != null && !method.trim().isEmpty())
 					.collect(Collectors.toList());
 		}
-		if (methods != null && !methods.isEmpty())
+		if (methods != null && !methods.isEmpty()) {
 			this.methods = methods;
+		}
 	}
 
 	public int getLast() {
@@ -48,7 +49,7 @@ public class OrthologyFilter {
 	}
 
 	public boolean hasMethods() {
-		return methods != null && methods.size() > 0 ;
+		return methods != null && methods.size() > 0;
 	}
 
 	public enum Stringency {
@@ -63,12 +64,15 @@ public class OrthologyFilter {
 		}
 
 		public static Stringency getOrthologyFilter(String name) {
-			if (name == null || name.isEmpty() || name.equalsIgnoreCase("all"))
+			if (name == null || name.isEmpty() || name.equalsIgnoreCase("all")) {
 				return ALL;
-			if (name.trim().equalsIgnoreCase(STRINGENT.name))
+			}
+			if (name.trim().equalsIgnoreCase(STRINGENT.name)) {
 				return STRINGENT;
-			if (name.trim().equalsIgnoreCase(MODERATE.name))
+			}
+			if (name.trim().equalsIgnoreCase(MODERATE.name)) {
 				return MODERATE;
+			}
 			return null;
 		}
 

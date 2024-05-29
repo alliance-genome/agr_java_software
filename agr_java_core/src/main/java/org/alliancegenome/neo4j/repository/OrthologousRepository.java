@@ -28,7 +28,6 @@ public class OrthologousRepository extends Neo4jRepository<Orthologous> {
 		super(Orthologous.class);
 	}
 
-
 	public JsonResultResponse<HomologView> getOrthologyByTwoSpecies(String speciesOne, String speciesTwo, OrthologyFilter filter) {
 
 		final String taxonOne = SpeciesType.getTaxonId(speciesOne);
@@ -44,13 +43,16 @@ public class OrthologousRepository extends Neo4jRepository<Orthologous> {
 			query += ", p5=(s:OrthologyGeneJoin)-[:MATCHED]->(matched:OrthoAlgorithm {name:" + sj.toString() + "}) ";
 		}
 		query += " where g.taxonId = '" + taxonOne + "'";
-		if (taxonTwo != null)
+		if (taxonTwo != null) {
 			query += " and	 gh.taxonId = '" + taxonTwo + "' ";
+		}
 		if (filter.getStringency() != null) {
-			if (filter.getStringency().equals(OrthologyFilter.Stringency.STRINGENT))
+			if (filter.getStringency().equals(OrthologyFilter.Stringency.STRINGENT)) {
 				query += " and ortho.strictFilter = true ";
-			if (filter.getStringency().equals(OrthologyFilter.Stringency.MODERATE))
+			}
+			if (filter.getStringency().equals(OrthologyFilter.Stringency.MODERATE)) {
 				query += " and ortho.moderateFilter = true ";
+			}
 		}
 		query += "OPTIONAL MATCH p6=(s:OrthologyGeneJoin)-[:NOT_MATCHED]->(notMatched:OrthoAlgorithm) ";
 		query += "OPTIONAL MATCH p7=(s:OrthologyGeneJoin)-[:NOT_CALLED]->(notCalled:OrthoAlgorithm) ";
@@ -101,8 +103,9 @@ public class OrthologousRepository extends Neo4jRepository<Orthologous> {
 	}
 
 	private List<String> getMethodList(Map<String, Object> objectMap, String alias) {
-		if (!(objectMap.get(alias) instanceof List))
+		if (!(objectMap.get(alias) instanceof List)) {
 			return new ArrayList<>();
+		}
 		List<OrthoAlgorithm> algorithms = (List<OrthoAlgorithm>) objectMap.get(alias);
 
 		return algorithms.stream()
@@ -115,8 +118,9 @@ public class OrthologousRepository extends Neo4jRepository<Orthologous> {
 	private List<OrthoAlgorithm> algorithmList;
 
 	public List<OrthoAlgorithm> getAllMethods() {
-		if (algorithmList != null)
+		if (algorithmList != null) {
 			return algorithmList;
+		}
 		String query = " MATCH (algorithm:OrthoAlgorithm) return distinct algorithm order by algorithm.name ";
 		Iterable<OrthoAlgorithm> algorithms = query(OrthoAlgorithm.class, query);
 		algorithmList = StreamSupport.stream(algorithms.spliterator(), false)

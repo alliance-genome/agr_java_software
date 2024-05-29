@@ -21,25 +21,25 @@ public class RepoCommand extends Command implements CommandInterface {
 
 	@Override
 	public void execute() {
-		if(args.size() > 0) {
+		if (args.size() > 0) {
 			String command = args.remove(0);
 
-			if(command.equals("create")) {
-				if(args.size() > 0) {
+			if (command.equals("create")) {
+				if (args.size() > 0) {
 					im.getCreateRepo(args.remove(0));
 				} else {
 					printHelp();
 				}
-			} else if(command.equals("delete")) {
-				if(args.size() > 0) {
+			} else if (command.equals("delete")) {
+				if (args.size() > 0) {
 					im.deleteRepo(args.remove(0));
 				} else {
 					printHelp();
 				}
-			} else if(command.equals("list")) {
+			} else if (command.equals("list")) {
 				List<RepositoryMetadata> meta = im.listRepos();
-				if(meta != null) {
-					for(RepositoryMetadata data: meta) {
+				if (meta != null) {
+					for (RepositoryMetadata data : meta) {
 						System.out.println("Name: " + data.name() + " Type: " + data.type());
 					}
 				} else {

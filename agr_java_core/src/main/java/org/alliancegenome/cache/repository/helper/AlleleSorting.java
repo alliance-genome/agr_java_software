@@ -40,7 +40,6 @@ public class AlleleSorting implements Sorting<Allele> {
 		categoryMap.put(GeneticEntity.CrossReferenceType.VARIANT.getDisplayName(), 4);
 	}
 
-
 	public AlleleSorting() {
 		super();
 
@@ -78,9 +77,11 @@ public class AlleleSorting implements Sorting<Allele> {
 
 	}
 
+	@Override
 	public Comparator<Allele> getComparator(SortingField field, Boolean ascending) {
-		if (field == null)
+		if (field == null) {
 			return getJoinedComparator(defaultList);
+		}
 
 		switch (field) {
 			case DEFAULT:
@@ -104,76 +105,71 @@ public class AlleleSorting implements Sorting<Allele> {
 		}
 	}
 
-	private static Comparator<Allele> phylogeneticOrder =
-			Comparator.comparing(allele -> {
-				if (allele.getSpecies() == null)
-					return 1;
-				return allele.getSpecies().getPhylogeneticOrder();
-			});
+	private static Comparator<Allele> phylogeneticOrder = Comparator.comparing(allele -> {
+		if (allele.getSpecies() == null) {
+			return 1;
+		}
+		return allele.getSpecies().getPhylogeneticOrder();
+	});
 
+	static public Comparator<Allele> alleleCategoryOrder = Comparator.comparing(allele -> categoryMap.get(allele.getCategory()));
 
-	static public Comparator<Allele> alleleCategoryOrder =
-			Comparator.comparing(allele -> categoryMap.get(allele.getCategory()));
+	static public Comparator<Allele> alleleSymbolOrder = Comparator.comparing(allele -> {
+		if (allele.getSymbolText() == null) {
+			return null;
+		}
+		return allele.getSymbolText().toLowerCase();
+	}, Comparator.nullsLast(naturalOrder()));
 
-	static public Comparator<Allele> alleleSymbolOrder =
-			Comparator.comparing(allele -> {
-				if (allele.getSymbolText() == null)
-					return null;
-				return allele.getSymbolText().toLowerCase();
-			}, Comparator.nullsLast(naturalOrder()));
+	static public Comparator<Allele> speciesOrder = Comparator.comparing(allele -> {
+		if (allele.getSymbolText() == null) {
+			return null;
+		}
+		return allele.getSymbolText().toLowerCase();
+	}, Comparator.nullsLast(naturalOrder()));
 
-	static public Comparator<Allele> speciesOrder =
-			Comparator.comparing(allele -> {
-				if (allele.getSymbolText() == null)
-					return null;
-				return allele.getSymbolText().toLowerCase();
-			}, Comparator.nullsLast(naturalOrder()));
+	static public Comparator<Allele> diseaseOrder = Comparator.comparing(allele -> {
+		if (CollectionUtils.isEmpty(allele.getDiseases())) {
+			return null;
+		}
+		String diseaseJoin = allele.getDiseases().stream().sorted(Comparator.comparing(SimpleTerm::getName)).map(SimpleTerm::getName).collect(Collectors.joining(""));
+		return diseaseJoin.toLowerCase();
+	}, Comparator.nullsLast(naturalOrder()));
 
-	static public Comparator<Allele> diseaseOrder =
-			Comparator.comparing(allele -> {
-				if (CollectionUtils.isEmpty(allele.getDiseases()))
-					return null;
-				String diseaseJoin = allele.getDiseases().stream().sorted(Comparator.comparing(SimpleTerm::getName)).map(SimpleTerm::getName).collect(Collectors.joining(""));
-				return diseaseJoin.toLowerCase();
-			}, Comparator.nullsLast(naturalOrder()));
+	static public Comparator<Allele> hasDiseaseOrder = Comparator.comparing(Allele::hasDisease).reversed();
 
-	static public Comparator<Allele> hasDiseaseOrder =
-			Comparator.comparing(Allele::hasDisease).reversed();
+	static public Comparator<Allele> variantOrder = Comparator.comparing(allele -> {
+		if (CollectionUtils.isEmpty(allele.getVariants())) {
+			return null;
+		}
+		String diseaseJoin = allele.getVariants().stream().sorted(Comparator.comparing(Variant::getName)).map(Variant::getName).collect(Collectors.joining(""));
+		return diseaseJoin.toLowerCase();
+	}, Comparator.nullsLast(naturalOrder()));
 
-	static public Comparator<Allele> variantOrder =
-			Comparator.comparing(allele -> {
-				if (CollectionUtils.isEmpty(allele.getVariants()))
-					return null;
-				String diseaseJoin = allele.getVariants().stream().sorted(Comparator.comparing(Variant::getName)).map(Variant::getName).collect(Collectors.joining(""));
-				return diseaseJoin.toLowerCase();
-			}, Comparator.nullsLast(naturalOrder()));
+	static public Comparator<Allele> variantTypeOrder = Comparator.comparing(allele -> {
+		if (CollectionUtils.isEmpty(allele.getVariants())) {
+			return null;
+		}
+		String diseaseJoin = allele.getVariants().stream().sorted(Comparator.comparing(variant -> variant.getVariantType().getName())).map(variant -> variant.getVariantType().getName()).collect(Collectors.joining(""));
+		return diseaseJoin.toLowerCase();
+	}, Comparator.nullsLast(naturalOrder()));
 
-	static public Comparator<Allele> variantTypeOrder =
-			Comparator.comparing(allele -> {
-				if (CollectionUtils.isEmpty(allele.getVariants()))
-					return null;
-				String diseaseJoin = allele.getVariants().stream().sorted(Comparator.comparing(variant -> variant.getVariantType().getName())).map(variant -> variant.getVariantType().getName()).collect(Collectors.joining(""));
-				return diseaseJoin.toLowerCase();
-			}, Comparator.nullsLast(naturalOrder()));
+	static public Comparator<Allele> variantConsequenceOrder = Comparator.comparing(allele -> {
+		if (CollectionUtils.isEmpty(allele.getVariants())) {
+			return null;
+		}
+		String diseaseJoin = allele.getVariants().stream().filter(variant -> variant.getGeneLevelConsequence() != null).sorted(Comparator.comparing(variant -> variant.getGeneLevelConsequence().getGeneLevelConsequence())).map(variant -> variant.getGeneLevelConsequence().getGeneLevelConsequence())
+			.collect(Collectors.joining(""));
+		return StringUtils.isNotEmpty(diseaseJoin) ? diseaseJoin.toLowerCase() : null;
+	}, Comparator.nullsLast(naturalOrder()));
 
-	static public Comparator<Allele> variantConsequenceOrder =
-			Comparator.comparing(allele -> {
-				if (CollectionUtils.isEmpty(allele.getVariants()))
-					return null;
-				String diseaseJoin = allele.getVariants().stream()
-						.filter(variant -> variant.getGeneLevelConsequence() != null)
-						.sorted(Comparator.comparing(variant -> variant.getGeneLevelConsequence().getGeneLevelConsequence()))
-						.map(variant -> variant.getGeneLevelConsequence().getGeneLevelConsequence()).collect(Collectors.joining(""));
-				return StringUtils.isNotEmpty(diseaseJoin) ? diseaseJoin.toLowerCase() : null;
-			}, Comparator.nullsLast(naturalOrder()));
+	static public Comparator<Allele> phenotypeStatementOrder = Comparator.comparing(allele -> {
+		if (CollectionUtils.isEmpty(allele.getPhenotypes())) {
+			return null;
+		}
+		String phenoJoin = allele.getPhenotypes().stream().sorted(Comparator.comparing(Phenotype::getPhenotypeStatement)).map(Phenotype::getPhenotypeStatement).collect(Collectors.joining(""));
+		return phenoJoin.toLowerCase();
 
-	static public Comparator<Allele> phenotypeStatementOrder =
-			Comparator.comparing(allele -> {
-				if (CollectionUtils.isEmpty(allele.getPhenotypes()))
-					return null;
-				String phenoJoin = allele.getPhenotypes().stream().sorted(Comparator.comparing(Phenotype::getPhenotypeStatement)).map(Phenotype::getPhenotypeStatement).collect(Collectors.joining(""));
-				return phenoJoin.toLowerCase();
-
-			}, Comparator.nullsLast(naturalOrder()));
+	}, Comparator.nullsLast(naturalOrder()));
 
 }

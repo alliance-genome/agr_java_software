@@ -28,14 +28,12 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, Searchab
 		document.setDefinition(doTerm.getDefinition());
 
 		if (doTerm.getSynonyms() != null) {
-			List<String> synonymList = doTerm.getSynonyms().stream()
-					.map(Synonym::getPrimaryKey)
-					.collect(Collectors.toList());
+			List<String> synonymList = doTerm.getSynonyms().stream().map(Synonym::getPrimaryKey).collect(Collectors.toList());
 			document.setSynonyms(new HashSet<>(synonymList));
 		}
 		// add CrossReferences
 		if (doTerm.getCrossReferences() != null) {
-			if(document.getCrossReferences() == null) {
+			if (document.getCrossReferences() == null) {
 				document.setCrossReferences(new HashSet<String>());
 			}
 			document.getCrossReferences().addAll(doTerm.getCrossReferences().stream().map(CrossReference::getName).collect(Collectors.toSet()));

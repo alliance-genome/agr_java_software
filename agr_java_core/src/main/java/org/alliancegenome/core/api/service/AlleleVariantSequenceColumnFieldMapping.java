@@ -28,6 +28,7 @@ public class AlleleVariantSequenceColumnFieldMapping extends ColumnFieldMapping<
 
 	private Map<Column, Function<AlleleVariantSequence, Set<String>>> mapColumnAttribute = new HashMap<>();
 
+	@Override
 	public Map<Column, Function<AlleleVariantSequence, Set<String>>> getMapColumnAttribute() {
 		return mapColumnAttribute;
 	}
@@ -47,16 +48,16 @@ public class AlleleVariantSequenceColumnFieldMapping extends ColumnFieldMapping<
 		mapColumnAttribute.put(GENE_ALLELE_VARIANT_SEQUENCE_CATEGORY, entity -> Set.of(entity.getAllele().getCategory()));
 
 		mapColumnAttribute.put(GENE_ALLELE_VARIANT_SEQUENCE_TYPE, entity -> {
-			if (entity.getConsequence() != null && entity.getConsequence().getSequenceFeatureType()!=null) {
+			if (entity.getConsequence() != null && entity.getConsequence().getSequenceFeatureType() != null) {
 				if (StringUtils.isNotEmpty(entity.getConsequence().getSequenceFeatureType())) {
 					return Set.of(entity.getConsequence().getSequenceFeatureType());
 				}
-				log.error("Could not find sequence feature type for "+entity.getVariant().getHgvsNomenclature());
+				log.error("Could not find sequence feature type for " + entity.getVariant().getHgvsNomenclature());
 			}
 			return Set.of("");
 		});
 		mapColumnAttribute.put(GENE_ALLELE_VARIANT_SEQUENCE_ASSOCIATED_GENE, entity -> {
-			if (entity.getAllele().getGene() != null && entity.getAllele().getGene().getSymbol()!=null) {
+			if (entity.getAllele().getGene() != null && entity.getAllele().getGene().getSymbol() != null) {
 				return Set.of(entity.getAllele().getGene().getSymbol());
 			}
 			return new HashSet<>();
@@ -69,31 +70,35 @@ public class AlleleVariantSequenceColumnFieldMapping extends ColumnFieldMapping<
 		});
 		mapColumnAttribute.put(GENE_ALLELE_VARIANT_SEQUENCE_CONSEQUENCE, entity -> {
 			if (entity.getVariant() != null) {
-				if (entity.getConsequence() != null && entity.getConsequence().getMolecularConsequences()!=null)
+				if (entity.getConsequence() != null && entity.getConsequence().getMolecularConsequences() != null) {
 					return Set.copyOf(entity.getConsequence().getMolecularConsequences());
+				}
 			}
 			return new HashSet<>();
 		});
 		mapColumnAttribute.put(GENE_ALLELE_VARIANT_SEQUENCE_IMPACT, entity -> {
 			if (entity.getVariant() != null) {
-				if (entity.getConsequence() != null && entity.getConsequence().getImpact()!=null)
+				if (entity.getConsequence() != null && entity.getConsequence().getImpact() != null) {
 					return Set.of(entity.getConsequence().getImpact());
+				}
 			}
 			return Set.of("");
 		});
 
 		mapColumnAttribute.put(GENE_ALLELE_VARIANT_SEQUENCE_VARIANT_POLYPHEN, entity -> {
 			if (entity.getVariant() != null) {
-				if (entity.getConsequence() != null && entity.getConsequence().getPolyphenPrediction() != null)
+				if (entity.getConsequence() != null && entity.getConsequence().getPolyphenPrediction() != null) {
 					return Set.of(entity.getConsequence().getPolyphenPrediction());
+				}
 			}
 			return Set.of("");
 		});
 
 		mapColumnAttribute.put(GENE_ALLELE_VARIANT_SEQUENCE_VARIANT_SIFT, entity -> {
 			if (entity.getVariant() != null) {
-				if (entity.getConsequence() != null && entity.getConsequence().getSiftPrediction() != null)
+				if (entity.getConsequence() != null && entity.getConsequence().getSiftPrediction() != null) {
 					return Set.of(entity.getConsequence().getSiftPrediction());
+				}
 			}
 			return Set.of("");
 		});
@@ -113,5 +118,4 @@ public class AlleleVariantSequenceColumnFieldMapping extends ColumnFieldMapping<
 		singleValueDistinctFieldColumns.add(GENE_ALLELE_VARIANT_SEQUENCE_HAS_PHENOTYPE);
 		singleValueDistinctFieldColumns.add(GENE_ALLELE_VARIANT_SEQUENCE_ASSOCIATED_GENE);
 	}
-
 }

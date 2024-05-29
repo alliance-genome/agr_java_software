@@ -13,8 +13,9 @@ public abstract class AnnotationFiltering<T> {
 	public Map<FieldFilter, FilterFunction<T, String>> filterFieldMap = new HashMap<>();
 
 	public boolean isValidFiltering(Map<FieldFilter, String> fieldFilterValueMap) {
-		if (fieldFilterValueMap == null)
+		if (fieldFilterValueMap == null) {
 			return true;
+		}
 		Set<Boolean> result = fieldFilterValueMap.entrySet().stream()
 				.map(entry -> filterFieldMap.containsKey(entry.getKey()))
 				.collect(Collectors.toSet());
@@ -29,4 +30,3 @@ public abstract class AnnotationFiltering<T> {
 	}
 
 }
-

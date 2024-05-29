@@ -12,12 +12,11 @@ import lombok.Setter;
 @NodeEntity
 @Getter
 @Setter
-@Schema(name="Synonym", description="POJO that represents Synonyms")
+@Schema(name = "Synonym", description = "POJO that represents Synonyms")
 public class Synonym extends Identifier {
 
 	private String primaryKey;
-	@JsonView({View.Default.class})
-	private String name;
+	@JsonView({ View.Default.class }) private String name;
 
 	@Override
 	public String toString() {

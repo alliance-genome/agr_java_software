@@ -21,7 +21,9 @@ public class QueryManipulationService {
 	}
 
 	private String escapeColons(String query) {
-		if(query == null) return null;
+		if (query == null) {
+			return null;
+		}
 
 		//start by escaping all colons
 		query = query.replaceAll(":", "\\\\:");
@@ -30,7 +32,7 @@ public class QueryManipulationService {
 		//allow for __ as a prefix for field names so that you
 		//can do symbol:pax2 style searches.  (assuming field
 		//names have lowercase, uppercase and underscores
-		query = query.replaceAll("(__)([a-zA-Z_]+)\\\\:","$2:");
+		query = query.replaceAll("(__)([a-zA-Z_]+)\\\\:", "$2:");
 		return query;
 	}
 
@@ -48,12 +50,12 @@ public class QueryManipulationService {
 		}
 
 		Matcher m = HGVS_PATTERN.matcher(value);
-		while(m.find()) {
+		while (m.find()) {
 			String match = m.group(0);
-			value = value.replace(match,"\"" + match + "\"");
+			value = value.replace(match, "\"" + match + "\"");
 		}
 		//an already quoted term will get an extra pair, so just clean them up all at once
-		value = value.replaceAll("\"\"","\"");
+		value = value.replaceAll("\"\"", "\"");
 
 		return value;
 	}

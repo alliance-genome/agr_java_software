@@ -25,10 +25,11 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, SearchableIte
 
 		document.setModCrossRefCompleteUrl(entity.getModCrossRefCompleteUrl());
 		document.setModLocalId(entity.getModLocalId());
-		if (entity.getName() == null)
+		if (entity.getName() == null) {
 			document.setName(entity.getSymbol());
-		else
+		} else {
 			document.setName(entity.getName());
+		}
 		document.setNameKey(entity.getNameKey());
 		document.setPrimaryKey(entity.getPrimaryKey());
 
@@ -36,25 +37,17 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, SearchableIte
 			document.setSpecies(entity.getSpecies().getName());
 		}
 
-
 		if (entity.getSoTerm() != null) {
 			document.setSoTermId(entity.getSoTerm().getPrimaryKey());
 			document.setSoTermName(entity.getSoTerm().getName());
 		}
 		document.setSymbol(entity.getSymbol());
 
-		if(entity.getOrthoGenes() == null) {
+		if (entity.getOrthoGenes() == null) {
 			entity.setOrthoGenes(new ArrayList<>());
 		}
-		
-		document.setStrictOrthologySymbols(
-				entity.getOrthoGenes().stream()
-						.filter(Orthologous::isStrictFilter)
-						.map(Orthologous::getGene2)
-						.map(Gene::getSymbol)
-						.collect(Collectors.toSet())
-		);
 
+		document.setStrictOrthologySymbols(entity.getOrthoGenes().stream().filter(Orthologous::isStrictFilter).map(Orthologous::getGene2).map(Gene::getSymbol).collect(Collectors.toSet()));
 
 		return document;
 	}

@@ -9,7 +9,7 @@ import org.junit.Test;
 public class SpeciesTypeTest {
 
 	@Test
-	public void testParameters(){
+	public void testParameters() {
 		SpeciesType zfin = SpeciesType.ZEBRAFISH;
 		assertThat(zfin.getDisplayName(), equalTo("ZFIN"));
 		assertThat(SpeciesType.MOUSE.getModName(), equalTo("MGD"));

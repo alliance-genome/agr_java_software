@@ -26,7 +26,7 @@ public class VariantIndexer extends Indexer {
 	@Override
 	protected void index() {
 
-		//for now, variants only get indexed if an additional flag is set
+		// for now, variants only get indexed if an additional flag is set
 		if (!ConfigHelper.getIndexVariants()) {
 			log.info("Not indexing Variants, use -DINDEX_VARAINTS=\"true\" to include variants");
 			return;
@@ -51,7 +51,7 @@ public class VariantIndexer extends Indexer {
 		ArrayList<Variant> list = new ArrayList<>();
 		VariantTranslator translator = new VariantTranslator();
 
-		while(true) {
+		while (true) {
 			try {
 				if (list.size() >= indexerConfig.getBufferSize()) {
 					Iterable<SearchableItemDocument> documents = translator.translateEntities(list);
@@ -61,7 +61,7 @@ public class VariantIndexer extends Indexer {
 				}
 				if (queue.isEmpty()) {
 					if (list.size() > 0) {
-						Iterable <SearchableItemDocument> documents = translator.translateEntities(list);
+						Iterable<SearchableItemDocument> documents = translator.translateEntities(list);
 						cache.addCachedFields(documents);
 						indexDocuments(documents);
 						repo.clearCache();
@@ -72,10 +72,11 @@ public class VariantIndexer extends Indexer {
 
 				String key = queue.takeFirst();
 				Variant variant = cache.getVariantMap().get(key);
-				if (variant != null)
+				if (variant != null) {
 					list.add(variant);
-				else
+				} else {
 					log.debug("No Variant found for " + key);
+				}
 			} catch (Exception e) {
 				log.error("Error while indexing...", e);
 				System.exit(-1);

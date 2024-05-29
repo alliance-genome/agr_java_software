@@ -15,61 +15,51 @@ import lombok.Setter;
 @NodeEntity
 @Getter
 @Setter
-@Schema(name="MITerm", description="POJO that represents the MITerm join")
+@Schema(name = "MITerm", description = "POJO that represents the MITerm join")
 public class MITerm extends Ontology {
-	@JsonView({View.Interaction.class})
-	private String primaryKey;
-	@JsonView({View.Interaction.class})
-	private String label;
-	@JsonView({View.Interaction.class})
-	private String definition;
-	@JsonView({View.Interaction.class})
-	private String url;
+	@JsonView({ View.Interaction.class }) private String primaryKey;
+	@JsonView({ View.Interaction.class }) private String label;
+	@JsonView({ View.Interaction.class }) private String definition;
+	@JsonView({ View.Interaction.class }) private String url;
 
-	@JsonView({View.Interaction.class})
+	@JsonView({ View.Interaction.class })
 	public String getDisplayName() {
 		Optional<String> type = MiTermType.getNameByID(primaryKey);
 		return type.orElseGet(() -> label);
 	}
 
-	@JsonView({View.Interaction.class})
+	@JsonView({ View.Interaction.class })
 	public void setDisplayName(String name) {
-		//ignore
+		// ignore
 	}
 
 	enum MiTermType {
-		DS_RNA("IA:2966", "dsRNA"),
-		MI_RNA("IA:2984", "miRNA"),
-		GENE("MI:0250", "gene"),
-		NUCLEIC_ACID("MI:0318", "nucleic acid"),
-		DNA("MI:0319", "DNA"),
-		RNA("MI:0320", "RNA"),
-		M_RNA("MI:0324", "mRNA"),
-		T_RNA("MI:0325", "tRNA"),
-		PROTEIN("MI:0326", "protein"),
+		DS_RNA("IA:2966", "dsRNA"), 
+		MI_RNA("IA:2984", "miRNA"), 
+		GENE("MI:0250", "gene"), 
+		NUCLEIC_ACID("MI:0318", "nucleic acid"), 
+		DNA("MI:0319", "DNA"), 
+		RNA("MI:0320", "RNA"), 
+		M_RNA("MI:0324", "mRNA"), 
+		T_RNA("MI:0325", "tRNA"), 
+		PROTEIN("MI:0326", "protein"), 
 		PEPTIDE("MI:0327", "peptide"),
-		SN_RNA("MI:0607", "snRNA"),
-		R_RNA("MI:0608", "rRNA"),
-		SNO_RNA("MI:0609", "snoRNA"),
-		SI_RNA("MI:0610", "siRNA"),
-		SRP_RNA("MI:0611", "SRP RNA"),
-		DS_DNA("MI:0681", "dsDNA"),
+		SN_RNA("MI:0607", "snRNA"), 
+		R_RNA("MI:0608", "rRNA"), 
+		SNO_RNA("MI:0609", "snoRNA"), SI_RNA("MI:0610", "siRNA"), 
+		SRP_RNA("MI:0611", "SRP RNA"), DS_DNA("MI:0681", "dsDNA"), 
 		LINKC_RNA("MI:2190", "lincRNA");
 
-		private String ID;
+		private String id;
 		private String name;
 
-
-		MiTermType(String ID, String name) {
+		MiTermType(String id, String name) {
 			this.name = name;
-			this.ID = ID;
+			this.id = id;
 		}
 
 		public static Optional<String> getNameByID(String id) {
-			return Arrays.stream(values())
-					.filter(term -> term.ID.equals(id))
-					.map(miTermType -> miTermType.name)
-					.findFirst();
+			return Arrays.stream(values()).filter(term -> term.id.equals(id)).map(miTermType -> miTermType.name).findFirst();
 
 		}
 	}

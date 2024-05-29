@@ -19,7 +19,7 @@ import lombok.Setter;
 @Getter
 public class AlleleVariantSequence extends SearchableItemDocument {
 
-	@JsonView({View.Default.class,View.AlleleVariantSequenceConverterForES.class})
+	@JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
 	private Allele allele;
 	@JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
 	private Variant variant;
@@ -34,8 +34,9 @@ public class AlleleVariantSequence extends SearchableItemDocument {
 		this.allele = allele;
 		this.variant = variant;
 		this.consequence = consequence;
-		if (consequence != null && allele.getGene() != null)
+		if (consequence != null && allele.getGene() != null) {
 			consequence.setAssociatedGene(allele.getGene());
+		}
 	}
 
 	@Override

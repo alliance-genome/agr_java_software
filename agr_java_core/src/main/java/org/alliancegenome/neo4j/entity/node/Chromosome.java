@@ -10,11 +10,11 @@ import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter @Setter
+@Getter
+@Setter
 @NodeEntity
-@Schema(name="Chromosome", description="POJO that represents the Chromosome")
+@Schema(name = "Chromosome", description = "POJO that represents the Chromosome")
 public class Chromosome extends Neo4jEntity {
-	
-	@JsonView({View.Default.class})
-	private String primaryKey;
+
+	@JsonView({ View.Default.class }) private String primaryKey;
 }

@@ -29,23 +29,29 @@ public abstract class ConditionAnnotation {
 
 
 	public void addCondition(ConditionType conditionType, List<ExperimentalCondition> conditions) {
-		if (conditions == null || conditionType == null)
+		if (conditions == null || conditionType == null) {
 			return;
-		if (!conditionType.isCondition())
+		}
+		if (!conditionType.isCondition()) {
 			throw new RuntimeException("No condition type provided:" + conditionType);
-		if (this.conditions == null)
+		}
+		if (this.conditions == null) {
 			this.conditions = new HashMap<>();
+		}
 		this.conditions.computeIfAbsent(conditionType.getDisplayName(), k -> new ArrayList<>());
 		this.conditions.get(conditionType.getDisplayName()).addAll(conditions);
 	}
 	
 	public void addModifier(ConditionType conditionType, List<ExperimentalCondition> conditionModifier) {
-		if (conditionModifier == null || conditionType == null)
+		if (conditionModifier == null || conditionType == null) {
 			return;
-		if (!conditionType.isModifier())
+		}
+		if (!conditionType.isModifier()) {
 			throw new RuntimeException("No Modifier condition provided:" + conditionType);
-		if (this.conditionModifiers == null)
+		}
+		if (this.conditionModifiers == null) {
 			this.conditionModifiers = new HashMap<>();
+		}
 		this.conditionModifiers.computeIfAbsent(conditionType.getDisplayName(), k -> new ArrayList<>());
 		this.conditionModifiers.get(conditionType.getDisplayName()).addAll(conditionModifier);
 	}
@@ -82,6 +88,5 @@ public abstract class ConditionAnnotation {
 			return displayName;
 		}
 	}
-
 
 }

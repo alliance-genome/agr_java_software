@@ -86,9 +86,10 @@ public class VariantESDAO extends ESDAO {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		if (response == null || response.getHits() == null)
+		if (response == null || response.getHits() == null) {
 			return null;
-
+		}
+		
 		SearchHit[] searchHits = response.getHits().getHits();
 		List<AlleleVariantSequence> results =
 				Arrays.stream(searchHits)
@@ -224,8 +225,9 @@ public class VariantESDAO extends ESDAO {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		if (response == null || response.getHits() == null)
+		if (response == null || response.getHits() == null) {
 			return null;
+		}
 
 		SearchHit[] searchHits = response.getHits().getHits();
 		List<AlleleVariantSequence> results =

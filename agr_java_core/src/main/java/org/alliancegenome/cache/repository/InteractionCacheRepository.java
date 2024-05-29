@@ -34,8 +34,9 @@ public class InteractionCacheRepository {
 	public PaginationResult<InteractionGeneJoin> getInteractionAnnotationList(String geneID, Pagination pagination, String joinType) {
 
 		List<InteractionGeneJoin> interactionAnnotationList = cacheService.getCacheEntries(geneID, CacheAlliance.GENE_INTERACTION);
-		if (interactionAnnotationList == null)
+		if (interactionAnnotationList == null) {
 			return null;
+		}
 
 		PaginationResult<InteractionGeneJoin> result = new PaginationResult<>();
 		//filtering
@@ -44,9 +45,10 @@ public class InteractionCacheRepository {
 		FilterService<InteractionGeneJoin> filterService = new FilterService<>(new InteractionAnnotationFiltering());
 		ColumnFieldMapping<InteractionGeneJoin> mapping = new InteractionColumnFieldMapping();
 		//here for supplementData, it will ONLY filter data based on joinType, NO other filters so it will show ALL options for multiple selections
-		List<InteractionGeneJoin> interactionAnnotationListDistinct=  interactionAnnotationList;
-		if (joinType !=null && (joinType.equalsIgnoreCase(JoinTypeValue.genetic_interaction.getName()) || joinType.equalsIgnoreCase(JoinTypeValue.molecular_interaction.getName()) ))
-			interactionAnnotationListDistinct = interactionAnnotationListDistinct.stream().filter(join->join.getJoinType().equalsIgnoreCase(joinType)).collect(Collectors.toList());
+		List<InteractionGeneJoin> interactionAnnotationListDistinct = interactionAnnotationList;
+		if (joinType != null && (joinType.equalsIgnoreCase(JoinTypeValue.genetic_interaction.getName()) || joinType.equalsIgnoreCase(JoinTypeValue.molecular_interaction.getName()))) {
+			interactionAnnotationListDistinct = interactionAnnotationListDistinct.stream().filter(join -> join.getJoinType().equalsIgnoreCase(joinType)).collect(Collectors.toList());
+		}
 		result.setDistinctFieldValueMap(filterService.getDistinctFieldValues(interactionAnnotationListDistinct, mapping.getSingleValuedFieldColumns(Table.INTERACTION), mapping));
 
 		if (!filteredInteractionAnnotationList.isEmpty()) {
@@ -60,13 +62,13 @@ public class InteractionCacheRepository {
 		return getInteractionAnnotationList(geneID, pagination, "");
 	}
 
-	private List<InteractionGeneJoin> getSortedAndPaginatedInteractionAnnotations(Pagination pagination,
-																				  List<InteractionGeneJoin> filteredInteractionAnnotationList) {
+	private List<InteractionGeneJoin> getSortedAndPaginatedInteractionAnnotations(Pagination pagination, List<InteractionGeneJoin> filteredInteractionAnnotationList) {
 		// sorting
 		SortingField sortingField = null;
 		String sortBy = pagination.getSortBy();
-		if (sortBy != null && !sortBy.isEmpty())
+		if (sortBy != null && !sortBy.isEmpty()) {
 			sortingField = SortingField.getSortingField(sortBy.toUpperCase());
+		}
 
 		InteractionAnnotationSorting sorting = new InteractionAnnotationSorting();
 		filteredInteractionAnnotationList.sort(sorting.getComparator(sortingField, pagination.getAsc()));
@@ -80,10 +82,12 @@ public class InteractionCacheRepository {
 
 
 	private List<InteractionGeneJoin> filterInteractionAnnotations(List<InteractionGeneJoin> interactionAnnotationList, BaseFilter fieldFilterValueMap, boolean useGeneAasSource) {
-		if (interactionAnnotationList == null)
+		if (interactionAnnotationList == null) {
 			return null;
-		if (fieldFilterValueMap == null)
+		}
+		if (fieldFilterValueMap == null) {
 			return interactionAnnotationList;
+		}
 		return interactionAnnotationList.stream()
 				.filter(annotation -> containsFilterValue(annotation, fieldFilterValueMap, useGeneAasSource))
 				.collect(Collectors.toList());
@@ -93,10 +97,11 @@ public class InteractionCacheRepository {
 		// remove entries with null values.
 		fieldFilterValueMap.values().removeIf(Objects::isNull);
 		Set<Boolean> filterResults = fieldFilterValueMap.entrySet().stream()
-				.map((entry) -> {
+				.map(entry -> {
 					FilterFunction<InteractionGeneJoin, String> filterFunction = InteractionAnnotationFiltering.filterFieldMap.get(entry.getKey());
-					if (filterFunction == null)
+					if (filterFunction == null) {
 						return null;
+					}
 					return filterFunction.containsFilterValue(annotation, entry.getValue());
 				})
 				.collect(Collectors.toSet());

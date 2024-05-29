@@ -14,19 +14,22 @@ public enum SortBy {
 	}
 
 	public static SortBy getSortBy(String name) {
-		if (name == null)
+		if (name == null) {
 			return DEFAULT;
+		}
 		for (SortBy sort : values()) {
-			if (sort.name.equals(name))
+			if (sort.name.equals(name)) {
 				return sort;
+			}
 		}
 		return null;
 	}
 
 	public static String getAllValues() {
 		StringJoiner values = new StringJoiner(",");
-		for (SortBy sorting : values())
+		for (SortBy sorting : values()) {
 			values.add(sorting.name);
+		}
 		return values.toString();
 	}
 }

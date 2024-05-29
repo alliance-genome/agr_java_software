@@ -1,4 +1,5 @@
 package org.alliancegenome.core.filedownload.process;
+
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -27,7 +28,7 @@ public class FileDownloadManager extends Thread {
 		}
 
 		log.info("Starting downloading variant Files");
-		
+
 		ExecutorService executor = Executors.newFixedThreadPool(VariantConfigHelper.getFileDownloadThreads());
 
 		for(DownloadSource source: downloadSet.getDownloadFileSources()) {
@@ -36,12 +37,13 @@ public class FileDownloadManager extends Thread {
 				executor.execute(fd);
 			}
 		}
-		
-		executor.shutdown();  
-		while (!executor.isTerminated()) {	 }	
+
+		executor.shutdown();
+		while (!executor.isTerminated()) {
+			//
+		}
 
 		log.info("Finished downloading Files");
 	}
-
 
 }

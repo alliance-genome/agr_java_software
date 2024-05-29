@@ -25,6 +25,7 @@ public class AlleleColumnFieldMapping extends ColumnFieldMapping<Allele> {
 
 	private Map<Column, Function<Allele, Set<String>>> mapColumnAttribute = new HashMap<>();
 
+	@Override
 	public Map<Column, Function<Allele, Set<String>>> getMapColumnAttribute() {
 		return mapColumnAttribute;
 	}
@@ -39,23 +40,16 @@ public class AlleleColumnFieldMapping extends ColumnFieldMapping<Allele> {
 		mapColumnAttribute.put(GENE_ALLELE_CATEGORY, entity -> Set.of(entity.getCategory()));
 		mapColumnAttribute.put(GENE_ALLELE_VARIANT_TYPE, entity -> {
 			if (entity.getVariants() != null) {
-				return entity.getVariants().stream()
-						.filter(variant -> variant.getVariantType() != null)
-						.map(variant -> variant.getVariantType().getName()).collect(toSet());
+				return entity.getVariants().stream().filter(variant -> variant.getVariantType() != null).map(variant -> variant.getVariantType().getName()).collect(toSet());
 			}
 			return new HashSet<>();
 		});
 		mapColumnAttribute.put(GENE_ALLELE_VARIANT_CONSEQUENCE, entity -> {
 			if (CollectionUtils.isNotEmpty(entity.getVariants())) {
-				Set<String> ret = entity.getVariants().stream()
-						.map(v->v.getTranscriptLevelConsequence())
-						.filter(Objects::nonNull)
-						.flatMap(Collection::stream)
-						.map(tlc -> tlc.getMolecularConsequences())
-						.filter(Objects::nonNull)
-						.flatMap(List::stream)
-						.collect(Collectors.toSet());
-				if(ret == null) return new HashSet<>();
+				Set<String> ret = entity.getVariants().stream().map(v -> v.getTranscriptLevelConsequence()).filter(Objects::nonNull).flatMap(Collection::stream).map(tlc -> tlc.getMolecularConsequences()).filter(Objects::nonNull).flatMap(List::stream).collect(Collectors.toSet());
+				if (ret == null) {
+					return new HashSet<>();
+				}
 				return ret;
 
 			}

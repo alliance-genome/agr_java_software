@@ -19,8 +19,9 @@ public class OrthologySorting implements Sorting<HomologView> {
 
 	private static Comparator<HomologView> speciesOrder =
 			Comparator.comparing(orthologView -> {
-				if (orthologView.getHomologGene().getSpecies() != null)
+				if (orthologView.getHomologGene().getSpecies() != null) {
 					return orthologView.getHomologGene().getSpecies().getPhylogeneticOrder();
+				}
 				return -1;
 			});
 
@@ -35,15 +36,16 @@ public class OrthologySorting implements Sorting<HomologView> {
 
 	}
 
+	@Override
 	public Comparator<HomologView> getComparator(SortingField field, Boolean ascending) {
-		if (field == null)
+		if (field == null) {
 			return getJoinedComparator(defaultList);
+		}
 
 		switch (field) {
 			default:
 				return getJoinedComparator(defaultList);
 		}
 	}
-
 
 }

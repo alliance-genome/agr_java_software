@@ -21,7 +21,6 @@ public class SchemaTest {
 
 		String[] array = schemaVersion.split("\\.");
 
-
 		int out = Integer.parseInt(array[0] + array[1] + array[2] + array[3]);
 		out--;
 
@@ -33,10 +32,10 @@ public class SchemaTest {
 		out = out % 10;
 		String d = out + "";
 
-		//System.out.println(a + b + c + d);
-		Assert.assertEquals((a + b + c + d), "0099");
+		// System.out.println(a + b + c + d);
+		Assert.assertEquals(a + b + c + d, "0099");
 	}
-	
+
 	@Test
 	@Ignore
 	public void testAllSchemaFiles() {
@@ -45,14 +44,14 @@ public class SchemaTest {
 		Path p = Paths.get("/Users/balrog/git/agr_loader/schemas");
 		try {
 			Files.walkFileTree(p, schemaVisitor);
-			//System.out.println(schemaVisitor.getFileList());
-			for(Path path: schemaVisitor.getFileList()) {
-				//System.out.println("Loading Schema Files: " + path);
-				
+			// System.out.println(schemaVisitor.getFileList());
+			for (Path path : schemaVisitor.getFileList()) {
+				// System.out.println("Loading Schema Files: " + path);
+
 				System.out.print("Validating Schema: " + path.toFile().getAbsolutePath());
 				ListProcessingReport schemaReport = (ListProcessingReport) JsonSchemaFactory.byDefault().getSyntaxValidator().validateSchema(JsonLoader.fromFile(path.toFile()));
 				System.out.println(" -- " + (schemaReport.isSuccess() ? "success" : "failure"));
-				if(!schemaReport.isSuccess()) {
+				if (!schemaReport.isSuccess()) {
 					System.out.println(schemaReport);
 					Assert.fail();
 				}
@@ -62,5 +61,4 @@ public class SchemaTest {
 			Assert.fail();
 		}
 	}
-
 }

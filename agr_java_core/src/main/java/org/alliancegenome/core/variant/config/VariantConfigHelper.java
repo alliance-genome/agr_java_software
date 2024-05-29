@@ -33,17 +33,17 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class VariantConfigHelper {
-
+	
+	private VariantConfigHelper() { }
+	
 	private static Properties configProperties = new Properties();
 
 	private static HashMap<String, String> defaults = new HashMap<>();
 	private static HashMap<String, String> config = new HashMap<>();
 	private static Set<String> allKeys;
-	private static boolean init = false;
+	private static boolean init;
 
-	public VariantConfigHelper() {
-		init();
-	}
+	{ init(); }
 
 	public static void init() {
 		/* The purpose of the default values is that these are the values required by the application to run
@@ -102,13 +102,21 @@ public class VariantConfigHelper {
 
 		for (String key : allKeys) {
 			// First checks the -D params and sets config[key] = value otherwise it will be null.
-			if (config.get(key) == null) config.put(key, loadSystemProperty(key));
+			if (config.get(key) == null) {
+				config.put(key, loadSystemProperty(key));
+			}
 			// Second checks the config.properties file built into the application otherwise it will be null.
-			if (config.get(key) == null) config.put(key, loadConfigProperty(key));
+			if (config.get(key) == null) {
+				config.put(key, loadConfigProperty(key));
+			}
 			// Third checks the environment for a NAME = value otherwise leaves it null.
-			if (config.get(key) == null) config.put(key, loadSystemENVProperty(key));
+			if (config.get(key) == null) {
+				config.put(key, loadSystemENVProperty(key));
+			}
 			// Lastly loads the default value for NAME = value and loadDefaultProperty ensures it won't be null.
-			if (config.get(key) == null) config.put(key, loadDefaultProperty(key));
+			if (config.get(key) == null) {
+				config.put(key, loadDefaultProperty(key));
+			}
 		}
 		printProperties();
 		init = true;
@@ -116,49 +124,65 @@ public class VariantConfigHelper {
 
 	private static String loadSystemProperty(String key) {
 		String ret = System.getProperty(key);
-		if (ret != null) log.debug("Found: -D " + key + "=" + ret);
+		if (ret != null) {
+			log.debug("Found: -D " + key + "=" + ret);
+		}
 		return ret;
 	}
 
 	private static String loadConfigProperty(String key) {
 		String ret = configProperties.getProperty(key);
-		if (ret != null) log.debug("Config File Property: " + key + "=" + ret);
+		if (ret != null) {
+			log.debug("Config File Property: " + key + "=" + ret);
+		}
 		return ret;
 	}
 
 	private static String loadSystemENVProperty(String key) {
 		String ret = System.getenv(key);
-		if (ret != null) log.debug("Found Enviroment ENV[" + key + "]=" + ret);
+		if (ret != null) {
+			log.debug("Found Enviroment ENV[" + key + "]=" + ret);
+		}
 		return ret;
 	}
 
 	private static String loadDefaultProperty(String key) {
 		String ret = defaults.get(key);
-		if (ret != null) log.debug("Setting default: " + key + "=" + ret);
+		if (ret != null) {
+			log.debug("Setting default: " + key + "=" + ret);
+		}
 		return ret;
 	}
 
 	public static String getVariantHumanDownloadSetFile() {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		return config.get(VARIANT_HUMAN_DOWNLOAD_SET_FILE);
 	}
 	
 	public static String getVariantModDownloadSetFile() {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		return config.get(VARIANT_MOD_DOWNLOAD_SET_FILE);
 	}
 	
 	public static String getVariantToIndex() {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		return config.get(VARIANTS_TO_INDEX);
 	}
 
 	public static String getDownloadSetFile() {
-		if (!init) init();
-		if(getVariantToIndex().equals("HUMAN")) {
+		if (!init) {
+			init();
+		}
+		if (getVariantToIndex().equals("HUMAN")) {
 			return getVariantHumanDownloadSetFile();
 		}
-		if(getVariantToIndex().equals("MOD")) {
+		if (getVariantToIndex().equals("MOD")) {
 			return getVariantModDownloadSetFile();
 		}
 		log.warn("need to set VARIANTS_TO_INDEX = \"HUMAN\" or \"MOD\" to choose between which variants to index");
@@ -166,7 +190,9 @@ public class VariantConfigHelper {
 	}
 	
 	public static String getVariantCacherConfigFile() {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		return config.get(VARIANT_CACHER_CONFIG_FILE);
 	}
 
@@ -174,11 +200,11 @@ public class VariantConfigHelper {
 		String settings = getBulkProcessorSettings();
 		String[] array = settings.split(",");
 		int[][] ret = new int[array.length][];
-		
-		for(int i = 0; i < array.length; i++) {
+
+		for (int i = 0; i < array.length; i++) {
 			String[] array2 = array[i].split(";");
 			ret[i] = new int[array2.length];
-			for(int k = 0; k < array2.length; k++) {
+			for (int k = 0; k < array2.length; k++) {
 				ret[i][k] = Integer.parseInt(array2[k]);
 				log.debug("ret[" + i + "][" + k + "]=" + ret[i][k]);
 			}
@@ -188,12 +214,16 @@ public class VariantConfigHelper {
 	}
 	
 	public static String getBulkProcessorSettings() {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		return config.get(VARIANT_BULK_PROCESSOR_SETTINGS);
 	}
 
 	public static String getVariantFileDownloadPath() {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		return config.get(VARIANT_FILE_DOWNLOAD_PATH);
 	}
 
@@ -205,24 +235,34 @@ public class VariantConfigHelper {
 	}
 
 	public static Boolean isDownloading() {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		return Boolean.parseBoolean(config.get(VARIANT_CONFIG_DOWNLOAD));
 	}
 	public static Boolean isCreating() {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		return Boolean.parseBoolean(config.get(VARIANT_CONFIG_CREATING));
 	}
 	public static Boolean isIndexing() {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		return Boolean.parseBoolean(config.get(VARIANT_CONFIG_INDEXING));
 	}
 	public static Boolean isGatherStats() {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		return Boolean.parseBoolean(config.get(VARIANT_CONFIG_GATHERSTATS));
 	}
 
 	public static Integer getIndexerShards() {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		try {
 			return Integer.parseInt(config.get(VARIANT_INDEXER_SHARDS));
 		} catch (NumberFormatException e) {
@@ -231,7 +271,9 @@ public class VariantConfigHelper {
 	}
 
 	public static Integer getFileDownloadThreads() {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		try {
 			return Integer.parseInt(config.get(VARIANT_FILE_DOWNLOAD_THREADS));
 		} catch (NumberFormatException e) {
@@ -240,7 +282,9 @@ public class VariantConfigHelper {
 	}
 	
 	public static int getFileDownloadFilterThreads() {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		try {
 			return Integer.parseInt(config.get(VARIANT_FILE_DOWNLOAD_FILTER_THREADS));
 		} catch (NumberFormatException e) {
@@ -249,7 +293,9 @@ public class VariantConfigHelper {
 	}
 
 	public static Integer getSourceDocumentCreatorThreads() {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		try {
 			return Integer.parseInt(config.get(VARIANT_SOURCE_DOCUMENT_CREATOR_THREADS));
 		} catch (NumberFormatException e) {
@@ -257,7 +303,9 @@ public class VariantConfigHelper {
 		}
 	}
 	public static Integer getDisplayInterval() {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		try {
 			return Integer.parseInt(config.get(VARIANT_DISPLAY_INTERVAL)) * 1000;
 		} catch (NumberFormatException e) {
@@ -265,7 +313,9 @@ public class VariantConfigHelper {
 		}
 	}
 	public static Integer getSourceDocumentCreatorVCQueueSize() {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		try {
 			return Integer.parseInt(config.get(VARIANT_SOURCE_DOCUMENT_CREATOR_VCQUEUE_SIZE));
 		} catch (NumberFormatException e) {
@@ -274,7 +324,9 @@ public class VariantConfigHelper {
 	}
 	
 	public static int getSourceDocumentCreatorVCQueueBucketSize() {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		try {
 			return Integer.parseInt(config.get(VARIANT_SOURCE_DOCUMENT_CREATOR_VCQUEUE_BUCKET_SIZE));
 		} catch (NumberFormatException e) {
@@ -283,7 +335,9 @@ public class VariantConfigHelper {
 	}
 	
 	public static Integer getSourceDocumentCreatorObjectQueueSize() {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		try {
 			return Integer.parseInt(config.get(VARIANT_SOURCE_DOCUMENT_CREATOR_OBJECT_QUEUE_SIZE));
 		} catch (NumberFormatException e) {
@@ -292,7 +346,9 @@ public class VariantConfigHelper {
 	}
 	
 	public static int getSourceDocumentCreatorObjectQueueBucketSize() {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		try {
 			return Integer.parseInt(config.get(VARIANT_SOURCE_DOCUMENT_CREATOR_OBJECT_QUEUE_BUCKET_SIZE));
 		} catch (NumberFormatException e) {
@@ -301,7 +357,9 @@ public class VariantConfigHelper {
 	}
 	
 	public static int getIndexerBulkProcessorThreads() {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		try {
 			return Integer.parseInt(config.get(VARIANT_INDEXER_BULK_PROCESSOR_THREADS));
 		} catch (NumberFormatException e) {
@@ -310,7 +368,9 @@ public class VariantConfigHelper {
 	}
 	
 	public static int getTransformerThreads() {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		try {
 			return Integer.parseInt(config.get(VARIANT_TRANSFORMER_THREADS));
 		} catch (NumberFormatException e) {
@@ -319,12 +379,13 @@ public class VariantConfigHelper {
 	}
 	
 	public static int getProducerThreads() {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		try {
 			return Integer.parseInt(config.get(VARIANT_PRODUCER_THREADS));
 		} catch (NumberFormatException e) {
 			return 4;
 		}
 	}
-
 }

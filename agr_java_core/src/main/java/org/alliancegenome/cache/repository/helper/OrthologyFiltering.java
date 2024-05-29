@@ -11,22 +11,26 @@ public class OrthologyFiltering extends AnnotationFiltering<HomologView> {
 	public FilterFunction<HomologView, String> stringencyFilter =
 			(orthologView, value) -> {
 				Stringency stringency = Stringency.getOrthologyFilter(value);
-				if (stringency == null)
+				if (stringency == null) {
 					return false;
-				if (stringency.equals(Stringency.STRINGENT))
+				}
+				if (stringency.equals(Stringency.STRINGENT)) {
 					return FilterFunction.contains(orthologView.getStringencyFilter(), value);
-				if (stringency.equals(Stringency.MODERATE))
-					return FilterFunction.contains(orthologView.getStringencyFilter(), value) ||
-							FilterFunction.contains(orthologView.getStringencyFilter(), Stringency.STRINGENT.name());
-				if (stringency.equals(Stringency.ALL))
+				}
+			if (stringency.equals(Stringency.MODERATE)) {
+				return FilterFunction.contains(orthologView.getStringencyFilter(), value) || FilterFunction.contains(orthologView.getStringencyFilter(), Stringency.STRINGENT.name());
+			}
+				if (stringency.equals(Stringency.ALL)) {
 					return true;
+				}
 				return false;
 			};
 
 	public FilterFunction<HomologView, String> methodFilter =
 			(orthologView, value) -> {
-				if (CollectionUtils.isEmpty(orthologView.getPredictionMethodsMatched()))
+				if (CollectionUtils.isEmpty(orthologView.getPredictionMethodsMatched())) {
 					return false;
+				}
 				String concatenatedMethods = String.join(",", orthologView.getPredictionMethodsMatched());
 				return FilterFunction.contains(concatenatedMethods, value);
 			};
@@ -37,4 +41,3 @@ public class OrthologyFiltering extends AnnotationFiltering<HomologView> {
 	}
 
 }
-

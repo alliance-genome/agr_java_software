@@ -31,9 +31,9 @@ public class Mapping extends Builder {
 		new FieldBuilder(builder, "biologicalProcess", "text").keyword().build();
 		new FieldBuilder(builder, "biologicalProcessAgrSlim", "text").keyword().build();
 		new FieldBuilder(builder, "biologicalProcessWithParents", "text").keyword().build();
-		new FieldBuilder(builder, "biotype0","text").keyword().build();
-		new FieldBuilder(builder, "biotype1","text").keyword().build();
-		new FieldBuilder(builder, "biotype2","text").keyword().build();
+		new FieldBuilder(builder, "biotype0", "text").keyword().build();
+		new FieldBuilder(builder, "biotype1", "text").keyword().build();
+		new FieldBuilder(builder, "biotype2", "text").keyword().build();
 		new FieldBuilder(builder, "biotypes", "text").keyword().letterText().build();
 		new FieldBuilder(builder, "branch", "text").keyword().build();
 		new FieldBuilder(builder, "category", "keyword").symbol().autocomplete().keyword().build();
@@ -146,9 +146,9 @@ public class Mapping extends Builder {
 	private void buildMetaDataField() throws IOException {
 		builder.startObject("metaData");
 		builder.startObject("properties");
-		new FieldBuilder(builder,"dateProduced","date").build();
-		new FieldBuilder(builder,"dataProvider","keyword").build();
-		new FieldBuilder(builder,"release","keyword").build();
+		new FieldBuilder(builder, "dateProduced", "date").build();
+		new FieldBuilder(builder, "dataProvider", "keyword").build();
+		new FieldBuilder(builder, "release", "keyword").build();
 		builder.endObject();
 		builder.endObject();
 	}
@@ -156,9 +156,9 @@ public class Mapping extends Builder {
 	private void buildCrossReferenceLinkField() throws IOException {
 		builder.startObject("crossReferenceLinks");
 		builder.startObject("properties");
-		new FieldBuilder(builder,"name","keyword").build();
-		new FieldBuilder(builder,"displayName","keyword").build();
-		new FieldBuilder(builder,"url","keyword").build();
+		new FieldBuilder(builder, "name", "keyword").build();
+		new FieldBuilder(builder, "displayName", "keyword").build();
+		new FieldBuilder(builder, "url", "keyword").build();
 		builder.endObject();
 		builder.endObject();
 	}
@@ -272,34 +272,69 @@ public class Mapping extends Builder {
 			buildProperty(name, type, analyzer, null, null);
 		}
 
-		protected void buildProperty(String name, String type, String analyzer, String search_analyzer, String normalizer) throws IOException {
+		protected void buildProperty(String name, String type, String analyzer, String searchAnalyzer, String normalizer) throws IOException {
 			builder.startObject(name);
-			if(type != null) builder.field("type", type);
-			if(analyzer != null) builder.field("analyzer", analyzer);
-			if(search_analyzer != null) builder.field("search_analyzer", search_analyzer);
-			if(normalizer!= null) builder.field("normalizer", normalizer);
+			if (type != null) {
+				builder.field("type", type);
+			}
+			if (analyzer != null) {
+				builder.field("analyzer", analyzer);
+			}
+			if (searchAnalyzer != null) {
+				builder.field("search_analyzer", searchAnalyzer);
+			}
+			if (normalizer != null) {
+				builder.field("normalizer", normalizer);
+			}
 			builder.endObject();
 		}
 
-
 		public void build() throws IOException {
 			builder.startObject(name);
-			if(type != null) builder.field("type", type);
-			if(!index) builder.field("index", false);
-			if(analyzer != null) builder.field("analyzer", analyzer);
-			if(symbol || autocomplete || keyword || keywordAutocomplete || synonym || sort || standardText) {
+			if (type != null) {
+				builder.field("type", type);
+			}
+			if (!index) {
+				builder.field("index", false);
+			}
+			if (analyzer != null) {
+				builder.field("analyzer", analyzer);
+			}
+			if (symbol || autocomplete || keyword || keywordAutocomplete || synonym || sort || standardText) {
 				builder.startObject("fields");
-				if(keyword) { buildProperty("keyword", "keyword"); }
-				if(keywordAutocomplete) { buildProperty("keywordAutocomplete", "text", "keyword_autocomplete", "keyword_autocomplete_search", null); }
-				if(letterText) buildProperty("letterText", "text", "letter_text", "default", null);
-				if(symbol) { buildProperty("symbol", "text", "symbols"); }
-				if(autocomplete) buildProperty("autocomplete", "text", "autocomplete", "autocomplete_search", null);
-				if(classicText) buildProperty("classicText", "text", "classic_text", "default", null);
-				if(synonym) buildProperty("synonyms", "text", "generic_synonym", "autocomplete_search", null);
-				if(sort) buildProperty("sort", "keyword", null, null, "lowercase");
-				if(htmlSmoosh) buildProperty("htmlSmoosh", "text", "html_smoosh");
-				if(standardBigrams) buildProperty("standardBigrams", "text", "standard_bigrams");
-				if(standardText) buildProperty("standardText", "text", "standard_text", "default", null);
+				if (keyword) {
+					buildProperty("keyword", "keyword");
+				}
+				if (keywordAutocomplete) {
+					buildProperty("keywordAutocomplete", "text", "keyword_autocomplete", "keyword_autocomplete_search", null);
+				}
+				if (letterText) {
+					buildProperty("letterText", "text", "letter_text", "default", null);
+				}
+				if (symbol) {
+					buildProperty("symbol", "text", "symbols");
+				}
+				if (autocomplete) {
+					buildProperty("autocomplete", "text", "autocomplete", "autocomplete_search", null);
+				}
+				if (classicText) {
+					buildProperty("classicText", "text", "classic_text", "default", null);
+				}
+				if (synonym) {
+					buildProperty("synonyms", "text", "generic_synonym", "autocomplete_search", null);
+				}
+				if (sort) {
+					buildProperty("sort", "keyword", null, null, "lowercase");
+				}
+				if (htmlSmoosh) {
+					buildProperty("htmlSmoosh", "text", "html_smoosh");
+				}
+				if (standardBigrams) {
+					buildProperty("standardBigrams", "text", "standard_bigrams");
+				}
+				if (standardText) {
+					buildProperty("standardText", "text", "standard_text", "default", null);
+				}
 				builder.endObject();
 			}
 			builder.endObject();

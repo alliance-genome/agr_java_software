@@ -49,9 +49,6 @@ public class EntityJoin extends Association {
 	private List<ExperimentalCondition> exacerbateConditionList;
 
 	public boolean hasExperimentalConditions() {
-		return CollectionUtils.isNotEmpty(inducerConditionList) ||
-				CollectionUtils.isNotEmpty(hasConditionList) ||
-				CollectionUtils.isNotEmpty(ameliorateConditionList) ||
-				CollectionUtils.isNotEmpty(exacerbateConditionList);
+		return CollectionUtils.isNotEmpty(inducerConditionList) || CollectionUtils.isNotEmpty(hasConditionList) || CollectionUtils.isNotEmpty(ameliorateConditionList) || CollectionUtils.isNotEmpty(exacerbateConditionList);
 	}
 }

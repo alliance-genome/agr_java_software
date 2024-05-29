@@ -67,9 +67,11 @@ public class  ModelAnnotationsSorting implements Sorting<DiseaseAnnotation> {
 */
 	}
 
+	@Override
 	public Comparator<DiseaseAnnotation> getComparator(SortingField field, Boolean ascending) {
-		if (field == null)
+		if (field == null) {
 			return getJoinedComparator(defaultList);
+		}
 
 		switch (field) {
 			case MODEL:
@@ -82,6 +84,5 @@ public class  ModelAnnotationsSorting implements Sorting<DiseaseAnnotation> {
 				return getJoinedComparator(defaultList);
 		}
 	}
-
 
 }

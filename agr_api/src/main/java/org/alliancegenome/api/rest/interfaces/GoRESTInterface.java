@@ -27,20 +27,8 @@ public interface GoRESTInterface {
 	@Path("/{id}")
 	@Operation(summary = "Searches for a Go fields", hidden = true)
 
-	@APIResponses(
-			value = {
-					@APIResponse(
-							responseCode = "404",
-							description = "Missing GO",
-							content = @Content(mediaType = "text/plain")),
-					@APIResponse(
-							responseCode = "200",
-							description = "GOTerm.",
-							content = @Content(mediaType = "application/json",
-									schema = @Schema(implementation = GOTerm.class))) })
-	public GOTerm getGo(
-			@Parameter(in=ParameterIn.PATH, name = "id", description = "Search for a Go Term by ID", required=true, schema = @Schema(type = SchemaType.STRING))
-			@PathParam("id") String id
-	);
-	
+	@APIResponses(value = { @APIResponse(responseCode = "404", description = "Missing GO", content = @Content(mediaType = "text/plain")),
+		@APIResponse(responseCode = "200", description = "GOTerm.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = GOTerm.class))) })
+	GOTerm getGo(@Parameter(in = ParameterIn.PATH, name = "id", description = "Search for a Go Term by ID", required = true, schema = @Schema(type = SchemaType.STRING)) @PathParam("id") String id);
+
 }

@@ -14,7 +14,7 @@ import lombok.Setter;
 @NodeEntity
 @Getter
 @Setter
-@Schema(name="HTPDataset", description="POJO that represents a High Throughput Dataset")
+@Schema(name = "HTPDataset", description = "POJO that represents a High Throughput Dataset")
 public class HTPDataset extends Neo4jEntity {
 
 	private String crossRefCompleteUrl;
@@ -23,8 +23,6 @@ public class HTPDataset extends Neo4jEntity {
 	private String summary;
 	private String title;
 
-
-	@Relationship(type = "CROSS_REFERENCE")
-	protected List<CrossReference> crossReferences = new ArrayList<>();
+	@Relationship(type = "CROSS_REFERENCE") protected List<CrossReference> crossReferences = new ArrayList<>();
 
 }

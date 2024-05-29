@@ -87,10 +87,12 @@ public class ExpressionCacheRepository {
 	}
 
 	private List<ExpressionDetail> filterExpressionAnnotations(List<ExpressionDetail> expressionDetails, BaseFilter fieldFilterValueMap) {
-		if (expressionDetails == null)
+		if (expressionDetails == null) {
 			return null;
-		if (fieldFilterValueMap == null)
+		}
+		if (fieldFilterValueMap == null) {
 			return expressionDetails;
+		}
 		return expressionDetails.stream()
 				.filter(annotation -> containsFilterValue(annotation, fieldFilterValueMap))
 				.collect(Collectors.toList());
@@ -100,10 +102,11 @@ public class ExpressionCacheRepository {
 		// remove entries with null values.
 		fieldFilterValueMap.values().removeIf(Objects::isNull);
 		Set<Boolean> filterResults = fieldFilterValueMap.entrySet().stream()
-				.map((entry) -> {
+				.map(entry -> {
 					FilterFunction<ExpressionDetail, String> filterFunction = ExpressionAnnotationFiltering.filterFieldMap.get(entry.getKey());
-					if (filterFunction == null)
+					if (filterFunction == null) {
 						return null;
+					}
 					return filterFunction.containsFilterValue(annotation, entry.getValue());
 				})
 				.collect(Collectors.toSet());
@@ -115,8 +118,9 @@ public class ExpressionCacheRepository {
 		// sorting
 		SortingField sortingField = null;
 		String sortBy = pagination.getSortBy();
-		if (sortBy != null && !sortBy.isEmpty())
+		if (sortBy != null && !sortBy.isEmpty()) {
 			sortingField = SortingField.getSortingField(sortBy.toUpperCase());
+		}
 
 		ExpressionAnnotationSorting sorting = new ExpressionAnnotationSorting();
 		expressionList.sort(sorting.getComparator(sortingField, pagination.getAsc()));
@@ -133,37 +137,44 @@ public class ExpressionCacheRepository {
 	}
 
 	private Set<String> getParentTermIDs(List<String> aoList) {
-		if (aoList == null || aoList.isEmpty())
+		if (aoList == null || aoList.isEmpty()) {
 			return null;
+		}
 		DiseaseRepository repository = new DiseaseRepository();
 		Set<String> parentSet = new HashSet<>(4);
 		Map<String, Set<String>> map = repository.getClosureMappingUberon();
 		aoList.forEach(id -> {
 			parentTermIDs.forEach(parentTermID -> {
-				if (map.get(parentTermID) != null && map.get(parentTermID).contains(id))
+				if (map.get(parentTermID) != null && map.get(parentTermID).contains(id)) {
 					parentSet.add(parentTermID);
+				}
 			});
-			if (id.equals("UBERON:AnatomyOtherLocation"))
+			if (id.equals("UBERON:AnatomyOtherLocation")) {
 				parentSet.add(parentTermIDs.get(0));
-			if (id.equals("UBERON:PostEmbryonicPreAdult"))
+			}
+			if (id.equals("UBERON:PostEmbryonicPreAdult")) {
 				parentSet.add(parentTermIDs.get(1));
+			}
 		});
 		return parentSet;
 	}
 
 	private Set<String> getGOParentTermIDs(List<String> goList) {
-		if (goList == null || goList.isEmpty())
+		if (goList == null || goList.isEmpty()) {
 			return null;
+		}
 		DiseaseRepository repository = new DiseaseRepository();
 		Set<String> parentSet = new HashSet<>(4);
 		Map<String, Set<String>> map = repository.getClosureMappingGO();
 		goList.forEach(id -> {
 			parentTermIDs.forEach(parentTermID -> {
-				if (map.get(parentTermID) != null && map.get(parentTermID).contains(id))
+				if (map.get(parentTermID) != null && map.get(parentTermID).contains(id)) {
 					parentSet.add(parentTermID);
+				}
 			});
-			if (id.equals("GO:otherLocations"))
+			if (id.equals("GO:otherLocations")) {
 				parentSet.add(parentTermIDs.get(2));
+			}
 		});
 		return parentSet;
 	}

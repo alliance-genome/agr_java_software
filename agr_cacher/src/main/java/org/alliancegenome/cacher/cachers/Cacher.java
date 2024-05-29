@@ -28,10 +28,13 @@ import lombok.extern.slf4j.Slf4j;
 @Getter
 public abstract class Cacher extends Thread {
 
-	public Cacher() {};
-	
+	public Cacher() {
+	};
+
 	protected abstract void init(); // Called before cache()
+
 	protected abstract void cache();
+
 	protected abstract void close(); // Called after cache()
 
 	protected boolean useCache;
@@ -96,20 +99,12 @@ public abstract class Cacher extends Thread {
 			speciesStats.put(species, speciesList.size());
 		});
 
-		Arrays.stream(SpeciesType.values())
-				.filter(speciesType -> !speciesStats.keySet().contains(speciesType.getName()))
-				.forEach(speciesType -> speciesStats.put(speciesType.getName(), 0));
+		Arrays.stream(SpeciesType.values()).filter(speciesType -> !speciesStats.keySet().contains(speciesType.getName())).forEach(speciesType -> speciesStats.put(speciesType.getName(), 0));
 
-
-		Map<String, Integer> sortedMap = speciesStats
-				.entrySet()
-				.stream()
-				.sorted(Collections.reverseOrder(comparingByValue()))
-				.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2, LinkedHashMap::new));
+		Map<String, Integer> sortedMap = speciesStats.entrySet().stream().sorted(Collections.reverseOrder(comparingByValue())).collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2, LinkedHashMap::new));
 
 		status.setEntityStats(entityStats);
 		status.setSpeciesStats(sortedMap);
 	}
-
 
 }

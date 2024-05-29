@@ -16,8 +16,10 @@ public class DatasetIndexerRepository extends Neo4jRepository<HTPDataset> {
 
 	private DatasetDocumentCache cache = new DatasetDocumentCache();
 	
-	public DatasetIndexerRepository() { super(HTPDataset.class); }
-	
+	public DatasetIndexerRepository() {
+		super(HTPDataset.class);
+	}
+
 	public DatasetDocumentCache getCache() {
 
 		log.info("Building DatasetDocumentCache");
@@ -54,12 +56,11 @@ public class DatasetIndexerRepository extends Neo4jRepository<HTPDataset> {
 		@Override
 		public void run() {
 			log.info("Fetching datasets");
-			String query = " MATCH p1=(dataset:HTPDataset) " +
-					" RETURN p1; ";
+			String query = " MATCH p1=(dataset:HTPDataset) RETURN p1; ";
 	
 			Iterable<HTPDataset> datasets = query(query);
 	
-			Map<String,HTPDataset> datasetMap = new HashMap<>();
+			Map<String, HTPDataset> datasetMap = new HashMap<>();
 			for (HTPDataset dataset : datasets) {
 				datasetMap.put(dataset.getPrimaryKey(), dataset);
 			}
@@ -73,8 +74,7 @@ public class DatasetIndexerRepository extends Neo4jRepository<HTPDataset> {
 		@Override
 		public void run() {
 			log.info("Fetching assays");
-			cache.setAssays(getMapSetForQuery("MATCH (dataset:HTPDataset)-[:ASSOCIATION]-(sample:HTPDatasetSample)-[:ASSAY_TYPE]-(assay:MMOTerm) \n" +
-					"RETURN distinct dataset.primaryKey as id, assay.displaySynonym as value"));
+			cache.setAssays(getMapSetForQuery("MATCH (dataset:HTPDataset)-[:ASSOCIATION]-(sample:HTPDatasetSample)-[:ASSAY_TYPE]-(assay:MMOTerm) RETURN distinct dataset.primaryKey as id, assay.displaySynonym as value"));
 			log.info("Finished fetching assays");
 		}
 	}
@@ -83,9 +83,7 @@ public class DatasetIndexerRepository extends Neo4jRepository<HTPDataset> {
 		@Override
 		public void run() {
 			log.info("Fetching cross references");
-			cache.setCrossReferences(getMapSetForQuery("MATCH (dataset:HTPDataset)-[:CROSS_REFERENCE]-(cr:CrossReference) " +
-					" WHERE cr.preferred = 'false' " +
-					" RETURN dataset.primaryKey as id, cr.name as value"));
+			cache.setCrossReferences(getMapSetForQuery("MATCH (dataset:HTPDataset)-[:CROSS_REFERENCE]-(cr:CrossReference) WHERE cr.preferred = 'false' RETURN dataset.primaryKey as id, cr.name as value"));
 			log.info("Finished fetching cross references");
 		}
 	}
@@ -103,8 +101,7 @@ public class DatasetIndexerRepository extends Neo4jRepository<HTPDataset> {
 		@Override
 		public void run() {
 			log.info("Fetching species");
-			cache.setSpecies(getMapSetForQuery("MATCH (dataset:HTPDataset)-[:ASSOCIATION]-(sample:HTPDatasetSample)-[:FROM_SPECIES]-(species:Species) " +
-					" RETURN distinct dataset.primaryKey as id, species.name as value;"));
+			cache.setSpecies(getMapSetForQuery("MATCH (dataset:HTPDataset)-[:ASSOCIATION]-(sample:HTPDatasetSample)-[:FROM_SPECIES]-(species:Species) RETURN distinct dataset.primaryKey as id, species.name as value;"));
 			log.info("Finished Fetching species");
 		}
 	}
@@ -113,8 +110,7 @@ public class DatasetIndexerRepository extends Neo4jRepository<HTPDataset> {
 		@Override
 		public void run() {
 			log.info("Fetching sample ids");
-			cache.setSampleIds(getMapSetForQuery("MATCH (dataset:HTPDataset)-[:ASSOCIATION]-(sample:HTPDatasetSample) " +
-					" RETURN distinct dataset.primaryKey as id, sample.sampleId as value;"));
+			cache.setSampleIds(getMapSetForQuery("MATCH (dataset:HTPDataset)-[:ASSOCIATION]-(sample:HTPDatasetSample) RETURN distinct dataset.primaryKey as id, sample.sampleId as value;"));
 			log.info("Finished Fetching sample ids");
 		}
 	}
@@ -123,9 +119,7 @@ public class DatasetIndexerRepository extends Neo4jRepository<HTPDataset> {
 		@Override
 		public void run() {
 			log.info("Fetching sex");
-			cache.setSex(getMapSetForQuery("MATCH (dataset:HTPDataset)-[:ASSOCIATION]-(sample:HTPDatasetSample) " +
-					" WHERE sample.sex <> \"\" " +
-					" RETURN distinct dataset.primaryKey as id, sample.sex as value"));
+			cache.setSex(getMapSetForQuery("MATCH (dataset:HTPDataset)-[:ASSOCIATION]-(sample:HTPDatasetSample) WHERE sample.sex <> \"\" RETURN distinct dataset.primaryKey as id, sample.sex as value"));
 			log.info("Finished Fetching sex");
 		}
 	}
@@ -134,8 +128,7 @@ public class DatasetIndexerRepository extends Neo4jRepository<HTPDataset> {
 		@Override
 		public void run() {
 			log.info("Fetching whereExpressed statement");
-			cache.setWhereExpressed(getMapSetForQuery("MATCH (dataset:HTPDataset)-[:ASSOCIATION]-(:HTPDatasetSample)-[:STRUCTURE_SAMPLED]-(ebe:ExpressionBioEntity) " +
-					" RETURN distinct dataset.primaryKey as id, ebe.whereExpressedStatement as value"));
+			cache.setWhereExpressed(getMapSetForQuery("MATCH (dataset:HTPDataset)-[:ASSOCIATION]-(:HTPDatasetSample)-[:STRUCTURE_SAMPLED]-(ebe:ExpressionBioEntity) RETURN distinct dataset.primaryKey as id, ebe.whereExpressedStatement as value"));
 			log.info("Finished Fetching whereExpressed statement");
 		}
 	}
@@ -144,8 +137,7 @@ public class DatasetIndexerRepository extends Neo4jRepository<HTPDataset> {
 		@Override
 		public void run() {
 			log.info("Fetching anatomical expression ribbon terms");
-			cache.setAnatomicalExpression(getMapSetForQuery("MATCH (dataset:HTPDataset)-[:ASSOCIATION]-(:HTPDatasetSample)-[:STRUCTURE_SAMPLED]-(ebe:ExpressionBioEntity)-[:ANATOMICAL_RIBBON_TERM]-(term:Ontology) " +
-					" RETURN dataset.primaryKey as id, term.name as value"));
+			cache.setAnatomicalExpression(getMapSetForQuery("MATCH (dataset:HTPDataset)-[:ASSOCIATION]-(:HTPDatasetSample)-[:STRUCTURE_SAMPLED]-(ebe:ExpressionBioEntity)-[:ANATOMICAL_RIBBON_TERM]-(term:Ontology) RETURN dataset.primaryKey as id, term.name as value"));
 			log.info("Finished Fetching anatomical expression ribbon terms");
 		}
 	}
@@ -154,8 +146,7 @@ public class DatasetIndexerRepository extends Neo4jRepository<HTPDataset> {
 		@Override
 		public void run() {
 			log.info("Fetching anatomical expression parent terms");
-			cache.setAnatomicalExpressionWithParents(getMapSetForQuery("MATCH (dataset:HTPDataset)-[:ASSOCIATION]-(:HTPDatasetSample)-[:STRUCTURE_SAMPLED]-(ebe:ExpressionBioEntity)-[:ANATOMICAL_STRUCTURE]-(:Ontology)-[:IS_A_PART_OF_CLOSURE]->(term:Ontology) " +
-					" RETURN dataset.primaryKey as id, term.name as value"));
+			cache.setAnatomicalExpressionWithParents(getMapSetForQuery("MATCH (dataset:HTPDataset)-[:ASSOCIATION]-(:HTPDatasetSample)-[:STRUCTURE_SAMPLED]-(ebe:ExpressionBioEntity)-[:ANATOMICAL_STRUCTURE]-(:Ontology)-[:IS_A_PART_OF_CLOSURE]->(term:Ontology) RETURN dataset.primaryKey as id, term.name as value"));
 			log.info("Finished Fetching anatomical expression parent terms");
 		}
 	}

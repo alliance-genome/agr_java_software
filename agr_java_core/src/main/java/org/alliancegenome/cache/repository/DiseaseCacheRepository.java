@@ -74,15 +74,17 @@ public class DiseaseCacheRepository {
 
 	public PaginationResult<DiseaseAnnotation> getRibbonDiseaseAnnotations(List<String> geneIDs, String diseaseSlimID, Pagination pagination) {
 
-		if (geneIDs == null)
+		if (geneIDs == null) {
 			return null;
+		}
 		Set<DiseaseAnnotation> allDiseaseAnnotationList = new HashSet<>();
 
 		// filter by gene
 		geneIDs.forEach(geneID -> {
 					List<DiseaseAnnotation> annotations = cacheService.getCacheEntries(geneID, CacheAlliance.DISEASE_ANNOTATION_GENE_LEVEL_GENE_DISEASE);
-					if (annotations != null)
+					if (annotations != null) {
 						allDiseaseAnnotationList.addAll(annotations);
+					}
 				}
 		);
 		List<DiseaseAnnotation> fullDiseaseAnnotationList = new ArrayList<>(allDiseaseAnnotationList);
@@ -130,8 +132,9 @@ public class DiseaseCacheRepository {
 	}
 
 	public List<ECOTerm> getEcoTerms(List<PublicationJoin> joins) {
-		if (joins == null)
+		if (joins == null) {
 			return null;
+		}
 		List<ECOTerm> list = new ArrayList<>();
 		joins.forEach(join -> {
 			list.addAll(cacheService.getCacheEntries(join.getPrimaryKey(), CacheAlliance.ECO_MAP));

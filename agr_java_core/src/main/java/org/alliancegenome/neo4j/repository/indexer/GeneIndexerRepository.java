@@ -21,8 +21,10 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
 	protected DecimalFormat df = new DecimalFormat("#");
 	private GeneDocumentCache cache = new GeneDocumentCache();
 
-	public GeneIndexerRepository() { super(Gene.class); }
-	
+	public GeneIndexerRepository() {
+		super(Gene.class);
+	}
+
 	public GeneDocumentCache getGeneCacheCrossReferencesSynonyms() {
 		log.info("Building GeneDocumentCache CrossReferences and Synonyms only");
 		
@@ -74,36 +76,42 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
 		executor.execute(new GetAnatomicalExpressionWithParentsMapThread());
 
 		executor.execute(new GetGOTermMapThread("biological_process", true, new CacheCallback() {
+			@Override
 			public void setCacheResult(Map<String, Set<String>> result) {
 				cache.setBiologicalProcessAgrSlim(result);
 			}
 		}));
 		
 		executor.execute(new GetGOTermMapThread("cellular_component", true, new CacheCallback() {
+			@Override
 			public void setCacheResult(Map<String, Set<String>> result) {
 				cache.setCellularComponentAgrSlim(result);
 			}
 		}));
 		
 		executor.execute(new GetGOTermMapThread("molecular_function", true, new CacheCallback() {
+			@Override
 			public void setCacheResult(Map<String, Set<String>> result) {
 				cache.setMolecularFunctionAgrSlim(result);
 			}
 		}));
 		
 		executor.execute(new GetGOTermMapThread("biological_process", false, new CacheCallback() {
+			@Override
 			public void setCacheResult(Map<String, Set<String>> result) {
 				cache.setBiologicalProcessWithParents(result);
 			}
 		}));
 		
 		executor.execute(new GetGOTermMapThread("cellular_component", false, new CacheCallback() {
+			@Override
 			public void setCacheResult(Map<String, Set<String>> result) {
 				cache.setCellularComponentWithParents(result);
 			}
 		}));
 		
 		executor.execute(new GetGOTermMapThread("molecular_function", false, new CacheCallback() {
+			@Override
 			public void setCacheResult(Map<String, Set<String>> result) {
 				cache.setMolecularFunctionWithParents(result);
 			}
@@ -125,6 +133,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
 
 	private class GetGeneMapThread implements Runnable {
 
+		@Override
 		public void run() {
 			log.info("Fetching genes");
 			String query = " MATCH p1=(species:Species)-[:FROM_SPECIES]-(g:Gene) ";
@@ -137,7 +146,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
 
 			genes = query(query);
 
-			Map<String,Gene> geneMap = new HashMap<>();
+			Map<String, Gene> geneMap = new HashMap<>();
 			for (Gene gene : genes) {
 				geneMap.put(gene.getPrimaryKey(), gene);
 			}
@@ -160,6 +169,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
 	}
 
 	private class GetCrossReferencesThread implements Runnable {
+		@Override
 		public void run() {
 			log.info("Building gene -> cross references map");
 			String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[:CROSS_REFERENCE]-(cr:CrossReference) ";
@@ -191,6 +201,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
 	}
 
 	private class GetChromosomesThread implements Runnable {
+		@Override
 		public void run() {
 			log.info("Building gene -> chromosome map");
 			String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[:LOCATED_ON]-(c:Chromosome) ";
@@ -202,6 +213,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
 	}
 
 	private class GetSecondaryIdsThread implements Runnable {
+		@Override
 		public void run() {
 			log.info("Building gene -> secondaryId map");
 			String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[:ALSO_KNOWN_AS]-(s:SecondaryId) ";
@@ -213,6 +225,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
 	}
 
 	private class GetAllelesMapThread implements Runnable {
+		@Override
 		public void run() {
 			log.info("Building gene -> alleles map");
 			String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[:IS_ALLELE_OF]-(allele:Allele) ";
@@ -224,35 +237,35 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
 	}
 
 	private class GetSoTermNameMapThread implements Runnable {
+		@Override
 		public void run() {
 			log.info("Building gene -> soTermName map");
 			String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[:ANNOTATED_TO]-(term:SOTerm) ";
 			query += " RETURN gene.primaryKey as id, term.name as value";
 
-			cache.setSoTermNames(getMapSetForQuery(query,"id","value"));
+			cache.setSoTermNames(getMapSetForQuery(query, "id", "value"));
 			log.info("Finished Building gene -> soTermName map");
 		}
 	}
 
 	private class GetSoTermNameWithParentsMapThread implements Runnable {
+		@Override
 		public void run() {
 			log.info("Building gene -> soTermNameWithParents map");
 			String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[:ANNOTATED_TO]-(:SOTerm)-[:IS_A_PART_OF_CLOSURE]->(term:SOTerm) ";
 			query += " RETURN gene.primaryKey as id, term.name as value";
 
-			cache.setSoTermNameWithParents(getMapSetForQuery(query,"id","value"));
+			cache.setSoTermNameWithParents(getMapSetForQuery(query, "id", "value"));
 			log.info("Finished Building gene -> soTermNameWithParents map");
 		}
 	}
 
 	private class GetSoTermNameAgrSlimMapThread implements Runnable {
+		@Override
 		public void run() {
 			log.info("Building gene -> soTermNameAgrSlim map");
-			String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[:ANNOTATED_TO]-(:SOTerm)-[:IS_A_PART_OF_CLOSURE]->(term:SOTerm) ";
-			query += " WHERE not term.name in ['region'," +
-					"'biological_region'," +
-					"'sequence_feature']";
-
+			String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[:ANNOTATED_TO]-(:SOTerm)-[:IS_A_PART_OF_CLOSURE]->(term:SOTerm)";
+			query += " WHERE not term.name in ['region','biological_region','sequence_feature']";
 			query += " RETURN gene.primaryKey as id, term.name as value";
 
 			cache.setSoTermNameAgrSlim(getMapSetForQuery(query, "id", "value"));
@@ -261,6 +274,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
 	}
 
 	private class GetStrictOrthologySymbolsMapThread implements Runnable {
+		@Override
 		public void run() {
 			log.info("Building gene -> strictOrthologySymbols map");
 			String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[o:ORTHOLOGOUS]-(orthoGene:Gene) WHERE o.strictFilter = true  ";
@@ -272,6 +286,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
 	}
 
 	private class GetDiseasesMapThread implements Runnable {
+		@Override
 		public void run() {
 			log.info("Building gene -> diseases map");
 			String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[:IS_MARKER_FOR|IS_IMPLICATED_IN|IMPLICATED_VIA_ORTHOLOGY|BIOMARKER_VIA_ORTHOLOGY]-(disease:DOTerm) ";
@@ -284,6 +299,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
 	}
 
 	private class GetDiseasesAgrSlimMapThread implements Runnable {
+		@Override
 		public void run() {
 			log.info("Building gene -> diseasesAgrSlim map");
 			String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[:IS_MARKER_FOR|IS_IMPLICATED_IN|IMPLICATED_VIA_ORTHOLOGY|BIOMARKER_VIA_ORTHOLOGY]-(:DOTerm)-[:IS_A_PART_OF_CLOSURE]->(disease:DOTerm) ";
@@ -296,6 +312,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
 	}
 
 	private class GetDiseasesWithParentsThread implements Runnable {
+		@Override
 		public void run() {
 			log.info("Building gene -> diseasesWithParents map");
 			String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[:IS_MARKER_FOR|IS_IMPLICATED_IN|IMPLICATED_VIA_ORTHOLOGY|BIOMARKER_VIA_ORTHOLOGY]-(:DOTerm)-[:IS_A_PART_OF_CLOSURE]->(disease:DOTerm) ";
@@ -307,6 +324,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
 	}
 
 	private class GetModelMapThread implements Runnable {
+		@Override
 		public void run() {
 			log.info("Building gene -> model map");
 			String query = "MATCH (species:Species)-[:FROM_SPECIES]-(model:AffectedGenomicModel)-[:MODEL_COMPONENT|SEQUENCE_TARGETING_REAGENT]-(feature)--(gene:Gene)";
@@ -318,6 +336,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
 	}
 
 	private class GetPhenotypeStatementMapThread implements Runnable {
+		@Override
 		public void run() {
 			log.info("Building gene -> phenotypeStatement map");
 			String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)--(phenotype:Phenotype) ";
@@ -328,6 +347,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
 	}
 
 	private class GetWhereExpressedMapThread implements Runnable {
+		@Override
 		public void run() {
 			log.info("Building gene -> whereExpressed map");
 			String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)--(ebe:ExpressionBioEntity) ";
@@ -339,9 +359,10 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
 	}
 
 	private class GetExpressionStagesMapThread implements Runnable {
+		@Override
 		public void run() {
 			log.info("Building gene -> expressionStages map");
-			String query= "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)--(:BioEntityGeneExpressionJoin)--(stage:Stage) ";
+			String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)--(:BioEntityGeneExpressionJoin)--(stage:Stage) ";
 			query += "RETURN distinct gene.primaryKey as id, stage.name as value";
 
 			cache.setExpressionStages(getMapSetForQuery(query));
@@ -350,6 +371,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
 	}
 
 	private class GetSubcellularExpressionAgrSlimMapThread implements Runnable {
+		@Override
 		public void run() {
 			log.info("Building gene -> Subcellular Expression Ribbon map");
 			String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)--(ebe:ExpressionBioEntity)-[:CELLULAR_COMPONENT_RIBBON_TERM]->(term:GOTerm) ";
@@ -361,6 +383,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
 	}
 
 	private class GetSubcellularExpressionWithParentsMapThread implements Runnable {
+		@Override
 		public void run() {
 			log.info("Building gene -> Subcellular Expression w/parents map");
 			String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)--(ebe:ExpressionBioEntity)-[:CELLULAR_COMPONENT]-(:GOTerm)-[:IS_A_PART_OF_CLOSURE]->(term:GOTerm) ";
@@ -372,6 +395,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
 	}
 
 	private class GetAnatomicalExpressionMapThread implements Runnable {
+		@Override
 		public void run() {
 			log.info("Building gene -> Expression Anatomy Ribbon map");
 			String query = " MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)--(ebe:ExpressionBioEntity)-[:ANATOMICAL_RIBBON_TERM]-(term:Ontology) ";
@@ -383,6 +407,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
 	}
 
 	private class GetAnatomicalExpressionWithParentsMapThread implements Runnable {
+		@Override
 		public void run() {
 			log.info("Building gene -> Expression Anatomy w/parents map");
 			String query = " MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[:EXPRESSED_IN]->(ebe:ExpressionBioEntity)-[:ANATOMICAL_STRUCTURE]-(:Ontology)-[:IS_A_PART_OF_CLOSURE]->(term:Ontology) ";
@@ -394,14 +419,21 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
 	}
 
 	private class GetGOTermMapThread implements Runnable {
-		private String type; private Boolean slim; private CacheCallback callback;
+		private String type;
+		private Boolean slim;
+		private CacheCallback callback;
 		
-		public GetGOTermMapThread(String type, Boolean slim, CacheCallback callback) { this.type = type; this.slim = slim; this.callback = callback; }
+		public GetGOTermMapThread(String type, Boolean slim, CacheCallback callback) {
+			this.type = type;
+			this.slim = slim;
+			this.callback = callback;
+		}
+		@Override
 		public void run() {
 			String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)--(:GOTerm)-[:IS_A_PART_OF_CLOSURE]->(term:GOTerm) ";
 			query += "WHERE term.type = $type";
 
-			Map<String,String> params = new HashMap<String,String>();
+			Map<String, String> params = new HashMap<String, String>();
 
 			if (slim) {
 				query += " AND term.subset =~ '.*goslim_agr.*' ";

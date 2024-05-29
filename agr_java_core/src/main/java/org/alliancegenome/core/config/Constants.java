@@ -2,7 +2,8 @@ package org.alliancegenome.core.config;
 
 public class Constants {
 
-
+	private Constants() { }
+	
 	// Config Helper Constants
 	public static final String THREADED = "THREADED";
 	public static final String DEBUG = "DEBUG";

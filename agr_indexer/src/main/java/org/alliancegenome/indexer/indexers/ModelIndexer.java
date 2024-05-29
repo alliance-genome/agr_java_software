@@ -43,18 +43,17 @@ public class ModelIndexer extends Indexer {
 		ArrayList<AffectedGenomicModel> list = new ArrayList<>();
 		ModelTranslator translator = new ModelTranslator();
 
-
 		while (true) {
 			try {
 				if (list.size() >= indexerConfig.getBufferSize()) {
-					Iterable <SearchableItemDocument> documents = translator.translateEntities(list);
+					Iterable<SearchableItemDocument> documents = translator.translateEntities(list);
 					cache.addCachedFields(documents);
 					indexDocuments(documents);
 					list.clear();
 				}
 				if (queue.isEmpty()) {
 					if (list.size() > 0) {
-						Iterable <SearchableItemDocument> documents = translator.translateEntities(list);
+						Iterable<SearchableItemDocument> documents = translator.translateEntities(list);
 						cache.addCachedFields(documents);
 						indexDocuments(documents);
 						repo.clearCache();
@@ -65,10 +64,11 @@ public class ModelIndexer extends Indexer {
 
 				String key = queue.takeFirst();
 				AffectedGenomicModel model = cache.getModelMap().get(key);
-				if (model != null)
+				if (model != null) {
 					list.add(model);
-				else
+				} else {
 					log.debug("No AffectedGenomicModel found for " + key);
+				}
 			} catch (Exception e) {
 				log.error("Error while indexing...", e);
 				System.exit(-1);

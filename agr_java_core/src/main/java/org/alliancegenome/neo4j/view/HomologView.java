@@ -16,7 +16,7 @@ import lombok.Setter;
 
 @Setter
 @Getter
-@Schema(name="OrthologView", description="POJO that represents the Ortholog view")
+@Schema(name = "OrthologView", description = "POJO that represents the Ortholog view")
 @JsonPropertyOrder({"gene", "homologGene", "best", "bestReverse", "stringencyFilter", "predictionMethodsMatched", "predictionMethodsNotMatched", "predictionMethodsNotCalled", "methodCount", "totalMethodCount"})
 public class HomologView implements Serializable {
 
@@ -42,8 +42,9 @@ public class HomologView implements Serializable {
 	@JsonView(View.Homology.class)
 	@JsonProperty(value = "methodCount")
 	public Integer getMethodCount() {
-		if (predictionMethodsMatched == null)
+		if (predictionMethodsMatched == null) {
 			return 0;
+		}
 		return predictionMethodsMatched.size();
 	}
 
@@ -54,12 +55,15 @@ public class HomologView implements Serializable {
 	@JsonView(View.Homology.class)
 	@JsonProperty(value = "totalMethodCount")
 	public Integer getTotalMethodCount() {
-		if (predictionMethodsMatched == null && predictionMethodsNotMatched == null)
+		if (predictionMethodsMatched == null && predictionMethodsNotMatched == null) {
 			return 0;
-		if (predictionMethodsMatched == null)
+		}
+		if (predictionMethodsMatched == null) {
 			return predictionMethodsNotMatched.size();
-		if (predictionMethodsNotMatched == null)
+		}
+		if (predictionMethodsNotMatched == null) {
 			return predictionMethodsMatched.size();
+		}
 		return predictionMethodsMatched.size() + predictionMethodsNotMatched.size();
 	}
 
@@ -69,13 +73,14 @@ public class HomologView implements Serializable {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 		HomologView that = (HomologView) o;
-		return best == that.best &&
-				bestReverse == that.bestReverse &&
-				Objects.equals(gene, that.gene) &&
-				Objects.equals(homologGene, that.homologGene);
+		return best == that.best && bestReverse == that.bestReverse && Objects.equals(gene, that.gene) && Objects.equals(homologGene, that.homologGene);
 	}
 
 	@Override
@@ -83,5 +88,4 @@ public class HomologView implements Serializable {
 
 		return Objects.hash(gene, homologGene, best, bestReverse);
 	}
-
 }

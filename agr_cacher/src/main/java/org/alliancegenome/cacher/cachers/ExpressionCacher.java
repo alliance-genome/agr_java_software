@@ -53,49 +53,50 @@ public class ExpressionCacher extends Cacher {
 
 		startProcess("allExpression", joins.size());
 
-		List<ExpressionDetail> allExpression = joins.stream()
-				.map(expressionJoin -> {
-					ExpressionDetail detail = new ExpressionDetail();
-					detail.setGene(expressionJoin.getGene());
-					detail.setTermName(expressionJoin.getEntity().getWhereExpressedStatement());
-					detail.setAssay(expressionJoin.getAssay());
-					detail.setDataProvider(expressionJoin.getGene().getDataProvider());
-					if (expressionJoin.getStage() != null)
-						detail.setStage(expressionJoin.getStage());
-					detail.setPublications(new TreeSet<>(expressionJoin.getPublications()));
-					// Remove this check in future checkins.
-					if (expressionJoin.getCrossReferences() != null) {
-						if (expressionJoin.getCrossReferences().get(0).getName() == null)
-							log.info("CrossRef: " + expressionJoin.getCrossReferences().get(0));
-					}
-					detail.setCrossReferences(expressionJoin.getCrossReferences());
-					// add AO terms and All AO parent term
-					List<String> aoList = expressionJoin.getEntity().getAoTermList().stream().map(UBERONTerm::getPrimaryKey).collect(Collectors.toList());
-					detail.setUberonTermIDs(aoList);
+		List<ExpressionDetail> allExpression = joins.stream().map(expressionJoin -> {
+			ExpressionDetail detail = new ExpressionDetail();
+			detail.setGene(expressionJoin.getGene());
+			detail.setTermName(expressionJoin.getEntity().getWhereExpressedStatement());
+			detail.setAssay(expressionJoin.getAssay());
+			detail.setDataProvider(expressionJoin.getGene().getDataProvider());
+			if (expressionJoin.getStage() != null) {
+				detail.setStage(expressionJoin.getStage());
+			}
+			detail.setPublications(new TreeSet<>(expressionJoin.getPublications()));
+			// Remove this check in future checkins.
+			if (expressionJoin.getCrossReferences() != null) {
+				if (expressionJoin.getCrossReferences().get(0).getName() == null) {
+					log.info("CrossRef: " + expressionJoin.getCrossReferences().get(0));
+				}
+			}
+			detail.setCrossReferences(expressionJoin.getCrossReferences());
+			// add AO terms and All AO parent term
+			List<String> aoList = expressionJoin.getEntity().getAoTermList().stream().map(UBERONTerm::getPrimaryKey).collect(Collectors.toList());
+			detail.setUberonTermIDs(aoList);
 
-					Set<String> parentTermIDs = getParentTermIDs(aoList);
-					if (parentTermIDs != null)
-						aoList.addAll(parentTermIDs);
-					detail.addTermIDs(aoList);
+			Set<String> parentTermIDs = getParentTermIDs(aoList);
+			if (parentTermIDs != null) {
+				aoList.addAll(parentTermIDs);
+			}
+			detail.addTermIDs(aoList);
 
-					// add GO terms and All-GO parent term
-					List<String> goList = expressionJoin.getEntity().getCcRibbonTermList().stream().map(GOTerm::getPrimaryKey).collect(Collectors.toList());
-					detail.setGoTermIDs(goList);
-					Set<String> goParentTerms = getGOParentTermIDs(goList);
-					if (goParentTerms != null) {
-						goList.addAll(goParentTerms);
-					}
-					detail.addTermIDs(goList);
-					if (expressionJoin.getStageTerm() != null) {
-						String stageID = expressionJoin.getStageTerm().getPrimaryKey();
-						detail.addTermID(stageID);
-						detail.setStageTermID(stageID);
-						detail.addTermIDs(getParentTermIDs(List.of(stageID)));
-					}
-					progressProcess();
-					return detail;
-				})
-				.collect(Collectors.toList());
+			// add GO terms and All-GO parent term
+			List<String> goList = expressionJoin.getEntity().getCcRibbonTermList().stream().map(GOTerm::getPrimaryKey).collect(Collectors.toList());
+			detail.setGoTermIDs(goList);
+			Set<String> goParentTerms = getGOParentTermIDs(goList);
+			if (goParentTerms != null) {
+				goList.addAll(goParentTerms);
+			}
+			detail.addTermIDs(goList);
+			if (expressionJoin.getStageTerm() != null) {
+				String stageID = expressionJoin.getStageTerm().getPrimaryKey();
+				detail.addTermID(stageID);
+				detail.setStageTermID(stageID);
+				detail.addTermIDs(getParentTermIDs(List.of(stageID)));
+			}
+			progressProcess();
+			return detail;
+		}).collect(Collectors.toList());
 
 		finishProcess();
 
@@ -103,8 +104,7 @@ public class ExpressionCacher extends Cacher {
 
 		startProcess("geneExpressionMap", allExpression.size());
 
-		Map<String, List<ExpressionDetail>> geneExpressionMap = allExpression.stream()
-				.collect(groupingBy(expressionDetail -> expressionDetail.getGene().getPrimaryKey()));
+		Map<String, List<ExpressionDetail>> geneExpressionMap = allExpression.stream().collect(groupingBy(expressionDetail -> expressionDetail.getGene().getPrimaryKey()));
 
 		finishProcess();
 
@@ -113,10 +113,7 @@ public class ExpressionCacher extends Cacher {
 		CacheStatus status = new CacheStatus(CacheAlliance.GENE_EXPRESSION);
 		status.setNumberOfEntities(allExpression.size());
 
-		Map<String, List<Species>> speciesStats = allExpression.stream()
-				.filter(expressionDetail -> expressionDetail.getGene() != null)
-				.map(expressionDetail -> expressionDetail.getGene().getSpecies())
-				.collect(groupingBy(Species::getName));
+		Map<String, List<Species>> speciesStats = allExpression.stream().filter(expressionDetail -> expressionDetail.getGene() != null).map(expressionDetail -> expressionDetail.getGene().getSpecies()).collect(groupingBy(Species::getName));
 
 		Map<String, Integer> entityStats = new TreeMap<>();
 		geneExpressionMap.forEach((geneID, annotations) -> entityStats.put(geneID, annotations.size()));
@@ -131,39 +128,45 @@ public class ExpressionCacher extends Cacher {
 	}
 
 	private Set<String> getParentTermIDs(List<String> idList) {
-		if (idList == null || idList.isEmpty())
+		if (idList == null || idList.isEmpty()) {
 			return null;
+		}
 		Set<String> parentSet = new HashSet<>(4);
 		Map<String, Set<String>> map = diseaseRepository.getClosureMappingUberon();
 		idList.forEach(id -> {
 			parentTermIDs.forEach(parentTermID -> {
-				if (map.get(parentTermID) != null && map.get(parentTermID).contains(id))
+				if (map.get(parentTermID) != null && map.get(parentTermID).contains(id)) {
 					parentSet.add(parentTermID);
+				}
 			});
-			if (id.equals("UBERON:AnatomyOtherLocation"))
+			if (id.equals("UBERON:AnatomyOtherLocation")) {
 				parentSet.add(parentTermIDs.get(0));
-			if (id.equals("UBERON:PostEmbryonicPreAdult"))
+			}
+			if (id.equals("UBERON:PostEmbryonicPreAdult")) {
 				parentSet.add(parentTermIDs.get(1));
+			}
 		});
 		return parentSet;
 	}
 
 	private Set<String> getGOParentTermIDs(List<String> goList) {
-		if (goList == null || goList.isEmpty())
+		if (goList == null || goList.isEmpty()) {
 			return null;
+		}
 		Set<String> parentSet = new HashSet<>(4);
 		Map<String, Set<String>> map = diseaseRepository.getClosureMappingGO();
 		goList.forEach(id -> {
 			parentTermIDs.forEach(parentTermID -> {
-				if (map.get(parentTermID) != null && map.get(parentTermID).contains(id))
+				if (map.get(parentTermID) != null && map.get(parentTermID).contains(id)) {
 					parentSet.add(parentTermID);
+				}
 			});
-			if (id.equals("GO:otherLocations"))
+			if (id.equals("GO:otherLocations")) {
 				parentSet.add(parentTermIDs.get(2));
+			}
 		});
 		return parentSet;
 	}
-	
 
 	@Override
 	protected void close() {

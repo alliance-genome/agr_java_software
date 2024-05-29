@@ -303,12 +303,12 @@ public class AlleleIndexerRepository extends AlleleRepository {
 			String query = " MATCH (species:Species)-[:FROM_SPECIES]-(a:Allele)-[:VARIATION]-(v:Variant)-[:ASSOCIATION]-(tlc:TranscriptLevelConsequence)  ";
 
 			query += "RETURN distinct a.primaryKey as id, [v.hgvsNomenclature, tlc.hgvsVEPGeneNomenclature, tlc.hgvsProteinNomenclature, tlc.hgvsCodingNomenclature] as value  ";
-			Map<String,Set<String>> tlcNames = getMapSetForQuery(query);
+			Map<String, Set<String>> tlcNames = getMapSetForQuery(query);
 
 			query = "MATCH (species:Species)-[:FROM_SPECIES]-(a:Allele)-[:VARIATION]-(v:Variant)-[:ALSO_KNOWN_AS]-(synonym:Synonym) ";
 
 			query += " RETURN a.primaryKey as id, synonym.name as value ";
-			Map<String,Set<String>> synonyms = getMapSetForQuery(query);
+			Map<String, Set<String>> synonyms = getMapSetForQuery(query);
 
 			cache.setVariantSynonyms(CollectionHelper.merge(tlcNames, synonyms));
 			log.info("Finished Building allele -> variant synonyms map");

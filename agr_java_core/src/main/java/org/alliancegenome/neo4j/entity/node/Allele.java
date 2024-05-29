@@ -120,10 +120,12 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
 	}
 
 	public void addPhenotypeEntityJoins(List<PhenotypeEntityJoin> joins) {
-		if (joins == null)
+		if (joins == null) {
 			return;
-		if (phenotypeEntityJoins == null)
+		}
+		if (phenotypeEntityJoins == null) {
 			phenotypeEntityJoins = new ArrayList<>();
+		}
 		phenotypeEntityJoins.addAll(joins);
 		phenotypeEntityJoins = phenotypeEntityJoins.stream().distinct().collect(Collectors.toList());
 	}

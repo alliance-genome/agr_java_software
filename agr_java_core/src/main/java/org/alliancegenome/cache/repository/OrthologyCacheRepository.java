@@ -129,9 +129,9 @@ public class OrthologyCacheRepository {
 			gene.getOrthoGenes()
 					.stream()
 					.filter(orthologous -> orthologous.hasFilter(filter))
-					.filter(join -> filter.getTaxonIDs() == null ||
-							(filter.getTaxonIDs() != null &&
-									(filter.getTaxonIDs().contains(join.getGene2().getSpecies().getName()) || filter.getTaxonIDs().contains(join.getGene2().getTaxonId()))))
+					.filter(join -> {
+						return filter.getTaxonIDs() == null || filter.getTaxonIDs() != null && (filter.getTaxonIDs().contains(join.getGene2().getSpecies().getName()) || filter.getTaxonIDs().contains(join.getGene2().getTaxonId()));
+					})
 					.forEach(orthologous ->
 							lookup.put(orthologous.getPrimaryKey(), orthologous)
 					);
@@ -148,7 +148,7 @@ public class OrthologyCacheRepository {
 						view.setHomologGene(ortho.getGene2());
 						view.setBest(ortho.getIsBestScore());
 						view.setBestReverse(ortho.getIsBestRevScore());
-						 
+
 						if (ortho.isStrictFilter()) {
 							view.setStringencyFilter("stringent");
 						} else if (ortho.isModerateFilter()) {
@@ -168,12 +168,14 @@ public class OrthologyCacheRepository {
 	}
 
 	private static boolean isAllMatchMethods(OrthologyGeneJoin join, OrthologyFilter filter) {
-		if (filter.getMethods() == null)
+		if (filter.getMethods() == null) {
 			return true;
+		}
 		List<String> unmatched = new ArrayList<>();
 		filter.getMethods().forEach(method -> {
-			if (!getMatchedMethods(join).contains(method))
+			if (!getMatchedMethods(join).contains(method)) {
 				unmatched.add(method);
+			}
 		});
 		return unmatched.size() == 0;
 	}
@@ -311,4 +313,3 @@ public class OrthologyCacheRepository {
 		private String errorMessage;
 	}
 }
-

@@ -45,7 +45,7 @@ public class SearchDAO extends ESDAO {
 		if (response != null && response.getHits() != null) {
 			return response.getHits().getTotalHits().value;
 		} else {
-			return 0l;
+			return 0L;
 		}
 
 	}
@@ -76,19 +76,19 @@ public class SearchDAO extends ESDAO {
 		searchSourceBuilder.from(offset);
 		searchSourceBuilder.trackTotalHits(true);
 
-		if(sorts != null) {
-			for(Entry<String, SortOrder> entry: sorts.entrySet()) {
+		if (sorts != null) {
+			for (Entry<String, SortOrder> entry: sorts.entrySet()) {
 				searchSourceBuilder.sort(entry.getKey(), entry.getValue());
 			}
 		}
 
 		searchSourceBuilder.highlighter(highlighter);
 
-		for(AggregationBuilder aggBuilder: aggBuilders) {
+		for (AggregationBuilder aggBuilder: aggBuilders) {
 			searchSourceBuilder.aggregation(aggBuilder);
 		}
 
-		if(debug != null && debug) {
+		if (debug != null && debug) {
 			log.info("searchSourceBuilder: " + searchSourceBuilder);
 		} else {
 			log.debug("searchSourceBuilder: " + searchSourceBuilder);
@@ -99,7 +99,7 @@ public class SearchDAO extends ESDAO {
 		// This request cache doesn't work 07/07/2021
 		//searchRequest.requestCache(true);
 
-		if(debug != null && debug) {
+		if (debug != null && debug) {
 			log.info("Request: " + searchRequest);
 		} else {
 			log.debug("Request: " + searchRequest);

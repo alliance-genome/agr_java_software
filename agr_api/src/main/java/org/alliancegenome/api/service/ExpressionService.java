@@ -100,17 +100,19 @@ public class ExpressionService {
 				comparator.reversed();
 */
 		}
-		if (comparator != null)
+		if (comparator != null) {
 			expressionDetails.sort(comparator);
+		}
 		for (FieldFilter fieldFilter : sortingMapping.keySet()) {
 			if (sortByField != null && sortByField.equals(fieldFilter)) {
 				continue;
 			}
 			Comparator<ExpressionDetail> comp = sortingMapping.get(fieldFilter);
-			if (comparator == null)
+			if (comparator == null) {
 				comparator = comp;
-			else
+			} else {
 				comparator = comparator.thenComparing(comp);
+			}
 		}
 		expressionDetails.sort(comparator);
 		JsonResultResponse<ExpressionDetail> response = new JsonResultResponse<>();
@@ -126,8 +128,9 @@ public class ExpressionService {
 					.collect(toList());
 		}
 
-		if (paginatedJoinList == null)
+		if (paginatedJoinList == null) {
 			paginatedJoinList = new ArrayList<>();
+		}
 		response.setResults(paginatedJoinList);
 		return response;
 	}
@@ -153,8 +156,9 @@ public class ExpressionService {
 		ExpressionSummary summary = new ExpressionSummary();
 		List<BioEntityGeneExpressionJoin> joins = geneRepository.getExpressionAnnotationSummary(id);
 
-		if (joins == null)
+		if (joins == null) {
 			joins = new ArrayList<>();
+		}
 		// group together records where only publications is different and treat them as a single record
 		Map<Gene, Map<ExpressionBioEntity, Map<Optional<Stage>, Map<MMOTerm, Set<BioEntityGeneExpressionJoin>>>>> groupedRecords = getGeneTermStageAssayMap(joins);
 
@@ -173,8 +177,9 @@ public class ExpressionService {
 						goGroupedList.addAll(entity.getCcRibbonTermList());
 						// use the first join element (they all have the same stage info
 						UBERONTerm stageTerm = bioJoins.iterator().next().getStageTerm();
-						if (stageTerm != null)
+						if (stageTerm != null) {
 							stageGroupedList.add(stageTerm);
+						}
 					});
 				});
 			});
@@ -212,8 +217,9 @@ public class ExpressionService {
 	}
 
 	public RibbonSummary getExpressionRibbonSummary(List<String> geneIDs) {
-		if (geneIDs == null)
+		if (geneIDs == null) {
 			return null;
+		}
 		RibbonSummary ribbonSummary = service.getRibbonSectionInfo();
 		geneIDs.forEach(geneID -> ribbonSummary.addRibbonEntity(getExpressionRibbonSummary(geneID)));
 		return ribbonSummary;
@@ -346,21 +352,18 @@ public class ExpressionService {
 		return stageAnnotations.stream().map(detail -> detail.getStage().getPrimaryKey()).collect(toSet()).size();
 	}
 
-	private ExpressionSummaryGroup populateGroupInfo(String groupName,
-													 Map<String, Long> histogram,
-													 Map<String, Long> rawHistogram,
-													 Map<String, String> entityList) {
+	private ExpressionSummaryGroup populateGroupInfo(String groupName, Map<String, Long> histogram, Map<String, Long> rawHistogram, Map<String, String> entityList) {
 		ExpressionSummaryGroup group = new ExpressionSummaryGroup();
 		group.setName(groupName);
-		entityList.forEach((id, name) ->
-		{
+		entityList.forEach((id, name) -> {
 			ExpressionSummaryGroupTerm term = new ExpressionSummaryGroupTerm();
 			term.setId(id);
 			term.setName(name);
 			if (histogram.get(id) != null) {
 				term.setNumberOfAnnotations((int) (long) histogram.get(id));
-				if (rawHistogram != null && rawHistogram.get(id) != null)
+				if (rawHistogram != null && rawHistogram.get(id) != null) {
 					term.setNumberOfClasses((int) (long) rawHistogram.get(id));
+				}
 			}
 			group.addGroupTerm(term);
 		});
@@ -375,5 +378,4 @@ public class ExpressionService {
 		response.addDistinctFieldValueSupplementalData(joins.getDistinctFieldValueMap());
 		return response;
 	}
-
 }

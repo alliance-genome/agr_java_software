@@ -13,13 +13,10 @@ import lombok.Setter;
 @Setter
 @Getter
 class Request {
-	@JsonView(View.Default.class)
-	String uri;
-	@JsonView(View.Default.class)
-	TreeMap<String, String[]> parameterMap =new TreeMap<>();
+	@JsonView(View.Default.class) String uri;
+	@JsonView(View.Default.class) TreeMap<String, String[]> parameterMap = new TreeMap<>();
 
 	void setParameterMap(Map<String, String[]> parameterMap) {
 		this.parameterMap.putAll(parameterMap);
 	}
 }
-

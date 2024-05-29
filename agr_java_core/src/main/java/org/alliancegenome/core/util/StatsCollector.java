@@ -24,13 +24,13 @@ public class StatsCollector {
 		synchronized (jsonDoc) {
 			int len = jsonDoc.length();
 			stats.addValue(len);
-			if(len >= 1_000_000) {
+			if (len >= 1_000_000) {
 				len = 1_000_000 - 1;
 			}
 			histogramData[len]++;
 		}
 	}
-	
+
 	public void printOutput() {
 		log.info("Document Stats: " + stats);
 	}
@@ -41,7 +41,6 @@ public class StatsCollector {
 	}
 
 	private void saveHistogram(String savePrefix) {
-
 
 //
 //		HashMap<Integer, Double> distributionMap  = new HashMap<Integer, Double>();
@@ -76,21 +75,17 @@ public class StatsCollector {
 //		}
 //
 //		
-		
-		
-		
-		
-		
+
 		int binCount = 1000;
 
-		//if((stats.getMax() - stats.getMin()) / 1000 <= 1.0) {
-		//	binCount = (int)(stats.getMax() - stats.getMin());
-		//}
+		// if((stats.getMax() - stats.getMin()) / 1000 <= 1.0) {
+		// binCount = (int)(stats.getMax() - stats.getMin());
+		// }
 
 		ArrayList<Integer> list = new ArrayList<>();
 
-		for(int i = 0; i < stats.getMean() + (stats.getStandardDeviation() * 3) && i < histSize; i++) {
-			for(int k = 0; k < histogramData[i]; k++) {
+		for (int i = 0; i < stats.getMean() + (stats.getStandardDeviation() * 3) && i < histSize; i++) {
+			for (int k = 0; k < histogramData[i]; k++) {
 				list.add(i);
 			}
 		}
@@ -99,16 +94,16 @@ public class StatsCollector {
 
 		double[] array = new double[list.size()];
 		int c = 0;
-		for(Integer i: list) {
+		for (Integer i : list) {
 			array[c++] = i;
 		}
 
-		//		SimpleHistogramDataset dataset = new SimpleHistogramDataset("Size");
-		//		for(int i = 1280; i < 1524; i+=2) {
-		//			dataset.addBin(new SimpleHistogramBin(i, i+1));
-		//		}
-		//		dataset.addObservations(histogramData);
-		
+		// SimpleHistogramDataset dataset = new SimpleHistogramDataset("Size");
+		// for(int i = 1280; i < 1524; i+=2) {
+		// dataset.addBin(new SimpleHistogramBin(i, i+1));
+		// }
+		// dataset.addObservations(histogramData);
+
 		HistogramDataset dataset = new HistogramDataset();
 		dataset.addSeries("key", array, binCount);
 
@@ -116,11 +111,10 @@ public class StatsCollector {
 
 		try {
 			ChartUtilities.saveChartAsPNG(new File("histograms/" + savePrefix + "_histogram.png"), histogram, 1024, 400);
-			//TimeUnit.SECONDS.sleep(600);
+			// TimeUnit.SECONDS.sleep(600);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
 
 	}
 

@@ -26,8 +26,9 @@ public class DiseaseAnnotationFiltering extends AnnotationFiltering<DiseaseAnnot
 
 	public FilterFunction<DiseaseAnnotation, String> geneticEntityFilter =
 			(annotation, value) -> {
-				if (annotation.getFeature() == null)
+				if (annotation.getFeature() == null) {
 					return false;
+				}
 				return FilterFunction.contains(annotation.getFeature().getSymbolText(), value);
 			};
 
@@ -36,8 +37,9 @@ public class DiseaseAnnotationFiltering extends AnnotationFiltering<DiseaseAnnot
 
 	public FilterFunction<DiseaseAnnotation, String> sourceFilter =
 			(annotation, value) -> {
-				if (annotation.getProviders() == null)
+				if (annotation.getProviders() == null) {
 					return FilterFunction.contains(annotation.getSource().getName(), value);
+				}
 				return FilterFunction.contains(annotation.getProviders().stream()
 						.map(Map::values)
 						.flatMap(Collection::stream)
@@ -53,16 +55,18 @@ public class DiseaseAnnotationFiltering extends AnnotationFiltering<DiseaseAnnot
 	public FilterFunction<DiseaseAnnotation, String> geneSpeciesFilter =
 			(annotation, value) -> {
 				if (annotation.getGene() != null) {
-					if (value.startsWith(NCBITAXON))
+					if (value.startsWith(NCBITAXON)) {
 						return FilterFunction.fullMatchMultiValueOR(annotation.getGene().getSpecies().getType().getTaxonID(), value);
-					else
+					} else {
 						return FilterFunction.fullMatchMultiValueOR(annotation.getGene().getSpecies().getName(), value);
+					}
 				}
 				if (annotation.getFeature() != null) {
-					if (value.startsWith(NCBITAXON))
+					if (value.startsWith(NCBITAXON)) {
 						return FilterFunction.fullMatchMultiValueOR(annotation.getFeature().getSpecies().getType().getTaxonID(), value);
-					else
+					} else {
 						return FilterFunction.fullMatchMultiValueOR(annotation.getFeature().getSpecies().getName(), value);
+					}
 				}
 				return false;
 			};
@@ -74,10 +78,11 @@ public class DiseaseAnnotationFiltering extends AnnotationFiltering<DiseaseAnnot
 						// if there is a displaySynonym (three / four-letter abbrev then check that attribute
 						// otherwise check the term name
 						.map(evidenceCode -> {
-							if (StringUtils.isNotEmpty(evidenceCode.getDisplaySynonym()))
+							if (StringUtils.isNotEmpty(evidenceCode.getDisplaySynonym())) {
 								return FilterFunction.contains(evidenceCode.getDisplaySynonym(), value);
-							else
+							} else {
 								return FilterFunction.contains(evidenceCode.getName(), value);
+							}
 						})
 						.collect(Collectors.toSet());
 				return filteringPassed.contains(true);
@@ -85,16 +90,18 @@ public class DiseaseAnnotationFiltering extends AnnotationFiltering<DiseaseAnnot
 
 	public FilterFunction<DiseaseAnnotation, String> basedOnGeneFilter =
 			(annotation, value) -> {
-				if (annotation.getOrthologyGenes() == null)
+				if (annotation.getOrthologyGenes() == null) {
 					return false;
+				}
 				StringBuilder fullGeneSpeciesName = new StringBuilder();
 
 				annotation.getOrthologyGenes().forEach(gene -> {
 					String fullName = gene.getSymbol();
 					final String primaryKey = gene.getSpecies().getPrimaryKey();
 					SpeciesType speciesType = SpeciesType.getTypeByID(primaryKey);
-					if (speciesType == null)
+					if (speciesType == null) {
 						throw new RuntimeException("No Species found for " + primaryKey);
+					}
 					fullName += " (" + speciesType.getAbbreviation() + ") ";
 					fullGeneSpeciesName.append(fullName);
 				});
@@ -103,10 +110,12 @@ public class DiseaseAnnotationFiltering extends AnnotationFiltering<DiseaseAnnot
 
 	public FilterFunction<DiseaseAnnotation, String> includeNegationFilter =
 			(annotation, value) -> {
-				if (annotation.getAssociationType() == null)
+				if (annotation.getAssociationType() == null) {
 					return true;
-				if (value != null && value.equalsIgnoreCase("true"))
+				}
+				if (value != null && value.equalsIgnoreCase("true")) {
 					return true;
+				}
 				return !annotation.getAssociationType().toLowerCase().contains(NOT_ASSOCIATION_TYPE);
 			};
 
@@ -122,16 +131,18 @@ public class DiseaseAnnotationFiltering extends AnnotationFiltering<DiseaseAnnot
 	public FilterFunction<DiseaseAnnotation, String> orthologFilter =
 			(annotation, value) -> {
 				Gene orthologyGene = annotation.getOrthologyGene();
-				if (orthologyGene == null)
+				if (orthologyGene == null) {
 					return false;
+				}
 				return FilterFunction.contains(orthologyGene.getSymbol(), value);
 			};
 
 	public FilterFunction<DiseaseAnnotation, String> orthologSpeciesFilter =
 			(annotation, value) -> {
 				Gene orthologyGene = annotation.getOrthologyGene();
-				if (orthologyGene == null)
+				if (orthologyGene == null) {
 					return false;
+				}
 				return FilterFunction.contains(orthologyGene.getSpecies().getName(), value);
 			};
 
@@ -154,4 +165,3 @@ public class DiseaseAnnotationFiltering extends AnnotationFiltering<DiseaseAnnot
 	}
 
 }
-

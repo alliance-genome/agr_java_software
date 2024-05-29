@@ -15,7 +15,7 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 public class AutoCompleteDAO extends ESDAO {
 
-	private List<String> response_fields = Arrays.asList(
+	private List<String> responseFields = Arrays.asList(
 		"name_key", "name", "symbol", "primaryKey", "category", "go_type"
 	);
 
@@ -27,7 +27,7 @@ public class AutoCompleteDAO extends ESDAO {
 		SearchRequest searchRequest = new SearchRequest(ConfigHelper.getEsIndex());
 		searchRequest.source(searchSourceBuilder);
 
-		searchSourceBuilder.fetchSource(response_fields.toArray(new String[response_fields.size()]), null);
+		searchSourceBuilder.fetchSource(responseFields.toArray(new String[responseFields.size()]), null);
 		searchSourceBuilder.query(query);
 
 		SearchResponse response = null;

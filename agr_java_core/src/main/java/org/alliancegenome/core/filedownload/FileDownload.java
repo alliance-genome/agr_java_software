@@ -1,4 +1,5 @@
 package org.alliancegenome.core.filedownload;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,7 +22,6 @@ public class FileDownload extends Thread {
 	private String downloadPath;
 	private String s3RootUrl;
 	private URL downloadUrl;
-
 
 	public FileDownload(String allianceRelease, String source, String chromosome, String downloadPath, String s3RootUrl) {
 		this.allianceRelease = allianceRelease;
@@ -71,7 +71,7 @@ public class FileDownload extends Thread {
 			}
 			log.info("Downloading: " + downloadUrl + " -> " + downloadPath);
 			File dir = new File(downloadPath);
-			if(!dir.exists()) {
+			if (!dir.exists()) {
 				Files.createDirectories(Paths.get(downloadPath));
 			}
 
@@ -81,11 +81,11 @@ public class FileDownload extends Thread {
 				log.warn("Local File: " + localFile.getAbsolutePath() +	 " already exists: skipping");
 				return;
 			}
-			
+
 			InputStream in = downloadUrl.openStream();
 			Files.copy(in, Paths.get(localFile.getAbsolutePath()), StandardCopyOption.REPLACE_EXISTING);
 			log.info("Finished Downloading: " + downloadUrl + " -> " + localFile.getAbsolutePath());
-		
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

@@ -119,7 +119,7 @@ public class Neo4jRepository<E> {
 
 
 	//used by indexer repositories, assumes no params and aliased id and value fields
-	protected Map<String,Set<String>> getMapSetForQuery(String query) {
+	protected Map<String, Set<String>> getMapSetForQuery(String query) {
 		return getMapSetForQuery(query, "id", "value", null);
 	}
 
@@ -169,7 +169,7 @@ public class Neo4jRepository<E> {
 		return returnMap;
 	}
 
-	protected Map<String, Set<Map<String,String>>> getMapOfMapsForQuery(String query) {
+	protected Map<String, Set<Map<String, String>>> getMapOfMapsForQuery(String query) {
 		Map<String, Set<Map<String, String>>> returnMap = new HashMap<>();
 
 		Result r;

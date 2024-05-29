@@ -16,12 +16,14 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.Range;
 
 public class VariantServiceHelper {
-
+	
+	private VariantServiceHelper() { }
 
 	public static void populateIntronExonLocation(Variant variant, Transcript transcript) {
 		List<Exon> exons = transcript.getExons();
-		if (CollectionUtils.isEmpty(exons))
+		if (CollectionUtils.isEmpty(exons)) {
 			return;
+		}
 
 		GenomeLocation variantLoc = variant.getLocation();
 		Range<Long> variantRange = Range.between(variantLoc.getStart(), variantLoc.getEnd());
@@ -31,12 +33,14 @@ public class VariantServiceHelper {
 
 		// Neither variants nor transcripts have strand info in the GenomicLocation node.
 		// For that reason I resort to the strand info of the associated gene.
-		if (strandGene.isEmpty())
+		if (strandGene.isEmpty()) {
 			strandGene = transcript.getGene().getGenomeLocations().get(0).getStrand();
+		}
 		// strand info can be empty of null. In both cases, the missing info disallows to
 		// calculate the exon number in question.
-		if (strandGene.isEmpty())
+		if (strandGene.isEmpty()) {
 			strandGene = null;
+		}
 		Optional<Boolean> strand = Optional.ofNullable(strandGene)
 				.map(strandValue -> strandValue.equals("+"));
 
@@ -61,8 +65,9 @@ public class VariantServiceHelper {
 			// exon fully contains the variant
 			if (exonRange.containsRange(variantRange)) {
 				location = "Exon";
-				if (strand.isPresent())
+				if (strand.isPresent()) {
 					location += " " + (index + 1) + " / " + exonRanges.size();
+				}
 				foundExon = true;
 				break;
 			}
@@ -96,8 +101,9 @@ public class VariantServiceHelper {
 				Range<Long> intronRange = intronRanges.get(index);
 				// intron fully contains the variant
 				if (intronRange.containsRange(variantRange)) {
-					if (strand.isPresent())
+					if (strand.isPresent()) {
 						location += " " + (index + 1) + " / " + intronRanges.size();
+					}
 					break;
 				}
 			}

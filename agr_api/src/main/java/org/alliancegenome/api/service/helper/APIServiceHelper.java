@@ -20,7 +20,7 @@ public class APIServiceHelper {
 	private static DiseaseRepository diseaseRepository = new DiseaseRepository();
 	private static AlleleRepository alleleRepository = new AlleleRepository();
 	
-	private APIServiceHelper() {} // All Static Methods
+	private APIServiceHelper() { } // All Static Methods
 	
 	public static String getFileName(String title, String id, EntityType collectionType, String extra) {
 		String fileName = title;
@@ -30,7 +30,7 @@ public class APIServiceHelper {
 		// make the entity name plural
 		fileName += collectionType.toString().toLowerCase() + "s";
 		fileName += "-";
-		if(extra != null && extra.length() > 0) {
+		if (extra != null && extra.length() > 0) {
 			fileName += extra;
 			fileName += "-";
 		}
@@ -62,18 +62,21 @@ public class APIServiceHelper {
 		switch (type) {
 			case GENE:
 				Gene gene = repository.getShallowGene(id);
-				if (gene != null)
+				if (gene != null) {
 					entityName = gene.getSymbol();
+				}
 				break;
 			case DISEASE:
 				DOTerm disease = diseaseRepository.getDiseaseTerm(id);
-				if (disease != null)
+				if (disease != null) {
 					entityName = disease.getName();
+				}
 				break;
 			case ALLELE:
 				Allele allele = alleleRepository.getAllele(id);
-				if (allele != null)
+				if (allele != null) {
 					entityName = allele.getSymbol();
+				}
 				break;
 			default:
 		}

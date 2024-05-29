@@ -15,7 +15,9 @@ import lombok.extern.slf4j.Slf4j;
 public class ModelIndexerRepository extends Neo4jRepository {
 
 	//indexing doesn't need the class defined, but once it is, it can go here
-	public ModelIndexerRepository() { super(AffectedGenomicModel.class); }
+	public ModelIndexerRepository() {
+		super(AffectedGenomicModel.class);
+	}
 
 	private ModelDocumentCache cache = new ModelDocumentCache();
 

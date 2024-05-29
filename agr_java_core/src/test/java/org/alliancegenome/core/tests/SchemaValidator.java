@@ -13,6 +13,8 @@ import com.github.fge.jsonschema.main.JsonSchemaFactory;
 
 public class SchemaValidator {
 
+	private SchemaValidator() { }
+	
 	public static void main(String[] args) throws Exception {
 
 		String path = "/Users/balrog/git/agr_loader/schemas";
@@ -67,11 +69,11 @@ public class SchemaValidator {
 
 		
 		// Test Schema Syntax
-		for(File schemaFile: schemaFiles) {
+		for (File schemaFile: schemaFiles) {
 			System.out.print("Testing: " + schemaFile.getAbsolutePath());
 			ListProcessingReport schemaReport = (ListProcessingReport) JsonSchemaFactory.byDefault().getSyntaxValidator().validateSchema(JsonLoader.fromFile(schemaFile));
 			System.out.println(" -- " + (schemaReport.isSuccess() ? "success" : "failure"));
-			if(!schemaReport.isSuccess()) {
+			if (!schemaReport.isSuccess()) {
 				System.out.println(schemaReport);
 			}
 		}
@@ -86,7 +88,7 @@ public class SchemaValidator {
 
 		System.out.println("Validation Complete: " + report.isSuccess());
 
-		if(!report.isSuccess()) {
+		if (!report.isSuccess()) {
 			System.out.println(report);
 		}
 
@@ -96,9 +98,6 @@ public class SchemaValidator {
 
 		//schemaFilePath = new File("/Users/oblod/git/agr_architecture/agr_loader/schemas/dataProvider.json");
 		//schemaNode = JsonSchemaFactory.byDefault().getJsonSchema(schemaFilePath.toURI().toString());
-
-
-
 
 
 	}

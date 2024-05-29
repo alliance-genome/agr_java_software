@@ -20,19 +20,23 @@ public class DiseaseAnnotationSorting implements Sorting<DiseaseAnnotation> {
 
 	private static Comparator<DiseaseAnnotation> phylogeneticOrder =
 			Comparator.comparing(annotation -> {
-				if (annotation.getGene() == null)
+				if (annotation.getGene() == null) {
 					return 1;
-				if (annotation.getGene().getSpecies() == null)
+				}
+				if (annotation.getGene().getSpecies() == null) {
 					return 1;
+				}
 				return annotation.getGene().getSpecies().getPhylogeneticOrder();
 			});
 
 	private static Comparator<DiseaseAnnotation> phylogeneticAlleleOrder =
 			Comparator.comparing(annotation -> {
-				if (annotation.getFeature() == null)
+				if (annotation.getFeature() == null) {
 					return 1;
-				if (annotation.getFeature().getSpecies() == null)
+				}
+				if (annotation.getFeature().getSpecies() == null) {
 					return 1;
+				}
 				return annotation.getFeature().getSpecies().getPhylogeneticOrder();
 			});
 
@@ -41,15 +45,17 @@ public class DiseaseAnnotationSorting implements Sorting<DiseaseAnnotation> {
 
 	private static Comparator<DiseaseAnnotation> geneSymbolOrder =
 			Comparator.comparing(annotation -> {
-				if (annotation.getGene() == null)
+				if (annotation.getGene() == null) {
 					return null;
+				}
 				return annotation.getGene().getSymbol().toLowerCase();
 			}, Comparator.nullsLast(naturalOrder()));
 
 	static public Comparator<DiseaseAnnotation> alleleSymbolOrder =
 			Comparator.comparing(annotation -> {
-				if (annotation.getFeature() == null)
+				if (annotation.getFeature() == null) {
 					return null;
+				}
 				return annotation.getFeature().getSymbol().toLowerCase();
 			}, Comparator.nullsLast(naturalOrder()));
 
@@ -58,12 +64,13 @@ public class DiseaseAnnotationSorting implements Sorting<DiseaseAnnotation> {
 
 	private static Comparator<DiseaseAnnotation> speciesSymbolOrder =
 			Comparator.comparing(annotation -> {
-				if (annotation.getModel() != null)
+				if (annotation.getModel() != null) {
 					return annotation.getModel().getSpecies().getName().toLowerCase();
-				else if (annotation.getGene() != null)
+				} else if (annotation.getGene() != null) {
 					return annotation.getGene().getSpecies().getName().toLowerCase();
-				else if (annotation.getFeature() != null)
+				} else if (annotation.getFeature() != null) {
 					return annotation.getFeature().getSpecies().getName().toLowerCase();
+				}
 				return "";
 			}, Comparator.nullsLast(naturalOrder()));
 
@@ -111,9 +118,11 @@ public class DiseaseAnnotationSorting implements Sorting<DiseaseAnnotation> {
 		speciesList.add(alleleSymbolOrder);
 	}
 
+	@Override
 	public Comparator<DiseaseAnnotation> getComparator(SortingField field, Boolean ascending) {
-		if (field == null)
+		if (field == null) {
 			return getJoinedComparator(defaultList);
+		}
 
 		switch (field) {
 			case GENE:

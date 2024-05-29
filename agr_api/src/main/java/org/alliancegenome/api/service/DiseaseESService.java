@@ -1,14 +1,27 @@
 package org.alliancegenome.api.service;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import io.quarkus.logging.Log;
-import jakarta.enterprise.context.RequestScoped;
-import jakarta.inject.Inject;
-import org.alliancegenome.api.entity.*;
+import static java.util.stream.Collectors.toList;
+import static org.alliancegenome.cache.repository.helper.JsonResultResponse.DISTINCT_FIELD_VALUES;
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
+import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.alliancegenome.api.entity.AGMDiseaseAnnotationDocument;
+import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
+import org.alliancegenome.api.entity.DiseaseEntitySubgroupSlim;
+import org.alliancegenome.api.entity.DiseaseRibbonEntity;
+import org.alliancegenome.api.entity.DiseaseRibbonSummary;
+import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.api.service.helper.GeneDiseaseSearchHelper;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.api.service.DiseaseRibbonService;
@@ -37,12 +50,15 @@ import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilde
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
-import static java.util.stream.Collectors.toList;
-import static org.alliancegenome.cache.repository.helper.JsonResultResponse.DISTINCT_FIELD_VALUES;
-import static org.elasticsearch.index.query.QueryBuilders.*;
+import io.quarkus.logging.Log;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
 
 
 @RequestScoped
@@ -149,10 +165,7 @@ public class DiseaseESService {
 		}
 	}
 
-	public JsonResultResponse<AlleleDiseaseAnnotationDocument> getDiseaseAnnotations(String alleleID,
-																					 Pagination pagination,
-																					 boolean excludeNegated,
-																					 boolean debug) {
+	public JsonResultResponse<AlleleDiseaseAnnotationDocument> getDiseaseAnnotations(String alleleID, Pagination pagination, boolean excludeNegated, boolean debug) {
 		// unfiltered base query
 		BoolQueryBuilder query = getBaseQuery(List.of(alleleID), null, excludeNegated, "allele_disease_annotation", true);
 
@@ -262,7 +275,9 @@ public class DiseaseESService {
 			}
 		}
 		sorts.put("object.name.sort", SortOrder.ASC);
-		if (debug) Log.info(sorts);
+		if (debug) {
+			Log.info(sorts);
+		}
 		return sorts;
 	}
 
@@ -277,8 +292,9 @@ public class DiseaseESService {
 			Map<String, List<GeneDiseaseAnnotationDocument>> histogram = getDiseaseAnnotationHistogram(paginationResult);
 
 			Gene gene = geneRepository.getShallowGene(geneID);
-			if (gene == null)
+			if (gene == null) {
 				return;
+			}
 			// populate diseaseEntity records
 			populateDiseaseRibbonSummary(geneID, summary, histogram, gene);
 			summary.addAllAnnotationsCount(geneID, paginationResult.getTotal());
@@ -315,8 +331,9 @@ public class DiseaseESService {
 			}
 			group.setNumberOfAnnotations(size);
 			group.setId(slimId);
-			if (size > 0)
+			if (size > 0) {
 				entity.addDiseaseSlim(group);
+			}
 		});
 		entity.setNumberOfClasses(allTerms.size());
 		entity.setNumberOfAnnotations(allAnnotations.size());
@@ -324,14 +341,16 @@ public class DiseaseESService {
 
 	private Map<String, List<GeneDiseaseAnnotationDocument>> getDiseaseAnnotationHistogram(JsonResultResponse<GeneDiseaseAnnotationDocument> response) {
 		Map<String, List<GeneDiseaseAnnotationDocument>> histogram = new HashMap<>();
-		if (CollectionUtils.isEmpty(response.getResults()))
+		if (CollectionUtils.isEmpty(response.getResults())) {
 			return histogram;
+		}
 		response.getResults().forEach(annotation -> {
 			Set<String> parentIDs = diseaseRibbonService.getAllParentIDs(annotation.getObject().getCurie());
 			parentIDs.forEach(parentID -> {
 				List<GeneDiseaseAnnotationDocument> list = histogram.get(parentID);
-				if (list == null)
+				if (list == null) {
 					list = new ArrayList<>();
+				}
 				list.add(annotation);
 				histogram.put(parentID, list);
 			});
@@ -406,7 +425,7 @@ public class DiseaseESService {
 
 		// Sorting sets for different names of the sorting selection box
 		Map<String, List<String>> sortingSetMap = new HashMap<>();
-		sortingSetMap.put("default", List.of("viaOrthologyOrder","phylogeneticSortingIndex", "subject.geneSymbol.displayText.sort"));
+		sortingSetMap.put("default", List.of("viaOrthologyOrder", "phylogeneticSortingIndex", "subject.geneSymbol.displayText.sort"));
 		sortingSetMap.put("gene", List.of("subject.geneSymbol.displayText.sort", "phylogeneticSortingIndex"));
 		sortingSetMap.put("disease", List.of("object.name.sort", "phylogeneticSortingIndex", "subject.geneSymbol.displayText.sort"));
 		sortingSetMap.put("species", List.of("subject.taxon.name.keyword", "subject.geneSymbol.displayText.sort"));

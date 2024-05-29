@@ -83,8 +83,9 @@ public class ExpressionRibbonService {
 
 
 			String definition = "";
-			if (StringUtils.isNotEmpty(id))
+			if (StringUtils.isNotEmpty(id)) {
 				definition = diseaseRepository.getTermDefinition(id);
+			}
 			section.setDescription(definition);
 			SectionSlim allSlimElement = new SectionSlim();
 			allSlimElement.setId(id);
@@ -121,11 +122,11 @@ public class ExpressionRibbonService {
 		SectionSlim slim = new SectionSlim();
 		slim.setId(primaryKey);
 		slim.setLabel(name);
-		if(def == null)
+		if (def == null) {
 			def = UNDEFINED;
+		}
 		slim.setDescription(def);
 		return slim;
 	}
 
 }
-

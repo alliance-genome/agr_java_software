@@ -7,7 +7,7 @@ import org.alliancegenome.es.model.search.AutoCompleteResult;
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
- 
+
 @RequestScoped
 public class AutoCompleteController implements AutoCompleteRESTInterface {
 

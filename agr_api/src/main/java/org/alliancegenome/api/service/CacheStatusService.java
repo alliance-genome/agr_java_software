@@ -24,8 +24,9 @@ public class CacheStatusService {
 	public CacheStatus getCacheStatus(CacheAlliance type, String entityID) {
 
 		final CacheStatus entityCache = cacheService.getCacheEntry(type.getCacheName(), type, CacheStatus.class);
-		if (entityID != null)
+		if (entityID != null) {
 			entityCache.getEntityStats().keySet().removeIf(id -> !id.contains(entityID));
+		}
 		return entityCache;
 	}
 
@@ -35,8 +36,9 @@ public class CacheStatusService {
 			CacheStatus status;
 			try {
 				status = getCacheStatus(cacheAlliance, null);
-				if (status != null)
+				if (status != null) {
 					map.put(cacheAlliance, status);
+				}
 			} catch (Exception e) {
 				Log.info("No suitable cache status found for " + cacheAlliance.getCacheName());
 			}
@@ -46,15 +48,17 @@ public class CacheStatusService {
 
 	public Object getCacheObject(String id, String cacheName) {
 		CacheAlliance cache = CacheAlliance.getTypeByName(cacheName);
-		if (cache == null)
+		if (cache == null) {
 			return "No Cache with name " + cacheName + " found";
+		}
 		return cacheService.getCacheEntry(id, cache, cache.getClazz());
 	}
 	
 	public String getCacheEntryString(String id, String cacheName) {
 		CacheAlliance cache = CacheAlliance.getTypeByName(cacheName);
-		if (cache == null)
+		if (cache == null) {
 			return "No Cache with name " + cacheName + " found";
+		}
 		return cacheService.getCacheEntryString(id, cache, cache.getClazz());
 	}
 }

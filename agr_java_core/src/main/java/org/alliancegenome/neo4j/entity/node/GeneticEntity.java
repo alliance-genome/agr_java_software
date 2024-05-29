@@ -43,7 +43,7 @@ public class GeneticEntity extends Neo4jEntity {
 
 	// only used for JsonView
 	/// set when deserialized
-	protected Map<String, Object> crossReferencesMap = null;
+	protected Map<String, Object> crossReferencesMap;
 
 	@JsonView({View.API.class, View.PhenotypeAPI.class, View.DiseaseAnnotation.class, View.Homology.class, View.GeneAlleleVariantSequenceAPI.class, View.AlleleVariantSequenceConverterForES.class})
 	@Relationship(type = "FROM_SPECIES")
@@ -89,8 +89,9 @@ public class GeneticEntity extends Neo4jEntity {
 
 	@JsonProperty(value = "synonyms")
 	public void setSynonymList(List<String> synonymsList) {
-		if (synonymsList == null)
+		if (synonymsList == null) {
 			return;
+		}
 		this.synonymsList = synonymsList;
 	}
 
@@ -109,15 +110,17 @@ public class GeneticEntity extends Neo4jEntity {
 
 	@JsonProperty(value = "secondaryIds")
 	public void setSecondaryIdsList(List<String> secondaryIdsList) {
-		if (secondaryIdsList == null)
+		if (secondaryIdsList == null) {
 			return;
+		}
 		this.secondaryIdsList = secondaryIdsList;
 	}
 
 	@JsonView({View.API.class, View.AlleleVariantSequenceConverterForES.class})
 	public Map<String, Object> getCrossReferenceMap() {
-		if (crossReferencesMap != null)
+		if (crossReferencesMap != null) {
 			return crossReferencesMap;
+		}
 
 		if (crossReferences != null) {
 			crossReferencesMap = new HashMap<>();
@@ -126,7 +129,7 @@ public class GeneticEntity extends Neo4jEntity {
 				String typeName = crossReferenceType.getDisplayName();
 				// hard-coding WB speciality submission
 				// Todo: Needs better modeling: use label=transgene in neo, or subclass, or something else
-				if(cr.getCrossRefType() != null){
+				if (cr.getCrossRefType() != null) {
 					if (cr.getCrossRefType().startsWith("transgene")) {
 						typeName = "transgene";
 					}
@@ -146,8 +149,9 @@ public class GeneticEntity extends Neo4jEntity {
 	}
 
 	public void setCrossReferenceMap(Map<String, Object> crossReferencesMap) {
-		if (crossReferencesMap == null)
+		if (crossReferencesMap == null) {
 			return;
+		}
 		this.crossReferencesMap = crossReferencesMap;
 	}
 
@@ -167,16 +171,19 @@ public class GeneticEntity extends Neo4jEntity {
 
 
 	// ToDo: the primary URL should be an attribute on the entity node
-	@JsonView({View.GeneAllelesAPI.class, View.AlleleAPI.class, View.Default.class,View.AlleleVariantSequenceConverterForES.class})
+	@JsonView({ View.GeneAllelesAPI.class, View.AlleleAPI.class, View.Default.class, View.AlleleVariantSequenceConverterForES.class })
 	public String getModCrossRefCompleteUrl() {
-		if (modCrossRefCompleteUrl != null)
+		if (modCrossRefCompleteUrl != null) {
 			return modCrossRefCompleteUrl;
+		}
 		Map<String, Object> map = getCrossReferenceMap();
-		if (map == null)
+		if (map == null) {
 			return null;
+		}
 		CrossReference primary = (CrossReference) map.get("primary");
-		if (primary == null)
+		if (primary == null) {
 			return null;
+		}
 		modCrossRefCompleteUrl = primary.getCrossRefCompleteUrl();
 		return modCrossRefCompleteUrl;
 	}
@@ -191,8 +198,9 @@ public class GeneticEntity extends Neo4jEntity {
 	@JsonView({View.API.class})
 	@JsonProperty(value = "type")
 	public String getType() {
-		if (crossReferenceType == null)
+		if (crossReferenceType == null) {
 			return "N/A";
+		}
 		return crossReferenceType.displayName;
 	}
 

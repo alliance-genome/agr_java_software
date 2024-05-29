@@ -46,18 +46,18 @@ public class ExpressionController implements ExpressionRESTInterface {
 
 	@Override
 	public JsonResultResponse<ExpressionDetail> getExpressionAnnotations(List<String> geneIDs,
-																		 String termID,
-																		 String filterSpecies,
-																		 String filterGene,
-																		 String filterStage,
-																		 String filterAssay,
-																		 String filterReference,
-																		 String filterTerm,
-																		 String filterSource,
-																		 Integer limit,
-																		 Integer page,
-																		 String sortBy,
-																		 String asc) {
+																		String termID,
+																		String filterSpecies,
+																		String filterGene,
+																		String filterStage,
+																		String filterAssay,
+																		String filterReference,
+																		String filterTerm,
+																		String filterSource,
+																		Integer limit,
+																		Integer page,
+																		String sortBy,
+																		String asc) {
 
 		LocalDateTime startDate = LocalDateTime.now();
 		try {
@@ -107,10 +107,7 @@ public class ExpressionController implements ExpressionRESTInterface {
 	}
 
 	@Override
-	public String getExpressionAnnotationsByTaxon(String species,
-												  String termID,
-												  Integer limit,
-												  Integer page) throws JsonProcessingException {
+	public String getExpressionAnnotationsByTaxon(String species, String termID, Integer limit, Integer page) throws JsonProcessingException {
 		Pagination pagination = new Pagination(page, limit, null, null);
 		BaseFilter filterMap = new BaseFilter();
 		filterMap.put(FieldFilter.TERM_NAME, termID);
@@ -139,8 +136,9 @@ public class ExpressionController implements ExpressionRESTInterface {
 	@Override
 	public RibbonSummary getExpressionSummary(List<String> geneIDs) {
 		List<String> ids = new ArrayList<>();
-		if (geneIDs != null)
+		if (geneIDs != null) {
 			ids.addAll(geneIDs);
+		}
 
 		try {
 			return expressionService.getExpressionRibbonSummary(ids);
@@ -154,16 +152,16 @@ public class ExpressionController implements ExpressionRESTInterface {
 
 	@Override
 	public Response getExpressionAnnotationsDownload(List<String> geneIDs,
-													 String termID,
-													 String filterSpecies,
-													 String filterGene,
-													 String filterStage,
-													 String filterAssay,
-													 String filterReference,
-													 String filterTerm,
-													 String filterSource,
-													 String sortBy,
-													 String asc) {
+													String termID,
+													String filterSpecies,
+													String filterGene,
+													String filterStage,
+													String filterAssay,
+													String filterReference,
+													String filterTerm,
+													String filterSource,
+													String sortBy,
+													String asc) {
 
 		JsonResultResponse<ExpressionDetail> result = getExpressionDetailJsonResultResponse(
 				geneIDs,

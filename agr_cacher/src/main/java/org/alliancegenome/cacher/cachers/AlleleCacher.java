@@ -46,10 +46,9 @@ public class AlleleCacher extends Cacher {
 	private DownloadFileSet downloadSet;
 	// <geneID, List<Allele>>
 	private Map<String, List<Allele>> variantMap = new HashMap<>();
-	
-	
+
 	public AlleleCacher() {
-		
+
 	}
 
 	@Override
@@ -60,7 +59,7 @@ public class AlleleCacher extends Cacher {
 	@Override
 	protected void cache() {
 		readAllFileMetaData();
-		//cacheSpecies(SpeciesType.MOUSE.getTaxonID());
+		// cacheSpecies(SpeciesType.MOUSE.getTaxonID());
 		cacheSpecies(SpeciesType.YEAST.getTaxonID());
 		cacheSpecies(SpeciesType.RAT.getTaxonID());
 		cacheSpecies(SpeciesType.ZEBRAFISH.getTaxonID());
@@ -80,28 +79,25 @@ public class AlleleCacher extends Cacher {
 		});
 	}
 
-
 	private void cacheSpeciesChromosome(String taxonID, String chromosome) {
 		readHtpFiles(taxonID, chromosome);
 		
 		String speciesName = SpeciesType.getNameByID(taxonID);
-		
+
 		if (StringUtils.isNotEmpty(chromosome)) {
 			startProcess("Retrieve Alleles for [" + speciesName + ", " + chromosome + "]");
 		} else {
 			startProcess("Retrieve Alleles for [" + speciesName + "]");
 		}
-		
+
 		Set<Allele> allAlleles = alleleRepository.getAlleles(taxonID, chromosome);
 		if (allAlleles == null) {
 			return;
 		}
-		
+
 		log.info("Number of Alleles: " + String.format("%,d", allAlleles.size()));
 		// group by genes. This ignores alleles without gene associations
-		Map<String, List<Allele>> map = allAlleles.stream()
-				.filter(allele -> allele.getGene() != null)
-				.collect(groupingBy(allele -> allele.getGene().getPrimaryKey()));
+		Map<String, List<Allele>> map = allAlleles.stream().filter(allele -> allele.getGene() != null).collect(groupingBy(allele -> allele.getGene().getPrimaryKey()));
 
 		// add HTP variants to existing genes in map
 		map.forEach((geneID, alleles) -> {
@@ -118,9 +114,7 @@ public class AlleleCacher extends Cacher {
 		CacheStatus status = new CacheStatus(CacheAlliance.ALLELE_GENE);
 		status.setNumberOfEntities(allAlleles.size());
 
-		Map<String, List<Species>> speciesStats = allAlleles.stream()
-				.map(GeneticEntity::getSpecies)
-				.collect(groupingBy(Species::getName));
+		Map<String, List<Species>> speciesStats = allAlleles.stream().map(GeneticEntity::getSpecies).collect(groupingBy(Species::getName));
 
 		Map<String, Integer> entityStats = new TreeMap<>();
 		map.forEach((geneID, alleles) -> entityStats.put(geneID, alleles.size()));
@@ -132,27 +126,19 @@ public class AlleleCacher extends Cacher {
 
 		// generate Allele detail records
 
-		List<AlleleVariantSequence> alleleVariantSequences = allAlleles.stream()
-				.map(allele -> {
-					if (CollectionUtils.isEmpty(allele.getVariants())) {
-						return List.of(new AlleleVariantSequence(allele, null, null));
+		List<AlleleVariantSequence> alleleVariantSequences = allAlleles.stream().map(allele -> {
+			if (CollectionUtils.isEmpty(allele.getVariants())) {
+				return List.of(new AlleleVariantSequence(allele, null, null));
+			} else {
+				return allele.getVariants().stream().map(variant -> {
+					if (CollectionUtils.isEmpty(variant.getTranscriptLevelConsequence())) {
+						return List.of(new AlleleVariantSequence(allele, variant, null));
 					} else {
-						return allele.getVariants().stream()
-								.map(variant -> {
-									if (CollectionUtils.isEmpty(variant.getTranscriptLevelConsequence())) {
-										return List.of(new AlleleVariantSequence(allele, variant, null));
-									} else {
-										return variant.getTranscriptLevelConsequence().stream()
-												.map(transcriptLevelConsequence -> new AlleleVariantSequence(allele, variant, transcriptLevelConsequence))
-												.collect(Collectors.toList());
-									}
-								})
-								.flatMap(Collection::stream)
-								.collect(Collectors.toList());
+						return variant.getTranscriptLevelConsequence().stream().map(transcriptLevelConsequence -> new AlleleVariantSequence(allele, variant, transcriptLevelConsequence)).collect(Collectors.toList());
 					}
-				})
-				.flatMap(Collection::stream)
-				.collect(Collectors.toList());
+				}).flatMap(Collection::stream).collect(Collectors.toList());
+			}
+		}).flatMap(Collection::stream).collect(Collectors.toList());
 
 		log.info("Number of AlleleVariantSequence records before adding HTP data: " + alleleVariantSequences.size());
 		final List<AlleleVariantSequence> collect = htpAlleleSequenceMap.values().stream().flatMap(Collection::parallelStream).collect(Collectors.toList());
@@ -161,14 +147,11 @@ public class AlleleCacher extends Cacher {
 		alleleVariantSequences.addAll(collect);
 		log.info("Number of AlleleVariantSequence records after adding HTP data: " + alleleVariantSequences.size());
 
-		Map<String, List<AlleleVariantSequence>> allRecordsMap = alleleVariantSequences.stream()
-				.filter(sequence -> sequence.getAllele().getGene() != null)
-				.collect(groupingBy(sequence -> sequence.getAllele().getGene().getPrimaryKey()));
+		Map<String, List<AlleleVariantSequence>> allRecordsMap = alleleVariantSequences.stream().filter(sequence -> sequence.getAllele().getGene() != null).collect(groupingBy(sequence -> sequence.getAllele().getGene().getPrimaryKey()));
 
 		populateCacheFromMap(allRecordsMap, View.GeneAlleleVariantSequenceAPI.class, CacheAlliance.ALLELE_VARIANT_SEQUENCE_GENE);
 
-		Map<String, List<Allele>> speciesMap = allAlleles.stream()
-				.collect(groupingBy(allele -> allele.getSpecies().getPrimaryKey()));
+		Map<String, List<Allele>> speciesMap = allAlleles.stream().collect(groupingBy(allele -> allele.getSpecies().getPrimaryKey()));
 		populateCacheFromMap(speciesMap, View.GeneAlleleVariantSequenceAPI.class, CacheAlliance.ALLELE_VARIANT_SEQUENCE_GENE);
 
 		alleleRepository.clearCache();
@@ -210,8 +193,7 @@ public class AlleleCacher extends Cacher {
 		try {
 			log.info("Size of HTP Gene with AlleleVariantSequence: " + String.format("%,d", htpAlleleSequenceMap.size()));
 			long countAlleleVariants = htpAlleleSequenceMap.values().stream().flatMap(Collection::parallelStream).count();
-			log.info("Size of HTP AlleleVariantSequence records: " +
-					String.format("%,d", (int) countAlleleVariants));
+			log.info("Size of HTP AlleleVariantSequence records: " + String.format("%,d", (int) countAlleleVariants));
 
 			ConcurrentHashMap<String, Long> taxonMap = htpVariantMap.computeIfAbsent(taxonID, s -> new ConcurrentHashMap<>());
 			taxonMap.put(chromosome, countAlleleVariants);
@@ -226,6 +208,5 @@ public class AlleleCacher extends Cacher {
 	public void close() {
 		alleleRepository.close();
 	}
-
 
 }

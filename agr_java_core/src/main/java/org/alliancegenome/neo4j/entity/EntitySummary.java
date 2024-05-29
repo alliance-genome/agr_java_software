@@ -10,13 +10,10 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@Schema(name="EntitySummary", description="POJO that represents Entity Summary")
+@Schema(name = "EntitySummary", description = "POJO that represents Entity Summary")
 public class EntitySummary {
 
-	@JsonView({View.Default.class})
-	private long numberOfAnnotations;
-	@JsonView({View.Default.class})
-	private long numberOfEntities;
-
+	@JsonView({ View.Default.class }) private long numberOfAnnotations;
+	@JsonView({ View.Default.class }) private long numberOfEntities;
 
 }

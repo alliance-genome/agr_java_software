@@ -43,15 +43,17 @@ public class AlleleCacheRepository {
 
 	public JsonResultResponse<Allele> getAllelesByGene(String geneID, Pagination pagination) {
 		List<Allele> allAlleles = cacheService.getCacheEntries(geneID, CacheAlliance.ALLELE_GENE);
-		if (allAlleles == null)
+		if (allAlleles == null) {
 			return null;
+		}
 		return getAlleleJsonResultResponse(pagination, allAlleles);
 	}
 
 	public JsonResultResponse<AlleleVariantSequence> getAllelesAndVariantsByGene(String geneID, Pagination pagination) {
 		List<AlleleVariantSequence> allAlleles = cacheService.getCacheEntries(geneID, CacheAlliance.ALLELE_VARIANT_SEQUENCE_GENE);
-		if (allAlleles == null)
+		if (allAlleles == null) {
 			return null;
+		}
 		return getAlleleAndVariantJsonResultResponse(pagination, allAlleles);
 	}
 
@@ -59,8 +61,9 @@ public class AlleleCacheRepository {
 		// sorting
 		SortingField sortingField = null;
 		String sortBy = pagination.getSortBy();
-		if (sortBy != null && !sortBy.isEmpty())
+		if (sortBy != null && !sortBy.isEmpty()) {
 			sortingField = SortingField.getSortingField(sortBy.toUpperCase());
+		}
 
 		AlleleSorting sorting = new AlleleSorting();
 		alleleList.sort(sorting.getComparator(sortingField, pagination.getAsc()));
@@ -140,16 +143,18 @@ public class AlleleCacheRepository {
 		// BasicCachingManager<PhenotypeAnnotation> manager = new
 		// BasicCachingManager<>(PhenotypeAnnotation.class);
 		List<PhenotypeAnnotation> phenotypeAnnotations = cacheService.getCacheEntries(alleleId, CacheAlliance.ALLELE_PHENOTYPE);
-		if (phenotypeAnnotations == null)
+		if (phenotypeAnnotations == null) {
 			return null;
+		}
 		return phenotypeAnnotations;
 	}
 
 	public List<DiseaseAnnotation> getDisease(String alleleId) {
 
 		List<DiseaseAnnotation> diseaseAnnotations = cacheService.getCacheEntries(alleleId, CacheAlliance.ALLELE_DISEASE);
-		if (diseaseAnnotations == null)
+		if (diseaseAnnotations == null) {
 			return null;
+		}
 		return diseaseAnnotations;
 	}
 }

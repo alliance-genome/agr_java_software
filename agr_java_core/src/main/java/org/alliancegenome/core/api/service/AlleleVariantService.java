@@ -5,6 +5,8 @@ import org.alliancegenome.neo4j.repository.AlleleRepository;
 
 public class AlleleVariantService {
 
+	private AlleleVariantService() { }
+	
 	public static AlleleRepository repo = new AlleleRepository();
 	
 	public static boolean allelicVariantExists(AlleleVariantSequence sequence) {

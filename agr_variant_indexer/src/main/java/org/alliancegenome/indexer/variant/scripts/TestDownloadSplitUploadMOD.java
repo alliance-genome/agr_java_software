@@ -46,15 +46,15 @@ public class TestDownloadSplitUploadMOD {
 		HashSet<String> skipSet = new HashSet<String>();
 		skipSet.add("FB");
 		skipSet.add("RGD");
-		
-		for(DataFile df: list) {
-			if(!skipSet.contains(df.getDataSubType().getName())) {
+
+		for (DataFile df : list) {
+			if (!skipSet.contains(df.getDataSubType().getName())) {
 				File localFile = downloadFile(df);
-	
+
 				List<File> uploadList = splitFile(localFile, df);
-	
+
 				uploadFiles(uploadList, df);
-	
+
 				log.info("Finished: " + df.getS3Url());
 			}
 		}
@@ -67,7 +67,7 @@ public class TestDownloadSplitUploadMOD {
 			File s3Url = new File(df.getS3Url());
 
 			File saveLocation = new File(fileSaveLocation + "/" + s3Url.getName());
-			if(!saveLocation.exists()) {
+			if (!saveLocation.exists()) {
 				log.info("Downloading: " + saveLocation);
 				FileUtils.copyURLToFile(url, saveLocation);
 			} else {
@@ -100,11 +100,13 @@ public class TestDownloadSplitUploadMOD {
 
 		ph.startProcess("VCFReader Reader: ");
 
-		while(iter1.hasNext()) {
+		while (iter1.hasNext()) {
 			try {
 				VariantContext vc = iter1.next();
-				if(!vc.getChr().equals(chr)) {
-					if(writer != null) writer.close();
+				if (!vc.getChr().equals(chr)) {
+					if (writer != null) {
+						writer.close();
+					}
 					chr = vc.getChr();
 					VariantContextWriterBuilder builder = new VariantContextWriterBuilder();
 					String chrFile = fileSaveLocation + "/" + df.getDataSubType().getName() + ".vep." + chr + ".vcf.gz";
@@ -132,23 +134,22 @@ public class TestDownloadSplitUploadMOD {
 		AmazonS3 s3 = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(ConfigHelper.loadSystemENVProperty("AWS_ACCESS_KEY"), ConfigHelper.loadSystemENVProperty("AWS_SECRET_KEY")))).withRegion(Regions.US_EAST_1).build();
 
 		TransferManager tm = TransferManagerBuilder.standard().withS3Client(s3).build();
-		
 
-		for(File f: uploadFiles) {
+		for (File f : uploadFiles) {
 			String s3Path = "variants/" + df.getDataSubType().getName() + "/" + f.getName();
-			
+
 			log.info("Uploading file to S3: " + f.getAbsolutePath() + " -> s3://" + ConfigHelper.getAWSBucketName() + "/variants/" + df.getDataSubType().getName() + "/" + f.getName());
-			
+
 			final Upload uploadFile = tm.upload(ConfigHelper.getAWSBucketName(), s3Path, f);
 			try {
 				uploadFile.waitForCompletion();
 			} catch (Exception e) {
 				e.printStackTrace();
-			} 
-			
+			}
+
 			log.info("Upload Finished: " + f.getAbsolutePath());
 		}
-		
+
 		tm.shutdownNow();
 		log.info("S3 Upload complete");
 		s3.shutdown();

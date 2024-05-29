@@ -11,9 +11,9 @@ import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
 
 public class APIBeanSerializerModifier extends BeanSerializerModifier {
 
-	private JsonSerializer _nullValueJsonSerializer = new NullValueJsonSerializer();
-	private JsonSerializer _nullArrayJsonSerializer = new NullArrayJsonSerializer();
-	private JsonSerializer _nullObjectJsonSerializer = new NullObjectJsonSerializer();
+	private JsonSerializer nullValueJsonSerializer = new NullValueJsonSerializer();
+	private JsonSerializer nullArrayJsonSerializer = new NullArrayJsonSerializer();
+	private JsonSerializer nullObjectJsonSerializer = new NullObjectJsonSerializer();
 
 	@Override
 	public List<BeanPropertyWriter> changeProperties(SerializationConfig config, BeanDescription beanDesc, List beanProperties) {
@@ -21,9 +21,9 @@ public class APIBeanSerializerModifier extends BeanSerializerModifier {
 			BeanPropertyWriter writer = (BeanPropertyWriter) beanProperties.get(i);
 			if (isArrayType(writer)) {
 				//Register the writer with its own nullSerializer
-				writer.assignNullSerializer(this._nullArrayJsonSerializer);
-			} else if(isObjectType(writer)) {
-				writer.assignNullSerializer(this._nullObjectJsonSerializer);
+				writer.assignNullSerializer(nullArrayJsonSerializer);
+			} else if (isObjectType(writer)) {
+				writer.assignNullSerializer(nullObjectJsonSerializer);
 			} else {
 				// Write null as "null" or ""
 				//writer.assignNullSerializer(this._nullValueJsonSerializer);

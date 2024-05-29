@@ -11,6 +11,8 @@ import org.apache.commons.collections.CollectionUtils;
 
 public class ConditionService {
 
+	private ConditionService() { }
+	
 	public static void populateExperimentalConditions(EntityJoin join, PrimaryAnnotatedEntity entity) {
 		entity.addCondition(ConditionAnnotation.ConditionType.HAS_CONDITION, join.getHasConditionList());
 		entity.addCondition(ConditionAnnotation.ConditionType.INDUCES, join.getInducerConditionList());
@@ -35,8 +37,9 @@ public class ConditionService {
 				populateExperimentalConditions(entityJoin, entity);
 			}
 			List<CrossReference> refs = geneticEntity.getCrossReferences();
-			if (CollectionUtils.isNotEmpty(refs))
+			if (CollectionUtils.isNotEmpty(refs)) {
 				entity.setUrl(refs.get(0).getCrossRefCompleteUrl());
+			}
 
 			entity.addPublicationEvidenceCode(entityJoin.getPublicationJoins());
 			entity.setType(geneticEntity.getCrossReferenceType().getDisplayName());
@@ -45,6 +48,5 @@ public class ConditionService {
 		}
 		return null;
 	}
-
 
 }

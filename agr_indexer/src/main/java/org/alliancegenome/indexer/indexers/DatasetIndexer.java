@@ -39,6 +39,7 @@ public class DatasetIndexer extends Indexer {
 
 	}
 
+	@Override
 	protected void startSingleThread(LinkedBlockingDeque<String> queue) {
 		ArrayList<HTPDataset> list = new ArrayList<>();
 		HTPDatasetTranslator translator = new HTPDatasetTranslator();
@@ -52,7 +53,7 @@ public class DatasetIndexer extends Indexer {
 				}
 				if (queue.isEmpty()) {
 					if (list.size() > 0) {
-						Iterable <SearchableItemDocument> documents = translator.translateEntities(list);
+						Iterable<SearchableItemDocument> documents = translator.translateEntities(list);
 						cache.addCachedFields(documents);
 						indexDocuments(documents);
 						repo.clearCache();
@@ -63,10 +64,11 @@ public class DatasetIndexer extends Indexer {
 
 				String key = queue.takeFirst();
 				HTPDataset entity = cache.getDatasetMap().get(key);
-				if (entity != null)
+				if (entity != null) {
 					list.add(entity);
-				else
+				} else {
 					log.debug("No Dataset found for " + key);
+				}
 			} catch (Exception e) {
 				log.error("Error while indexing...", e);
 				System.exit(-1);

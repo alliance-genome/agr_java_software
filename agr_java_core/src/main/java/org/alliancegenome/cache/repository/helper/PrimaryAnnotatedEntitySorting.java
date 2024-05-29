@@ -60,9 +60,11 @@ public class PrimaryAnnotatedEntitySorting implements Sorting<PrimaryAnnotatedEn
 */
 	}
 
+	@Override
 	public Comparator<PrimaryAnnotatedEntity> getComparator(SortingField field, Boolean ascending) {
-		if (field == null)
+		if (field == null) {
 			return getJoinedComparator(defaultList);
+		}
 
 		switch (field) {
 			case MODEL:
@@ -73,6 +75,5 @@ public class PrimaryAnnotatedEntitySorting implements Sorting<PrimaryAnnotatedEn
 				return getJoinedComparator(defaultList);
 		}
 	}
-
 
 }

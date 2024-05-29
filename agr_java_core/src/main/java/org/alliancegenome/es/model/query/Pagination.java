@@ -30,7 +30,7 @@ public class Pagination {
 	private List<String> invalidFilterList = new ArrayList<>();
 	private ColumnFieldMapping mapping;
 	private long totalHits;
-	private boolean isCount = false;
+	private boolean isCount;
 	private HashMap<String, String> filterOptionMap = new HashMap<>();
 
 
@@ -40,16 +40,20 @@ public class Pagination {
 	}
 
 	public Pagination(Integer page, Integer limit, String sortBy, String asc) {
-		if (page != null)
+		if (page != null) {
 			this.page = page;
-		if (limit != null)
+		}
+		if (limit != null) {
 			this.limit = limit;
+		}
 		this.sortBy = sortBy;
 		sortByField = FieldFilter.getFieldFilterByName(sortBy);
-		if (this.page < 1)
+		if (this.page < 1) {
 			errorList.add("'page' request parameter invalid: Found [" + page + "]. It has to be an integer number greater than 0");
-		if (this.limit < 0)
+		}
+		if (this.limit < 0) {
 			errorList.add("'limit' request parameter invalid: Found [" + limit + "].  It has to be an integer number greater than 0");
+		}
 		init(asc);
 	}
 
@@ -113,16 +117,19 @@ public class Pagination {
 	}
 
 	public boolean sortByDefault() {
-		if (StringUtils.isEmpty(sortBy))
+		if (StringUtils.isEmpty(sortBy)) {
 			return true;
-		if (sortBy.equalsIgnoreCase("default"))
+		}
+		if (sortBy.equalsIgnoreCase("default")) {
 			return true;
+		}
 		return false;
 	}
 
 	public String getSortBy() {
-		if (sortBy == null || sortBy.isBlank())
+		if (sortBy == null || sortBy.isBlank()) {
 			return null;
+		}
 		return sortBy;
 	}
 
@@ -131,8 +138,9 @@ public class Pagination {
 	}
 
 	public int getStart() {
-		if (page == null || limit == null)
+		if (page == null || limit == null) {
 			return 0;
+		}
 		return (page - 1) * limit;
 	}
 
@@ -141,8 +149,9 @@ public class Pagination {
 	}
 
 	public List<FieldFilter> getSortByList() {
-		if (StringUtils.isEmpty(sortBy))
+		if (StringUtils.isEmpty(sortBy)) {
 			return null;
+		}
 		String[] sortingTokens = sortBy.split(SORTING_DELIMITER);
 		return Arrays.stream(sortingTokens)
 			.map(FieldFilter::getFieldFilterByName)
@@ -159,8 +168,9 @@ public class Pagination {
 	}
 
 	public void validateFilterValues(MultivaluedMap<String, String> queryParameters) {
-		if (mapping == null)
+		if (mapping == null) {
 			return;
+		}
 		queryParameters.keySet().stream()
 			.filter(parameter -> parameter.startsWith(FieldFilter.FILTER_PREFIX))
 			.forEach(parameter -> {
@@ -173,8 +183,9 @@ public class Pagination {
 	}
 
 	public void addFilterOptions(String filterOptions) {
-		if (StringUtils.isEmpty(filterOptions))
+		if (StringUtils.isEmpty(filterOptions)) {
 			return;
+		}
 		String[] options = filterOptions.split(";");
 		Arrays.stream(options).forEach(option -> {
 			String[] optionArray = option.split("=");
@@ -201,8 +212,9 @@ public class Pagination {
 
 		public static boolean isValidValue(String name) {
 			for (AscendingValues val : values()) {
-				if (val.name().equalsIgnoreCase(name))
+				if (val.name().equalsIgnoreCase(name)) {
 					return true;
+				}
 			}
 			return false;
 		}
@@ -216,8 +228,9 @@ public class Pagination {
 
 		public static Boolean getValue(String asc) {
 			for (AscendingValues val : values()) {
-				if (val.name().equalsIgnoreCase(asc))
+				if (val.name().equalsIgnoreCase(asc)) {
 					return val.val;
+				}
 			}
 			return null;
 		}

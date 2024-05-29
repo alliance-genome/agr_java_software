@@ -36,21 +36,21 @@ public class InteractionCacher extends Cacher {
 	protected void cache() {
 
 		LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>(interactionRepository.getAllInteractionJoinKeys());
-		
+
 		startProcess("interactionRepository.getAllInteractions", queue.size());
-		
+
 		ConcurrentLinkedQueue<InteractionGeneJoin> allInteractionAnnotations = new ConcurrentLinkedQueue<InteractionGeneJoin>();
-		
+
 		try {
 
 			ExecutorService executor = Executors.newFixedThreadPool(10);
-			for(int i = 0; i < 10; i++) {
+			for (int i = 0; i < 10; i++) {
 				InteractionGatherer gatherer = new InteractionGatherer(queue, allInteractionAnnotations);
 				executor.execute(gatherer);
 			}
 
 			log.info("InteractionGatherer shuting down executor: ");
-			executor.shutdown();  
+			executor.shutdown();
 			while (!executor.isTerminated()) {
 				Thread.sleep(1000);
 			}
@@ -59,18 +59,18 @@ public class InteractionCacher extends Cacher {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
-		
+
 		finishProcess();
 
-
 		startProcess("interactionAnnotationMapGene", allInteractionAnnotations.size());
-		//parallelStream is unsafe here, we found out that it lost InteractionGeneJoin.getPhenotypes().getPhenotypeStatement() information, it return null
-		//Map<String, List<InteractionGeneJoin>> interactionAnnotationMapGene = allInteractionAnnotations.parallelStream()
-		Map<String, List<InteractionGeneJoin>> interactionAnnotationMapGene = allInteractionAnnotations.stream()		
-				// exclude self-interaction
-				.filter(interactionGeneJoin -> !interactionGeneJoin.getGeneA().getPrimaryKey().equals(interactionGeneJoin.getGeneB().getPrimaryKey()))
-				.collect(groupingBy(phenotypeAnnotation -> phenotypeAnnotation.getGeneA().getPrimaryKey()));
+		// parallelStream is unsafe here, we found out that it lost
+		// InteractionGeneJoin.getPhenotypes().getPhenotypeStatement() information, it
+		// return null
+		// Map<String, List<InteractionGeneJoin>> interactionAnnotationMapGene =
+		// allInteractionAnnotations.parallelStream()
+		Map<String, List<InteractionGeneJoin>> interactionAnnotationMapGene = allInteractionAnnotations.stream()
+			// exclude self-interaction
+			.filter(interactionGeneJoin -> !interactionGeneJoin.getGeneA().getPrimaryKey().equals(interactionGeneJoin.getGeneB().getPrimaryKey())).collect(groupingBy(phenotypeAnnotation -> phenotypeAnnotation.getGeneA().getPrimaryKey()));
 
 		finishProcess();
 
@@ -139,7 +139,7 @@ public class InteractionCacher extends Cacher {
 	public void close() {
 		interactionRepository.close();
 	}
-	
+
 	public class InteractionGatherer extends Thread {
 		private LinkedBlockingDeque<String> queue;
 		private ConcurrentLinkedQueue<InteractionGeneJoin> allInteractionAnnotations;
@@ -149,9 +149,10 @@ public class InteractionCacher extends Cacher {
 			this.allInteractionAnnotations = allInteractionAnnotations;
 		}
 
+		@Override
 		public void run() {
 			InteractionRepository interactionRepository = new InteractionRepository();
-			while(!queue.isEmpty()) {
+			while (!queue.isEmpty()) {
 				try {
 					String key = queue.takeFirst();
 					List<InteractionGeneJoin> list = interactionRepository.getInteraction(key);

@@ -25,53 +25,53 @@ public class SnapShotCommand extends Command implements CommandInterface {
 	@Override
 	public void execute() {
 
-		if(args.size() > 0) {
+		if (args.size() > 0) {
 			String command = args.remove(0);
 
-			if(command.equals("list")) {
-				if(args.size() > 0) {
+			if (command.equals("list")) {
+				if (args.size() > 0) {
 					String repo = args.remove(0);
 					im.listRepo(repo);
 				} else {
 					printHelp();
 				}
-			} else if(command.equals("restorelatest")) {
-				if(args.size() > 1) {
+			} else if (command.equals("restorelatest")) {
+				if (args.size() > 1) {
 					String repo = args.remove(0);
 					String index = args.remove(0);
 					im.restoreSnapShot(repo, index);
 				} else {
 					printHelp();
 				}
-			} else if(command.equals("clean")) {
-				if(args.size() > 1) {
+			} else if (command.equals("clean")) {
+				if (args.size() > 1) {
 					String repo = args.remove(0);
 					String snapShotName = args.remove(0);
 					im.cleanSnapShots(repo, snapShotName);
 				} else {
 					printHelp();
 				}
-			} else if(command.equals("delete")) {
-				if(args.size() > 1) {
+			} else if (command.equals("delete")) {
+				if (args.size() > 1) {
 					String repo = args.remove(0);
 					String snapShotName = args.remove(0);
 					im.deleteSnapShot(repo, snapShotName);
 				} else {
 					printHelp();
 				}
-			} else if(command.equals("logstash")) {
+			} else if (command.equals("logstash")) {
 				boolean logsFound = false;
-				for(RepositoryMetadata repo: im.listRepos()) {
-					if(repo.name().equals("logs")) {
+				for (RepositoryMetadata repo : im.listRepos()) {
+					if (repo.name().equals("logs")) {
 						logsFound = true;
 						break;
 					}
 				}
-				if(logsFound) {
-					//List<SnapshotInfo> list = im.getSnapshots("logs");
+				if (logsFound) {
+					// List<SnapshotInfo> list = im.getSnapshots("logs");
 					TreeMap<String, String> indices = new TreeMap<>();
-					for(String index: im.getIndexList()) {
-						if(index.startsWith("logstash")) {
+					for (String index : im.getIndexList()) {
+						if (index.startsWith("logstash")) {
 							indices.put(index, index);
 						}
 					}
@@ -79,7 +79,7 @@ public class SnapShotCommand extends Command implements CommandInterface {
 					String last = indices.lastKey().replace("logstash-", "");
 					String snapshotName = "logstash-" + first + "-" + last;
 					indices.remove(indices.lastKey());
-					if(indices.size() > 0) {
+					if (indices.size() > 0) {
 						im.createSnapShot("logs", snapshotName, new ArrayList<String>(indices.keySet()));
 						im.deleteIndices(new ArrayList<String>(indices.keySet()));
 					} else {
@@ -88,12 +88,12 @@ public class SnapShotCommand extends Command implements CommandInterface {
 				} else {
 					System.out.println("Please `repo create logs` first before doing a backup");
 				}
-			} else if(command.equals("create")) {
-				if(args.size() > 2) {
+			} else if (command.equals("create")) {
+				if (args.size() > 2) {
 					String repo = args.remove(0);
 					String snapShotName = args.remove(0);
-					String index_name = args.remove(0);
-					im.createSnapShot(repo, snapShotName, index_name);
+					String indexName = args.remove(0);
+					im.createSnapShot(repo, snapShotName, indexName);
 				} else {
 					printHelp();
 				}

@@ -46,8 +46,9 @@ public class DiseaseRibbonSummary implements Serializable {
 		Optional<DiseaseRibbonEntity> entity = diseaseRibbonEntities.stream()
 				.filter(diseaseRibbonEntity -> diseaseRibbonEntity.getId().equals(geneID))
 				.findFirst();
-		if (!entity.isPresent())
+		if (!entity.isPresent()) {
 			throw new RuntimeException("No ribbon entity for gene " + geneID);
+		}
 		DiseaseEntitySubgroupSlim group = new DiseaseEntitySubgroupSlim();
 		group.setNumberOfAnnotations(totalNumber);
 		group.setId(geneID);
@@ -57,6 +58,7 @@ public class DiseaseRibbonSummary implements Serializable {
 	public DiseaseRibbonSummary() {
 	}
 
+	@Override
 	protected DiseaseRibbonSummary clone() throws CloneNotSupportedException {
 		DiseaseRibbonSummary clone = null;
 		clone = (DiseaseRibbonSummary) super.clone();

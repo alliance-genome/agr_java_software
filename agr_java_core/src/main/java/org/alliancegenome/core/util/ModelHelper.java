@@ -6,6 +6,9 @@ import org.alliancegenome.neo4j.entity.node.AffectedGenomicModel;
 
 public class ModelHelper {
 
+	private ModelHelper() {
+	}
+
 	public static PrimaryAnnotatedEntity getPrimaryAnnotatedEntity(DiseaseAnnotation annotation) {
 		AffectedGenomicModel model = annotation.getModel();
 		PrimaryAnnotatedEntity entity = new PrimaryAnnotatedEntity();

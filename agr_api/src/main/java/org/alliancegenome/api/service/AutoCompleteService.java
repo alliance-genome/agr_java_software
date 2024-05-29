@@ -41,9 +41,9 @@ public class AutoCompleteService {
 		BoolQueryBuilder bool = new BoolQueryBuilder();
 
 		MultiMatchQueryBuilder multi = QueryBuilders.multiMatchQuery(queryTerm);
-		multi.field("symbol",5.0F);
-		multi.field("symbol.keyword",8.0F);
-		multi.field("name_key.autocomplete",3.0F);
+		multi.field("symbol", 5.0F);
+		multi.field("symbol.keyword", 8.0F);
+		multi.field("name_key.autocomplete", 3.0F);
 		multi.field("name.keyword", 2.0F);
 		multi.field("name.autocomplete");
 		multi.field("synonyms.keyword", 2.0F);
@@ -63,7 +63,7 @@ public class AutoCompleteService {
 		BoolQueryBuilder basicQuery = buildBasicQuery(queryTerm, category);
 		FunctionScoreQueryBuilder.FilterFunctionBuilder[] boostFunctions = searchService.buildBoostFunctions(queryTerm);
 
-		FunctionScoreQueryBuilder builder = new FunctionScoreQueryBuilder(basicQuery,boostFunctions);
+		FunctionScoreQueryBuilder builder = new FunctionScoreQueryBuilder(basicQuery, boostFunctions);
 
 		return builder;
 	}
@@ -72,12 +72,12 @@ public class AutoCompleteService {
 	public ArrayList<Map<String, Object>> formatResults(SearchResponse res) {
 		ArrayList<Map<String, Object>> ret = new ArrayList<Map<String, Object>>();
 
-		for(SearchHit hit: res.getHits()) {
+		for (SearchHit hit: res.getHits()) {
 			String category = (String) hit.getSourceAsMap().get("category");
 
 			//this comes over from the Python code, use symbol for geneMap,
 			//seems like maybe it could also use name_key for everyone...
-			if (StringUtils.equals(category,"gene")) {
+			if (StringUtils.equals(category, "gene")) {
 				hit.getSourceAsMap().put("name", hit.getSourceAsMap().get("symbol"));
 			}
 			ret.add(hit.getSourceAsMap());

@@ -13,6 +13,8 @@ import javax.annotation.Nonnull;
 
 public class ParallelGZIPEnvironment {
 
+	private ParallelGZIPEnvironment() { }
+	
 	private static class ThreadFactoryHolder {
 
 		private static final ThreadFactory THREAD_FACTORY = new ThreadFactory() {

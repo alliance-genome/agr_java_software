@@ -10,10 +10,9 @@ import org.alliancegenome.neo4j.entity.node.Synonym;
 
 public class GoTranslator extends EntityDocumentTranslator<GOTerm, SearchableItemDocument> {
 
-
 	@Override
 	protected SearchableItemDocument entityToDocument(GOTerm entity, int translationDepth) {
-		//log.info(entity);
+		// log.info(entity);
 		SearchableItemDocument doc = new SearchableItemDocument();
 
 		doc.setCategory("go");
@@ -26,7 +25,7 @@ public class GoTranslator extends EntityDocumentTranslator<GOTerm, SearchableIte
 		doc.setDefinition(entity.getDefinition());
 
 		Set<String> synonyms = new HashSet<>();
-		for(Synonym s: entity.getSynonyms()) {
+		for (Synonym s : entity.getSynonyms()) {
 			synonyms.add(s.getPrimaryKey());
 		}
 		doc.setSynonyms(synonyms);

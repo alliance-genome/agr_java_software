@@ -24,32 +24,23 @@ public interface PhenotypeRESTInterface {
 
 	@GET
 	@Path("/{id}")
-	public Map<String, Object> getPhenotype(@PathParam("id") String id);
+	Map<String, Object> getPhenotype(@PathParam("id") String id);
 
 	@GET
 	@Path("/{id}/associations")
-	public SearchApiResponse getDiseaseAnnotationsSorted(
-			@PathParam("id") String id,
-			@DefaultValue("20") @QueryParam("limit") Integer limit,
-			@DefaultValue("1") @QueryParam("page") Integer page,
-			@QueryParam("sortBy") String sortBy,
-			@QueryParam("geneticEntity") String geneticEntity,
-			@QueryParam("geneticEntityType") String geneticEntityType,
-			@QueryParam("termName") String disease,
-			@QueryParam("reference") String reference,
-			@QueryParam("evidenceCode") String evidenceCode,
-			@QueryParam("asc") String asc);
+	SearchApiResponse getDiseaseAnnotationsSorted(@PathParam("id") String id, @DefaultValue("20") @QueryParam("limit") Integer limit, @DefaultValue("1") @QueryParam("page") Integer page, @QueryParam("sortBy") String sortBy, @QueryParam("geneticEntity") String geneticEntity,
+		@QueryParam("geneticEntityType") String geneticEntityType, @QueryParam("termName") String disease, @QueryParam("reference") String reference, @QueryParam("evidenceCode") String evidenceCode, @QueryParam("asc") String asc);
 
 	@GET
 	@Path("/{id}/associations/download")
-	@Operation(summary = "Phenotype search download" , hidden = true)
+	@Operation(summary = "Phenotype search download", hidden = true)
 	@Produces(MediaType.TEXT_PLAIN)
-	public Response getDiseaseAnnotationsDownloadFile(@PathParam("id") String id);
+	Response getDiseaseAnnotationsDownloadFile(@PathParam("id") String id);
 
 	@GET
 	@Path("/{id}/associations/downloads")
-	@Operation(summary = "Phenotype search download" , hidden = true)
+	@Operation(summary = "Phenotype search download", hidden = true)
 	@Produces(MediaType.TEXT_PLAIN)
-	public String getDiseaseAnnotationsDownload(@PathParam("id") String id);
+	String getDiseaseAnnotationsDownload(@PathParam("id") String id);
 
 }

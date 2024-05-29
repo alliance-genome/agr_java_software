@@ -20,8 +20,9 @@ public class PhenotypeAnnotationSorting implements Sorting<PhenotypeAnnotation> 
 			Comparator.comparing(annotation -> {
 						Allele allele = annotation.getAllele();
 						// sort gene records without alleles after alleles
-						if (allele == null)
+						if (allele == null) {
 							return "zzz";
+						}
 						// create alpha-smart key
 						String smartSymbol = Sorting.getSmartKey(allele.getSymbol());
 						return smartSymbol;
@@ -45,9 +46,11 @@ public class PhenotypeAnnotationSorting implements Sorting<PhenotypeAnnotation> 
 		geneticEntityList.add(phenotypeOrder);
 	}
 
+	@Override
 	public Comparator<PhenotypeAnnotation> getComparator(SortingField field, Boolean ascending) {
-		if (field == null)
+		if (field == null) {
 			return getJoinedComparator(defaultList);
+		}
 
 		switch (field) {
 			case PHENOTYPE:
@@ -58,5 +61,5 @@ public class PhenotypeAnnotationSorting implements Sorting<PhenotypeAnnotation> 
 				return getJoinedComparator(defaultList);
 		}
 	}
-
+	
 }

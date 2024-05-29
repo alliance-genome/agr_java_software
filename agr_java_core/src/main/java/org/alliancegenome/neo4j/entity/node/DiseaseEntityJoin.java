@@ -45,7 +45,9 @@ public class DiseaseEntityJoin extends EntityJoin {
 		Optional<Source> first = service.getAllSources(disease).stream()
 				.filter(source -> source.getSpeciesType().getDisplayName().equalsIgnoreCase(dataProvider))
 				.findFirst();
-		if (first.isPresent()) return first.get();
+		if (first.isPresent()) {
+			return first.get();
+		}
 		Source source = new Source();
 		source.setName(dataProvider);
 		return source;
@@ -56,8 +58,9 @@ public class DiseaseEntityJoin extends EntityJoin {
 	// the PublicationJoin	node
 	// This is just a quick fix and is not scalable
 	public List<Map<String, CrossReference>> getDataProviderList() {
-		if (providerList == null && dataProvider == null)
+		if (providerList == null && dataProvider == null) {
 			return null;
+		}
 		if (providerList == null && !dataProvider.equals("Alliance")) {
 			return null;
 		}
@@ -88,10 +91,12 @@ public class DiseaseEntityJoin extends EntityJoin {
 									.filter(CrossReference::getLoadedDB)
 									.collect(Collectors.toList());
 
-							if (loadRefs.size() > 1)
-								throw new RuntimeException(("There are more than 3 CrossReferences "));
-							if (CollectionUtils.isNotEmpty(loadRefs))
+							if (loadRefs.size() > 1) {
+								throw new RuntimeException("There are more than 3 CrossReferences ");
+							}
+							if (CollectionUtils.isNotEmpty(loadRefs)) {
 								providerMap.put("loadProvider", loadRefs.get(0));
+							}
 						}
 						dataProviderList.add(providerMap);
 					});
@@ -106,3 +111,4 @@ public class DiseaseEntityJoin extends EntityJoin {
 		return primaryKey;
 	}
 }
+
