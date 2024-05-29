@@ -226,7 +226,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 														boolean fullDownload,
 														String downloadFileType,
 														String asc) {
-		JsonResultResponse<GeneDiseaseAnnotationDocument> response = getDiseaseAnnotationsByGene(id, 250000, page, sortBy, geneName, geneID, species, diseaseName, source, reference, evidenceCode, basedOnGeneSymbol, associationType, diseaseQualifier, asc);
+		JsonResultResponse<GeneDiseaseAnnotationDocument> response = getDiseaseAnnotationsByGene(id, 250000, null, sortBy, geneName, geneID, species, diseaseName, source, reference, evidenceCode, basedOnGeneSymbol, associationType, diseaseQualifier, asc);
 		Response.ResponseBuilder responseBuilder = null;
 		String allRowsForGenes = translator.getAllRowsForAssociatedGenes(response.getResults());
 		if (fullDownload) {
@@ -310,7 +310,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 
 			return response;
 		} catch (Exception e) {
-			Log.error("Error while retrieving disease annotations by allele", e);
+			Log.error("Error while retrieving disease annotations by gene", e);
 			RestErrorMessage error = new RestErrorMessage();
 			error.addErrorMessage(e.getMessage());
 			throw new RestErrorException(error);
@@ -361,7 +361,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 
 			return response;
 		} catch (Exception e) {
-			Log.error("Error while retrieving disease annotations by allele", e);
+			Log.error("Error while retrieving disease annotations by model", e);
 			RestErrorMessage error = new RestErrorMessage();
 			error.addErrorMessage(e.getMessage());
 			throw new RestErrorException(error);
