@@ -1,13 +1,38 @@
 package org.alliancegenome.indexer.indexers.curation;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
+import static java.util.stream.Collectors.groupingBy;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.stream.Collectors;
+
 import org.alliancegenome.api.entity.AGMDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.DiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.core.helpers.DiseaseAnnotationHelper;
-import org.alliancegenome.curation_api.model.entities.*;
+import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.AffectedGenomicModel;
+import org.alliancegenome.curation_api.model.entities.Allele;
+import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.BiologicalEntity;
+import org.alliancegenome.curation_api.model.entities.ConditionRelation;
+import org.alliancegenome.curation_api.model.entities.CrossReference;
+import org.alliancegenome.curation_api.model.entities.DiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.ExperimentalCondition;
+import org.alliancegenome.curation_api.model.entities.Gene;
+import org.alliancegenome.curation_api.model.entities.GeneDiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.Reference;
+import org.alliancegenome.curation_api.model.entities.VocabularyTerm;
 import org.alliancegenome.curation_api.model.entities.base.SubmittedObject;
 import org.alliancegenome.curation_api.model.entities.ontology.DOTerm;
 import org.alliancegenome.curation_api.model.entities.ontology.ECOTerm;
@@ -25,12 +50,9 @@ import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.stream.Collectors;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import static java.util.stream.Collectors.groupingBy;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class DiseaseAnnotationCurationIndexer extends Indexer {
@@ -120,14 +142,16 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 						groupingBy(diseaseAnnotation -> {
 							List<VocabularyTerm> terms = diseaseAnnotation.getDiseaseQualifiers();
 							// allow for grouping by empty disease qualifiers
-							if (CollectionUtils.isEmpty(terms))
+							if (CollectionUtils.isEmpty(terms)) {
 								return "null";
+							}
 							return diseaseAnnotation.getDiseaseQualifiers().stream().map(VocabularyTerm::getName).sorted().collect(Collectors.joining("_"));
 						}, groupingBy(diseaseAnnotation -> {
 							List<Gene> genes = diseaseAnnotation.getWith();
 							// allow for grouping by missing based-on genes
-							if (CollectionUtils.isEmpty(genes))
+							if (CollectionUtils.isEmpty(genes)) {
 								return "null";
+							}
 							return diseaseAnnotation.getWith().stream().map(Gene::getIdentifier).sorted().collect(Collectors.joining("_"));
 						})))));
 
@@ -197,9 +221,19 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 
 				if (da instanceof GeneDiseaseAnnotation) {
 					relation = da.getRelation();
+				} else if(da instanceof AGMDiseaseAnnotation agmAnnotation) {
+					AGMDiseaseAnnotation agmAnno = new AGMDiseaseAnnotation();
+					agmAnno.setDiseaseAnnotationSubject(agmAnnotation.getDiseaseAnnotationSubject());
+					copyDAFields(da, agmAnno);
+					addCreatedDiseaseAnnotationsImplicatedToMap(agmAnno, gene);
+				} else if(da instanceof AlleleDiseaseAnnotation alleleAnno) { 
+					AlleleDiseaseAnnotation alleleDA = new AlleleDiseaseAnnotation();
+					alleleDA.setDiseaseAnnotationSubject(alleleAnno.getDiseaseAnnotationSubject());
+					copyDAFields(da, alleleDA);
+					addCreatedDiseaseAnnotationsImplicatedToMap(alleleDA, gene);
 				} else {
-					DiseaseAnnotation generatedAnnotation = createImplicatedDA(da);
-					addCreatedDiseaseAnnotationsImplicatedToMap(generatedAnnotation, gene);
+					// Not sure what you want to do here?
+					//throw new RuntimeException("CreateImplicatedDA() Disease Annotations can only be used for AGM DAs or Allele DAs.");
 				}
 
 				String key = getConsolidationKey(da, relation.getName());
@@ -229,6 +263,14 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 
 		return ret;
 	}
+	
+	private void copyDAFields(DiseaseAnnotation source, DiseaseAnnotation target) {
+		target.setRelation(source.getRelation());
+		target.setDiseaseAnnotationObject(source.getDiseaseAnnotationObject());
+		target.setDiseaseQualifiers(source.getDiseaseQualifiers());
+		target.setSingleReference(source.getSingleReference());
+		target.setEvidenceCodes(source.getEvidenceCodes());
+	}
 
 	private static int getPhylogeneticSortOrder(String taxonID) {
 		int phylogeneticSortOrder = 0;
@@ -239,44 +281,27 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		return phylogeneticSortOrder;
 	}
 
-	private DiseaseAnnotation createImplicatedDA(DiseaseAnnotation da) {
-		DiseaseAnnotation implicatedDA;
-		if (da instanceof AGMDiseaseAnnotation agmAnnotation) {
-			AGMDiseaseAnnotation agmAnno = new AGMDiseaseAnnotation();
-			agmAnno.setDiseaseAnnotationSubject(agmAnnotation.getDiseaseAnnotationSubject());
-			implicatedDA = agmAnno;
-		} else if (da instanceof AlleleDiseaseAnnotation alleleAnno) {
-			AlleleDiseaseAnnotation alleleDA = new AlleleDiseaseAnnotation();
-			alleleDA.setDiseaseAnnotationSubject(alleleAnno.getDiseaseAnnotationSubject());
-			implicatedDA = alleleDA;
-		} else {
-			throw new RuntimeException("CreateImplicatedDA() Disease Annotations can only be used for AGM DAs or Allele DAs.");
-		}
 
-		implicatedDA.setRelation(da.getRelation());
-		implicatedDA.setDiseaseAnnotationObject(da.getDiseaseAnnotationObject());
-		implicatedDA.setDiseaseQualifiers(da.getDiseaseQualifiers());
-		implicatedDA.setSingleReference(da.getSingleReference());
-		implicatedDA.setEvidenceCodes(da.getEvidenceCodes());
-		return implicatedDA;
-	}
 
 	private String getPubmedPubModID(Reference singleReference) {
 		List<CrossReference> crossReferences = singleReference.getCrossReferences();
-		if (CollectionUtils.isEmpty(crossReferences))
+		if (CollectionUtils.isEmpty(crossReferences)) {
 			return null;
+		}
 		String[] prefixes = {"PMID", "MGI", "RGD", "ZFIN", "FB", "WB", "MGI"};
 		for (String prefix : prefixes) {
 			Optional<CrossReference> opt = crossReferences.stream().filter((reference) -> reference.getReferencedCurie().startsWith(prefix + ":")).findFirst();
-			if (opt.isPresent())
+			if (opt.isPresent()) {
 				return opt.get().getReferencedCurie();
+			}
 		}
 		return null;
 	}
 
 	private String getGeneratedRelationString(String relation, Boolean negated) {
-		if (!negated)
+		if (!negated) {
 			return relation;
+		}
 		if (relation.equals("is_model_of")) {
 			return "does_not_model";
 		}
@@ -379,21 +404,24 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 	}
 
 	private static String getGeneticModifierConsolidatedKey(DiseaseAnnotation da) {
-		if (da.getDiseaseGeneticModifierRelation() == null && CollectionUtils.isEmpty(da.getDiseaseGeneticModifiers()))
+		if (da.getDiseaseGeneticModifierRelation() == null && CollectionUtils.isEmpty(da.getDiseaseGeneticModifiers())) {
 			return null;
+		}
 		return da.getDiseaseGeneticModifierRelation() + "_"
 			+ da.getDiseaseGeneticModifiers().stream().map(SubmittedObject::getIdentifier).collect(Collectors.joining(","));
 	}
 
 	private static String getConditionRelationConsolidatedKey(ConditionRelation relation) {
-		if (relation == null)
+		if (relation == null) {
 			return null;
+		}
 		return relation.getConditions().stream().map(ExperimentalCondition::getConditionSummary).collect(Collectors.joining(","));
 	}
 
 	private static String getExperimentConditionConsolidatedKey(DiseaseAnnotation da) {
-		if (CollectionUtils.isEmpty(da.getConditionRelations()))
+		if (CollectionUtils.isEmpty(da.getConditionRelations())) {
 			return null;
+		}
 		return da.getConditionRelations().stream().map(conditionRelation ->
 			conditionRelation.getConditionRelationType().getName() + "_" + getConditionRelationConsolidatedKey(conditionRelation)).collect(Collectors.joining(","));
 	}
