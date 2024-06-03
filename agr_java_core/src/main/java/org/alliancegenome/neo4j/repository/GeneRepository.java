@@ -93,12 +93,12 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 			WITH g, q, soTerms, synonyms, secondaryIds, COLLECT(genomicLocation) AS genomicLocations
 			OPTIONAL MATCH (g)-[:CROSS_REFERENCE]->(crossRef:CrossReference)
 			RETURN q AS Species,
-			       soTerms AS SOTerms,
-			       synonyms AS Synonyms,
-			       secondaryIds AS SecondaryIds,
-			       genomicLocations AS GenomicLocations,
-			       g AS Gene,
-			       COLLECT(crossRef) AS CrossReferences
+				   soTerms AS SOTerms,
+				   synonyms AS Synonyms,
+				   secondaryIds AS SecondaryIds,
+				   genomicLocations AS GenomicLocations,
+				   g AS Gene,
+				   COLLECT(crossRef) AS CrossReferences
 			""";
 
 		Iterable<Gene> genes = query(query, map);

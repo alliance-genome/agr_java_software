@@ -74,6 +74,10 @@ public class SiteMapCacheManager {
 
 		return urls;
 	}
+	
+	public String getURL(String key) {
+		return cacheService.getCacheEntry(key, CacheAlliance.SITEMAP_DISEASE, String.class);
+	}
 
 	public List<String> getGenesKeys() {
 		return cacheService.getAllKeys(CacheAlliance.SITEMAP_GENE);

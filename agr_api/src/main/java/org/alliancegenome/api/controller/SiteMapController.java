@@ -1,5 +1,7 @@
 package org.alliancegenome.api.controller;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,6 +16,8 @@ import org.alliancegenome.core.config.ConfigHelper;
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.Status;
 
 @RequestScoped
 public class SiteMapController implements SiteMapRESTInterface {
@@ -113,6 +117,23 @@ public class SiteMapController implements SiteMapRESTInterface {
 			url.append(inUrl);
 		}
 		return url.toString();
+	}
+
+	@Override
+	public Response getURL(String id) {
+		String url = manager.getURL(id);
+		if(url == null) {
+			url = "https://www.alliancegenome.org/" + id;
+		}
+		
+		try {
+			URI uri = new URI(url);
+			Response resp = Response.temporaryRedirect(uri).status(Status.PERMANENT_REDIRECT).build();
+			return resp;
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 }
