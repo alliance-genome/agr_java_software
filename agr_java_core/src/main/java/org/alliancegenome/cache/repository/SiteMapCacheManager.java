@@ -75,6 +75,25 @@ public class SiteMapCacheManager {
 		return urls;
 	}
 	
+	public List<XMLURL> getVariants(String key) {
+
+		List<String> variantIds = getCacheEntry(key, CacheAlliance.SITEMAP_VARIANT);
+
+		List<XMLURL> urls = new ArrayList<XMLURL>();
+
+		for (String id : variantIds) {
+			Date date = null;
+
+			// if(hit.getSource().get("dateProduced") != null) {
+			// date = new Date((long)hit.getSource().get("dateProduced"));
+			// }
+
+			urls.add(new XMLURL("variant/" + id, ConfigHelper.getAppStart(), "monthly", "0.6"));
+		}
+
+		return urls;
+	}
+	
 	public String getURL(String key) {
 		return cacheService.getCacheEntry(key, CacheAlliance.ACCESSION_MAP, String.class);
 	}

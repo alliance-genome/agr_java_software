@@ -96,7 +96,7 @@ public class SiteMapController implements SiteMapRESTInterface {
 		}
 
 		if (category.equals("variant")) {
-			List<XMLURL> list = manager.getAlleles(page.toString());
+			List<XMLURL> list = manager.getVariants(page.toString());
 			XMLURLSet set = new XMLURLSet();
 			set.setUrl(list);
 			for (XMLURL url : list) {
