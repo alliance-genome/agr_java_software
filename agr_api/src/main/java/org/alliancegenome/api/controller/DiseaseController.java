@@ -318,7 +318,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 	}
 
 	/**
-	 * replace Saccharomyces cerevisiae with Saccharomyces cerevisiae S288C
+	 * replace species name if a non-canonical should be used
 	 */
 	private static String correctSpeciesInOptionList(String speciesList) {
 		String[] individualSpecies = speciesList.split("\\|");
