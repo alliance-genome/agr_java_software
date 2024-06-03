@@ -48,7 +48,7 @@ public class CacheService {
 		return new ArrayList<>(cache.keySet());
 	}
 
-	private RemoteCache<String, String> getCacheSpace(CacheAlliance cache) {
+	public RemoteCache<String, String> getCacheSpace(CacheAlliance cache) {
 		// log.info("Getting Cache Space: " + cache.getCacheName());
 		RemoteCache<String, String> remoteCache = manager.getCache(cache.getCacheName());
 
@@ -63,8 +63,9 @@ public class CacheService {
 		CollectionType javaType = mapper.getTypeFactory().constructCollectionType(List.class, cacheSpace.getClazz());
 
 		String json = getCacheSpace(cacheSpace).get(entityID);
-		if (json == null)
+		if (json == null) {
 			return null;
+		}
 
 		List<O> list;
 
@@ -80,8 +81,9 @@ public class CacheService {
 
 	public CacheStatus getCacheStatus(String entityName, CacheAlliance cacheSpace) {
 		String json = getCacheSpace(cacheSpace).get(entityName);
-		if (json == null)
+		if (json == null) {
 			return null;
+		}
 
 		try {
 			return mapper.readerWithView(View.Cacher.class).forType(CacheStatus.class).readValue(json);
@@ -94,8 +96,9 @@ public class CacheService {
 	public <O> O getCacheEntry(String entityId, CacheAlliance cacheSpace, Class<O> clazz) {
 
 		String json = getCacheSpace(cacheSpace).get(entityId);
-		if (json == null)
+		if (json == null) {
 			return null;
+		}
 
 		try {
 			return mapper.readValue(json, clazz);

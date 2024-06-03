@@ -1,12 +1,16 @@
 package org.alliancegenome.neo4j.repository;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Variant;
+import org.neo4j.ogm.model.Result;
 
 public class VariantRepository extends Neo4jRepository<Variant> {
 
@@ -69,7 +73,22 @@ public class VariantRepository extends Neo4jRepository<Variant> {
 		}
 		return null;
 	}
+	
+	public List<String> getAllVariantKeys() {
+		String query = "MATCH (v:Variant)-[:VARIATION]-(a:Allele)-[:FROM_SPECIES]-(q:Species) RETURN v.primaryKey";
 
+		Result r = queryForResult(query);
+		Iterator<Map<String, Object>> i = r.iterator();
+
+		ArrayList<String> list = new ArrayList<>();
+
+		while (i.hasNext()) {
+			Map<String, Object> map2 = i.next();
+			list.add((String) map2.get("v.primaryKey"));
+		}
+		return list;
+	}
+	
 	public List<Allele> getAllelesOfVariant(String variantID) {
 		String query = "";
 		query += " MATCH p1=(a:Allele)<-[:VARIATION]-(variant:Variant)--(soTerm:SOTerm) ";

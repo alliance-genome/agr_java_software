@@ -54,6 +54,9 @@ public enum CacheAlliance {
 	SITEMAP_GENE(String.class, (263483 * 100) + 280790), // min: 181157 max: 280790 mean: 263483
 	SITEMAP_ALLELE(String.class, (281158 * 100) + 418277), // min: 7364 max: 418277 mean: 281158
 	SITEMAP_DISEASE(String.class, (72621 * 100) + 72621), // min: 72621 max: 72621 mean: 72621
+	SITEMAP_VARIANT(String.class, (72621 * 100) + 72621), // min: 72621 max: 72621 mean: 72621
+	
+	ACCESSION_MAP(String.class, 1_000_000),
 	;
 
 	private String cacheName;
@@ -80,9 +83,11 @@ public enum CacheAlliance {
 	}
 
 	public static CacheAlliance getTypeByName(String name) {
-		for (CacheAlliance type : values())
-			if (type.cacheName.equals(name))
+		for (CacheAlliance type : values()) {
+			if (type.cacheName.equals(name)) {
 				return type;
+			}
+		}
 		return null;
 	}
 

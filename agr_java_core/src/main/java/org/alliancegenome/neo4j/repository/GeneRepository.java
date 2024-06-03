@@ -1,28 +1,52 @@
 package org.alliancegenome.neo4j.repository;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.extern.slf4j.Slf4j;
-import org.alliancegenome.core.util.FileHelper;
-import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.node.*;
-import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
-import org.alliancegenome.neo4j.view.OrthologyFilter;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections4.map.MultiKeyMap;
-import org.neo4j.ogm.model.Result;
+import static java.util.stream.Collectors.joining;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import static java.util.stream.Collectors.joining;
+import org.alliancegenome.core.util.FileHelper;
+import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.node.AffectedGenomicModel;
+import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
+import org.alliancegenome.neo4j.entity.node.CrossReference;
+import org.alliancegenome.neo4j.entity.node.GOTerm;
+import org.alliancegenome.neo4j.entity.node.Gene;
+import org.alliancegenome.neo4j.entity.node.OrthoAlgorithm;
+import org.alliancegenome.neo4j.entity.node.ParaAlgorithm;
+import org.alliancegenome.neo4j.entity.node.SOTerm;
+import org.alliancegenome.neo4j.entity.node.SecondaryId;
+import org.alliancegenome.neo4j.entity.node.Species;
+import org.alliancegenome.neo4j.entity.node.Synonym;
+import org.alliancegenome.neo4j.entity.node.UBERONTerm;
+import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
+import org.alliancegenome.neo4j.view.OrthologyFilter;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.map.MultiKeyMap;
+import org.neo4j.ogm.model.Result;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class GeneRepository extends Neo4jRepository<Gene> {
@@ -365,10 +389,11 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 
 	public Map<String, String> getGoSlimList(String goType) {
 		// cache the complete GO CC list.
-		if (goCcList != null)
+		if (goCcList != null) {
 			return goCcList;
+		}
 		String cypher = "MATCH (goTerm:GOTerm) " +
-			"where all (subset IN ['" + GOSLIM_AGR + "'] where subset in goTerm.subset)	 RETURN goTerm ";
+			"where all (subset IN ['" + GOSLIM_AGR + "'] where subset in goTerm.subset) RETURN goTerm ";
 
 		Iterable<GOTerm> joins = query(GOTerm.class, cypher);
 
@@ -383,8 +408,9 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 	}
 
 	private List<String> getGoTermListFromJavaScriptFile() {
-		if (goTermOrderedList != null)
+		if (goTermOrderedList != null) {
 			return goTermOrderedList;
+		}
 
 		String url = "https://raw.githubusercontent.com/geneontology/ribbon/master/src/data/agr.js";
 		List<String> content = new ArrayList<>();
@@ -395,8 +421,9 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 				new InputStreamReader(oracle.openStream()));
 
 			String inputLine;
-			while ((inputLine = in.readLine()) != null)
+			while ((inputLine = in.readLine()) != null) {
 				content.add(inputLine);
+			}
 			in.close();
 
 		} catch (IOException e) {
@@ -477,8 +504,9 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 	}
 
 	public Map<String, String> getStageList() {
-		if (stageMap != null)
+		if (stageMap != null) {
 			return stageMap;
+		}
 
 		String cypher = "match p=(uber:UBERONTerm)-[:STAGE_RIBBON_TERM]-(:BioEntityGeneExpressionJoin) return distinct uber";
 
@@ -501,8 +529,9 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 	}
 
 	public List<UBERONTerm> getStageTermList() {
-		if (stageList != null)
+		if (stageList != null) {
 			return stageList;
+		}
 
 		String cypher = "match p=(uber:UBERONTerm)-[:STAGE_RIBBON_TERM]-(:BioEntityGeneExpressionJoin) return distinct uber";
 
@@ -525,21 +554,24 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 	}
 
 	public LinkedHashMap<String, String> getOrderAoTermList() {
-		if (aoOrderList != null)
+		if (aoOrderList != null) {
 			return aoOrderList;
+		}
 
 		return FileHelper.getAOTermList();
 	}
 
 	public LinkedHashMap<String, String> getOrderGoTermList() {
-		if (goCcList != null)
+		if (goCcList != null) {
 			return goCcList;
+		}
 		return FileHelper.getGOTermList();
 	}
 
 	private Map<String, Integer> getOrderedAoTermList() {
-		if (aoOrderedPositionList != null)
+		if (aoOrderedPositionList != null) {
 			return aoOrderedPositionList;
+		}
 		aoOrderedPositionList = new HashMap<>();
 		int index = 0;
 		final LinkedHashMap<String, String> orderAoTermList = getOrderAoTermList();
@@ -577,8 +609,9 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 	}
 
 	public Map<String, Integer> getGoOrderedList() {
-		if (goCCOrderedPositionList != null)
+		if (goCCOrderedPositionList != null) {
 			return goCCOrderedPositionList;
+		}
 		goCCOrderedPositionList = new HashMap<>();
 		int index = 0;
 		final LinkedHashMap<String, String> orderGoTermList = getOrderGoTermList();
@@ -615,8 +648,9 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 	}
 
 	public List<Gene> getAllGenes(List<String> taxonIDs) {
-		if (CollectionUtils.isEmpty(taxonIDs))
+		if (CollectionUtils.isEmpty(taxonIDs)) {
 			return null;
+		}
 		Map<String, Object> params = new HashMap<>();
 		params.put("ids", taxonIDs);
 		String cypher = " MATCH p1=(q:Species)-[:FROM_SPECIES]-(g:Gene)--(x:CrossReference ) "

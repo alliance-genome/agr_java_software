@@ -86,6 +86,10 @@ public class SiteMapCacheManager {
 	public List<String> getAlleleKeys() {
 		return cacheService.getAllKeys(CacheAlliance.SITEMAP_ALLELE);
 	}
+	
+	public List<String> getVariantKeys() {
+		return cacheService.getAllKeys(CacheAlliance.SITEMAP_VARIANT);
+	}
 
 	public List<String> getCacheEntry(String entityID, CacheAlliance cacheSpace) {
 		return cacheService.getCacheEntries(entityID, cacheSpace);

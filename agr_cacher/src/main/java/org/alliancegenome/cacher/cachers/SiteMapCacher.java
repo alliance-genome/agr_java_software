@@ -9,6 +9,7 @@ import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.neo4j.repository.AlleleRepository;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
+import org.alliancegenome.neo4j.repository.VariantRepository;
 import org.alliancegenome.neo4j.view.View;
 
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,7 @@ public class SiteMapCacher extends Cacher {
 	private GeneRepository geneRepository;
 	private AlleleRepository alleleRepository;
 	private DiseaseRepository diseaseRepository;
+	private VariantRepository variantRepository;
 
 
 	@Override
@@ -27,6 +29,7 @@ public class SiteMapCacher extends Cacher {
 		geneRepository = new GeneRepository();
 		alleleRepository = new AlleleRepository();
 		diseaseRepository = new DiseaseRepository();
+		variantRepository = new VariantRepository();
 	}
 	
 	@Override
@@ -34,23 +37,44 @@ public class SiteMapCacher extends Cacher {
 		
 		startProcess("geneRepository.getAllGeneKeys");
 		List<String> geneKeyList = geneRepository.getAllGeneKeys();
-		log.debug("Gene List Size: " + geneKeyList.size());
+		log.info("Gene List Size: " + geneKeyList.size());
 		cacheSiteMap(geneKeyList, CacheAlliance.SITEMAP_GENE);
 		finishProcess();
 		
 		List<String> alleleKeyList = alleleRepository.getAllAlleleKeys();
-		log.debug("Allele List Size: " + alleleKeyList.size());
+		log.info("Allele List Size: " + alleleKeyList.size());
 		cacheSiteMap(alleleKeyList, CacheAlliance.SITEMAP_ALLELE);
 		finishProcess();
 
 		startProcess("diseaseRepository.getAllDiseaseWithAnnotationsKeys");
 		Set<String> diseaseKeyList = diseaseRepository.getAllDiseaseWithAnnotationsKeys();
-		log.debug("Disease List Size: " + diseaseKeyList.size());
+		log.info("Disease List Size: " + diseaseKeyList.size());
 		cacheSiteMap(diseaseKeyList, CacheAlliance.SITEMAP_DISEASE);
 		finishProcess();
+		
+		startProcess("variantRepository.getAllVariantKeys");
+		List<String> variantKeyList = variantRepository.getAllVariantKeys();
+		log.info("Variant List Size: " + variantKeyList.size());
+		cacheSiteMap(variantKeyList, CacheAlliance.SITEMAP_VARIANT);
+		finishProcess();
 
+		startProcess("accession cache");
+		cacheAccession("gene", geneKeyList, CacheAlliance.ACCESSION_MAP);
+		cacheAccession("allele", alleleKeyList, CacheAlliance.ACCESSION_MAP);
+		cacheAccession("disease", new ArrayList<String>(diseaseKeyList), CacheAlliance.ACCESSION_MAP);
+		cacheAccession("variant", variantKeyList, CacheAlliance.ACCESSION_MAP);
+		finishProcess();
 	}
 	
+	private void cacheAccession(String type, List<String> keyList, CacheAlliance cache) {
+		
+
+		for(String key: keyList) {
+			cacheService.putCacheEntry(key, "https://www.alliancegenome.org/" + type + "/" + key, View.Default.class, cache);
+		}
+		
+	}
+
 	private void cacheSiteMap(Iterable<String> list, CacheAlliance cache) {
 		List<String> idList = new ArrayList<>();
 		int c = 0;
@@ -77,6 +101,7 @@ public class SiteMapCacher extends Cacher {
 		geneRepository.close();
 		alleleRepository.close();
 		diseaseRepository.close();
+		variantRepository.close();
 	}
 
 }
