@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 
 import static org.alliancegenome.api.service.EntityType.DISEASE;
 import static org.alliancegenome.api.service.EntityType.GENE;
-import static org.alliancegenome.neo4j.entity.SpeciesType.YEAST;
+import static org.alliancegenome.neo4j.entity.SpeciesType.getSpeciesNameCorrected;
 
 @RequestScoped
 public class DiseaseController implements DiseaseRESTInterface {
@@ -294,7 +294,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 			pagination.addFilterOption("subject.curie", geneID);
 		}
 		if (species != null) {
-			pagination.addFilterOption("subject.taxon.name.keyword", species.equals(YEAST.getName()) ? YEAST.getName() + " S288C" : species);
+			pagination.addFilterOption("subject.taxon.name.keyword", correctSpeciesInOptionList(species));
 		}
 
 
@@ -315,6 +315,18 @@ public class DiseaseController implements DiseaseRESTInterface {
 			error.addErrorMessage(e.getMessage());
 			throw new RestErrorException(error);
 		}
+	}
+
+	/**
+	 * replace species name if a non-canonical should be used
+	 */
+	private static String correctSpeciesInOptionList(String speciesList) {
+		String[] individualSpecies = speciesList.split("\\|");
+		List<String> individualReplacedSpeciesList = new ArrayList<>();
+		for (String species : individualSpecies) {
+			individualReplacedSpeciesList.add(getSpeciesNameCorrected(species));
+		}
+		return String.join("|", individualReplacedSpeciesList);
 	}
 
 	@Override
