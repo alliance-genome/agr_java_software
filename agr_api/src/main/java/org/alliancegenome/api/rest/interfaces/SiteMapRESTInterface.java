@@ -22,15 +22,10 @@ public interface SiteMapRESTInterface {
 
 	@GET
 	@Path("/sitemap/{category}-sitemap-{page}.xml")
-	public XMLURLSet getCategorySiteMap(
-		@PathParam("category") String category,
-		@PathParam("page") Integer page
-	);
-	
+	public XMLURLSet getCategorySiteMap(@PathParam("category") String category, @PathParam("page") Integer page);
+
 	@GET
 	@Path("/accession/{id}")
-	public Response getURL(
-		@PathParam("id") String id
-	);
+	public Response getURL(@PathParam("id") String id);
 
 }

@@ -122,10 +122,10 @@ public class SiteMapController implements SiteMapRESTInterface {
 	@Override
 	public Response getURL(String id) {
 		String url = manager.getURL(id);
-		if(url == null) {
+		if (url == null) {
 			url = "https://www.alliancegenome.org/" + id;
 		}
-		
+
 		try {
 			URI uri = new URI(url);
 			Response resp = Response.temporaryRedirect(uri).status(Status.PERMANENT_REDIRECT).build();

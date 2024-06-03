@@ -16,13 +16,12 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class SiteMapCacher extends Cacher {
-	
+
 	private Integer batchSize = 15000;
 	private GeneRepository geneRepository;
 	private AlleleRepository alleleRepository;
 	private DiseaseRepository diseaseRepository;
 	private VariantRepository variantRepository;
-
 
 	@Override
 	protected void init() {
@@ -31,16 +30,16 @@ public class SiteMapCacher extends Cacher {
 		diseaseRepository = new DiseaseRepository();
 		variantRepository = new VariantRepository();
 	}
-	
+
 	@Override
 	protected void cache() {
-		
+
 		startProcess("geneRepository.getAllGeneKeys");
 		List<String> geneKeyList = geneRepository.getAllGeneKeys();
 		log.info("Gene List Size: " + geneKeyList.size());
 		cacheSiteMap(geneKeyList, CacheAlliance.SITEMAP_GENE);
 		finishProcess();
-		
+
 		List<String> alleleKeyList = alleleRepository.getAllAlleleKeys();
 		log.info("Allele List Size: " + alleleKeyList.size());
 		cacheSiteMap(alleleKeyList, CacheAlliance.SITEMAP_ALLELE);
@@ -51,7 +50,7 @@ public class SiteMapCacher extends Cacher {
 		log.info("Disease List Size: " + diseaseKeyList.size());
 		cacheSiteMap(diseaseKeyList, CacheAlliance.SITEMAP_DISEASE);
 		finishProcess();
-		
+
 		startProcess("variantRepository.getAllVariantKeys");
 		List<String> variantKeyList = variantRepository.getAllVariantKeys();
 		log.info("Variant List Size: " + variantKeyList.size());
@@ -65,35 +64,34 @@ public class SiteMapCacher extends Cacher {
 		cacheAccession("variant", variantKeyList, CacheAlliance.ACCESSION_MAP);
 		finishProcess();
 	}
-	
-	private void cacheAccession(String type, List<String> keyList, CacheAlliance cache) {
-		
 
-		for(String key: keyList) {
+	private void cacheAccession(String type, List<String> keyList, CacheAlliance cache) {
+
+		for (String key : keyList) {
 			cacheService.putCacheEntry(key, "https://www.alliancegenome.org/" + type + "/" + key, View.Default.class, cache);
 		}
-		
+
 	}
 
 	private void cacheSiteMap(Iterable<String> list, CacheAlliance cache) {
 		List<String> idList = new ArrayList<>();
 		int c = 0;
-		for(String id: list) {
+		for (String id : list) {
 			idList.add(id);
-			if(idList.size() >= batchSize) {
+			if (idList.size() >= batchSize) {
 				cacheService.putCacheEntry(String.valueOf(c), idList, View.Default.class, cache);
 				idList.clear();
 				c++;
 			}
 		}
 
-		if(idList.size() > 0) {
+		if (idList.size() > 0) {
 			JsonResultResponse<String> result = new JsonResultResponse<>();
 			result.setResults(new ArrayList<>(idList));
 			cacheService.putCacheEntry(String.valueOf(c), idList, View.Default.class, cache);
 			idList.clear();
 		}
-		
+
 	}
 
 	@Override
