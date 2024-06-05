@@ -74,6 +74,29 @@ public class SiteMapCacheManager {
 
 		return urls;
 	}
+	
+	public List<XMLURL> getVariants(String key) {
+
+		List<String> variantIds = getCacheEntry(key, CacheAlliance.SITEMAP_VARIANT);
+
+		List<XMLURL> urls = new ArrayList<XMLURL>();
+
+		for (String id : variantIds) {
+			Date date = null;
+
+			// if(hit.getSource().get("dateProduced") != null) {
+			// date = new Date((long)hit.getSource().get("dateProduced"));
+			// }
+
+			urls.add(new XMLURL("variant/" + id, ConfigHelper.getAppStart(), "monthly", "0.6"));
+		}
+
+		return urls;
+	}
+	
+	public String getURL(String key) {
+		return cacheService.getCacheEntry(key, CacheAlliance.ACCESSION_MAP, String.class);
+	}
 
 	public List<String> getGenesKeys() {
 		return cacheService.getAllKeys(CacheAlliance.SITEMAP_GENE);
@@ -85,6 +108,10 @@ public class SiteMapCacheManager {
 
 	public List<String> getAlleleKeys() {
 		return cacheService.getAllKeys(CacheAlliance.SITEMAP_ALLELE);
+	}
+	
+	public List<String> getVariantKeys() {
+		return cacheService.getAllKeys(CacheAlliance.SITEMAP_VARIANT);
 	}
 
 	public List<String> getCacheEntry(String entityID, CacheAlliance cacheSpace) {

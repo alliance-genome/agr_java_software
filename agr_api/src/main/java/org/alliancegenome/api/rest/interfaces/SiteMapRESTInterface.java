@@ -9,6 +9,7 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 @Path("/")
 @Tag(name = "Site Map")
@@ -21,9 +22,10 @@ public interface SiteMapRESTInterface {
 
 	@GET
 	@Path("/sitemap/{category}-sitemap-{page}.xml")
-	public XMLURLSet getCategorySiteMap(
-		@PathParam("category") String category,
-		@PathParam("page") Integer page
-	);
+	public XMLURLSet getCategorySiteMap(@PathParam("category") String category, @PathParam("page") Integer page);
+
+	@GET
+	@Path("/accession/{id}")
+	public Response getURL(@PathParam("id") String id);
 
 }
