@@ -9,13 +9,14 @@ import lombok.ToString;
 
 @Getter @Setter @ToString
 public class DownloadFileSet {
-	private List<DownloadSource> downloadFileSet;
+	private List<DownloadSource> downloadFileSources;
 	private String downloadPath;
+	private String s3RootUrl;
 
-	public List<DownloadableFile> getFilesToDownload() {
-		List<DownloadableFile> ret = new ArrayList<DownloadableFile>();
-		for(DownloadSource source: downloadFileSet) {
-			ret.addAll(source.getFileList());
+	public List<String> getChromosomesToDownload() {
+		List<String> ret = new ArrayList<String>();
+		for(DownloadSource source: downloadFileSources) {
+			ret.addAll(source.getChromosomeList());
 		}
 		return ret;
 	}

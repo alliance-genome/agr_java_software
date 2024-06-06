@@ -8,7 +8,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.core.filedownload.model.DownloadSource;
-import org.alliancegenome.core.filedownload.model.DownloadableFile;
 import org.alliancegenome.core.util.StatsCollector;
 import org.alliancegenome.core.variant.config.VariantConfigHelper;
 import org.alliancegenome.core.variant.converters.AlleleVariantSequenceConverter;
@@ -44,6 +43,7 @@ import lombok.extern.slf4j.Slf4j;
 public class SourceDocumentCreation extends Thread {
 
 	private final GeneDocumentCache geneCache;
+	private String downloadPath;
 	private DownloadSource source;
 	private SpeciesType speciesType;
 	private String[] header = null;
@@ -94,7 +94,8 @@ public class SourceDocumentCreation extends Thread {
 	private RestHighLevelClient client3 = EsClientFactory.getMustCloseSearchClient();
 	private RestHighLevelClient client4 = EsClientFactory.getMustCloseSearchClient();
 	
-	public SourceDocumentCreation(DownloadSource source, GeneDocumentCache geneCache) {
+	public SourceDocumentCreation(String downloadPath, DownloadSource source, GeneDocumentCache geneCache) {
+		this.downloadPath = downloadPath;
 		this.source = source;
 		this.geneCache = geneCache;
 		speciesType = SpeciesType.getTypeByID(source.getTaxonId());
@@ -102,6 +103,7 @@ public class SourceDocumentCreation extends Thread {
 		message_header = speciesType.getModName() + " ";
 	}
 
+	@Override
 	public void run() {
 
 		jsonQueue1 = new LinkedBlockingDeque<>(config_settings[0][3]); // Max 10K * 10K = 100M
@@ -226,8 +228,8 @@ public class SourceDocumentCreation extends Thread {
 		
 		ph1.startProcess(message_header + "VCFReader");
 		List<VCFReader> readers = new ArrayList<VCFReader>();
-		for (DownloadableFile df : source.getFileList()) {
-			VCFReader reader = new VCFReader(df);
+		for (String filePath : source.getGenerateFilePaths()) {
+			VCFReader reader = new VCFReader(downloadPath + "/" + filePath);
 			reader.start();
 			readers.add(reader);
 		}
@@ -250,7 +252,9 @@ public class SourceDocumentCreation extends Thread {
 
 		ArrayList<VCFJsonBulkIndexer> indexers = new ArrayList<>();
 		
-		if(!indexing) indexName = "no_index";
+		if(!indexing) {
+			indexName = "no_index";
+		}
 		
 		ph3.startProcess(message_header + "VCFJsonIndexer BulkProcessor");
 		ph4.startProcess(message_header + "VCFJsonIndexer Buckets");
@@ -330,7 +334,9 @@ public class SourceDocumentCreation extends Thread {
 			//log.info("Shutdown Neo Repo: ");
 			//repo.clearCache();
 			
-			if(gatherStats) statsCollector.printOutput(speciesType.getModName());
+			if(gatherStats) {
+				statsCollector.printOutput(speciesType.getModName());
+			}
 
 			if(indexing) {
 				bulkProcessor1.flush();
@@ -358,19 +364,20 @@ public class SourceDocumentCreation extends Thread {
 
 	private class VCFReader extends Thread {
 
-		private DownloadableFile df;
+		private String filePath;
 		private int workBucketSize = VariantConfigHelper.getSourceDocumentCreatorVCQueueBucketSize();
 
-		public VCFReader(DownloadableFile df) {
-			this.df = df;
+		public VCFReader(String filePath) {
+			this.filePath = filePath;
 		}
 
+		@Override
 		public void run() {
 
-			VCFFileReader reader = new VCFFileReader(new File(df.getLocalGzipFilePath()), false);
+			VCFFileReader reader = new VCFFileReader(new File(filePath), false);
 			CloseableIterator<VariantContext> iter1 = reader.iterator();
 			if (header == null) {
-				log.info(message_header + "Setting VCF File Header: " + df.getLocalGzipFilePath());
+				log.info(message_header + "Setting VCF File Header: " + filePath);
 				VCFInfoHeaderLine fileHeader = reader.getFileHeader().getInfoHeaderLine("CSQ");
 				header = fileHeader.getDescription().split("Format: ")[1].split("\\|");
 				try {
@@ -407,6 +414,7 @@ public class SourceDocumentCreation extends Thread {
 
 		private final int workBucketSize = VariantConfigHelper.getSourceDocumentCreatorObjectQueueBucketSize();
 
+		@Override
 		public void run() {
 			List<AlleleVariantSequence> workBucket = new ArrayList<>();
 			while (!(Thread.currentThread().isInterrupted())) {
@@ -450,6 +458,7 @@ public class SourceDocumentCreation extends Thread {
 
 		private final ObjectMapper mapper = new ObjectMapper();
 
+		@Override
 		public void run() {
 			mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 			mapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false);
@@ -529,14 +538,19 @@ public class SourceDocumentCreation extends Thread {
 			this.bulkProcessor = bulkProcessor;
 		}
 
+		@Override
 		public void run() {
 			while (!(Thread.currentThread().isInterrupted())) {
 				try {
 					List<String> docs = jsonQueue.take();
 					
 					for (String doc : docs) {
-						if(gatherStats) statsCollector.addDocument(doc);
-						if(indexing) bulkProcessor.add(new IndexRequest(indexName).source(doc, XContentType.JSON));
+						if(gatherStats) {
+							statsCollector.addDocument(doc);
+						}
+						if(indexing) {
+							bulkProcessor.add(new IndexRequest(indexName).source(doc, XContentType.JSON));
+						}
 						ph3.progressProcess();
 					}
 					ph4.progressProcess("JSon Queue: " + jsonQueue.size());
