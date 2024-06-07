@@ -167,27 +167,6 @@ public class AlleleCacher extends Cacher {
 
 		populateCacheFromMap(allRecordsMap, View.GeneAlleleVariantSequenceAPI.class, CacheAlliance.ALLELE_VARIANT_SEQUENCE_GENE);
 
-/*
-		status = new CacheStatus(CacheAlliance.ALLELE_VARIANT_SEQUENCE_GENE);
-		status.setNumberOfEntities(alleleVariantSequences.size());
-
-		speciesStats = alleleVariantSequences.stream()
-				.map(AlleleVariantSequence::getAllele)
-				.map(GeneticEntity::getSpecies)
-				.collect(groupingBy(Species::getName));
-
-		Map<String, Integer> entityStatsDetail = new TreeMap<>();
-		speciesStats.forEach((geneID, alleles) -> entityStatsDetail.put(geneID, alleles.size()));
-
-		populateStatisticsOnStatus(status, entityStatsDetail, speciesStats);
-		status.setCollectionEntity(Allele.class.getSimpleName());
-		status.setJsonViewClass(View.GeneAllelesAPI.class.getSimpleName());
-		setCacheStatus(status);
-*/
-
-		// create allele-species index
-		// <taxonID, List<Allele>>
-		// include alleles without gene associations
 		Map<String, List<Allele>> speciesMap = allAlleles.stream()
 				.collect(groupingBy(allele -> allele.getSpecies().getPrimaryKey()));
 		populateCacheFromMap(speciesMap, View.GeneAlleleVariantSequenceAPI.class, CacheAlliance.ALLELE_VARIANT_SEQUENCE_GENE);
@@ -229,25 +208,6 @@ public class AlleleCacher extends Cacher {
 			return;
 		}
 		try {
-			
-//			ExecutorService executor = Executors.newFixedThreadPool(VariantConfigHelper.getSourceDocumentCreatorThreads());
-//			
-//			DownloadSource source = null;
-//			for(DownloadSource loopSource: downloadSet.getDownloadFileSources()) {
-//				if(loopSource.getTaxonId().equals(taxonID)) {
-//					source = loopSource;
-//					break;
-//				}
-//			}
-//			String filePath = downloadSet.getDownloadPath() + "/" + Joiner.on(".").join(List.of(source, "vep", chromosome, "vcf.gz"));
-//			HtpVariantCreation creator = new HtpVariantCreation(taxonID, filePath, htpAlleleSequenceMap);
-//			executor.submit(creator);
-//			executor.shutdown();
-//			while (!executor.isTerminated()) {
-//				Thread.sleep(1000);
-//			}
-			
-			
 			log.info("Size of HTP Gene with AlleleVariantSequence: " + String.format("%,d", htpAlleleSequenceMap.size()));
 			long countAlleleVariants = htpAlleleSequenceMap.values().stream().flatMap(Collection::parallelStream).count();
 			log.info("Size of HTP AlleleVariantSequence records: " +
@@ -256,29 +216,6 @@ public class AlleleCacher extends Cacher {
 			ConcurrentHashMap<String, Long> taxonMap = htpVariantMap.computeIfAbsent(taxonID, s -> new ConcurrentHashMap<>());
 			taxonMap.put(chromosome, countAlleleVariants);
 
-			//group by geneID
-/*
-			Map<String, List<AlleleVariantSequence>> alleleVariantMap = htpAlleleSequenceMap.values().stream()
-					.flatMap(Collection::stream)
-					.collect(groupingBy(sequence -> sequence.getAllele().getGene().getPrimaryKey()));
-
-			// TODO variant ID needs to be agreed on
-			alleleVariantMap.forEach((geneID, alleleVariantSequences) -> {
-				Map<String, List<AlleleVariantSequence>> varMap = alleleVariantSequences.stream()
-						.collect(groupingBy(sequence -> sequence.getVariant().getHgvsNomenclature()));
-				varMap.forEach((variantName, sequences) -> {
-					Allele variantAllele = new Allele("", GeneticEntity.CrossReferenceType.VARIANT);
-					variantAllele.setUrl("");
-					variantAllele.setSymbol(sequences.get(0).getVariant().getHgvsNomenclature());
-					variantAllele.setSymbolText(sequences.get(0).getVariant().getHgvsNomenclature());
-					// adding all of them is not necessary, thus using the first entry
-					//variantAllele.setVariants(sequences.stream().map(AlleleVariantSequence::getVariant).collect(Collectors.toList()));
-					variantAllele.setVariants(List.of(sequences.get(0).getVariant()));
-					List<Allele> list = variantMap.computeIfAbsent(geneID, s -> new ArrayList<>());
-					list.add(variantAllele);
-				});
-			});
-*/
 			log.info("Number of Genes: " + variantMap.size());
 		} catch (Exception e) {
 			e.printStackTrace();
