@@ -20,6 +20,7 @@ public class SourceDocumentCreationManager extends Thread {
 		this.downloadSet = downloadSet;
 	}
 
+	@Override
 	public void run() {
 
 		try {
@@ -30,8 +31,8 @@ public class SourceDocumentCreationManager extends Thread {
 			GeneDocumentCache geneCache = geneRepo.getGeneCacheCrossReferencesSynonyms();
 			geneRepo.close();
 
-			for(DownloadSource source: downloadSet.getDownloadFileSet()) {
-				SourceDocumentCreation creator = new SourceDocumentCreation(source, geneCache);
+			for(DownloadSource source: downloadSet.getDownloadFileSources()) {
+				SourceDocumentCreation creator = new SourceDocumentCreation(downloadSet.getDownloadPath(), source, geneCache);
 				executor.execute(creator);
 			}
 

@@ -29,27 +29,33 @@ public class Main {
 		boolean indexing = VariantConfigHelper.isIndexing();
 
 		try {
-			// need to set VARIANTS_TO_INDEX = "HUMAN" or "MOD" to choose between which variants to index
+			// need to set VARIANTS_TO_INDEX = "HUMAN" or "MOD" to choose between which
+			// variants to index
 			DownloadFileSet downloadSet = mapper.readValue(getClass().getClassLoader().getResourceAsStream(VariantConfigHelper.getDownloadSetFile()), DownloadFileSet.class);
 			downloadSet.setDownloadPath(VariantConfigHelper.getVariantFileDownloadPath());
 
-			if(downloading) {
+			if (downloading) {
 				FileDownloadManager fdm = new FileDownloadManager(downloadSet);
 				fdm.start();
 				fdm.join();
 			}
 
-			if(creating) {
+			if (creating) {
 				IndexManager im = new IndexManager(new VariantIndexSettings(true, VariantConfigHelper.getIndexerShards()), new VariantMapping(true));
-				//IndexManager im = new IndexManager(new VariantIndexSettings(true, VariantConfigHelper.getIndexerShards()));
-				
-				if(indexing) SourceDocumentCreation.indexName = im.startSiteIndex();
+				// IndexManager im = new IndexManager(new VariantIndexSettings(true,
+				// VariantConfigHelper.getIndexerShards()));
+
+				if (indexing) {
+					SourceDocumentCreation.indexName = im.startSiteIndex();
+				}
 
 				SourceDocumentCreationManager vdm = new SourceDocumentCreationManager(downloadSet);
 				vdm.start();
 				vdm.join();
 
-				if(indexing) im.finishIndex();
+				if (indexing) {
+					im.finishIndex();
+				}
 			}
 
 		} catch (Exception e) {
