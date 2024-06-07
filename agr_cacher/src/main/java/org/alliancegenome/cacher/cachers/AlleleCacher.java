@@ -7,20 +7,17 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.core.filedownload.model.DownloadFileSet;
-import org.alliancegenome.core.filedownload.model.DownloadableFile;
+import org.alliancegenome.core.filedownload.model.DownloadSource;
 import org.alliancegenome.core.filedownload.process.FileDownloadManager;
 import org.alliancegenome.core.variant.config.VariantConfigHelper;
 import org.alliancegenome.neo4j.entity.SpeciesType;
@@ -75,8 +72,9 @@ public class AlleleCacher extends Cacher {
 	}
 
 	private void cacheSpecies(String taxonID) {
-		if (speciesChromosomeMap.get(taxonID) == null)
+		if (speciesChromosomeMap.get(taxonID) == null) {
 			return;
+		}
 		speciesChromosomeMap.get(taxonID).forEach(s -> {
 			cacheSpeciesChromosome(taxonID, s);
 		});
@@ -85,16 +83,19 @@ public class AlleleCacher extends Cacher {
 
 	private void cacheSpeciesChromosome(String taxonID, String chromosome) {
 		readHtpFiles(taxonID, chromosome);
+		
 		String speciesName = SpeciesType.getNameByID(taxonID);
 		
-		if (StringUtils.isNotEmpty(chromosome))
+		if (StringUtils.isNotEmpty(chromosome)) {
 			startProcess("Retrieve Alleles for [" + speciesName + ", " + chromosome + "]");
-		else
+		} else {
 			startProcess("Retrieve Alleles for [" + speciesName + "]");
+		}
 		
 		Set<Allele> allAlleles = alleleRepository.getAlleles(taxonID, chromosome);
-		if (allAlleles == null)
+		if (allAlleles == null) {
 			return;
+		}
 		
 		log.info("Number of Alleles: " + String.format("%,d", allAlleles.size()));
 		// group by genes. This ignores alleles without gene associations
@@ -104,8 +105,9 @@ public class AlleleCacher extends Cacher {
 
 		// add HTP variants to existing genes in map
 		map.forEach((geneID, alleles) -> {
-			if (variantMap.get(geneID) != null)
+			if (variantMap.get(geneID) != null) {
 				alleles.addAll(variantMap.get(geneID));
+			}
 		});
 		// add HTP variants to non-existing genes in map
 		variantMap.forEach(map::putIfAbsent);
@@ -209,39 +211,43 @@ public class AlleleCacher extends Cacher {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		if (downloadSet.getDownloadFileSet() != null) {
-			downloadSet.getDownloadFileSet()
-					.stream().filter(Objects::nonNull)
-					.forEach(source -> source.getFileList()
-							.forEach(file -> {
-								List<String> chromosomes = speciesChromosomeMap.computeIfAbsent(source.getTaxonId(), k -> new ArrayList<>());
-								chromosomes.add(file.getChromosome());
-							}));
+		
+		if (downloadSet.getDownloadFileSources() != null) {
+			for(DownloadSource source: downloadSet.getDownloadFileSources()) {
+				for(String chromosome: source.getChromosomeList()) {
+					List<String> chromosomes = speciesChromosomeMap.computeIfAbsent(source.getTaxonId(), k -> new ArrayList<>());
+					chromosomes.add(chromosome);
+				}
+			}
 		}
 	}
 
 	public void readHtpFiles(String taxonID, String chromosome) {
 		htpAlleleSequenceMap = new ConcurrentHashMap<>();
 		variantMap = new HashMap<>();
-		if (StringUtils.isEmpty(chromosome))
+		if (StringUtils.isEmpty(chromosome)) {
 			return;
+		}
 		try {
-			ExecutorService executor = Executors.newFixedThreadPool(VariantConfigHelper.getSourceDocumentCreatorThreads());
-			DownloadableFile file = downloadSet.getDownloadFileSet().stream()
-					.filter(source -> source.getTaxonId().equals(taxonID))
-					.findAny().get()
-					.getFileList().stream()
-					.filter(downloadableFile -> downloadableFile.getChromosome().equals(chromosome))
-					.findAny().get();
-
-			HtpVariantCreation creator = new HtpVariantCreation(taxonID, chromosome, file, htpAlleleSequenceMap);
-			executor.submit(creator);
-			//Thread.sleep(1000);
-
-			executor.shutdown();
-			while (!executor.isTerminated()) {
-				Thread.sleep(1000);
-			}
+			
+//			ExecutorService executor = Executors.newFixedThreadPool(VariantConfigHelper.getSourceDocumentCreatorThreads());
+//			
+//			DownloadSource source = null;
+//			for(DownloadSource loopSource: downloadSet.getDownloadFileSources()) {
+//				if(loopSource.getTaxonId().equals(taxonID)) {
+//					source = loopSource;
+//					break;
+//				}
+//			}
+//			String filePath = downloadSet.getDownloadPath() + "/" + Joiner.on(".").join(List.of(source, "vep", chromosome, "vcf.gz"));
+//			HtpVariantCreation creator = new HtpVariantCreation(taxonID, filePath, htpAlleleSequenceMap);
+//			executor.submit(creator);
+//			executor.shutdown();
+//			while (!executor.isTerminated()) {
+//				Thread.sleep(1000);
+//			}
+			
+			
 			log.info("Size of HTP Gene with AlleleVariantSequence: " + String.format("%,d", htpAlleleSequenceMap.size()));
 			long countAlleleVariants = htpAlleleSequenceMap.values().stream().flatMap(Collection::parallelStream).count();
 			log.info("Size of HTP AlleleVariantSequence records: " +

@@ -6,7 +6,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 import org.alliancegenome.api.entity.AlleleVariantSequence;
-import org.alliancegenome.core.filedownload.model.DownloadableFile;
 import org.alliancegenome.core.variant.converters.AlleleVariantSequenceConverter;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 
@@ -19,24 +18,25 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class HtpVariantCreation extends Thread {
 
-	private final DownloadableFile file;
 	private final SpeciesType speciesType;
 	private String[] header = null;
-	private String chromosome;
+	private String filePath;
+	//private DownloadSource source;
+	//private String chromosome;
 
 	private final ConcurrentHashMap<String, ConcurrentLinkedDeque<AlleleVariantSequence>> sequenceMap;
 
 
-	public HtpVariantCreation(String taxonID, String chromosome, DownloadableFile file, ConcurrentHashMap<String, ConcurrentLinkedDeque<AlleleVariantSequence>> sequenceMap) {
-		this.file = file;
-		this.chromosome = chromosome;
+	public HtpVariantCreation(String taxonID, String filePath, ConcurrentHashMap<String, ConcurrentLinkedDeque<AlleleVariantSequence>> sequenceMap) {
+		this.filePath = filePath;
 		speciesType = SpeciesType.getTypeByID(taxonID);
 		this.sequenceMap = sequenceMap;
 	}
 
+	@Override
 	public void run() {
 
-		VCFReader reader = new VCFReader(file);
+		VCFReader reader = new VCFReader(filePath);
 		reader.start();
 
 		try {
@@ -52,19 +52,20 @@ public class HtpVariantCreation extends Thread {
 
 	private class VCFReader extends Thread {
 
-		private final DownloadableFile df;
-		private final AlleleVariantSequenceConverter converter = new AlleleVariantSequenceConverter();
+		private String filePath;
+		private AlleleVariantSequenceConverter converter = new AlleleVariantSequenceConverter();
 		
-		public VCFReader(DownloadableFile df) {
-			this.df = df;
+		public VCFReader(String filePath) {
+			this.filePath = filePath;
 		}
 
+		@Override
 		public void run() {
 
-			VCFFileReader reader = new VCFFileReader(new File(df.getLocalGzipFilePath()), false);
+			VCFFileReader reader = new VCFFileReader(new File(filePath), false);
 			CloseableIterator<VariantContext> iter1 = reader.iterator();
 			if (header == null) {
-				log.info("Setting VCF File Header: " + df.getLocalGzipFilePath());
+				log.info("Setting VCF File Header: " + filePath);
 				VCFInfoHeaderLine fileHeader = reader.getFileHeader().getInfoHeaderLine("CSQ");
 				header = fileHeader.getDescription().split("Format: ")[1].split("\\|");
 			}
