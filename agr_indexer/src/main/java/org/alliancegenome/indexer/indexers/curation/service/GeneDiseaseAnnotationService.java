@@ -3,7 +3,6 @@ package org.alliancegenome.indexer.indexers.curation.service;
 import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.model.entities.*;
-import org.alliancegenome.curation_api.model.entities.base.AuditedObject;
 import org.alliancegenome.curation_api.model.entities.ontology.ECOTerm;
 import org.alliancegenome.curation_api.model.entities.orthology.GeneToGeneOrthologyGenerated;
 import org.alliancegenome.curation_api.response.SearchResponse;
@@ -16,7 +15,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import si.mazi.rescu.RestProxyFactory;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
@@ -53,7 +51,7 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 			SearchResponse<GeneDiseaseAnnotation> response = geneApi.findForPublic(page, batchSize, params);
 			for (GeneDiseaseAnnotation da : response.getResults()) {
 				if (isValidEntity(allGeneIDs, da.getDiseaseAnnotationSubject().getIdentifier()) ||
-					hasNoObsoletedEntities(da)) {
+					hasNoObsoletedOrInternalEntities(da)) {
 					if (hasValidGeneticModifiers(da, allGeneIDs, allAlleleIds, allModelIDs)) {
 						ret.add(da);
 					}
@@ -103,7 +101,7 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 			SearchResponse<GeneToGeneOrthologyGenerated> response = orthologyApi.find(0, 500, params);
 			for (GeneToGeneOrthologyGenerated geneGeneOrthology : response.getResults()) {
 				Gene orthologousGene = geneGeneOrthology.getObjectGene();
-				if (!isValidEntity(allGeneIDs, orthologousGene.getIdentifier())) {
+				if (!isValidEntity(allGeneIDs, orthologousGene.getIdentifier()) || orthologousGene.getObsolete() || orthologousGene.getInternal()) {
 					continue;
 				}
 				// create orthologous DAs for each focus DA

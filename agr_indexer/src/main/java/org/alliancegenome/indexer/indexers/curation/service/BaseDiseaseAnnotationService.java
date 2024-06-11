@@ -62,7 +62,7 @@ public class BaseDiseaseAnnotationService {
 	}
 
 
-	protected boolean hasNoObsoletedEntities(DiseaseAnnotation da) {
+	protected boolean hasNoObsoletedOrInternalEntities(DiseaseAnnotation da) {
 		List<AuditedObject> entitiesToBeValidated = new ArrayList<>();
 		if (da instanceof GeneDiseaseAnnotation gda) {
 			entitiesToBeValidated.add(gda.getDiseaseAnnotationSubject());
@@ -99,13 +99,16 @@ public class BaseDiseaseAnnotationService {
 		if (CollectionUtils.isNotEmpty(da.getDiseaseGeneticModifiers())) {
 			entitiesToBeValidated.addAll(da.getDiseaseGeneticModifiers());
 		}
-		AtomicBoolean hasNoObsoletedEntities = new AtomicBoolean(true);
+		AtomicBoolean hasNoObsoletedOrInternalEntities = new AtomicBoolean(true);
 		entitiesToBeValidated.forEach(auditedObject -> {
 			if (auditedObject.getObsolete()) {
-				hasNoObsoletedEntities.set(false);
+				hasNoObsoletedOrInternalEntities.set(false);
+			}
+			if (auditedObject.getInternal()) {
+				hasNoObsoletedOrInternalEntities.set(false);
 			}
 		});
-		return hasNoObsoletedEntities.get();
+		return hasNoObsoletedOrInternalEntities.get();
 	}
 
 	protected boolean hasValidEntities(AGMDiseaseAnnotation da, Set<String> allGeneIDs, Set<String> allAllelIDs, Set<String> allModelIDs) {
