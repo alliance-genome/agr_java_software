@@ -92,6 +92,9 @@ public class BaseDiseaseAnnotationService {
 				entitiesToBeValidated.add(agmda.getAssertedAllele());
 			}
 		}
+		if (CollectionUtils.isNotEmpty(da.getWith())) {
+			entitiesToBeValidated.addAll(da.getWith());
+		}
 		entitiesToBeValidated.add(da.getDiseaseAnnotationObject());
 		if (CollectionUtils.isNotEmpty(da.getDiseaseGeneticModifiers())) {
 			entitiesToBeValidated.addAll(da.getDiseaseGeneticModifiers());
