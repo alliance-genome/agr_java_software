@@ -3,6 +3,7 @@ package org.alliancegenome.indexer.indexers.curation.service;
 import lombok.extern.log4j.Log4j2;
 import net.nilosplace.process_display.util.ObjectFileStorage;
 import org.alliancegenome.curation_api.model.entities.*;
+import org.alliancegenome.curation_api.model.entities.base.AuditedObject;
 import org.alliancegenome.neo4j.repository.AlleleRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.apache.commons.collections4.CollectionUtils;
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Log4j2
 public class BaseDiseaseAnnotationService {
@@ -57,6 +59,50 @@ public class BaseDiseaseAnnotationService {
 
 		alleleRepository.close();
 		geneRepository.close();
+	}
+
+
+	protected boolean hasNoObsoletedEntities(DiseaseAnnotation da) {
+		List<AuditedObject> entitiesToBeValidated = new ArrayList<>();
+		if (da instanceof GeneDiseaseAnnotation gda) {
+			entitiesToBeValidated.add(gda.getDiseaseAnnotationSubject());
+			if (gda.getSgdStrainBackground() != null) {
+				entitiesToBeValidated.add(gda.getSgdStrainBackground());
+			}
+		} else if (da instanceof AlleleDiseaseAnnotation ada) {
+			entitiesToBeValidated.add(ada.getDiseaseAnnotationSubject());
+			if (ada.getInferredGene() != null) {
+				entitiesToBeValidated.add(ada.getInferredGene());
+			}
+			if (CollectionUtils.isNotEmpty(ada.getAssertedGenes())) {
+				entitiesToBeValidated.addAll(ada.getAssertedGenes());
+			}
+		} else if (da instanceof AGMDiseaseAnnotation agmda) {
+			entitiesToBeValidated.add(agmda.getDiseaseAnnotationSubject());
+			if (agmda.getInferredGene() != null) {
+				entitiesToBeValidated.add(agmda.getInferredGene());
+			}
+			if (CollectionUtils.isNotEmpty(agmda.getAssertedGenes())) {
+				entitiesToBeValidated.addAll(agmda.getAssertedGenes());
+			}
+			if (agmda.getInferredAllele() != null) {
+				entitiesToBeValidated.add(agmda.getInferredAllele());
+			}
+			if (agmda.getAssertedAllele() != null) {
+				entitiesToBeValidated.add(agmda.getAssertedAllele());
+			}
+		}
+		entitiesToBeValidated.add(da.getDiseaseAnnotationObject());
+		if (CollectionUtils.isNotEmpty(da.getDiseaseGeneticModifiers())) {
+			entitiesToBeValidated.addAll(da.getDiseaseGeneticModifiers());
+		}
+		AtomicBoolean hasNoObsoletedEntities = new AtomicBoolean(true);
+		entitiesToBeValidated.forEach(auditedObject -> {
+			if (auditedObject.getObsolete()) {
+				hasNoObsoletedEntities.set(false);
+			}
+		});
+		return hasNoObsoletedEntities.get();
 	}
 
 	protected boolean hasValidEntities(AGMDiseaseAnnotation da, Set<String> allGeneIDs, Set<String> allAllelIDs, Set<String> allModelIDs) {
