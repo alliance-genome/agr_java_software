@@ -50,7 +50,8 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 		do {
 			SearchResponse<GeneDiseaseAnnotation> response = geneApi.findForPublic(page, batchSize, params);
 			for (GeneDiseaseAnnotation da : response.getResults()) {
-				if (isValidEntity(allGeneIDs, da.getDiseaseAnnotationSubject().getIdentifier())) {
+				if (isValidEntity(allGeneIDs, da.getDiseaseAnnotationSubject().getIdentifier()) ||
+					hasNoObsoletedOrInternalEntities(da)) {
 					if (hasValidGeneticModifiers(da, allGeneIDs, allAlleleIds, allModelIDs)) {
 						ret.add(da);
 					}
@@ -100,7 +101,7 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 			SearchResponse<GeneToGeneOrthologyGenerated> response = orthologyApi.find(0, 500, params);
 			for (GeneToGeneOrthologyGenerated geneGeneOrthology : response.getResults()) {
 				Gene orthologousGene = geneGeneOrthology.getObjectGene();
-				if (!isValidEntity(allGeneIDs, orthologousGene.getIdentifier())) {
+				if (!isValidEntity(allGeneIDs, orthologousGene.getIdentifier()) || orthologousGene.getObsolete() || orthologousGene.getInternal()) {
 					continue;
 				}
 				// create orthologous DAs for each focus DA
