@@ -2,7 +2,6 @@ package org.alliancegenome.api.controller;
 
 import static org.alliancegenome.api.service.EntityType.DISEASE;
 import static org.alliancegenome.api.service.EntityType.GENE;
-import static org.alliancegenome.neo4j.entity.SpeciesType.YEAST;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;

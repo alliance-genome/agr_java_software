@@ -26,6 +26,6 @@ public interface SiteMapRESTInterface {
 
 	@GET
 	@Path("/accession/{id}")
-	public Response getURL(@PathParam("id") String id);
+	Response getURL(@PathParam("id") String id);
 
 }

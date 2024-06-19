@@ -13,7 +13,6 @@ import org.alliancegenome.es.index.site.schema.settings.VariantIndexSettings;
 import org.alliancegenome.es.util.IndexManager;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.apache.http.HttpHost;
-import org.apache.http.client.config.RequestConfig.Builder;
 import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.bulk.BackoffPolicy;
 import org.elasticsearch.action.bulk.BulkProcessor;

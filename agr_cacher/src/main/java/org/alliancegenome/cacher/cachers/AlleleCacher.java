@@ -175,8 +175,8 @@ public class AlleleCacher extends Cacher {
 		}
 		
 		if (downloadSet.getDownloadFileSources() != null) {
-			for(DownloadSource source: downloadSet.getDownloadFileSources()) {
-				for(String chromosome: source.getChromosomeList()) {
+			for (DownloadSource source: downloadSet.getDownloadFileSources()) {
+				for (String chromosome: source.getChromosomeList()) {
 					List<String> chromosomes = speciesChromosomeMap.computeIfAbsent(source.getTaxonId(), k -> new ArrayList<>());
 					chromosomes.add(chromosome);
 				}

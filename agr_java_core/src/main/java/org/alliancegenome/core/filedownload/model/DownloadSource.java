@@ -18,7 +18,7 @@ public class DownloadSource {
 	
 	public List<String> getGenerateFilePaths() {
 		ArrayList<String> ret = new ArrayList<String>();
-		for(String chromosome: chromosomeList) {
+		for (String chromosome: chromosomeList) {
 			ret.add(Joiner.on(".").join(List.of(source, "vep", chromosome, "vcf.gz")));
 		}
 		return ret;

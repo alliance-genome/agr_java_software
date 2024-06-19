@@ -33,9 +33,9 @@ public class FileDownload extends Thread {
 
 	private URL verifyUrl(String url) {
 		// Only allow these URLs.
-		if (!url.toLowerCase().startsWith("http://") &&
-			!url.toLowerCase().startsWith("https://") &&
-			!url.toLowerCase().startsWith("ftp://")) {
+		if (!url.toLowerCase().startsWith("http://")
+			&& !url.toLowerCase().startsWith("https://")
+			&& !url.toLowerCase().startsWith("ftp://")) {
 			return null;
 		}
 
@@ -65,7 +65,7 @@ public class FileDownload extends Thread {
 			String url = Joiner.on("/").join(List.of(s3RootUrl, allianceRelease, source, file));
 			
 			downloadUrl = verifyUrl(url);
-			if(downloadUrl == null) {
+			if (downloadUrl == null) {
 				log.warn("Unable to verify file: " + url);
 				return;
 			}
@@ -77,7 +77,7 @@ public class FileDownload extends Thread {
 
 			File localFile = new File(downloadPath + "/" + getFilePath(downloadUrl));
 
-			if(localFile.exists()) {
+			if (localFile.exists()) {
 				log.warn("Local File: " + localFile.getAbsolutePath() +	 " already exists: skipping");
 				return;
 			}

@@ -23,7 +23,7 @@ public class FileDownloadManager extends Thread {
 	@Override
 	public void run() {
 		
-		if(downloadSet == null || downloadSet.getChromosomesToDownload() == null) {
+		if (downloadSet == null || downloadSet.getChromosomesToDownload() == null) {
 			return;
 		}
 
@@ -31,8 +31,8 @@ public class FileDownloadManager extends Thread {
 
 		ExecutorService executor = Executors.newFixedThreadPool(VariantConfigHelper.getFileDownloadThreads());
 
-		for(DownloadSource source: downloadSet.getDownloadFileSources()) {
-			for(String chromosome: source.getChromosomeList()) {
+		for (DownloadSource source: downloadSet.getDownloadFileSources()) {
+			for (String chromosome: source.getChromosomeList()) {
 				FileDownload fd = new FileDownload(ConfigHelper.getAllianceRelease(), source.getSource(), chromosome, downloadSet.getDownloadPath(), downloadSet.getS3RootUrl());
 				executor.execute(fd);
 			}

@@ -1,13 +1,5 @@
 package org.alliancegenome.indexer.indexers.curation.service;
 
-import lombok.extern.log4j.Log4j2;
-import net.nilosplace.process_display.util.ObjectFileStorage;
-import org.alliancegenome.curation_api.model.entities.*;
-import org.alliancegenome.curation_api.model.entities.base.AuditedObject;
-import org.alliancegenome.neo4j.repository.AlleleRepository;
-import org.alliancegenome.neo4j.repository.GeneRepository;
-import org.apache.commons.collections4.CollectionUtils;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -20,7 +12,9 @@ import org.alliancegenome.curation_api.model.entities.Allele;
 import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.DiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.Gene;
+import org.alliancegenome.curation_api.model.entities.GeneDiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.GenomicEntity;
+import org.alliancegenome.curation_api.model.entities.base.AuditedObject;
 import org.alliancegenome.neo4j.repository.AlleleRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.apache.commons.collections4.CollectionUtils;

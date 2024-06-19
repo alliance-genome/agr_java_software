@@ -1,14 +1,15 @@
 package org.alliancegenome.indexer.indexers.curation.service;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.model.entities.Reference;
 import org.alliancegenome.curation_api.response.ObjectResponse;
 import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.indexers.curation.interfaces.ReferenceInterface;
-import si.mazi.rescu.RestProxyFactory;
 
-import java.util.HashMap;
-import java.util.Map;
+import si.mazi.rescu.RestProxyFactory;
 
 public class ReferenceService {
 

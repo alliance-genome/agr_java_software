@@ -253,7 +253,7 @@ public class SourceDocumentCreation extends Thread {
 
 		ArrayList<VCFJsonBulkIndexer> indexers = new ArrayList<>();
 		
-		if(!indexing) {
+		if (!indexing) {
 			indexName = "no_index";
 		}
 		
@@ -333,7 +333,7 @@ public class SourceDocumentCreation extends Thread {
 			//log.info("Shutdown Neo Repo: ");
 			//repo.clearCache();
 			
-			if(gatherStats) {
+			if (gatherStats) {
 				statsCollector.printOutput(speciesType.getModName());
 			}
 
@@ -545,10 +545,10 @@ public class SourceDocumentCreation extends Thread {
 					List<String> docs = jsonQueue.take();
 
 					for (String doc : docs) {
-						if(gatherStats) {
+						if (gatherStats) {
 							statsCollector.addDocument(doc);
 						}
-						if(indexing) {
+						if (indexing) {
 							bulkProcessor.add(new IndexRequest(indexName).source(doc, XContentType.JSON));
 						}
 						ph3.progressProcess();

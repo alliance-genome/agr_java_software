@@ -158,7 +158,7 @@ public enum SpeciesType {
 	}
 
 	// Fix up species name with yeast correction
-	public static String getSpeciesNameCorrected(String name){
+	public static String getSpeciesNameCorrected(String name) {
 		return name.contains(YEAST.getName()) ? YEAST.getName() + " S288C" : name;
 	}
 	public static HashMap<String, Integer> getSpeciesOrderByTaxonID(String taxonId) {
