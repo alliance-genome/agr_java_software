@@ -7,30 +7,17 @@ import java.util.List;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.Sorting;
 
-public class  ModelAnnotationsSorting implements Sorting<DiseaseAnnotation> {
+public class ModelAnnotationsSorting implements Sorting<DiseaseAnnotation> {
 
 	private List<Comparator<DiseaseAnnotation>> defaultList;
 	private List<Comparator<DiseaseAnnotation>> diseaseList;
 	private List<Comparator<DiseaseAnnotation>> modelList;
 	private List<Comparator<DiseaseAnnotation>> speciesList;
 
-/*
-	private static Comparator<DiseaseAnnotation> diseaseOrder =
-			Comparator.comparing(annotation -> annotation.getDisease().getName().toLowerCase());
-*/
-
-	private static Comparator<DiseaseAnnotation> speciesSymbolOrder =
-			Comparator.comparing(annotation -> annotation.getModel().getSpecies().getName());
-
-	private static Comparator<DiseaseAnnotation> primaryKeyOrder =
-			Comparator.comparing(annotation -> annotation.getModel().getPrimaryKey());
-
-	private static Comparator<DiseaseAnnotation> modelNameSymbolOrder =
-			Comparator.comparing(annotation -> annotation.getModel().getName().toLowerCase());
-
-	private static Comparator<DiseaseAnnotation> diseaseOrder =
-			Comparator.comparing(annotation -> annotation.getDisease().getName().toLowerCase());
-
+	private static Comparator<DiseaseAnnotation> speciesSymbolOrder = Comparator.comparing(annotation -> annotation.getModel().getSpecies().getName());
+	private static Comparator<DiseaseAnnotation> primaryKeyOrder = Comparator.comparing(annotation -> annotation.getModel().getPrimaryKey());
+	private static Comparator<DiseaseAnnotation> modelNameSymbolOrder = Comparator.comparing(annotation -> annotation.getModel().getName().toLowerCase());
+	private static Comparator<DiseaseAnnotation> diseaseOrder = Comparator.comparing(annotation -> annotation.getDisease().getName().toLowerCase());
 
 	private static Comparator<DiseaseAnnotation> phylogeneticOrder =
 			Comparator.comparing(annotation -> annotation.getModel().getSpecies().getPhylogeneticOrder());
@@ -52,7 +39,6 @@ public class  ModelAnnotationsSorting implements Sorting<DiseaseAnnotation> {
 		diseaseList.add(phylogeneticOrder);
 		diseaseList.add(modelNameSymbolOrder);
 /*
-
 		geneList = new ArrayList<>(4);
 		geneList.add(geneSymbolOrder);
 		geneList.add(diseaseOrder);

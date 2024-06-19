@@ -41,7 +41,7 @@ public enum FieldFilter {
 	GENETIC_PERTURBATION("filter.geneticPerturbation"),
 	INTERACTOR_ROLE("filter.interacotorRole"),
 	INTERACTOR_GENETIC_PERTURBATION("filter.interactorGeneticPerturbation"),
-	PHENOTYPES("filter.phenotypes"),   
+	PHENOTYPES("filter.phenotypes"),
 	INTERACTION_TYPE("filter.interactionType"),
 	
 	BASED_ON_GENE("filter.basedOnGeneSymbol"),

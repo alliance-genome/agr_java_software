@@ -399,7 +399,7 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
 		String query = "MATCH p1=(:SOTerm)--(v:Variant)-[:VARIATION]->"
 			+ "(a:Allele{taxonId: \""
 			+ taxonId
-			+ "\"})-[:IS_ALLELE_OF]->(g:Gene{taxonId: \"" 
+			+ "\"})-[:IS_ALLELE_OF]->(g:Gene{taxonId: \""
 			+ taxonId + "\"})" + "-[r:LOCATED_ON]->(c:Chromosome{primaryKey:\"" + chr + "\"}) ";
 
 

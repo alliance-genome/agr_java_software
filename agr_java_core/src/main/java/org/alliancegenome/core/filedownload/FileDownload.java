@@ -78,7 +78,7 @@ public class FileDownload extends Thread {
 			File localFile = new File(downloadPath + "/" + getFilePath(downloadUrl));
 
 			if (localFile.exists()) {
-				log.warn("Local File: " + localFile.getAbsolutePath() +	 " already exists: skipping");
+				log.warn("Local File: " + localFile.getAbsolutePath() + " already exists: skipping");
 				return;
 			}
 

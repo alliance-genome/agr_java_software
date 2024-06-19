@@ -1,7 +1,7 @@
 package org.alliancegenome.api.entity;
 
 public enum JoinTypeValue {
-	genetic_interaction("genetic_interaction"), 
+	genetic_interaction("genetic_interaction"),
 	molecular_interaction("molecular_interaction"),
 	;
 	private String name = "molecular_interaction";

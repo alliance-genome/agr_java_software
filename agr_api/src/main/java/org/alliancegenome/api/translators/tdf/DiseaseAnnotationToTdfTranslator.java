@@ -456,7 +456,7 @@ public class DiseaseAnnotationToTdfTranslator {
 			new DownloadHeader<>("Genetic Modifier Relation", DiseaseDownloadRow::getDiseaseGeneticModifierRelation),
 			new DownloadHeader<>("Genetic Modifier IDs", DiseaseDownloadRow::getDiseaseGeneticModifierID),
 			new DownloadHeader<>("Genetic Modifier Names", DiseaseDownloadRow::getDiseaseGeneticModifierName),
-			new DownloadHeader<>("Genetic Sex",  DiseaseDownloadRow::getGeneticSex),
+			new DownloadHeader<>("Genetic Sex", DiseaseDownloadRow::getGeneticSex),
 			new DownloadHeader<>("Notes", DiseaseDownloadRow::getNote),
 			new DownloadHeader<>("Annotation Type", DiseaseDownloadRow::getAnnotationType),
 			new DownloadHeader<>("Source", DiseaseDownloadRow::getSource),

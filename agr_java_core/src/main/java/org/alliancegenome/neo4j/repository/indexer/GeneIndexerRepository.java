@@ -15,7 +15,7 @@ import org.alliancegenome.neo4j.repository.Neo4jRepository;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
+public class GeneIndexerRepository extends Neo4jRepository<Gene> {
 
 	protected Runtime runtime = Runtime.getRuntime();
 	protected DecimalFormat df = new DecimalFormat("#");
@@ -375,7 +375,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
 		public void run() {
 			log.info("Building gene -> Subcellular Expression Ribbon map");
 			String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)--(ebe:ExpressionBioEntity)-[:CELLULAR_COMPONENT_RIBBON_TERM]->(term:GOTerm) ";
-			query +=  " RETURN distinct gene.primaryKey, term.name ";
+			query += " RETURN distinct gene.primaryKey, term.name ";
 
 			cache.setSubcellularExpressionAgrSlim(getMapSetForQuery(query, "gene.primaryKey", "term.name"));
 			log.info("Finished Building gene -> expressionStages map");
@@ -387,7 +387,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
 		public void run() {
 			log.info("Building gene -> Subcellular Expression w/parents map");
 			String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)--(ebe:ExpressionBioEntity)-[:CELLULAR_COMPONENT]-(:GOTerm)-[:IS_A_PART_OF_CLOSURE]->(term:GOTerm) ";
-			query +=  " RETURN distinct gene.primaryKey, term.name ";
+			query += " RETURN distinct gene.primaryKey, term.name ";
 
 			cache.setSubcellularExpressionWithParents(getMapSetForQuery(query, "gene.primaryKey", "term.name"));
 			log.info("Finshed Building gene -> Subcellular Expression w/parents map");
@@ -399,7 +399,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
 		public void run() {
 			log.info("Building gene -> Expression Anatomy Ribbon map");
 			String query = " MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)--(ebe:ExpressionBioEntity)-[:ANATOMICAL_RIBBON_TERM]-(term:Ontology) ";
-			query +=  " RETURN distinct gene.primaryKey, term.name ";
+			query += " RETURN distinct gene.primaryKey, term.name ";
 
 			cache.setAnatomicalExpression(getMapSetForQuery(query, "gene.primaryKey", "term.name"));
 			log.info("Finished Building gene -> Expression Anatomy Ribbon map");
@@ -411,7 +411,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
 		public void run() {
 			log.info("Building gene -> Expression Anatomy w/parents map");
 			String query = " MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[:EXPRESSED_IN]->(ebe:ExpressionBioEntity)-[:ANATOMICAL_STRUCTURE]-(:Ontology)-[:IS_A_PART_OF_CLOSURE]->(term:Ontology) ";
-			query +=  " RETURN distinct gene.primaryKey, term.name ";
+			query += " RETURN distinct gene.primaryKey, term.name ";
 
 			cache.setAnatomicalExpressionWithParents(getMapSetForQuery(query, "gene.primaryKey", "term.name"));
 			log.info("Finished Building gene -> Expression Anatomy w/parents map");

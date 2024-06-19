@@ -142,12 +142,12 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 		HashMap<String, String> map = new HashMap<>();
 
 		map.put("primaryKey", secondaryIdPrimaryKey);
-		String query = " MATCH p1=(q:Species)-[:FROM_SPECIES]-(g:Gene)-[:ALSO_KNOWN_AS]-(s:SecondaryId) WHERE s.primaryKey = $primaryKey " 
-			+ "OPTIONAL MATCH p2=(g:Gene)--(:SOTerm) " 
-			+ "OPTIONAL MATCH p3=(g:Gene)--(:Synonym) " 
+		String query = " MATCH p1=(q:Species)-[:FROM_SPECIES]-(g:Gene)-[:ALSO_KNOWN_AS]-(s:SecondaryId) WHERE s.primaryKey = $primaryKey "
+			+ "OPTIONAL MATCH p2=(g:Gene)--(:SOTerm) "
+			+ "OPTIONAL MATCH p3=(g:Gene)--(:Synonym) "
 			+ "OPTIONAL MATCH p4=(g:Gene)--(:SecondaryId) "
-			+ "OPTIONAL MATCH p5=(g:Gene)--(:GenomicLocation) " 
-			+ "OPTIONAL MATCH p6=(g:Gene)--(:CrossReference) " 
+			+ "OPTIONAL MATCH p5=(g:Gene)--(:GenomicLocation) "
+			+ "OPTIONAL MATCH p6=(g:Gene)--(:CrossReference) "
 			+ "RETURN p1, p2, p3, p4, p5, p6";
 
 		Iterable<Gene> genes = query(query, map);
@@ -249,7 +249,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 
 		// String query = " MATCH p1=(q:Species)-[:FROM_SPECIES]-(g:Gene)--(s) WHERE
 		// g.primaryKey in " + geneJoiner;
-		String query = " MATCH p1=(q:Species)<-[:FROM_SPECIES]-(g:Gene)--(s:OrthologyGeneJoin)--(a:OrthoAlgorithm), " 
+		String query = " MATCH p1=(q:Species)<-[:FROM_SPECIES]-(g:Gene)--(s:OrthologyGeneJoin)--(a:OrthoAlgorithm), "
 			+ "p3=(g:Gene)-[o:ORTHOLOGOUS]-(g2:Gene)-[:FROM_SPECIES]->(q2:Species) WHERE g.primaryKey in " + geneJoiner;
 		query += " RETURN p1, p3";
 

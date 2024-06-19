@@ -45,7 +45,7 @@ public class GeneTSVTranslator extends ResultTSVTranslator {
 		return Arrays.asList(
 			String.valueOf(map.get("g.primaryKey")).strip(),
 			String.valueOf(map.get("g.modLocalId")).strip(),
-			String.valueOf(Arrays.deepToString((Object[]) map.get("synonyms")).strip()),   
+			String.valueOf(Arrays.deepToString((Object[]) map.get("synonyms")).strip()),
 			String.valueOf(Arrays.deepToString((Object[]) map.get("crossrefs")).strip()),
 			String.valueOf(map.get("g.name")).strip(),
 			String.valueOf(map.get("g.symbol")).strip(),

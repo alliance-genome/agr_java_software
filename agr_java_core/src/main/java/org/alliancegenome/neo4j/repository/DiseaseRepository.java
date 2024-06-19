@@ -66,7 +66,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 
 	public List<DiseaseEntityJoin> getAllDiseaseAnnotationsModelLevel() {
 
-		String cypher = "MATCH diseaseJoin=(disease:DOTerm)--(dej:DiseaseEntityJoin)-[:EVIDENCE]->(pubJoin:PublicationJoin)<-[:ASSOCIATION]-(publication:Publication), " 
+		String cypher = "MATCH diseaseJoin=(disease:DOTerm)--(dej:DiseaseEntityJoin)-[:EVIDENCE]->(pubJoin:PublicationJoin)<-[:ASSOCIATION]-(publication:Publication), "
 			+ " model=(dej:DiseaseEntityJoin)--(agm:AffectedGenomicModel) ,"
 			+ " modelSpecies=(agm:AffectedGenomicModel)-[:FROM_SPECIES]-(:Species) "
 			// "where agm.primaryKey in ['WB%3AWBGene00001049'] " +
@@ -125,11 +125,11 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 
 	public DOTerm getDiseaseTerm(String primaryKey) {
 
-		String cypher = "MATCH p0=(disease:DOTerm)--(anyOtherNode) WHERE disease.primaryKey = $primaryKey	 " 
+		String cypher = "MATCH p0=(disease:DOTerm)--(anyOtherNode) WHERE disease.primaryKey = $primaryKey "
 			+ " OPTIONAL MATCH p1=(disease)--(anyOtherNode:DiseaseEntityJoin)-[:EVIDENCE]-(eq), p2=(anyOtherNode)--(g:Gene)-[:FROM_SPECIES]-(species:Species)"
-			+ " OPTIONAL MATCH p4=(anyOtherNode:DiseaseEntityJoin)--(feature:Feature)" + " OPTIONAL MATCH p6=(anyOtherNode:DiseaseEntityJoin)--(feature:Feature)--(crossRef:CrossReference)" 
+			+ " OPTIONAL MATCH p4=(anyOtherNode:DiseaseEntityJoin)--(feature:Feature)" + " OPTIONAL MATCH p6=(anyOtherNode:DiseaseEntityJoin)--(feature:Feature)--(crossRef:CrossReference)"
 			+ " OPTIONAL MATCH p5=(anyOtherNode:DiseaseEntityJoin)--(orthoSpecies:Species)"
-			+ " OPTIONAL MATCH slim=(disease)-[:IS_A*]->(slimTerm) " + " where all (subset IN [$subset] where subset in slimTerm.subset) " 
+			+ " OPTIONAL MATCH slim=(disease)-[:IS_A*]->(slimTerm) " + " where all (subset IN [$subset] where subset in slimTerm.subset) "
 			+ " RETURN p0, p1, p2, p4, p5, p6, slim";
 
 		HashMap<String, String> map = new HashMap<>();
@@ -386,7 +386,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 	}
 
 	public Set<DiseaseEntityJoin> getAllDiseaseEntityGeneJoins() {
-		String cypher = "MATCH p=(disease:DOTerm)-[:ASSOCIATION]-(dej:DiseaseEntityJoin)-[:EVIDENCE]->(pubEvCode:PublicationJoin)" + "-[:ASSOCIATION]-(publication:Publication), " 
+		String cypher = "MATCH p=(disease:DOTerm)-[:ASSOCIATION]-(dej:DiseaseEntityJoin)-[:EVIDENCE]->(pubEvCode:PublicationJoin)" + "-[:ASSOCIATION]-(publication:Publication), "
 			+ "p0=(dej:DiseaseEntityJoin)<-[:ASSOCIATION]-(gene:Gene)-[:FROM_SPECIES]->(species:Species) ";
 		cypher += " where disease.isObsolete = 'false' " + " AND NOT (dej:DiseaseEntityJoin)--(:Allele) " + " AND NOT (dej:DiseaseEntityJoin)--(:AffectedGenomicModel)";
 		/*
@@ -627,7 +627,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 		HashMap<String, String> bindingValueMap = new HashMap<>();
 		bindingValueMap.put("geneID", geneID);
 
-		String baseCypher = "MATCH p0=(disease:DOTerm)--(diseaseEntityJoin:DiseaseEntityJoin)--(pubEvJoin:PublicationJoin), " 
+		String baseCypher = "MATCH p0=(disease:DOTerm)--(diseaseEntityJoin:DiseaseEntityJoin)--(pubEvJoin:PublicationJoin), "
 			+ "			   p1=(evidence:ECOTerm)--(pubEvJoin:PublicationJoin)--(publications:Publication), "
 			+ "			   p2=(diseaseEntityJoin)--(gene:Gene)-[:FROM_SPECIES]-(species:Species) ";
 		if (!empiricalDisease) {

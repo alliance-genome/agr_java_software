@@ -34,20 +34,22 @@ public class MITerm extends Ontology {
 	}
 
 	enum MiTermType {
-		DS_RNA("IA:2966", "dsRNA"), 
-		MI_RNA("IA:2984", "miRNA"), 
-		GENE("MI:0250", "gene"), 
-		NUCLEIC_ACID("MI:0318", "nucleic acid"), 
-		DNA("MI:0319", "DNA"), 
-		RNA("MI:0320", "RNA"), 
-		M_RNA("MI:0324", "mRNA"), 
-		T_RNA("MI:0325", "tRNA"), 
-		PROTEIN("MI:0326", "protein"), 
+		DS_RNA("IA:2966", "dsRNA"),
+		MI_RNA("IA:2984", "miRNA"),
+		GENE("MI:0250", "gene"),
+		NUCLEIC_ACID("MI:0318", "nucleic acid"),
+		DNA("MI:0319", "DNA"),
+		RNA("MI:0320", "RNA"),
+		M_RNA("MI:0324", "mRNA"),
+		T_RNA("MI:0325", "tRNA"),
+		PROTEIN("MI:0326", "protein"),
 		PEPTIDE("MI:0327", "peptide"),
-		SN_RNA("MI:0607", "snRNA"), 
-		R_RNA("MI:0608", "rRNA"), 
-		SNO_RNA("MI:0609", "snoRNA"), SI_RNA("MI:0610", "siRNA"), 
-		SRP_RNA("MI:0611", "SRP RNA"), DS_DNA("MI:0681", "dsDNA"), 
+		SN_RNA("MI:0607", "snRNA"),
+		R_RNA("MI:0608", "rRNA"),
+		SNO_RNA("MI:0609", "snoRNA"),
+		SI_RNA("MI:0610", "siRNA"),
+		SRP_RNA("MI:0611", "SRP RNA"),
+		DS_DNA("MI:0681", "dsDNA"),
 		LINKC_RNA("MI:2190", "lincRNA");
 
 		private String id;
