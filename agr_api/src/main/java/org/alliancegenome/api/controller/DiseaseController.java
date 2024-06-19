@@ -328,7 +328,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 		String[] individualSpecies = speciesList.split("\\|");
 		List<String> individualReplacedSpeciesList = new ArrayList<>();
 		for (String species : individualSpecies) {
-			individualReplacedSpeciesList.add(getSpeciesNameCorrected(species));
+			individualReplacedSpeciesList.add(SpeciesType.getSpeciesNameCorrected(species));
 		}
 		return String.join("|", individualReplacedSpeciesList);
 	}

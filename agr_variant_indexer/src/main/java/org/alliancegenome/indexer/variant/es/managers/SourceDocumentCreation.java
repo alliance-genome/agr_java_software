@@ -257,8 +257,8 @@ public class SourceDocumentCreation extends Thread {
 			indexName = "no_index";
 		}
 		
-		ph3.startProcess(message_header + "VCFJsonIndexer BulkProcessor");
-		ph4.startProcess(message_header + "VCFJsonIndexer Buckets");
+		ph3.startProcess(messageHeader + "VCFJsonIndexer BulkProcessor");
+		ph4.startProcess(messageHeader + "VCFJsonIndexer Buckets");
 		for (int i = 0; i < VariantConfigHelper.getIndexerBulkProcessorThreads(); i++) {
 			VCFJsonBulkIndexer indexer1 = new VCFJsonBulkIndexer(jsonQueue1, bulkProcessor1);
 			indexer1.start();
@@ -380,7 +380,7 @@ public class SourceDocumentCreation extends Thread {
 			VCFFileReader reader = new VCFFileReader(new File(filePath), false);
 			CloseableIterator<VariantContext> iter1 = reader.iterator();
 			if (header == null) {
-				log.info(messageHeader + "Setting VCF File Header: " + df.getLocalGzipFilePath());
+				log.info(messageHeader + "Setting VCF File Header: " + filePath);
 				VCFInfoHeaderLine fileHeader = reader.getFileHeader().getInfoHeaderLine("CSQ");
 				header = fileHeader.getDescription().split("Format: ")[1].split("\\|");
 				try {

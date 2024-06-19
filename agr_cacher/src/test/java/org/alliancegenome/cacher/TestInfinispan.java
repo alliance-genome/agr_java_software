@@ -8,6 +8,7 @@ public class TestInfinispan {
 	private TestInfinispan() { }
 	
 	public static void main(String[] args) {
+		CacheService cacheService = new CacheService();
 		String item = cacheService.getCacheEntry("DOID:612", CacheAlliance.ACCESSION_MAP, String.class);
 		System.out.println(item);
 	}

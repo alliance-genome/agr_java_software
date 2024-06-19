@@ -91,7 +91,7 @@ public class TestLoadJsonFile {
 		public VCFJsonIndexer(HttpHost host) {
 			client = new RestHighLevelClient(RestClient.builder(host).setRequestConfigCallback(new RequestConfigCallback() {
 				@Override
-				public Builder customizeRequestConfig(Builder requestConfigBuilder) {
+				public org.apache.http.client.config.RequestConfig.Builder customizeRequestConfig(org.apache.http.client.config.RequestConfig.Builder requestConfigBuilder) {
 					return requestConfigBuilder.setConnectTimeout(5000).setSocketTimeout(1800000).setConnectionRequestTimeout(1800000);
 				}
 			}));
