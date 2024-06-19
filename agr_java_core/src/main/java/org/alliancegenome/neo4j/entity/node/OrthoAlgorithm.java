@@ -13,11 +13,10 @@ import lombok.Setter;
 @Getter
 @Setter
 @NodeEntity
-@Schema(name="OrthoAlgorithm", description="POJO that represents the Ortho Algorithm")
+@Schema(name = "OrthoAlgorithm", description = "POJO that represents the Ortho Algorithm")
 public class OrthoAlgorithm extends Neo4jEntity implements Comparable<OrthoAlgorithm> {
 
-	@JsonView({View.OrthologyMethod.class})
-	private String name;
+	@JsonView({ View.OrthologyMethod.class }) private String name;
 
 	@Override
 	public int compareTo(OrthoAlgorithm o) {

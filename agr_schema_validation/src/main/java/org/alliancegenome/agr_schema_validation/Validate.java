@@ -14,6 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class Validate {
 
+	private Validate() { }
+	
 	public static void main(String[] args) throws Exception {
 
 		File file = new File(args[0]);
@@ -23,13 +25,12 @@ public class Validate {
 
 		ProcessingReport report = schemaNode.validate(jsonNode);
 
-		if(!report.isSuccess()) {
-			for(ProcessingMessage message: report) {
+		if (!report.isSuccess()) {
+			for (ProcessingMessage message : report) {
 				log.info(message.getMessage());
 			}
 		}
 		log.info("Validation Complete: " + report.isSuccess());
-
 
 	}
 

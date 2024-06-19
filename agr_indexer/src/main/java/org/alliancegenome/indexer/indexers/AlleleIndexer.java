@@ -32,7 +32,7 @@ public class AlleleIndexer extends Indexer {
 			repo = new AlleleIndexerRepository();
 			alleleDocumentCache = repo.getAlleleDocumentCache();
 			alleleDocumentCache.setPopularity(popularityScore);
-			
+
 			LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>(alleleDocumentCache.getAlleleMap().keySet());
 
 			initiateThreading(queue);
@@ -44,6 +44,7 @@ public class AlleleIndexer extends Indexer {
 
 	}
 
+	@Override
 	protected void startSingleThread(LinkedBlockingDeque<String> queue) {
 		ArrayList<Allele> list = new ArrayList<>();
 		AlleleTranslator alleleTranslator = new AlleleTranslator();
@@ -58,7 +59,7 @@ public class AlleleIndexer extends Indexer {
 				}
 				if (queue.isEmpty()) {
 					if (list.size() > 0) {
-						Iterable <AlleleVariantSequence> avsDocs = alleleTranslator.translateEntities(list);
+						Iterable<AlleleVariantSequence> avsDocs = alleleTranslator.translateEntities(list);
 						alleleDocumentCache.addCachedFields(avsDocs);
 						alleleTranslator.updateDocuments(avsDocs);
 						indexDocuments(avsDocs, View.AlleleVariantSequenceConverterForES.class);
@@ -70,10 +71,11 @@ public class AlleleIndexer extends Indexer {
 
 				String key = queue.takeFirst();
 				Allele allele = alleleDocumentCache.getAlleleMap().get(key);
-				if (allele != null)
+				if (allele != null) {
 					list.add(allele);
-				else
+				} else {
 					log.debug("No Allele found for " + key);
+				}
 			} catch (Exception e) {
 				log.error("Error while indexing...", e);
 				System.exit(-1);

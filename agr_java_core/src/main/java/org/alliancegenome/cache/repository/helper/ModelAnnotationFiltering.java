@@ -25,10 +25,11 @@ public class ModelAnnotationFiltering extends AnnotationFiltering<DiseaseAnnotat
 						// if there is a displaySynonym (three / four-letter abbrev then check that attribute
 						// otherwise check the term name
 						.map(evidenceCode -> {
-							if (StringUtils.isNotEmpty(evidenceCode.getDisplaySynonym()))
+							if (StringUtils.isNotEmpty(evidenceCode.getDisplaySynonym())) {
 								return FilterFunction.contains(evidenceCode.getDisplaySynonym(), value);
-							else
+							} else {
 								return FilterFunction.contains(evidenceCode.getName(), value);
+							}
 						})
 						.collect(Collectors.toSet());
 				return filteringPassed.contains(true);
@@ -54,10 +55,11 @@ public class ModelAnnotationFiltering extends AnnotationFiltering<DiseaseAnnotat
 
 	public FilterFunction<DiseaseAnnotation, String> geneSpeciesFilter =
 			(annotation, value) -> {
-				if (value.startsWith(NCBITAXON))
+				if (value.startsWith(NCBITAXON)) {
 					return FilterFunction.fullMatchMultiValueOR(annotation.getModel().getSpecies().getType().getTaxonID(), value);
-				else
+				} else {
 					return FilterFunction.fullMatchMultiValueOR(annotation.getModel().getSpecies().getName(), value);
+				}
 			};
 
 	public ModelAnnotationFiltering() {
@@ -72,4 +74,3 @@ public class ModelAnnotationFiltering extends AnnotationFiltering<DiseaseAnnotat
 	}
 
 }
-

@@ -87,12 +87,14 @@ public class PrimaryAnnotatedEntity extends ConditionAnnotation implements Compa
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 		PrimaryAnnotatedEntity that = (PrimaryAnnotatedEntity) o;
-		return Objects.equals(id, that.id) &&
-				Objects.equals(getConditionModifiers(), that.getConditionModifiers()) &&
-				Objects.equals(getConditions(), that.getConditions());
+		return Objects.equals(id, that.id) && Objects.equals(getConditionModifiers(), that.getConditionModifiers()) && Objects.equals(getConditions(), that.getConditions());
 
 	}
 
@@ -102,8 +104,9 @@ public class PrimaryAnnotatedEntity extends ConditionAnnotation implements Compa
 	}
 
 	public void addDisease(DOTerm disease, String associationType) {
-		if (diseaseModels == null)
+		if (diseaseModels == null) {
 			diseaseModels = new ArrayList<>();
+		}
 		DiseaseModel dModel = new DiseaseModel(disease, associationType);
 		diseaseModels.add(dModel);
 		diseaseModels = new ArrayList<>(new HashSet<>(diseaseModels));
@@ -111,26 +114,30 @@ public class PrimaryAnnotatedEntity extends ConditionAnnotation implements Compa
 	}
 
 	public void addPhenotype(String phenotype) {
-		if (phenotypes == null)
+		if (phenotypes == null) {
 			phenotypes = new ArrayList<>();
+		}
 		phenotypes.add(phenotype);
 		phenotypes = new ArrayList<>(new HashSet<>(phenotypes));
 		phenotypes.sort(Comparator.naturalOrder());
 	}
 
 	public void addPublicationEvidenceCode(List<PublicationJoin> pubJoins) {
-		if (CollectionUtils.isEmpty(pubJoins))
+		if (CollectionUtils.isEmpty(pubJoins)) {
 			return;
-		if (publicationEvidenceCodes == null)
+		}
+		if (publicationEvidenceCodes == null) {
 			publicationEvidenceCodes = new ArrayList<>();
+		}
 
 		publicationEvidenceCodes.addAll(pubJoins);
 		publicationEvidenceCodes = new ArrayList<>(new HashSet<>(publicationEvidenceCodes));
 	}
 
 	public void addPublicationEvidenceCode(PublicationJoin pubJoin) {
-		if (publicationEvidenceCodes == null)
+		if (publicationEvidenceCodes == null) {
 			publicationEvidenceCodes = new ArrayList<>();
+		}
 		publicationEvidenceCodes.add(pubJoin);
 		// sort and make distinct by pub and evidence codes only
 		// this assumes only PublicationJoin records that belong to this PAE
@@ -149,10 +156,12 @@ public class PrimaryAnnotatedEntity extends ConditionAnnotation implements Compa
 	}
 
 	public void addPhenotypes(List<String> phenotypeList) {
-		if (phenotypeList == null)
+		if (phenotypeList == null) {
 			return;
-		if (phenotypes == null)
+		}
+		if (phenotypes == null) {
 			phenotypes = new ArrayList<>();
+		}
 		phenotypes.addAll(phenotypeList);
 		phenotypes = phenotypes.stream()
 				.distinct()
@@ -161,10 +170,12 @@ public class PrimaryAnnotatedEntity extends ConditionAnnotation implements Compa
 	}
 
 	public void addDiseaseModels(List<DiseaseModel> modelList) {
-		if (modelList == null)
+		if (modelList == null) {
 			return;
-		if (diseaseModels == null)
+		}
+		if (diseaseModels == null) {
 			diseaseModels = new ArrayList<>();
+		}
 		diseaseModels.addAll(modelList);
 		diseaseModels = diseaseModels.stream()
 				.distinct()
@@ -176,4 +187,5 @@ public class PrimaryAnnotatedEntity extends ConditionAnnotation implements Compa
 		source = new Source();
 		source.setName(dataProvider);
 	}
+	
 }

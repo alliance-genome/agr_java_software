@@ -27,13 +27,11 @@ import org.junit.Test;
 
 import jakarta.inject.Inject;
 
-public class ExpressionIT extends AbstractIT{
+public class ExpressionIT extends AbstractIT {
 
-	@Inject
-	private ExpressionCacheRepository repository;
+	@Inject private ExpressionCacheRepository repository;
 
-	@Inject
-	private ExpressionService expressionService;
+	@Inject private ExpressionService expressionService;
 
 	@Test
 	public void checkAllExpressions() {
@@ -52,20 +50,17 @@ public class ExpressionIT extends AbstractIT{
 		RibbonSummary summary = expressionService.getExpressionRibbonSummary(List.of("MGI:109583"));
 		assertNotNull(summary);
 		assertEquals(summary.getDiseaseRibbonEntities().size(), 1);
-		EntitySubgroupSlim slim = (EntitySubgroupSlim) summary.getDiseaseRibbonEntities().get(0)
-				.getSlims().get("UBERON:0001062").get("ALL");
+		EntitySubgroupSlim slim = (EntitySubgroupSlim) summary.getDiseaseRibbonEntities().get(0).getSlims().get("UBERON:0001062").get("ALL");
 		assertThat(slim.getNumberOfAnnotations(), greaterThan(150));
 		assertThat(slim.getNumberOfClasses(), greaterThan(90));
 
 		// nervous system
-		slim = (EntitySubgroupSlim) summary.getDiseaseRibbonEntities().get(0)
-				.getSlims().get("UBERON:0001016").get("ALL");
+		slim = (EntitySubgroupSlim) summary.getDiseaseRibbonEntities().get(0).getSlims().get("UBERON:0001016").get("ALL");
 		assertEquals(slim.getNumberOfAnnotations(), 51);
 		assertEquals(slim.getNumberOfClasses(), 33);
 
 		// post-juvenile adult stage
-		slim = (EntitySubgroupSlim) summary.getDiseaseRibbonEntities().get(0)
-				.getSlims().get("UBERON:0000113").get("ALL");
+		slim = (EntitySubgroupSlim) summary.getDiseaseRibbonEntities().get(0).getSlims().get("UBERON:0000113").get("ALL");
 		assertThat(slim.getNumberOfAnnotations(), greaterThan(25));
 		assertThat(slim.getNumberOfClasses(), greaterThan(0));
 	}
@@ -100,8 +95,7 @@ public class ExpressionIT extends AbstractIT{
 		assertNotNull(summary);
 
 		assertEquals(summary.getDiseaseRibbonEntities().size(), 1);
-		EntitySubgroupSlim slim = (EntitySubgroupSlim) summary.getDiseaseRibbonEntities().get(0)
-				.getSlims().get("GO:0005634").get("ALL");
+		EntitySubgroupSlim slim = (EntitySubgroupSlim) summary.getDiseaseRibbonEntities().get(0).getSlims().get("GO:0005634").get("ALL");
 		assertEquals(slim.getNumberOfAnnotations(), 4);
 		assertEquals(slim.getNumberOfClasses(), 3);
 	}
@@ -115,7 +109,6 @@ public class ExpressionIT extends AbstractIT{
 		String termNames = terms.stream().map(GOTerm::getName).collect(Collectors.joining(","));
 		assertTrue(termNames.contains("extracellular region"));
 
-
 	}
 
 	@Test
@@ -128,14 +121,13 @@ public class ExpressionIT extends AbstractIT{
 		JsonResultResponse<ExpressionDetail> summary = expressionService.getExpressionDetails(List.of("WB:WBGene00000898"), null, pagination);
 		assertNotNull(summary);
 
-
 	}
 
 	@Test
 	public void checkExpressionAnatomy() {
 		Pagination pagination = new Pagination();
 		BaseFilter filter = new BaseFilter();
-		//filter.addFieldFilter(FieldFilter.SOURCE, "9913");
+		// filter.addFieldFilter(FieldFilter.SOURCE, "9913");
 		pagination.setFieldFilterValueMap(filter);
 		JsonResultResponse<ExpressionDetail> summary = expressionService.getExpressionDetails(List.of("ZFIN:ZDB-GENE-030131-845"), "UBERON:0001062", pagination);
 		assertNotNull(summary);
@@ -145,7 +137,7 @@ public class ExpressionIT extends AbstractIT{
 	public void checkExpressionNoResultDistinctFieldValues() {
 		Pagination pagination = new Pagination();
 		BaseFilter filter = new BaseFilter();
-		//filter.addFieldFilter(FieldFilter.SOURCE, "9913");
+		// filter.addFieldFilter(FieldFilter.SOURCE, "9913");
 		pagination.setFieldFilterValueMap(filter);
 		pagination.addFieldFilter(FieldFilter.FREFERENCE, "foot");
 		JsonResultResponse<ExpressionDetail> summary = expressionService.getExpressionDetails(List.of("RGD:2129"), null, pagination);

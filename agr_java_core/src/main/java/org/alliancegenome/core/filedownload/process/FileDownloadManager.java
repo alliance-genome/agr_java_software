@@ -1,4 +1,5 @@
 package org.alliancegenome.core.filedownload.process;
+
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -22,26 +23,27 @@ public class FileDownloadManager extends Thread {
 	@Override
 	public void run() {
 		
-		if(downloadSet == null || downloadSet.getChromosomesToDownload() == null) {
+		if (downloadSet == null || downloadSet.getChromosomesToDownload() == null) {
 			return;
 		}
 
 		log.info("Starting downloading variant Files");
-		
+
 		ExecutorService executor = Executors.newFixedThreadPool(VariantConfigHelper.getFileDownloadThreads());
 
-		for(DownloadSource source: downloadSet.getDownloadFileSources()) {
-			for(String chromosome: source.getChromosomeList()) {
+		for (DownloadSource source: downloadSet.getDownloadFileSources()) {
+			for (String chromosome: source.getChromosomeList()) {
 				FileDownload fd = new FileDownload(ConfigHelper.getAllianceRelease(), source.getSource(), chromosome, downloadSet.getDownloadPath(), downloadSet.getS3RootUrl());
 				executor.execute(fd);
 			}
 		}
-		
-		executor.shutdown();  
-		while (!executor.isTerminated()) {	 }	
+
+		executor.shutdown();
+		while (!executor.isTerminated()) {
+			//
+		}
 
 		log.info("Finished downloading Files");
 	}
-
 
 }

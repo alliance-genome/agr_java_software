@@ -33,7 +33,7 @@ public class GeneOrthologCacher extends Cacher {
 	protected void init() {
 		geneRepository = new GeneRepository();
 	}
-	
+
 	@Override
 	protected void cache() {
 
@@ -42,8 +42,9 @@ public class GeneOrthologCacher extends Cacher {
 		List<Gene> geneList = geneRepository.getAllOrthologyGenes();
 
 		finishProcess();
-		if (geneList == null)
+		if (geneList == null) {
 			return;
+		}
 
 		log.info("Total Number of Genes: ", geneList.size());
 
@@ -57,26 +58,24 @@ public class GeneOrthologCacher extends Cacher {
 
 		List<HomologView> allOrthology = new ArrayList<>();
 		geneList.stream().filter(gene -> gene.getOrthoGenes() != null).forEach(gene -> {
-			Set<HomologView> orthologySet = gene.getOrthoGenes().stream()
-					.map(orthologous -> {
-						HomologView view = new HomologView();
-						view.setGene(gene);
-						view.setHomologGene(orthologous.getGene2());
-						view.setBest(orthologous.getIsBestScore());
-						view.setBestReverse(orthologous.getIsBestRevScore());
-						if (orthologous.isStrictFilter()) {
-							view.setStringencyFilter("stringent");
-						} else if (orthologous.isModerateFilter()) {
-							view.setStringencyFilter("moderate");
-						}
+			Set<HomologView> orthologySet = gene.getOrthoGenes().stream().map(orthologous -> {
+				HomologView view = new HomologView();
+				view.setGene(gene);
+				view.setHomologGene(orthologous.getGene2());
+				view.setBest(orthologous.getIsBestScore());
+				view.setBestReverse(orthologous.getIsBestRevScore());
+				if (orthologous.isStrictFilter()) {
+					view.setStringencyFilter("stringent");
+				} else if (orthologous.isModerateFilter()) {
+					view.setStringencyFilter("moderate");
+				}
 
-						progressProcess();
-						view.setPredictionMethodsMatched(getPredictionMatches(gene.getPrimaryKey(), orthologous.getGene2().getPrimaryKey()));
-						view.setPredictionMethodsNotMatched(getPredictionNotMatches(gene.getPrimaryKey(), orthologous.getGene2().getPrimaryKey()));
-						view.setPredictionMethodsNotCalled(getPredictionNotCalled(view));
-						return view;
-					})
-					.collect(toSet());
+				progressProcess();
+				view.setPredictionMethodsMatched(getPredictionMatches(gene.getPrimaryKey(), orthologous.getGene2().getPrimaryKey()));
+				view.setPredictionMethodsNotMatched(getPredictionNotMatches(gene.getPrimaryKey(), orthologous.getGene2().getPrimaryKey()));
+				view.setPredictionMethodsNotCalled(getPredictionNotCalled(view));
+				return view;
+			}).collect(toSet());
 			allOrthology.addAll(orthologySet);
 
 			cacheService.putCacheEntry(gene.getPrimaryKey(), new ArrayList<>(orthologySet), View.OrthologyCacher.class, CacheAlliance.GENE_ORTHOLOGY);
@@ -85,42 +84,39 @@ public class GeneOrthologCacher extends Cacher {
 		finishProcess();
 
 		// get homology cache by species
-		
-		startProcess("allOrthology.stream - group By o.getGene().getTaxonId()");
-		Map<String, List<HomologView>> map = allOrthology.stream()
-				.collect(groupingBy(o -> o.getGene().getTaxonId()));
-		finishProcess();
-		
-		
-/*
-		startProcess("allOrthology orthologViews into cache", map.size());
 
-		map.forEach((speciesID, orthologViews) -> {
-			cacheService.putCacheEntry(speciesID, orthologViews, View.OrthologyCacher.class, CacheAlliance.SPECIES_ORTHOLOGY);
-			progressProcess();
-		});
-		
+		startProcess("allOrthology.stream - group By o.getGene().getTaxonId()");
+		Map<String, List<HomologView>> map = allOrthology.stream().collect(groupingBy(o -> o.getGene().getTaxonId()));
 		finishProcess();
-*/
+
+		/*
+		 * startProcess("allOrthology orthologViews into cache", map.size());
+		 * 
+		 * map.forEach((speciesID, orthologViews) -> {
+		 * cacheService.putCacheEntry(speciesID, orthologViews,
+		 * View.OrthologyCacher.class, CacheAlliance.SPECIES_ORTHOLOGY);
+		 * progressProcess(); });
+		 * 
+		 * finishProcess();
+		 */
 
 		CacheStatus status = new CacheStatus(CacheAlliance.SPECIES_ORTHOLOGY);
-		//status.setNumberOfEntities(allExpression.size());
+		// status.setNumberOfEntities(allExpression.size());
 
 		Map<String, Integer> speciesStatsInt = new TreeMap<>();
 		map.forEach((speciesID, orthology) -> speciesStatsInt.put(speciesID, orthology.size()));
 
 		map.clear();
-		
+
 		status.setSpeciesStats(speciesStatsInt);
 		setCacheStatus(status);
 
 		startProcess("allOrthology.stream - group By getSpeciesSpeciesID");
-		Map<String, List<HomologView>> speciesToSpeciesMap = allOrthology.stream()
-				.collect(groupingBy(this::getSpeciesSpeciesID));
+		Map<String, List<HomologView>> speciesToSpeciesMap = allOrthology.stream().collect(groupingBy(this::getSpeciesSpeciesID));
 		finishProcess();
-		
+
 		startProcess("Cache speciesToSpeciesMap into cache", speciesToSpeciesMap.size());
-		
+
 		speciesToSpeciesMap.forEach((speciesSpeciesID, orthologViews) -> {
 			cacheService.putCacheEntry(speciesSpeciesID, orthologViews, View.OrthologyCacher.class, CacheAlliance.SPECIES_SPECIES_ORTHOLOGY);
 			progressProcess();
@@ -128,7 +124,7 @@ public class GeneOrthologCacher extends Cacher {
 		finishProcess();
 
 		status = new CacheStatus(CacheAlliance.SPECIES_SPECIES_ORTHOLOGY);
-		//status.setNumberOfEntities(allExpression.size());
+		// status.setNumberOfEntities(allExpression.size());
 
 		Map<String, Integer> speciesSpeciesStatsInt = new TreeMap<>();
 		speciesToSpeciesMap.forEach((speciesID, orthology) -> speciesSpeciesStatsInt.put(speciesID, orthology.size()));
@@ -145,17 +141,16 @@ public class GeneOrthologCacher extends Cacher {
 
 	private List<String> getPredictionNotCalled(HomologView view) {
 		List<String> usedNames = view.getPredictionMethodsMatched() != null ? new ArrayList<>(view.getPredictionMethodsMatched()) : new ArrayList<>();
-		if (view.getPredictionMethodsNotMatched() != null)
+		if (view.getPredictionMethodsNotMatched() != null) {
 			usedNames.addAll(view.getPredictionMethodsNotMatched());
-		return allMethods.stream()
-				.filter(method -> !usedNames.contains(method))
-				.sorted(Comparator.naturalOrder())
-				.collect(toList());
+		}
+		return allMethods.stream().filter(method -> !usedNames.contains(method)).sorted(Comparator.naturalOrder()).collect(toList());
 	}
 
 	private List<String> getPredictionMatches(String primaryKey, String primaryKey1) {
-		if (primaryKey == null || primaryKey1 == null)
+		if (primaryKey == null || primaryKey1 == null) {
 			return null;
+		}
 
 		Map<String, Set<String>> lists = geneGeneAlgorithm.get(primaryKey, primaryKey1);
 		if (lists == null) {
@@ -169,8 +164,9 @@ public class GeneOrthologCacher extends Cacher {
 	}
 
 	private List<String> getPredictionNotMatches(String primaryKey, String primaryKey1) {
-		if (primaryKey == null || primaryKey1 == null)
+		if (primaryKey == null || primaryKey1 == null) {
 			return null;
+		}
 
 		Map<String, Set<String>> lists = geneGeneAlgorithm.get(primaryKey, primaryKey1);
 		if (lists == null) {

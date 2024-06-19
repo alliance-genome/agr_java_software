@@ -23,15 +23,11 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@SuppressWarnings("serial")
 public class SearchHelper {
 
-	private static String[] SUFFIX_LIST = { ".htmlSmoosh", ".keywordAutocomplete", ".keyword", ".smoosh",
-											".synonyms", ".symbols", ".text", ".classicText", ".standardText",
-											".letterText", ".bigrams", ".standardBigrams" };
+	private static final String[] SUFFIX_LIST = { ".htmlSmoosh", ".keywordAutocomplete", ".keyword", ".smoosh", ".synonyms", ".symbols", ".text", ".classicText", ".standardText", ".letterText", ".bigrams", ".standardBigrams" };
 
-	
-	private HashMap<String, List<String>> category_filters = new HashMap<>() {
+	private HashMap<String, List<String>> categoryFilters = new HashMap<>() {
 		{
 			put("gene", new ArrayList<>() {
 				{
@@ -95,17 +91,20 @@ public class SearchHelper {
 
 	public Map<String, String> highlightCollapseMap = new HashMap<>() {
 		{
-			put("anatomicalExpression","expression");
-			put("anatomicalExpressionWithParents","expression");
-			put("cellularComponentExpression","expression");
-			put("cellularComponentExpressionWithParents","expression");
-			put("cellularComponentExpressionAgrSlim","expression");
-			put("expressionStages","expression");
-			put("whereExpressed","expression");
+			put("anatomicalExpression", "expression");
+			put("anatomicalExpressionWithParents", "expression");
+			put("cellularComponentExpression", "expression");
+			put("cellularComponentExpressionWithParents", "expression");
+			put("cellularComponentExpressionAgrSlim", "expression");
+			put("expressionStages", "expression");
+			put("whereExpressed", "expression");
 		}
 	};
 
-	public Map<String, Float> getBoostMap() { return boostMap; }
+	public Map<String, Float> getBoostMap() {
+		return boostMap;
+	}
+
 	private Map<String, Float> boostMap = new HashMap<>() {
 		{
 			put("symbol", 5.0F);
@@ -117,7 +116,10 @@ public class SearchHelper {
 		}
 	};
 
-	public List<String> getSearchFields() { return searchFields; }
+	public List<String> getSearchFields() {
+		return searchFields;
+	}
+
 	private List<String> searchFields = new ArrayList<>() {
 		{
 			add("alleles");
@@ -230,8 +232,7 @@ public class SearchHelper {
 		}
 	};
 
-	@Getter
-	private final List<String> responseFields = new ArrayList<>() {
+	@Getter private final List<String> responseFields = new ArrayList<>() {
 		{
 			add("alterationType");
 			add("biologicalProcess");
@@ -268,26 +269,23 @@ public class SearchHelper {
 		}
 	};
 
-
-	private List<String> highlight_blacklist_fields = new ArrayList<>() {
+	private List<String> highlightBlacklistFields = new ArrayList<>() {
 		{
 			add("go_genes");
 			add("name.autocomplete");
 		}
 	};
 
-
-
 	public List<AggregationBuilder> createAggBuilder(String category, Boolean expandBiotypes) {
 		List<AggregationBuilder> ret = new ArrayList<>();
 
-		if(category == null || !category_filters.containsKey(category)) {
+		if (category == null || !categoryFilters.containsKey(category)) {
 			TermsAggregationBuilder term = AggregationBuilders.terms("categories");
 			term.field("category");
 			term.size(50);
 			ret.add(term);
 		} else {
-			for(String item: category_filters.get(category)) {
+			for (String item : categoryFilters.get(category)) {
 				if (item.equals("biotypes")) {
 					if (expandBiotypes) {
 						ret.add(getBiotypeAggQuery());
@@ -309,23 +307,20 @@ public class SearchHelper {
 	}
 
 	public TermsAggregationBuilder getBiotypeAggQuery() {
-		TermsAggregationBuilder biotype0 = AggregationBuilders.terms("biotypes").field("biotype0.keyword")
-				.subAggregation(AggregationBuilders.terms("biotype1").field("biotype1.keyword")
-						.subAggregation(AggregationBuilders.terms("biotype2").field("biotype2.keyword"))
-				);
+		TermsAggregationBuilder biotype0 = AggregationBuilders.terms("biotypes").field("biotype0.keyword").subAggregation(AggregationBuilders.terms("biotype1").field("biotype1.keyword").subAggregation(AggregationBuilders.terms("biotype2").field("biotype2.keyword")));
 		return biotype0;
 	}
 
 	public ArrayList<AggResult> formatAggResults(String category, SearchResponse res) {
 		ArrayList<AggResult> ret = new ArrayList<>();
 
-		if(category == null) {
+		if (category == null) {
 			Terms aggs = res.getAggregations().get("categories");
-			AggResult ares = new AggResult("category", aggs, category_filters.keySet());
+			AggResult ares = new AggResult("category", aggs, categoryFilters.keySet());
 			ret.add(ares);
 		} else {
-			if(category_filters.containsKey(category)) {
-				for(String item: category_filters.get(category)) {
+			if (categoryFilters.containsKey(category)) {
+				for (String item : categoryFilters.get(category)) {
 					Terms aggs = res.getAggregations().get(item);
 					AggResult ares = new AggResult(item, aggs, null);
 					ret.add(ares);
@@ -336,27 +331,29 @@ public class SearchHelper {
 		return ret;
 	}
 
-
 	public boolean filterIsValid(String category, String fieldName) {
 		String newFieldName = fieldName;
-		if(this.isExcluded(fieldName)){
+		if (this.isExcluded(fieldName)) {
 			newFieldName = fieldName.substring(1);
 		}
-		if (searchFields.contains(newFieldName)) { return true; }
+		if (searchFields.contains(newFieldName)) {
+			return true;
+		}
 
-		if (!category_filters.containsKey(category)) { return false; }
+		if (!categoryFilters.containsKey(category)) {
+			return false;
+		}
 
-		List<String> fields = category_filters.get(category);
+		List<String> fields = categoryFilters.get(category);
 
 		return fields.contains(newFieldName);
 	}
 
-
-	public void applyFilters(BoolQueryBuilder bool, String category, UriInfo uriInfo ) {
-		if(category_filters.containsKey(category)) {
-			for(String item: category_filters.get(category)) {
-				if(uriInfo.getQueryParameters().containsKey(item)) {
-					for(String param: uriInfo.getQueryParameters().get(item)) {
+	public void applyFilters(BoolQueryBuilder bool, String category, UriInfo uriInfo) {
+		if (categoryFilters.containsKey(category)) {
+			for (String item : categoryFilters.get(category)) {
+				if (uriInfo.getQueryParameters().containsKey(item)) {
+					for (String param : uriInfo.getQueryParameters().get(item)) {
 						bool.filter(new TermQueryBuilder(item + ".keyword", param));
 					}
 				}
@@ -364,24 +361,23 @@ public class SearchHelper {
 		}
 	}
 
-
 	public ArrayList<Map<String, Object>> formatResults(SearchResponse res, List<String> searchedTerms) {
 		log.debug("Formatting Results: ");
 		ArrayList<Map<String, Object>> ret = new ArrayList<>();
 
-		for(SearchHit hit: res.getHits()) {
+		for (SearchHit hit : res.getHits()) {
 			Map<String, List<String>> map = new HashMap<>();
-			for(String key: hit.getHighlightFields().keySet()) {
+			for (String key : hit.getHighlightFields().keySet()) {
 
 				ArrayList<String> list = new ArrayList<>();
-				for(Text t: hit.getHighlightFields().get(key).getFragments()) {
+				for (Text t : hit.getHighlightFields().get(key).getFragments()) {
 					list.add(t.string());
 				}
 
 				String name = hit.getHighlightFields().get(key).getName();
-				
-				for (int i = 0 ; i < SUFFIX_LIST.length ; i++ ) {
-					name = name.replace(SUFFIX_LIST[i],"");
+
+				for (int i = 0; i < SUFFIX_LIST.length; i++) {
+					name = name.replace(SUFFIX_LIST[i], "");
 				}
 
 				name = highlightCollapseMap.getOrDefault(name, name);
@@ -400,8 +396,7 @@ public class SearchHelper {
 				hit.getSourceAsMap().put("explanation", hit.getExplanation());
 			}
 
-			hit.getSourceAsMap().put("missingTerms", findMissingTerms(Arrays.asList(hit.getMatchedQueries()),
-																 searchedTerms));
+			hit.getSourceAsMap().put("missingTerms", findMissingTerms(Arrays.asList(hit.getMatchedQueries()), searchedTerms));
 			ret.add(hit.getSourceAsMap());
 		}
 		log.debug("Finished Formatting Results: ");
@@ -412,10 +407,11 @@ public class SearchHelper {
 
 		List<String> terms = new ArrayList<>();
 
-		//if only one term was searched, just assume it matched
-		//(not for efficiency, avoids false negatives - if the document came back, the single term matched)
+		// if only one term was searched, just assume it matched
+		// (not for efficiency, avoids false negatives - if the document came back, the
+		// single term matched)
 		if (matchedTerms == null || searchedTerms == null || searchedTerms.size() == 1) {
-			return terms; //just give up and return an empty list
+			return terms; // just give up and return an empty list
 		}
 
 		terms.addAll(searchedTerms);
@@ -428,8 +424,8 @@ public class SearchHelper {
 
 		HighlightBuilder hlb = new HighlightBuilder();
 
-		for(String field: searchFields) {
-			if(!highlight_blacklist_fields.contains(field)) {
+		for (String field : searchFields) {
+			if (!highlightBlacklistFields.contains(field)) {
 				hlb.field(field);
 			}
 		}
@@ -437,8 +433,7 @@ public class SearchHelper {
 		return hlb;
 	}
 
-
-	public Boolean isExcluded(String value){
+	public Boolean isExcluded(String value) {
 		return value.charAt(0) == '-';
 	}
 

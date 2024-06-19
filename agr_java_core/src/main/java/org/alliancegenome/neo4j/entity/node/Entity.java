@@ -8,14 +8,15 @@ import lombok.Getter;
 import lombok.Setter;
 
 @NodeEntity
-@Getter @Setter
-@Schema(name="Entity", description="POJO that represents the Entity")
+@Getter
+@Setter
+@Schema(name = "Entity", description = "POJO that represents the Entity")
 public class Entity extends Neo4jEntity {
-	
+
 	private String release;
-	//private Date dateProduced;
+	// private Date dateProduced;
 	private String primaryKey;
-	
+
 //	@Relationship(type = "CREATED_BY", direction=Relationship.Direction.INCOMING)
 //	private Set<Gene> createdBy = new HashSet<Gene>();
 

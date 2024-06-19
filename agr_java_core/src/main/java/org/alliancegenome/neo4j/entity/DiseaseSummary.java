@@ -12,19 +12,16 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@Schema(name="DiseaseSummary", description="POJO that represents  Disease Summary")
+@Schema(name = "DiseaseSummary", description = "POJO that represents  Disease Summary")
 public class DiseaseSummary extends EntitySummary {
 
-	@JsonView({View.Default.class})
-	private Type type;
+	@JsonView({ View.Default.class }) private Type type;
 
 	public enum Type {
 		EXPERIMENT, ORTHOLOGY;
 
 		public static Type getType(String type) {
-			return Arrays.stream(values())
-					.filter(value -> type.toLowerCase().equals(value.name().toLowerCase()))
-					.findFirst().orElse(null);
+			return Arrays.stream(values()).filter(value -> type.toLowerCase().equals(value.name().toLowerCase())).findFirst().orElse(null);
 		}
 	}
 }

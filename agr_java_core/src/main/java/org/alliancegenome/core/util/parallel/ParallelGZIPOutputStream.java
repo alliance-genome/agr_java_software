@@ -68,7 +68,7 @@ public class ParallelGZIPOutputStream extends FilterOutputStream {
 
 		// private final int index;
 		private byte[] buf = new byte[SIZE + (SIZE >> 3)];
-		private int buf_length = 0;
+		private int bufLength;
 
 		/*
 		 public Block(@Nonnegative int index) {
@@ -85,14 +85,15 @@ public class ParallelGZIPOutputStream extends FilterOutputStream {
 			// DeflaterOutputStream def = newDeflaterOutputStream(buf);
 			state.def.reset();
 			state.buf.reset();
-			state.str.write(buf, 0, buf_length);
+			state.str.write(buf, 0, bufLength);
 			state.str.flush();
 
 			// int in_length = buf_length;
-			int out_length = state.buf.size();
-			if (out_length > buf.length)
-				this.buf = new byte[out_length];
-			this.buf_length = out_length;
+			int outLength = state.buf.size();
+			if (outLength > buf.length) {
+				this.buf = new byte[outLength];
+			}
+			this.bufLength = outLength;
 			state.buf.writeTo(buf);
 
 			// return Arrays.copyOf(in, in_length);
@@ -101,14 +102,15 @@ public class ParallelGZIPOutputStream extends FilterOutputStream {
 
 		@Override
 		public String toString() {
-			return "Block" /* + index */ + "(" + buf_length + "/" + buf.length + " bytes)";
+			return "Block" /* + index */ + "(" + bufLength + "/" + buf.length + " bytes)";
 		}
 	}
 
 	@Nonnegative
 	private static int getThreadCount(@Nonnull ExecutorService executor) {
-		if (executor instanceof ThreadPoolExecutor)
+		if (executor instanceof ThreadPoolExecutor) {
 			return ((ThreadPoolExecutor) executor).getMaximumPoolSize();
+		}
 		return Runtime.getRuntime().availableProcessors();
 	}
 
@@ -119,9 +121,9 @@ public class ParallelGZIPOutputStream extends FilterOutputStream {
 	@Nonnull
 	private Block block = new Block();
 	@CheckForNull
-	private Block freeBlock = null;
+	private Block freeBlock;
 	/** Used as a sentinel for 'closed'. */
-	private long bytesWritten = 0;
+	private long bytesWritten;
 
 	// Master thread only
 	@Deprecated // Doesn't really use the given number of threads.
@@ -199,16 +201,16 @@ public class ParallelGZIPOutputStream extends FilterOutputStream {
 		while (len > 0) {
 			final byte[] blockBuf = block.buf;
 			// assert block.in_length < block.in.length
-			int capacity = SIZE - block.buf_length; // Make sure we don't grow the block buf repeatedly.
+			int capacity = SIZE - block.bufLength; // Make sure we don't grow the block buf repeatedly.
 			if (len >= capacity) {
-				System.arraycopy(b, off, blockBuf, block.buf_length, capacity);
-				block.buf_length += capacity;	// == block.in.length
+				System.arraycopy(b, off, blockBuf, block.bufLength, capacity);
+				block.bufLength += capacity;	// == block.in.length
 				off += capacity;
 				len -= capacity;
 				submit();
 			} else {
-				System.arraycopy(b, off, blockBuf, block.buf_length, len);
-				block.buf_length += len;
+				System.arraycopy(b, off, blockBuf, block.bufLength, len);
+				block.bufLength += len;
 				// off += len;
 				// len = 0;
 				break;
@@ -221,10 +223,11 @@ public class ParallelGZIPOutputStream extends FilterOutputStream {
 		emitUntil(emitQueueSize - 1);
 		emitQueue.add(executor.submit(block));
 		Block b = freeBlock;
-		if (b != null)
+		if (b != null) {
 			freeBlock = null;
-		else
+		} else {
 			b = new Block();
+		}
 		block = b;
 	}
 
@@ -236,14 +239,16 @@ public class ParallelGZIPOutputStream extends FilterOutputStream {
 		for (;;) {
 			Future<Block> future = emitQueue.peek();
 			// LOG.info("Peeked future " + future);
-			if (future == null)
+			if (future == null) {
 				return;
-			if (!future.isDone())
+			}
+			if (!future.isDone()) {
 				return;
+			}
 			// It's an ordered queue. This MUST be the same element as above.
 			Block b = emitQueue.remove().get();
-			out.write(b.buf, 0, b.buf_length);
-			b.buf_length = 0;
+			out.write(b.buf, 0, b.bufLength);
+			b.bufLength = 0;
 			freeBlock = b;
 		}
 	}
@@ -255,8 +260,8 @@ public class ParallelGZIPOutputStream extends FilterOutputStream {
 			while (emitQueue.size() > taskCountAllowed) {
 				// LOG.info("Waiting for taskCount=" + emitQueue.size() + " -> " + taskCountAllowed);
 				Block b = emitQueue.remove().get();	 // Valid because emitQueue.size() > 0
-				out.write(b.buf, 0, b.buf_length);	// Blocks until this task is done.
-				b.buf_length = 0;
+				out.write(b.buf, 0, b.bufLength);	// Blocks until this task is done.
+				b.bufLength = 0;
 				freeBlock = b;
 			}
 			// We may have achieved more opportunistically available blocks
@@ -273,8 +278,9 @@ public class ParallelGZIPOutputStream extends FilterOutputStream {
 	@Override
 	public void flush() throws IOException {
 		// LOG.info("Flush: " + block);
-		if (block.buf_length > 0)
+		if (block.bufLength > 0) {
 			submit();
+		}
 		emitUntil(0);
 		super.flush();
 	}

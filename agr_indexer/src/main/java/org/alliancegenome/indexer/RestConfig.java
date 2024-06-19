@@ -17,6 +17,8 @@ import si.mazi.rescu.serialization.jackson.JacksonObjectMapperFactory;
 @Slf4j
 public class RestConfig {
 
+	private RestConfig() { }
+	
 	public static ClientConfig config = new ClientConfig();
 
 	static {

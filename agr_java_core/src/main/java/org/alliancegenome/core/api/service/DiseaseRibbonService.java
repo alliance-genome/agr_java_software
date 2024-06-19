@@ -140,8 +140,9 @@ public class DiseaseRibbonService {
 
 		// check for parents of 'All Other Diseases' group. That high-level term does not exist in DO and
 		// consists of the sum of four other individual high-level terms.
-		if (CollectionUtils.isNotEmpty(getParentIDsFromStream(DOTerm.getAllOtherDiseaseTerms().stream(), doID)))
+		if (CollectionUtils.isNotEmpty(getParentIDsFromStream(DOTerm.getAllOtherDiseaseTerms().stream(), doID))) {
 			parentSet.add(DOID_OTHER);
+		}
 		return parentSet;
 	}
 
@@ -151,4 +152,3 @@ public class DiseaseRibbonService {
 	}
 
 }
-

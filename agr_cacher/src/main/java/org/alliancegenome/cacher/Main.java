@@ -17,6 +17,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class Main {
 
+	private Main() { }
+	
 	public static void main(String[] args) {
 		VariantConfigHelper.init();
 		ConfigHelper.init();
@@ -47,8 +49,8 @@ public class Main {
 				System.exit(-1);
 			}
 		}
-		
-		for(Entry<String, Cacher> entry: cachers.entrySet()) {
+
+		for (Entry<String, Cacher> entry : cachers.entrySet()) {
 			String type = entry.getKey();
 			if (argumentSet.size() == 0 || argumentSet.contains(type)) {
 				if (ConfigHelper.isThreaded()) {
@@ -82,7 +84,7 @@ public class Main {
 		log.info("End Time: " + end);
 		long duration = end.getTime() - start.getTime();
 		log.info("Total Caching time: " + ProcessDisplayHelper.getHumanReadableTimeDisplay(duration));
-		//System.exit(0);
+		// System.exit(0);
 
 	}
 }

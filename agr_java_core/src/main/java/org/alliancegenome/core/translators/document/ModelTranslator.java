@@ -8,29 +8,31 @@ import org.alliancegenome.neo4j.entity.node.AffectedGenomicModel;
 
 public class ModelTranslator extends EntityDocumentTranslator<AffectedGenomicModel, SearchableItemDocument> {
 
-    @Override
-    protected SearchableItemDocument entityToDocument(AffectedGenomicModel entity, int translationDepth ) {
+	@Override
+	protected SearchableItemDocument entityToDocument(AffectedGenomicModel entity, int translationDepth) {
 
-        SearchableItemDocument document = new SearchableItemDocument();
+		SearchableItemDocument document = new SearchableItemDocument();
 
-        document.setCategory("model");
+		document.setCategory("model");
 
-        document.setPrimaryKey(entity.getPrimaryKey());
-        document.setName(entity.getName());
-        document.setNameKey(entity.getNameTextWithSpecies());
-        document.setNameText(entity.getNameText());
-        document.setLocalId(entity.getLocalId());
-        document.setGlobalId(entity.getGlobalId());
-        document.setModCrossRefCompleteUrl(entity.getModCrossRefCompleteUrl());
-        if (entity.getSpecies() != null) {
-            document.setSpecies(entity.getSpecies().getName());
-        }
-        if(entity.getSecondaryIdsList()!=null)
-            document.setSecondaryIds(new HashSet<>(entity.getSecondaryIdsList()));
-        if(entity.getSynonymList()!=null)
-            document.setSynonyms(new HashSet<>(entity.getSynonymList()));
+		document.setPrimaryKey(entity.getPrimaryKey());
+		document.setName(entity.getName());
+		document.setNameKey(entity.getNameTextWithSpecies());
+		document.setNameText(entity.getNameText());
+		document.setLocalId(entity.getLocalId());
+		document.setGlobalId(entity.getGlobalId());
+		document.setModCrossRefCompleteUrl(entity.getModCrossRefCompleteUrl());
+		if (entity.getSpecies() != null) {
+			document.setSpecies(entity.getSpecies().getName());
+		}
+		if (entity.getSecondaryIdsList() != null) {
+			document.setSecondaryIds(new HashSet<>(entity.getSecondaryIdsList()));
+		}
+		if (entity.getSynonymList() != null) {
+			document.setSynonyms(new HashSet<>(entity.getSynonymList()));
+		}
 
-        return document;
-    }
+		return document;
+	}
 
 }

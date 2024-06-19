@@ -10,7 +10,7 @@ import org.alliancegenome.core.translators.ResultTSVTranslator;
 import lombok.Getter;
 
 @Getter
-public class AlleleTSVTranslator extends ResultTSVTranslator{
+public class AlleleTSVTranslator extends ResultTSVTranslator {
 
 	public AlleleTSVTranslator(PrintWriter writer) {
 		super(writer);
@@ -18,23 +18,12 @@ public class AlleleTSVTranslator extends ResultTSVTranslator{
 
 	@Override
 	protected List<String> getHeaders() {
-		return Arrays.asList(
-				"Id",
-				"Gene",
-				"Species",
-				"Symbol"
-			);
+		return Arrays.asList("Id", "Gene", "Species", "Symbol");
 	}
 
 	@Override
 	protected List<String> mapToRow(Map<String, Object> map) {
-		return Arrays.asList(
-				String.valueOf(map.get("g.primaryKey")),
-				String.valueOf(map.get("g.secondaryId")),
-				String.valueOf(map.get("g.name")),
-				String.valueOf(map.get("g.geneSynopsis"))
-			);
+		return Arrays.asList(String.valueOf(map.get("g.primaryKey")), String.valueOf(map.get("g.secondaryId")), String.valueOf(map.get("g.name")), String.valueOf(map.get("g.geneSynopsis")));
 	}
 
 }
-

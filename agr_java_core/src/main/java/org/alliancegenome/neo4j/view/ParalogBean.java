@@ -1,17 +1,19 @@
 package org.alliancegenome.neo4j.view;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.annotation.JsonView;
-import lombok.Data;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.eclipse.microprofile.openapi.annotations.media.Schema;
-
 import java.io.Serializable;
 import java.util.List;
 
+import org.alliancegenome.neo4j.entity.node.Gene;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonView;
+
+import lombok.Data;
+
 @Data
-@Schema(name="OrthologView", description="POJO that represents the Paralog view")
+@Schema(name = "OrthologView", description = "POJO that represents the Paralog view")
 @JsonPropertyOrder({"gene", "homologGene", "length", "similarity", "identity", "rank", "predictionMethodsMatched", "predictionMethodsNotMatched", "predictionMethodsNotCalled", "methodCount", "totalMethodCount"})
 public class ParalogBean implements Serializable {
 
@@ -39,8 +41,9 @@ public class ParalogBean implements Serializable {
 	@JsonView(View.Homology.class)
 	@JsonProperty(value = "methodCount")
 	public Integer getMethodCount() {
-		if (predictionMethodsMatched == null)
+		if (predictionMethodsMatched == null) {
 			return 0;
+		}
 		return predictionMethodsMatched.size();
 	}
 
@@ -51,12 +54,15 @@ public class ParalogBean implements Serializable {
 	@JsonView(View.Homology.class)
 	@JsonProperty(value = "totalMethodCount")
 	public Integer getTotalMethodCount() {
-		if (predictionMethodsMatched == null && predictionMethodsNotMatched == null)
+		if (predictionMethodsMatched == null && predictionMethodsNotMatched == null) {
 			return 0;
-		if (predictionMethodsMatched == null)
+		}
+		if (predictionMethodsMatched == null) {
 			return predictionMethodsNotMatched.size();
-		if (predictionMethodsNotMatched == null)
+		}
+		if (predictionMethodsNotMatched == null) {
 			return predictionMethodsMatched.size();
+		}
 		return predictionMethodsMatched.size() + predictionMethodsNotMatched.size();
 	}
 

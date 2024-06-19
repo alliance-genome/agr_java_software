@@ -21,8 +21,9 @@ public class GeneCacheRepository {
 		List<HomologView> fullOrthologyList = new ArrayList<>();
 		geneIDs.forEach(id -> {
 			final List<HomologView> orthology = cacheService.getCacheEntries(id, CacheAlliance.GENE_ORTHOLOGY);
-			if (orthology != null)
+			if (orthology != null) {
 				fullOrthologyList.addAll(orthology);
+			}
 		});
 
 		return fullOrthologyList;
@@ -32,8 +33,9 @@ public class GeneCacheRepository {
 		List<ParalogBean> fullOrthologyList = new ArrayList<>();
 		geneIDs.forEach(id -> {
 			final List<ParalogBean> orthology = cacheService.getCacheEntries(id, CacheAlliance.GENE_PARALOGY);
-			if (orthology != null)
+			if (orthology != null) {
 				fullOrthologyList.addAll(orthology);
+			}
 		});
 
 		return fullOrthologyList;
@@ -42,8 +44,9 @@ public class GeneCacheRepository {
 	public List<HomologView> getOrthologyBySpeciesSpecies(String taxonOne, String taxonTwo) {
 		List<HomologView> fullOrthologyList = new ArrayList<>();
 		final List<HomologView> orthology = cacheService.getCacheEntries(taxonOne + ":" + taxonTwo, CacheAlliance.SPECIES_SPECIES_ORTHOLOGY);
-		if (orthology != null)
+		if (orthology != null) {
 			fullOrthologyList.addAll(orthology);
+		}
 
 		return fullOrthologyList;
 	}
@@ -53,8 +56,9 @@ public class GeneCacheRepository {
 		List<HomologView> fullOrthologyList = new ArrayList<>();
 		taxonIDs.forEach(id -> {
 			final List<HomologView> orthology = cacheService.getCacheEntries(id, CacheAlliance.SPECIES_ORTHOLOGY);
-			if (orthology != null)
+			if (orthology != null) {
 				fullOrthologyList.addAll(orthology);
+			}
 		});
 
 		return fullOrthologyList;
@@ -65,8 +69,8 @@ public class GeneCacheRepository {
 	 * @param geneID
 	 * @return list of InteractionGeneJoin
 	 */
-	public List<InteractionGeneJoin> getInteractions(String geneID){
+	public List<InteractionGeneJoin> getInteractions(String geneID) {
 		List<InteractionGeneJoin> interactionAnnotationList = cacheService.getCacheEntries(geneID, CacheAlliance.GENE_INTERACTION);
-		return interactionAnnotationList ;
+		return interactionAnnotationList;
 	}
 }

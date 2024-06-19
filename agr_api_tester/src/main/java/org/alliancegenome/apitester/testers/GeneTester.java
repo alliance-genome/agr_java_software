@@ -20,43 +20,43 @@ public class GeneTester extends Tester {
 	private GeneRepository repo = new GeneRepository();
 	private GeneRESTInterface geneInt = RestProxyFactory.createProxy(GeneRESTInterface.class, ConfigHelper.getApiBaseUrl());
 	private List<String> exceptionQueue = new ArrayList<String>();
-	
+
 	@Override
 	protected void test() {
-		
+
 		List<String> geneIds = repo.getAllGeneKeys();
-		
+
 		startProcess("get All Gene Ids: " + ConfigHelper.getApiBaseUrl(), geneIds.size());
 
 		ExecutorService executor = Executors.newFixedThreadPool(20);
-		
-		for(String id: geneIds) {
+
+		for (String id : geneIds) {
 			Runnable worker = new WorkerThread(id);
 			executor.execute(worker);
-		
+
 		}
-		
+
 		executor.shutdown();
 		try {
-			executor.awaitTermination(10,  TimeUnit.DAYS);
+			executor.awaitTermination(10, TimeUnit.DAYS);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
+
 		finishProcess();
 		log.info("Exceptions: " + exceptionQueue.size());
 		log.info("Queue: " + exceptionQueue);
 	}
-	
-	class WorkerThread implements Runnable { 
+
+	class WorkerThread implements Runnable {
 		private String id;
-		
+
 		public WorkerThread(String id) {
 			this.id = id;
 		}
-		
+
+		@Override
 		public void run() {
 			try {
 				Gene g = geneInt.getGene(id);

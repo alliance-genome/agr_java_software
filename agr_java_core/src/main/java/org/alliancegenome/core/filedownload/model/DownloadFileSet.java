@@ -7,7 +7,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-@Getter @Setter @ToString
+@Getter
+@Setter
+@ToString
 public class DownloadFileSet {
 	private List<DownloadSource> downloadFileSources;
 	private String downloadPath;
@@ -15,7 +17,7 @@ public class DownloadFileSet {
 
 	public List<String> getChromosomesToDownload() {
 		List<String> ret = new ArrayList<String>();
-		for(DownloadSource source: downloadFileSources) {
+		for (DownloadSource source: downloadFileSources) {
 			ret.addAll(source.getChromosomeList());
 		}
 		return ret;

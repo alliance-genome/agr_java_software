@@ -16,19 +16,16 @@ import lombok.Setter;
 @NodeEntity
 @Getter
 @Setter
-@JsonPropertyOrder({"id", "name", "definition"})
+@JsonPropertyOrder({ "id", "name", "definition" })
 public class ECOTerm extends SimpleTerm implements Comparable<ECOTerm> {
 
-	@JsonView({View.DiseaseAPI.class})
-	private String definition;
+	@JsonView({ View.DiseaseAPI.class }) private String definition;
 
-	@JsonView({View.DiseaseAnnotation.class})
-	private String displaySynonym;
+	@JsonView({ View.DiseaseAnnotation.class }) private String displaySynonym;
 
 	private String isObsolete;
 
-	@Relationship(type = "ASSOCIATION", direction = Relationship.Direction.INCOMING)
-	private List<PublicationJoin> publicationEntityJoins;
+	@Relationship(type = "ASSOCIATION", direction = Relationship.Direction.INCOMING) private List<PublicationJoin> publicationEntityJoins;
 
 	@Override
 	public String toString() {
@@ -37,8 +34,12 @@ public class ECOTerm extends SimpleTerm implements Comparable<ECOTerm> {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 		ECOTerm ecoTerm = (ECOTerm) o;
 		return Objects.equals(primaryKey, ecoTerm.primaryKey);
 	}

@@ -18,6 +18,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class TestUploadFile {
 
+	private TestUploadFile() { }
+	
 	public static void main(String[] args) throws Exception {
 		ConfigHelper.init();
 		String type = "HUMAN";
@@ -28,7 +30,7 @@ public class TestUploadFile {
 		String outputDir = "/Volumes/Cardano_Backup/Variants";
 
 		TransferManager tx = TransferManagerBuilder.standard().withS3Client(s3Client).build();
-		
+
 		PutObjectRequest req = new PutObjectRequest(bucket, type + "/" + type + ".vep." + chr + ".vcf.gz", new File(outputDir + "/" + type + ".vep." + chr + ".vcf.gz"));
 		S3ProgressListener progress = new S3ProgressListener();
 		req.setGeneralProgressListener(progress);

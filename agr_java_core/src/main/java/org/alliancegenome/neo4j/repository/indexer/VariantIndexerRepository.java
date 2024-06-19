@@ -16,8 +16,10 @@ public class VariantIndexerRepository extends Neo4jRepository<Variant> {
 
 	private VariantDocumentCache cache = new VariantDocumentCache();
 	
-	public VariantIndexerRepository() {	 super(Variant.class); }
-	
+	public VariantIndexerRepository() {
+		super(Variant.class);
+	}
+
 	public VariantDocumentCache getVariantCache() {
 		log.info("Building VariantDocumentCache");
 

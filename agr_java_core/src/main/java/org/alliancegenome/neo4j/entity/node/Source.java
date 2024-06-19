@@ -15,14 +15,12 @@ import lombok.Setter;
 
 @Setter
 @Getter
-@JsonInclude()
-@Schema(name="Source", description="POJO that represents the Source")
+@JsonInclude
+@Schema(name = "Source", description = "POJO that represents the Source")
 public class Source implements Serializable {
 
-	@JsonView(value = {View.Default.class, View.API.class})
-	private String name;
-	@JsonView(value = {View.Default.class, View.API.class})
-	private String url;
+	@JsonView(value = { View.Default.class, View.API.class }) private String name;
+	@JsonView(value = { View.Default.class, View.API.class }) private String url;
 
 	private SpeciesType speciesType;
 
@@ -33,11 +31,14 @@ public class Source implements Serializable {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 		Source source = (Source) o;
-		return Objects.equals(name, source.name) &&
-				Objects.equals(url, source.url);
+		return Objects.equals(name, source.name) && Objects.equals(url, source.url);
 	}
 
 	@Override

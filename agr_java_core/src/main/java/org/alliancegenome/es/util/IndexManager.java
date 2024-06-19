@@ -1,4 +1,4 @@
- package org.alliancegenome.es.util;
+package org.alliancegenome.es.util;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -53,9 +53,9 @@ public class IndexManager {
 
 	private Settings settings;
 	private Mapping mapping;
-	
+
 	RestHighLevelClient closableSearchClient;
-	
+
 	public IndexManager(Settings settings, Mapping mapping) {
 		this.settings = settings;
 		this.mapping = mapping;
@@ -104,12 +104,12 @@ public class IndexManager {
 		log.info("Creating index: " + index);
 		try {
 			CreateIndexRequest createIndexRequest = new CreateIndexRequest(index);
-			if(settings != null) {
+			if (settings != null) {
 				settings.buildSettings();
 				createIndexRequest.settings(settings.getBuilder());
 			}
 
-			if(mapping != null) {
+			if (mapping != null) {
 				mapping.buildMapping();
 				createIndexRequest.mapping(mapping.getBuilder());
 			}
@@ -198,7 +198,7 @@ public class IndexManager {
 			DeleteRepositoryRequest request = new DeleteRepositoryRequest();
 			request.name(repoName);
 			AcknowledgedResponse res = closableSearchClient.snapshot().deleteRepository(request, RequestOptions.DEFAULT);
-			if(res.isAcknowledged()) {
+			if (res.isAcknowledged()) {
 				log.info("Deleted Repo: " + repoName);
 			} else {
 				log.info("Deleted Repo: " + repoName + " failed");
@@ -214,18 +214,18 @@ public class IndexManager {
 			GetRepositoriesResponse response = closableSearchClient.snapshot().getRepository(request, RequestOptions.DEFAULT);
 			List<RepositoryMetadata> repositories = response.repositories();
 
-			if(repositories.size() == 0) {
+			if (repositories.size() == 0) {
 				log.info("No Repo's found - Creating Repo");
 				return createRepo(repoName);
 			} else {
-				for(RepositoryMetadata repo: repositories) {
-					if(repo.name().equals(repoName)) {
+				for (RepositoryMetadata repo : repositories) {
+					if (repo.name().equals(repoName)) {
 						return repo.name();
 					}
 				}
 				return createRepo(repoName);
 			}
-		} catch (Exception ex){
+		} catch (Exception ex) {
 			log.error("Exception in getRepository method: " + ex.toString());
 		}
 
@@ -249,7 +249,7 @@ public class IndexManager {
 	private void takeSnapShot() {
 		String repo = getCreateRepo(ConfigHelper.getEsIndexSuffix());
 
-		if(repo != null) {
+		if (repo != null) {
 			List<String> indices = new ArrayList<>();
 			indices.add(newIndexName);
 			log.info("Creating Snapshot: " + newIndexName + " for index: " + newIndexName);
@@ -257,12 +257,9 @@ public class IndexManager {
 		}
 	}
 
-
-
-
 	public void deleteSnapShot(String repo, String snapShotName) { // ES Util
 		String[] array;
-		if(snapShotName.contains(",")) {
+		if (snapShotName.contains(",")) {
 			array = snapShotName.split(",");
 		} else {
 			array = new String[1];
@@ -270,7 +267,7 @@ public class IndexManager {
 		}
 
 		try {
-			for(int i = 0; i < array.length; i++) {
+			for (int i = 0; i < array.length; i++) {
 				log.info("Deleting Snapshot: " + array[i] + " in: " + repo);
 				DeleteSnapshotRequest request = new DeleteSnapshotRequest(repo, array[i]);
 				closableSearchClient.snapshot().delete(request, RequestOptions.DEFAULT);
@@ -289,7 +286,8 @@ public class IndexManager {
 
 			RestoreSnapshotRequest request = new RestoreSnapshotRequest(repo, snapShotName);
 			request.indices(indices);
-			// request.includeAliases(false); TODO investigate this use then we can always create indexes with aliases
+			// request.includeAliases(false); TODO investigate this use then we can always
+			// create indexes with aliases
 			request.waitForCompletion(true);
 			closableSearchClient.snapshot().restore(request, RequestOptions.DEFAULT);
 
@@ -313,7 +311,7 @@ public class IndexManager {
 			request.snapshot(snapShotName);
 			request.indices(indices);
 			request.waitForCompletion(true);
-			
+
 			closableSearchClient.snapshot().create(request, RequestOptions.DEFAULT);
 
 			log.info("Snapshot " + snapShotName + " was created for indices: " + indices);
@@ -324,7 +322,7 @@ public class IndexManager {
 
 	private String createRepo(String repoName) {
 
-		if(repoName != null && repoName.length() > 0) {
+		if (repoName != null && repoName.length() > 0) {
 			try {
 
 				SiteIndexSettings settings = new SiteIndexSettings(true);
@@ -343,7 +341,7 @@ public class IndexManager {
 
 				log.info("Repository was created: " + response.toString());
 				return repoName;
-			} catch(Exception ex) {
+			} catch (Exception ex) {
 				log.error("Exception in createRepository method: " + ex.toString());
 			}
 		} else {
@@ -366,7 +364,9 @@ public class IndexManager {
 			e.printStackTrace();
 		}
 
-		if (response == null) { return null; }
+		if (response == null) {
+			return null;
+		}
 
 		return response.getSnapshots();
 	}
@@ -388,15 +388,15 @@ public class IndexManager {
 	private void checkRepo(String repo) {
 		boolean found = false;
 		List<RepositoryMetadata> meta = listRepos();
-		for(RepositoryMetadata data: meta) {
-			if(data.name().equals(repo)) {
+		for (RepositoryMetadata data : meta) {
+			if (data.name().equals(repo)) {
 				found = true;
 				log.info("Repo Found Name: " + data.name() + " Type: " + data.type());
 				break;
 			}
 		}
 
-		if(!found) {
+		if (!found) {
 			log.info("Repo Not Found: " + repo);
 			getCreateRepo(repo);
 		}
@@ -406,13 +406,13 @@ public class IndexManager {
 
 		newIndexName = "";
 
-		if(ConfigHelper.hasEsIndexPrefix()) {
+		if (ConfigHelper.hasEsIndexPrefix()) {
 			newIndexName += ConfigHelper.getEsIndexPrefix() + "_";
 		}
 
 		newIndexName += baseIndexName;
 
-		if(ConfigHelper.hasEsIndexSuffix()) {
+		if (ConfigHelper.hasEsIndexSuffix()) {
 			newIndexName += "_" + ConfigHelper.getEsIndexSuffix();
 		}
 
@@ -426,7 +426,6 @@ public class IndexManager {
 		return newIndexName;
 	}
 
-
 	public void finishIndex() {
 		log.info("Main Index Finished: ");
 		RefreshRequest request = new RefreshRequest(newIndexName);
@@ -437,7 +436,7 @@ public class IndexManager {
 		}
 
 		takeSnapShot();
-		
+
 		try {
 			closableSearchClient.close();
 		} catch (IOException e) {
@@ -452,7 +451,7 @@ public class IndexManager {
 	}
 
 	public void resetClient() throws IOException { // ES Util
-		if(closableSearchClient != null) {
+		if (closableSearchClient != null) {
 			closableSearchClient.close();
 		}
 		closableSearchClient = EsClientFactory.getMustCloseSearchClient();
@@ -460,32 +459,31 @@ public class IndexManager {
 
 	public void listRepo(String repo) { // ES Util
 		List<SnapshotInfo> list = getSnapshots(repo);
-		for(SnapshotInfo info: list) {
+		for (SnapshotInfo info : list) {
 			Date end = new Date(info.endTime());
 			String delim = "";
 			String print = "";
-			for(String index: info.indices()) {
+			for (String index : info.indices()) {
 				print += delim + index;
 				delim = ",";
 			}
 			log.info(info.snapshotId() + "[" + print + "] " + end);
 		}
 	}
-	
 
 	public void cleanSnapShots(String repo, String snapShotName) {
 		List<SnapshotInfo> list = getSnapshots(repo);
 		TreeMap<Date, SnapshotInfo> map = new TreeMap<>();
-		for(SnapshotInfo info: list) {
+		for (SnapshotInfo info : list) {
 			String[] array = info.snapshotId().getName().split("_");
 			Date d = new Date(Long.parseLong(array[array.length - 1]));
-			if(info.snapshotId().getName().contains(snapShotName)) {
+			if (info.snapshotId().getName().contains(snapShotName)) {
 				map.put(d, info);
 			}
 		}
-		if(map.size() > 0) {
+		if (map.size() > 0) {
 			map.remove(map.lastKey());
-			for(Date key: map.keySet()) {
+			for (Date key : map.keySet()) {
 				deleteSnapShot(repo, map.get(key).snapshotId().getName());
 			}
 		}
@@ -495,10 +493,10 @@ public class IndexManager {
 		List<String> indexes = getIndexList();
 		List<SnapshotInfo> list = getSnapshots(repo);
 		TreeMap<Date, SnapshotInfo> map = new TreeMap<>();
-		for(SnapshotInfo info: list) {
+		for (SnapshotInfo info : list) {
 			String[] array = info.snapshotId().getName().split("_");
 			Date d = new Date(Long.parseLong(array[array.length - 1]));
-			if(info.snapshotId().getName().contains(index)) {
+			if (info.snapshotId().getName().contains(index)) {
 				map.put(d, info);
 			}
 		}
@@ -507,29 +505,29 @@ public class IndexManager {
 		log.info("Lastest Snapshot: " + map.lastKey());
 		SnapshotInfo info = map.get(map.lastKey());
 
-		if(indexes.contains(info.snapshotId().getName())) {
+		if (indexes.contains(info.snapshotId().getName())) {
 			log.info("Index already exists: " + info.snapshotId().getName() + " not restoring");
 		} else {
 			log.info("Need to restore index: " + info.snapshotId().getName());
-			String snapshot_name = info.snapshotId().getName();
+			String snapshotName = info.snapshotId().getName();
 
-			List<String> index_list = new ArrayList<String>();
-			index_list.add(snapshot_name);
-			restoreSnapShot(repo, snapshot_name, new ArrayList<String>(index_list));
+			List<String> indexList = new ArrayList<String>();
+			indexList.add(snapshotName);
+			restoreSnapShot(repo, snapshotName, new ArrayList<String>(indexList));
 
-			log.info("Restore: " + snapshot_name + " is complete");
+			log.info("Restore: " + snapshotName + " is complete");
 			log.info("Switching Aliases: ");
-			if(indexes.size() > 0) {
-				List<String> indexList = getIndexNamesFromAlias("site_index");
-				for(String localIndex: indexList) {
-					if(localIndex.contains(index)) {
+			if (indexes.size() > 0) {
+				List<String> siteIndexList = getIndexNamesFromAlias("site_index");
+				for (String localIndex : siteIndexList) {
+					if (localIndex.contains(index)) {
 						removeAlias("site_index", localIndex);
 						deleteIndex(localIndex);
 						break;
 					}
 				}
 			}
-			createAlias("site_index", snapshot_name);
+			createAlias("site_index", snapshotName);
 			log.info("Index restore complete");
 		}
 

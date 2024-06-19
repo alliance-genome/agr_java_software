@@ -37,82 +37,50 @@ public interface OrthologyRESTInterface {
 
 	@GET
 	@Path("/{taxonIDOne}/{taxonIDTwo}")
-	@JsonView(value = {View.Homology.class})
+	@JsonView(value = { View.Homology.class })
 	@Operation(summary = "Retrieve homologous gene records for given pair of species")
-	@APIResponses(
-			value = {
-					@APIResponse(
-							responseCode = "404",
-							description = "Missing homologs",
-							content = @Content(mediaType = "text/plain")),
-					@APIResponse(
-							responseCode = "200",
-							description = "homologous gene records for given pair of species.",
-							content = @Content(mediaType = "application/json",
-									schema = @Schema(implementation = HomologView.class))) })
+	@APIResponses(value = { @APIResponse(responseCode = "404", description = "Missing homologs", content = @Content(mediaType = "text/plain")),
+		@APIResponse(responseCode = "200", description = "homologous gene records for given pair of species.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = HomologView.class))) })
 	JsonResultResponse<HomologView> getDoubleSpeciesOrthology(
-			@Parameter(in=ParameterIn.PATH, name = "taxonIDOne", description = "Taxon ID for the first gene: Could be the full ID, e.g. 'NCBITaxon:10090', or just the ID, i.e. '10090'. Alternatively, part of a species name uniquely identifying a single species, e.g. 'danio' or 'mus'.", required = true, schema = @Schema(type = SchemaType.STRING))
-			@PathParam("taxonIDOne") String speciesOne,
-			@Parameter(in=ParameterIn.PATH, name = "taxonIDTwo", description = "Taxon ID for the second gene: Could be the full ID, e.g. 'NCBITaxon:10090', or just the ID, i.e. '10090'. Alternatively, part of a species name uniquely identifying a single species, e.g. 'danio' or 'mus'.", required = true, schema = @Schema(type = SchemaType.STRING))
-			@PathParam("taxonIDTwo") String speciesTwo,
-			@Parameter(in=ParameterIn.QUERY, name = "filter.stringency", description = "apply stringency containsFilterValue", schema = @Schema(type = SchemaType.STRING))
-			@DefaultValue("stringent") @QueryParam("filter.stringency") String stringencyFilter,
-			@Parameter(in=ParameterIn.QUERY, name = "filter.method", description = "calculation methods", schema = @Schema(type = SchemaType.STRING))
-			@QueryParam("filter.method") String method,
-			@Parameter(in=ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
-			@DefaultValue("20") @QueryParam("limit") Integer limit,
-			@Parameter(in=ParameterIn.QUERY, name = "page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER))
-			@DefaultValue("1") @QueryParam("page") Integer page) throws IOException;
-
+		@Parameter(in = ParameterIn.PATH, name = "taxonIDOne", description = "Taxon ID for the first gene: Could be the full ID, e.g. 'NCBITaxon:10090', or just the ID, i.e. '10090'. Alternatively, part of a species name uniquely identifying a single species, e.g. 'danio' or 'mus'.", required = true, schema = @Schema(type = SchemaType.STRING)) @PathParam("taxonIDOne") String speciesOne,
+		@Parameter(in = ParameterIn.PATH, name = "taxonIDTwo", description = "Taxon ID for the second gene: Could be the full ID, e.g. 'NCBITaxon:10090', or just the ID, i.e. '10090'. Alternatively, part of a species name uniquely identifying a single species, e.g. 'danio' or 'mus'.", required = true, schema = @Schema(type = SchemaType.STRING)) @PathParam("taxonIDTwo") String speciesTwo,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.stringency", description = "apply stringency containsFilterValue", schema = @Schema(type = SchemaType.STRING)) @DefaultValue("stringent") @QueryParam("filter.stringency") String stringencyFilter,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.method", description = "calculation methods", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.method") String method,
+		@Parameter(in = ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("20") @QueryParam("limit") Integer limit,
+		@Parameter(in = ParameterIn.QUERY, name = "page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("1") @QueryParam("page") Integer page) throws IOException;
 
 	@GET
 	@Path("/{taxonID}")
-	@JsonView(value = {View.Homology.class})
+	@JsonView(value = { View.Homology.class })
 	@Operation(summary = "Retrieve homologous gene records for a given species")
 	JsonResultResponse<HomologView> getSingleSpeciesOrthology(
-			@Parameter(in=ParameterIn.PATH, name = "taxonID", description = "Taxon ID for the gene: Could be the full ID, e.g. 'NCBITaxon:10090', or just the ID, i.e. '10090'. Alternatively, part of a species name uniquely identifying a single species, e.g. 'danio' or 'mus'.", required = true, schema = @Schema(type = SchemaType.STRING))
-			@PathParam("taxonID") String species,
-			@Parameter(in=ParameterIn.QUERY, name = "filter.stringency", description = "apply stringency containsFilterValue", schema = @Schema(type = SchemaType.STRING))
-			@DefaultValue("stringent") @QueryParam("filter.stringency") String stringencyFilter,
-			@Parameter(in=ParameterIn.QUERY, name = "filter.method", description = "calculation methods", schema = @Schema(type = SchemaType.STRING))
-			@QueryParam("filter.method") String method,
-			@Parameter(in=ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
-			@DefaultValue("20") @QueryParam("limit") Integer limit,
-			@Parameter(in=ParameterIn.QUERY, name = "page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER))
-			@DefaultValue("1") @QueryParam("page") Integer page) throws IOException;
+		@Parameter(in = ParameterIn.PATH, name = "taxonID", description = "Taxon ID for the gene: Could be the full ID, e.g. 'NCBITaxon:10090', or just the ID, i.e. '10090'. Alternatively, part of a species name uniquely identifying a single species, e.g. 'danio' or 'mus'.", required = true, schema = @Schema(type = SchemaType.STRING)) @PathParam("taxonID") String species,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.stringency", description = "apply stringency containsFilterValue", schema = @Schema(type = SchemaType.STRING)) @DefaultValue("stringent") @QueryParam("filter.stringency") String stringencyFilter,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.method", description = "calculation methods", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.method") String method,
+		@Parameter(in = ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("20") @QueryParam("limit") Integer limit,
+		@Parameter(in = ParameterIn.QUERY, name = "page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("1") @QueryParam("page") Integer page) throws IOException;
 
 	@GET
 	@Path("/species")
-	@JsonView(value = {View.Homology.class})
-	JsonResultResponse<HomologView> getMultiSpeciesOrthology(
-			@QueryParam("taxonID") List<String> taxonID,
-			@QueryParam("taxonIdList") String taxonIdList,
-			@QueryParam("stringencyFilter") String stringencyFilter,
-			@QueryParam("methods") String methods,
-			@DefaultValue("20") @QueryParam("rows") Integer rows,
-			@DefaultValue("1") @QueryParam("start") Integer start) throws IOException;
+	@JsonView(value = { View.Homology.class })
+	JsonResultResponse<HomologView> getMultiSpeciesOrthology(@QueryParam("taxonID") List<String> taxonID, @QueryParam("taxonIdList") String taxonIdList, @QueryParam("stringencyFilter") String stringencyFilter, @QueryParam("methods") String methods,
+		@DefaultValue("20") @QueryParam("rows") Integer rows, @DefaultValue("1") @QueryParam("start") Integer start) throws IOException;
 
 	@GET
 	@Path("/geneMap")
-	@JsonView(value = {View.Homology.class})
+	@JsonView(value = { View.Homology.class })
 	@Operation(summary = "Retrieve homologous gene records for given list of geneMap")
 	JsonResultResponse<HomologView> getMultiGeneOrthology(
-			@Parameter(in=ParameterIn.QUERY, name =	 "geneID", description = "List of geneMap (specified by their ID) for which homology is retrieved, e.g. 'MGI:109583'", schema = @Schema(type = SchemaType.STRING))
-			@QueryParam("geneID") List<String> geneID,
-			@Parameter(in=ParameterIn.QUERY, name = "geneIdList", description = "List of additional source gene IDs for which homology is retrieved in a comma-delimited list, e.g. 'MGI:109583,RGD:2129,MGI:97570", schema = @Schema(type = SchemaType.STRING))
-			@QueryParam("geneIdList") String geneList,
-			@Parameter(in=ParameterIn.QUERY, name = "filter.stringency", description = "apply stringency containsFilterValue", schema = @Schema(type = SchemaType.STRING))
-			@DefaultValue("stringent") @QueryParam("filter.stringency") String stringency,
-			@Parameter(in=ParameterIn.QUERY, name = "filter.method", description = "calculation methods", schema = @Schema(type = SchemaType.STRING))
-			@QueryParam("filter.method") String method,
-			@Parameter(in=ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
-			@DefaultValue("20") @QueryParam("limit") Integer limit,
-			@Parameter(in=ParameterIn.QUERY, name = "page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER))
-			@DefaultValue("1") @QueryParam("page") Integer page) throws IOException;
+		@Parameter(in = ParameterIn.QUERY, name = "geneID", description = "List of geneMap (specified by their ID) for which homology is retrieved, e.g. 'MGI:109583'", schema = @Schema(type = SchemaType.STRING)) @QueryParam("geneID") List<String> geneID,
+		@Parameter(in = ParameterIn.QUERY, name = "geneIdList", description = "List of additional source gene IDs for which homology is retrieved in a comma-delimited list, e.g. 'MGI:109583,RGD:2129,MGI:97570", schema = @Schema(type = SchemaType.STRING)) @QueryParam("geneIdList") String geneList,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.stringency", description = "apply stringency containsFilterValue", schema = @Schema(type = SchemaType.STRING)) @DefaultValue("stringent") @QueryParam("filter.stringency") String stringency,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.method", description = "calculation methods", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.method") String method,
+		@Parameter(in = ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("20") @QueryParam("limit") Integer limit,
+		@Parameter(in = ParameterIn.QUERY, name = "page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("1") @QueryParam("page") Integer page) throws IOException;
 
 	@GET
 	@Path("/methods")
-	@JsonView(value = {View.OrthologyMethod.class})
+	@JsonView(value = { View.OrthologyMethod.class })
 	@Operation(summary = "Retrieve all methods used for calculation of homology")
 	JsonResultResponse<OrthoAlgorithm> getAllMethodsCalculations() throws JsonProcessingException;
 }

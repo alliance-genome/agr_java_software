@@ -9,11 +9,12 @@ import org.alliancegenome.neo4j.entity.node.Allele;
 
 public class TestES {
 
+	private TestES() { }
+	
 	public static void main(String[] args) throws IOException {
 		GeneController ctrl = new GeneController();
-		JsonResultResponse<Allele> res = ctrl.getAllelesPerGene("HGNC:6190", 10,1, null,"true","",
-				"","","intron_variant","","","allele|allele with multiple associated variants|allele with one associated variant|variant");
-		System.out.println("DONE!!"+ "RESULTS SIZE:"+ res.getResults().size());
+		JsonResultResponse<Allele> res = ctrl.getAllelesPerGene("HGNC:6190", 10, 1, null, "true", "", "", "", "intron_variant", "", "", "allele|allele with multiple associated variants|allele with one associated variant|variant");
+		System.out.println("DONE!!" + "RESULTS SIZE:" + res.getResults().size());
 		EsClientFactory.getDefaultEsClient().close();
 
 	}

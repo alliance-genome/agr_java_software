@@ -20,13 +20,11 @@ import lombok.Setter;
 @Schema(name = "GeneLevelConsequence", description = "POJO that represents Gene Level Consequences")
 public class GeneLevelConsequence extends Neo4jEntity implements Comparable<GeneLevelConsequence> {
 
-	@JsonView({View.Default.class, View.API.class,View.AlleleVariantSequenceConverterForES.class})
-	@JsonProperty(value = "id")
-	protected String primaryKey;
+	@JsonView({ View.Default.class, View.API.class, View.AlleleVariantSequenceConverterForES.class })
+	@JsonProperty(value = "id") protected String primaryKey;
 
-	@JsonView({View.Default.class, View.API.class,View.AlleleVariantSequenceConverterForES.class})
-	@JsonProperty(value = "consequence")
-	private String geneLevelConsequence;
+	@JsonView({ View.Default.class, View.API.class, View.AlleleVariantSequenceConverterForES.class })
+	@JsonProperty(value = "consequence") private String geneLevelConsequence;
 
 	@Override
 	public int compareTo(GeneLevelConsequence o) {
@@ -34,8 +32,9 @@ public class GeneLevelConsequence extends Neo4jEntity implements Comparable<Gene
 	}
 
 	public List<String> getIndividualConsequences() {
-		if (geneLevelConsequence == null)
+		if (geneLevelConsequence == null) {
 			return null;
+		}
 		return Lists.newArrayList(geneLevelConsequence.split("&"));
 	}
 

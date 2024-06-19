@@ -13,17 +13,15 @@ import lombok.Setter;
 @Setter
 @Getter
 public class ExpressionSummaryGroup {
-	@JsonView({View.Expression.class})
-	private String name;
-	@JsonView({View.Expression.class})
-	private long totalAnnotations;
+	@JsonView({ View.Expression.class }) private String name;
+	@JsonView({ View.Expression.class }) private long totalAnnotations;
 	private long totalClasses;
-	@JsonView({View.Expression.class})
-	private List<ExpressionSummaryGroupTerm> terms;
+	@JsonView({ View.Expression.class }) private List<ExpressionSummaryGroupTerm> terms;
 
 	public void addGroupTerm(ExpressionSummaryGroupTerm term) {
-		if (terms == null)
+		if (terms == null) {
 			terms = new ArrayList<>();
+		}
 		terms.add(term);
 	}
 
@@ -32,4 +30,3 @@ public class ExpressionSummaryGroup {
 		return name + " [" + totalAnnotations + ']';
 	}
 }
-

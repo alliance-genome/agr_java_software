@@ -8,7 +8,6 @@ import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
 
-
 public class TestFilePathConvert {
 
 	public static void main(String[] args) {
@@ -19,7 +18,7 @@ public class TestFilePathConvert {
 		new TestFilePathConvert();
 	}
 	
-	public TestFilePathConvert() {
+	private TestFilePathConvert() {
 		Properties props = new Properties();
 		InputStream file = getClass().getClassLoader().getResourceAsStream("config.properties");
 		try {

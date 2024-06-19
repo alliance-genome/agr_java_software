@@ -1,10 +1,16 @@
 package org.alliancegenome.indexer.rest.interfaces;
 
-import com.fasterxml.jackson.annotation.JsonView;
-import jakarta.ws.rs.*;
 import org.alliancegenome.curation_api.model.entities.ontology.ECOTerm;
 import org.alliancegenome.curation_api.response.ObjectResponse;
 import org.alliancegenome.curation_api.view.View;
+
+import com.fasterxml.jackson.annotation.JsonView;
+
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
 
 @Path("/ecoterm")
 @Produces({"application/json"})

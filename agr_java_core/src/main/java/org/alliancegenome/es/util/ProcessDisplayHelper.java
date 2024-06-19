@@ -16,10 +16,10 @@ public class ProcessDisplayHelper {
 	private Runtime runtime = Runtime.getRuntime();
 	private DecimalFormat df = new DecimalFormat("#");
 
-	private long startTime = 0;
-	private long lastTime = 0;
+	private long startTime;
+	private long lastTime;
 	private String message;
-	private long lastSizeCounter = 0;
+	private long lastSizeCounter;
 	private long totalSize;
 
 	private final Semaphore sem = new Semaphore(1);
@@ -27,15 +27,15 @@ public class ProcessDisplayHelper {
 	private AtomicLong sizeCounter = new AtomicLong(0);
 
 	private long displayTimeout = 30000; // How often to display to the console
-	private Logger logger = null;
-	private org.slf4j.Logger logger2 = null;
+	private Logger logger;
+	private org.slf4j.Logger logger2;
 
-	public ProcessDisplayHelper() { }
-
+	public ProcessDisplayHelper() {
+	}
 
 	public ProcessDisplayHelper(Logger logger, Integer displayTimeout) {
 		this.displayTimeout = displayTimeout;
-		this.logger	 = logger;
+		this.logger = logger;
 	}
 
 	public ProcessDisplayHelper(Integer displayTimeout) {
@@ -52,10 +52,11 @@ public class ProcessDisplayHelper {
 		lastSizeCounter = 0;
 		startTime = new Date().getTime();
 		sizeCounter = new AtomicLong(0);
-		if (totalSize > 0)
+		if (totalSize > 0) {
 			logInfoMessage(this.message + "Starting Process [total =	" + getBigNumber(totalSize) + "] " + new Date());
-		else
+		} else {
 			logInfoMessage(this.message + "Starting Process... (" + new Date() + ")");
+		}
 
 		lastTime = new Date().getTime();
 	}
@@ -78,7 +79,7 @@ public class ProcessDisplayHelper {
 
 		boolean permit = sem.tryAcquire();
 
-		if(permit) {
+		if (permit) {
 			Date now = new Date();
 			long nowLong = now.getTime();
 
@@ -94,16 +95,16 @@ public class ProcessDisplayHelper {
 
 			double percent = 0;
 			if (totalSize > 0) {
-				percent = ((double) (sizeCounter.get()) / totalSize);
+				percent = sizeCounter.get() / totalSize;
 			}
-			long processedAmount = (sizeCounter.get() - lastSizeCounter);
+			long processedAmount = sizeCounter.get() - lastSizeCounter;
 			StringBuffer sb = new StringBuffer(this.message);
 			sb.append(getBigNumber(sizeCounter.get()));
-			if(totalSize > 0) {
+			if (totalSize > 0) {
 				sb.append(" of [" + getBigNumber(totalSize) + "] " + (int) (percent * 100L) + "%");
 			}
 			sb.append(", " + (time / 1000) + "s to process " + getBigNumber(processedAmount) + " records at " + getBigNumber((processedAmount * 1000L) / time) + "r/s");
-			if(data != null) {
+			if (data != null) {
 				sb.append(" " + data);
 			}
 
@@ -137,7 +138,7 @@ public class ProcessDisplayHelper {
 			localMessage += " records";
 		}
 
-		if(data != null) {
+		if (data != null) {
 			localMessage += " " + data;
 		}
 		logInfoMessage(localMessage);
@@ -154,7 +155,6 @@ public class ProcessDisplayHelper {
 		return String.format("%02d:%02d:%02d", hours, minutes, seconds);
 	}
 
-
 	private void checkMemory() {
 		if (memoryPercent() > 0.95) {
 			logWarnMessage(message + "Memory Warning: " + df.format(memoryPercent() * 100) + "%");
@@ -166,13 +166,13 @@ public class ProcessDisplayHelper {
 	}
 
 	private double memoryPercent() {
-		return ((double) runtime.totalMemory() - (double) runtime.freeMemory()) / (double) runtime.maxMemory();
+		return ((double) runtime.totalMemory() - (double) runtime.freeMemory()) / runtime.maxMemory();
 	}
 
 	private void logWarnMessage(String message) {
-		if(logger != null) {
+		if (logger != null) {
 			logger.warn(message);
-		} else if(logger2 != null) {
+		} else if (logger2 != null) {
 			logger2.warn(message);
 		} else {
 			log.warn(message);
@@ -180,9 +180,9 @@ public class ProcessDisplayHelper {
 	}
 
 	private void logInfoMessage(String message) {
-		if(logger != null) {
+		if (logger != null) {
 			logger.info(message);
-		} else if(logger2 != null) {
+		} else if (logger2 != null) {
 			logger2.info(message);
 		} else {
 			log.info(message);

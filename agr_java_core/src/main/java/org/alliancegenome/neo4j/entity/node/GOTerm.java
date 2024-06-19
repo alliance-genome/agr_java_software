@@ -12,8 +12,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 @NodeEntity
-@Getter @Setter
-@Schema(name="GoTerm", description="POJO that represents GO Terms")
+@Getter
+@Setter
+@Schema(name = "GoTerm", description = "POJO that represents GO Terms")
 public class GOTerm extends Ontology {
 
 	private String nameKey;
@@ -25,32 +26,31 @@ public class GOTerm extends Ontology {
 	private String isObsolete;
 	private List<String> subset;
 
-	@Relationship(type = "ANNOTATED_TO", direction=Relationship.Direction.INCOMING)
-	private Set<Gene> genes = new HashSet<>();
-	
-	@Relationship(type = "ALSO_KNOWN_AS")
-	private Set<Synonym> synonyms = new HashSet<Synonym>();
+	@Relationship(type = "ANNOTATED_TO", direction = Relationship.Direction.INCOMING) private Set<Gene> genes = new HashSet<>();
 
-	@Relationship(type = "CROSS_REFERENCE")
-	private List<CrossReference> crossReferences;
+	@Relationship(type = "ALSO_KNOWN_AS") private Set<Synonym> synonyms = new HashSet<Synonym>();
 
-	@Relationship(type = "IS_A")
-	private Set<GOTerm> isAParents = new HashSet<>();
+	@Relationship(type = "CROSS_REFERENCE") private List<CrossReference> crossReferences;
 
-	@Relationship(type = "PART_OF")
-	private Set<GOTerm> partOfParents = new HashSet<>();
+	@Relationship(type = "IS_A") private Set<GOTerm> isAParents = new HashSet<>();
 
-	//GoDocument push-throughs, these fields can be removed from the
-	//GoTerm object when we refactor the indexing to have direct access to
-	//repository methods
+	@Relationship(type = "PART_OF") private Set<GOTerm> partOfParents = new HashSet<>();
+
+	// GoDocument push-throughs, these fields can be removed from the
+	// GoTerm object when we refactor the indexing to have direct access to
+	// repository methods
 	private Set<String> geneNameKeys = new HashSet<>();
 	private Set<String> speciesNames = new HashSet<>();
 
 	public Set<GOTerm> getParentTerms() {
 		Set<GOTerm> parentTerms = new HashSet<>();
 
-		isAParents.forEach(parent -> { parentTerms.addAll(parent.getParentTerms());});
-		partOfParents.forEach(parent -> {parentTerms.addAll(parent.getParentTerms());});
+		isAParents.forEach(parent -> {
+			parentTerms.addAll(parent.getParentTerms());
+		});
+		partOfParents.forEach(parent -> {
+			parentTerms.addAll(parent.getParentTerms());
+		});
 
 		parentTerms.add(this);
 
@@ -59,8 +59,12 @@ public class GOTerm extends Ontology {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 
 		GOTerm goTerm = (GOTerm) o;
 
@@ -71,6 +75,5 @@ public class GOTerm extends Ontology {
 	public int hashCode() {
 		return primaryKey.hashCode();
 	}
-
 
 }

@@ -47,12 +47,12 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
 
 	public Phenotype getPhenotypeTerm(String primaryKey) {
 
-		String cypher = "MATCH p0=(termName:Phenotype)--(phenotypeEntityJoin:PhenotypeEntityJoin)-[:EVIDENCE]-(publications:Publication)" +
-				" WHERE termName.primaryKey = $primaryKey	 " +
-				" OPTIONAL MATCH p2=(phenotypeEntityJoin)--(g:Gene)-[:FROM_SPECIES]-(species:Species)" +
-				" OPTIONAL MATCH p4=(phenotypeEntityJoin)--(feature:Feature)" +
-				" OPTIONAL MATCH crossRefMatch=(phenotypeEntityJoin)--(feature:Feature)--(crossRef:CrossReference)" +
-				" RETURN p0, p2, p4, crossRefMatch ";
+		String cypher = "MATCH p0=(termName:Phenotype)--(phenotypeEntityJoin:PhenotypeEntityJoin)-[:EVIDENCE]-(publications:Publication)"
+				+ " WHERE termName.primaryKey = $primaryKey"
+				+ " OPTIONAL MATCH p2=(phenotypeEntityJoin)--(g:Gene)-[:FROM_SPECIES]-(species:Species)"
+				+ " OPTIONAL MATCH p4=(phenotypeEntityJoin)--(feature:Feature)"
+				+ " OPTIONAL MATCH crossRefMatch=(phenotypeEntityJoin)--(feature:Feature)--(crossRef:CrossReference)"
+				+ " RETURN p0, p2, p4, crossRefMatch ";
 
 		HashMap<String, String> map = new HashMap<>();
 		map.put("primaryKey", primaryKey);
@@ -66,7 +66,9 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
 			}
 		}
 
-		if (primaryTerm == null) return null;
+		if (primaryTerm == null) {
+			return null;
+		}
 		return primaryTerm;
 	}
 
@@ -76,15 +78,15 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
 		HashMap<String, String> bindingValueMap = new HashMap<>();
 		bindingValueMap.put("geneID", geneID);
 
-		String cypher = "MATCH (phenotype:Phenotype)--(phenotypeEntityJoin:PhenotypeEntityJoin)-[:EVIDENCE]-(publications:Publication), " +
-				"		 (phenotypeEntityJoin)--(gene:Gene)-[:FROM_SPECIES]-(geneSpecies:Species)";
+		String cypher = "MATCH (phenotype:Phenotype)--(phenotypeEntityJoin:PhenotypeEntityJoin)-[:EVIDENCE]-(publications:Publication), "
+				+ "(phenotypeEntityJoin)--(gene:Gene)-[:FROM_SPECIES]-(geneSpecies:Species)";
 
-		String cypherFeatureOptional = "OPTIONAL MATCH (phenotypeEntityJoin)--(feature:Feature)--(featureCrossRef:CrossReference), " +
-				"featSpecies=(feature)-[:FROM_SPECIES]-(featureSpecies:Species) ";
+		String cypherFeatureOptional = "OPTIONAL MATCH (phenotypeEntityJoin)--(feature:Feature)--(featureCrossRef:CrossReference), "
+				+ "featSpecies=(feature)-[:FROM_SPECIES]-(featureSpecies:Species) ";
 		String entityType = pagination.getFieldFilterValueMap().get(FieldFilter.GENETIC_ENTITY_TYPE);
 		if (entityType != null && entityType.equals("allele")) {
-			cypher += ", (phenotypeEntityJoin)--(feature:Feature)--(featureCrossRef:CrossReference), " +
-					"featSpecies=(feature)-[:FROM_SPECIES]-(featureSpecies:Species) ";
+			cypher += ", (phenotypeEntityJoin)--(feature:Feature)--(featureCrossRef:CrossReference), "
+					+ "featSpecies=(feature)-[:FROM_SPECIES]-(featureSpecies:Species) ";
 			cypherFeatureOptional = "";
 		}
 		String cypherWhereClause = "		where gene.primaryKey = {geneID} ";
@@ -106,8 +108,8 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
 		if (geneticEntityFilterClause != null) {
 			cypherWhereClause += geneticEntityFilterClause;
 			bindingValueMap.put("feature", pagination.getFieldFilterValueMap().get(FieldFilter.GENETIC_ENTITY));
-			cypher += ", (phenotypeEntityJoin)--(feature:Feature)--(featureCrossRef:CrossReference), " +
-					"featSpecies=(feature)-[:FROM_SPECIES]-(featureSpecies:Species) ";
+			cypher += ", (phenotypeEntityJoin)--(feature:Feature)--(featureCrossRef:CrossReference), "
+					+ "featSpecies=(feature)-[:FROM_SPECIES]-(featureSpecies:Species) ";
 		}
 		cypher += cypherWhereClause;
 		if (geneticEntityFilterClause == null) {
@@ -119,18 +121,18 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
 			}
 			cypher += "featureCrossRef.crossRefType = '" + GeneticEntity.CrossReferenceType.ALLELE.getDisplayName() + "' ";
 		}
-		cypher += "return distinct phenotype.phenotypeStatement as phenotype, " +
-				"		feature.symbol, " +
-				"		feature as feature, " +
-				"		gene as gene, " +
-				"		geneSpecies as geneSpecies, " +
-				"		featureSpecies as featureSpecies, " +
-				"		collect(publications.pubMedId), " +
-				"		collect(publications) as publications, " +
-				"		count(publications),		 " +
-				"		collect(publications.pubModId), " +
-				"		featureCrossRef as pimaryReference " +
-				" ORDER BY LOWER(phenotype.phenotypeStatement), LOWER(feature.symbol)";
+		cypher += "return distinct phenotype.phenotypeStatement as phenotype, "
+			+ "feature.symbol, "
+			+ "feature as feature, "
+			+ "gene as gene, "
+			+ "geneSpecies as geneSpecies, "
+			+ "featureSpecies as featureSpecies, "
+			+ "collect(publications.pubMedId), "
+			+ "collect(publications) as publications, "
+			+ "count(publications), "
+			+ "collect(publications.pubModId), "
+			+ "featureCrossRef as pimaryReference "
+			+ " ORDER BY LOWER(phenotype.phenotypeStatement), LOWER(feature.symbol)";
 		cypher += " SKIP " + pagination.getStart() + " LIMIT " + pagination.getLimit();
 
 		return queryForResult(cypher, bindingValueMap);
@@ -138,11 +140,13 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
 
 	private String addAndWhereClauseORString(String eitherElement, String orElement, FieldFilter fieldFilter, BaseFilter baseFilter) {
 		String eitherClause = addWhereClauseString(eitherElement, fieldFilter, baseFilter, null);
-		if (eitherClause == null)
+		if (eitherClause == null) {
 			return null;
+		}
 		String orClause = addWhereClauseString(orElement, fieldFilter, baseFilter, null);
-		if (orClause == null)
+		if (orClause == null) {
 			return null;
+		}
 		return "AND (" + eitherClause + " OR " + orClause + ") ";
 	}
 
@@ -151,9 +155,9 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
 		HashMap<String, String> bindingValueMap = new HashMap<>();
 		bindingValueMap.put("geneID", geneID);
 
-		String baseCypher = "MATCH p0=(phenotype:Phenotype)--(phenotypeEntityJoin:PhenotypeEntityJoin)-[:EVIDENCE]-(publications:Publication), " +
-				"		 p2=(phenotypeEntityJoin)--(gene:Gene) " +
-				"where gene.primaryKey = $geneID ";
+		String baseCypher = "MATCH p0=(phenotype:Phenotype)--(phenotypeEntityJoin:PhenotypeEntityJoin)-[:EVIDENCE]-(publications:Publication), "
+				+ " p2=(phenotypeEntityJoin)--(gene:Gene) "
+				+ "where gene.primaryKey = $geneID ";
 		// get feature-less phenotypes
 		String phenotypeFilterClause = addAndWhereClauseString("phenotype.phenotypeStatement", FieldFilter.PHENOTYPE, pagination.getFieldFilterValueMap());
 		if (phenotypeFilterClause != null) {
@@ -167,14 +171,15 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
 			baseCypher += referenceFilterClause;
 		}
 
-		String cypher = baseCypher + "AND NOT (phenotypeEntityJoin)--(:Feature) " +
-				"return count(distinct phenotype.phenotypeStatement) as " + TOTAL_COUNT;
+		String cypher = baseCypher + "AND NOT (phenotypeEntityJoin)--(:Feature) "
+				+ "return count(distinct phenotype.phenotypeStatement) as " + TOTAL_COUNT;
 
 		Long featureLessPhenotype = 0L;
 
 		String geneticEntityFilterClause = addWhereClauseString("feature.symbol", FieldFilter.GENETIC_ENTITY, pagination.getFieldFilterValueMap(), "WHERE");
-		if (geneticEntityFilterClause == null)
+		if (geneticEntityFilterClause == null) {
 			featureLessPhenotype = (Long) queryForResult(cypher, bindingValueMap).iterator().next().get(TOTAL_COUNT);
+		}
 
 		// feature-related phenotypes
 		cypher = baseCypher;
@@ -203,10 +208,10 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
 	}
 
 	private String getPhenotypeBaseQuery() {
-		return "MATCH p0=(phenotype:Phenotype)--(phenotypeEntityJoin:PhenotypeEntityJoin)-[:EVIDENCE]-(publications:Publication), " +
-				"p2=(phenotypeEntityJoin)--(gene:Gene)-[:FROM_SPECIES]-(species:Species) " +
-				"where gene.primaryKey = $geneID " +
-				"OPTIONAL MATCH p4=(phenotypeEntityJoin)--(feature:Feature) ";
+		return "MATCH p0=(phenotype:Phenotype)--(phenotypeEntityJoin:PhenotypeEntityJoin)-[:EVIDENCE]-(publications:Publication), "
+				+ "p2=(phenotypeEntityJoin)--(gene:Gene)-[:FROM_SPECIES]-(species:Species) "
+				+ "where gene.primaryKey = $geneID "
+				+ "OPTIONAL MATCH p4=(phenotypeEntityJoin)--(feature:Feature) ";
 	}
 
 
@@ -219,15 +224,15 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
 	}
 
 	public List<PhenotypeEntityJoin> getAllPhenotypeAnnotations() {
-		String cypher = "MATCH p0=(phenotype:Phenotype)<-[:ASSOCIATION]-(pej:PhenotypeEntityJoin)-[:EVIDENCE]->(ppj:PublicationJoin)<-[:ASSOCIATION]-(publication:Publication), " +
-				" p2=(pej:PhenotypeEntityJoin)<-[:ASSOCIATION]-(gene:Gene)-[:FROM_SPECIES]->(species:Species) " +
+		String cypher = "MATCH p0=(phenotype:Phenotype)<-[:ASSOCIATION]-(pej:PhenotypeEntityJoin)-[:EVIDENCE]->(ppj:PublicationJoin)<-[:ASSOCIATION]-(publication:Publication), "
+				+ " p2=(pej:PhenotypeEntityJoin)<-[:ASSOCIATION]-(gene:Gene)-[:FROM_SPECIES]->(species:Species) "
 				//"where gene.primaryKey = 'WB:WBGene00000898' AND phenotype.primaryKey = 'fat content increased' " +
 				//"where gene.primaryKey = 'ZFIN:ZDB-GENE-991105-4' AND phenotype.primaryKey = 'bone growth decreased process quality, abnormal' " +
-				"OPTIONAL MATCH		baseLevel=(pej:PhenotypeEntityJoin)--(:ExperimentalCondition)-[:ASSOCIATION]->(:ZECOTerm) " +
-				"OPTIONAL MATCH		p4=(pej:PhenotypeEntityJoin)--(feature:Feature)-[:CROSS_REFERENCE]->(crossRef:CrossReference) " +
-				"OPTIONAL MATCH models=(ppj:PublicationJoin)-[:PRIMARY_GENETIC_ENTITY]->(agm:AffectedGenomicModel) " +
-				"OPTIONAL MATCH alleles=(ppj:PublicationJoin)-[:PRIMARY_GENETIC_ENTITY]->(featureCond:Allele)" +
-				"return p0, p4, p2, models, alleles, baseLevel ";
+				+ "OPTIONAL MATCH		baseLevel=(pej:PhenotypeEntityJoin)--(:ExperimentalCondition)-[:ASSOCIATION]->(:ZECOTerm) "
+				+ "OPTIONAL MATCH		p4=(pej:PhenotypeEntityJoin)--(feature:Feature)-[:CROSS_REFERENCE]->(crossRef:CrossReference) "
+				+ "OPTIONAL MATCH models=(ppj:PublicationJoin)-[:PRIMARY_GENETIC_ENTITY]->(agm:AffectedGenomicModel) "
+				+ "OPTIONAL MATCH alleles=(ppj:PublicationJoin)-[:PRIMARY_GENETIC_ENTITY]->(featureCond:Allele)"
+				+ "return p0, p4, p2, models, alleles, baseLevel ";
 
 		Iterable<PhenotypeEntityJoin> joins = query(PhenotypeEntityJoin.class, cypher);
 		List<PhenotypeEntityJoin> joinList = StreamSupport.stream(joins.spliterator(), false)
@@ -237,20 +242,22 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
 		// the above OPTIONAL MATCH clause, p6b is not working
 		joinList.forEach(phenotypeEntityJoin -> {
 			phenotypeEntityJoin.getPublicationJoins().forEach(publicationJoin -> {
-				if (publicationJoin.getAlleles() != null)
+				if (publicationJoin.getAlleles() != null) {
 					publicationJoin.getAlleles().forEach(allele -> {
 						// need to populate the base-level entities independently as OGM is probably
 						// using the setter allele.setPhenotypeEntityJoin and as the allele object has many of them they
 						// are overidden
 						allele.addPhenotypeEntityJoins(getAllPejRecords(allele.getPrimaryKey(), phenotypeEntityJoin.getPhenotype().getPhenotypeStatement()));
 					});
-				if (publicationJoin.getModels() != null)
+				}
+				if (publicationJoin.getModels() != null) {
 					publicationJoin.getModels().forEach(model -> {
 						// need to populate the base-level entities independently as OGM is probably
 						// using the setter model.setPhenotypeEntityJoin and as the model object has many of them they
 						// are overidden
 						model.addPhenotypeEntityJoins(getAllPejRecords(model.getPrimaryKey(), phenotypeEntityJoin.getPhenotype().getPhenotypeStatement()));
 					});
+				}
 			});
 		});
 
@@ -262,8 +269,9 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
 
 	public List<PhenotypeEntityJoin> getAllPejRecords(String id, String phenotype) {
 		List<PhenotypeEntityJoin> joins = getAllPejRecords().get(id);
-		if (joins == null)
+		if (joins == null) {
 			return null;
+		}
 		return joins.stream()
 				.filter(join -> join.getPhenotype().getPhenotypeStatement().equals(phenotype))
 				.collect(Collectors.toList());
@@ -271,17 +279,18 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
 
 
 	public Map<String, List<PhenotypeEntityJoin>> getAllPejRecords() {
-		if (pejAgmMap != null)
+		if (pejAgmMap != null) {
 			return pejAgmMap;
-		String cypherBaseLevelPEJ = "MATCH p0=(node)--(pej:PhenotypeEntityJoin)--(phenotype:Phenotype )," +
-				"  p1=(pej:PhenotypeEntityJoin)--(:PublicationJoin)--(:Publication) " +
+		}
+		String cypherBaseLevelPEJ = "MATCH p0=(node)--(pej:PhenotypeEntityJoin)--(phenotype:Phenotype ),"
+				+ " p1=(pej:PhenotypeEntityJoin)--(:PublicationJoin)--(:Publication) "
 				//"where gene.primaryKey = 'ZFIN:ZDB-GENE-040426-1716' AND phenotype.primaryKey = 'ball increased size, abnormal' " +
 				//"where gene.primaryKey = 'SGD:S000004966' AND phenotype.primaryKey = 'increased chemical compound accumulation' " +
-				" where node:Allele OR node:AffectedGenomicModel " +
+				+ " where node:Allele OR node:AffectedGenomicModel "
 				//" where node.primaryKey = 'WB:WBVar00143949'	" +
 				//"AND phenotype.phenotypeStatement in ['fat content increased'] " +
-				"OPTIONAL MATCH		baseLevel=(pej:PhenotypeEntityJoin)--(:ExperimentalCondition)-[:ASSOCIATION]->(:ZECOTerm) " +
-				"return p0, p1, baseLevel ";
+				+ "OPTIONAL MATCH baseLevel=(pej:PhenotypeEntityJoin)--(:ExperimentalCondition)-[:ASSOCIATION]->(:ZECOTerm) "
+				+ "return p0, p1, baseLevel ";
 		Iterable<PhenotypeEntityJoin> pejJoins = query(PhenotypeEntityJoin.class, cypherBaseLevelPEJ);
 		log.info("Number of PEJs for primary annotated entities: " + StreamSupport.stream(pejJoins.spliterator(), false).count());
 		pejAgmMap = StreamSupport.stream(pejJoins.spliterator(), false)
@@ -295,14 +304,14 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
 	}
 
 	public List<PhenotypeEntityJoin> getAllPhenotypeAnnotationsPureAGM() {
-		String cypher = "MATCH p0=(phenotype:Phenotype)--(pej:PhenotypeEntityJoin)-[:EVIDENCE]->(ppj:PublicationJoin)<-[:ASSOCIATION]-(publication:Publication), " +
-				" p2=(pej:PhenotypeEntityJoin)--(agm:AffectedGenomicModel) " +
+		String cypher = "MATCH p0=(phenotype:Phenotype)--(pej:PhenotypeEntityJoin)-[:EVIDENCE]->(ppj:PublicationJoin)<-[:ASSOCIATION]-(publication:Publication), "
+				+ " p2=(pej:PhenotypeEntityJoin)--(agm:AffectedGenomicModel) "
 				//"where agm.primaryKey in ['MGI:6272038','MGI:5702925'] " +
 				//"where agm.primaryKey in ['ZFIN:ZDB-FISH-180831-2'] " +
-				"OPTIONAL MATCH		p5=(pej:PhenotypeEntityJoin)--(:AffectedGenomicModel)-[:CROSS_REFERENCE]->(crossRef:CrossReference) " +
-				"OPTIONAL MATCH modelAllele=(agm:AffectedGenomicModel)--(n)--(:Gene) where n:Allele OR n:SequenceTargetingReagent " +
-				"OPTIONAL MATCH condition=(pej:PhenotypeEntityJoin)--(:ExperimentalCondition)-[:ASSOCIATION]->(zeco:ZECOTerm)" +
-				"return p0,p2, p5, modelAllele, condition ";
+				+ "OPTIONAL MATCH p5=(pej:PhenotypeEntityJoin)--(:AffectedGenomicModel)-[:CROSS_REFERENCE]->(crossRef:CrossReference) "
+				+ "OPTIONAL MATCH modelAllele=(agm:AffectedGenomicModel)--(n)--(:Gene) where n:Allele OR n:SequenceTargetingReagent "
+				+ "OPTIONAL MATCH condition=(pej:PhenotypeEntityJoin)--(:ExperimentalCondition)-[:ASSOCIATION]->(zeco:ZECOTerm)"
+				+ "return p0,p2, p5, modelAllele, condition ";
 
 		Iterable<PhenotypeEntityJoin> joins = query(PhenotypeEntityJoin.class, cypher);
 		return StreamSupport.stream(joins.spliterator(), false).
@@ -310,17 +319,17 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
 	}
 
 	public List<PhenotypeEntityJoin> getAllelePhenotypeAnnotations() {
-		String cypher = "MATCH p0=(phenotype:Phenotype)--(pej:PhenotypeEntityJoin)-[:EVIDENCE]->(ppj:PublicationJoin)<-[:ASSOCIATION]-(publication:Publication), " +
-				" p2=(pej:PhenotypeEntityJoin)--(allele:Feature) " +
+		String cypher = "MATCH p0=(phenotype:Phenotype)--(pej:PhenotypeEntityJoin)-[:EVIDENCE]->(ppj:PublicationJoin)<-[:ASSOCIATION]-(publication:Publication), "
+				+ " p2=(pej:PhenotypeEntityJoin)--(allele:Feature) "
 				//"where allele.primaryKey in ['WB:WBVar00000089'] " +
 				//"and	phenotype.primaryKey = 'melanophore stripe broken, abnormal' " +
-				"OPTIONAL MATCH gene=(allele:Feature)--(:Gene)" +
-				"OPTIONAL MATCH baseAnnotation=(pej:PhenotypeEntityJoin)--(:ExperimentalCondition)-[:ASSOCIATION]->(zeco:ZECOTerm) " +
-				"OPTIONAL MATCH p4=(pej:PhenotypeEntityJoin)--(allele:Feature)-[:CROSS_REFERENCE]->(crossRef:CrossReference) " +
-				"OPTIONAL MATCH modelAllele=(ppj:PublicationJoin)-[:PRIMARY_GENETIC_ENTITY]->(agm:AffectedGenomicModel)-[:ASSOCIATION]->(agmPej:PhenotypeEntityJoin)--(phenotype:Phenotype) " +
-				"OPTIONAL MATCH p6=(agmPej:PhenotypeEntityJoin)--(expCond:ExperimentalCondition)-[:ASSOCIATION]->(zeco:ZECOTerm)" +
+				+ "OPTIONAL MATCH gene=(allele:Feature)--(:Gene)"
+				+ "OPTIONAL MATCH baseAnnotation=(pej:PhenotypeEntityJoin)--(:ExperimentalCondition)-[:ASSOCIATION]->(zeco:ZECOTerm) "
+				+ "OPTIONAL MATCH p4=(pej:PhenotypeEntityJoin)--(allele:Feature)-[:CROSS_REFERENCE]->(crossRef:CrossReference) "
+				+ "OPTIONAL MATCH modelAllele=(ppj:PublicationJoin)-[:PRIMARY_GENETIC_ENTITY]->(agm:AffectedGenomicModel)-[:ASSOCIATION]->(agmPej:PhenotypeEntityJoin)--(phenotype:Phenotype) "
+				+ "OPTIONAL MATCH p6=(agmPej:PhenotypeEntityJoin)--(expCond:ExperimentalCondition)-[:ASSOCIATION]->(zeco:ZECOTerm)"
 				//"return p0, p2, p4, agm, expCond, zeco";
-				"return p0, p2, p4, modelAllele, p6, baseAnnotation ";
+				+ "return p0, p2, p4, modelAllele, p6, baseAnnotation ";
 
 		Iterable<PhenotypeEntityJoin> joins = query(PhenotypeEntityJoin.class, cypher);
 		List<PhenotypeEntityJoin> joinList = StreamSupport.stream(joins.spliterator(), false)
@@ -344,4 +353,5 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
 */
 		return joinList;
 	}
+	
 }

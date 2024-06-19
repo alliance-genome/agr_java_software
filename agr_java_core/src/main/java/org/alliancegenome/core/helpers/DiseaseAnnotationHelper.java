@@ -4,11 +4,13 @@ import org.alliancegenome.curation_api.model.entities.BiologicalEntity;
 
 public class DiseaseAnnotationHelper {
 
-	// convenience method to extract the entity name from a biological Entity, which is either
+	private DiseaseAnnotationHelper() { }
+	// convenience method to extract the entity name from a biological Entity, which
+	// is either
 	// gene
 	// allele
 	// model
-	public static String getEntityName(BiologicalEntity entity){
+	public static String getEntityName(BiologicalEntity entity) {
 		if (entity instanceof org.alliancegenome.curation_api.model.entities.Gene gene) {
 			return gene.getGeneSymbol().getFormatText();
 		}

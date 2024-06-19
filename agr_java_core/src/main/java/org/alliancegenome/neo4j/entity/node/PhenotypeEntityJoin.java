@@ -13,30 +13,26 @@ import lombok.Setter;
 @NodeEntity
 @Getter
 @Setter
-@Schema(name="PhenotypeEntityJoin", description="POJO that represents the Phenotype Entity join")
+@Schema(name = "PhenotypeEntityJoin", description = "POJO that represents the Phenotype Entity join")
 public class PhenotypeEntityJoin extends EntityJoin {
 
 	private String primaryKey;
 	private String dataProvider;
 
-	@Relationship(type = "ASSOCIATION", direction = Relationship.Direction.INCOMING)
-	private Gene gene;
+	@Relationship(type = "ASSOCIATION", direction = Relationship.Direction.INCOMING) private Gene gene;
 
-	@Relationship(type = "ASSOCIATION", direction = Relationship.Direction.INCOMING)
-	private Allele allele;
+	@Relationship(type = "ASSOCIATION", direction = Relationship.Direction.INCOMING) private Allele allele;
 
-	@Relationship(type = "ASSOCIATION", direction = Relationship.Direction.INCOMING)
-	private AffectedGenomicModel model;
+	@Relationship(type = "ASSOCIATION", direction = Relationship.Direction.INCOMING) private AffectedGenomicModel model;
 
-	@Relationship(type = "ASSOCIATION")
-	private Phenotype phenotype;
+	@Relationship(type = "ASSOCIATION") private Phenotype phenotype;
 
+	@Override
 	public List<Publication> getPublications() {
-		if (publicationJoins == null)
+		if (publicationJoins == null) {
 			return null;
-		return publicationJoins.stream()
-				.map(PublicationJoin::getPublication)
-				.collect(Collectors.toList());
+		}
+		return publicationJoins.stream().map(PublicationJoin::getPublication).collect(Collectors.toList());
 	}
 
 	@Override

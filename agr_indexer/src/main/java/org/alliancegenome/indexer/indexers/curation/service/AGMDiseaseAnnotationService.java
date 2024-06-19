@@ -16,39 +16,41 @@ import si.mazi.rescu.RestProxyFactory;
 public class AGMDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 
 	private AGMDiseaseAnnotationInterface agmApi = RestProxyFactory.createProxy(AGMDiseaseAnnotationInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
-	
+
 	private String cacheFileName = "agm_disease_annotation.json.gz";
-	
+
 	public List<AGMDiseaseAnnotation> getFiltered() {
-		
+
 		List<AGMDiseaseAnnotation> ret = readFromCache(cacheFileName, AGMDiseaseAnnotation.class);
-		if(ret.size() > 0) return ret;
+		if (ret.size() > 0) {
+			return ret;
+		}
 
 		ProcessDisplayHelper display = new ProcessDisplayHelper(10000);
 
 		int batchSize = 1000;
 		int page = 0;
 		int pages = 0;
-		
+
 		HashMap<String, Object> params = new HashMap<>();
 		params.put("internal", false);
 		params.put("obsolete", false);
-		//params.put("diseaseAnnotationSubject.modEntityId", "WB:WBStrain00024340");
-		//params.put("diseaseAnnotationSubject.modEntityId", "ZFIN:ZDB-FISH-150901-27842");
+		// params.put("diseaseAnnotationSubject.modEntityId", "WB:WBStrain00024340");
+		// params.put("diseaseAnnotationSubject.modEntityId",
+		// "ZFIN:ZDB-FISH-150901-27842");
 
 		do {
 			SearchResponse<AGMDiseaseAnnotation> response = agmApi.findForPublic(page, batchSize, params);
 
-			for(AGMDiseaseAnnotation da: response.getResults()) {
-				if(isValidEntity(allModelIDs, da.getDiseaseAnnotationSubject().getIdentifier()) ||
-					hasNoObsoletedOrInternalEntities(da)) {
+			for (AGMDiseaseAnnotation da: response.getResults()) {
+				if (isValidEntity(allModelIDs, da.getDiseaseAnnotationSubject().getIdentifier()) || hasNoObsoletedOrInternalEntities(da)) {
 					if (hasValidEntities(da, allGeneIDs, allAlleleIds, allModelIDs)) {
-						if(da.getInferredGene() != null && da.getInferredGene().getConstructGenomicEntityAssociations() != null) {
+						if (da.getInferredGene() != null && da.getInferredGene().getConstructGenomicEntityAssociations() != null) {
 							da.getInferredGene().getConstructGenomicEntityAssociations().clear();
 						}
-						if(da.getAssertedGenes() != null) {
-							for(Gene g: da.getAssertedGenes()) {
-								if(g.getConstructGenomicEntityAssociations() != null) {
+						if (da.getAssertedGenes() != null) {
+							for (Gene g : da.getAssertedGenes()) {
+								if (g.getConstructGenomicEntityAssociations() != null) {
 									g.getConstructGenomicEntityAssociations().clear();
 								}
 							}
@@ -58,18 +60,18 @@ public class AGMDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 				}
 			}
 
-			if(page == 0) {
+			if (page == 0) {
 				display.startProcess("Pulling AGM DA's from curation", response.getTotalResults());
 			}
 			display.progressProcess(response.getReturnedRecords().longValue());
-			
+
 			pages = (int) (response.getTotalResults() / batchSize);
 			page++;
-		} while(page <= pages);
+		} while (page <= pages);
 		display.finishProcess();
 
 		writeToCache(cacheFileName, ret);
-		
+
 		return ret;
 	}
 

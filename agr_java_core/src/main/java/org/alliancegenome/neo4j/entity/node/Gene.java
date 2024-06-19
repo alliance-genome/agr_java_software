@@ -27,7 +27,7 @@ import lombok.Setter;
 @NodeEntity
 @Getter
 @Setter
-@Schema(name="Gene", description="POJO that represents the Gene")
+@Schema(name = "Gene", description = "POJO that represents the Gene")
 public class Gene extends GeneticEntity implements Comparable<Gene> {
 
 	public Gene() {
@@ -77,7 +77,7 @@ public class Gene extends GeneticEntity implements Comparable<Gene> {
 	private List<Paralogous> paraGenes;
 
 	@Relationship(type = "ASSOCIATION")
-	@JsonView({View.GeneAPI.class, View.VariantAPI.class, View.AlleleAPI.class,View.AlleleVariantSequenceConverterForES.class})
+	@JsonView({ View.GeneAPI.class, View.VariantAPI.class, View.AlleleAPI.class, View.AlleleVariantSequenceConverterForES.class })
 	private List<GenomeLocation> genomeLocations;
 
 	@Relationship(type = "LOCATED_ON")
@@ -132,20 +132,27 @@ public class Gene extends GeneticEntity implements Comparable<Gene> {
 
 	@Override
 	public int compareTo(Gene gene) {
-		if (gene == null)
+		if (gene == null) {
 			return -1;
-		if (species == null && gene.getSpecies() != null)
+		}
+		if (species == null && gene.getSpecies() != null) {
 			return -1;
-		if (species != null && gene.getSpecies() == null)
+		}
+		if (species != null && gene.getSpecies() == null) {
 			return 1;
-		if (species != null && gene.getSpecies() != null && !species.equals(gene.species))
+		}
+		if (species != null && gene.getSpecies() != null && !species.equals(gene.species)) {
 			return species.compareTo(gene.species);
-		if (symbol == null && gene.getSymbol() == null)
+		}
+		if (symbol == null && gene.getSymbol() == null) {
 			return 0;
-		if (symbol == null)
+		}
+		if (symbol == null) {
 			return 1;
-		if (gene.symbol == null)
+		}
+		if (gene.symbol == null) {
 			return -1;
+		}
 		return symbol.compareTo(gene.getSymbol());
 	}
 
@@ -156,8 +163,12 @@ public class Gene extends GeneticEntity implements Comparable<Gene> {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 		Gene gene = (Gene) o;
 		return Objects.equals(primaryKey, gene.primaryKey);
 	}

@@ -48,8 +48,9 @@ public class PhenotypeCacheRepository {
 		// sorting
 		SortingField sortingField = null;
 		String sortBy = pagination.getSortBy();
-		if (sortBy != null && !sortBy.isEmpty())
+		if (sortBy != null && !sortBy.isEmpty()) {
 			sortingField = SortingField.getSortingField(sortBy.toUpperCase());
+		}
 
 		PhenotypeAnnotationSorting sorting = new PhenotypeAnnotationSorting();
 		fullDiseaseAnnotationList.sort(sorting.getComparator(sortingField, pagination.getAsc()));

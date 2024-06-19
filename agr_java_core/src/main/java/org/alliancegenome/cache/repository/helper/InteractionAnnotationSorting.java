@@ -21,67 +21,61 @@ public class InteractionAnnotationSorting implements Sorting<InteractionGeneJoin
 	private List<Comparator<InteractionGeneJoin>> interactorMoleculeTypeList;
 	private List<Comparator<InteractionGeneJoin>> interactorSpeciesList;
 	private List<Comparator<InteractionGeneJoin>> referenceList;
-	//for genetic interaction
+	// for genetic interaction
 	private List<Comparator<InteractionGeneJoin>> roleList;
 	private List<Comparator<InteractionGeneJoin>> interactorRoleList;
 	private List<Comparator<InteractionGeneJoin>> interactorAGeneticPerturbationList;
 	private List<Comparator<InteractionGeneJoin>> interactorBGeneticPerturbationList;
 	private List<Comparator<InteractionGeneJoin>> phenotypeList;
 
-	private static Comparator<InteractionGeneJoin> interactorGeneSymbolOrder =
-			Comparator.comparing(annotation -> Sorting.getSmartKey(annotation.getGeneB().getSymbol()));
+	private static Comparator<InteractionGeneJoin> interactorGeneSymbolOrder = Comparator.comparing(annotation -> Sorting.getSmartKey(annotation.getGeneB().getSymbol()));
 
-	private static Comparator<InteractionGeneJoin> moleculeOrder =
-			Comparator.comparing(annotation -> annotation.getInteractorAType().getLabel().toLowerCase());
+	private static Comparator<InteractionGeneJoin> moleculeOrder = Comparator.comparing(annotation -> annotation.getInteractorAType().getLabel().toLowerCase());
 
-	private static Comparator<InteractionGeneJoin> interactorMoleculeOrder =
-			Comparator.comparing(annotation -> annotation.getInteractorBType().getLabel().toLowerCase());
+	private static Comparator<InteractionGeneJoin> interactorMoleculeOrder = Comparator.comparing(annotation -> annotation.getInteractorBType().getLabel().toLowerCase());
 
-	private static Comparator<InteractionGeneJoin> interactorSpeciesOrder =
-			Comparator.comparing(annotation -> annotation.getGeneB().getSpecies().getName().toLowerCase());
+	private static Comparator<InteractionGeneJoin> interactorSpeciesOrder = Comparator.comparing(annotation -> annotation.getGeneB().getSpecies().getName().toLowerCase());
 
-	private static Comparator<InteractionGeneJoin> referenceOrder =
-			Comparator.comparing(annotation -> annotation.getPublication().getPubId().toLowerCase());
+	private static Comparator<InteractionGeneJoin> referenceOrder = Comparator.comparing(annotation -> annotation.getPublication().getPubId().toLowerCase());
 
-	private static Comparator<InteractionGeneJoin> detectionOrder =
-			Comparator.comparing(annotation -> {
-				List<MITerm> terms = annotation.getDetectionsMethods();
-				terms.sort(Comparator.comparing(miTerm -> miTerm.getDisplayName().toLowerCase()));
-				return terms.get(0).getDisplayName().toLowerCase();
-			});
-	//here for genetic interaction
-	private static Comparator<InteractionGeneJoin> interactorAGeneticPerturbationOrder =
-			Comparator.comparing(annotation -> {
-			 if (annotation.getAlleleA() ==null)	
-				 return null;
-			 else 
-				 return annotation.getAlleleA().getSymbol();
-			});
-	private static Comparator<InteractionGeneJoin> interactorBGeneticPerturbationOrder =
-			Comparator.comparing(annotation -> {
-				if (annotation.getAlleleB()==null)
-					return null;
-				else 
-				   return annotation.getAlleleB().getSymbol();
-				});
-	private static Comparator<InteractionGeneJoin> roleOrder =
-			Comparator.comparing(annotation -> annotation.getInteractorARole().getDisplayName());
-	private static Comparator<InteractionGeneJoin> interactorRoleOrder =
-			Comparator.comparing(annotation -> annotation.getInteractorBRole().getDisplayName());
-	
-	private static Comparator<InteractionGeneJoin> phenotypeOrder =
-		   // Comparator.comparing(annotation -> {
-		   //	  List<Phenotype> phenotypes = annotation.getPhenotypes();
-		   //	  phenotypes.sort(Comparator.comparing(phenotype -> phenotype.getPhenotypeStatement().toLowerCase()));
-		   //	  return phenotypes.get(0).getPhenotypeStatement().toLowerCase();
-		   // });
-	Comparator.comparing(annotation -> {
-		if (CollectionUtils.isEmpty(annotation.getPhenotypes()))
+	private static Comparator<InteractionGeneJoin> detectionOrder = Comparator.comparing(annotation -> {
+		List<MITerm> terms = annotation.getDetectionsMethods();
+		terms.sort(Comparator.comparing(miTerm -> miTerm.getDisplayName().toLowerCase()));
+		return terms.get(0).getDisplayName().toLowerCase();
+	});
+	// here for genetic interaction
+	private static Comparator<InteractionGeneJoin> interactorAGeneticPerturbationOrder = Comparator.comparing(annotation -> {
+		if (annotation.getAlleleA() == null) {
 			return null;
-		String phenotypeJoin = annotation.getPhenotypes().stream().sorted(Comparator.comparing(Phenotype::getPhenotypeStatement)).map(Phenotype::getPhenotypeStatement).collect(Collectors.joining(""));
-		return phenotypeJoin.toLowerCase();
-	}, Comparator.nullsLast(naturalOrder()));
-	
+		} else {
+			return annotation.getAlleleA().getSymbol();
+		}
+	});
+	private static Comparator<InteractionGeneJoin> interactorBGeneticPerturbationOrder = Comparator.comparing(annotation -> {
+		if (annotation.getAlleleB() == null) {
+			return null;
+		} else {
+			return annotation.getAlleleB().getSymbol();
+		}
+	});
+	private static Comparator<InteractionGeneJoin> roleOrder = Comparator.comparing(annotation -> annotation.getInteractorARole().getDisplayName());
+	private static Comparator<InteractionGeneJoin> interactorRoleOrder = Comparator.comparing(annotation -> annotation.getInteractorBRole().getDisplayName());
+
+	private static Comparator<InteractionGeneJoin> phenotypeOrder =
+		// Comparator.comparing(annotation -> {
+		// List<Phenotype> phenotypes = annotation.getPhenotypes();
+		// phenotypes.sort(Comparator.comparing(phenotype ->
+		// phenotype.getPhenotypeStatement().toLowerCase()));
+		// return phenotypes.get(0).getPhenotypeStatement().toLowerCase();
+		// });
+		Comparator.comparing(annotation -> {
+			if (CollectionUtils.isEmpty(annotation.getPhenotypes())) {
+				return null;
+			}
+			String phenotypeJoin = annotation.getPhenotypes().stream().sorted(Comparator.comparing(Phenotype::getPhenotypeStatement)).map(Phenotype::getPhenotypeStatement).collect(Collectors.joining(""));
+			return phenotypeJoin.toLowerCase();
+		}, Comparator.nullsLast(naturalOrder()));
+
 	public InteractionAnnotationSorting() {
 		super();
 
@@ -120,32 +114,32 @@ public class InteractionAnnotationSorting implements Sorting<InteractionGeneJoin
 		referenceList.add(interactorGeneSymbolOrder);
 		referenceList.add(moleculeOrder);
 		referenceList.add(interactorMoleculeOrder);
-		
-		//for genetic interaction		 
+
+		// for genetic interaction
 		roleList = new ArrayList<>(4);
 		roleList.add(roleOrder);
 		roleList.add(interactorGeneSymbolOrder);
 		roleList.add(moleculeOrder);
 		roleList.add(interactorMoleculeOrder);
-		
+
 		interactorRoleList = new ArrayList<>(4);
 		interactorRoleList.add(interactorRoleOrder);
 		interactorRoleList.add(interactorGeneSymbolOrder);
 		interactorRoleList.add(moleculeOrder);
 		interactorRoleList.add(interactorMoleculeOrder);
-		
+
 		interactorAGeneticPerturbationList = new ArrayList<>(4);
 		interactorAGeneticPerturbationList.add(interactorAGeneticPerturbationOrder);
 		interactorAGeneticPerturbationList.add(interactorGeneSymbolOrder);
 		interactorAGeneticPerturbationList.add(moleculeOrder);
 		interactorAGeneticPerturbationList.add(interactorMoleculeOrder);
-		
+
 		interactorBGeneticPerturbationList = new ArrayList<>(4);
 		interactorBGeneticPerturbationList.add(interactorBGeneticPerturbationOrder);
 		interactorBGeneticPerturbationList.add(interactorGeneSymbolOrder);
 		interactorBGeneticPerturbationList.add(moleculeOrder);
 		interactorBGeneticPerturbationList.add(interactorMoleculeOrder);
-		
+
 		phenotypeList = new ArrayList<>(4);
 		phenotypeList.add(phenotypeOrder);
 		phenotypeList.add(interactorGeneSymbolOrder);
@@ -153,9 +147,11 @@ public class InteractionAnnotationSorting implements Sorting<InteractionGeneJoin
 		phenotypeList.add(interactorMoleculeOrder);
 	}
 
+	@Override
 	public Comparator<InteractionGeneJoin> getComparator(SortingField field, Boolean ascending) {
-		if (field == null)
+		if (field == null) {
 			return getJoinedComparator(defaultList);
+		}
 
 		switch (field) {
 			case INTERACTOR_GENE_SYMBOL:
@@ -184,6 +180,5 @@ public class InteractionAnnotationSorting implements Sorting<InteractionGeneJoin
 				return getJoinedComparator(defaultList);
 		}
 	}
-
 
 }

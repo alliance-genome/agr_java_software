@@ -20,19 +20,18 @@ public class GeneDocumentCache extends IndexerCache {
 
 	private Map<String, Gene> geneMap = new HashMap<String, Gene>();
 
-	private Map<String,Set<String>> strictOrthologySymbols = new HashMap<>();
+	private Map<String, Set<String>> strictOrthologySymbols = new HashMap<>();
 
-	private Map<String,Set<String>> biologicalProcessWithParents = new HashMap<>();
-	private Map<String,Set<String>> biologicalProcessAgrSlim = new HashMap<>();
-	private Map<String,Set<String>> cellularComponentWithParents = new HashMap<>();
-	private Map<String,Set<String>> cellularComponentAgrSlim = new HashMap<>();
-	private Map<String,Set<String>> molecularFunctionWithParents = new HashMap<>();
-	private Map<String,Set<String>> molecularFunctionAgrSlim = new HashMap<>();
+	private Map<String, Set<String>> biologicalProcessWithParents = new HashMap<>();
+	private Map<String, Set<String>> biologicalProcessAgrSlim = new HashMap<>();
+	private Map<String, Set<String>> cellularComponentWithParents = new HashMap<>();
+	private Map<String, Set<String>> cellularComponentAgrSlim = new HashMap<>();
+	private Map<String, Set<String>> molecularFunctionWithParents = new HashMap<>();
+	private Map<String, Set<String>> molecularFunctionAgrSlim = new HashMap<>();
 
-	
-	private Map<String,Set<String>> soTermNames = new HashMap<>();
-	private Map<String,Set<String>> soTermNameWithParents = new HashMap<>();
-	private Map<String,Set<String>> soTermNameAgrSlim = new HashMap<>();
+	private Map<String, Set<String>> soTermNames = new HashMap<>();
+	private Map<String, Set<String>> soTermNameWithParents = new HashMap<>();
+	private Map<String, Set<String>> soTermNameAgrSlim = new HashMap<>();
 
 	Set<String> biotypeLevel0 = new HashSet<>() {{
 		add("protein_coding_gene");
@@ -121,12 +120,20 @@ public class GeneDocumentCache extends IndexerCache {
 			document.getBiotype0().add("other_gene");
 			document.getBiotype1().addAll(
 					soTermNames.get(id).stream()
-							.map(x -> {if (StringUtils.equals(x,"gene")) { return "unclassified gene";} return x;})
-							.map(x -> {if (StringUtils.equals(x,"biological_region")) { return "unclassified biological region";} return x;})
+							.map(x -> {
+								if (StringUtils.equals(x, "gene")) {
+									return "unclassified gene";
+								}
+								return x;
+							})
+							.map(x -> {
+								if (StringUtils.equals(x, "biological_region")) {
+									return "unclassified biological region";
+								}
+								return x;
+							})
 							.collect(Collectors.toSet()));
 			document.getBiotypes().addAll(document.getBiotype1());
 		}
 	}
-
-
 }

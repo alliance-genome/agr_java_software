@@ -27,7 +27,9 @@ public class SearchHitIterator implements Iterator<SearchHit> {
 			SearchResponse response = paginatedRequestBuilder.execute().actionGet();
 			currentPageResults = response.getHits().getHits();
 
-			if (currentPageResults.length < 1) return false;
+			if (currentPageResults.length < 1) {
+				return false;
+			}
 
 			currentResultIndex = -1;
 		}
@@ -37,11 +39,12 @@ public class SearchHitIterator implements Iterator<SearchHit> {
 
 	@Override
 	public SearchHit next() {
-		if (!hasNext()) return null;
+		if (!hasNext()) {
+			return null;
+		}
 
 		currentResultIndex++;
 		searchHitCounter++;
 		return currentPageResults[currentResultIndex];
 	}
-
 }

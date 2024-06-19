@@ -30,7 +30,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @JsonPropertyOrder({"id", "name", "definition", "definitionLinks", "synonyms", "parents", "children", "crossReferences", "sources"})
-@Schema(name="DOTerm", description="POJO that represents DO Term")
+@Schema(name = "DOTerm", description = "POJO that represents DO Term")
 public class DOTerm extends SimpleTerm {
 
 	public static final String HIGH_LEVEL_TERM_LIST_SLIM = "DO_AGR_slim";
@@ -98,8 +98,9 @@ public class DOTerm extends SimpleTerm {
 	@JsonView(value = {View.DiseaseAPI.class})
 	@JsonProperty(value = "synonyms")
 	public List<String> getSynonymList() {
-		if (synonyms == null)
+		if (synonyms == null) {
 			return null;
+		}
 		List<String> list = new ArrayList<>();
 		for (Synonym s : synonyms) {
 			list.add(s.getPrimaryKey());
@@ -113,8 +114,9 @@ public class DOTerm extends SimpleTerm {
 	@JsonView({View.DiseaseAPI.class})
 	@JsonProperty(value = "crossReferences")
 	public Map<String, List<CrossReference>> getCrossReferenceMap() {
-		if (crossReferences == null)
+		if (crossReferences == null) {
 			return null;
+		}
 		Map<String, List<CrossReference>> map = new HashMap<>();
 
 		List<CrossReference> othersList = new ArrayList<>();
@@ -143,8 +145,9 @@ public class DOTerm extends SimpleTerm {
 	}
 
 	private List<SimpleTerm> getSimpleTerms(List<DOTerm> parents) {
-		if (parents == null)
+		if (parents == null) {
 			return null;
+		}
 		return parents.stream()
 				.map(doTerm -> {
 					SimpleTerm term = new SimpleTerm();
@@ -170,8 +173,12 @@ public class DOTerm extends SimpleTerm {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 		DOTerm doTerm = (DOTerm) o;
 		return Objects.equals(primaryKey, doTerm.primaryKey);
 	}

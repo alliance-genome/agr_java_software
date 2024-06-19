@@ -22,28 +22,17 @@ import lombok.Setter;
 public class JsonResultResponse<T> {
 
 	public static final String DISTINCT_FIELD_VALUES = "distinctFieldValues";
-	@JsonView({View.Default.class})
-	private List<T> results = new ArrayList<T>();
-	@JsonView({View.Default.class})
-	private int total;
-	@JsonView({View.Default.class})
-	private int returnedRecords;
-	@JsonView({View.Default.class})
-	private String errorMessage = "";
-	@JsonView({View.Default.class})
-	private String note = "";
-	@JsonView({View.Default.class})
-	private String title = "";
-	@JsonView({View.Default.class})
-	private String requestDuration;
-	@JsonView({View.Default.class})
-	private Request request;
-	@JsonView({View.Default.class})
-	private String apiVersion;
-	@JsonView({View.Default.class})
-	private String requestDate;
-	@JsonView({View.Default.class})
-	private Map<String, Object> supplementalData;
+	@JsonView({ View.Default.class }) private List<T> results = new ArrayList<T>();
+	@JsonView({ View.Default.class }) private int total;
+	@JsonView({ View.Default.class }) private int returnedRecords;
+	@JsonView({ View.Default.class }) private String errorMessage = "";
+	@JsonView({ View.Default.class }) private String note = "";
+	@JsonView({ View.Default.class }) private String title = "";
+	@JsonView({ View.Default.class }) private String requestDuration;
+	@JsonView({ View.Default.class }) private Request request;
+	@JsonView({ View.Default.class }) private String apiVersion;
+	@JsonView({ View.Default.class }) private String requestDate;
+	@JsonView({ View.Default.class }) private Map<String, Object> supplementalData;
 
 	public JsonResultResponse() {
 		requestDate = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(Calendar.getInstance().getTime());
@@ -70,40 +59,45 @@ public class JsonResultResponse<T> {
 	}
 
 	public void setHttpServletRequest(HttpRequest request) {
-		if (request == null)
+		if (request == null) {
 			return;
+		}
 		this.request = new Request();
 		try {
 			this.request.setUri(URLDecoder.decode(request.uri().toString(), "UTF-8"));
 		} catch (Exception e) {
-			
+			// Do nothing
 		}
-		//this.request.setParameterMap(request.);
+		// this.request.setParameterMap(request.);
 	}
 
 	public void addSupplementalData(String attribute, Object object) {
-		if (supplementalData == null)
+		if (supplementalData == null) {
 			supplementalData = new LinkedHashMap<>();
+		}
 		supplementalData.put(attribute, object);
 
 	}
 
 	public void addAnnotationSummarySupplementalData(Object object) {
-		if (supplementalData == null)
+		if (supplementalData == null) {
 			supplementalData = new LinkedHashMap<>();
+		}
 		supplementalData.put("annotationSummary", object);
 
 	}
 
 	public void addDistinctFieldValueSupplementalData(Map object) {
-		if (supplementalData == null)
+		if (supplementalData == null) {
 			supplementalData = new LinkedHashMap<>();
+		}
 		supplementalData.put(DISTINCT_FIELD_VALUES, object);
 	}
 
 	public Map<String, List<String>> retrieveDistinctFieldValues() {
-		if(supplementalData == null)
+		if (supplementalData == null) {
 			return null;
+		}
 		return (Map<String, List<String>>) supplementalData.get(DISTINCT_FIELD_VALUES);
 	}
 
@@ -111,7 +105,6 @@ public class JsonResultResponse<T> {
 		// in seconds
 		long duration = (System.currentTimeMillis() - startTime) / 1000;
 		requestDuration = Long.toString(duration) + "s";
-
 
 	}
 }

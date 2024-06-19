@@ -15,11 +15,10 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 public class Main {
 
+	private Main() { }
+	
 	public static void main(String[] args) {
-		new Main();
-	}
 
-	public Main() {
 		ConfigHelper.init();
 		VariantConfigHelper.init();
 		ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
@@ -31,7 +30,7 @@ public class Main {
 		try {
 			// need to set VARIANTS_TO_INDEX = "HUMAN" or "MOD" to choose between which
 			// variants to index
-			DownloadFileSet downloadSet = mapper.readValue(getClass().getClassLoader().getResourceAsStream(VariantConfigHelper.getDownloadSetFile()), DownloadFileSet.class);
+			DownloadFileSet downloadSet = mapper.readValue(Main.class.getClassLoader().getResourceAsStream(VariantConfigHelper.getDownloadSetFile()), DownloadFileSet.class);
 			downloadSet.setDownloadPath(VariantConfigHelper.getVariantFileDownloadPath());
 
 			if (downloading) {
@@ -63,5 +62,4 @@ public class Main {
 		}
 
 	}
-
 }

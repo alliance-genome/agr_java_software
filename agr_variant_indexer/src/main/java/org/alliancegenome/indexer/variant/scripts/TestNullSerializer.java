@@ -14,15 +14,17 @@ import lombok.Data;
 
 public class TestNullSerializer {
 
+	private TestNullSerializer() { }
+	
 	public static void main(String[] args) throws Exception {
-		
+
 		ObjectMapper mapper = new ObjectMapper();
 
 		mapper.enable(SerializationFeature.INDENT_OUTPUT);
 		mapper.setSerializationInclusion(Include.NON_NULL);
 
 		mapper.setSerializerFactory(mapper.getSerializerFactory().withSerializerModifier(new APIBeanSerializerModifier()));
-		
+
 		CoolThing c = new CoolThing();
 		System.out.println(mapper.writeValueAsString(c));
 	}

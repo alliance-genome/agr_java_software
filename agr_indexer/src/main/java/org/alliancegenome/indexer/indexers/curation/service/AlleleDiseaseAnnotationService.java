@@ -16,38 +16,39 @@ import si.mazi.rescu.RestProxyFactory;
 public class AlleleDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 
 	private AlleleDiseaseAnnotationInterface alleleApi = RestProxyFactory.createProxy(AlleleDiseaseAnnotationInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
-	
+
 	private String cacheFileName = "allele_disease_annotation.json.gz";
-	
+
 	public List<AlleleDiseaseAnnotation> getFiltered() {
-		
+
 		List<AlleleDiseaseAnnotation> ret = readFromCache(cacheFileName, AlleleDiseaseAnnotation.class);
-		if(ret.size() > 0) return ret;
+		if (ret.size() > 0) {
+			return ret;
+		}
 
 		ProcessDisplayHelper display = new ProcessDisplayHelper(10000);
 
 		int batchSize = 1000;
 		int page = 0;
 		int pages = 0;
-		
+
 		HashMap<String, Object> params = new HashMap<>();
 		params.put("internal", false);
 		params.put("obsolete", false);
-		//params.put("diseaseAnnotationSubject.modEntityId", "RGD:5144089");
+		// params.put("diseaseAnnotationSubject.modEntityId", "RGD:5144089");
 
 		do {
 			SearchResponse<AlleleDiseaseAnnotation> response = alleleApi.findForPublic(page, batchSize, params);
 
-			for(AlleleDiseaseAnnotation da: response.getResults()) {
-				if(isValidEntity(allAlleleIds, da.getDiseaseAnnotationSubject().getIdentifier()) ||
-					hasNoObsoletedOrInternalEntities(da)) {
+			for (AlleleDiseaseAnnotation da: response.getResults()) {
+				if (isValidEntity(allAlleleIds, da.getDiseaseAnnotationSubject().getIdentifier()) || hasNoObsoletedOrInternalEntities(da)) {
 					if (hasValidEntities(da, allGeneIDs, allAlleleIds, allModelIDs)) {
-						if(da.getInferredGene() != null && da.getInferredGene().getConstructGenomicEntityAssociations() != null) {
+						if (da.getInferredGene() != null && da.getInferredGene().getConstructGenomicEntityAssociations() != null) {
 							da.getInferredGene().getConstructGenomicEntityAssociations().clear();
 						}
-						if(da.getAssertedGenes() != null) {
-							for(Gene g: da.getAssertedGenes()) {
-								if(g.getConstructGenomicEntityAssociations() != null) {
+						if (da.getAssertedGenes() != null) {
+							for (Gene g : da.getAssertedGenes()) {
+								if (g.getConstructGenomicEntityAssociations() != null) {
 									g.getConstructGenomicEntityAssociations().clear();
 								}
 							}
@@ -56,19 +57,19 @@ public class AlleleDiseaseAnnotationService extends BaseDiseaseAnnotationService
 					}
 				}
 			}
-			
-			if(page == 0) {
+
+			if (page == 0) {
 				display.startProcess("Pulling Allele DA's from curation", response.getTotalResults());
 			}
 			display.progressProcess(response.getReturnedRecords().longValue());
-			
+
 			pages = (int) (response.getTotalResults() / batchSize);
 			page++;
-		} while(page <= pages);
+		} while (page <= pages);
 		display.finishProcess();
-		
+
 		writeToCache(cacheFileName, ret);
-		
+
 		return ret;
 	}
 

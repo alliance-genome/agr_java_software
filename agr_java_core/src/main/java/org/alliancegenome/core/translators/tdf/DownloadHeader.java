@@ -33,10 +33,11 @@ public class DownloadHeader<T> {
 			headers.forEach(header -> {
 				Object value = header.getFunction().apply(row);
 				String valueStr;
-				if (value != null)
+				if (value != null) {
 					valueStr = value.toString();
-				else
+				} else {
 					valueStr = "";
+				}
 				dataJoiner.add(valueStr);
 
 			});

@@ -46,6 +46,7 @@ public class GeneIndexer extends Indexer {
 		}
 	}
 
+	@Override
 	protected void startSingleThread(LinkedBlockingDeque<String> queue) {
 		ArrayList<Gene> list = new ArrayList<>();
 		GeneTranslator geneTrans = new GeneTranslator();
@@ -70,10 +71,11 @@ public class GeneIndexer extends Indexer {
 				String key = queue.takeFirst();
 				Gene gene = geneDocumentCache.getGeneMap().get(key);
 
-				if (gene != null)
+				if (gene != null) {
 					list.add(gene);
-				else
+				} else {
 					log.debug("No gene found for " + key);
+				}
 			} catch (Exception e) {
 				log.error("Error while indexing...", e);
 				System.exit(-1);

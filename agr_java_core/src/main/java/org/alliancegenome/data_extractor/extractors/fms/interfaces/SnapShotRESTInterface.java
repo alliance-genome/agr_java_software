@@ -18,7 +18,6 @@ public interface SnapShotRESTInterface {
 
 	@GET
 	@Path("/release/{releaseVersion}")
-	public SnapShotResponce getSnapShot(@PathParam(value = "releaseVersion") String releaseVersion);
-
+	SnapShotResponce getSnapShot(@PathParam(value = "releaseVersion") String releaseVersion);
 
 }

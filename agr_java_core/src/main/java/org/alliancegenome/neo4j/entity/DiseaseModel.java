@@ -35,8 +35,9 @@ public class DiseaseModel implements Comparable<DiseaseModel>, Serializable, Pre
 	@JsonView({View.PrimaryAnnotation.class, View.API.class})
 	public String getDiseaseModel() {
 		String response = "";
-		if (associationType.contains("NOT"))
+		if (associationType.contains("NOT")) {
 			response += "does not model ";
+		}
 		response += disease.getName();
 		return response;
 	}
@@ -53,11 +54,14 @@ public class DiseaseModel implements Comparable<DiseaseModel>, Serializable, Pre
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 		DiseaseModel that = (DiseaseModel) o;
-		return Objects.equals(disease, that.disease) &&
-				Objects.equals(associationType, that.associationType);
+		return Objects.equals(disease, that.disease) && Objects.equals(associationType, that.associationType);
 	}
 
 	@Override

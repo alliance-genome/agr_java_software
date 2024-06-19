@@ -11,18 +11,18 @@ import org.neo4j.ogm.model.Result;
 public abstract class ResultTSVTranslator {
 
 	private PrintWriter writer;
-	
+
 	public ResultTSVTranslator(PrintWriter writer) {
 		this.writer = writer;
 		writer.print(getHeaderLine());
 	}
-	
+
 	public void translateResult(Result result) {
 		for (Map<String, Object> map : result) {
 			writer.print(getLine(map));
 		}
 	}
-	
+
 	public void translateMap(Map<String, Object> map) {
 		writer.print(getLine(map));
 	}
@@ -30,18 +30,18 @@ public abstract class ResultTSVTranslator {
 	private String getHeaderLine() {
 		StringBuilder builder = new StringBuilder();
 		StringJoiner headerJoiner = new StringJoiner("\t");
-		for(String s: getHeaders()) {
+		for (String s : getHeaders()) {
 			headerJoiner.add(s);
 		}
 		builder.append(headerJoiner.toString());
 		builder.append(ConfigHelper.getJavaLineSeparator());
 		return builder.toString();
 	}
-	
+
 	private String getLine(Map<String, Object> map) {
 		StringBuilder builder = new StringBuilder();
 		StringJoiner joiner = new StringJoiner("\t");
-		for(String s: mapToRow(map)) {
+		for (String s : mapToRow(map)) {
 			joiner.add(s);
 		}
 		builder.append(joiner.toString());
@@ -50,6 +50,7 @@ public abstract class ResultTSVTranslator {
 	}
 
 	protected abstract List<String> getHeaders();
+
 	protected abstract List<String> mapToRow(Map<String, Object> map);
 
 }

@@ -59,8 +59,9 @@ public class GeneService {
 		long startTime = System.currentTimeMillis();
 
 		JsonResultResponse<Allele> response = alleleVariantIndexService.getAlleles(geneId, pagination); // This needs to be a Helper function
-		if (response == null)
+		if (response == null) {
 			response = new JsonResultResponse<>();
+		}
 		long duration = (System.currentTimeMillis() - startTime) / 1000;
 		response.setRequestDuration(Long.toString(duration));
 		return response;
@@ -68,8 +69,9 @@ public class GeneService {
 
 	public JsonResultResponse<AlleleVariantSequence> getAllelesAndVariantInfo(String geneId, Pagination pagination) {
 		List<AlleleVariantSequence> allelesNVariants = alleleVariantIndexService.getAllelesNVariants(geneId, pagination);
-		if (allelesNVariants == null)
+		if (allelesNVariants == null) {
 			return null;
+		}
 		return alleleCacheRepository.getAlleleAndVariantJsonResultResponse(pagination, allelesNVariants);
 	}
 
@@ -77,8 +79,9 @@ public class GeneService {
 		JsonResultResponse<InteractionGeneJoin> response = new JsonResultResponse<>();
 		PaginationResult<InteractionGeneJoin> interactions = interCacheRepo.getInteractionAnnotationList(id, pagination, joinType);
 		response.addAnnotationSummarySupplementalData(getInteractionSummary(id));
-		if (interactions == null)
+		if (interactions == null) {
 			return response;
+		}
 		//FilterService<InteractionGeneJoin> filterService = new FilterService<>(new InteractionAnnotationFiltering());
 		//ColumnFieldMapping<InteractionGeneJoin> mapping = new InteractionColumnFieldMapping();
 		//List<InteractionGeneJoin> interactionAnnotationList = geneCacheRepo.getInteractions(id);
@@ -127,12 +130,13 @@ public class GeneService {
 					.map(SpeciesType::getTaxonId)
 					.collect(Collectors.toList());
 		}
-		if (CollectionUtils.isEmpty(taxonIDs))
+		if (CollectionUtils.isEmpty(taxonIDs)) {
 			return null;
+		}
 		List<String> taxIDs = taxonIDs.stream()
 				.map(SpeciesType::getTaxonId)
 				.collect(Collectors.toList());
 		return geneRepo.getAllGenes(taxIDs);
 	}
-  
+
 }

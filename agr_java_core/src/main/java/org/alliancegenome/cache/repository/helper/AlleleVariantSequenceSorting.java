@@ -69,9 +69,11 @@ public class AlleleVariantSequenceSorting implements Sorting<AlleleVariantSequen
 
 	}
 
+	@Override
 	public Comparator<AlleleVariantSequence> getComparator(SortingField field, Boolean ascending) {
-		if (field == null)
+		if (field == null) {
 			return getJoinedComparator(defaultList);
+		}
 
 		switch (field) {
 			case DEFAULT:
@@ -96,59 +98,66 @@ public class AlleleVariantSequenceSorting implements Sorting<AlleleVariantSequen
 
 	static public Comparator<AlleleVariantSequence> alleleSymbolOrder =
 			Comparator.comparing(allele -> {
-				if (allele.getAllele().getSymbolText() == null)
+				if (allele.getAllele().getSymbolText() == null) {
 					return null;
+				}
 				return allele.getAllele().getSymbolText().toLowerCase();
 			}, Comparator.nullsLast(naturalOrder()));
 
 	static public Comparator<AlleleVariantSequence> variantHgvsNameOrder =
 			Comparator.comparing(allele -> {
-				if (allele.getVariant() == null || allele.getVariant().getHgvsNomenclature() == null)
+				if (allele.getVariant() == null || allele.getVariant().getHgvsNomenclature() == null) {
 					return null;
+				}
 				return allele.getVariant().getHgvsNomenclature().toLowerCase();
 			}, Comparator.nullsLast(naturalOrder()));
 
 	static public Comparator<AlleleVariantSequence> sequenceFeatureOrder =
 			Comparator.comparing(allele -> {
-				if (allele.getConsequence()!=null && allele.getConsequence().getTranscript()!=null
-						&& allele.getConsequence().getTranscript().getName() != null)
-					return allele.getConsequence().getTranscript().getName();
+			if (allele.getConsequence() != null && allele.getConsequence().getTranscript() != null && allele.getConsequence().getTranscript().getName() != null) {
+				return allele.getConsequence().getTranscript().getName();
+			}
 				return null;
 			}, Comparator.nullsLast(naturalOrder()));
 
 	static public Comparator<AlleleVariantSequence> transcriptOrder =
 			Comparator.comparing(allele -> {
-				if (allele.getConsequence() != null)
+				if (allele.getConsequence() != null) {
 					return allele.getConsequence().getTranscript().getName();
+				}
 				return null;
 			}, Comparator.nullsLast(naturalOrder()));
 
 	static public Comparator<AlleleVariantSequence> speciesOrder =
 			Comparator.comparing(allele -> {
-				if (allele.getAllele().getSymbolText() == null)
+				if (allele.getAllele().getSymbolText() == null) {
 					return null;
+				}
 				return allele.getAllele().getSymbolText().toLowerCase();
 			}, Comparator.nullsLast(naturalOrder()));
 
 	static public Comparator<AlleleVariantSequence> variantOrder =
 			Comparator.comparing(allele -> {
-				if (CollectionUtils.isEmpty(allele.getAllele().getVariants()))
+				if (CollectionUtils.isEmpty(allele.getAllele().getVariants())) {
 					return null;
+				}
 				String diseaseJoin = allele.getAllele().getVariants().stream().sorted(Comparator.comparing(Variant::getName)).map(Variant::getName).collect(Collectors.joining(""));
 				return diseaseJoin.toLowerCase();
 			}, Comparator.nullsLast(naturalOrder()));
 
 	static public Comparator<AlleleVariantSequence> variantTypeOrder =
 			Comparator.comparing(allele -> {
-				if (allele.getVariant() == null)
+				if (allele.getVariant() == null) {
 					return null;
+				}
 				return allele.getVariant().getVariantType().getName().toLowerCase();
 			}, Comparator.nullsLast(naturalOrder()));
 
 	static public Comparator<AlleleVariantSequence> variantConsequenceOrder =
 			Comparator.comparing(allele -> {
-				if (allele.getConsequence() == null)
+				if (allele.getConsequence() == null) {
 					return null;
+				}
 				return allele.getConsequence().getMolecularConsequences().toString();
 			}, Comparator.nullsLast(naturalOrder()));
 

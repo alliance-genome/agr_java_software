@@ -81,19 +81,22 @@ public class DiseaseAnnotation extends ConditionAnnotation implements Comparable
 	@JsonView({View.DiseaseAnnotation.class})
 	private List<Map<String, CrossReference>> providers;
 
-	transient boolean remove = false;
+	transient boolean remove;
 	
 	public void addOrthologousGene(Gene gene) {
-		if (orthologyGenes == null)
+		if (orthologyGenes == null) {
 			orthologyGenes = new ArrayList<>();
+		}
 		orthologyGenes.add(gene);
 	}
 
 	public void addOrthologousGenes(List<Gene> genes) {
-		if (genes == null)
+		if (genes == null) {
 			return;
-		if (orthologyGenes == null)
+		}
+		if (orthologyGenes == null) {
 			orthologyGenes = new ArrayList<>();
+		}
 		orthologyGenes.addAll(genes);
 		orthologyGenes = orthologyGenes.stream()
 				.distinct()
@@ -102,23 +105,28 @@ public class DiseaseAnnotation extends ConditionAnnotation implements Comparable
 	}
 
 	public void addPrimaryAnnotatedEntity(PrimaryAnnotatedEntity entity) {
-		if (primaryAnnotatedEntities == null)
+		if (primaryAnnotatedEntities == null) {
 			primaryAnnotatedEntities = new ArrayList<>();
-		if (!primaryAnnotatedEntities.contains(entity))
+		}
+		if (!primaryAnnotatedEntities.contains(entity)) {
 			primaryAnnotatedEntities.add(entity);
+		}
 	}
 
 	public void addPrimaryAnnotatedEntityDuplicate(PrimaryAnnotatedEntity entity) {
-		if (primaryAnnotatedEntities == null)
+		if (primaryAnnotatedEntities == null) {
 			primaryAnnotatedEntities = new ArrayList<>();
+		}
 		primaryAnnotatedEntities.add(entity);
 	}
 
 	public void addAllPrimaryAnnotatedEntities(List<PrimaryAnnotatedEntity> annotatedEntities) {
-		if (annotatedEntities == null)
+		if (annotatedEntities == null) {
 			return;
-		if (primaryAnnotatedEntities == null)
+		}
+		if (primaryAnnotatedEntities == null) {
 			primaryAnnotatedEntities = new ArrayList<>();
+		}
 		primaryAnnotatedEntities.addAll(annotatedEntities);
 		primaryAnnotatedEntities = primaryAnnotatedEntities.stream()
 				.distinct()
@@ -154,19 +162,23 @@ public class DiseaseAnnotation extends ConditionAnnotation implements Comparable
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 		DiseaseAnnotation that = (DiseaseAnnotation) o;
-		return sortOrder == that.sortOrder &&
-				Objects.equals(primaryKey, that.primaryKey) &&
-				Objects.equals(source, that.source) &&
-				Objects.equals(disease, that.disease) &&
-				Objects.equals(gene, that.gene) &&
-				Objects.equals(feature, that.feature) &&
-				Objects.equals(references, that.references) &&
-				Objects.equals(publications, that.publications) &&
-				Objects.equals(evidenceCodes, that.evidenceCodes) &&
-				Objects.equals(associationType, that.associationType);
+		return sortOrder == that.sortOrder
+				&& Objects.equals(primaryKey, that.primaryKey)
+				&& Objects.equals(source, that.source)
+				&& Objects.equals(disease, that.disease)
+				&& Objects.equals(gene, that.gene)
+				&& Objects.equals(feature, that.feature)
+				&& Objects.equals(references, that.references)
+				&& Objects.equals(publications, that.publications)
+				&& Objects.equals(evidenceCodes, that.evidenceCodes)
+				&& Objects.equals(associationType, that.associationType);
 	}
 
 	@Override
@@ -177,10 +189,12 @@ public class DiseaseAnnotation extends ConditionAnnotation implements Comparable
 	@Override
 	public String toString() {
 		String primaryKey = disease.getPrimaryKey() + " : ";
-		if (gene != null)
+		if (gene != null) {
 			primaryKey += gene.getPrimaryKey();
-		if (associationType != null)
+		}
+		if (associationType != null) {
 			primaryKey += associationType;
+		}
 		return primaryKey + " : " + getConditionSummary();
 	}
 
@@ -196,17 +210,20 @@ public class DiseaseAnnotation extends ConditionAnnotation implements Comparable
 
 
 	public void addPublicationJoins(List<PublicationJoin> joins) {
-		if (joins == null)
+		if (joins == null) {
 			return;
-		if (publicationJoins == null)
+		}
+		if (publicationJoins == null) {
 			publicationJoins = new ArrayList<>();
+		}
 		publicationJoins.addAll(joins);
 		publicationJoins = publicationJoins.stream()
 				.distinct()
 				.collect(Collectors.toList());
 
-		if (publications == null)
+		if (publications == null) {
 			publications = new ArrayList<>();
+		}
 		publications.addAll(publicationJoins.stream()
 				.map(PublicationJoin::getPublication)
 				.distinct()
@@ -225,11 +242,12 @@ public class DiseaseAnnotation extends ConditionAnnotation implements Comparable
 	}
 
 	public Species getSpecies() {
-		if (gene != null)
+		if (gene != null) {
 			return gene.getSpecies();
-		if (feature != null)
+		}
+		if (feature != null) {
 			return feature.getSpecies();
+		}
 		return model.getSpecies();
 	}
-
 }

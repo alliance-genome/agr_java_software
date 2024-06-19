@@ -17,18 +17,21 @@ import htsjdk.variant.vcf.VCFFileReader;
 import htsjdk.variant.vcf.VCFInfoHeaderLine;
 
 public class TestSingleLineConvert {
+	
+	private TestSingleLineConvert() { }
+	
 	public static void main(String[] args) {
 		VCFFileReader reader = new VCFFileReader(new File("/Volumes/Cardano_Backup/Variants/HUMAN.v2.vep.chr9.vcf.gz"), false);
 		CloseableIterator<VariantContext> iter1 = reader.iterator();
 
 		ObjectMapper mapper = new ObjectMapper();
-		
+
 		VCFInfoHeaderLine header = reader.getFileHeader().getInfoHeaderLine("CSQ");
 		System.out.println(header.getDescription());
-		
+
 		int count = 0;
 		SummaryStatistics ss = new SummaryStatistics();
-		
+
 		AlleleVariantSequenceConverter converter = new AlleleVariantSequenceConverter();
 		Date start = new Date();
 		Date end = new Date();
@@ -36,17 +39,17 @@ public class TestSingleLineConvert {
 		double len = 4;
 		double rate = 0;
 		double total = 0;
-		while(iter1.hasNext()) {
+		while (iter1.hasNext()) {
 			try {
 				VariantContext vc = iter1.next();
-				//if(vc.getID().equals("rs55780505")) {
+				// if(vc.getID().equals("rs55780505")) {
 				List<AlleleVariantSequence> docs = converter.convertContextToAlleleVariantSequence(vc, null, SpeciesType.HUMAN, null);
-				
-				for(AlleleVariantSequence doc: docs) {
+
+				for (AlleleVariantSequence doc : docs) {
 					String jsonDoc = mapper.writeValueAsString(doc);
-					if(count == 10000) {
+					if (count == 10000) {
 						end = new Date();
-						rate = (total) / (end.getTime() - start.getTime());
+						rate = total / (end.getTime() - start.getTime());
 						avg = (avg - (avg / len)) + (rate / len);
 						System.out.println("Running Average (" + len + "): " + avg + " Rate: " + rate + " Total: " + total);
 						ss = new SummaryStatistics();
@@ -54,7 +57,7 @@ public class TestSingleLineConvert {
 					}
 					ss.addValue(jsonDoc.length());
 					count++;
-					//sum += doc.length();
+					// sum += doc.length();
 					total++;
 				}
 			} catch (Exception e) {

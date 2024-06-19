@@ -4,7 +4,6 @@ import java.io.PrintWriter;
 
 import org.alliancegenome.data_extractor.translators.GeneTSVTranslator;
 import org.alliancegenome.neo4j.repository.DataExtractorRepository;
-import org.neo4j.ogm.model.Result;
 
 public class GeneExtractor extends DataExtractor {
 
@@ -15,9 +14,7 @@ public class GeneExtractor extends DataExtractor {
 
 		GeneTSVTranslator translator = new GeneTSVTranslator(writer);
 
-		Result gene_res = repo.getAllGenes();
-
-		translator.translateResult(gene_res);
+		translator.translateResult(repo.getAllGenes());
 
 	}
 

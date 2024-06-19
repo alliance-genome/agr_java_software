@@ -14,39 +14,37 @@ import lombok.Getter;
 import lombok.Setter;
 
 @NodeEntity
-@Getter @Setter
+@Getter
+@Setter
 public class UBERONTerm extends Ontology {
 
-	@JsonView(View.Expression.class)
-	private String name;
+	@JsonView(View.Expression.class) private String name;
 	private String definition;
 	private String href;
 	private String type;
-	@JsonView(View.Expression.class)
-	private String primaryKey;
+	@JsonView(View.Expression.class) private String primaryKey;
 	private String isObsolete;
 	private List<String> subset;
 
-	@Relationship(type = "ANNOTATED_TO", direction=Relationship.Direction.INCOMING)
-	private Set<Gene> genes = new HashSet<>();
-	
-	@Relationship(type = "ALSO_KNOWN_AS")
-	private Set<Synonym> synonyms = new HashSet<Synonym>();
+	@Relationship(type = "ANNOTATED_TO", direction = Relationship.Direction.INCOMING) private Set<Gene> genes = new HashSet<>();
 
-	@Relationship(type = "CROSS_REFERENCE")
-	private List<CrossReference> crossReferences;
+	@Relationship(type = "ALSO_KNOWN_AS") private Set<Synonym> synonyms = new HashSet<Synonym>();
 
-	@Relationship(type = "IS_A")
-	private Set<UBERONTerm> isAParents = new HashSet<>();
+	@Relationship(type = "CROSS_REFERENCE") private List<CrossReference> crossReferences;
 
-	@Relationship(type = "PART_OF")
-	private Set<UBERONTerm> partOfParents = new HashSet<>();
+	@Relationship(type = "IS_A") private Set<UBERONTerm> isAParents = new HashSet<>();
+
+	@Relationship(type = "PART_OF") private Set<UBERONTerm> partOfParents = new HashSet<>();
 
 	public Set<UBERONTerm> getParentTerms() {
 		Set<UBERONTerm> parentTerms = new HashSet<>();
 
-		isAParents.forEach(parent -> { parentTerms.addAll(parent.getParentTerms());});
-		partOfParents.forEach(parent -> {parentTerms.addAll(parent.getParentTerms());});
+		isAParents.forEach(parent -> {
+			parentTerms.addAll(parent.getParentTerms());
+		});
+		partOfParents.forEach(parent -> {
+			parentTerms.addAll(parent.getParentTerms());
+		});
 
 		parentTerms.add(this);
 
@@ -55,8 +53,12 @@ public class UBERONTerm extends Ontology {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 
 		UBERONTerm goTerm = (UBERONTerm) o;
 
@@ -69,5 +71,7 @@ public class UBERONTerm extends Ontology {
 	}
 
 	@Override
-	public String toString() { return name; }
+	public String toString() {
+		return name;
+	}
 }

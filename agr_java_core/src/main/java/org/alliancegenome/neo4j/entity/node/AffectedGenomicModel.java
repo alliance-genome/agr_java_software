@@ -18,7 +18,7 @@ import lombok.Setter;
 @NodeEntity(label = "AffectedGenomicModel")
 @Getter
 @Setter
-@Schema(name="AffectedGenomicModel", description="POJO that represents the Affected Genomic model")
+@Schema(name = "AffectedGenomicModel", description = "POJO that represents the Affected Genomic model")
 public class AffectedGenomicModel extends GeneticEntity implements Comparable<AffectedGenomicModel> {
 
 	public AffectedGenomicModel() {
@@ -66,19 +66,23 @@ public class AffectedGenomicModel extends GeneticEntity implements Comparable<Af
 	}
 
 	public void addDiseaseEntityJoins(List<DiseaseEntityJoin> joins) {
-		if (joins == null)
+		if (joins == null) {
 			return;
-		if (diseaseEntityJoins == null)
+		}
+		if (diseaseEntityJoins == null) {
 			diseaseEntityJoins = new ArrayList<>();
+		}
 		diseaseEntityJoins.addAll(joins);
 		diseaseEntityJoins = diseaseEntityJoins.stream().distinct().collect(Collectors.toList());
 	}
 
 	public void addPhenotypeEntityJoins(List<PhenotypeEntityJoin> joins) {
-		if (joins == null)
+		if (joins == null) {
 			return;
-		if (phenotypeEntityJoins == null)
+		}
+		if (phenotypeEntityJoins == null) {
 			phenotypeEntityJoins = new ArrayList<>();
+		}
 		phenotypeEntityJoins.addAll(joins);
 		phenotypeEntityJoins = phenotypeEntityJoins.stream().distinct().collect(Collectors.toList());
 	}

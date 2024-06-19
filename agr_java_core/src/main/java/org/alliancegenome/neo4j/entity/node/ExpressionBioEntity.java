@@ -20,14 +20,11 @@ public class ExpressionBioEntity extends Neo4jEntity implements Comparable<Expre
 	private String primaryKey;
 	private String whereExpressedStatement;
 
-	@Relationship(type = "CELLULAR_COMPONENT_RIBBON_TERM")
-	private List<GOTerm> ccRibbonTermList = new ArrayList<>();
+	@Relationship(type = "CELLULAR_COMPONENT_RIBBON_TERM") private List<GOTerm> ccRibbonTermList = new ArrayList<>();
 
-	@Relationship(type = "CELLULAR_COMPONENT")
-	private List<GOTerm> ccTermList = new ArrayList<>();
+	@Relationship(type = "CELLULAR_COMPONENT") private List<GOTerm> ccTermList = new ArrayList<>();
 
-	@Relationship(type = "ANATOMICAL_RIBBON_TERM")
-	private List<UBERONTerm> aoTermList = new ArrayList<>();
+	@Relationship(type = "ANATOMICAL_RIBBON_TERM") private List<UBERONTerm> aoTermList = new ArrayList<>();
 
 	@Override
 	public int compareTo(ExpressionBioEntity o) {
@@ -36,12 +33,14 @@ public class ExpressionBioEntity extends Neo4jEntity implements Comparable<Expre
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 		ExpressionBioEntity that = (ExpressionBioEntity) o;
-		return Objects.equals(whereExpressedStatement, that.whereExpressedStatement) &&
-				(new HashSet<>(aoTermList).equals(new HashSet<>(that.aoTermList))) &&
-				(new HashSet<>(ccTermList).equals(new HashSet<>(that.ccTermList)));
+		return Objects.equals(whereExpressedStatement, that.whereExpressedStatement) && (new HashSet<>(aoTermList).equals(new HashSet<>(that.aoTermList))) && (new HashSet<>(ccTermList).equals(new HashSet<>(that.ccTermList)));
 	}
 
 	@Override

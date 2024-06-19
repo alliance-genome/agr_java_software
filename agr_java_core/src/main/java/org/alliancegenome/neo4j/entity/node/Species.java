@@ -19,30 +19,22 @@ import lombok.Setter;
 @NodeEntity
 @Getter
 @Setter
-@Schema(name="Species", description="POJO that represents the Species")
+@Schema(name = "Species", description = "POJO that represents the Species")
 public class Species extends Neo4jEntity implements Comparable<Species> {
 
-	@JsonView({View.Default.class,	View.AlleleVariantSequenceConverterForES.class})
-	@JsonProperty(value = "taxonId")
-	private String primaryKey;
+	@JsonView({ View.Default.class, View.AlleleVariantSequenceConverterForES.class })
+	@JsonProperty(value = "taxonId") private String primaryKey;
 
-	@JsonView({View.Default.class,	View.AlleleVariantSequenceConverterForES.class})
-	private String name;
-	@JsonView({View.Default.class,View.AlleleVariantSequenceConverterForES.class})
-	private String shortName;
-	@JsonView({View.Default.class,View.AlleleVariantSequenceConverterForES.class})
-	private String dataProviderFullName;
-	@JsonView({View.Default.class,View.AlleleVariantSequenceConverterForES.class})
-	private String dataProviderShortName;
-	
-	@JsonView({View.DiseaseCacher.class, View.Homology.class})
-	private int phylogeneticOrder;
+	@JsonView({ View.Default.class, View.AlleleVariantSequenceConverterForES.class }) private String name;
+	@JsonView({ View.Default.class, View.AlleleVariantSequenceConverterForES.class }) private String shortName;
+	@JsonView({ View.Default.class, View.AlleleVariantSequenceConverterForES.class }) private String dataProviderFullName;
+	@JsonView({ View.Default.class, View.AlleleVariantSequenceConverterForES.class }) private String dataProviderShortName;
 
-	@JsonView({View.Default.class,View.AlleleVariantSequenceConverterForES.class})
-	private String commonNames;
+	@JsonView({ View.DiseaseCacher.class, View.Homology.class }) private int phylogeneticOrder;
 
-	@Relationship(type = "CREATED_BY")
-	private Set<Gene> genes = new HashSet<>();
+	@JsonView({ View.Default.class, View.AlleleVariantSequenceConverterForES.class }) private String commonNames;
+
+	@Relationship(type = "CREATED_BY") private Set<Gene> genes = new HashSet<>();
 
 	public static Species getSpeciesFromTaxonId(String taxonID) {
 		for (SpeciesType species : SpeciesType.values()) {

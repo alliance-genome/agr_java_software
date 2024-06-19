@@ -1,6 +1,16 @@
 package org.alliancegenome.cacher.cachers;
 
-import lombok.extern.slf4j.Slf4j;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+
 import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.neo4j.entity.node.Gene;
@@ -10,9 +20,7 @@ import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections4.map.MultiKeyMap;
 
-import java.util.*;
-
-import static java.util.stream.Collectors.*;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class GeneParalogCacher extends Cacher {
@@ -25,7 +33,7 @@ public class GeneParalogCacher extends Cacher {
 	protected void init() {
 		geneRepository = new GeneRepository();
 	}
-	
+
 	@Override
 	protected void cache() {
 
@@ -34,8 +42,9 @@ public class GeneParalogCacher extends Cacher {
 		List<Gene> geneList = geneRepository.getAllParalogyGenes();
 
 		finishProcess();
-		if (geneList == null)
+		if (geneList == null) {
 			return;
+		}
 
 		log.info("Total Number of Genes: ", geneList.size());
 
@@ -49,23 +58,21 @@ public class GeneParalogCacher extends Cacher {
 
 		List<ParalogBean> allParalogy = new ArrayList<>();
 		geneList.stream().filter(gene -> gene.getParaGenes() != null).forEach(gene -> {
-			Set<ParalogBean> paralogySet = gene.getParaGenes().stream()
-					.map(paralogous -> {
-						ParalogBean view = new ParalogBean();
-						view.setGene(gene);
-						view.setHomologGene(paralogous.getGene2());
-						view.setLength(paralogous.getLength());
-						view.setIdentity(paralogous.getIdentity());
-						view.setSimilarity(paralogous.getSimilarity());
-						view.setRank(paralogous.getRank());
+			Set<ParalogBean> paralogySet = gene.getParaGenes().stream().map(paralogous -> {
+				ParalogBean view = new ParalogBean();
+				view.setGene(gene);
+				view.setHomologGene(paralogous.getGene2());
+				view.setLength(paralogous.getLength());
+				view.setIdentity(paralogous.getIdentity());
+				view.setSimilarity(paralogous.getSimilarity());
+				view.setRank(paralogous.getRank());
 
-						progressProcess();
-						view.setPredictionMethodsMatched(getPredictionMatches(gene.getPrimaryKey(), paralogous.getGene2().getPrimaryKey()));
-						view.setPredictionMethodsNotMatched(getPredictionNotMatches(gene.getPrimaryKey(), paralogous.getGene2().getPrimaryKey()));
-						view.setPredictionMethodsNotCalled(getPredictionNotCalled(view));
-						return view;
-					})
-					.collect(toSet());
+				progressProcess();
+				view.setPredictionMethodsMatched(getPredictionMatches(gene.getPrimaryKey(), paralogous.getGene2().getPrimaryKey()));
+				view.setPredictionMethodsNotMatched(getPredictionNotMatches(gene.getPrimaryKey(), paralogous.getGene2().getPrimaryKey()));
+				view.setPredictionMethodsNotCalled(getPredictionNotCalled(view));
+				return view;
+			}).collect(toSet());
 			allParalogy.addAll(paralogySet);
 
 			cacheService.putCacheEntry(gene.getPrimaryKey(), new ArrayList<>(paralogySet), View.OrthologyCacher.class, CacheAlliance.GENE_PARALOGY);
@@ -74,20 +81,18 @@ public class GeneParalogCacher extends Cacher {
 		finishProcess();
 
 		// get homology cache by species
-		
+
 		startProcess("allParalogy.stream - group By o.getGene().getTaxonId()");
-		Map<String, List<ParalogBean>> map = allParalogy.stream()
-				.collect(groupingBy(o -> o.getGene().getTaxonId()));
+		Map<String, List<ParalogBean>> map = allParalogy.stream().collect(groupingBy(o -> o.getGene().getTaxonId()));
 		finishProcess();
-		
-		
+
 		CacheStatus status = new CacheStatus(CacheAlliance.SPECIES_ORTHOLOGY);
 
 		Map<String, Integer> speciesStatsInt = new TreeMap<>();
 		map.forEach((speciesID, paralogy) -> speciesStatsInt.put(speciesID, paralogy.size()));
 
 		map.clear();
-		
+
 		status.setSpeciesStats(speciesStatsInt);
 		setCacheStatus(status);
 
@@ -96,17 +101,16 @@ public class GeneParalogCacher extends Cacher {
 
 	private List<String> getPredictionNotCalled(ParalogBean view) {
 		List<String> usedNames = view.getPredictionMethodsMatched() != null ? new ArrayList<>(view.getPredictionMethodsMatched()) : new ArrayList<>();
-		if (view.getPredictionMethodsNotMatched() != null)
+		if (view.getPredictionMethodsNotMatched() != null) {
 			usedNames.addAll(view.getPredictionMethodsNotMatched());
-		return allMethods.stream()
-				.filter(method -> !usedNames.contains(method))
-				.sorted(Comparator.naturalOrder())
-				.collect(toList());
+		}
+		return allMethods.stream().filter(method -> !usedNames.contains(method)).sorted(Comparator.naturalOrder()).collect(toList());
 	}
 
 	private List<String> getPredictionMatches(String primaryKey, String primaryKey1) {
-		if (primaryKey == null || primaryKey1 == null)
+		if (primaryKey == null || primaryKey1 == null) {
 			return null;
+		}
 
 		Map<String, Set<String>> lists = geneGeneAlgorithm.get(primaryKey, primaryKey1);
 		if (lists == null) {
@@ -120,8 +124,9 @@ public class GeneParalogCacher extends Cacher {
 	}
 
 	private List<String> getPredictionNotMatches(String primaryKey, String primaryKey1) {
-		if (primaryKey == null || primaryKey1 == null)
+		if (primaryKey == null || primaryKey1 == null) {
 			return null;
+		}
 
 		Map<String, Set<String>> lists = geneGeneAlgorithm.get(primaryKey, primaryKey1);
 		if (lists == null) {

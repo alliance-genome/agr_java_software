@@ -5,6 +5,7 @@ import org.alliancegenome.curation_api.model.entities.ontology.ECOTerm;
 import org.alliancegenome.curation_api.response.ObjectResponse;
 import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.rest.interfaces.EcoTermRESTInterface;
+
 import si.mazi.rescu.RestProxyFactory;
 
 public class EcoTermService {

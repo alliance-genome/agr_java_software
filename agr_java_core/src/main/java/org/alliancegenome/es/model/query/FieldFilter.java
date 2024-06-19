@@ -41,7 +41,7 @@ public enum FieldFilter {
 	GENETIC_PERTURBATION("filter.geneticPerturbation"),
 	INTERACTOR_ROLE("filter.interacotorRole"),
 	INTERACTOR_GENETIC_PERTURBATION("filter.interactorGeneticPerturbation"),
-	PHENOTYPES("filter.phenotypes"),   
+	PHENOTYPES("filter.phenotypes"),
 	INTERACTION_TYPE("filter.interactionType"),
 	
 	BASED_ON_GENE("filter.basedOnGeneSymbol"),
@@ -76,19 +76,22 @@ public enum FieldFilter {
 	}
 
 	public static FieldFilter getFieldFilterByName(String name) {
-		if (name == null)
+		if (name == null) {
 			return null;
+		}
 		for (FieldFilter sort : values()) {
-			if (sort.name.equals(name))
+			if (sort.name.equals(name)) {
 				return sort;
+			}
 		}
 		return null;
 	}
 
 	public static String getAllValues() {
 		StringJoiner values = new StringJoiner(",");
-		for (FieldFilter sorting : values())
+		for (FieldFilter sorting : values()) {
 			values.add(sorting.name);
+		}
 		return values.toString();
 	}
 
@@ -97,8 +100,9 @@ public enum FieldFilter {
 	}
 
 	public static boolean hasFieldFilterPrefix(String value) {
-		if (value == null)
+		if (value == null) {
 			return false;
+		}
 		return value.toLowerCase().startsWith(FILTER_PREFIX);
 	}
 

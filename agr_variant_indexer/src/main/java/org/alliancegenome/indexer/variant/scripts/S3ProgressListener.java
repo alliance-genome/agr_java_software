@@ -9,8 +9,8 @@ import com.amazonaws.services.s3.transfer.Upload;
 public class S3ProgressListener implements ProgressListener {
 
 	private ProcessDisplayHelper pdh = new ProcessDisplayHelper(10000);
-	private boolean started = false;
-	
+	private boolean started;
+
 	public void setUpload(Upload upload) {
 		pdh.startProcess(upload.getDescription(), upload.getProgress().getTotalBytesToTransfer());
 		started = true;
@@ -18,9 +18,9 @@ public class S3ProgressListener implements ProgressListener {
 
 	@Override
 	public void progressChanged(ProgressEvent progressEvent) {
-		if(started) {
+		if (started) {
 			pdh.progressProcess(progressEvent.getBytesTransferred());
 		}
 	}
-	
+
 }

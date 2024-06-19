@@ -111,8 +111,8 @@ public class SearchableItemDocument extends ESDocument {
 	Set<String> geneSynonyms;
 	@JsonView({View.AlleleVariantSequenceConverterForES.class})
 	Set<String> geneCrossReferences;
-	Set<String> go_genes;
-	Set<String> go_species;
+	//Set<String> go_genes;
+	//Set<String> go_species;
 	Set<String> models;
 	@JsonView({View.AlleleVariantSequenceConverterForES.class})
 	Set<String> molecularConsequence;
@@ -153,6 +153,7 @@ public class SearchableItemDocument extends ESDocument {
 		}
 	}
 
+	@Override
 	public String toString() {
 		return primaryKey;
 	}

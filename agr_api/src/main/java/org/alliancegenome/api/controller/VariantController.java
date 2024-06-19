@@ -69,9 +69,7 @@ public class VariantController implements VariantRESTInterface {
 	}
 
 	@Override
-	public JsonResultResponse<Allele> getAllelesPerVariant(String id,
-														   Integer limit,
-														   Integer page) {
+	public JsonResultResponse<Allele> getAllelesPerVariant(String id, Integer limit, Integer page) {
 
 		long startTime = System.currentTimeMillis();
 		Pagination pagination = new Pagination(page, limit, null, null);

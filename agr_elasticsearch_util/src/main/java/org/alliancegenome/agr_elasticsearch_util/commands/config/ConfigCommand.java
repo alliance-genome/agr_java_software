@@ -22,11 +22,11 @@ public class ConfigCommand extends Command implements CommandInterface {
 
 	@Override
 	public void execute() throws Exception {
-		if(args.size() > 0) {
+		if (args.size() > 0) {
 			String command = args.remove(0);
 
-			if(command.equals("set")) {
-				if(args.size() == 2) {
+			if (command.equals("set")) {
+				if (args.size() == 2) {
 					String key = args.remove(0);
 					String value = args.remove(0);
 					ConfigHelper.setNameValue(key, value);
@@ -34,13 +34,13 @@ public class ConfigCommand extends Command implements CommandInterface {
 				} else {
 					printHelp();
 				}
-			} else if(command.equals("print")) {
+			} else if (command.equals("print")) {
 				ConfigHelper.printProperties();
-			} else if(command.equals("load")) {
-				//String file = args.remove(0);
+			} else if (command.equals("load")) {
+				// String file = args.remove(0);
 				System.out.println("Not Implemented yet");
-			} else if(command.equals("save")) {
-				//String file = args.remove(0);
+			} else if (command.equals("save")) {
+				// String file = args.remove(0);
 				System.out.println("Not Implemented yet");
 			} else {
 				printHelp();

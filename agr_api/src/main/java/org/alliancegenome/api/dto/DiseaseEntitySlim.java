@@ -15,11 +15,10 @@ import lombok.Setter;
 public class DiseaseEntitySlim {
 
 	public static final String ALL = "ALL";
-	@JsonView(View.DiseaseAnnotation.class)
-	private Map<String, EntitySubgroupSlim> slimMap = new LinkedHashMap<>();
+	@JsonView(View.DiseaseAnnotation.class) private Map<String, EntitySubgroupSlim> slimMap = new LinkedHashMap<>();
 
 	public void addDiseaseEntitySubgroupSlim(EntitySubgroupSlim slim) {
-		slimMap.put(ALL,slim);
+		slimMap.put(ALL, slim);
 	}
 
 }

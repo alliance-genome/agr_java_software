@@ -28,7 +28,7 @@ import htsjdk.variant.variantcontext.VariantContext;
 public class AlleleVariantSequenceConverter {
 
 	private static Pattern validAlleles = Pattern.compile("[ACGTN\\-]+");
-	private Species species = null;
+	private Species species;
 
 	public List<AlleleVariantSequence> convertContextToAlleleVariantSequence(VariantContext ctx, String[] header, SpeciesType speciesType, GeneDocumentCache geneCache) throws Exception {
 		List<AlleleVariantSequence> returnDocuments = new ArrayList<>();

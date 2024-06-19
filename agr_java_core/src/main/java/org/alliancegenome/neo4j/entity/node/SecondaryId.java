@@ -7,8 +7,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 @NodeEntity
-@Getter @Setter
-@Schema(name="SecondaryId", description="POJO that represents the Secondary Id")
+@Getter
+@Setter
+@Schema(name = "SecondaryId", description = "POJO that represents the Secondary Id")
 public class SecondaryId extends Identifier {
 
 	private String primaryKey;

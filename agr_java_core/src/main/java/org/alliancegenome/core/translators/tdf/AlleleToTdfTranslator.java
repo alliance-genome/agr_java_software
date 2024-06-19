@@ -20,16 +20,16 @@ public class AlleleToTdfTranslator {
 
 		List<AlleleDownloadRow> list = getAlleleDownloadRowsForGenes(annotations);
 		List<DownloadHeader> headers = List.of(
-				new DownloadHeader<>("Allele ID", (AlleleDownloadRow::getAlleleID)),
-				new DownloadHeader<>("Allele Symbol", (AlleleDownloadRow::getAlleleSymbol)),
-				new DownloadHeader<>("Allele Synonyms", (AlleleDownloadRow::getAlleleSynonyms)),
-				new DownloadHeader<>("Category", (AlleleDownloadRow::getVariantCategory)),
-				new DownloadHeader<>("Variant Symbol", (AlleleDownloadRow::getVariantSymbol)),
-				new DownloadHeader<>("Variant Type", (AlleleDownloadRow::getVariantType)),
-				new DownloadHeader<>("Variant Consequence", (AlleleDownloadRow::getVariantConsequence)),
-				new DownloadHeader<>("Has Phenotype", (AlleleDownloadRow::getHasPhenotype)),
-				new DownloadHeader<>("Has Disease", (AlleleDownloadRow::getHasDisease)),
-				new DownloadHeader<>("Variant Information Reference", (AlleleDownloadRow::getReference))
+				new DownloadHeader<>("Allele ID", AlleleDownloadRow::getAlleleID),
+				new DownloadHeader<>("Allele Symbol", AlleleDownloadRow::getAlleleSymbol),
+				new DownloadHeader<>("Allele Synonyms", AlleleDownloadRow::getAlleleSynonyms),
+				new DownloadHeader<>("Category", AlleleDownloadRow::getVariantCategory),
+				new DownloadHeader<>("Variant Symbol", AlleleDownloadRow::getVariantSymbol),
+				new DownloadHeader<>("Variant Type", AlleleDownloadRow::getVariantType),
+				new DownloadHeader<>("Variant Consequence", AlleleDownloadRow::getVariantConsequence),
+				new DownloadHeader<>("Has Phenotype", AlleleDownloadRow::getHasPhenotype),
+				new DownloadHeader<>("Has Disease", AlleleDownloadRow::getHasDisease),
+				new DownloadHeader<>("Variant Information Reference", AlleleDownloadRow::getReference)
 		);
 
 		return DownloadHeader.getDownloadOutput(list, headers);
@@ -39,31 +39,30 @@ public class AlleleToTdfTranslator {
 
 		return annotations.stream()
 				.map(annotation -> {
-					if (CollectionUtils.isNotEmpty(annotation.getVariants()))
+					if (CollectionUtils.isNotEmpty(annotation.getVariants())) {
 						return annotation.getVariants().stream()
 								.map(join -> {
-									if (CollectionUtils.isNotEmpty(join.getPublications()))
+									if (CollectionUtils.isNotEmpty(join.getPublications())) {
 										return join.getPublications().stream()
 												.map(pub -> getBaseDownloadRow(annotation, join, pub))
 												.collect(Collectors.toList());
-
-									else
+									} else {
 										return annotation.getVariants().stream()
 												.map(var -> getBaseDownloadRow(annotation, var, null))
 												.collect(Collectors.toList());
+									}
 
 								}).flatMap(Collection::stream)
 								.collect(Collectors.toList());
-
-
-					else
+					} else {
 						return List.of(getBaseDownloadRow(annotation, null, null));
+					}
 				})
 				.flatMap(Collection::stream)
 				.collect(Collectors.toList());
 	}
 
-	public List<AlleleVariantSequenceDownloadRow> AlleleVariantSequenceDownloadRow(List<AlleleVariantSequence> annotations) {
+	public List<AlleleVariantSequenceDownloadRow> alleleVariantSequenceDownloadRow(List<AlleleVariantSequence> annotations) {
 		return annotations.stream()
 				.map(this::getBaseAlleleVariantDownloadRow)
 				.collect(Collectors.toList());
@@ -86,7 +85,7 @@ public class AlleleToTdfTranslator {
 			row.setVariantSymbol(join.getHgvsNomenclature());
 			row.setVariantType(join.getVariantType().getName());
 			String consequence = "";
-			if(CollectionUtils.isNotEmpty(join.getTranscriptLevelConsequence())) {
+			if (CollectionUtils.isNotEmpty(join.getTranscriptLevelConsequence())) {
 				consequence = join.getTranscriptLevelConsequence().stream()
 					.filter(Objects::nonNull)
 					.map(TranscriptLevelConsequence::getMolecularConsequences)
@@ -94,7 +93,7 @@ public class AlleleToTdfTranslator {
 					.flatMap(List::stream).distinct()
 					.collect(Collectors.joining("|"));
 			}
-			row.setVariantConsequence (consequence);
+			row.setVariantConsequence(consequence);
 		}
 		row.setHasPhenotype(annotation.hasPhenotype().toString());
 		row.setHasDisease(annotation.hasDisease().toString());
@@ -145,19 +144,19 @@ public class AlleleToTdfTranslator {
 
 		List<TransgenicAlleleDownloadRow> list = getTransgenicAlleleDownloadRowsForGenes(annotations);
 		List<DownloadHeader> headers = List.of(
-				new DownloadHeader<>("Species", (TransgenicAlleleDownloadRow::getSpecies)),
-				new DownloadHeader<>("Allele ID", (TransgenicAlleleDownloadRow::getAlleleID)),
-				new DownloadHeader<>("Allele Symbol", (TransgenicAlleleDownloadRow::getAlleleSymbol)),
-				new DownloadHeader<>("Transgenic Construct ID", (TransgenicAlleleDownloadRow::getTgConstructID)),
-				new DownloadHeader<>("Transgenic Construct", (TransgenicAlleleDownloadRow::getTransgenicConstruct)),
-				new DownloadHeader<>("Expressed Gene ID", (TransgenicAlleleDownloadRow::getExpGeneID)),
-				new DownloadHeader<>("Expressed Gene", (TransgenicAlleleDownloadRow::getExpressedGene)),
-				new DownloadHeader<>("Knockdown Target ID", (TransgenicAlleleDownloadRow::getTargetID)),
-				new DownloadHeader<>("Knockdown Target", (TransgenicAlleleDownloadRow::getKnockdownTarget)),
-				new DownloadHeader<>("Regulatory Region ID", (TransgenicAlleleDownloadRow::getRegulatoryRegionID)),
-				new DownloadHeader<>("Regulatory Region", (TransgenicAlleleDownloadRow::getRegulatoryRegion)),
-				new DownloadHeader<>("Has Phenotype", (TransgenicAlleleDownloadRow::getHasPhenotype)),
-				new DownloadHeader<>("Has Disease", (TransgenicAlleleDownloadRow::getHasDisease))
+				new DownloadHeader<>("Species", TransgenicAlleleDownloadRow::getSpecies),
+				new DownloadHeader<>("Allele ID", TransgenicAlleleDownloadRow::getAlleleID),
+				new DownloadHeader<>("Allele Symbol", TransgenicAlleleDownloadRow::getAlleleSymbol),
+				new DownloadHeader<>("Transgenic Construct ID", TransgenicAlleleDownloadRow::getTgConstructID),
+				new DownloadHeader<>("Transgenic Construct", TransgenicAlleleDownloadRow::getTransgenicConstruct),
+				new DownloadHeader<>("Expressed Gene ID", TransgenicAlleleDownloadRow::getExpGeneID),
+				new DownloadHeader<>("Expressed Gene", TransgenicAlleleDownloadRow::getExpressedGene),
+				new DownloadHeader<>("Knockdown Target ID", TransgenicAlleleDownloadRow::getTargetID),
+				new DownloadHeader<>("Knockdown Target", TransgenicAlleleDownloadRow::getKnockdownTarget),
+				new DownloadHeader<>("Regulatory Region ID", TransgenicAlleleDownloadRow::getRegulatoryRegionID),
+				new DownloadHeader<>("Regulatory Region", TransgenicAlleleDownloadRow::getRegulatoryRegion),
+				new DownloadHeader<>("Has Phenotype", TransgenicAlleleDownloadRow::getHasPhenotype),
+				new DownloadHeader<>("Has Disease", TransgenicAlleleDownloadRow::getHasDisease)
 		);
 
 		return DownloadHeader.getDownloadOutput(list, headers);
@@ -167,7 +166,7 @@ public class AlleleToTdfTranslator {
 
 		return annotations.stream()
 				.map(annotation -> {
-					if (CollectionUtils.isNotEmpty(annotation.getConstructs()))
+					if (CollectionUtils.isNotEmpty(annotation.getConstructs())) {
 						return annotation.getConstructs().stream()
 								.map(join -> {
 									return annotation.getConstructs().stream()
@@ -176,10 +175,9 @@ public class AlleleToTdfTranslator {
 
 								}).flatMap(Collection::stream)
 								.collect(Collectors.toList());
-
-
-					else
+					} else {
 						return List.of(getBaseDownloadAlleleTransgenicRow(annotation, null, null));
+					}
 				})
 				.flatMap(Collection::stream)
 				.collect(Collectors.toList());
@@ -243,19 +241,19 @@ public class AlleleToTdfTranslator {
 
 		List<VariantDownloadRow> list = getVariantDownloadRowsForAlleles(variants);
 		List<DownloadHeader> headers = List.of(
-				new DownloadHeader<>("Symbol", (VariantDownloadRow::getSymbol)),
-				new DownloadHeader<>("Variant Type", (VariantDownloadRow::getVariantType)),
-				new DownloadHeader<>("Overlaps", (VariantDownloadRow::getOverlaps)),
-				new DownloadHeader<>("Chromosome:Position", (VariantDownloadRow::getChrPosition)),
-				new DownloadHeader<>("Nucleotide Change", (VariantDownloadRow::getChange)),
-				new DownloadHeader<>("Most Severe Consequence", (VariantDownloadRow::getConsequence)),
-				new DownloadHeader<>("HGVS.gName", (VariantDownloadRow::getHgvsG)),
-				new DownloadHeader<>("HGVS.cName", (VariantDownloadRow::getHgvsC)),
-				new DownloadHeader<>("HGVS.pName", (VariantDownloadRow::getHgvsP)),
-				new DownloadHeader<>("Synonyms", (VariantDownloadRow::getVariantSynonyms)),
-				new DownloadHeader<>("Notes", (VariantDownloadRow::getNotes)),
-				new DownloadHeader<>("Cross References", (VariantDownloadRow::getCrossReference)),
-				new DownloadHeader<>("References", (VariantDownloadRow::getReference))
+				new DownloadHeader<>("Symbol", VariantDownloadRow::getSymbol),
+				new DownloadHeader<>("Variant Type", VariantDownloadRow::getVariantType),
+				new DownloadHeader<>("Overlaps", VariantDownloadRow::getOverlaps),
+				new DownloadHeader<>("Chromosome:Position", VariantDownloadRow::getChrPosition),
+				new DownloadHeader<>("Nucleotide Change", VariantDownloadRow::getChange),
+				new DownloadHeader<>("Most Severe Consequence", VariantDownloadRow::getConsequence),
+				new DownloadHeader<>("HGVS.gName", VariantDownloadRow::getHgvsG),
+				new DownloadHeader<>("HGVS.cName", VariantDownloadRow::getHgvsC),
+				new DownloadHeader<>("HGVS.pName", VariantDownloadRow::getHgvsP),
+				new DownloadHeader<>("Synonyms", VariantDownloadRow::getVariantSynonyms),
+				new DownloadHeader<>("Notes", VariantDownloadRow::getNotes),
+				new DownloadHeader<>("Cross References", VariantDownloadRow::getCrossReference),
+				new DownloadHeader<>("References", VariantDownloadRow::getReference)
 		);
 
 		return DownloadHeader.getDownloadOutput(list, headers);
@@ -284,7 +282,7 @@ public class AlleleToTdfTranslator {
 		String synonyms = "";
 		String crossRefs = "";
 		String notesDescs = "";
-		String pubs="";
+		String pubs = "";
 
 		if (CollectionUtils.isNotEmpty(annotation.getSynonyms())) {
 			StringJoiner synonymJoiner = new StringJoiner(",");
@@ -336,27 +334,27 @@ public class AlleleToTdfTranslator {
 
 	public String getAllAlleleVariantDetailRows(List<AlleleVariantSequence> annotations) {
 
-		List<AlleleVariantSequenceDownloadRow> list = AlleleVariantSequenceDownloadRow(annotations);
+		List<AlleleVariantSequenceDownloadRow> list = alleleVariantSequenceDownloadRow(annotations);
 		List<DownloadHeader> headers = List.of(
-				new DownloadHeader<>("Allele ID", (AlleleVariantSequenceDownloadRow::getAlleleID)),
-				new DownloadHeader<>("Allele Symbol", (AlleleVariantSequenceDownloadRow::getAlleleSymbol)),
-				new DownloadHeader<>("Allele Synonyms", (AlleleVariantSequenceDownloadRow::getAlleleSynonyms)),
-				new DownloadHeader<>("Category", (AlleleVariantSequenceDownloadRow::getVariantCategory)),
-				new DownloadHeader<>("Has Phenotype", (AlleleVariantSequenceDownloadRow::getHasPhenotype)),
-				new DownloadHeader<>("Has Disease", (AlleleVariantSequenceDownloadRow::getHasDisease)),
-				new DownloadHeader<>("Variant HGVS.g Name", (AlleleVariantSequenceDownloadRow::getHgvsgName)),
-				new DownloadHeader<>("Variant Type", (AlleleVariantSequenceDownloadRow::getVariantType)),
-				new DownloadHeader<>("Sequence Feature ", (AlleleVariantSequenceDownloadRow::getSequenceFeature)),
-				new DownloadHeader<>("Sequence Feature Type", (AlleleVariantSequenceDownloadRow::getSequenceFeatureType)),
-				new DownloadHeader<>("Sequence Feature associated Gene", (AlleleVariantSequenceDownloadRow::getSequenceFeatureAssociatedGene)),
-				new DownloadHeader<>("Sequence Feature associated Gene ID", (AlleleVariantSequenceDownloadRow::getSequenceFeatureAssociatedGeneID)),
-				new DownloadHeader<>("Molecular Consequences", (AlleleVariantSequenceDownloadRow::getMolecularConsequences)),
-				new DownloadHeader<>("Variant Location", (AlleleVariantSequenceDownloadRow::getLocation)),
-				new DownloadHeader<>("VEP Impact", (AlleleVariantSequenceDownloadRow::getVepImpact)),
-				new DownloadHeader<>("Sift Prediction", (AlleleVariantSequenceDownloadRow::getSiftPrediction)),
-				new DownloadHeader<>("Sift Score", (AlleleVariantSequenceDownloadRow::getSiftScore)),
-				new DownloadHeader<>("PolyPhen Prediction", (AlleleVariantSequenceDownloadRow::getPolyphenPrediction)),
-				new DownloadHeader<>("PolyPhen Score", (AlleleVariantSequenceDownloadRow::getPolyphenScore))
+				new DownloadHeader<>("Allele ID", AlleleVariantSequenceDownloadRow::getAlleleID),
+				new DownloadHeader<>("Allele Symbol", AlleleVariantSequenceDownloadRow::getAlleleSymbol),
+				new DownloadHeader<>("Allele Synonyms", AlleleVariantSequenceDownloadRow::getAlleleSynonyms),
+				new DownloadHeader<>("Category", AlleleVariantSequenceDownloadRow::getVariantCategory),
+				new DownloadHeader<>("Has Phenotype", AlleleVariantSequenceDownloadRow::getHasPhenotype),
+				new DownloadHeader<>("Has Disease", AlleleVariantSequenceDownloadRow::getHasDisease),
+				new DownloadHeader<>("Variant HGVS.g Name", AlleleVariantSequenceDownloadRow::getHgvsgName),
+				new DownloadHeader<>("Variant Type", AlleleVariantSequenceDownloadRow::getVariantType),
+				new DownloadHeader<>("Sequence Feature ", AlleleVariantSequenceDownloadRow::getSequenceFeature),
+				new DownloadHeader<>("Sequence Feature Type", AlleleVariantSequenceDownloadRow::getSequenceFeatureType),
+				new DownloadHeader<>("Sequence Feature associated Gene", AlleleVariantSequenceDownloadRow::getSequenceFeatureAssociatedGene),
+				new DownloadHeader<>("Sequence Feature associated Gene ID", AlleleVariantSequenceDownloadRow::getSequenceFeatureAssociatedGeneID),
+				new DownloadHeader<>("Molecular Consequences", AlleleVariantSequenceDownloadRow::getMolecularConsequences),
+				new DownloadHeader<>("Variant Location", AlleleVariantSequenceDownloadRow::getLocation),
+				new DownloadHeader<>("VEP Impact", AlleleVariantSequenceDownloadRow::getVepImpact),
+				new DownloadHeader<>("Sift Prediction", AlleleVariantSequenceDownloadRow::getSiftPrediction),
+				new DownloadHeader<>("Sift Score", AlleleVariantSequenceDownloadRow::getSiftScore),
+				new DownloadHeader<>("PolyPhen Prediction", AlleleVariantSequenceDownloadRow::getPolyphenPrediction),
+				new DownloadHeader<>("PolyPhen Score", AlleleVariantSequenceDownloadRow::getPolyphenScore)
 		);
 
 		return DownloadHeader.getDownloadOutput(list, headers);
@@ -364,7 +362,6 @@ public class AlleleToTdfTranslator {
 
 
 }
-
 
 
 

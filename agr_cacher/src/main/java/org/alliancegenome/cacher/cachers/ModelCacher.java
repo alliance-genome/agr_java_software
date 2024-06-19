@@ -29,7 +29,7 @@ public class ModelCacher extends Cacher {
 	protected void init() {
 		geneRepository = new GeneRepository();
 	}
-	
+
 	@Override
 	protected void cache() {
 
@@ -44,54 +44,50 @@ public class ModelCacher extends Cacher {
 		log.info("Number of Allele Models: " + String.format("%,d", models.size()));
 		allModels.addAll(models);
 
-		List<PrimaryAnnotatedEntity> allEntities = allModels.stream()
-				.map(model -> {
-					PrimaryAnnotatedEntity entity = new PrimaryAnnotatedEntity();
-					entity.setId(model.getPrimaryKey());
-					entity.setName(model.getName());
-					entity.setUrl(model.getModCrossRefCompleteUrl());
-					entity.setDisplayName(model.getNameText());
-					if (CollectionUtils.isNotEmpty(model.getSequenceTargetingReagents())) {
-						entity.setSequenceTargetingReagents(model.getSequenceTargetingReagents());
-						entity.setSpecies(model.getSequenceTargetingReagents().get(0).getGene().getSpecies());
-					}
-					if (CollectionUtils.isNotEmpty(model.getAlleles())) {
-						entity.setAlleles(model.getAlleles());
-						entity.setSpecies(model.getAlleles().get(0).getSpecies());
-					}
-					if (model.getSubtype() != null)
-						entity.setType(model.getSubtype());
-					entity.setDataProvider(model.getDataProvider());
-					return entity;
-				})
-				.collect(Collectors.toList());
+		List<PrimaryAnnotatedEntity> allEntities = allModels.stream().map(model -> {
+			PrimaryAnnotatedEntity entity = new PrimaryAnnotatedEntity();
+			entity.setId(model.getPrimaryKey());
+			entity.setName(model.getName());
+			entity.setUrl(model.getModCrossRefCompleteUrl());
+			entity.setDisplayName(model.getNameText());
+			if (CollectionUtils.isNotEmpty(model.getSequenceTargetingReagents())) {
+				entity.setSequenceTargetingReagents(model.getSequenceTargetingReagents());
+				entity.setSpecies(model.getSequenceTargetingReagents().get(0).getGene().getSpecies());
+			}
+			if (CollectionUtils.isNotEmpty(model.getAlleles())) {
+				entity.setAlleles(model.getAlleles());
+				entity.setSpecies(model.getAlleles().get(0).getSpecies());
+			}
+			if (model.getSubtype() != null) {
+				entity.setType(model.getSubtype());
+			}
+			entity.setDataProvider(model.getDataProvider());
+			return entity;
+		}).collect(Collectors.toList());
 
 		log.info("Number of all PAE: " + String.format("%,d", allEntities.size()));
 
 		Map<String, List<PrimaryAnnotatedEntity>> geneMap = new HashMap<>();
 
-		allEntities.stream()
-				.filter(entity -> CollectionUtils.isNotEmpty(entity.getSequenceTargetingReagents()))
-				.forEach(entity -> {
-					entity.getSequenceTargetingReagents().forEach(sequenceTargetingReagent -> {
-						List<PrimaryAnnotatedEntity> annotations = geneMap.computeIfAbsent(sequenceTargetingReagent.getGene().getPrimaryKey(), k -> new ArrayList<>());
-						annotations.add(entity);
-					});
-				});
+		allEntities.stream().filter(entity -> CollectionUtils.isNotEmpty(entity.getSequenceTargetingReagents())).forEach(entity -> {
+			entity.getSequenceTargetingReagents().forEach(sequenceTargetingReagent -> {
+				List<PrimaryAnnotatedEntity> annotations = geneMap.computeIfAbsent(sequenceTargetingReagent.getGene().getPrimaryKey(), k -> new ArrayList<>());
+				annotations.add(entity);
+			});
+		});
 
-		allEntities.stream()
-				.filter(entity -> CollectionUtils.isNotEmpty(entity.getAlleles()))
-				.forEach(entity -> {
-					entity.getAlleles().forEach(allele -> {
-						List<PrimaryAnnotatedEntity> annotations = geneMap.computeIfAbsent(allele.getGene().getPrimaryKey(), k -> new ArrayList<>());
-						annotations.add(entity);
-					});
-				});
+		allEntities.stream().filter(entity -> CollectionUtils.isNotEmpty(entity.getAlleles())).forEach(entity -> {
+			entity.getAlleles().forEach(allele -> {
+				List<PrimaryAnnotatedEntity> annotations = geneMap.computeIfAbsent(allele.getGene().getPrimaryKey(), k -> new ArrayList<>());
+				annotations.add(entity);
+			});
+		});
 
 		finishProcess();
 
-		if (CollectionUtils.isEmpty(allModels))
+		if (CollectionUtils.isEmpty(allModels)) {
 			return;
+		}
 
 		startProcess("create models and place them into cache: ");
 
@@ -103,10 +99,7 @@ public class ModelCacher extends Cacher {
 		status.setNumberOfEntityIDs(geneMap.size());
 		status.setNumberOfEntities(allEntities.size());
 
-		Map<String, List<Species>> speciesStats = allEntities.stream()
-				.filter(annotation -> annotation.getSpecies() != null)
-				.map(PrimaryAnnotatedEntity::getSpecies)
-				.collect(groupingBy(Species::getName));
+		Map<String, List<Species>> speciesStats = allEntities.stream().filter(annotation -> annotation.getSpecies() != null).map(PrimaryAnnotatedEntity::getSpecies).collect(groupingBy(Species::getName));
 
 		Map<String, Integer> entityStats = new TreeMap<>();
 		geneMap.forEach((diseaseID, annotations) -> entityStats.put(diseaseID, annotations.size()));

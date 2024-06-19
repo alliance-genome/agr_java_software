@@ -13,7 +13,7 @@ public class FilterFunctionTest {
 
 	@Test
 	public void testSingleFilterFunction() {
-		DiseaseAnnotationFiltering filtering= new DiseaseAnnotationFiltering();
+		DiseaseAnnotationFiltering filtering = new DiseaseAnnotationFiltering();
 		FilterFunction<DiseaseAnnotation, String> diseaseFilterFunction = filtering.termNameFilter;
 
 		DiseaseAnnotation annotation = new DiseaseAnnotation();

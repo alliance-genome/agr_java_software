@@ -11,7 +11,7 @@ public abstract class Builder {
 
 	public Builder(Boolean pretty) {
 		try {
-			if(pretty) {
+			if (pretty) {
 				builder = XContentFactory.jsonBuilder().prettyPrint();
 			} else {
 				builder = XContentFactory.jsonBuilder();
@@ -23,7 +23,7 @@ public abstract class Builder {
 	
 	public void init(boolean pretty) {
 		try {
-			if(pretty) {
+			if (pretty) {
 				builder = XContentFactory.jsonBuilder().prettyPrint();
 			} else {
 				builder = XContentFactory.jsonBuilder();

@@ -22,8 +22,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class FileHelper {
 
-	private static Map<String, Map<String, Boolean>> applicabilityMatrix = null;
+	private FileHelper() { }
 	
+	private static Map<String, Map<String, Boolean>> applicabilityMatrix;
+
 	public static Map<String, Map<String, Boolean>> getApplicabilityMatrix(String ribbonTermSpeciesApplicabilityPath) {
 		Map<String, Map<String, Boolean>> applicabilityMatrix = new HashMap<>();
 		InputStream in = null;
@@ -150,8 +152,9 @@ public class FileHelper {
 	
 	private static Map<String, Map<String, Boolean>> getMapFromCSVFile() {
 		// cache the applicability matrix
-		if (applicabilityMatrix != null)
+		if (applicabilityMatrix != null) {
 			return applicabilityMatrix;
+		}
 
 		String ribbonTermSpeciesApplicabilityPath = ConfigHelper.getRibbonTermSpeciesApplicabilityPath();
 		applicabilityMatrix = FileHelper.getApplicabilityMatrix(ribbonTermSpeciesApplicabilityPath);
@@ -166,5 +169,4 @@ public class FileHelper {
 		}
 		return map.get(id);
 	}
-
 }

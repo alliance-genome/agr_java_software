@@ -20,19 +20,19 @@ public class IndexCommand extends Command implements CommandInterface {
 	@Override
 	public void execute() {
 
-		if(args.size() > 0) {
+		if (args.size() > 0) {
 			String command = args.remove(0);
-			if(command.equals("list")) {
+			if (command.equals("list")) {
 				List<String> list = im.getIndexList();
-				for(String index: list) {
+				for (String index : list) {
 					System.out.println(index);
 				}
-			} else if(command.equals("info")) {
-				if(args.size() > 0) {
+			} else if (command.equals("info")) {
+				if (args.size() > 0) {
 					String index = args.remove(0);
 //					  Set<AliasMetaData> aliases = im.getIndex(index);
 					List<String> aliases = im.getAliasesForIndex(index);
-					if(aliases != null) {
+					if (aliases != null) {
 						for (String alias : aliases) {
 							System.out.println("Alias: " + alias);
 						}
@@ -43,21 +43,21 @@ public class IndexCommand extends Command implements CommandInterface {
 				} else {
 					printHelp();
 				}
-			} else if(command.equals("switchalias")) {
-				if(args.size() > 2) {
+			} else if (command.equals("switchalias")) {
+				if (args.size() > 2) {
 					String alias = args.remove(0);
-					String old_index = args.remove(0);
-					String new_index = args.remove(0);
-					//im.createAlias(alias, new_index);
-					//im.removeAlias(alias);
+					String oldIndex = args.remove(0);
+					String newIndex = args.remove(0);
+					// im.createAlias(alias, new_index);
+					// im.removeAlias(alias);
 				} else {
 					printHelp();
 				}
-			} else if(command.equals("start")) {
+			} else if (command.equals("start")) {
 
 				// check tmp index and delete
 				// create new and alias it to tmp
-			} else if(command.equals("end")) {
+			} else if (command.equals("end")) {
 				// remove site_index alias
 				// alias site_index to tmp index
 				// remove tmp alias

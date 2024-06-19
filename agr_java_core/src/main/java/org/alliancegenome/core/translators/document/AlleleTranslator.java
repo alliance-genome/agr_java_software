@@ -14,29 +14,30 @@ public class AlleleTranslator extends EntityDocumentListTranslator<Allele, Allel
 	protected List<AlleleVariantSequence> entityToDocument(Allele entity, int depth) {
 
 		List<AlleleVariantSequence> docs = new ArrayList<>();
-		
-			AlleleVariantSequence document = new AlleleVariantSequence();
-			
-			document.setCategory("allele");
-			document.setAlterationType("allele");
-			document.setGlobalId(entity.getGlobalId());
-			document.setLocalId(entity.getLocalId());
-			document.setPrimaryKey(entity.getPrimaryKey());
-			document.setSymbol(entity.getSymbol());
-			document.setSymbolText(entity.getSymbolText());
-			document.setName(entity.getSymbol());
-			document.setNameKey(entity.getSymbolTextWithSpecies());
-			if (entity.getSpecies() != null) {
-				document.setSpecies(entity.getSpecies().getName());
-			}
 
-			if(entity.getSecondaryIdsList()!=null)
+		AlleleVariantSequence document = new AlleleVariantSequence();
+
+		document.setCategory("allele");
+		document.setAlterationType("allele");
+		document.setGlobalId(entity.getGlobalId());
+		document.setLocalId(entity.getLocalId());
+		document.setPrimaryKey(entity.getPrimaryKey());
+		document.setSymbol(entity.getSymbol());
+		document.setSymbolText(entity.getSymbolText());
+		document.setName(entity.getSymbol());
+		document.setNameKey(entity.getSymbolTextWithSpecies());
+		if (entity.getSpecies() != null) {
+			document.setSpecies(entity.getSpecies().getName());
+		}
+
+		if (entity.getSecondaryIdsList() != null) {
 			document.setSecondaryIds(new HashSet<>(entity.getSecondaryIdsList()));
-			if(entity.getSynonymList()!=null)
+		}
+		if (entity.getSynonymList() != null) {
 			document.setSynonyms(new HashSet<>(entity.getSynonymList()));
-			
-			docs.add(document);
+		}
 
+		docs.add(document);
 
 		return docs;
 	}
@@ -47,7 +48,8 @@ public class AlleleTranslator extends EntityDocumentListTranslator<Allele, Allel
 		}
 	}
 
-	//This method is for updating/setting fields after fields are populated by AlleleDocumentCache
+	// This method is for updating/setting fields after fields are populated by
+	// AlleleDocumentCache
 	public void updateDocument(AlleleVariantSequence document) {
 
 		if (document.getVariants() != null && document.getVariants().size() == 1) {
@@ -55,10 +57,9 @@ public class AlleleTranslator extends EntityDocumentListTranslator<Allele, Allel
 		}
 
 		if (document.getVariants() != null && document.getVariants().size() > 1) {
-			document.setAlterationType(("allele with multiple variants"));
+			document.setAlterationType("allele with multiple variants");
 		}
 
 	}
-
 
 }

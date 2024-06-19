@@ -17,20 +17,14 @@ import lombok.Setter;
 @Setter
 public class RibbonSection implements Serializable {
 
-	@JsonView({View.DiseaseAnnotation.class,View.Expression.class})
-	private String id;
-	@JsonView({View.DiseaseAnnotation.class,View.Expression.class})
-	private String label;
-	@JsonView({View.DiseaseAnnotation.class,View.Expression.class})
-	private String description;
-	@JsonProperty("class_label")
-	private String classLabel;
-	@JsonProperty("annotation_label")
-	private String annotationLabel;
+	@JsonView({ View.DiseaseAnnotation.class, View.Expression.class }) private String id;
+	@JsonView({ View.DiseaseAnnotation.class, View.Expression.class }) private String label;
+	@JsonView({ View.DiseaseAnnotation.class, View.Expression.class }) private String description;
+	@JsonProperty("class_label") private String classLabel;
+	@JsonProperty("annotation_label") private String annotationLabel;
 
-	@JsonView({View.DiseaseAnnotation.class,View.Expression.class})
-	@JsonProperty("groups")
-	private List<SectionSlim> slims = new ArrayList<>();
+	@JsonView({ View.DiseaseAnnotation.class, View.Expression.class })
+	@JsonProperty("groups") private List<SectionSlim> slims = new ArrayList<>();
 
 	public void addDiseaseSlim(SectionSlim slim) {
 		slims.add(slim);

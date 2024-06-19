@@ -36,7 +36,7 @@ public class TestDownloadSplitUploadHuman {
 	private String type = "HUMAN";
 	private String bucket = "mod-datadumps";
 	private List<Upload> uploads = new ArrayList<>();
-	
+
 	public static void main(String[] args) throws Exception {
 		new TestDownloadSplitUploadHuman(args);
 	}
@@ -48,10 +48,10 @@ public class TestDownloadSplitUploadHuman {
 
 		uploadTX = TransferManagerBuilder.standard().withS3Client(s3Client).build();
 
-		String inputDir =  "/Users/olinblodgett/git/agr_java_software/agr_variant_indexer/data";
+		String inputDir = "/Users/olinblodgett/git/agr_java_software/agr_variant_indexer/data";
 		String outputDir = "/Volumes/Cardano_Backup/Variants";
-		
-		if(args.length > 1) {
+
+		if (args.length > 1) {
 			inputDir = args[0];
 			outputDir = args[1];
 			try {
@@ -59,11 +59,11 @@ public class TestDownloadSplitUploadHuman {
 				log.info("Checking Output Dir: " + outputDir);
 				File intputDirectory = new File(inputDir);
 				File outputDirectory = new File(outputDir);
-				if(!intputDirectory.isDirectory() || !outputDirectory.isDirectory()) {
-					if(!intputDirectory.isDirectory()) {
+				if (!intputDirectory.isDirectory() || !outputDirectory.isDirectory()) {
+					if (!intputDirectory.isDirectory()) {
 						log.error("Input Directory: " + inputDir + " does not exist please create");
 					}
-					if(!outputDirectory.isDirectory()) {
+					if (!outputDirectory.isDirectory()) {
 						log.error("Output Directory: " + outputDir + " does not exist please create");
 					}
 					return;
@@ -78,16 +78,16 @@ public class TestDownloadSplitUploadHuman {
 
 		File inputFile = new File(inputDir + "/" + variantFile);
 
-		if(!inputFile.exists()) {
+		if (!inputFile.exists()) {
 
 			try {
 				TransferManager tx = TransferManagerBuilder.standard().withS3Client(s3Client).build();
 				Download myDownload = tx.download(bucket, "variants/" + variantFile, inputFile);
 
 				int lastPct = 0;
-				while(!myDownload.isDone()) {
-					int pct = (int)myDownload.getProgress().getPercentTransferred();
-					if(lastPct != pct) {
+				while (!myDownload.isDone()) {
+					int pct = (int) myDownload.getProgress().getPercentTransferred();
+					if (lastPct != pct) {
 						log.info(variantFile + ": Percent: " + pct);
 						lastPct = pct;
 					} else {
@@ -102,7 +102,6 @@ public class TestDownloadSplitUploadHuman {
 			}
 		}
 
-
 		VCFFileReader reader = new VCFFileReader(inputFile, false);
 		ProcessDisplayHelper ph = new ProcessDisplayHelper(10000);
 
@@ -113,15 +112,17 @@ public class TestDownloadSplitUploadHuman {
 		List<Thread> threads = new ArrayList<>();
 		WriterThread current = null;
 		String chr = "";
-		while(iter1.hasNext()) {
+		while (iter1.hasNext()) {
 			try {
 				VariantContext vc = iter1.next();
-				if(!vc.getContig().equals(chr)) {
+				if (!vc.getContig().equals(chr)) {
 					chr = vc.getContig();
 					WriterThread thread = new WriterThread(reader.getFileHeader(), outputDir, type, chr);
 					thread.start();
 					threads.add(thread);
-					if(current != null) current.finished();
+					if (current != null) {
+						current.finished();
+					}
 					current = thread;
 				}
 				current.add(vc);
@@ -142,9 +143,9 @@ public class TestDownloadSplitUploadHuman {
 		}
 
 		ph.finishProcess();
-		
+
 		log.info("Waiting for upload threads to finish: ");
-		for(Upload u: uploads) {
+		for (Upload u : uploads) {
 			try {
 				log.info("Waiting for upload: " + u.getDescription());
 				u.waitForCompletion();
@@ -159,13 +160,14 @@ public class TestDownloadSplitUploadHuman {
 
 	public class WriterThread extends Thread {
 
-		VariantContextWriter writer = null;
-		//ConcurrentLinkedBlockingQueue<VariantContext> queue = new ConcurrentLinkedBlockingQueue<VariantContext>();
+		VariantContextWriter writer;
+		// ConcurrentLinkedBlockingQueue<VariantContext> queue = new
+		// ConcurrentLinkedBlockingQueue<VariantContext>();
 		LinkedBlockingQueue<List<VariantContext>> queue = new LinkedBlockingQueue<List<VariantContext>>(200);
 
-		private int recordCount = 0;
+		private int recordCount;
 		private int workBucketSize = 250;
-		private volatile boolean finished = false;
+		private volatile boolean finished;
 		private String filePath = "";
 		private String fileKey = "";
 		List<VariantContext> workBucket = new ArrayList<>();
@@ -181,17 +183,18 @@ public class TestDownloadSplitUploadHuman {
 			writer.writeHeader(vcfHeader);
 		}
 
+		@Override
 		public void run() {
-			while(true) {
+			while (true) {
 				try {
 					List<VariantContext> vcList = queue.poll(1, TimeUnit.SECONDS);
-					if(vcList != null) {
-						for(VariantContext vc: vcList) {
+					if (vcList != null) {
+						for (VariantContext vc : vcList) {
 							writer.add(vc);
 							recordCount++;
 						}
 						vcList.clear();
-					} else if(finished) {
+					} else if (finished) {
 						close();
 						break;
 					}
@@ -211,7 +214,7 @@ public class TestDownloadSplitUploadHuman {
 		}
 
 		public void finished() throws InterruptedException {
-			if(workBucket.size() > 0) {
+			if (workBucket.size() > 0) {
 				queue.put(workBucket);
 				workBucket = new ArrayList<>();
 			}
@@ -224,13 +227,11 @@ public class TestDownloadSplitUploadHuman {
 			writer.close();
 			log.info("Wrote: " + recordCount + " records to the file: " + filePath);
 
-			
 			log.info("Uploading new file: " + filePath + ".tbi");
 			PutObjectRequest req2 = new PutObjectRequest(bucket, fileKey, new File(filePath + ".tbi"));
 			Upload upload2 = uploadTX.upload(req2);
 			uploads.add(upload2);
-			
-			
+
 			log.info("Uploading new file: " + filePath);
 			S3ProgressListener progress = new S3ProgressListener();
 			PutObjectRequest req1 = new PutObjectRequest(bucket, fileKey, new File(filePath));
@@ -238,7 +239,7 @@ public class TestDownloadSplitUploadHuman {
 			Upload upload = uploadTX.upload(req1);
 			progress.setUpload(upload);
 			uploads.add(upload);
-			
+
 			upload2.waitForCompletion();
 			log.info("Uploading file: " + filePath + ".tbi complete");
 			upload.waitForCompletion();

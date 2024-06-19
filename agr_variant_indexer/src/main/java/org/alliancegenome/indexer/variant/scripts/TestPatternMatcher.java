@@ -4,6 +4,8 @@ import java.util.regex.Pattern;
 
 public class TestPatternMatcher {
 
+	private TestPatternMatcher() { }
+	
 	public static void main(String[] args) {
 		Pattern validAlleles = Pattern.compile("[ACGTN\\-]+");
 		

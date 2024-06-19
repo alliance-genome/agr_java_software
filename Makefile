@@ -23,6 +23,8 @@ apitesterrun:
 apidebug:
 	make -C agr_api debug
 
+checkstyle:
+	mvn checkstyle:check
 
 searchtest:
 	mvn -T 4 -Dit.test="AutocompteIntegrationSpec,QueryMatchIntegrationSpec,QueryRankIntegrationSpec,QueryTokenizationIntegrationSpec,RelatedDataServiceIntegrationSpec" -DfailIfNoTests=false verify

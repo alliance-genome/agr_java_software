@@ -57,8 +57,9 @@ public class PhenotypeAnnotation extends ConditionAnnotation implements Comparab
 	}
 
 	public void addPrimaryAnnotatedEntity(PrimaryAnnotatedEntity entity) {
-		if (primaryAnnotatedEntities == null)
+		if (primaryAnnotatedEntities == null) {
 			primaryAnnotatedEntities = new ArrayList<>();
+		}
 		if (!primaryAnnotatedEntities.contains(entity)) {
 			primaryAnnotatedEntities.add(entity);
 		} else {
@@ -70,22 +71,25 @@ public class PhenotypeAnnotation extends ConditionAnnotation implements Comparab
 	}
 
 	public void addPrimaryAnnotatedEntities(List<PrimaryAnnotatedEntity> entity) {
-		if (primaryAnnotatedEntities == null)
+		if (primaryAnnotatedEntities == null) {
 			primaryAnnotatedEntities = new ArrayList<>();
+		}
 		primaryAnnotatedEntities.addAll(entity);
 		primaryAnnotatedEntities = primaryAnnotatedEntities.stream().distinct().collect(Collectors.toList());
 	}
 
 	public void addPublications(List<Publication> pubs) {
-		if (publications == null)
+		if (publications == null) {
 			publications = new ArrayList<>();
+		}
 		publications.addAll(pubs);
 		publications = publications.stream().distinct().collect(Collectors.toList());
 	}
 
 	public void setPublications(List<Publication> pubs) {
-		if (pubs == null)
+		if (pubs == null) {
 			return;
+		}
 		publications = pubs.stream()
 				.distinct()
 				.sorted(Comparator.naturalOrder())
@@ -95,11 +99,12 @@ public class PhenotypeAnnotation extends ConditionAnnotation implements Comparab
 	@Override
 	public String toString() {
 		String message = "";
-		if (gene != null)
+		if (gene != null) {
 			message += gene.getPrimaryKey();
-		if (primaryAnnotatedEntities != null)
+		}
+		if (primaryAnnotatedEntities != null) {
 			message += ":" + primaryAnnotatedEntities.stream().map(PrimaryAnnotatedEntity::getName).collect(Collectors.joining(", "));
+		}
 		return message + ": " + phenotype;
 	}
 }
-

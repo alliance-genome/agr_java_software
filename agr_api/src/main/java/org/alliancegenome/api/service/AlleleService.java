@@ -66,8 +66,9 @@ public class AlleleService {
 		if (fieldFilterValueMap != null) {
 			fieldFilterValueMap
 					.forEach((fieldFilter, value) -> {
-						if (value != null)
+						if (value != null) {
 							bool.must(QueryBuilders.wildcardQuery(filter.getFieldName(fieldFilter), "*" + value + "*"));
+						}
 					});
 		}
 		SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();

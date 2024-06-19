@@ -31,8 +31,9 @@ public class VariantService {
 		Variant variant = getVariantById(variantID);
 
 		JsonResultResponse<Transcript> response = new JsonResultResponse<>();
-		if (variant == null || variant.getTranscriptLevelConsequence()==null)
+		if (variant == null || variant.getTranscriptLevelConsequence() == null) {
 			return response;
+		}
 
 		List<Transcript> transcriptList = variant.getTranscriptLevelConsequence().stream()
 				.map(consequence -> {
@@ -89,8 +90,9 @@ public class VariantService {
 		Variant variant = variantRepo.getVariant(variantID);
 
 		JsonResultResponse<Allele> response = new JsonResultResponse<>();
-		if (variant == null)
+		if (variant == null) {
 			return response;
+		}
 
 		List<Allele> alleles = variantRepo.getAllelesOfVariant(variantID);
 		response.setTotal(alleles.size());

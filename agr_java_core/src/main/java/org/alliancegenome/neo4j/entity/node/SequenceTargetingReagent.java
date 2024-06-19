@@ -13,7 +13,7 @@ import lombok.Setter;
 @NodeEntity(label = "SequenceTargetingReagent")
 @Getter
 @Setter
-@Schema(name="SequenceTargetingReagent", description="POJO that represents the STR")
+@Schema(name = "SequenceTargetingReagent", description = "POJO that represents the STR")
 public class SequenceTargetingReagent extends GeneticEntity implements Comparable<SequenceTargetingReagent> {
 
 	public SequenceTargetingReagent() {
@@ -23,12 +23,10 @@ public class SequenceTargetingReagent extends GeneticEntity implements Comparabl
 	private String release;
 	private String localId;
 	private String globalId;
-	@JsonView({View.Default.class})
-	private String name;
+	@JsonView({ View.Default.class }) private String name;
 
 	@Relationship(type = "TARGETS")
-	@JsonView({View.API.class})
-	private Gene gene;
+	@JsonView({ View.API.class }) private Gene gene;
 
 	@Override
 	public int compareTo(SequenceTargetingReagent o) {

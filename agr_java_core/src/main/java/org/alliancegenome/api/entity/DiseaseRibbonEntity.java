@@ -39,8 +39,9 @@ public class DiseaseRibbonEntity {
 
 	public void addDiseaseSlim(DiseaseEntitySubgroupSlim slim) {
 		String id = slim.getId();
-		if (id == null)
+		if (id == null) {
 			id = "nullID";
+		}
 		Map<String, DiseaseEntitySubgroupSlim> subgroupSlimMap = new LinkedHashMap<>();
 		subgroupSlimMap.put("ALL", slim);
 		slims.put(id, subgroupSlimMap);

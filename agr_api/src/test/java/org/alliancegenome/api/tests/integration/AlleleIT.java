@@ -53,33 +53,28 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.inject.Inject;
 
-
 public class AlleleIT {
 	private ObjectMapper mapper = new ObjectMapper();
 
 	private AlleleService alleleService = new AlleleService();
 	private AlleleRepository alleleRepository = new AlleleRepository();
 
-	@Inject
-	private VariantService variantService;
+	@Inject private VariantService variantService;
 
-	@Inject
-	private GeneService geneService;
+	@Inject private GeneService geneService;
 
-	@Inject
-	private CacheStatusService cacheStatusService;
+	@Inject private CacheStatusService cacheStatusService;
 
 	@Before
 	public void before() {
 		ConfigHelper.init();
 
-		//alleleService = new AlleleService();
+		// alleleService = new AlleleService();
 
 		mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
 		mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 		mapper.registerModule(new OrthologyModule());
 	}
-
 
 	@Test
 	@Ignore
@@ -101,7 +96,7 @@ public class AlleleIT {
 	@Test
 	public void checkTranscriptExpressedNonBGICC() {
 		Pagination pagination = new Pagination();
-		//Allele allele = alleleService.getById("FB:FBal0138114");
+		// Allele allele = alleleService.getById("FB:FBal0138114");
 		Allele allele = alleleService.getById("ZFIN:ZDB-ALT-181128-7");
 		assertNotNull(allele);
 		assertTrue(allele.getConstructs().get(0).getExpressedGenes().size() > 0);
@@ -165,7 +160,7 @@ public class AlleleIT {
 		JsonResultResponse<Allele> response = alleleService.getAllelesByGene("WB:WBGene00004879", pagination);
 		assertResponse(response, 20, 25);
 
-		//check that alleles with variants come first
+		// check that alleles with variants come first
 		List<Boolean> hasVariants = new ArrayList<>();
 		boolean lastVariantsExists = true;
 		hasVariants.add(lastVariantsExists);
@@ -175,22 +170,15 @@ public class AlleleIT {
 				hasVariants.add(currentVariantsExists);
 			}
 			lastVariantsExists = currentVariantsExists;
-			assertTrue("Not all allele with variants come before alleles without variants.", (currentVariantsExists && hasVariants.size() == 1) ||
-				(!currentVariantsExists && hasVariants.size() == 2));
+			assertTrue("Not all allele with variants come before alleles without variants.", currentVariantsExists && hasVariants.size() == 1 || !currentVariantsExists && hasVariants.size() == 2);
 		}
 
 		// check that all alleles with variants are sorted by allele symbol
-		List<Allele> allVariantAlleles = response.getResults().stream()
-			.filter(allele -> CollectionUtils.isNotEmpty(allele.getVariants()))
-			.collect(Collectors.toList());
+		List<Allele> allVariantAlleles = response.getResults().stream().filter(allele -> CollectionUtils.isNotEmpty(allele.getVariants())).collect(Collectors.toList());
 
-		String alleleIDs = allVariantAlleles.stream().map(GeneticEntity::getPrimaryKey)
-			.collect(Collectors.joining(","));
+		String alleleIDs = allVariantAlleles.stream().map(GeneticEntity::getPrimaryKey).collect(Collectors.joining(","));
 
-		String alleleIDsAfterSorting = allVariantAlleles.stream()
-			.sorted(Comparator.comparing(Allele::getSymbolText))
-			.map(GeneticEntity::getPrimaryKey)
-			.collect(Collectors.joining(","));
+		String alleleIDsAfterSorting = allVariantAlleles.stream().sorted(Comparator.comparing(Allele::getSymbolText)).map(GeneticEntity::getPrimaryKey).collect(Collectors.joining(","));
 
 		assertEquals("The alleles are not sorted by symbol", alleleIDsAfterSorting, alleleIDs);
 
@@ -212,29 +200,17 @@ public class AlleleIT {
 		JsonResultResponse<Allele> response = alleleService.getAllelesByGene("FB:FBgn0025832", pagination);
 		assertResponse(response, 2, 2);
 
-		response.getResults().stream()
-		.map(Allele::getVariants)
-		.flatMap(Collection::stream)
-		.filter(Objects::nonNull)
-		.filter(variant -> variant.getPrimaryKey().equals("NT_033778.4:g.16856124_16856125ins"))
-		.forEach(variant -> {
+		response.getResults().stream().map(Allele::getVariants).flatMap(Collection::stream).filter(Objects::nonNull).filter(variant -> variant.getPrimaryKey().equals("NT_033778.4:g.16856124_16856125ins")).forEach(variant -> {
 			assertNotNull("Variant location is missing", variant.getLocation());
-		}
-			);
+		});
 
 		response = alleleService.getAllelesByGene("WB:WBGene00006616", pagination);
 		assertResponse(response, 1, 1);
 
-		response.getResults().stream()
-		.map(Allele::getVariants)
-		.flatMap(Collection::stream)
-		.filter(Objects::nonNull)
-		.filter(variant -> variant.getPrimaryKey().equals("NC_003281.10:g.5690389_5691072del"))
-		.forEach(variant -> {
+		response.getResults().stream().map(Allele::getVariants).flatMap(Collection::stream).filter(Objects::nonNull).filter(variant -> variant.getPrimaryKey().equals("NC_003281.10:g.5690389_5691072del")).forEach(variant -> {
 			assertNotNull("Variant location is missing", variant.getLocation());
 			assertNotNull("Variant consequence is missing", variant.getGeneLevelConsequence());
-		}
-			);
+		});
 
 	}
 
@@ -361,8 +337,8 @@ public class AlleleIT {
 
 	@Test
 	public void getAllelePhenotype() {
-		//String alleleID = "ZFIN:ZDB-ALT-041001-12";
-		//String alleleID = "MGI:5442117";
+		// String alleleID = "ZFIN:ZDB-ALT-041001-12";
+		// String alleleID = "MGI:5442117";
 		// hu3335
 		String alleleID = "ZFIN:ZDB-ALT-980203-692";
 		JsonResultResponse<PhenotypeAnnotation> response = alleleService.getPhenotype(alleleID, new Pagination());
@@ -377,9 +353,7 @@ public class AlleleIT {
 		JsonResultResponse<PhenotypeAnnotation> response = alleleService.getPhenotype(alleleID, new Pagination());
 		assertNotNull(response);
 		assertThat(response.getTotal(), greaterThanOrEqualTo(8));
-		response.getResults().stream()
-		.filter(phenotypeAnnotation -> phenotypeAnnotation.getPrimaryAnnotatedEntities() != null)
-		.forEach(annotation -> {
+		response.getResults().stream().filter(phenotypeAnnotation -> phenotypeAnnotation.getPrimaryAnnotatedEntities() != null).forEach(annotation -> {
 			annotation.getPrimaryAnnotatedEntities().forEach(entity -> {
 				assertNotEquals("Do not have allele direct annotations reference alleles as PAE", entity.getType(), GeneticEntity.CrossReferenceType.ALLELE);
 			});
@@ -399,21 +373,19 @@ public class AlleleIT {
 	}
 
 	private void assertPhenotype(JsonResultResponse<PhenotypeAnnotation> response, String phenotype) {
-		Optional<PhenotypeAnnotation> phenotytpeOptional = response.getResults().stream()
-			.filter(phenotypeAnnotation -> phenotypeAnnotation.getPhenotype().equals(phenotype)).findFirst();
+		Optional<PhenotypeAnnotation> phenotytpeOptional = response.getResults().stream().filter(phenotypeAnnotation -> phenotypeAnnotation.getPhenotype().equals(phenotype)).findFirst();
 		assertTrue("No phenotype: " + phenotype + " found", phenotytpeOptional.isPresent());
 		List<PrimaryAnnotatedEntity> abnormalMotorLearning = phenotytpeOptional.get().getPrimaryAnnotatedEntities();
 		assertNotNull(abnormalMotorLearning);
 		assertThat("Mouse genotype not found for phenotype annotation: " + phenotype, abnormalMotorLearning.get(0).getId(), equalTo("MGI:3832988"));
 	}
 
-
 	@Test
 	public void getAlleleDisease() {
-		//String alleleID = "ZFIN:ZDB-ALT-041001-12";
-		//String alleleID = "MGI:5442117";
+		// String alleleID = "ZFIN:ZDB-ALT-041001-12";
+		// String alleleID = "MGI:5442117";
 		// hps5
-		//String alleleID = "ZFIN:ZDB-ALT-980203-692";
+		// String alleleID = "ZFIN:ZDB-ALT-980203-692";
 		String alleleID = "MGI:1856424";
 		JsonResultResponse<DiseaseAnnotation> response = alleleService.getDisease(alleleID, new Pagination());
 		assertNotNull(response);
@@ -421,7 +393,7 @@ public class AlleleIT {
 	}
 
 	@Test
-	public void getAlleleVariantDetail(){
+	public void getAlleleVariantDetail() {
 		Set<Allele> allAlleles = alleleRepository.getAllAlleleVariantInfoOnGene();
 		assertNotNull(allAlleles);
 	}
@@ -444,8 +416,8 @@ public class AlleleIT {
 	@Test
 	@Ignore
 	public void checkAllelesGeneTableSynonymFilter() {
-		GeneController ctrl=new GeneController();
-		JsonResultResponse<Allele> response= ctrl.getAllelesPerGene("RGD:2219",10,1,"","true","","brc","","","","","allele");
+		GeneController ctrl = new GeneController();
+		JsonResultResponse<Allele> response = ctrl.getAllelesPerGene("RGD:2219", 10, 1, "", "true", "", "brc", "", "", "", "", "allele");
 		assertNotNull(response);
 
 	}

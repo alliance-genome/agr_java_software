@@ -13,7 +13,7 @@ import jakarta.ws.rs.ext.Provider;
 public class DebugRequestFilter implements ContainerRequestFilter {
 	@Override
 	public void filter(ContainerRequestContext requestContext) throws IOException {
-		if(ConfigHelper.getDebug()) {
+		if (ConfigHelper.getDebug()) {
 			Log.info("Request: " + requestContext.getUriInfo().getPath());
 		}
 	}

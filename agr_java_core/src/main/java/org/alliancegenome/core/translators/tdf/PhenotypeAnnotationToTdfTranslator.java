@@ -20,12 +20,12 @@ public class PhenotypeAnnotationToTdfTranslator {
 		List<PhenotypeDownloadRow> list = getDownloadRowsFromAnnotations(annotations);
 
 		List<DownloadHeader> headers = List.of(
-				new DownloadHeader<>("Phenotype", (PhenotypeDownloadRow::getPhenotype)),
-				new DownloadHeader<>("Genetic Entity ID", (PhenotypeDownloadRow::getGeneticEntityID)),
-				new DownloadHeader<>("Genetic Entity Name", (PhenotypeDownloadRow::getGeneticEntityName)),
-				new DownloadHeader<>("Genetic Entity Type", (PhenotypeDownloadRow::getGeneticEntityType)),
-				new DownloadHeader<>("Source", (PhenotypeDownloadRow::getSource)),
-				new DownloadHeader<>("Reference", (PhenotypeDownloadRow::getReference))
+				new DownloadHeader<>("Phenotype", PhenotypeDownloadRow::getPhenotype),
+				new DownloadHeader<>("Genetic Entity ID", PhenotypeDownloadRow::getGeneticEntityID),
+				new DownloadHeader<>("Genetic Entity Name", PhenotypeDownloadRow::getGeneticEntityName),
+				new DownloadHeader<>("Genetic Entity Type", PhenotypeDownloadRow::getGeneticEntityType),
+				new DownloadHeader<>("Source", PhenotypeDownloadRow::getSource),
+				new DownloadHeader<>("Reference", PhenotypeDownloadRow::getReference)
 		);
 
 		return DownloadHeader.getDownloadOutput(list, headers);
@@ -59,12 +59,12 @@ public class PhenotypeAnnotationToTdfTranslator {
 				.collect(Collectors.toList());
 
 		List<DownloadHeader> headers = List.of(
-				new DownloadHeader<>("Phenotype", (PhenotypeDownloadRow::getPhenotype)),
-				new DownloadHeader<>("Genetic Entity ID", (PhenotypeDownloadRow::getGeneticEntityID)),
-				new DownloadHeader<>("Genetic Entity Name", (PhenotypeDownloadRow::getGeneticEntityName)),
-				new DownloadHeader<>("Genetic Entity Type", (PhenotypeDownloadRow::getGeneticEntityType)),
-				new DownloadHeader<>("Reference", (PhenotypeDownloadRow::getReference)),
-				new DownloadHeader<>("Source", (PhenotypeDownloadRow::getSource))
+				new DownloadHeader<>("Phenotype", PhenotypeDownloadRow::getPhenotype),
+				new DownloadHeader<>("Genetic Entity ID", PhenotypeDownloadRow::getGeneticEntityID),
+				new DownloadHeader<>("Genetic Entity Name", PhenotypeDownloadRow::getGeneticEntityName),
+				new DownloadHeader<>("Genetic Entity Type", PhenotypeDownloadRow::getGeneticEntityType),
+				new DownloadHeader<>("Reference", PhenotypeDownloadRow::getReference),
+				new DownloadHeader<>("Source", PhenotypeDownloadRow::getSource)
 		);
 
 		return DownloadHeader.getDownloadOutput(list, headers);
@@ -114,7 +114,7 @@ public class PhenotypeAnnotationToTdfTranslator {
 	public List<PhenotypeDownloadRow> getDownloadRowsFromAnnotations(List<PhenotypeAnnotation> phenotypeAnnotations) {
 		denormalizeAnnotations(phenotypeAnnotations);
 		return phenotypeAnnotations.stream()
-				.filter(annotation -> annotation.getPrimaryAnnotatedEntities()!=null)
+				.filter(annotation -> annotation.getPrimaryAnnotatedEntities() != null)
 				.filter(annotation -> !CollectionUtils.isEmpty(annotation.getPrimaryAnnotatedEntities()))
 				.map(annotation -> annotation.getPrimaryAnnotatedEntities().stream()
 						.map(entity -> entity.getPublicationEvidenceCodes().stream()
@@ -149,13 +149,11 @@ public class PhenotypeAnnotationToTdfTranslator {
 		row.setPhenotype(annotation.getPhenotype());
 
 		row.setReference(join.getPublication().getPubId());
-		if (annotation.getSource()!=null) {
+		if (annotation.getSource() != null) {
 			row.setSource(annotation.getSource().getName());
-		}
-		else{
+		} else {
 			row.setSource("");
 		}
 		return row;
 	}
-
 }

@@ -15,26 +15,22 @@ import lombok.Setter;
 @NodeEntity
 @Getter
 @Setter
-@Schema(name="MITerm", description="POJO that represents the MITerm join")
+@Schema(name = "MITerm", description = "POJO that represents the MITerm join")
 public class MITerm extends Ontology {
-	@JsonView({View.Interaction.class})
-	private String primaryKey;
-	@JsonView({View.Interaction.class})
-	private String label;
-	@JsonView({View.Interaction.class})
-	private String definition;
-	@JsonView({View.Interaction.class})
-	private String url;
+	@JsonView({ View.Interaction.class }) private String primaryKey;
+	@JsonView({ View.Interaction.class }) private String label;
+	@JsonView({ View.Interaction.class }) private String definition;
+	@JsonView({ View.Interaction.class }) private String url;
 
-	@JsonView({View.Interaction.class})
+	@JsonView({ View.Interaction.class })
 	public String getDisplayName() {
 		Optional<String> type = MiTermType.getNameByID(primaryKey);
 		return type.orElseGet(() -> label);
 	}
 
-	@JsonView({View.Interaction.class})
+	@JsonView({ View.Interaction.class })
 	public void setDisplayName(String name) {
-		//ignore
+		// ignore
 	}
 
 	enum MiTermType {
@@ -56,20 +52,16 @@ public class MITerm extends Ontology {
 		DS_DNA("MI:0681", "dsDNA"),
 		LINKC_RNA("MI:2190", "lincRNA");
 
-		private String ID;
+		private String id;
 		private String name;
 
-
-		MiTermType(String ID, String name) {
+		MiTermType(String id, String name) {
 			this.name = name;
-			this.ID = ID;
+			this.id = id;
 		}
 
 		public static Optional<String> getNameByID(String id) {
-			return Arrays.stream(values())
-					.filter(term -> term.ID.equals(id))
-					.map(miTermType -> miTermType.name)
-					.findFirst();
+			return Arrays.stream(values()).filter(term -> term.id.equals(id)).map(miTermType -> miTermType.name).findFirst();
 
 		}
 	}

@@ -13,17 +13,19 @@ import si.mazi.rescu.RestProxyFactory;
 public class VocabularyService {
 
 	private VocabularyRESTInterface vocabularyApi = RestProxyFactory.createProxy(VocabularyRESTInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
-	
-	private HashMap<String, VocabularyTerm> terms = null;
-	
+
+	private HashMap<String, VocabularyTerm> terms;
+
 	public HashMap<String, VocabularyTerm> getDiseaseRelationTerms() {
-		if(terms != null) return terms;
-		
+		if (terms != null) {
+			return terms;
+		}
+
 		HashMap<String, Object> params = new HashMap<>();
 		params.put("vocabulary.name", "Disease Relation");
 		SearchResponse<VocabularyTerm> response = vocabularyApi.find(0, 1000, params);
 		terms = new HashMap<>();
-		for(VocabularyTerm vt: response.getResults()) {
+		for (VocabularyTerm vt : response.getResults()) {
 			terms.put(vt.getName(), vt);
 		}
 		return terms;
