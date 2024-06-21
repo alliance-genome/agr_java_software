@@ -67,9 +67,9 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 		diseaseRepository = new DiseaseRepository();
 		closureMap = diseaseRepository.getDOClosureChildMapping();
 
-//		indexGenes();
+		indexGenes();
 		indexAlleles();
-//		indexAGMs();
+		indexAGMs();
 
 		List<GenePhenotypeAnnotationDocument> geneList = createGeneDiseaseAnnotationDocuments();
 		log.info("Indexing " + String.format("%,d", geneList.size()) + " Gene PA documents");

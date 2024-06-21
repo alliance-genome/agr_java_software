@@ -37,7 +37,7 @@ public class AllelePhenotypeAnnotationService extends BaseDiseaseAnnotationServi
 		HashMap<String, Object> params = new HashMap<>();
 		params.put("internal", false);
 		params.put("obsolete", false);
-		params.put("phenotypeAnnotationSubject.modEntityId", "SGD:S000280526");
+		//params.put("phenotypeAnnotationSubject.modEntityId", "SGD:S000280526");
 		//params.put("phenotypeAnnotationSubject.modEntityId", "MGI:4829791");
 
 		do {
