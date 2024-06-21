@@ -14,7 +14,7 @@ import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
 import org.alliancegenome.indexer.indexers.curation.service.AGMPhenotypeAnnotationService;
-import org.alliancegenome.indexer.indexers.curation.service.AlleleDiseaseAnnotationService;
+import org.alliancegenome.indexer.indexers.curation.service.AllelePhenotypeAnnotationService;
 import org.alliancegenome.indexer.indexers.curation.service.GenePhenotypeAnnotationService;
 import org.alliancegenome.indexer.indexers.curation.service.VocabularyService;
 import org.alliancegenome.neo4j.entity.SpeciesType;
@@ -33,7 +33,7 @@ import static java.util.stream.Collectors.groupingBy;
 public class PhenotypeAnnotationCurationIndexer extends Indexer {
 
 	private GenePhenotypeAnnotationService geneService = new GenePhenotypeAnnotationService();
-	private AlleleDiseaseAnnotationService alleleService = new AlleleDiseaseAnnotationService();
+	private AllelePhenotypeAnnotationService alleleService = new AllelePhenotypeAnnotationService();
 	private AGMPhenotypeAnnotationService agmService = new AGMPhenotypeAnnotationService();
 	private VocabularyService vocabService = new VocabularyService();
 	private DiseaseRepository diseaseRepository;
@@ -42,7 +42,7 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 	private Map<String, Pair<Gene, ArrayList<PhenotypeAnnotation>>> geneMap = new HashMap<>();
 	Map<String, Pair<Gene, ArrayList<DiseaseAnnotation>>> generatedImplicatedGeneMap = new HashMap<>();
 
-	private Map<String, Pair<Allele, ArrayList<DiseaseAnnotation>>> alleleMap = new HashMap<>();
+	private Map<String, Pair<Allele, ArrayList<PhenotypeAnnotation>>> alleleMap = new HashMap<>();
 	private Map<String, Pair<AffectedGenomicModel, ArrayList<PhenotypeAnnotation>>> agmMap = new HashMap<>();
 
 	private Map<Gene, List<DiseaseAnnotation>> geneViaOrthologyMap = new HashMap<>();
@@ -67,11 +67,9 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 		diseaseRepository = new DiseaseRepository();
 		closureMap = diseaseRepository.getDOClosureChildMapping();
 
-		indexGenes();
-/*
+//		indexGenes();
 		indexAlleles();
-*/
-		indexAGMs();
+//		indexAGMs();
 
 		List<GenePhenotypeAnnotationDocument> geneList = createGeneDiseaseAnnotationDocuments();
 		log.info("Indexing " + String.format("%,d", geneList.size()) + " Gene PA documents");
@@ -396,27 +394,25 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 		pair.getRight().add(geneDiseaseAnnotations);
 	}
 
-/*
 	private void indexAlleles() {
 
-		List<AlleleDiseaseAnnotation> alleleDiseaseAnnotations = alleleService.getFiltered();
-		log.info("Filtered Alleles: " + alleleDiseaseAnnotations.size());
-		for (AlleleDiseaseAnnotation da : alleleDiseaseAnnotations) {
-			Allele allele = da.getDiseaseAnnotationSubject();
-			Pair<Allele, ArrayList<DiseaseAnnotation>> allelePair = alleleMap.computeIfAbsent(allele.getIdentifier(), alleleCurie -> Pair.of(allele, new ArrayList<>()));
+		List<AllelePhenotypeAnnotation> allelePhenotypeAnnotations = alleleService.getFiltered();
+		log.info("Filtered Alleles: " + allelePhenotypeAnnotations.size());
+		for (AllelePhenotypeAnnotation da : allelePhenotypeAnnotations) {
+			Allele allele = da.getPhenotypeAnnotationSubject();
+			Pair<Allele, ArrayList<PhenotypeAnnotation>> allelePair = alleleMap.computeIfAbsent(allele.getIdentifier(), alleleCurie -> Pair.of(allele, new ArrayList<>()));
 			allelePair.getRight().add(da);
 
 			Gene inferredGene = da.getInferredGene();
-			extractGeneDiseaseAnnotations(da, inferredGene);
+			extractGenePhenotypeAnnotations(da, inferredGene);
 			if (da.getAssertedGenes() != null) {
 				for (Gene gene : da.getAssertedGenes()) {
-					extractGeneDiseaseAnnotations(da, gene);
+					extractGenePhenotypeAnnotations(da, gene);
 				}
 			}
 		}
 
 	}
-*/
 
 	private void extractGenePhenotypeAnnotations(PhenotypeAnnotation da, Gene inferredGene) {
 		if (inferredGene != null && !inferredGene.getInternal()) {
