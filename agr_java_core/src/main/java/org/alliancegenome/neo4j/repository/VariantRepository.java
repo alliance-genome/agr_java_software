@@ -9,7 +9,9 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import org.alliancegenome.neo4j.entity.node.Allele;
+import org.alliancegenome.neo4j.entity.node.Transcript;
 import org.alliancegenome.neo4j.entity.node.Variant;
+import org.apache.commons.collections4.CollectionUtils;
 import org.neo4j.ogm.model.Result;
 
 public class VariantRepository extends Neo4jRepository<Variant> {
@@ -44,7 +46,7 @@ public class VariantRepository extends Neo4jRepository<Variant> {
 		query += " OPTIONAL MATCH p2=(variant:Variant)<-[:COMPUTED_GENE]-(:Gene)-[:ASSOCIATION]->(:GenomicLocation)";
 		query += " WITH p1, collect(p2) AS p2, locs, consequences, synonyms, transcripts, transcriptConsequences, notes, crossRefs, pubs";
 		query += " RETURN p1, p2, locs, consequences, synonyms, transcripts, transcriptConsequences, notes, crossRefs, pubs ";
-		
+
 		Iterable<Variant> alleles = query(query, map);
 		return StreamSupport.stream(alleles.spliterator(), false)
 				.collect(Collectors.toList());
@@ -60,20 +62,25 @@ public class VariantRepository extends Neo4jRepository<Variant> {
 		query += " WHERE variant.primaryKey = $" + paramName;
 		query += " OPTIONAL MATCH consequence=(:GenomicLocation)--(variant:Variant)-[:ASSOCIATION]->(:TranscriptLevelConsequence)"
 				+ "<-[:ASSOCIATION]-(t:Transcript)<-[:TRANSCRIPT_TYPE]-(:SOTerm)";
-		query += " OPTIONAL MATCH gene=(t:Transcript)-[:TRANSCRIPT]-(:Gene)--(:GenomicLocation)";
+		query += " OPTIONAL MATCH gene=(t:Transcript)-[:TRANSCRIPT]-(ge:Gene)--(:GenomicLocation)";
+		query += " OPTIONAL MATCH geneSpecies=(ge:Gene)--(:Species)";
 		query += " OPTIONAL MATCH transcriptLocation=(t:Transcript)-[:ASSOCIATION]-(:GenomicLocation)";
 		query += " OPTIONAL MATCH exons=(:GenomicLocation)--(:Exon)-[:EXON]->(t:Transcript)";
-		query += " RETURN p1, consequence, gene, exons, transcriptLocation ";
+		query += " RETURN p1, consequence, gene, geneSpecies, exons, transcriptLocation ";
 
 		Iterable<Variant> variants = query(query, map);
 		for (Variant a : variants) {
 			if (a.getPrimaryKey().equals(variantID)) {
+				List<Transcript> list = a.getTranscriptList();
+				if (CollectionUtils.isNotEmpty(list)) {
+					a.setSpecies(list.get(0).getGene().getSpecies());
+				}
 				return a;
 			}
 		}
 		return null;
 	}
-	
+
 	public List<String> getAllVariantKeys() {
 		String query = "MATCH (v:Variant)-[:VARIATION]-(a:Allele)-[:FROM_SPECIES]-(q:Species) RETURN v.primaryKey";
 
@@ -88,7 +95,7 @@ public class VariantRepository extends Neo4jRepository<Variant> {
 		}
 		return list;
 	}
-	
+
 	public List<Allele> getAllelesOfVariant(String variantID) {
 		String query = "";
 		query += " MATCH p1=(a:Allele)<-[:VARIATION]-(variant:Variant)--(soTerm:SOTerm) ";
