@@ -72,7 +72,7 @@ public class VariantRepository extends Neo4jRepository<Variant> {
 		for (Variant a : variants) {
 			if (a.getPrimaryKey().equals(variantID)) {
 				List<Transcript> list = a.getTranscriptList();
-				if(CollectionUtils.isNotEmpty(list)) {
+				if (CollectionUtils.isNotEmpty(list)) {
 					a.setSpecies(list.get(0).getGene().getSpecies());
 				}
 				return a;
