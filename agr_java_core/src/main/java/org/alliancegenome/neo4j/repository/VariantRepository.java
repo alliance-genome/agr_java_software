@@ -74,6 +74,7 @@ public class VariantRepository extends Neo4jRepository<Variant> {
 				List<Transcript> list = a.getTranscriptList();
 				if (CollectionUtils.isNotEmpty(list)) {
 					a.setSpecies(list.get(0).getGene().getSpecies());
+					a.setGene(list.get(0).getGene());
 				}
 				return a;
 			}
