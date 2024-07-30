@@ -284,13 +284,12 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 
 
 	private String getPubmedPubModID(Reference singleReference) {
-		List<CrossReference> crossReferences = singleReference.getCrossReferences();
-		if (CollectionUtils.isEmpty(crossReferences)) {
+		if (singleReference == null || CollectionUtils.isEmpty(singleReference.getCrossReferences())) {
 			return null;
 		}
 		String[] prefixes = { "PMID", "MGI", "RGD", "ZFIN", "FB", "WB", "MGI" };
 		for (String prefix : prefixes) {
-			Optional<CrossReference> opt = crossReferences.stream().filter(reference -> reference.getReferencedCurie().startsWith(prefix + ":")).findFirst();
+			Optional<CrossReference> opt = singleReference.getCrossReferences().stream().filter(reference -> reference.getReferencedCurie().startsWith(prefix + ":")).findFirst();
 			if (opt.isPresent()) {
 				return opt.get().getReferencedCurie();
 			}
