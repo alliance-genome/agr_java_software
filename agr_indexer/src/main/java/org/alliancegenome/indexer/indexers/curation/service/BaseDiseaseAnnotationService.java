@@ -107,7 +107,7 @@ public class BaseDiseaseAnnotationService {
 			entitiesToBeValidated.addAll(da.getDiseaseGeneticModifiers());
 		}
 		AtomicBoolean hasNoObsoletedOrInternalEntities = new AtomicBoolean(true);
-		for(AuditedObject auditedObject: entitiesToBeValidated) {
+		for (AuditedObject auditedObject: entitiesToBeValidated) {
 			if (auditedObject.getObsolete()) {
 				hasNoObsoletedOrInternalEntities.set(false);
 			}
