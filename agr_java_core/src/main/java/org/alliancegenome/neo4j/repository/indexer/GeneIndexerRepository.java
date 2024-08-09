@@ -149,10 +149,12 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene> {
 			try {
 				if (!cacheFile.exists()) {
 
-					String query = " MATCH p1=(species:Species)-[:FROM_SPECIES]-(g:Gene) ";
-					query += " OPTIONAL MATCH pSoTerm=(g:Gene)-[:ANNOTATED_TO]-(soTerm:SOTerm)";
-					query += " OPTIONAL MATCH p5=(g:Gene)--(:GenomicLocation) ";
-					query += " RETURN p1, pSoTerm, p5";
+					String query = """
+						MATCH p1=(species:Species)-[:FROM_SPECIES]-(g:Gene)
+						OPTIONAL MATCH pSoTerm=(g:Gene)-[:ANNOTATED_TO]-(soTerm:SOTerm)
+						OPTIONAL MATCH p5=(g:Gene)--(:GenomicLocation)
+						RETURN p1, pSoTerm, p5
+					""";
 
 					Iterable<Gene> genes = null;
 
@@ -182,8 +184,10 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene> {
 		@Override
 		public void run() {
 			log.info("Building gene -> synonyms map");
-			String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[:ALSO_KNOWN_AS]-(s:Synonym) ";
-			query += " RETURN gene.primaryKey as id, s.name as value ";
+			String query = """
+				MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[:ALSO_KNOWN_AS]-(s:Synonym)
+				RETURN gene.primaryKey as id, s.name as value
+			""";
 			cache.setSynonyms(getCacheResults(cacheFile, query));
 			log.info("Finished Building gene -> synonyms map");
 		}
@@ -462,9 +466,10 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene> {
 		@Override
 		public void run() {
 			log.info("Building gene -> Expression Anatomy w/parents map");
-			String query = " MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[:EXPRESSED_IN]->(ebe:ExpressionBioEntity)-[:ANATOMICAL_STRUCTURE]-(:Ontology)-[:IS_A_PART_OF_CLOSURE]->(term:Ontology) ";
-			query += " RETURN distinct gene.primaryKey as id, term.name value";
-
+			String query = """
+				MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[:EXPRESSED_IN]->(ebe:ExpressionBioEntity)-[:ANATOMICAL_STRUCTURE]-(:Ontology)-[:IS_A_PART_OF_CLOSURE]->(term:Ontology)
+				RETURN distinct gene.primaryKey as id, term.name value
+			""";
 			cache.setAnatomicalExpressionWithParents(getCacheResults(cacheFile, query));
 			log.info("Finished Building gene -> Expression Anatomy w/parents map");
 		}
