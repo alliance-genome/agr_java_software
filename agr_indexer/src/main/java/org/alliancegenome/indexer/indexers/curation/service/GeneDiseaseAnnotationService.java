@@ -134,7 +134,7 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 				}
 				// create orthologous DAs for each focus DA
 				
-				for(DiseaseAnnotation focusDiseaseAnnotation: focusDiseaseAnnotations) {
+				for (DiseaseAnnotation focusDiseaseAnnotation: focusDiseaseAnnotations) {
 
 					DiseaseAnnotation gda = null;
 					if (focusDiseaseAnnotation instanceof AGMDiseaseAnnotation agmda) {
