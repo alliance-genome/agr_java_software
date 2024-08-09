@@ -95,7 +95,7 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 		
 		HashMap<Gene, List<DiseaseAnnotation>> newDAMap = readFromCache(orthoCacheFileName, HashMap.class);
 		
-		if(newDAMap == null) {
+		if (newDAMap == null) {
 			newDAMap = new HashMap<>();
 		}
 		
