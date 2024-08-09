@@ -99,7 +99,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		List<GeneDiseaseAnnotationDocument> list = createGeneDiseaseAnnotationDocuments();
 		createDiseaseAnnotationsFromOrthology();
 
-		List<GeneDiseaseAnnotationDocument> viaOrthologyList = getGeneDiseaseAnnotationViaOrthologyDocuments();
+		List<GeneDiseaseAnnotationDocument> viaOrthologyList = createGeneDiseaseAnnotationViaOrthologyDocuments();
 		list.addAll(viaOrthologyList);
 		log.info("Indexing " + list.size() + " gene documents");
 		indexDocuments(list);
@@ -121,10 +121,6 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 			pairs.getRight().addAll(geneArrayListPair.getRight());
 		});
 		geneViaOrthologyMap = geneService.getOrthologousGeneDiseaseAnnotations(generatedImplicatedGeneMap);
-	}
-
-	private List<GeneDiseaseAnnotationDocument> getGeneDiseaseAnnotationViaOrthologyDocuments() {
-		return createGeneDiseaseAnnotationViaOrthologyDocuments();
 	}
 
 	private List<GeneDiseaseAnnotationDocument> createGeneDiseaseAnnotationViaOrthologyDocuments() {

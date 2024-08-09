@@ -47,9 +47,13 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 
 	public List<GeneDiseaseAnnotation> getFiltered() {
 		ProcessDisplayHelper display = new ProcessDisplayHelper(2000);
-		List<GeneDiseaseAnnotation> ret = new ArrayList<>();
-		log.info("Gene IDs #: " + allGeneIDs);
-		log.info("AGM IDs #: " + allModelIDs);
+
+		List<GeneDiseaseAnnotation> ret = readFromCache(cacheFileName, List.class);
+		if (ret != null && ret.size() > 0) {
+			return ret;
+		} else {
+			ret = new ArrayList<>();
+		}
 
 		int batchSize = 1000;
 		int page = 0;
@@ -87,6 +91,18 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 	public Map<Gene, List<DiseaseAnnotation>> getOrthologousGeneDiseaseAnnotations(Map<String, Pair<Gene, ArrayList<DiseaseAnnotation>>> geneMap) {
 		ProcessDisplayHelper display = new ProcessDisplayHelper(10000);
 
+		String orthoCacheFileName = "gene_disease_via_orthology_annotation.json.gz";
+		
+		HashMap<Gene, List<DiseaseAnnotation>> newDAMap = readFromCache(orthoCacheFileName, HashMap.class);
+		
+		if(newDAMap == null) {
+			newDAMap = new HashMap<>();
+		}
+		
+		if (newDAMap != null && newDAMap.size() > 0) {
+			return newDAMap;
+		}
+		
 		HashMap<String, Object> params = new HashMap<>();
 		params.put("internal", false);
 		params.put("obsolete", false);
@@ -98,7 +114,7 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 		// hard code MGI:6194238 with corresponding AGRKB ID
 		Reference allianceReference = referenceService.getReference("AGRKB:101000000828456");
 
-		Map<Gene, List<DiseaseAnnotation>> newDAMap = new HashMap<>();
+		
 		display.startProcess("Creating Gene DA's via orthology", geneMap.size());
 		// loop over all Markers of validated DiseaseAnnotation records
 		Set<String> geneIDs = geneMap.keySet();
@@ -117,7 +133,9 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 					continue;
 				}
 				// create orthologous DAs for each focus DA
-				focusDiseaseAnnotations.forEach(focusDiseaseAnnotation -> {
+				
+				for(DiseaseAnnotation focusDiseaseAnnotation: focusDiseaseAnnotations) {
+
 					DiseaseAnnotation gda = null;
 					if (focusDiseaseAnnotation instanceof AGMDiseaseAnnotation agmda) {
 						AGMDiseaseAnnotation da = new AGMDiseaseAnnotation();
@@ -150,11 +168,12 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 					gda.setDiseaseAnnotationObject(focusDiseaseAnnotation.getDiseaseAnnotationObject());
 					gda.setEvidenceCodes(List.of(ecoTermIEA));
 					gda.setDiseaseQualifiers(focusDiseaseAnnotation.getDiseaseQualifiers());
+					
 					List<DiseaseAnnotation> geneAnnotations = newDAMap.computeIfAbsent(orthologousGene, k -> new ArrayList<>());
 					geneAnnotations.add(gda);
-				});
+				}
 			}
-			display.progressProcess(1L);
+			display.progressProcess();
 		}
 		display.finishProcess();
 		// consolidating DAs:
@@ -177,7 +196,10 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 
 			}));
 		});
-		System.out.println("Number of orthologous genes generating new DAs: " + newDAMap.size());
+		log.info("Number of orthologous genes generating new DAs: " + newDAMap.size());
+		
+		writeToCache(orthoCacheFileName, newDAMap);
+		
 		return newDAMap;
 	}
 }
