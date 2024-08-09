@@ -203,12 +203,16 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene> {
 			log.info("Building gene -> cross references map");
 			try {
 
-				String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[:CROSS_REFERENCE]-(cr:CrossReference) ";
-				query += " RETURN gene.primaryKey as id, cr.name as value";
+				String query = """
+					MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[:CROSS_REFERENCE]-(cr:CrossReference)
+					RETURN gene.primaryKey as id, cr.name as value
+				""";
 				Map<String, Set<String>> names = getCacheResults(nameCacheFile, query);
 
-				query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[:CROSS_REFERENCE]-(cr:CrossReference) ";
-				query += " RETURN gene.primaryKey as id, cr.localId as value";
+				query = """
+					MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[:CROSS_REFERENCE]-(cr:CrossReference)
+					RETURN gene.primaryKey as id, cr.localId as value
+				""";
 				Map<String, Set<String>> localIds = getCacheResults(idsCacheFile, query);
 
 				Map<String, Set<String>> map = new HashMap<>();
