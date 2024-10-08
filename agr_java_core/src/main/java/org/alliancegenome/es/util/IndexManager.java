@@ -67,7 +67,7 @@ public class IndexManager {
 	}
 
 	public IndexManager() {
-		this(new SiteIndexSettings(true), new Mapping(true));
+		this(new SiteIndexSettings(true, ConfigHelper.getEsShardCount()), new Mapping(true));
 	}
 
 	public void createAlias(String alias, String index) { // ES Util
