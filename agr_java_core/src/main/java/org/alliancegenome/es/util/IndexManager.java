@@ -325,7 +325,7 @@ public class IndexManager {
 		if (repoName != null && repoName.length() > 0) {
 			try {
 
-				SiteIndexSettings settings = new SiteIndexSettings(true);
+				SiteIndexSettings settings = new SiteIndexSettings(true, 1);
 				settings.buildRepositorySettings("agr-es-backup-" + repoName);
 
 				PutRepositoryRequest request = new PutRepositoryRequest();
