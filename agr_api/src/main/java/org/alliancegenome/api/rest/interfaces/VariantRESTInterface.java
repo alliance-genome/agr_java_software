@@ -5,6 +5,7 @@ import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Transcript;
 import org.alliancegenome.neo4j.entity.node.Variant;
 import org.alliancegenome.neo4j.view.View;
+import org.apache.commons.lang3.ObjectUtils.Null;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.ParameterIn;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
@@ -37,14 +38,14 @@ public interface VariantRESTInterface {
 	@JsonView({ View.VariantAPI.class })
 	@Operation(description = "Searches for an Allele", summary = "Allele Notes")
 	@APIResponses(value = { @APIResponse(responseCode = "404", description = "Missing variant", content = @Content(mediaType = "text/plain")),
-		@APIResponse(responseCode = "200", description = "Search for Variant.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Variant.class))) })
+		@APIResponse(responseCode = "200", description = "Search for Variant.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
 	Variant getVariant(@Parameter(in = ParameterIn.PATH, name = "id", description = "Search for a Variant by ID", required = true, schema = @Schema(type = SchemaType.STRING)) @PathParam("id") String id);
 
 	@GET
 	@Path("/{id}/transcripts")
 	@Operation(summary = "Retrieve all transcripts of a given variant")
 	@APIResponses(value = { @APIResponse(responseCode = "404", description = "Missing description", content = @Content(mediaType = "text/plain")),
-		@APIResponse(responseCode = "200", description = "JVM system properties of a particular host.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Transcript.class))) })
+		@APIResponse(responseCode = "200", description = "JVM system properties of a particular host.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
 	@JsonView(value = { View.VariantAPI.class })
 	JsonResultResponse<Transcript> getTranscriptsPerVariant(@Parameter(in = ParameterIn.PATH, name = "id", description = "Search for transcripts for a given variant ID", required = true, schema = @Schema(type = SchemaType.STRING)) @PathParam("id") String id,
 		@Parameter(in = ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("20") @QueryParam("limit") Integer limit,
@@ -57,7 +58,7 @@ public interface VariantRESTInterface {
 	@Path("/{id}/alleles")
 	@Operation(summary = "Retrieve all alleles for a given variant")
 	@APIResponses(value = { @APIResponse(responseCode = "404", description = "Missing description", content = @Content(mediaType = "text/plain")),
-		@APIResponse(responseCode = "200", description = "JVM system properties of a particular host.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Transcript.class))) })
+		@APIResponse(responseCode = "200", description = "JVM system properties of a particular host.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
 	@JsonView(value = { View.VariantAPI.class })
 	JsonResultResponse<Allele> getAllelesPerVariant(@Parameter(in = ParameterIn.PATH, name = "id", description = "Search for transcripts for a given variant ID", required = true, schema = @Schema(type = SchemaType.STRING)) @PathParam("id") String id,
 		@Parameter(in = ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("20") @QueryParam("limit") Integer limit,
