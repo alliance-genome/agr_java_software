@@ -6,11 +6,15 @@ import org.alliancegenome.api.dto.RibbonSummary;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.ExpressionDetail;
 import org.alliancegenome.neo4j.view.View;
+import org.apache.commons.lang3.ObjectUtils.Null;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.ParameterIn;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
+import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import com.fasterxml.jackson.annotation.JsonView;
@@ -36,6 +40,7 @@ public interface ExpressionRESTInterface {
 	@Path("")
 	@JsonView(value = { View.Expression.class })
 	@Operation(summary = "Retrieve all expression records of a given set of geneMap")
+	@APIResponses(value = { @APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
 	JsonResultResponse<ExpressionDetail> getExpressionAnnotations(@Parameter(in = ParameterIn.QUERY, name = "geneID", description = "Gene by ID", required = true) @QueryParam("geneID") List<String> geneIDs,
 		@Parameter(in = ParameterIn.QUERY, name = "termID", description = "Term ID by which rollup should happen", schema = @Schema(type = SchemaType.STRING)) @QueryParam("termID") String termID,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.species", description = "Species by taxon ID", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.species") String filterSpecies,
@@ -69,6 +74,7 @@ public interface ExpressionRESTInterface {
 	@Path("/ribbon-summary")
 	@JsonView(value = { View.Expression.class })
 	@Operation(summary = "Retrieve summary of expression for given list of genes")
+	@APIResponses(value = { @APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
 	RibbonSummary getExpressionSummary(@Parameter(in = ParameterIn.QUERY, name = "geneID", description = "list of genes for which expression data is requested", required = true) @QueryParam("geneID") List<String> geneIDs);
 
 }
