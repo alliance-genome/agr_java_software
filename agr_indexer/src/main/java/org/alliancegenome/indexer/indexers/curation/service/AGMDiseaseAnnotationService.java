@@ -1,5 +1,6 @@
 package org.alliancegenome.indexer.indexers.curation.service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -21,9 +22,11 @@ public class AGMDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 
 	public List<AGMDiseaseAnnotation> getFiltered() {
 
-		List<AGMDiseaseAnnotation> ret = readFromCache(cacheFileName, AGMDiseaseAnnotation.class);
-		if (ret.size() > 0) {
+		List<AGMDiseaseAnnotation> ret = readFromCache(cacheFileName, List.class);
+		if (ret != null && ret.size() > 0) {
 			return ret;
+		} else {
+			ret = new ArrayList<>();
 		}
 
 		ProcessDisplayHelper display = new ProcessDisplayHelper(10000);
