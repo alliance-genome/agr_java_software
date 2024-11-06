@@ -1,5 +1,6 @@
 package org.alliancegenome.indexer.indexers.curation.service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -21,11 +22,14 @@ public class AlleleDiseaseAnnotationService extends BaseDiseaseAnnotationService
 
 	public List<AlleleDiseaseAnnotation> getFiltered() {
 
-		List<AlleleDiseaseAnnotation> ret = readFromCache(cacheFileName, AlleleDiseaseAnnotation.class);
-		if (ret.size() > 0) {
-			return ret;
-		}
+		List<AlleleDiseaseAnnotation> ret = readFromCache(cacheFileName, List.class);
 
+		if (ret != null && ret.size() > 0) {
+			return ret;
+		} else {
+			ret = new ArrayList<>();
+		}
+		
 		ProcessDisplayHelper display = new ProcessDisplayHelper(10000);
 
 		int batchSize = 1000;

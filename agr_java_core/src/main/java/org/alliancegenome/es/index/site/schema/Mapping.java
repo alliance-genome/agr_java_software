@@ -87,9 +87,11 @@ public class Mapping extends Builder {
 				.standardBigrams()
 				.build();
 		new FieldBuilder(builder, "object.name", "text").keyword().sort().build();
+		new FieldBuilder(builder, "object.curie", "text").keyword().sort().build();
 		new FieldBuilder(builder, "subject.alleleSymbol.displayText", "text").keyword().sort().build();
 		new FieldBuilder(builder, "subject.geneSymbol.displayText", "text").keyword().sort().build();
 		new FieldBuilder(builder, "subject.name", "text").keyword().sort().build();
+		new FieldBuilder(builder, "subject.modEntityId", "text").keyword().sort().build();
 		new FieldBuilder(builder, "phenotypeStatements", "text")
 				.keyword()
 				.build();

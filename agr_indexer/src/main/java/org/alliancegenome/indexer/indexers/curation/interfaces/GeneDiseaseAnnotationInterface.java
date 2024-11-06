@@ -21,9 +21,10 @@ import jakarta.ws.rs.QueryParam;
 @Consumes({"application/json"})
 public interface GeneDiseaseAnnotationInterface extends BaseIdCrudInterface<GeneDiseaseAnnotation> {
 
+	@Override
 	@POST
 	@Path("/findForPublic")
-	@JsonView({View.DiseaseAnnotationForPublic.class})
+	@JsonView({View.ForPublic.class})
 	SearchResponse<GeneDiseaseAnnotation> findForPublic(@DefaultValue("0") @QueryParam("page") Integer page, @DefaultValue("10") @QueryParam("limit") Integer limit, HashMap<String, Object> params);
 
 }

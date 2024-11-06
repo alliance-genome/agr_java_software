@@ -34,7 +34,7 @@ public class BaseDiseaseAnnotationService {
 		GeneRepository geneRepository = new GeneRepository();
 
 		String alleleIdsFileName = "allele_ids.gz";
-		List<String> alleleList = readFromCache(alleleIdsFileName, String.class);
+		List<String> alleleList = readFromCache(alleleIdsFileName, List.class);
 
 		if (CollectionUtils.isNotEmpty(alleleList)) {
 			allAlleleIds = new HashSet<>(alleleList);
@@ -44,7 +44,7 @@ public class BaseDiseaseAnnotationService {
 		}
 
 		String geneIdsFileName = "gene_ids.gz";
-		List<String> geneList = readFromCache(geneIdsFileName, String.class);
+		List<String> geneList = readFromCache(geneIdsFileName, List.class);
 
 		if (CollectionUtils.isNotEmpty(geneList)) {
 			allGeneIDs = new HashSet<>(geneList);
@@ -55,7 +55,7 @@ public class BaseDiseaseAnnotationService {
 		log.info("Number of all Gene IDs from Neo4j: " + allGeneIDs.size());
 
 		String modelIdsFileName = "model_ids.gz";
-		List<String> modelList = readFromCache(modelIdsFileName, String.class);
+		List<String> modelList = readFromCache(modelIdsFileName, List.class);
 
 		if (CollectionUtils.isNotEmpty(modelList)) {
 			allModelIDs = new HashSet<>(modelList);
@@ -107,14 +107,14 @@ public class BaseDiseaseAnnotationService {
 			entitiesToBeValidated.addAll(da.getDiseaseGeneticModifiers());
 		}
 		AtomicBoolean hasNoObsoletedOrInternalEntities = new AtomicBoolean(true);
-		entitiesToBeValidated.forEach(auditedObject -> {
+		for (AuditedObject auditedObject: entitiesToBeValidated) {
 			if (auditedObject.getObsolete()) {
 				hasNoObsoletedOrInternalEntities.set(false);
 			}
 			if (auditedObject.getInternal()) {
 				hasNoObsoletedOrInternalEntities.set(false);
 			}
-		});
+		}
 		return hasNoObsoletedOrInternalEntities.get();
 	}
 
@@ -169,23 +169,23 @@ public class BaseDiseaseAnnotationService {
 		return allEntityIds.contains(curie);
 	}
 
-	protected <E> List<E> readFromCache(String fileName, Class<E> clazz) {
+	protected <E> E readFromCache(String fileName, Class<E> clazz) {
 		try {
 			ObjectFileStorage<E> storage = new ObjectFileStorage<>();
 			File cache = new File(fileName);
 			if (cache.exists()) {
-				return storage.readObjectsFromFile(cache);
+				return storage.readObjectFromFile(cache);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return new ArrayList<>();
+		return null;
 	}
 
-	protected <E> void writeToCache(String fileName, List<E> objects) {
+	protected <E> void writeToCache(String fileName, E object) {
 		try {
 			ObjectFileStorage<E> storage = new ObjectFileStorage<>();
-			storage.writeObjectsToFile(objects, fileName);
+			storage.writeObjectToFile(object, fileName);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
