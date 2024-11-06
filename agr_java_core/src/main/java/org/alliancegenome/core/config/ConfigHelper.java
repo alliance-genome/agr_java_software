@@ -19,6 +19,7 @@ import static org.alliancegenome.core.config.Constants.ES_INDEX;
 import static org.alliancegenome.core.config.Constants.ES_INDEX_PREFIX;
 import static org.alliancegenome.core.config.Constants.ES_INDEX_SUFFIX;
 import static org.alliancegenome.core.config.Constants.ES_PORT;
+import static org.alliancegenome.core.config.Constants.ES_SHARD_COUNT;
 import static org.alliancegenome.core.config.Constants.EXTRACTOR_OUTPUTDIR;
 import static org.alliancegenome.core.config.Constants.FMS_URL;
 import static org.alliancegenome.core.config.Constants.GO_TERM_LIST;
@@ -80,6 +81,7 @@ public class ConfigHelper {
 		// If both are used then the resulting index name is: {ES_INDEX_PREFIX}_{ES_INDEX}_{ES_INDEX_SUFFIX}_{TIMESTAMP}"
 		defaults.put(ES_HOST, "localhost");
 		defaults.put(ES_PORT, "9200");
+		defaults.put(ES_SHARD_COUNT, "4");
 
 		// ES Bulk Processing defaults
 		defaults.put(ES_BULK_ACTION_SIZE, "400");
@@ -238,6 +240,17 @@ public class ConfigHelper {
 			init();
 		}
 		return config.get(ES_HOST);
+	}
+	
+	public static int getEsShardCount() {
+		if (!init) {
+			init();
+		}
+		try {
+			return Integer.parseInt(config.get(ES_SHARD_COUNT));
+		} catch (NumberFormatException e) {
+			return 0;
+		}
 	}
 
 	public static Multimap<String, Integer> getEsHostMap() {
