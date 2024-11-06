@@ -24,7 +24,7 @@
 		<maven.compiler.target>17</maven.compiler.target>
 		<revision>7.2.0</revision>
 		<quarkus.version>3.4.2</quarkus.version>
-		<infinispan.version>14.0.17.Final</infinispan.version>
+		<infinispan.version>14.0.25.Final</infinispan.version>
 		<maven-checkstyle-plugin.version>3.3.1</maven-checkstyle-plugin.version>
 		<checkstyle.version>10.17.0</checkstyle.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
