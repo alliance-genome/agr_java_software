@@ -9,6 +9,7 @@ import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.view.View;
+import org.apache.commons.lang3.ObjectUtils.Null;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.ParameterIn;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
@@ -22,7 +23,6 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import jakarta.validation.constraints.Null;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
@@ -44,14 +44,14 @@ public interface DiseaseRESTInterface {
 	@JsonView(value = { View.DiseaseAPI.class })
 	@Operation(summary = "Retrieve a Disease object for a given id")
 	@APIResponses(value = { @APIResponse(responseCode = "404", description = "Missing Disease object", content = @Content(mediaType = "text/plain")),
-		@APIResponse(responseCode = "200", description = "Disease object.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = DOTerm.class))) })
+		@APIResponse(responseCode = "200", description = "Disease object.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
 
 	DOTerm getDisease(@Parameter(in = ParameterIn.PATH, name = "id", description = "Search for a Disease by ID", required = true, schema = @Schema(type = SchemaType.STRING)) @PathParam("id") String id);
 
 	@GET
 	@Path("/{id}/associations")
 	@JsonView(value = { View.DiseaseAnnotationSummary.class })
-	@Operation(summary = "Retrieve all DiseaseAnnotation records for a given disease id", hidden = true)
+	@Operation(summary = "Retrieve all DiseaseAnnotation associations for a given disease id", hidden = true)
 	@APIResponses(value = { @APIResponse(responseCode = "404", description = "Missing disease annotations", content = @Content(mediaType = "text/plain")),
 		@APIResponse(responseCode = "200", description = "Disease Annotations for a disease id.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = View.DiseaseAnnotationSummary.class))) })
 	JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotationsSorted(@Parameter(in = ParameterIn.PATH, name = "id", description = "Search for a disease by ID", required = true, schema = @Schema(type = SchemaType.STRING)) @PathParam("id") String id,
@@ -75,6 +75,7 @@ public interface DiseaseRESTInterface {
 	@GET
 	@Path("/{id}/alleles")
 	@Operation(summary = "Retrieve all DiseaseAnnotation records for a given disease id")
+	@APIResponses(value = { @APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
 	JsonResultResponse<AlleleDiseaseAnnotationDocument> getDiseaseAnnotationsByAllele(@Parameter(in = ParameterIn.PATH, name = "id", description = "Disease by DOID: e.g. DOID:9952", required = true, schema = @Schema(type = SchemaType.STRING)) @PathParam("id") String id,
 		@Parameter(in = ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("20") @QueryParam("limit") Integer limit,
 		@Parameter(in = ParameterIn.QUERY, name = "page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("1") @QueryParam("page") Integer page,
@@ -158,6 +159,7 @@ public interface DiseaseRESTInterface {
 	@GET
 	@Path("/{id}/models")
 	@Operation(summary = "Retrieve all DiseaseAnnotation records for a given disease id")
+	@APIResponses(value = { @APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
 	JsonResultResponse<AGMDiseaseAnnotationDocument> getDiseaseAnnotationsForModel(@Parameter(in = ParameterIn.PATH, name = "id", description = "Search for a disease by ID", required = true, schema = @Schema(type = SchemaType.STRING)) @PathParam("id") String id,
 		@Parameter(in = ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("20") @QueryParam("limit") Integer limit,
 		@Parameter(in = ParameterIn.QUERY, name = "page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("1") @QueryParam("page") Integer page,

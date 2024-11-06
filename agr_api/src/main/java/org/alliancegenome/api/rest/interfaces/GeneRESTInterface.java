@@ -22,6 +22,7 @@ import org.alliancegenome.neo4j.view.View;
 import org.alliancegenome.neo4j.view.View.GeneAPI;
 import org.alliancegenome.neo4j.view.View.GeneAlleleVariantSequenceAPI;
 import org.alliancegenome.neo4j.view.View.GeneAllelesAPI;
+import org.apache.commons.lang3.ObjectUtils.Null;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.ParameterIn;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
@@ -67,7 +68,7 @@ public interface GeneRESTInterface {
 				responseCode = "200",
 				description = "Genes for a give ID.",
 				content = @Content(mediaType = "application/json",
-					schema = @Schema(implementation = Gene.class)))})
+					schema = @Schema(implementation = Null.class)))})
 	Gene getGene(
 		@Parameter(in = ParameterIn.PATH, name = "id", description = "Retrieve a Gene for given ID", required = true, schema = @Schema(type = SchemaType.STRING))
 		@PathParam("id") String id
@@ -87,7 +88,7 @@ public interface GeneRESTInterface {
 				responseCode = "200",
 				description = "Alleles for a gene.",
 				content = @Content(mediaType = "application/json",
-					schema = @Schema(implementation = Allele.class)))})
+					schema = @Schema(implementation = Null.class)))})
 	JsonResultResponse<Allele> getAllelesPerGene(
 		//@ApiParam(name = "id", description = "Search for Alleles for a given Gene by ID")
 		@Parameter(in = ParameterIn.PATH, name = "id", description = "Search for Alleles for a given Gene by ID", required = true, schema = @Schema(type = SchemaType.STRING))
@@ -130,7 +131,7 @@ public interface GeneRESTInterface {
 				responseCode = "200",
 				description = "Alleles for a gene.",
 				content = @Content(mediaType = "application/json",
-					schema = @Schema(implementation = Allele.class)))})
+					schema = @Schema(implementation = Null.class)))})
 	JsonResultResponse<AlleleVariantSequence> getAllelesVariantPerGene(
 		@Parameter(in = ParameterIn.PATH, name = "id", description = "Search for Alleles for a given Gene by ID", required = true, schema = @Schema(type = SchemaType.STRING))
 		@PathParam("id") String id,
@@ -254,7 +255,7 @@ public interface GeneRESTInterface {
 				responseCode = "200",
 				description = "Phenotype annotations for a gene.",
 				content = @Content(mediaType = "application/json",
-					schema = @Schema(implementation = PhenotypeAnnotation.class)))})
+					schema = @Schema(implementation = Null.class)))})
 	JsonResultResponse<PhenotypeAnnotation> getPhenotypeAnnotations(
 		@Parameter(in = ParameterIn.PATH, name = "id", description = "Gene by ID: e.g. ZFIN:ZDB-GENE-990415-8", required = true, schema = @Schema(type = SchemaType.STRING))
 		@PathParam("id") String id,
@@ -314,7 +315,7 @@ public interface GeneRESTInterface {
 				responseCode = "200",
 				description = "Disease annotations for a gene.",
 				content = @Content(mediaType = "application/json",
-					schema = @Schema(implementation = DiseaseAnnotation.class)))})
+					schema = @Schema(implementation = Null.class)))})
 	JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotations(
 		@Parameter(in = ParameterIn.PATH, name = "id", description = "Gene by ID: e.g. ZFIN:ZDB-GENE-990415-8", required = true, schema = @Schema(type = SchemaType.STRING))
 		@PathParam("id") String id,
@@ -374,7 +375,7 @@ public interface GeneRESTInterface {
 				responseCode = "200",
 				description = "disease annotations for a gene.",
 				content = @Content(mediaType = "application/json",
-					schema = @Schema(implementation = PrimaryAnnotatedEntity.class)))})
+					schema = @Schema(implementation = Null.class)))})
 	JsonResultResponse<PrimaryAnnotatedEntity> getPrimaryAnnotatedEntityForModel(
 		@Parameter(in = ParameterIn.PATH, name = "id", description = "gene ID: e.g. MGI:109583", required = true, schema = @Schema(type = SchemaType.STRING))
 		@PathParam("id") String id,
@@ -405,6 +406,7 @@ public interface GeneRESTInterface {
 	@Path("/{id}/orthologs")
 	@JsonView(value = {View.Homology.class})
 	@Operation(summary = "Download homology records.")
+	@APIResponses(value = { @APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
 	JsonResultResponse<HomologView> getGeneOrthology(
 		@Parameter(in = ParameterIn.PATH, name = "id", description = "Source Gene ID: the gene for which you are searching homologous gene, e.g. 'MGI:109583'", required = true, schema = @Schema(type = SchemaType.STRING))
 		@PathParam("id") String id,
@@ -427,6 +429,7 @@ public interface GeneRESTInterface {
 	@Path("/{id}/paralogs")
 	@JsonView(value = {View.Homology.class})
 	@Operation(summary = "Download paralogy records.")
+	@APIResponses(value = { @APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
 	JsonResultResponse<ParalogBean> getGeneParalogy(
 		@Parameter(in = ParameterIn.PATH, name = "id", description = "Source Gene ID: the gene for which you are searching homologous gene, e.g. 'MGI:109583'", required = true, schema = @Schema(type = SchemaType.STRING))
 		@PathParam("id") String id,
@@ -449,6 +452,7 @@ public interface GeneRESTInterface {
 	@Path("/{id}/homologs-with-expression")
 	@JsonView(value = {View.Homology.class})
 	@Operation(summary = "Retrieve homologous gene records that have expression data")
+	@APIResponses(value = { @APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
 	JsonResultResponse<HomologView> getGeneOrthologyWithExpression(
 		@Parameter(in = ParameterIn.PATH, name = "id", description = "Source Gene ID: the gene for which you are searching homologous gene, e.g. 'MGI:109583'", required = true, schema = @Schema(type = SchemaType.STRING))
 		@PathParam("id") String id,
@@ -468,7 +472,7 @@ public interface GeneRESTInterface {
 				responseCode = "200",
 				description = "Interactions for a gene.",
 				content = @Content(mediaType = "application/json",
-					schema = @Schema(implementation = InteractionGeneJoin.class)))})
+					schema = @Schema(implementation = Null.class)))})
 	@JsonView(value = {View.Interaction.class})
 	JsonResultResponse<InteractionGeneJoin> getInteractions(
 		@Parameter(in = ParameterIn.PATH, name = "id", description = " Gene ID", required = true, schema = @Schema(type = SchemaType.STRING))
@@ -564,6 +568,7 @@ public interface GeneRESTInterface {
 	@Path("/{id}/expression-summary")
 	@JsonView(value = {View.Expression.class})
 	@Operation(summary = "Retrieve all expression records of a given gene")
+	@APIResponses(value = { @APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
 	ExpressionSummary getExpressionSummary(
 		@Parameter(in = ParameterIn.PATH, name = "id", description = "Gene by ID, e.g. 'RGD:2129' or 'ZFIN:ZDB-GENE-990415-72 fgf8a'", required = true, schema = @Schema(type = SchemaType.STRING))
 		@PathParam("id") String id
@@ -573,6 +578,7 @@ public interface GeneRESTInterface {
 	@Path("/{id}/disease-ribbon-summary")
 	@JsonView(value = {View.DiseaseAnnotation.class})
 	@Operation(summary = "Retrieve all disease records of a given gene")
+	@APIResponses(value = { @APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
 	DiseaseRibbonSummary getDiseaseRibbonSummary(
 		@Parameter(in = ParameterIn.PATH, name = "id", description = "Gene by ID, e.g. 'RGD:2129' or 'ZFIN:ZDB-GENE-990415-72 fgf8a'", required = true, schema = @Schema(type = SchemaType.STRING))
 		@PathParam("id") String id,
@@ -588,6 +594,7 @@ public interface GeneRESTInterface {
 	@Path("/{id}/interaction-summary")
 	@JsonView(value = {View.Expression.class})
 	@Operation(summary = "Retrieve interaction summary records of a given gene")
+	@APIResponses(value = { @APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
 	EntitySummary getInteractionSummary(
 		@Parameter(in = ParameterIn.PATH, name = "id", description = "Gene by ID, e.g. 'RGD:2129' or 'ZFIN:ZDB-GENE-990415-72 fgf8a'", required = true, schema = @Schema(type = SchemaType.STRING))
 		@PathParam("id") String id
@@ -607,7 +614,7 @@ public interface GeneRESTInterface {
 				responseCode = "200",
 				description = "Disease annotations for a gene.",
 				content = @Content(mediaType = "application/json",
-					schema = @Schema(implementation = DiseaseAnnotation.class)))})
+					schema = @Schema(implementation = Null.class)))})
 	@JsonView(value = {View.DiseaseAnnotation.class})
 	JsonResultResponse<DiseaseAnnotation> getDiseaseByExperiment(
 		@Parameter(in = ParameterIn.PATH, name = "id", description = "Gene by ID, e.g. 'RGD:2129' or 'ZFIN:ZDB-GENE-990415-72 fgf8a'", required = true, schema = @Schema(type = SchemaType.STRING))
@@ -671,6 +678,7 @@ public interface GeneRESTInterface {
 	@GET
 	@Path("/{id}/disease-summary")
 	@Operation(summary = "Retrieve disease summary info for a given gene and disease type")
+	@APIResponses(value = { @APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
 	DiseaseSummary getDiseaseSummary(
 		@Parameter(in = ParameterIn.PATH, name = "id", description = "Gene by ID, e.g. 'RGD:2129' or 'ZFIN:ZDB-GENE-990415-72 fgf8a'", required = true, schema = @Schema(type = SchemaType.STRING))
 		@PathParam("id") String id,
@@ -693,7 +701,7 @@ public interface GeneRESTInterface {
 				responseCode = "200",
 				description = "Phenotype for a gene.",
 				content = @Content(mediaType = "application/json",
-					schema = @Schema(implementation = EntitySummary.class)))})
+					schema = @Schema(implementation = Null.class)))})
 	EntitySummary getPhenotypeSummary(
 		@Parameter(in = ParameterIn.PATH, name = "id", description = "Gene by ID, e.g. 'RGD:2129' or 'ZFIN:ZDB-GENE-990415-72 fgf8a'", required = true, schema = @Schema(type = SchemaType.STRING))
 		@PathParam("id") String id
@@ -713,7 +721,7 @@ public interface GeneRESTInterface {
 				responseCode = "200",
 				description = "Transgenic Alleles for a gene.",
 				content = @Content(mediaType = "application/json",
-					schema = @Schema(implementation = Allele.class)))})
+					schema = @Schema(implementation = Null.class)))})
 	JsonResultResponse<Allele> getTransgenicAlleles(
 		@Parameter(in = ParameterIn.PATH, name = "id", description = "Gene by ID, e.g. 'RGD:2129' or 'ZFIN:ZDB-GENE-990415-72 fgf8a'", required = true, schema = @Schema(type = SchemaType.STRING))
 		@PathParam("id") String geneID,
