@@ -2,6 +2,7 @@ package org.alliancegenome.api.application;
 
 import org.alliancegenome.api.json.APIBeanSerializerModifier;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
