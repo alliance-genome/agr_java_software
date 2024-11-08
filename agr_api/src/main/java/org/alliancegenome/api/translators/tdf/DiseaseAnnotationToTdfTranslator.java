@@ -1,14 +1,5 @@
 package org.alliancegenome.api.translators.tdf;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringJoiner;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
 import org.alliancegenome.api.entity.AGMDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.DiseaseAnnotationDocument;
@@ -16,20 +7,18 @@ import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.core.helpers.DiseaseAnnotationHelper;
 import org.alliancegenome.core.translators.tdf.DiseaseDownloadRow;
 import org.alliancegenome.core.translators.tdf.DownloadHeader;
-import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.BiologicalEntity;
-import org.alliancegenome.curation_api.model.entities.DataProvider;
-import org.alliancegenome.curation_api.model.entities.GeneDiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.*;
 import org.alliancegenome.curation_api.model.entities.base.SubmittedObject;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.CrossReference;
-import org.alliancegenome.neo4j.entity.node.ECOTerm;
 import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.GeneticEntity;
-import org.alliancegenome.neo4j.entity.node.PublicationJoin;
+import org.alliancegenome.neo4j.entity.node.*;
 import org.apache.commons.collections.CollectionUtils;
+
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class DiseaseAnnotationToTdfTranslator {
 
@@ -297,11 +286,20 @@ public class DiseaseAnnotationToTdfTranslator {
 			row.setDiseaseQualifier(primaryAnnotation.getDiseaseQualifiers().stream()
 				.map(term -> term.getName().replace("_", " ")).collect(Collectors.joining("|")));
 		}
-		List<BiologicalEntity> diseaseGeneticModifiers = primaryAnnotation.getDiseaseGeneticModifiers();
-		if (CollectionUtils.isNotEmpty(diseaseGeneticModifiers)) {
-			row.setDiseaseGeneticModifierID(diseaseGeneticModifiers.stream().map(SubmittedObject::getIdentifier).collect(Collectors.joining("|")));
+		List<BiologicalEntity> geneticModifiers = new ArrayList<>();
+		if (org.apache.commons.collections4.CollectionUtils.isNotEmpty(primaryAnnotation.getDiseaseGeneticModifierAlleles())) {
+			geneticModifiers.addAll(primaryAnnotation.getDiseaseGeneticModifierAlleles().stream().filter(Objects::nonNull).toList());
+		}
+		if (org.apache.commons.collections4.CollectionUtils.isNotEmpty(primaryAnnotation.getDiseaseGeneticModifierGenes())) {
+			geneticModifiers.addAll(primaryAnnotation.getDiseaseGeneticModifierGenes().stream().filter(Objects::nonNull).toList());
+		}
+		if (org.apache.commons.collections4.CollectionUtils.isNotEmpty(primaryAnnotation.getDiseaseGeneticModifierAgms())) {
+			geneticModifiers.addAll(primaryAnnotation.getDiseaseGeneticModifierAgms().stream().filter(Objects::nonNull).toList());
+		}
+		if (CollectionUtils.isNotEmpty(geneticModifiers)) {
+			row.setDiseaseGeneticModifierID(geneticModifiers.stream().map(SubmittedObject::getIdentifier).collect(Collectors.joining("|")));
 			StringJoiner joiner = new StringJoiner("|");
-			diseaseGeneticModifiers.forEach(entity -> joiner.add(DiseaseAnnotationHelper.getEntityName(entity)));
+			geneticModifiers.forEach(entity -> joiner.add(DiseaseAnnotationHelper.getEntityName(entity)));
 			row.setDiseaseGeneticModifierName(joiner.toString());
 		}
 	}
