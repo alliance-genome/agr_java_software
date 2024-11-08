@@ -376,10 +376,10 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 	}
 
 	private static String getGeneticModifierConsolidatedKey(DiseaseAnnotation da) {
-		if (da.getDiseaseGeneticModifierRelation() == null &&
-			CollectionUtils.isEmpty(da.getDiseaseGeneticModifierAlleles()) &&
-			CollectionUtils.isEmpty(da.getDiseaseGeneticModifierGenes()) &&
-			CollectionUtils.isEmpty(da.getDiseaseGeneticModifierAgms())) {
+		if (da.getDiseaseGeneticModifierRelation() == null
+			&& CollectionUtils.isEmpty(da.getDiseaseGeneticModifierAlleles())
+			&& CollectionUtils.isEmpty(da.getDiseaseGeneticModifierGenes())
+			&& CollectionUtils.isEmpty(da.getDiseaseGeneticModifierAgms())) {
 			return null;
 		}
 		StringBuilder geneticModifier = new StringBuilder();
@@ -431,9 +431,9 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 	}
 
 	private static void populateGeneticModifier(DiseaseAnnotation da, DiseaseAnnotationDocument adad) {
-		if (CollectionUtils.isNotEmpty(da.getDiseaseGeneticModifierAlleles()) ||
-			CollectionUtils.isNotEmpty(da.getDiseaseGeneticModifierGenes()) ||
-			CollectionUtils.isNotEmpty(da.getDiseaseGeneticModifierAgms())) {
+		if (CollectionUtils.isNotEmpty(da.getDiseaseGeneticModifierAlleles())
+			|| CollectionUtils.isNotEmpty(da.getDiseaseGeneticModifierGenes())
+			|| CollectionUtils.isNotEmpty(da.getDiseaseGeneticModifierAgms())) {
 			List<BiologicalEntity> geneticModifiers = new ArrayList<>();
 			if (CollectionUtils.isNotEmpty(da.getDiseaseGeneticModifierAlleles())) {
 				geneticModifiers.addAll(da.getDiseaseGeneticModifierAlleles().stream().filter(Objects::nonNull).toList());
