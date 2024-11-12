@@ -1,38 +1,13 @@
 package org.alliancegenome.indexer.indexers.curation;
 
-import static java.util.stream.Collectors.groupingBy;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.stream.Collectors;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.alliancegenome.api.entity.AGMDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.DiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.core.helpers.DiseaseAnnotationHelper;
-import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.AffectedGenomicModel;
-import org.alliancegenome.curation_api.model.entities.Allele;
-import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.BiologicalEntity;
-import org.alliancegenome.curation_api.model.entities.ConditionRelation;
-import org.alliancegenome.curation_api.model.entities.CrossReference;
-import org.alliancegenome.curation_api.model.entities.DiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.ExperimentalCondition;
-import org.alliancegenome.curation_api.model.entities.Gene;
-import org.alliancegenome.curation_api.model.entities.GeneDiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.Reference;
-import org.alliancegenome.curation_api.model.entities.VocabularyTerm;
+import org.alliancegenome.curation_api.model.entities.*;
 import org.alliancegenome.curation_api.model.entities.base.SubmittedObject;
 import org.alliancegenome.curation_api.model.entities.ontology.DOTerm;
 import org.alliancegenome.curation_api.model.entities.ontology.ECOTerm;
@@ -50,9 +25,12 @@ import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.stream.Collectors;
 
-import lombok.extern.slf4j.Slf4j;
+import static java.util.stream.Collectors.groupingBy;
 
 @Slf4j
 public class DiseaseAnnotationCurationIndexer extends Indexer {
@@ -259,7 +237,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 
 		return ret;
 	}
-	
+
 	private void copyDAFields(DiseaseAnnotation source, DiseaseAnnotation target) {
 		target.setRelation(source.getRelation());
 		target.setDiseaseAnnotationObject(source.getDiseaseAnnotationObject());
@@ -278,12 +256,11 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 	}
 
 
-
 	private String getPubmedPubModID(Reference singleReference) {
 		if (singleReference == null || CollectionUtils.isEmpty(singleReference.getCrossReferences())) {
 			return null;
 		}
-		String[] prefixes = { "PMID", "MGI", "RGD", "ZFIN", "FB", "WB", "MGI" };
+		String[] prefixes = {"PMID", "MGI", "RGD", "ZFIN", "FB", "WB", "MGI"};
 		for (String prefix : prefixes) {
 			Optional<CrossReference> opt = singleReference.getCrossReferences().stream().filter(reference -> reference.getReferencedCurie().startsWith(prefix + ":")).findFirst();
 			if (opt.isPresent()) {
@@ -399,10 +376,23 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 	}
 
 	private static String getGeneticModifierConsolidatedKey(DiseaseAnnotation da) {
-		if (da.getDiseaseGeneticModifierRelation() == null && CollectionUtils.isEmpty(da.getDiseaseGeneticModifiers())) {
+		if (da.getDiseaseGeneticModifierRelation() == null
+			&& CollectionUtils.isEmpty(da.getDiseaseGeneticModifierAlleles())
+			&& CollectionUtils.isEmpty(da.getDiseaseGeneticModifierGenes())
+			&& CollectionUtils.isEmpty(da.getDiseaseGeneticModifierAgms())) {
 			return null;
 		}
-		return da.getDiseaseGeneticModifierRelation() + "_" + da.getDiseaseGeneticModifiers().stream().map(SubmittedObject::getIdentifier).collect(Collectors.joining(","));
+		StringBuilder geneticModifier = new StringBuilder();
+		if (CollectionUtils.isNotEmpty(da.getDiseaseGeneticModifierAlleles())) {
+			geneticModifier.append(da.getDiseaseGeneticModifierAlleles().stream().map(SubmittedObject::getIdentifier).collect(Collectors.joining(",")));
+		}
+		if (CollectionUtils.isNotEmpty(da.getDiseaseGeneticModifierGenes())) {
+			geneticModifier.append(da.getDiseaseGeneticModifierGenes().stream().map(SubmittedObject::getIdentifier).collect(Collectors.joining(",")));
+		}
+		if (CollectionUtils.isNotEmpty(da.getDiseaseGeneticModifierAgms())) {
+			geneticModifier.append(da.getDiseaseGeneticModifierAgms().stream().map(SubmittedObject::getIdentifier).collect(Collectors.joining(",")));
+		}
+		return da.getDiseaseGeneticModifierRelation() + "_" + geneticModifier;
 	}
 
 	private static String getConditionRelationConsolidatedKey(ConditionRelation relation) {
@@ -441,8 +431,19 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 	}
 
 	private static void populateGeneticModifier(DiseaseAnnotation da, DiseaseAnnotationDocument adad) {
-		if (CollectionUtils.isNotEmpty(da.getDiseaseGeneticModifiers())) {
-			List<BiologicalEntity> geneticModifiers = da.getDiseaseGeneticModifiers().stream().filter(Objects::nonNull).toList();
+		if (CollectionUtils.isNotEmpty(da.getDiseaseGeneticModifierAlleles())
+			|| CollectionUtils.isNotEmpty(da.getDiseaseGeneticModifierGenes())
+			|| CollectionUtils.isNotEmpty(da.getDiseaseGeneticModifierAgms())) {
+			List<BiologicalEntity> geneticModifiers = new ArrayList<>();
+			if (CollectionUtils.isNotEmpty(da.getDiseaseGeneticModifierAlleles())) {
+				geneticModifiers.addAll(da.getDiseaseGeneticModifierAlleles().stream().filter(Objects::nonNull).toList());
+			}
+			if (CollectionUtils.isNotEmpty(da.getDiseaseGeneticModifierGenes())) {
+				geneticModifiers.addAll(da.getDiseaseGeneticModifierGenes().stream().filter(Objects::nonNull).toList());
+			}
+			if (CollectionUtils.isNotEmpty(da.getDiseaseGeneticModifierAgms())) {
+				geneticModifiers.addAll(da.getDiseaseGeneticModifierAgms().stream().filter(Objects::nonNull).toList());
+			}
 			adad.setGeneticModifierList(geneticModifiers);
 			List<String> geneticModifierComponents = new ArrayList<>();
 			geneticModifierComponents.add(da.getDiseaseGeneticModifierRelation().getName());
