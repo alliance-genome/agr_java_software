@@ -1,19 +1,10 @@
 package org.alliancegenome.indexer.indexers.curation.service;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.Allele;
-import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.DiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.Gene;
-import org.alliancegenome.curation_api.model.entities.GeneDiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.GenomicEntity;
+import org.alliancegenome.curation_api.model.entities.*;
 import org.alliancegenome.curation_api.model.entities.base.AuditedObject;
 import org.alliancegenome.neo4j.repository.AlleleRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
@@ -103,8 +94,18 @@ public class BaseDiseaseAnnotationService {
 			entitiesToBeValidated.addAll(da.getWith());
 		}
 		entitiesToBeValidated.add(da.getDiseaseAnnotationObject());
-		if (CollectionUtils.isNotEmpty(da.getDiseaseGeneticModifiers())) {
-			entitiesToBeValidated.addAll(da.getDiseaseGeneticModifiers());
+		List<BiologicalEntity> geneticModifiers = new ArrayList<>();
+		if (CollectionUtils.isNotEmpty(da.getDiseaseGeneticModifierAlleles())) {
+			geneticModifiers.addAll(da.getDiseaseGeneticModifierAlleles().stream().filter(Objects::nonNull).toList());
+		}
+		if (CollectionUtils.isNotEmpty(da.getDiseaseGeneticModifierGenes())) {
+			geneticModifiers.addAll(da.getDiseaseGeneticModifierGenes().stream().filter(Objects::nonNull).toList());
+		}
+		if (CollectionUtils.isNotEmpty(da.getDiseaseGeneticModifierAgms())) {
+			geneticModifiers.addAll(da.getDiseaseGeneticModifierAgms().stream().filter(Objects::nonNull).toList());
+		}
+		if (CollectionUtils.isNotEmpty(geneticModifiers)) {
+			entitiesToBeValidated.addAll(geneticModifiers);
 		}
 		AtomicBoolean hasNoObsoletedOrInternalEntities = new AtomicBoolean(true);
 		for (AuditedObject auditedObject: entitiesToBeValidated) {
@@ -157,8 +158,18 @@ public class BaseDiseaseAnnotationService {
 	}
 
 	protected static boolean hasValidGeneticModifiers(DiseaseAnnotation da, Set<String> allGeneIDs, Set<String> allAllelIDs, Set<String> allModelIDs) {
-		if (CollectionUtils.isNotEmpty(da.getDiseaseGeneticModifiers())) {
-			if (da.getDiseaseGeneticModifiers().stream().anyMatch(entity -> !allGeneIDs.contains(entity.getIdentifier()) && !allAllelIDs.contains(entity.getIdentifier()) && !allModelIDs.contains(entity.getIdentifier()))) {
+		List<BiologicalEntity> geneticModifiers = new ArrayList<>();
+		if (CollectionUtils.isNotEmpty(da.getDiseaseGeneticModifierAlleles())) {
+			geneticModifiers.addAll(da.getDiseaseGeneticModifierAlleles().stream().filter(Objects::nonNull).toList());
+		}
+		if (CollectionUtils.isNotEmpty(da.getDiseaseGeneticModifierGenes())) {
+			geneticModifiers.addAll(da.getDiseaseGeneticModifierGenes().stream().filter(Objects::nonNull).toList());
+		}
+		if (CollectionUtils.isNotEmpty(da.getDiseaseGeneticModifierAgms())) {
+			geneticModifiers.addAll(da.getDiseaseGeneticModifierAgms().stream().filter(Objects::nonNull).toList());
+		}
+		if (CollectionUtils.isNotEmpty(geneticModifiers)) {
+			if (geneticModifiers.stream().anyMatch(entity -> !allGeneIDs.contains(entity.getIdentifier()) && !allAllelIDs.contains(entity.getIdentifier()) && !allModelIDs.contains(entity.getIdentifier()))) {
 				return false;
 			}
 		}
