@@ -349,6 +349,21 @@ public class DiseaseAnnotationToTdfTranslator {
 			row.setSource(sourceProvider);
 		}
 */
+		if (annotation.getExperimentalConditionList() != null) {
+			row.setExperimentalCondition(annotation.getExperimentalConditionsAggregated());
+		} else if (annotation.getPrimaryAnnotations() != null) {
+			for(org.alliancegenome.curation_api.model.entities.DiseaseAnnotation da : annotation.getPrimaryAnnotations()) {
+				if (CollectionUtils.isNotEmpty(da.getConditionRelations())) {
+					List<ConditionRelation> conditionModifiers = da.getConditionRelations().stream().filter(conditionRelation -> conditionRelation.getConditionRelationType() != null)
+						.filter(conditionRelation -> conditionRelation.getConditionRelationType().getName().contains("has_condition") || conditionRelation.getConditionRelationType().getName().contains("induced")).toList();
+					List<String> experimentalConditionComponents = new ArrayList<>(conditionModifiers.stream().map(conditionRelation -> conditionRelation.getConditionRelationType().getName()).toList());
+					conditionModifiers.forEach(conditionRelation -> conditionRelation.getConditions().forEach(experimentalCondition -> {
+						experimentalConditionComponents.add(experimentalCondition.getConditionSummary());
+					}));
+				row.setExperimentalCondition(String.join(",", experimentalConditionComponents));
+				}
+			}
+		}
 		StringJoiner evidenceJoiner = getStringJoiner(primaryAnnotation, org.alliancegenome.curation_api.model.entities.ontology.ECOTerm::getCurie);
 		row.setEvidenceCode(evidenceJoiner.toString());
 
