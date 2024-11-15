@@ -352,7 +352,7 @@ public class DiseaseAnnotationToTdfTranslator {
 		if (annotation.getExperimentalConditionList() != null) {
 			row.setExperimentalCondition(annotation.getExperimentalConditionsAggregated());
 		} else if (annotation.getPrimaryAnnotations() != null) {
-			for(org.alliancegenome.curation_api.model.entities.DiseaseAnnotation da : annotation.getPrimaryAnnotations()) {
+			for (org.alliancegenome.curation_api.model.entities.DiseaseAnnotation da : annotation.getPrimaryAnnotations()) {
 				if (CollectionUtils.isNotEmpty(da.getConditionRelations())) {
 					List<ConditionRelation> conditionModifiers = da.getConditionRelations().stream().filter(conditionRelation -> conditionRelation.getConditionRelationType() != null)
 						.filter(conditionRelation -> conditionRelation.getConditionRelationType().getName().contains("has_condition") || conditionRelation.getConditionRelationType().getName().contains("induced")).toList();
