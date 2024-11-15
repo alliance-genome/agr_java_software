@@ -472,7 +472,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene> {
 			log.info("Building gene -> Expression Anatomy w/parents map");
 			String query = """
 				MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[:EXPRESSED_IN]->(ebe:ExpressionBioEntity)-[:ANATOMICAL_STRUCTURE]-(:Ontology)-[:IS_A_PART_OF_CLOSURE]->(term:Ontology)
-				RETURN distinct gene.primaryKey as id, term.name value
+				RETURN distinct gene.primaryKey as id, term.name as value
 			""";
 			cache.setAnatomicalExpressionWithParents(getCacheResults(cacheFile, query));
 			log.info("Finished Building gene -> Expression Anatomy w/parents map");
