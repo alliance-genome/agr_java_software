@@ -355,9 +355,9 @@ public class DiseaseAnnotationToTdfTranslator {
 			for (org.alliancegenome.curation_api.model.entities.DiseaseAnnotation da : annotation.getPrimaryAnnotations()) {
 				if (CollectionUtils.isNotEmpty(da.getConditionRelations())) {
 					List<ConditionRelation> conditionModifiers = da.getConditionRelations().stream().filter(conditionRelation -> conditionRelation.getConditionRelationType() != null)
-						.filter(conditionRelation -> conditionRelation.getConditionRelationType().getName().contains("has_condition") 
-						|| conditionRelation.getConditionRelationType().getName().contains("induced") 
-						|| conditionRelation.getConditionRelationType().getName().contains("ameliorated") 
+						.filter(conditionRelation -> conditionRelation.getConditionRelationType().getName().contains("has_condition")
+						|| conditionRelation.getConditionRelationType().getName().contains("induced")
+						|| conditionRelation.getConditionRelationType().getName().contains("ameliorated")
 						|| conditionRelation.getConditionRelationType().getName().contains("exacerbated")).toList();
 					List<String> experimentalConditionComponents = new ArrayList<>(conditionModifiers.stream().map(conditionRelation -> conditionRelation.getConditionRelationType().getName()).toList());
 					conditionModifiers.forEach(conditionRelation -> conditionRelation.getConditions().forEach(experimentalCondition -> {
