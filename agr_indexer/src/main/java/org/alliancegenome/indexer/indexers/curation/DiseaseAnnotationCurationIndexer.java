@@ -161,6 +161,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 
 							gdad.addReference(diseaseAnnotation.getSingleReference());
 							gdad.addPubMedPubModID(getPubmedPubModID(diseaseAnnotation.getSingleReference()));
+							gdad.addPubModID(getPubModID(diseaseAnnotation.getSingleReference()));
 
 							HashMap<String, Integer> order = SpeciesType.getSpeciesOrderByTaxonID(gene.getTaxon().getCurie());
 							gdad.setSpeciesOrder(order);
@@ -260,14 +261,14 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		if (singleReference == null || CollectionUtils.isEmpty(singleReference.getCrossReferences())) {
 			return null;
 		}
-		String[] prefixes = {"PMID", "MGI", "RGD", "ZFIN", "FB", "WB", "MGI"};
-		for (String prefix : prefixes) {
-			Optional<CrossReference> opt = singleReference.getCrossReferences().stream().filter(reference -> reference.getReferencedCurie().startsWith(prefix + ":")).findFirst();
-			if (opt.isPresent()) {
-				return opt.get().getReferencedCurie();
-			}
+		return singleReference.getReferenceID();
+	}
+
+	private String getPubModID(Reference singleReference) {
+		if (singleReference == null || CollectionUtils.isEmpty(singleReference.getCrossReferences())) {
+			return null;
 		}
-		return null;
+		return singleReference.getPubModID();
 	}
 
 	private String getGeneratedRelationString(String relation, Boolean negated) {
