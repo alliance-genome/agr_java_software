@@ -39,6 +39,7 @@ public class DiseaseAnnotationDocument extends SearchableItemDocument {
 	private String generatedRelationString;
 	private Set<String> diseaseQualifiers;
 	private Set<String> pubmedPubModIDs;
+	private Set<String> pubModIDs;
 	private Set<String> parentSlimIDs;
 	private List<DiseaseAnnotation> primaryAnnotations;
 	private List<Gene> basedOnGenes;
@@ -88,6 +89,13 @@ public class DiseaseAnnotationDocument extends SearchableItemDocument {
 			pubmedPubModIDs = new HashSet<>();
 		}
 		pubmedPubModIDs.add(id);
+	}
+
+	public void addPubModID(String id) {
+		if (pubModIDs == null) {
+			pubModIDs = new HashSet<>();
+		}
+		pubModIDs.add(id);
 	}
 
 	public void addPrimaryAnnotation(DiseaseAnnotation da) {
