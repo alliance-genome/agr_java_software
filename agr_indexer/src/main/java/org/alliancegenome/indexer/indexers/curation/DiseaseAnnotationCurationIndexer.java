@@ -367,6 +367,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		// gdad.setDataProvider(da.getDataProvider());
 		dad.addReference(da.getSingleReference());
 		dad.addPubMedPubModID(getPubmedPubModID(da.getSingleReference()));
+		dad.addPubModID(getPubModID(da.getSingleReference()));
 		dad.addPrimaryAnnotation(da);
 		dad.setPhylogeneticSortingIndex(getPhylogeneticSortOrder(biologicalEntity.getTaxon().getCurie()));
 		dad.addEvidenceCodes(da.getEvidenceCodes());
