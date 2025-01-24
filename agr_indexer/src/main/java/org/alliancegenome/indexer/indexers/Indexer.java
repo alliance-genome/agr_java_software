@@ -168,6 +168,10 @@ public abstract class Indexer extends Thread {
 				} else {
 					json = om.writeValueAsString(doc);
 				}
+				if(json.length() > 19_000_000) {
+					log.warn("Document is too large for ES skipping: " + json.length());
+					continue;
+				}
 				stats.addDocument(json);
 				bulkProcessor.add(new IndexRequest(indexName).source(json, XContentType.JSON));
 				display.progressProcess();
@@ -185,6 +189,7 @@ public abstract class Indexer extends Thread {
 		List<Thread> threads = new ArrayList<Thread>();
 		for (int i = 0; i < numberOfThreads; i++) {
 			Thread t = new Thread(new Runnable() {
+				@Override
 				public void run() {
 					startSingleThread(queue);
 				}

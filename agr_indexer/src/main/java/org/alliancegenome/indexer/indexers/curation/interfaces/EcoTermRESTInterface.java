@@ -1,4 +1,4 @@
-package org.alliancegenome.indexer.rest.interfaces;
+package org.alliancegenome.indexer.indexers.curation.interfaces;
 
 import org.alliancegenome.curation_api.model.entities.ontology.ECOTerm;
 import org.alliancegenome.curation_api.response.ObjectResponse;
