@@ -16,16 +16,13 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 
 @Path("/vocabularyterm")
-@Produces({"application/json"})
-@Consumes({"application/json"})
+@Produces({ "application/json" })
+@Consumes({ "application/json" })
 public interface VocabularyRESTInterface {
 
 	@POST
 	@Path("/find")
-	@JsonView({View.FieldsAndLists.class})
-	SearchResponse<VocabularyTerm> find(
-		@DefaultValue("0") @QueryParam("page") Integer page, 
-		@DefaultValue("10") @QueryParam("limit") Integer limit, 
-		HashMap<String, Object> params);
+	@JsonView({ View.FieldsAndLists.class })
+	SearchResponse<VocabularyTerm> find(@DefaultValue("0") @QueryParam("page") Integer page, @DefaultValue("10") @QueryParam("limit") Integer limit, HashMap<String, Object> params);
 
 }

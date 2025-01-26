@@ -1,6 +1,5 @@
 package org.alliancegenome.indexer.indexers;
 
-
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -40,7 +39,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
-
 
 @Slf4j
 public abstract class Indexer extends Thread {
@@ -99,7 +97,9 @@ public abstract class Indexer extends Thread {
 		builder.setConcurrentRequests(indexerConfig.getConcurrentRequests());
 		builder.setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(1L), 60));
 		bulkProcessor = builder.build();
-		//bulkProcessor = BulkProcessor.builder((request, bulkListener) -> searchClient.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), listener).build();
+		// bulkProcessor = BulkProcessor.builder((request, bulkListener) ->
+		// searchClient.bulkAsync(request, RequestOptions.DEFAULT, bulkListener),
+		// listener).build();
 
 	}
 
@@ -168,7 +168,7 @@ public abstract class Indexer extends Thread {
 				} else {
 					json = om.writeValueAsString(doc);
 				}
-				if(json.length() > 19_000_000) {
+				if (json.length() > 19_000_000) {
 					log.warn("Document is too large for ES skipping: " + json.length());
 					continue;
 				}
