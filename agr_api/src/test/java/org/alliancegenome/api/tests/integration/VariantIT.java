@@ -177,7 +177,7 @@ public class VariantIT {
 		Variant variant = variants.get(0);
 		assertEquals(variants.size(), 2);
 		String variantNames = String.join(",", variant.getHgvsG());
-		List<String> expectedNames = List.of("(GRCm38)3:115711821_115711824delinsCCGC", "3:g.115711821_115711824delinsCCGC");
+		List<String> expectedNames = List.of("(GRCm39)3:115711821_115711824delinsCCGC", "3:g.115711821_115711824delinsCCGC");
 		expectedNames.forEach(name -> assertTrue(name + " does not exist", variantNames.contains(name)));
 		String unexpectedName = "3:g.115711833T>C";
 		assertFalse(unexpectedName + " exists but should not on this transcript", variantNames.contains(unexpectedName));

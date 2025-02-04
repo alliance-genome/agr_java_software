@@ -113,7 +113,7 @@ class QueryMatchIntegrationSpec extends Specification {
         "AGR-2072" | "MGI:1856689"          | "8:g.11226343C>A"
         "AGR-2072" | "MGI:1856689"          | "RefSeq:XM_017312555.2:c.1879G>T"
         "AGR-2072" | "MGI:1856689"          | "RefSeq:XP_017168044.1:p.Gly627Trp"
-        "AGR-1893" | "RGD:11568041"         | "(Rnor_6.0)X:154703661_154703782del"
+        "AGR-1893" | "RGD:11568041"         | "(mRatBN7.2)X:154703661_154703782del"
         "AGR-1893" | "ZFIN:ZDB-ALT-000412-8" | "(GRCz11)7:30341642C>T"
         "AGR-1893" | "ZFIN:ZDB-ALT-000621-2" | "(GRCz11)20:43717424A>G"
         "AGR-1893" | "WB:WBVar00089581"      | "(WBcel235)I:152331C>T"
