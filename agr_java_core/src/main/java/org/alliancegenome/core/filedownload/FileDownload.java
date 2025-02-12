@@ -60,10 +60,12 @@ public class FileDownload extends Thread {
 
 	@Override
 	public void run() {
+		
+		String file = Joiner.on(".").join(List.of(source, "vep", chromosome, "vcf.gz"));
+		String url = Joiner.on("/").join(List.of(s3RootUrl, allianceRelease, source, file));
+		
 		try {
-			String file = Joiner.on(".").join(List.of(source, "vep", chromosome, "vcf.gz"));
-			String url = Joiner.on("/").join(List.of(s3RootUrl, allianceRelease, source, file));
-			
+
 			downloadUrl = verifyUrl(url);
 			if (downloadUrl == null) {
 				log.warn("Unable to verify file: " + url);
@@ -88,6 +90,8 @@ public class FileDownload extends Thread {
 
 		} catch (IOException e) {
 			e.printStackTrace();
+			log.error("Could not download file: " + url + " -> " + file);
+			System.exit(-1);
 		}
 	}
 }
