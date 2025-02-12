@@ -90,7 +90,7 @@ public class FileDownload extends Thread {
 
 		} catch (IOException e) {
 			e.printStackTrace();
-			log.error("File could not download file: " + url + " -> " + file);
+			log.error("Could not download file: " + url + " -> " + file);
 			System.exit(-1);
 		}
 	}
