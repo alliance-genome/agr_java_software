@@ -11,14 +11,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.DataProvider;
-import org.alliancegenome.curation_api.model.entities.DiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.Gene;
-import org.alliancegenome.curation_api.model.entities.GeneDiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.Reference;
-import org.alliancegenome.curation_api.model.entities.VocabularyTerm;
+import org.alliancegenome.curation_api.model.entities.*;
 import org.alliancegenome.curation_api.model.entities.ontology.ECOTerm;
 import org.alliancegenome.curation_api.model.entities.orthology.GeneToGeneOrthologyGenerated;
 import org.alliancegenome.curation_api.response.SearchResponse;
@@ -160,8 +153,8 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 						relation = isImplicatedViaOrthology;
 					}
 					gda.setRelation(relation);
-					DataProvider dataProvider = new DataProvider();
-					dataProvider.setSourceOrganization(orgService.getOrganization("Alliance"));
+					Organization dataProvider = new Organization();
+					dataProvider.setAbbreviation("Alliance");
 					gda.setDataProvider(dataProvider);
 					gda.setWith(List.of(geneGeneOrthology.getSubjectGene()));
 					gda.setSingleReference(allianceReference);

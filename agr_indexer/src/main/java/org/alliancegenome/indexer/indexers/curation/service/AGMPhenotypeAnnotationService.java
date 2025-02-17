@@ -2,6 +2,7 @@ package org.alliancegenome.indexer.indexers.curation.service;
 
 import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.AGMPhenotypeAnnotation;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
@@ -25,8 +26,13 @@ public class AGMPhenotypeAnnotationService extends BaseDiseaseAnnotationService 
 	private final String cacheFileName = "agm_phenotype_annotation.json.gz";
 
 	public List<AGMPhenotypeAnnotation> getFiltered() {
+		List<AGMPhenotypeAnnotation> ret = readFromCache(cacheFileName, List.class);
+		if (ret != null && ret.size() > 0) {
+			return ret;
+		} else {
+			ret = new ArrayList<>();
+		}
 		ProcessDisplayHelper display = new ProcessDisplayHelper(2000);
-		List<AGMPhenotypeAnnotation> ret = new ArrayList<>();
 		log.info("Gene IDs #: " + allGeneIDs);
 		log.info("AGM IDs #: " + allModelIDs);
 
@@ -37,7 +43,7 @@ public class AGMPhenotypeAnnotationService extends BaseDiseaseAnnotationService 
 		HashMap<String, Object> params = new HashMap<>();
 		params.put("internal", false);
 		params.put("obsolete", false);
-//		params.put("phenotypeAnnotationSubject.modEntityId", "RGD:1333662");
+		//params.put("phenotypeAnnotationSubject.primaryExternalId", "ZFIN:ZDB-FISH-170628-1");
 		//params.put("phenotypeAnnotationSubject.modEntityId", "MGI:4829791");
 
 		do {

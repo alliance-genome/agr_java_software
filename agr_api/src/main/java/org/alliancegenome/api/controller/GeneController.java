@@ -404,18 +404,15 @@ public class GeneController implements GeneRESTInterface {
 			String asc) {
 		// retrieve all records
 		JsonResultResponse<GenePhenotypeAnnotationDocument> response =
-			getPhenotypeAnnotations(id, Integer.MAX_VALUE, 1, sortBy,
+			getPhenotypeAnnotations(id, 250000, 1, sortBy,
 						geneticEntity,
 						geneticEntityType,
 						phenotype,
 						reference,
 						asc);
-/*
 		Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRows(response.getResults()));
 		APIServiceHelper.setDownloadHeader(id, EntityType.GENE, EntityType.PHENOTYPE, responseBuilder);
 		return responseBuilder.build();
-*/
-		return null;
 	}
 
 

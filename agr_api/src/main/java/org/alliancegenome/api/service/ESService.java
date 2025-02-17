@@ -358,8 +358,7 @@ public class ESService {
 
 	private static void setEntityIdMatcher(String geneID, BoolQueryBuilder bool2) {
 		bool2.should(new MatchQueryBuilder("subject.curie.keyword", geneID));
-		bool2.should(new MatchQueryBuilder("subject.modEntityId.keyword", geneID));
-		bool2.should(new MatchQueryBuilder("subject.modInternalId.keyword", geneID));
+		bool2.should(new MatchQueryBuilder("subject.primaryExternalId.keyword", geneID));
 	}
 
 	public JsonResultResponse<GeneDiseaseAnnotationDocument> getDiseaseAnnotationsWithGenes(String diseaseID, Pagination pagination, boolean excludeNegatedAnnotation, boolean debug) {

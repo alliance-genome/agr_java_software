@@ -67,8 +67,10 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 		diseaseRepository = new DiseaseRepository();
 		closureMap = diseaseRepository.getDOClosureChildMapping();
 
+/*
 		indexGenes();
 		indexAlleles();
+*/
 		indexAGMs();
 
 		List<GenePhenotypeAnnotationDocument> geneList = createGeneDiseaseAnnotationDocuments();
@@ -298,13 +300,6 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 		dad.addPrimaryAnnotation(da);
 	}
 
-	private static String getGeneticModifierConsolidatedKey(DiseaseAnnotation da) {
-		if (da.getDiseaseGeneticModifierRelation() == null && CollectionUtils.isEmpty(da.getDiseaseGeneticModifiers()))
-			return null;
-		return da.getDiseaseGeneticModifierRelation() + "_"
-			+ da.getDiseaseGeneticModifiers().stream().map(SubmittedObject::getIdentifier).collect(Collectors.joining(","));
-	}
-
 	private static String getConditionRelationConsolidatedKey(ConditionRelation relation) {
 		if (relation == null)
 			return null;
@@ -327,20 +322,6 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 	private static String getConsolidationKey(PhenotypeAnnotation da) {
 		String key = da.getPhenotypeAnnotationObject();
 		return key;
-	}
-
-	private static void populateGeneticModifier(DiseaseAnnotation da, DiseaseAnnotationDocument adad) {
-		if (CollectionUtils.isNotEmpty(da.getDiseaseGeneticModifiers())) {
-			List<BiologicalEntity> geneticModifiers = da.getDiseaseGeneticModifiers().stream()
-				.filter(Objects::nonNull)
-				.toList();
-			adad.setGeneticModifierList(geneticModifiers);
-			List<String> geneticModifierComponents = new ArrayList<>();
-			geneticModifierComponents.add(da.getDiseaseGeneticModifierRelation().getName());
-			geneticModifierComponents.addAll(geneticModifiers.stream().map(DiseaseAnnotationHelper::getEntityName).toList());
-			adad.setGeneticModifierAggregated(String.join(",", geneticModifierComponents));
-			adad.setGeneticModifierRelation(da.getDiseaseGeneticModifierRelation());
-		}
 	}
 
 	private static void populateConditionModifier(DiseaseAnnotation da, DiseaseAnnotationDocument adad) {

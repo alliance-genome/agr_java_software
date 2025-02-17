@@ -22,6 +22,7 @@ import org.alliancegenome.neo4j.repository.PhenotypeRepository;
 import org.apache.commons.collections.CollectionUtils;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -71,8 +72,10 @@ public class GeneService {
 
 	public JsonResultResponse<AlleleVariantSequence> getAllelesAndVariantInfo(String geneId, Pagination pagination) {
 		List<AlleleVariantSequence> allelesNVariants = alleleVariantIndexService.getAllelesNVariants(geneId, pagination);
-		if (allelesNVariants == null) {
-			return null;
+		if (CollectionUtils.isEmpty(allelesNVariants)) {
+			JsonResultResponse<AlleleVariantSequence> response = new JsonResultResponse<>();
+			response.setResults(new ArrayList<>());
+			return response;
 		}
 		return alleleCacheRepository.getAlleleAndVariantJsonResultResponse(pagination, allelesNVariants);
 	}
