@@ -49,7 +49,7 @@ public class VariantService {
 					SOTerm tType = new SOTerm();
 					tType.setName(consequence.getSequenceFeatureType());
 					transcript.setType(tType);
-					transcript.setGene(consequence.getAssociatedGene());
+					transcript.setGene(consequence.getTranscript().getGene());
 					transcript.setIntronExonLocation(consequence.getLocation());
 					return transcript;
 				})
