@@ -3,7 +3,6 @@ package org.alliancegenome.indexer.indexers.curation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.alliancegenome.api.entity.*;
-import org.alliancegenome.core.helpers.DiseaseAnnotationHelper;
 import org.alliancegenome.curation_api.model.entities.*;
 import org.alliancegenome.curation_api.model.entities.base.SubmittedObject;
 import org.alliancegenome.curation_api.model.entities.ontology.DOTerm;
@@ -67,21 +66,19 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 		diseaseRepository = new DiseaseRepository();
 		closureMap = diseaseRepository.getDOClosureChildMapping();
 
-/*
 		indexGenes();
 		indexAlleles();
-*/
-		indexAGMs();
+		//indexAGMs();
 
-		List<GenePhenotypeAnnotationDocument> geneList = createGeneDiseaseAnnotationDocuments();
+		List<GenePhenotypeAnnotationDocument> geneList = createGenePhenotypeAnnotationDocuments();
 		log.info("Indexing " + String.format("%,d", geneList.size()) + " Gene PA documents");
 		indexDocuments(geneList);
 
-/*
-		List<AlleleDiseaseAnnotationDocument> alleleList = createAlleleDiseaseAnnotationDocuments();
+		List<AllelePhenotypeAnnotationDocument> alleleList = createAllelePhenotypeAnnotationDocuments();
 		log.info("Indexing " + alleleList.size() + " allele documents");
 		indexDocuments(alleleList);
 
+/*
 		List<AGMPhenotypeAnnotationDocument> agmList = createAGMPhenotypeAnnotationDocuments();
 		log.info("Indexing " + String.format("%,d", agmList.size()) + " AGM PA documents");
 		indexDocuments(agmList);
@@ -165,7 +162,7 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 		return returnList;
 	}
 
-	private List<GenePhenotypeAnnotationDocument> createGeneDiseaseAnnotationDocuments() {
+	private List<GenePhenotypeAnnotationDocument> createGenePhenotypeAnnotationDocuments() {
 
 		List<GenePhenotypeAnnotationDocument> ret = new ArrayList<>();
 		ProcessDisplayHelper ph = new ProcessDisplayHelper(10000);
@@ -173,11 +170,11 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 
 		final VocabularyTerm relationIsImplicatedIn = vocabService.getDiseaseRelationTerms().get("is_implicated_in");
 
-		for (Entry<String, Pair<Gene, ArrayList<PhenotypeAnnotation>>> entry : geneMap.entrySet()) {
+		for (Entry<String, Pair<Gene, ArrayList<PhenotypeAnnotation>>> pairMap : geneMap.entrySet()) {
 			HashMap<String, GenePhenotypeAnnotationDocument> lookup = new HashMap<>();
 
-			for (PhenotypeAnnotation da : entry.getValue().getRight()) {
-				Gene gene = entry.getValue().getLeft();
+			for (PhenotypeAnnotation da : pairMap.getValue().getValue()) {
+				Gene gene = pairMap.getValue().getKey();
 				VocabularyTerm relation = relationIsImplicatedIn;
 
 				if (da instanceof GenePhenotypeAnnotation) {
@@ -190,14 +187,13 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 				}
 
 				String key = getConsolidationKey(da);
-
-				GenePhenotypeAnnotationDocument gdad = lookup.computeIfAbsent(key, (k) -> new GenePhenotypeAnnotationDocument());
-				if (gdad.getSubject() == null) {
-					gdad.setSubject(gene);
-					gdad.setRelation(relation);
-					gdad.setPhenotypeStatement(da.getPhenotypeAnnotationObject());
+				GenePhenotypeAnnotationDocument gpad = lookup.computeIfAbsent(key, (k) -> new GenePhenotypeAnnotationDocument());
+				if (gpad.getSubject() == null) {
+					gpad.setSubject(gene);
+					gpad.setRelation(relation);
+					gpad.setPhenotypeStatement(da.getPhenotypeAnnotationObject());
 				}
-				populateBasePhenotypeAnnotationDocument(gene, da, gdad);
+				populateBasePhenotypeAnnotationDocument(gene, da, gpad);
 			}
 			ph.progressProcess();
 			ret.addAll(lookup.values());
@@ -313,10 +309,6 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 			conditionRelation.getConditionRelationType().getName() + "_" + getConditionRelationConsolidatedKey(conditionRelation)).collect(Collectors.joining(","));
 	}
 
-	private static String getConsolidationKey(DiseaseAnnotation da) {
-		return getConsolidationKey(da);
-	}
-
 	// Consolidated fields
 	// phenotype statement
 	private static String getConsolidationKey(PhenotypeAnnotation da) {
@@ -419,7 +411,60 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 					extractGenePhenotypeAnnotations(da, gene);
 				}
 			}
+			Allele inferredAllele = da.getInferredAllele();
+			extractAlleleDiseaseAnnotations(da, inferredAllele);
+			if (da.getAssertedAllele() != null) {
+				extractAlleleDiseaseAnnotations(da, da.getAssertedAllele());
+			}
 		}
 	}
+
+	private void extractAlleleDiseaseAnnotations(PhenotypeAnnotation da, Allele inferredAllele) {
+		if (inferredAllele != null && !inferredAllele.getInternal()) {
+			Pair<Allele, ArrayList<PhenotypeAnnotation>> pair = alleleMap.computeIfAbsent(inferredAllele.getIdentifier(), k -> Pair.of(inferredAllele, new ArrayList<>()));
+			pair.getRight().add(da);
+		}
+	}
+
+	private List<AllelePhenotypeAnnotationDocument> createAllelePhenotypeAnnotationDocuments() {
+
+		List<AllelePhenotypeAnnotationDocument> ret = new ArrayList<>();
+
+		ProcessDisplayHelper ph = new ProcessDisplayHelper(10000);
+		ph.startProcess("Creating Allele Disease Annotations", alleleMap.size());
+
+		VocabularyTerm relation = vocabService.getDiseaseRelationTerms().get("is_implicated_in");
+
+		for (Entry<String, Pair<Allele, ArrayList<PhenotypeAnnotation>>> pairMap : alleleMap.entrySet()) {
+			HashMap<String, AllelePhenotypeAnnotationDocument> lookup = new HashMap<>();
+
+			for (PhenotypeAnnotation pa : pairMap.getValue().getValue()) {
+
+				// use this relation if inherited (inferred or asserted) from an AGM DA.
+				if (pa instanceof AllelePhenotypeAnnotation) {
+					relation = pa.getRelation();
+				}
+
+				String key = getConsolidationKey(pa);
+				AllelePhenotypeAnnotationDocument apad = lookup.computeIfAbsent(key, k -> new AllelePhenotypeAnnotationDocument());
+				Allele allele = pairMap.getValue().getKey();
+				if (apad.getSubject() == null) {
+					//HashMap<String, Integer> order = SpeciesType.getSpeciesOrderByTaxonID(allele.getTaxon().getCurie());
+					//apad.setSpeciesOrder(order);
+					apad.setSubject(allele);
+					apad.setRelation(relation);
+					apad.setPhenotypeStatement(pa.getPhenotypeAnnotationObject());
+				}
+				populateBasePhenotypeAnnotationDocument(allele, pa, apad);
+			}
+			ph.progressProcess();
+			ret.addAll(lookup.values());
+			lookup.clear();
+		}
+		ph.finishProcess();
+		return ret;
+	}
+
+
 
 }

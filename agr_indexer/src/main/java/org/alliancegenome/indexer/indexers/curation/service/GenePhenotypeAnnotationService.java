@@ -40,12 +40,12 @@ public class GenePhenotypeAnnotationService extends BaseDiseaseAnnotationService
 		HashMap<String, Object> params = new HashMap<>();
 		params.put("internal", false);
 		params.put("obsolete", false);
-		//params.put("phenotypeAnnotationSubject.primaryExternalId", "MGI:109583");
+		//params.put("phenotypeAnnotationSubject.primaryExternalId", "SGD:S000001240");
 		do {
 			SearchResponse<GenePhenotypeAnnotation> response = geneApi.findForPublic(page, batchSize, params);
-			for (GenePhenotypeAnnotation da : response.getResults()) {
-				if (isValidEntity(allGeneIDs, da.getPhenotypeAnnotationSubject().getIdentifier())) {
-					ret.add(da);
+			for (GenePhenotypeAnnotation pa : response.getResults()) {
+				if (isValidEntity(allGeneIDs, pa.getPhenotypeAnnotationSubject().getIdentifier())) {
+					ret.add(pa);
 				}
 			}
 

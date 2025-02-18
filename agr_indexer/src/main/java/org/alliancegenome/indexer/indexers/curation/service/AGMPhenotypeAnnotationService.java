@@ -43,7 +43,7 @@ public class AGMPhenotypeAnnotationService extends BaseDiseaseAnnotationService 
 		HashMap<String, Object> params = new HashMap<>();
 		params.put("internal", false);
 		params.put("obsolete", false);
-		//params.put("phenotypeAnnotationSubject.primaryExternalId", "ZFIN:ZDB-FISH-170628-1");
+		//params.put("phenotypeAnnotationSubject.primaryExternalId", "ZFIN:ZDB-FISH-210325-47");
 		//params.put("phenotypeAnnotationSubject.modEntityId", "MGI:4829791");
 
 		do {
