@@ -10,12 +10,12 @@ import org.alliancegenome.curation_api.model.entities.GeneMolecularInteraction;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class GeneInteractionHelper  {
+public class GeneInteractionHelper {
 
 	
 	private ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 	
-	public GeneGeneticInteraction generateReverseInteraction (GeneGeneticInteraction forwardInteraction) throws IOException {
+	public GeneGeneticInteraction generateReverseInteraction(GeneGeneticInteraction forwardInteraction) throws IOException {
 		
 		GeneGeneticInteraction newInteraction = objectMapper.readValue(objectMapper.writeValueAsString(forwardInteraction), GeneGeneticInteraction.class);
 		newInteraction.setInteractorAGeneticPerturbation(forwardInteraction.getInteractorBGeneticPerturbation());
@@ -23,7 +23,7 @@ public class GeneInteractionHelper  {
 		return reverseInteraction(forwardInteraction, newInteraction);
 	}
 	
-	public GeneMolecularInteraction generateReverseInteraction (GeneMolecularInteraction forwardInteraction) throws IOException {
+	public GeneMolecularInteraction generateReverseInteraction(GeneMolecularInteraction forwardInteraction) throws IOException {
 		
 		GeneMolecularInteraction newInteraction = objectMapper.readValue(objectMapper.writeValueAsString(forwardInteraction), GeneMolecularInteraction.class);
 		return reverseInteraction(forwardInteraction, newInteraction);
