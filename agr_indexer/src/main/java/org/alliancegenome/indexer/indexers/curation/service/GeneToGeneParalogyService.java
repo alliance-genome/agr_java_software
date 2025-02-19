@@ -1,7 +1,6 @@
 package org.alliancegenome.indexer.indexers.curation.service;
 
 import java.util.HashMap;
-import java.util.List;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.model.entities.GeneToGeneParalogy;

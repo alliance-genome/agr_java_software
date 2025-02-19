@@ -41,27 +41,16 @@ public class GeneToGeneParalogyIndexer extends Indexer {
 		}
 	}
 
-	protected List<GeneToGeneParalogyDocument> flipParalogy(List<GeneToGeneParalogy> paralogyList) {
+	protected List<GeneToGeneParalogyDocument> generateDocuments(List<GeneToGeneParalogy> paralogyList) {
 		List<GeneToGeneParalogyDocument> documentList = new ArrayList<>();
 		for(GeneToGeneParalogy paralogy : paralogyList) {
-			documentList.addAll(flipParalogy(paralogy));
+			GeneToGeneParalogyDocument document = new GeneToGeneParalogyDocument();
+			document.setGeneToGeneParalogy(paralogy);
+			documentList.add(document);
 		}
 		return documentList;
 	}
 
-	protected List<GeneToGeneParalogyDocument> flipParalogy(GeneToGeneParalogy paralogy) {
-		List<GeneToGeneParalogyDocument> documentList = new ArrayList<>();
-		GeneToGeneParalogyDocument document = new GeneToGeneParalogyDocument();
-		document.setGeneToGeneParalogy(paralogy);
-		documentList.add(document);
-		GeneToGeneParalogy paralogy2 = new GeneToGeneParalogy();
-		paralogy2.setSubjectGene(paralogy.getObjectGene());
-		paralogy2.setObjectGene(paralogy.getSubjectGene());
-		GeneToGeneParalogyDocument document2 = new GeneToGeneParalogyDocument();
-		document2.setGeneToGeneParalogy(paralogy2);
-		documentList.add(document2);
-		return documentList;	
-	}
 	@Override
 	protected void startSingleThread(LinkedBlockingDeque<String> queue) {
 
@@ -73,7 +62,7 @@ public class GeneToGeneParalogyIndexer extends Indexer {
 				String page = queue.takeFirst();
 				log.info(queue.size() + " pages to process " + Thread.currentThread().getName() + " starting page: " + page);
 				SearchResponse<GeneToGeneParalogy> resp = service.getGeneToGeneParalogy(Integer.valueOf(page), indexerConfig.getBufferSize());
-				indexDocuments(flipParalogy(resp.getResults()));
+				indexDocuments(generateDocuments(resp.getResults()));
 			} catch (Exception e) {
 				log.error("Error while indexing...", e);
 				System.exit(-1);
@@ -86,7 +75,5 @@ public class GeneToGeneParalogyIndexer extends Indexer {
 	protected ObjectMapper customizeObjectMapper(ObjectMapper objectMapper) {
 		return RestConfig.config.getJacksonObjectMapperFactory().createObjectMapper();
 	}
-
-	
 	
 }
