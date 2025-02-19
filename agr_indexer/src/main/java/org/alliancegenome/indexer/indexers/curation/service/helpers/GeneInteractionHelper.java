@@ -7,25 +7,19 @@ import org.alliancegenome.curation_api.model.entities.GeneGeneticInteraction;
 import org.alliancegenome.curation_api.model.entities.GeneInteraction;
 import org.alliancegenome.curation_api.model.entities.GeneMolecularInteraction;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 public class GeneInteractionHelper {
 
-	
-	private ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-	
 	public GeneGeneticInteraction generateReverseInteraction(GeneGeneticInteraction forwardInteraction) throws IOException {
 		
-		GeneGeneticInteraction newInteraction = objectMapper.readValue(objectMapper.writeValueAsString(forwardInteraction), GeneGeneticInteraction.class);
+		GeneGeneticInteraction newInteraction = new GeneGeneticInteraction();
 		newInteraction.setInteractorAGeneticPerturbation(forwardInteraction.getInteractorBGeneticPerturbation());
 		newInteraction.setInteractorBGeneticPerturbation(forwardInteraction.getInteractorAGeneticPerturbation());
 		return reverseInteraction(forwardInteraction, newInteraction);
 	}
 	
-	public GeneMolecularInteraction generateReverseInteraction(GeneMolecularInteraction forwardInteraction) throws IOException {
+	public GeneMolecularInteraction generateReverseInteraction(GeneMolecularInteraction forwardInteraction) {
 		
-		GeneMolecularInteraction newInteraction = objectMapper.readValue(objectMapper.writeValueAsString(forwardInteraction), GeneMolecularInteraction.class);
+		GeneMolecularInteraction newInteraction = new GeneMolecularInteraction();
 		return reverseInteraction(forwardInteraction, newInteraction);
 	}
 	
@@ -43,6 +37,19 @@ public class GeneInteractionHelper {
 		
 		reverseInteraction.setInteractorAType(forwardInteraction.getInteractorBType());
 		reverseInteraction.setInteractorBType(forwardInteraction.getInteractorAType());
+		
+		reverseInteraction.setInteractionId(forwardInteraction.getInteractionId());
+		reverseInteraction.setInteractionSource(forwardInteraction.getInteractionSource());
+		reverseInteraction.setInteractionType(forwardInteraction.getInteractionType());
+		reverseInteraction.setCrossReferences(forwardInteraction.getCrossReferences());
+
+		reverseInteraction.setRelation(forwardInteraction.getRelation());
+		
+		reverseInteraction.setEvidence(forwardInteraction.getEvidence());
+
+		reverseInteraction.setDateCreated(forwardInteraction.getDateCreated());
+		reverseInteraction.setInternal(forwardInteraction.getInternal());
+		reverseInteraction.setObsolete(forwardInteraction.getObsolete());
 		
 		return reverseInteraction;
 	}

@@ -66,7 +66,7 @@ public class GeneGeneticInteractionCurationIndexer extends Indexer {
 				List<GeneGeneticInteraction> forwardInteractions = gmiResponse.getResults();
 				
 				for (GeneGeneticInteraction forwardInteraction : forwardInteractions) {
-					documentsToIndex.add(createDocument(forwardInteraction));
+					//documentsToIndex.add(createDocument(forwardInteraction));
 					GeneGeneticInteraction reverseInteraction = interactionHelper.generateReverseInteraction(forwardInteraction);
 					if (reverseInteraction != null) {
 						documentsToIndex.add(createDocument(reverseInteraction));
