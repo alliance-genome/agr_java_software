@@ -55,7 +55,7 @@ public class GeneMolecularInteractionCurationIndexer extends Indexer {
 				}
 				
 				String page = queue.takeFirst();
-				log.info(queue.size() + " pages to process " + Thread.currentThread().getName() + " starting page: " + page);
+				log.debug(queue.size() + " pages to process " + Thread.currentThread().getName() + " starting page: " + page);
 				SearchResponse<GeneMolecularInteraction> gmiResponse = geneMolecularInteractionService.getGeneMolecularInteractions(Integer.valueOf(page), indexerConfig.getBufferSize());
 
 				if (gmiResponse == null || CollectionUtils.isEmpty(gmiResponse.getResults())) {

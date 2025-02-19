@@ -55,7 +55,7 @@ public class GeneGeneticInteractionCurationIndexer extends Indexer {
 				}
 				
 				String page = queue.takeFirst();
-				log.info(queue.size() + " pages to process " + Thread.currentThread().getName() + " starting page: " + page);
+				log.debug(queue.size() + " pages to process " + Thread.currentThread().getName() + " starting page: " + page);
 				SearchResponse<GeneGeneticInteraction> gmiResponse = geneGeneticInteractionService.getGeneGeneticInteractions(Integer.valueOf(page), indexerConfig.getBufferSize());
 
 				if (gmiResponse == null || CollectionUtils.isEmpty(gmiResponse.getResults())) {
