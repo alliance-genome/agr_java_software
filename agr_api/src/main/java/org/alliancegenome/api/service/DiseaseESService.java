@@ -405,7 +405,7 @@ public class DiseaseESService {
 
 	private static void setEntityIdMatcher(String geneID, BoolQueryBuilder bool2) {
 		bool2.should(new MatchQueryBuilder("subject.curie.keyword", geneID));
-		bool2.should(new MatchQueryBuilder("subject.modEntityId.keyword", geneID));
+		bool2.should(new MatchQueryBuilder("subject.primaryExternalId.keyword", geneID));
 		bool2.should(new MatchQueryBuilder("subject.modInternalId.keyword", geneID));
 	}
 
