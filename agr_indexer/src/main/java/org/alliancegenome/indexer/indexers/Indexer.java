@@ -50,7 +50,7 @@ public abstract class Indexer extends Thread {
 	protected DecimalFormat df = new DecimalFormat("#");
 	protected ObjectMapper om = new ObjectMapper();
 
-	protected ProcessDisplayHelper display = new ProcessDisplayHelper();
+	private ProcessDisplayHelper display = new ProcessDisplayHelper();
 	private StatsCollector stats = new StatsCollector();
 
 	protected Map<String, Double> popularityScore;
