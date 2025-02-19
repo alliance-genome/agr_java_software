@@ -7,6 +7,7 @@ import java.util.concurrent.Executors;
 
 import org.alliancegenome.es.index.site.cache.AlleleDocumentCache;
 import org.alliancegenome.es.util.CollectionHelper;
+import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.repository.AlleleRepository;
 
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +32,8 @@ public class AlleleIndexerRepository extends AlleleRepository {
 		executor.execute(new GetDiseasesAgrSlimMapThread());
 		executor.execute(new GetDiseaseWithParentsThread());
 		executor.execute(new GetGenesMapThread());
-		executor.execute(new GetGeneSynonymsThreadThread());
+		executor.execute(new GetGenesIdsMapThread());
+		executor.execute(new GetGeneSynonymsThread());
 		executor.execute(new GetGeneCrossReferencesThread());
 		executor.execute(new GetModelsThread());
 		executor.execute(new GetPhenotypeStatementsMapThread());
@@ -53,20 +55,66 @@ public class AlleleIndexerRepository extends AlleleRepository {
 		return cache;
 
 	}
-	private class GetAlleleVariantsMapThread implements Runnable {
+	
+	private abstract class GetDataThread<T> implements Runnable {
+		protected Map<String, T> dataCacheMap;
+		protected String cacheFileName;
+		
+		public GetDataThread(String cacheFileName) {
+			this.cacheFileName = cacheFileName;
+		}
+		
+		protected void writeCache() {
+			writeToCache(cacheFileName, dataCacheMap);
+		}
 
 		@Override
 		public void run() {
+			dataCacheMap = readFromCache(cacheFileName, Map.class);
+			if (dataCacheMap != null && dataCacheMap.size() > 0) {
+				log.info(getClass().getSimpleName() + " Data Loaded from file cache");
+				setCache();
+				return;
+			}
+			runMethod();
+			setCache();
+			writeCache();
+			log.info(getClass().getSimpleName() + "Data Written to file cache");
+		}
+		
+		protected abstract void runMethod();
+		protected abstract void setCache();
+	}
+	
+	
+	private class GetAlleleVariantsMapThread extends GetDataThread<Allele> {
+
+		protected GetAlleleVariantsMapThread() {
+			super("AlleleVariantsMapCache.data");
+		}
+
+		@Override
+		protected void runMethod() {
 			log.info("Fetching alleles objects");
-			cache.setAlleleMap(getAllAlleleVariants());
+			dataCacheMap = getAllAlleleVariants();
 			log.info("Finished Fetching alleles objects");
+		}
+
+		@Override
+		protected void setCache() {
+			cache.setAlleleMap(dataCacheMap);
 		}
 	}
 
-	private class GetCrossReferencesThread implements Runnable {
+	private class GetCrossReferencesThread extends GetDataThread<Set<String>> {
+
+		protected GetCrossReferencesThread() {
+			super("CrossReferencesMapCache.data");
+		}
 
 		@Override
-		public void run() {
+		protected void runMethod() {
+
 			log.info("Building allele -> crossReference map");
 			String query = "MATCH (species:Species)-[:FROM_SPECIES]-(allele:Allele)-[:CROSS_REFERENCE]-(cr:CrossReference) ";
 			query += " RETURN allele.primaryKey as id, cr.name as value";
@@ -78,52 +126,69 @@ public class AlleleIndexerRepository extends AlleleRepository {
 
 			Map<String, Set<String>> localIds = getMapSetForQuery(query);
 
-			cache.setCrossReferences(CollectionHelper.merge(names, localIds));
+			dataCacheMap = CollectionHelper.merge(names, localIds);
 			log.info("Finished Building allele -> crossReference map");
+		}
+
+		@Override
+		protected void setCache() {
+			cache.setCrossReferences(dataCacheMap);
 		}
 	}
 
-	private class GetConstructsThread implements Runnable {
+	private class GetConstructsThread extends GetDataThread<Set<String>> {
+		
+		public GetConstructsThread() {
+			super("ConstructsMapCache.data");
+		}
 
 		@Override
-		public void run() {
+		protected void runMethod() {
 			log.info("Fetching allele -> constructs map");
 			String query = "MATCH (species:Species)-[:FROM_SPECIES]-(allele:Allele)-[:CONTAINS]-(construct:Construct) ";
 			query += " RETURN allele.primaryKey as id, [construct.nameText, construct.primaryKey] as value";
 
-			Map<String, Set<String>> constructs = getMapSetForQuery(query);
+			dataCacheMap = getMapSetForQuery(query);
 
 			query = "MATCH (species:Species)-[:FROM_SPECIES]-(allele:Allele)-[:CONTAINS]-(construct:Construct)-[:ALSO_KNOWN_AS]-(synonym:Synonym) ";
 
 			query += "RETURN allele.primaryKey as id, synonym.name as value ";
 
-			constructs = CollectionHelper.merge(constructs, getMapSetForQuery(query));
+			dataCacheMap = CollectionHelper.merge(dataCacheMap, getMapSetForQuery(query));
 
 			query = "MATCH (species:Species)-[:FROM_SPECIES]-(allele:Allele)-[:CONTAINS]-(construct:Construct)-[:CROSS_REFERENCE]-(crossReference:CrossReference) ";
 			query += "RETURN allele.primaryKey as id, crossReference.name as value ";
 
-			constructs = CollectionHelper.merge(constructs, getMapSetForQuery(query));
+			dataCacheMap = CollectionHelper.merge(dataCacheMap, getMapSetForQuery(query));
 
 			query = "MATCH (species:Species)-[:FROM_SPECIES]-(allele:Allele)-[:CONTAINS]-(construct:Construct)-[:ALSO_KNOWN_AS]-(secondaryId:SecondaryId) ";
 
 			query += " RETURN allele.primaryKey as id, secondaryId.name as value";
 
-			constructs = CollectionHelper.merge(constructs, getMapSetForQuery(query));
+			dataCacheMap = CollectionHelper.merge(dataCacheMap, getMapSetForQuery(query));
 
 			query = "MATCH (species:Species)-[:FROM_SPECIES]-(allele:Allele)-[:CONTAINS]-(construct:Construct)-[:EXPRESSES|TARGETS|IS_REGULATED_BY]-(gene:Gene) ";
 			query += " RETURN allele.primaryKey as id, gene.primaryKey as value; ";
 
-			constructs = CollectionHelper.merge(constructs, getMapSetForQuery(query));
-			
-			cache.setConstructs(constructs);
+			dataCacheMap = CollectionHelper.merge(dataCacheMap, getMapSetForQuery(query));
+
 			log.info("Finished Fetching allele -> constructs map");
+		}
+
+		@Override
+		protected void setCache() {
+			cache.setConstructs(dataCacheMap);
 		}
 	}
 
-	private class GetConstructExpressedComponentsThread implements Runnable {
+	private class GetConstructExpressedComponentsThread extends GetDataThread<Set<String>> {
+
+		public GetConstructExpressedComponentsThread() {
+			super("ConstructExpressedComponentsMapCache.data");
+		}
 
 		@Override
-		public void run() {
+		protected void runMethod() {
 			log.info("Fetching allele -> constructExpressedComponent map");
 			String query = "MATCH (species:Species)-[:FROM_SPECIES]-(allele:Allele)-[:CONTAINS]-(construct:Construct)-[:EXPRESSES]-(constructComponent:NonBGIConstructComponent) ";
 			query += " RETURN allele.primaryKey as id, constructComponent.primaryKey as value";
@@ -133,15 +198,25 @@ public class AlleleIndexerRepository extends AlleleRepository {
 			query = "MATCH (species:Species)-[:FROM_SPECIES]-(allele:Allele)-[:CONTAINS]-(construct:Construct)-[:EXPRESSES]-(gene:Gene) ";
 			query += " RETURN allele.primaryKey as id, gene.symbolWithSpecies as value; ";
 			
-			cache.setConstructExpressedComponents(CollectionHelper.merge(result, getMapSetForQuery(query)));
+			dataCacheMap = CollectionHelper.merge(result, getMapSetForQuery(query));
+
 			log.info("Finished Fetching allele -> constructExpressedComponent map");
+		}
+
+		@Override
+		protected void setCache() {
+			cache.setConstructExpressedComponents(dataCacheMap);
 		}
 	}
 
-	private class GetConstructKnockdownComponent implements Runnable {
+	private class GetConstructKnockdownComponent extends GetDataThread<Set<String>> {
+
+		public GetConstructKnockdownComponent() {
+			super("ConstructKnockdownComponentMapCache.data");
+		}
 
 		@Override
-		public void run() {
+		protected void runMethod() {
 			log.info("Fetching allele -> constructKnockdownComponent map");
 			String query = "MATCH (species:Species)-[:FROM_SPECIES]-(allele:Allele)-[:CONTAINS]-(construct:Construct)-[:TARGETS]-(constructComponent:NonBGIConstructComponent) ";
 			query += " RETURN allele.primaryKey as id, constructComponent.primaryKey as value";
@@ -151,15 +226,24 @@ public class AlleleIndexerRepository extends AlleleRepository {
 			query = "MATCH (species:Species)-[:FROM_SPECIES]-(allele:Allele)-[:CONTAINS]-(construct:Construct)-[:TARGETS]-(gene:Gene) ";
 			query += " RETURN allele.primaryKey as id, gene.symbolWithSpecies as value; ";
 
-			cache.setConstructKnockdownComponents(CollectionHelper.merge(result, getMapSetForQuery(query)));
+			dataCacheMap = CollectionHelper.merge(result, getMapSetForQuery(query));
 			log.info("Finished Fetching allele -> constructKnockdownComponent map");
+		}
+
+		@Override
+		protected void setCache() {
+			cache.setConstructKnockdownComponents(dataCacheMap);
 		}
 	}
 	
-	private class GetConstructRegulatoryRegions implements Runnable {
+	private class GetConstructRegulatoryRegions extends GetDataThread<Set<String>> {
+
+		public GetConstructRegulatoryRegions() {
+			super("ConstructRegulatoryRegionsMapCache.data");
+		}
 
 		@Override
-		public void run() {
+		protected void runMethod() {
 			log.info("Fetching allele -> constructRegulatoryRegion map");
 			String query = "MATCH (species:Species)-[:FROM_SPECIES]-(allele:Allele)-[:CONTAINS]-(construct:Construct)-[:IS_REGULATED_BY]-(constructComponent:NonBGIConstructComponent) ";
 			query += " RETURN allele.primaryKey as id, constructComponent.primaryKey as value";
@@ -169,136 +253,250 @@ public class AlleleIndexerRepository extends AlleleRepository {
 			query = "MATCH (species:Species)-[:FROM_SPECIES]-(allele:Allele)-[:CONTAINS]-(construct:Construct)-[:IS_REGULATED_BY]-(gene:Gene) ";
 			query += " RETURN allele.primaryKey as id, gene.symbolWithSpecies as value; ";
 
-			cache.setConstructRegulatoryRegions(CollectionHelper.merge(result, getMapSetForQuery(query)));
+			dataCacheMap = CollectionHelper.merge(result, getMapSetForQuery(query));
 			log.info("Finished Fetching allele -> constructRegulatoryRegion map");
+		}
+
+		@Override
+		protected void setCache() {
+			cache.setConstructRegulatoryRegions(dataCacheMap);
 		}
 	}
 
-	private class GetDiseaseMapThread implements Runnable {
+	private class GetDiseaseMapThread extends GetDataThread<Set<String>> {
+
+		public GetDiseaseMapThread() {
+			super("DiseaseMapCache.data");
+		}
 
 		@Override
-		public void run() {
+		protected void runMethod() {
 			log.info("Building allele -> diseases map");
 			String query = "MATCH (species:Species)-[:FROM_SPECIES]-(a:Allele)-[:IS_IMPLICATED_IN]-(disease:DOTerm) ";
 			query += " RETURN a.primaryKey, disease.nameKey ";
 
-			cache.setDiseases(getMapSetForQuery(query, "a.primaryKey", "disease.nameKey"));
+			dataCacheMap = getMapSetForQuery(query, "a.primaryKey", "disease.nameKey");
+			
 			log.info("Finished Building allele -> diseases map");
+		}
+
+		@Override
+		protected void setCache() {
+			cache.setDiseases(dataCacheMap);
 		}
 	}
 
-	private class GetDiseasesAgrSlimMapThread implements Runnable {
+	private class GetDiseasesAgrSlimMapThread extends GetDataThread<Set<String>> {
+
+		public GetDiseasesAgrSlimMapThread() {
+			super("DiseasesAgrSlimMapCache.data");
+		}
 
 		@Override
-		public void run() {
+		protected void runMethod() {
 			log.info("Building allele -> diseasesAgrSlim map");
 			String query = "MATCH (species:Species)-[:FROM_SPECIES]-(a:Allele)-[:IS_IMPLICATED_IN]-(:DOTerm)-[:IS_A_PART_OF_CLOSURE]->(disease:DOTerm)";
 			query += " WHERE disease.subset =~ '.*DO_AGR_slim.*' ";
 			query += " RETURN a.primaryKey, disease.nameKey ";
 
-			cache.setDiseasesAgrSlim(getMapSetForQuery(query, "a.primaryKey", "disease.nameKey"));
+			dataCacheMap = getMapSetForQuery(query, "a.primaryKey", "disease.nameKey");
+			
 			log.info("Finished Building allele -> diseasesAgrSlim map");
+		}
+
+		@Override
+		protected void setCache() {
+			cache.setDiseasesAgrSlim(dataCacheMap);
 		}
 	}
 	
-	private class GetDiseaseWithParentsThread implements Runnable {
+	private class GetDiseaseWithParentsThread extends GetDataThread<Set<String>> {
+
+		public GetDiseaseWithParentsThread() {
+			super("DiseaseWithParentsMapCache.data");
+		}
 
 		@Override
-		public void run() {
+		protected void runMethod() {
 			log.info("Building allele -> diseasesWithParents map");
 			String query = "MATCH (species:Species)-[:FROM_SPECIES]-(a:Allele)-[:IS_IMPLICATED_IN]-(:DOTerm)-[:IS_A_PART_OF_CLOSURE]->(disease:DOTerm)";
 
 			query += " RETURN a.primaryKey, disease.nameKey ";
 
-			cache.setDiseasesWithParents(getMapSetForQuery(query, "a.primaryKey", "disease.nameKey"));
+			dataCacheMap = getMapSetForQuery(query, "a.primaryKey", "disease.nameKey");
 			log.info("Finished Building allele -> diseasesWithParents map");
+		}
+
+		@Override
+		protected void setCache() {
+			cache.setDiseasesWithParents(dataCacheMap);
 		}
 	}
 
-	private class GetGenesMapThread implements Runnable {
+	private class GetGenesMapThread extends GetDataThread<Set<String>> {
+
+		public GetGenesMapThread() {
+			super("GenesMapCache.data");
+		}
 
 		@Override
-		public void run() {
+		protected void runMethod() {
+			log.info("Building allele -> genes & gene symbol map");
+			String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[:IS_ALLELE_OF]-(a:Allele) ";
+			query += "RETURN distinct a.primaryKey, gene.symbolWithSpecies, gene.primaryKey";
+
+			dataCacheMap = getMapSetForQuery(query, "a.primaryKey", "gene.symbolWithSpecies");
+
+			log.info("Finished Building allele -> genes & gene Ids map");
+		}
+
+		@Override
+		protected void setCache() {
+			cache.setGenes(dataCacheMap);
+		}
+	}
+	
+	private class GetGenesIdsMapThread extends GetDataThread<Set<String>> {
+
+		public GetGenesIdsMapThread() {
+			super("GenesIdsMapCache.data");
+		}
+
+		@Override
+		protected void runMethod() {
 			log.info("Building allele -> genes & gene Ids map");
 			String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[:IS_ALLELE_OF]-(a:Allele) ";
 			query += "RETURN distinct a.primaryKey, gene.symbolWithSpecies, gene.primaryKey";
 
-			cache.setGenes(getMapSetForQuery(query, "a.primaryKey", "gene.symbolWithSpecies"));
-			cache.setGeneIds(getMapSetForQuery(query, "a.primaryKey", "gene.primaryKey"));
+			dataCacheMap = getMapSetForQuery(query, "a.primaryKey", "gene.primaryKey");
 
 			log.info("Finished Building allele -> genes & gene Ids map");
 		}
-	}
-
-	private class GetGeneSynonymsThreadThread implements Runnable {
 
 		@Override
-		public void run() {
+		protected void setCache() {
+			cache.setGeneIds(dataCacheMap);
+		}
+	}
+
+	private class GetGeneSynonymsThread extends GetDataThread<Set<String>> {
+
+		public GetGeneSynonymsThread() {
+			super("GeneSynonymsMapCache.data");
+		}
+
+		@Override
+		protected void runMethod() {
 			log.info("Building allele -> genes synonyms map");
 			String query = "MATCH (species:Species)-[:FROM_SPECIES]-(a:Allele)-[:IS_ALLELE_OF]-(gene:Gene)-[:ALSO_KNOWN_AS]-(synonym:Synonym) ";
 			query += "RETURN a.primaryKey, synonym.name";
 
-			cache.setGeneSynonyms(getMapSetForQuery(query, "a.primaryKey", "synonym.name"));
+			dataCacheMap = getMapSetForQuery(query, "a.primaryKey", "synonym.name");
 			log.info("Finished Building allele -> genes synonyms map");
+		}
+
+		@Override
+		protected void setCache() {
+			cache.setGeneSynonyms(dataCacheMap);
 		}
 	}
 
-	private class GetGeneCrossReferencesThread implements Runnable {
+	private class GetGeneCrossReferencesThread extends GetDataThread<Set<String>> {
+
+		public GetGeneCrossReferencesThread() {
+			super("GeneCrossReferencesMapCache.data");
+		}
 
 		@Override
-		public void run() {
+		protected void runMethod() {
 			log.info("Building allele -> gene crossreferences map");
 			String query = "MATCH (species:Species)-[:FROM_SPECIES]-(a:Allele)-[:IS_ALLELE_OF]-(gene:Gene)-[:CROSS_REFERENCE]-(cr:CrossReference) ";
 			query += "RETURN a.primaryKey, cr.name";
 
-			cache.setGeneCrossReferences(getMapSetForQuery(query, "a.primaryKey", "cr.name"));
+			dataCacheMap = getMapSetForQuery(query, "a.primaryKey", "cr.name");
 			log.info("Finished Building allele -> gene crossreferences map");
+		}
+
+		@Override
+		protected void setCache() {
+			cache.setGeneCrossReferences(dataCacheMap);
 		}
 	}
 
-	private class GetModelsThread implements Runnable {
+	private class GetModelsThread extends GetDataThread<Set<String>> {
+
+		public GetModelsThread() {
+			super("ModelsMapCache.data");
+		}
 
 		@Override
-		public void run() {
+		protected void runMethod() {
 			log.info("Building allele -> model map");
 			String query = "MATCH (species:Species)-[:FROM_SPECIES]-(model:AffectedGenomicModel)-[:MODEL_COMPONENT]-(allele:Allele)";
 			query += " RETURN allele.primaryKey as id, model.nameTextWithSpecies as value";
 
-			cache.setModels(getMapSetForQuery(query));
+			dataCacheMap = getMapSetForQuery(query);
 			log.info("Finished Building allele -> model map");
+		}
+
+		@Override
+		protected void setCache() {
+			cache.setModels(dataCacheMap);
 		}
 	}
 	
-	private class GetPhenotypeStatementsMapThread implements Runnable {
+	private class GetPhenotypeStatementsMapThread extends GetDataThread<Set<String>> {
+
+		public GetPhenotypeStatementsMapThread() {
+			super("PhenotypeStatementsMapCache.data");
+		}
 
 		@Override
-		public void run() {
+		protected void runMethod() {
 			log.info("Building allele -> phenotype statements map");
 			String query = "MATCH (species:Species)-[:FROM_SPECIES]-(a:Allele)-[:HAS_PHENOTYPE]-(phenotype:Phenotype) ";
 			query += " RETURN distinct a.primaryKey, phenotype.phenotypeStatement ";
 
-			cache.setPhenotypeStatements(getMapSetForQuery(query, "a.primaryKey", "phenotype.phenotypeStatement"));
+			dataCacheMap = getMapSetForQuery(query, "a.primaryKey", "phenotype.phenotypeStatement");
 			log.info("Finished Building allele -> phenotype statements map");
+		}
+
+		@Override
+		protected void setCache() {
+			cache.setPhenotypeStatements(dataCacheMap);
 		}
 	}
 	
-	private class GetVariantsThread implements Runnable {
+	private class GetVariantsThread extends GetDataThread<Set<String>> {
+
+		public GetVariantsThread() {
+			super("VariantsMapCache.data");
+		}
 
 		@Override
-		public void run() {
+		protected void runMethod() {
 			log.info("Building allele -> variant name map");
 			String query = " MATCH (species:Species)-[:FROM_SPECIES]-(a:Allele)-[:VARIATION]-(v:Variant) ";
 			query += " RETURN distinct a.primaryKey as id, v.name as value";
 
-			cache.setVariants(getMapSetForQuery(query));
+			dataCacheMap = getMapSetForQuery(query);
 			log.info("Finished Building allele -> variant name map");
+		}
+
+		@Override
+		protected void setCache() {
+			cache.setVariants(dataCacheMap);
 		}
 	}
 	
-	private class GetVariantSynonymsThread implements Runnable {
+	private class GetVariantSynonymsThread extends GetDataThread<Set<String>> {
+
+		public GetVariantSynonymsThread() {
+			super("VariantSynonymsMapCache.data");
+		}
 
 		@Override
-		public void run() {
+		protected void runMethod() {
 			log.info("Building allele -> variant synonyms map");
 			String query = " MATCH (species:Species)-[:FROM_SPECIES]-(a:Allele)-[:VARIATION]-(v:Variant)-[:ASSOCIATION]-(tlc:TranscriptLevelConsequence)  ";
 
@@ -310,34 +508,57 @@ public class AlleleIndexerRepository extends AlleleRepository {
 			query += " RETURN a.primaryKey as id, synonym.name as value ";
 			Map<String, Set<String>> synonyms = getMapSetForQuery(query);
 
-			cache.setVariantSynonyms(CollectionHelper.merge(tlcNames, synonyms));
+			dataCacheMap = CollectionHelper.merge(tlcNames, synonyms);
 			log.info("Finished Building allele -> variant synonyms map");
+		}
+
+		@Override
+		protected void setCache() {
+			cache.setVariantSynonyms(dataCacheMap);
 		}
 	}
 	
-	private class GetVariantTypeMapThread implements Runnable {
+	private class GetVariantTypeMapThread extends GetDataThread<Set<String>> {
+
+		public GetVariantTypeMapThread() {
+			super("VariantTypeMapCache.data");
+		}
 
 		@Override
-		public void run() {
+		protected void runMethod() {
 			log.info("Building allele -> variant types map");
 			String query = "MATCH (species:Species)-[:FROM_SPECIES]-(a:Allele)-[:VARIATION]-(v:Variant)-[:VARIATION_TYPE]-(term:SOTerm) ";
 			query += " RETURN distinct a.primaryKey,term.name ";
 
-			cache.setVariantType(getMapSetForQuery(query, "a.primaryKey", "term.name"));
+			dataCacheMap = getMapSetForQuery(query, "a.primaryKey", "term.name");
 			log.info("Finished Building allele -> variant types map");
+		}
+
+		@Override
+		protected void setCache() {
+			cache.setVariantType(dataCacheMap);
 		}
 	}
 	
-	private class GetMolecularConsequence implements Runnable {
+	private class GetMolecularConsequence extends GetDataThread<Set<String>> {
+
+		public GetMolecularConsequence() {
+			super("MolecularConsequenceMapCache.data");
+		}
 
 		@Override
-		public void run() {
+		protected void runMethod() {
 			log.info("Building allele -> molecular consequence map");
 			String query = "MATCH (species:Species)-[:FROM_SPECIES]-(a:Allele)-[:VARIATION]-(v:Variant)-[:ASSOCIATION]-(consequence:GeneLevelConsequence) ";
 			query += " RETURN a.primaryKey as id, consequence.geneLevelConsequence as value ";
 
-			cache.setMolecularConsequenceMap(getMapSetForQuery(query));
+			dataCacheMap = getMapSetForQuery(query);
 			log.info("Finished Building allele -> molecular consequence map");
+		}
+
+		@Override
+		protected void setCache() {
+			cache.setMolecularConsequenceMap(dataCacheMap);
 		}
 	}
 

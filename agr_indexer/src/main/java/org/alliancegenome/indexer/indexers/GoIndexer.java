@@ -30,7 +30,9 @@ public class GoIndexer extends Indexer {
 		log.info("Pulling All Terms Finished");
 
 		Iterable<SearchableItemDocument> docs = goTrans.translateEntities(terms);
-		docs.forEach(doc -> doc.setPopularity(popularityScore.get(doc.getPrimaryKey())));
+		for (SearchableItemDocument doc : docs) {
+			doc.setPopularity(popularityScore.get(doc.getPrimaryKey()));
+		}
 
 		log.info("Translation Done");
 
@@ -40,6 +42,7 @@ public class GoIndexer extends Indexer {
 
 	}
 
+	@Override
 	protected void startSingleThread(LinkedBlockingDeque<String> queue) {
 		// No need to multithread this
 	}

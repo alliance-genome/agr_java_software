@@ -48,22 +48,22 @@ public class GeneIndexer extends Indexer {
 
 	@Override
 	protected void startSingleThread(LinkedBlockingDeque<String> queue) {
-		ArrayList<Gene> list = new ArrayList<>();
+		ArrayList<Gene> bucket = new ArrayList<>();
 		GeneTranslator geneTrans = new GeneTranslator();
 		while (true) {
 			try {
-				if (list.size() >= indexerConfig.getBufferSize()) {
-					Iterable<SearchableItemDocument> geneDocuments = geneTrans.translateEntities(list);
+				if (bucket.size() >= indexerConfig.getBufferSize()) {
+					Iterable<SearchableItemDocument> geneDocuments = geneTrans.translateEntities(bucket);
 					geneDocumentCache.addCachedFields(geneDocuments);
 					indexDocuments(geneDocuments);
-					list.clear();
+					bucket.clear();
 				}
 				if (queue.isEmpty()) {
-					if (list.size() > 0) {
-						Iterable<SearchableItemDocument> geneDocuments = geneTrans.translateEntities(list);
+					if (bucket.size() > 0) {
+						Iterable<SearchableItemDocument> geneDocuments = geneTrans.translateEntities(bucket);
 						geneDocumentCache.addCachedFields(geneDocuments);
 						indexDocuments(geneDocuments);
-						list.clear();
+						bucket.clear();
 					}
 					return;
 				}
@@ -72,7 +72,7 @@ public class GeneIndexer extends Indexer {
 				Gene gene = geneDocumentCache.getGeneMap().get(key);
 
 				if (gene != null) {
-					list.add(gene);
+					bucket.add(gene);
 				} else {
 					log.debug("No gene found for " + key);
 				}
