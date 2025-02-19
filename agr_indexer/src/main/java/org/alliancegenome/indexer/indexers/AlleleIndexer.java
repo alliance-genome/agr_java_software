@@ -14,6 +14,7 @@ import org.alliancegenome.neo4j.view.View;
 import com.fasterxml.jackson.databind.MapperFeature;
 
 import lombok.extern.slf4j.Slf4j;
+import net.nilosplace.process_display.ProcessDisplayHelper;
 
 @Slf4j
 public class AlleleIndexer extends Indexer {
@@ -30,9 +31,11 @@ public class AlleleIndexer extends Indexer {
 	public void index() {
 		try {
 			repo = new AlleleIndexerRepository();
+			log.info("Loading Doc Cache");
 			alleleDocumentCache = repo.getAlleleDocumentCache();
+			log.info("Loading Popularity");
 			alleleDocumentCache.setPopularity(popularityScore);
-
+			log.info("Loading The Queue");
 			LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>(alleleDocumentCache.getAlleleMap().keySet());
 
 			initiateThreading(queue);
@@ -48,7 +51,9 @@ public class AlleleIndexer extends Indexer {
 	protected void startSingleThread(LinkedBlockingDeque<String> queue) {
 		ArrayList<Allele> list = new ArrayList<>();
 		AlleleTranslator alleleTranslator = new AlleleTranslator();
+		ProcessDisplayHelper ph = new ProcessDisplayHelper(10000);
 		while (true) {
+			ph.startProcess("Allele Indexer", list.size());
 			try {
 				if (list.size() >= indexerConfig.getBufferSize()) {
 					Iterable<AlleleVariantSequence> avsDocs = alleleTranslator.translateEntities(list);
@@ -66,10 +71,12 @@ public class AlleleIndexer extends Indexer {
 						repo.clearCache();
 						list.clear();
 					}
+					ph.finishProcess();
 					return;
 				}
 
 				String key = queue.takeFirst();
+				ph.progressProcess();
 				Allele allele = alleleDocumentCache.getAlleleMap().get(key);
 				if (allele != null) {
 					list.add(allele);
