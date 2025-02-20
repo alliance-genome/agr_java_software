@@ -28,7 +28,7 @@ public class GeneToGeneParalogyIndexer extends Indexer {
 			SearchResponse<GeneToGeneParalogy> paralogyResponse = service.getGeneToGeneParalogy(0, 0);
 			log.info("GeneToGeneParalogy count: " + paralogyResponse.getTotalResults());
 
-			int totalPages = (int)(paralogyResponse.getTotalResults() / indexerConfig.getBufferSize());
+			int totalPages = (int) (paralogyResponse.getTotalResults() / indexerConfig.getBufferSize());
 			LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
 			for (int i = 0; i <= totalPages; i++) {
 				//log.info("page: " + i + " limit: " + indexerConfig.getBufferSize());
@@ -43,7 +43,7 @@ public class GeneToGeneParalogyIndexer extends Indexer {
 
 	protected List<GeneToGeneParalogyDocument> generateDocuments(List<GeneToGeneParalogy> paralogyList) {
 		List<GeneToGeneParalogyDocument> documentList = new ArrayList<>();
-		for(GeneToGeneParalogy paralogy : paralogyList) {
+		for (GeneToGeneParalogy paralogy : paralogyList) {
 			GeneToGeneParalogyDocument document = new GeneToGeneParalogyDocument();
 			document.setGeneToGeneParalogy(paralogy);
 			documentList.add(document);
@@ -54,7 +54,7 @@ public class GeneToGeneParalogyIndexer extends Indexer {
 	@Override
 	protected void startSingleThread(LinkedBlockingDeque<String> queue) {
 
-		while(true) {
+		while (true) {
 			try {
 				if (queue.isEmpty()) {
 					return;

@@ -24,8 +24,8 @@ public interface GeneToGeneParalogyInterface extends BaseIdCrudInterface<GeneToG
 	@Path("/findForPublic")
 	@JsonView({View.ForPublic.class})
 	SearchResponse<GeneToGeneParalogy> find(
-		@DefaultValue("0") @QueryParam("page") Integer page, 
-		@DefaultValue("10") @QueryParam("limit") Integer limit, 
+		@DefaultValue("0") @QueryParam("page") Integer page,
+		@DefaultValue("10") @QueryParam("limit") Integer limit,
 		HashMap<String, Object> params
 	);
 
