@@ -47,7 +47,7 @@ public enum IndexerConfig {
 		this.bufferSize = bufferSize;
 		this.bulkActions = bulkActions;
 		this.concurrentRequests = concurrentRequests;
-		this.bufferSize = bulkSize;
+		this.bulkSize = bulkSize;
 	}
 
 	public String getTypeName() {

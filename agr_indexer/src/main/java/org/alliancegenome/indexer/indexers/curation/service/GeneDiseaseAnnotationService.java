@@ -13,10 +13,10 @@ import java.util.stream.Collectors;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.DataProvider;
 import org.alliancegenome.curation_api.model.entities.DiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.Gene;
 import org.alliancegenome.curation_api.model.entities.GeneDiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.Organization;
 import org.alliancegenome.curation_api.model.entities.Reference;
 import org.alliancegenome.curation_api.model.entities.VocabularyTerm;
 import org.alliancegenome.curation_api.model.entities.ontology.ECOTerm;
@@ -62,7 +62,7 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 		HashMap<String, Object> params = new HashMap<>();
 		params.put("internal", false);
 		params.put("obsolete", false);
-		//params.put("diseaseAnnotationSubject.modEntityId", "RGD:69258");
+		//params.put("diseaseAnnotationSubject.primaryExternalId", "RGD:69258");
 
 		do {
 			SearchResponse<GeneDiseaseAnnotation> response = geneApi.findForPublic(page, batchSize, params);
@@ -125,7 +125,7 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 */
 		for (String geneID : geneIDs) {
 			List<DiseaseAnnotation> focusDiseaseAnnotations = geneMap.get(geneID).getRight();
-			params.put("subjectGene.modEntityId", geneID);
+			params.put("subjectGene.primaryExternalId", geneID);
 			SearchResponse<GeneToGeneOrthologyGenerated> response = orthologyApi.find(0, 500, params);
 			for (GeneToGeneOrthologyGenerated geneGeneOrthology : response.getResults()) {
 				Gene orthologousGene = geneGeneOrthology.getObjectGene();
@@ -160,8 +160,7 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 						relation = isImplicatedViaOrthology;
 					}
 					gda.setRelation(relation);
-					DataProvider dataProvider = new DataProvider();
-					dataProvider.setSourceOrganization(orgService.getOrganization("Alliance"));
+					Organization dataProvider = orgService.getOrganization("Alliance");
 					gda.setDataProvider(dataProvider);
 					gda.setWith(List.of(geneGeneOrthology.getSubjectGene()));
 					gda.setSingleReference(allianceReference);
