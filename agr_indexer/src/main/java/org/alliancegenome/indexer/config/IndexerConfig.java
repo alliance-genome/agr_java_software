@@ -4,6 +4,7 @@ import org.alliancegenome.indexer.indexers.AlleleIndexer;
 import org.alliancegenome.indexer.indexers.DatasetIndexer;
 import org.alliancegenome.indexer.indexers.DiseaseIndexer;
 import org.alliancegenome.indexer.indexers.GeneIndexer;
+import org.alliancegenome.indexer.indexers.GeneToGeneParalogyIndexer;
 import org.alliancegenome.indexer.indexers.GoIndexer;
 import org.alliancegenome.indexer.indexers.ModelIndexer;
 import org.alliancegenome.indexer.indexers.curation.DiseaseAnnotationCurationIndexer;
@@ -28,6 +29,7 @@ public enum IndexerConfig {
 	GeneGeneticInteractionIndexers("geneGeneticInteraction", GeneGeneticInteractionCurationIndexer.class, 4, 1500, 1500, 2, 1),
 	GeneMolecularInteractionIndexers("geneMolecularInteraction", GeneMolecularInteractionCurationIndexer.class, 4, 1500, 1500, 2, 1),
 	//PhenotypeAnnotationMlIndexer("phenotypeAnnotation", PhenotypeCurationIndexer.class, 1, 1426, 1426, 2, 1),
+	ParalogyIndexer("paralogy", GeneToGeneParalogyIndexer.class, 4, 5000, 5000, 8, 1),   // (3918629, 735, 1514, 1065)
 	// still not implemented  VariantIndexer("variant", VariantIndexer.class, 2, 3000, 400, 4, 4)
 	;
 
