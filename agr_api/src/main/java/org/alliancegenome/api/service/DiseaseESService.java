@@ -381,14 +381,6 @@ public class DiseaseESService {
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
 
 		List<GeneDiseaseAnnotationDocument> list = new ArrayList<>();
-		ObjectMapper mapper2 = new ObjectMapper();
-		JavaTimeModule module = new JavaTimeModule();
-		mapper2.registerModule(module);
-		mapper2.registerModule(new Jdk8Module());
-
-		mapper2.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-		mapper2.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-		mapper2.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 
 		for (SearchHit searchHit : searchResponse.getHits().getHits()) {
 			try {
