@@ -68,7 +68,7 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 
 		indexGenes();
 		indexAlleles();
-		//indexAGMs();
+		indexAGMs();
 
 		List<GenePhenotypeAnnotationDocument> geneList = createGenePhenotypeAnnotationDocuments();
 		log.info("Indexing " + String.format("%,d", geneList.size()) + " Gene PA documents");

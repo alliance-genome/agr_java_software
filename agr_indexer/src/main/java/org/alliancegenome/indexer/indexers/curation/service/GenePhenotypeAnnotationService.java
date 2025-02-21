@@ -2,6 +2,7 @@ package org.alliancegenome.indexer.indexers.curation.service;
 
 import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.GenePhenotypeAnnotation;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
@@ -28,8 +29,14 @@ public class GenePhenotypeAnnotationService extends BaseDiseaseAnnotationService
 	private final String cacheFileName = "gene_phenotype_annotation.json.gz";
 
 	public List<GenePhenotypeAnnotation> getFiltered() {
+		List<GenePhenotypeAnnotation> ret = readFromCache(cacheFileName, List.class);
+		if (ret != null && ret.size() > 0) {
+			return ret;
+		} else {
+			ret = new ArrayList<>();
+		}
+
 		ProcessDisplayHelper display = new ProcessDisplayHelper(2000);
-		List<GenePhenotypeAnnotation> ret = new ArrayList<>();
 		log.info("Gene IDs #: " + allGeneIDs);
 		log.info("AGM IDs #: " + allModelIDs);
 

@@ -262,16 +262,6 @@ public class DiseaseAnnotationToTdfTranslator {
 		row.setReference(primaryAnnotation.getSingleReference().getReferenceID());
 		row.setSource(primaryAnnotation.getDataProviderString());
 		List<String> urlExceptionHandler = List.of("MGI", "SGD", "OMIM");
-		DataProvider dataProvider = primaryAnnotation.getDataProvider();
-		if (dataProvider != null && dataProvider.getCrossReference() != null) {
-			String urlTemplate = dataProvider.getCrossReference().getResourceDescriptorPage().getUrlTemplate();
-			if (urlExceptionHandler.contains(dataProvider.getSourceOrganization().getAbbreviation())) {
-				// remove the prefix in the template as the prefix is already in the curie.
-				urlTemplate = urlTemplate.replace(dataProvider.getSourceOrganization().getAbbreviation() + ":", "");
-			}
-			urlTemplate = urlTemplate.replace("[%s]", dataProvider.getCrossReference().getReferencedCurie());
-			row.setSourceUrl(urlTemplate);
-		}
 		if (primaryAnnotation.getDateCreated() != null) {
 			row.setDateAssigned(primaryAnnotation.getDateCreated().toString());
 		}

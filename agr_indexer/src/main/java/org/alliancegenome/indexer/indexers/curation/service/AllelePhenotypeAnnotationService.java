@@ -22,7 +22,7 @@ public class AllelePhenotypeAnnotationService extends BaseDiseaseAnnotationServi
 	private OrganizationService orgService = new OrganizationService();
 	private ReferenceService referenceService = new ReferenceService();
 
-	private final String cacheFileName = "agm_phenotype_annotation.json.gz";
+	private final String cacheFileName = "allele_phenotype_annotation.json.gz";
 
 	public List<AllelePhenotypeAnnotation> getFiltered() {
 		ProcessDisplayHelper display = new ProcessDisplayHelper(2000);

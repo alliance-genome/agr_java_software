@@ -23,7 +23,6 @@ public class AlleleDiseaseAnnotationService extends BaseDiseaseAnnotationService
 	public List<AlleleDiseaseAnnotation> getFiltered() {
 
 		List<AlleleDiseaseAnnotation> ret = readFromCache(cacheFileName, List.class);
-
 		if (ret != null && ret.size() > 0) {
 			return ret;
 		} else {
