@@ -4,9 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
-import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
+import org.alliancegenome.api.entity.AllelePhenotypeAnnotationDocument;
 import org.alliancegenome.api.entity.GenePhenotypeAnnotationDocument;
-import org.alliancegenome.api.entity.PhenotypeAnnotationDocument;
 import org.alliancegenome.api.service.helper.GeneDiseaseSearchHelper;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.api.service.DiseaseRibbonService;
@@ -22,8 +21,6 @@ import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
 import java.util.*;
-
-import static org.alliancegenome.cache.repository.helper.JsonResultResponse.DISTINCT_FIELD_VALUES;
 
 
 @RequestScoped
@@ -44,7 +41,7 @@ public class PhenotypeESService extends ESService {
 																						   boolean debug) {
 
 		// unfiltered query
-		BoolQueryBuilder query = getBaseQuery(List.of(geneId), null, false, PhenotypeAnnotationDocument.GENE_PHENOTYPE_ANNOTATION, false);
+		BoolQueryBuilder query = getBaseQuery(List.of(geneId), null, false, GenePhenotypeAnnotationDocument.GENE_PHENOTYPE_ANNOTATION, false);
 
 		JsonResultResponse<GenePhenotypeAnnotationDocument> ret = new JsonResultResponse<>();
 
@@ -68,6 +65,46 @@ public class PhenotypeESService extends ESService {
 			.map(searchHit -> {
 				try {
 					GenePhenotypeAnnotationDocument object = mapper.readValue(searchHit.getSourceAsString(), GenePhenotypeAnnotationDocument.class);
+					object.setUniqueId(searchHit.getId());
+					return object;
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				return null;
+			}).toList();
+		ret.setResults(list);
+		return ret;
+	}
+
+	public JsonResultResponse<AllelePhenotypeAnnotationDocument> getAllelePhenotypeAnnotations(String alleleId,
+																							   Pagination pagination,
+																							   boolean debug) {
+
+		// unfiltered query
+		BoolQueryBuilder query = getBaseQuery(List.of(alleleId), null, false, AllelePhenotypeAnnotationDocument.ALLELE_PHENOTYPE_ANNOTATION, false);
+
+		JsonResultResponse<AllelePhenotypeAnnotationDocument> ret = new JsonResultResponse<>();
+
+		// add table filter
+		addTableFilter(pagination, query);
+		// Sorting sets for different names of the sorting selection box
+		Map<String, List<String>> sortingSetMap = new HashMap<>();
+		sortingSetMap.put("default", List.of("phenotypeStatement.sort"));
+		LinkedHashMap<String, SortOrder> sortingMap = new LinkedHashMap<>();
+
+		List<String> sortFields = sortingSetMap.get(pagination.getSortBy());
+		if (sortFields == null) {
+			sortFields = sortingSetMap.get("default");
+		}
+		sortFields.forEach(sortField -> sortingMap.put(sortField, SortOrder.ASC));
+
+		SearchResponse searchResponse = getSearchResponse(query, pagination, sortingMap, debug);
+		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
+
+		List<AllelePhenotypeAnnotationDocument> list = Arrays.stream(searchResponse.getHits().getHits())
+			.map(searchHit -> {
+				try {
+					AllelePhenotypeAnnotationDocument object = mapper.readValue(searchHit.getSourceAsString(), AllelePhenotypeAnnotationDocument.class);
 					object.setUniqueId(searchHit.getId());
 					return object;
 				} catch (Exception e) {

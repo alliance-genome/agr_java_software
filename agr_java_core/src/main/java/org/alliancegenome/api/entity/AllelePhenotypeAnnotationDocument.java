@@ -14,10 +14,11 @@ import org.alliancegenome.neo4j.view.View;
 @JsonView({View.DiseaseAnnotationAll.class})
 public class AllelePhenotypeAnnotationDocument extends PhenotypeAnnotationDocument {
 
+	public static final String ALLELE_PHENOTYPE_ANNOTATION = "allele_phenotype_annotation" ;
 	private Allele subject;
 
 	public AllelePhenotypeAnnotationDocument() {
-		setCategory("allele_phenotype_annotation");
+		setCategory(ALLELE_PHENOTYPE_ANNOTATION);
 	}
 
 }

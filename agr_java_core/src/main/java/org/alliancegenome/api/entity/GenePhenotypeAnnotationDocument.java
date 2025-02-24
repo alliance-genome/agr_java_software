@@ -13,6 +13,7 @@ import org.alliancegenome.neo4j.view.View;
 @JsonView({View.PhenotypeAnnotationAll.class})
 public class GenePhenotypeAnnotationDocument extends PhenotypeAnnotationDocument {
 
+	public static final String GENE_PHENOTYPE_ANNOTATION = "gene_phenotype_annotation";
 	private Gene subject;
 
 	public GenePhenotypeAnnotationDocument() {

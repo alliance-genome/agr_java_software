@@ -1,6 +1,8 @@
 package org.alliancegenome.core.translators.tdf;
 
+import org.alliancegenome.api.entity.AllelePhenotypeAnnotationDocument;
 import org.alliancegenome.api.entity.GenePhenotypeAnnotationDocument;
+import org.alliancegenome.api.entity.PhenotypeAnnotationDocument;
 import org.alliancegenome.curation_api.model.entities.AGMPhenotypeAnnotation;
 import org.alliancegenome.curation_api.model.entities.PhenotypeAnnotation;
 import org.apache.commons.collections.CollectionUtils;
@@ -11,7 +13,7 @@ import java.util.stream.Collectors;
 
 public class PhenotypeAnnotationToTdfTranslator {
 
-	public String getAllRows(List<GenePhenotypeAnnotationDocument> annotations) {
+	public String getAllRows(List<? extends PhenotypeAnnotationDocument> annotations) {
 		//denormalizeAnnotations(annotations);
 
 		// convert collection of PhenotypeAnnotation records to PhenotypeDownloadRow records
@@ -30,8 +32,8 @@ public class PhenotypeAnnotationToTdfTranslator {
 	}
 
 
-	public String getAllRowsForAlleles(List<org.alliancegenome.neo4j.entity.PhenotypeAnnotation> annotations) {
-		//denormalizeAnnotations(annotations);
+	public String getAllRowsForAlleles(List<AllelePhenotypeAnnotationDocument>  annotations) {
+		List<PhenotypeDownloadRow> list = getDownloadRowsFromAnnotations(annotations);
 
 		// convert collection of PhenotypeAnnotation records to PhenotypeDownloadRow records
 /*
@@ -113,7 +115,7 @@ public class PhenotypeAnnotationToTdfTranslator {
 */
 
 
-	public List<PhenotypeDownloadRow> getDownloadRowsFromAnnotations(List<GenePhenotypeAnnotationDocument> phenotypeAnnotations) {
+	public List<PhenotypeDownloadRow> getDownloadRowsFromAnnotations(List<? extends PhenotypeAnnotationDocument> phenotypeAnnotations) {
 		//denormalizeAnnotations(phenotypeAnnotations);
 		return phenotypeAnnotations.stream()
 			.filter(annotation -> CollectionUtils.isNotEmpty(annotation.getPrimaryAnnotations()))
