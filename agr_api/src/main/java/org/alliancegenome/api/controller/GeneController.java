@@ -13,12 +13,14 @@ import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.api.entity.GeneGeneticInteractionDocument;
 import org.alliancegenome.api.entity.GeneMolecularInteractionDocument;
+import org.alliancegenome.api.entity.GeneToGeneParalogyDocument;
 import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
 import org.alliancegenome.api.service.AlleleService;
 import org.alliancegenome.api.service.DiseaseESService;
 import org.alliancegenome.api.service.EntityType;
 import org.alliancegenome.api.service.ExpressionService;
 import org.alliancegenome.api.service.GeneService;
+import org.alliancegenome.api.service.GeneToGeneParalogyESService;
 import org.alliancegenome.api.service.helper.APIServiceHelper;
 import org.alliancegenome.api.translators.tdf.DiseaseAnnotationToTdfTranslator;
 import org.alliancegenome.cache.repository.ExpressionCacheRepository;
@@ -43,7 +45,6 @@ import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.view.HomologView;
 import org.alliancegenome.neo4j.view.OrthologyFilter;
-import org.alliancegenome.neo4j.view.ParalogBean;
 import org.apache.commons.collections.CollectionUtils;
 
 import jakarta.enterprise.context.RequestScoped;
@@ -63,8 +64,6 @@ public class GeneController implements GeneRESTInterface {
 
 	@Inject AlleleService alleleService;
 
-	@Inject OrthologyCacheRepository orthologyService;
-
 	@Inject ExpressionCacheRepository expressionCacheRepository;
 
 	@Inject DiseaseService diseaseService;
@@ -78,6 +77,9 @@ public class GeneController implements GeneRESTInterface {
 
 	@Inject
 	DiseaseESService diseaseESService;
+
+	@Inject
+	GeneToGeneParalogyESService geneToGeneParalogyESService;
 
 	private static final PhenotypeAnnotationToTdfTranslator translator = new PhenotypeAnnotationToTdfTranslator();
 	private static final AlleleToTdfTranslator alleleTanslator = new AlleleToTdfTranslator();
@@ -615,13 +617,13 @@ public class GeneController implements GeneRESTInterface {
 		pagination.addFieldFilter(FieldFilter.STRINGENCY, stringencyFilter);
 		pagination.addFieldFilter(FieldFilter.ORTHOLOGY_METHOD, method);
 		pagination.addFieldFilter(FieldFilter.ORTHOLOGY_TAXON, taxonID);
-		final JsonResultResponse<HomologView> response = orthologyService.getOrthologyMultiGeneJson(geneList, pagination);
+		final JsonResultResponse<HomologView> response = orthologyCacheService.getOrthologyMultiGeneJson(geneList, pagination);
 		response.setHttpServletRequest(null);
 		return response;
 	}
 
 	@Override
-	public JsonResultResponse<ParalogBean> getGeneParalogy(String id, List<String> geneIDs, String geneLister, String stringencyFilter, String taxonID, String method, Integer limit, Integer page) {
+	public JsonResultResponse<GeneToGeneParalogyDocument> getGeneParalogy(String id, List<String> geneIDs, String geneLister, String stringencyFilter, String taxonID, String method, Integer limit, Integer page) {
 
 		List<String> geneList = new ArrayList<>();
 		if (id != null) {
@@ -638,7 +640,7 @@ public class GeneController implements GeneRESTInterface {
 		pagination.addFieldFilter(FieldFilter.STRINGENCY, stringencyFilter);
 		pagination.addFieldFilter(FieldFilter.ORTHOLOGY_METHOD, method);
 		pagination.addFieldFilter(FieldFilter.ORTHOLOGY_TAXON, taxonID);
-		final JsonResultResponse<ParalogBean> response = orthologyService.getParalogyMultiGeneJson(geneList, pagination);
+		final JsonResultResponse<GeneToGeneParalogyDocument> response = geneToGeneParalogyESService.getParalogyMultiGeneJson(geneList, pagination);
 		response.setHttpServletRequest(null);
 		return response;
 	}

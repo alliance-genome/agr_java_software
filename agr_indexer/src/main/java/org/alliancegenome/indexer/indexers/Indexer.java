@@ -213,7 +213,6 @@ public abstract class Indexer extends Thread {
 	protected abstract void startSingleThread(LinkedBlockingDeque<String> queue);
 
 	protected ObjectMapper customizeObjectMapper(ObjectMapper objectMapper) {
-		objectMapper.registerModule(new JavaTimeModule());
 		return objectMapper;
 	}
 }
