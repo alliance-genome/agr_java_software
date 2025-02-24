@@ -1,7 +1,6 @@
 package org.alliancegenome.core.translators.tdf;
 
 import org.alliancegenome.api.entity.AllelePhenotypeAnnotationDocument;
-import org.alliancegenome.api.entity.GenePhenotypeAnnotationDocument;
 import org.alliancegenome.api.entity.PhenotypeAnnotationDocument;
 import org.alliancegenome.curation_api.model.entities.AGMPhenotypeAnnotation;
 import org.alliancegenome.curation_api.model.entities.PhenotypeAnnotation;
@@ -32,7 +31,7 @@ public class PhenotypeAnnotationToTdfTranslator {
 	}
 
 
-	public String getAllRowsForAlleles(List<AllelePhenotypeAnnotationDocument>  annotations) {
+	public String getAllRowsForAlleles(List<AllelePhenotypeAnnotationDocument> annotations) {
 		List<PhenotypeDownloadRow> list = getDownloadRowsFromAnnotations(annotations);
 
 		// convert collection of PhenotypeAnnotation records to PhenotypeDownloadRow records

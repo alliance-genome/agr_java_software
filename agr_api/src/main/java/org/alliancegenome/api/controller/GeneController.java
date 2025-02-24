@@ -1,26 +1,16 @@
 package org.alliancegenome.api.controller;
 
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.core.*;
+import lombok.extern.slf4j.Slf4j;
 import org.alliancegenome.api.dto.ExpressionSummary;
 import org.alliancegenome.api.dto.JoinTypeValue;
 import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
-import org.alliancegenome.api.entity.GeneToGeneParalogyDocument;
-import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
-import org.alliancegenome.api.service.AlleleService;
-import org.alliancegenome.api.service.DiseaseESService;
-import org.alliancegenome.api.service.EntityType;
-import org.alliancegenome.api.service.ExpressionService;
-import org.alliancegenome.api.service.GeneService;
-import org.alliancegenome.api.service.GeneToGeneParalogyESService;
 import org.alliancegenome.api.entity.GenePhenotypeAnnotationDocument;
+import org.alliancegenome.api.entity.GeneToGeneParalogyDocument;
 import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
 import org.alliancegenome.api.service.*;
 import org.alliancegenome.api.service.helper.APIServiceHelper;
@@ -40,7 +30,6 @@ import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.DiseaseSummary;
 import org.alliancegenome.neo4j.entity.EntitySummary;
-import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Gene;
@@ -49,33 +38,33 @@ import org.alliancegenome.neo4j.view.HomologView;
 import org.alliancegenome.neo4j.view.OrthologyFilter;
 import org.apache.commons.collections.CollectionUtils;
 
-import jakarta.enterprise.context.RequestScoped;
-import jakarta.inject.Inject;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.MultivaluedMap;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.UriInfo;
-import lombok.extern.slf4j.Slf4j;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequestScoped
 public class GeneController implements GeneRESTInterface {
 
-	@Inject GeneService geneService;
+	@Inject
+	GeneService geneService;
 
-	@Inject AlleleService alleleService;
+	@Inject
+	AlleleService alleleService;
 
-	@Inject ExpressionCacheRepository expressionCacheRepository;
+	@Inject
+	ExpressionCacheRepository expressionCacheRepository;
 
-	@Inject DiseaseService diseaseService;
+	@Inject
+	DiseaseService diseaseService;
 
-	@Inject OrthologyCacheRepository orthologyCacheService;
+	@Inject
+	OrthologyCacheRepository orthologyCacheService;
 
 	//@Inject
 	//private HttpRequest request;
 
-	@Inject ExpressionService service;
+	@Inject
+	ExpressionService service;
 
 	@Inject
 	DiseaseESService diseaseESService;
@@ -147,25 +136,25 @@ public class GeneController implements GeneRESTInterface {
 
 	@Override
 	public JsonResultResponse<AlleleVariantSequence> getAllelesVariantPerGene(String id,
-																			Integer limit,
-																			Integer page,
-																			String sortBy,
-																			String asc,
-																			String symbol,
-																			String associatedGeneSymbol,
-																			String synonyms,
-																			String hgvsgName,
-																			String variantType,
-																			String molecularConsequence,
-																			String impact,
-																			String sequenceFeatureType,
-																			String sequenceFeature,
-																			String variantPolyphen,
-																			String variantSift,
-																			String hasDisease,
-																			String hasPhenotype,
-																			String category,
-																			String location) {
+																			  Integer limit,
+																			  Integer page,
+																			  String sortBy,
+																			  String asc,
+																			  String symbol,
+																			  String associatedGeneSymbol,
+																			  String synonyms,
+																			  String hgvsgName,
+																			  String variantType,
+																			  String molecularConsequence,
+																			  String impact,
+																			  String sequenceFeatureType,
+																			  String sequenceFeature,
+																			  String variantPolyphen,
+																			  String variantSift,
+																			  String hasDisease,
+																			  String hasPhenotype,
+																			  String category,
+																			  String location) {
 		long startTime = System.currentTimeMillis();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
 		pagination.addFieldFilter(FieldFilter.SYMBOL, symbol);
@@ -207,41 +196,41 @@ public class GeneController implements GeneRESTInterface {
 
 	@Override
 	public Response getAllelesVariantPerGeneDownload(String id,
-													String symbol,
-													String associatedGeneSymbol,
-													String synonyms,
-													String hgvsgName,
-													String variantType,
-													String molecularConsequence,
-													String impact,
-													String sequenceFeatureType,
-													String sequenceFeature,
-													String variantPolyphen,
-													String variantSift,
-													String hasDisease,
-													String hasPhenotype,
-													String category,
-													String location) {
+													 String symbol,
+													 String associatedGeneSymbol,
+													 String synonyms,
+													 String hgvsgName,
+													 String variantType,
+													 String molecularConsequence,
+													 String impact,
+													 String sequenceFeatureType,
+													 String sequenceFeature,
+													 String variantPolyphen,
+													 String variantSift,
+													 String hasDisease,
+													 String hasPhenotype,
+													 String category,
+													 String location) {
 		JsonResultResponse<AlleleVariantSequence> alleles = getAllelesVariantPerGene(id,
-				Integer.MAX_VALUE,
-				1,
-				null,
-				null,
-				symbol,
-				associatedGeneSymbol,
-				synonyms,
-				hgvsgName,
-				variantType,
-				molecularConsequence,
-				impact,
-				sequenceFeatureType,
-				sequenceFeature,
-				variantPolyphen,
-				variantSift,
-				hasDisease,
-				hasPhenotype,
-				category,
-				location);
+			Integer.MAX_VALUE,
+			1,
+			null,
+			null,
+			symbol,
+			associatedGeneSymbol,
+			synonyms,
+			hgvsgName,
+			variantType,
+			molecularConsequence,
+			impact,
+			sequenceFeatureType,
+			sequenceFeature,
+			variantPolyphen,
+			variantSift,
+			hasDisease,
+			hasPhenotype,
+			category,
+			location);
 
 		Response.ResponseBuilder responseBuilder = Response.ok(alleleTanslator.getAllAlleleVariantDetailRows(alleles.getResults()));
 		APIServiceHelper.setDownloadHeader(id, EntityType.GENE, EntityType.ALLELESANDVARIANT, responseBuilder);
@@ -250,15 +239,15 @@ public class GeneController implements GeneRESTInterface {
 
 	@Override
 	public Response getAllelesPerGeneDownload(String id,
-											String sortBy,
-											String asc,
-											String symbol,
-											String synonym,
-											String variantType,
-											String molecularConsequence,
-											String phenotype,
-											String source,
-											String disease) {
+											  String sortBy,
+											  String asc,
+											  String symbol,
+											  String synonym,
+											  String variantType,
+											  String molecularConsequence,
+											  String phenotype,
+											  String source,
+											  String disease) {
 		Pagination pagination = new Pagination(1, Integer.MAX_VALUE, sortBy, asc);
 		pagination.addFieldFilter(FieldFilter.SYMBOL, symbol);
 		pagination.addFieldFilter(FieldFilter.SYNONYMS, synonym);
@@ -283,21 +272,21 @@ public class GeneController implements GeneRESTInterface {
 
 	@Override
 	public JsonResultResponse<InteractionGeneJoin> getInteractions(String id, Integer limit, Integer page, String sortBy, String asc,
-																String moleculeType,
-																JoinTypeValue joinType,
-																String interactorGeneSymbol,
-																String interactorSpecies,
-																String interactorMoleculeType,
-																String detectionMethod,
-																String source,
-																String reference,
-																String role,
-																String geneticPerturbation,
-																String interacotorRole,
-																String interactorGeneticPerturbation,
-																String phenotypes,
-																String interactionType,
-																@Context UriInfo info) {
+																   String moleculeType,
+																   JoinTypeValue joinType,
+																   String interactorGeneSymbol,
+																   String interactorSpecies,
+																   String interactorMoleculeType,
+																   String detectionMethod,
+																   String source,
+																   String reference,
+																   String role,
+																   String geneticPerturbation,
+																   String interacotorRole,
+																   String interactorGeneticPerturbation,
+																   String phenotypes,
+																   String interactionType,
+																   @Context UriInfo info) {
 		long startTime = System.currentTimeMillis();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc, new InteractionColumnFieldMapping());
 		pagination.addFieldFilter(FieldFilter.MOLECULE_TYPE, moleculeType);
@@ -377,11 +366,11 @@ public class GeneController implements GeneRESTInterface {
 
 	@Override
 	public JsonResultResponse<GenePhenotypeAnnotationDocument> getPhenotypeAnnotations(String id, Integer limit, Integer page, String sortBy,
-																		   String geneticEntity,
-																		   String geneticEntityType,
-																		   String phenotype,
-																		   String reference,
-																		   String asc) {
+																					   String geneticEntity,
+																					   String geneticEntityType,
+																					   String phenotype,
+																					   String reference,
+																					   String asc) {
 		long startTime = System.currentTimeMillis();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
 		pagination.addFilterOption("phenotypeStatement", phenotype);
@@ -401,21 +390,21 @@ public class GeneController implements GeneRESTInterface {
 
 	@Override
 	public Response getPhenotypeAnnotationsDownloadFile(
-			String id,
-			String sortBy,
-			String geneticEntity,
-			String geneticEntityType,
-			String phenotype,
-			String reference,
-			String asc) {
+		String id,
+		String sortBy,
+		String geneticEntity,
+		String geneticEntityType,
+		String phenotype,
+		String reference,
+		String asc) {
 		// retrieve all records
 		JsonResultResponse<GenePhenotypeAnnotationDocument> response =
 			getPhenotypeAnnotations(id, 250000, 1, sortBy,
-						geneticEntity,
-						geneticEntityType,
-						phenotype,
-						reference,
-						asc);
+				geneticEntity,
+				geneticEntityType,
+				phenotype,
+				reference,
+				asc);
 		Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRows(response.getResults()));
 		APIServiceHelper.setDownloadHeader(id, EntityType.GENE, EntityType.PHENOTYPE, responseBuilder);
 		return responseBuilder.build();
@@ -440,21 +429,21 @@ public class GeneController implements GeneRESTInterface {
 
 	@Override
 	public Response getDiseaseAnnotationsDownloadFile(
-			String id,
-			String sortBy,
-			String geneticEntity,
-			String geneticEntityType,
-			String disease,
-			String reference,
-			String asc) {
+		String id,
+		String sortBy,
+		String geneticEntity,
+		String geneticEntityType,
+		String disease,
+		String reference,
+		String asc) {
 		// retrieve all records
 		JsonResultResponse<DiseaseAnnotation> response =
-				getDiseaseAnnotationDocumentJsonResultResponse(id, Integer.MAX_VALUE, 1, sortBy,
-						geneticEntity,
-						geneticEntityType,
-						disease,
-						reference,
-						asc);
+			getDiseaseAnnotationDocumentJsonResultResponse(id, Integer.MAX_VALUE, 1, sortBy,
+				geneticEntity,
+				geneticEntityType,
+				disease,
+				reference,
+				asc);
 		Response.ResponseBuilder responseBuilder = Response.ok(diseaseTranslator.getAllRowsForGenes(response.getResults()));
 		APIServiceHelper.setDownloadHeader(id, EntityType.GENE, EntityType.DISEASE, responseBuilder);
 		return responseBuilder.build();
@@ -534,9 +523,9 @@ public class GeneController implements GeneRESTInterface {
 		pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
 		MultivaluedMap<String, String> parameterMap = ui.getQueryParameters();
 		List<String> invalidFilterNames = parameterMap.entrySet().stream()
-				.filter(entry -> FieldFilter.hasFieldFilterPrefix(entry.getKey()) && !FieldFilter.isFieldFilterValue(entry.getKey()))
-				.map(Map.Entry::getKey)
-				.collect(Collectors.toList());
+			.filter(entry -> FieldFilter.hasFieldFilterPrefix(entry.getKey()) && !FieldFilter.isFieldFilterValue(entry.getKey()))
+			.map(Map.Entry::getKey)
+			.collect(Collectors.toList());
 		pagination.setInvalidFilterList(invalidFilterNames);
 		return diseaseService.getDiseaseAnnotations(id, pagination);
 	}
@@ -607,9 +596,9 @@ public class GeneController implements GeneRESTInterface {
 		orthologyFilter.setStart(1);
 		JsonResultResponse<HomologView> orthologs = orthologyCacheService.getOrthologyGenes(geneList, orthologyFilter);
 		List<HomologView> filteredList = orthologs.getResults().stream()
-				.filter(orthologView -> expressionCacheRepository.hasExpression(orthologView.getHomologGene().getPrimaryKey()))
-				.sorted(Comparator.comparing(orthologView -> orthologView.getHomologGene().getSymbol().toLowerCase()))
-				.collect(Collectors.toList());
+			.filter(orthologView -> expressionCacheRepository.hasExpression(orthologView.getHomologGene().getPrimaryKey()))
+			.sorted(Comparator.comparing(orthologView -> orthologView.getHomologGene().getSymbol().toLowerCase()))
+			.collect(Collectors.toList());
 		orthologs.setResults(filteredList);
 		orthologs.setTotal(filteredList.size());
 		orthologs.setHttpServletRequest(null);
@@ -663,45 +652,45 @@ public class GeneController implements GeneRESTInterface {
 																		String asc,
 																		UriInfo ui) {
 		return getEmpiricalDiseaseAnnotation(id,
-				limit,
-				page,
-				sortBy,
-				geneticEntity,
-				geneticEntityType,
-				disease,
-				associationType,
-				evidenceCode,
-				source,
-				reference,
-				asc,
-				ui);
+			limit,
+			page,
+			sortBy,
+			geneticEntity,
+			geneticEntityType,
+			disease,
+			associationType,
+			evidenceCode,
+			source,
+			reference,
+			asc,
+			ui);
 	}
 
 	@Override
 	public Response getDiseaseByExperimentDownload(String id,
-												String sortBy,
-												String geneticEntity,
-												String geneticEntityType,
-												String disease,
-												String associationType,
-												String evidenceCode,
-												String source,
-												String reference,
-												String asc,
-												UriInfo ui) {
+												   String sortBy,
+												   String geneticEntity,
+												   String geneticEntityType,
+												   String disease,
+												   String associationType,
+												   String evidenceCode,
+												   String source,
+												   String reference,
+												   String asc,
+												   UriInfo ui) {
 		JsonResultResponse<DiseaseAnnotation> response = getEmpiricalDiseaseAnnotation(id,
-				Integer.MAX_VALUE,
-				null,
-				sortBy,
-				geneticEntity,
-				geneticEntityType,
-				disease,
-				associationType,
-				evidenceCode,
-				source,
-				reference,
-				asc,
-				ui);
+			Integer.MAX_VALUE,
+			null,
+			sortBy,
+			geneticEntity,
+			geneticEntityType,
+			disease,
+			associationType,
+			evidenceCode,
+			source,
+			reference,
+			asc,
+			ui);
 		Response.ResponseBuilder responseBuilder = Response.ok(diseaseTranslator.getEmpiricalDiseaseByGene(response.getResults()));
 		responseBuilder.type(MediaType.TEXT_PLAIN_TYPE);
 		responseBuilder.header("Content-Disposition", "attachment; filename=\"DiseaseAssociationsViaEmpiricalData-" + id.replace(":", "-") + ".tsv\"");
@@ -721,18 +710,18 @@ public class GeneController implements GeneRESTInterface {
 
 	@Override
 	public JsonResultResponse<Allele> getTransgenicAlleles(String geneID,
-														Integer limit,
-														Integer page,
-														String sortBy,
-														String alleleSymbol,
-														String constructSymbol,
-														String constructRegulatedGene,
-														String constructTargetedGene,
-														String constructExpressedGene,
-														String species,
-														String hasPhenotype,
-														String hasDisease,
-														UriInfo ui) {
+														   Integer limit,
+														   Integer page,
+														   String sortBy,
+														   String alleleSymbol,
+														   String constructSymbol,
+														   String constructRegulatedGene,
+														   String constructTargetedGene,
+														   String constructExpressedGene,
+														   String species,
+														   String hasPhenotype,
+														   String hasDisease,
+														   UriInfo ui) {
 		if (sortBy != null && sortBy.isBlank()) {
 			sortBy = "transgenicAllele";
 		}
@@ -776,18 +765,18 @@ public class GeneController implements GeneRESTInterface {
 														String hasDisease,
 														UriInfo ui) {
 		JsonResultResponse<Allele> alleles = getTransgenicAlleles(geneId,
-				Integer.MAX_VALUE,
-				1,
-				sortBy,
-				alleleSymbol,
-				constructSymbol,
-				constructRegulatedGene,
-				constructTargetedGene,
-				constructExpressedGene,
-				species,
-				hasPhenotype,
-				hasDisease,
-				ui);
+			Integer.MAX_VALUE,
+			1,
+			sortBy,
+			alleleSymbol,
+			constructSymbol,
+			constructRegulatedGene,
+			constructTargetedGene,
+			constructExpressedGene,
+			species,
+			hasPhenotype,
+			hasDisease,
+			ui);
 
 		Response.ResponseBuilder responseBuilder = Response.ok(alleleTanslator.getAllTransgenicAlleleRows(alleles.getResults()));
 		APIServiceHelper.setDownloadHeader(geneId, EntityType.GENE, EntityType.TRANSGENICALLELE, responseBuilder);

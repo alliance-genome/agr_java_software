@@ -50,8 +50,9 @@ public class PhenotypeAnnotationDocument extends SearchableItemDocument {
 	}
 
 	public void addEvidenceCodes(List<ECOTerm> ecoTerms) {
-		if (CollectionUtils.isEmpty(ecoTerms))
+		if (CollectionUtils.isEmpty(ecoTerms)) {
 			return;
+		}
 		if (evidenceCodes == null) {
 			evidenceCodes = new ArrayList<>();
 		}

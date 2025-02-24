@@ -1,10 +1,11 @@
 package org.alliancegenome.api.controller;
 
-import java.time.LocalDateTime;
-
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.core.Response;
+import lombok.extern.slf4j.Slf4j;
 import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.AllelePhenotypeAnnotationDocument;
-import org.alliancegenome.api.entity.GenePhenotypeAnnotationDocument;
 import org.alliancegenome.api.rest.interfaces.AlleleRESTInterface;
 import org.alliancegenome.api.service.*;
 import org.alliancegenome.api.service.helper.APIServiceHelper;
@@ -16,14 +17,10 @@ import org.alliancegenome.core.translators.tdf.AlleleToTdfTranslator;
 import org.alliancegenome.core.translators.tdf.PhenotypeAnnotationToTdfTranslator;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Variant;
 
-import jakarta.enterprise.context.RequestScoped;
-import jakarta.inject.Inject;
-import jakarta.ws.rs.core.Response;
-import lombok.extern.slf4j.Slf4j;
+import java.time.LocalDateTime;
 
 @Slf4j
 @RequestScoped
@@ -109,12 +106,12 @@ public class AlleleController implements AlleleRESTInterface {
 
 	@Override
 	public JsonResultResponse<AllelePhenotypeAnnotationDocument> getPhenotypePerAllele(String id,
-																		 Integer limit,
-																		 Integer page,
-																		 String phenotype,
-																		 String source,
-																		 String reference,
-																		 String sortBy) {
+																					   Integer limit,
+																					   Integer page,
+																					   String phenotype,
+																					   String source,
+																					   String reference,
+																					   String sortBy) {
 		long startTime = System.currentTimeMillis();
 		Pagination pagination = new Pagination(page, limit, sortBy, null);
 		pagination.addFilterOption("phenotypeStatement", phenotype);
@@ -150,20 +147,20 @@ public class AlleleController implements AlleleRESTInterface {
 
 	@Override
 	public JsonResultResponse<AlleleDiseaseAnnotationDocument> getDiseasePerAllele(String alleleID,
-																					String filterOptions,
-																					String filterReference,
-																					String diseaseTerm,
-																					String filterSource,
-																					String geneticEntity,
-																					String geneticEntityType,
-																					String associationType,
-																					String diseaseQualifier,
-																					String evidenceCode,
-																					Boolean debug,
-																					Integer limit,
-																					Integer page,
-																					String sortBy,
-																					String asc) {
+																				   String filterOptions,
+																				   String filterReference,
+																				   String diseaseTerm,
+																				   String filterSource,
+																				   String geneticEntity,
+																				   String geneticEntityType,
+																				   String associationType,
+																				   String diseaseQualifier,
+																				   String evidenceCode,
+																				   Boolean debug,
+																				   Integer limit,
+																				   Integer page,
+																				   String sortBy,
+																				   String asc) {
 
 		LocalDateTime startDate = LocalDateTime.now();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
