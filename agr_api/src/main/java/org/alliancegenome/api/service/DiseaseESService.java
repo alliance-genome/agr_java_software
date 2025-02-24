@@ -22,6 +22,7 @@ import org.alliancegenome.api.entity.DiseaseEntitySubgroupSlim;
 import org.alliancegenome.api.entity.DiseaseRibbonEntity;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
+import org.alliancegenome.api.service.helper.ElasticSearchHelper;
 import org.alliancegenome.api.service.helper.GeneDiseaseSearchHelper;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.api.service.DiseaseRibbonService;
@@ -33,9 +34,7 @@ import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.SimpleTerm;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.lucene.queryparser.classic.QueryParser;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
@@ -72,6 +71,7 @@ public class DiseaseESService {
 	private static final DiseaseRibbonService diseaseRibbonService = new DiseaseRibbonService(diseaseRepository);
 	private static final SearchDAO searchDAO = new SearchDAO();
 	private static final GeneDiseaseSearchHelper geneDiseaseSearchHelper = new GeneDiseaseSearchHelper();
+	private static final ElasticSearchHelper elasticSearchHelper = new ElasticSearchHelper();
 
 	// termID may be used in the future when converting disease page to new ES stack.
 	public JsonResultResponse<GeneDiseaseAnnotationDocument> getRibbonDiseaseAnnotations(String focusTaxonId, List<String> geneIDs, String termID, Pagination pagination, boolean excludeNegated, boolean debug) {
@@ -83,8 +83,8 @@ public class DiseaseESService {
 		ret.setSupplementalData(getSupplementalData(focusTaxonId, true, debug, query));
 
 		// add table filter
-		addTableFilter(pagination, query);
-		SearchResponse searchResponse = getSearchResponse(query, pagination, getAnnotationSorts(focusTaxonId, debug), false);
+		elasticSearchHelper.addTableFilter(pagination, query);
+		SearchResponse searchResponse = elasticSearchHelper.getSearchResponse(query, pagination, getAnnotationSorts(focusTaxonId, debug), false);
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
 
 		List<GeneDiseaseAnnotationDocument> list = Arrays.stream(searchResponse.getHits().getHits())
@@ -114,15 +114,6 @@ public class DiseaseESService {
 		Map<String, Object> supplementalData = new LinkedHashMap<>();
 		supplementalData.put(DISTINCT_FIELD_VALUES, distinctFieldValueMap);
 		return supplementalData;
-	}
-
-	private SearchResponse getSearchResponse(BoolQueryBuilder bool, Pagination pagination, LinkedHashMap<String, SortOrder> focusTaxonId, boolean debug) {
-		List<AggregationBuilder> aggBuilders = new ArrayList<>();
-		HighlightBuilder hlb = new HighlightBuilder();
-
-		return searchDAO.performQuery(
-			bool, aggBuilders, null, geneDiseaseSearchHelper.getResponseFields(),
-			pagination.getLimit(), pagination.getOffset(), hlb, focusTaxonId, debug);
 	}
 
 	private BoolQueryBuilder getBaseQuery(List<String> entityIDs, String termID, boolean excludeNegated, String recordType, boolean excludeViaOrthologyRecords) {
@@ -158,13 +149,6 @@ public class DiseaseESService {
 		return bool;
 	}
 
-	private void addTableFilter(Pagination pagination, BoolQueryBuilder bool) {
-		HashMap<String, String> filterOptionMap = pagination.getFilterOptionMap();
-		if (MapUtils.isNotEmpty(filterOptionMap)) {
-			filterOptionMap.forEach((filterName, filterValue) -> generateFilter(bool, filterName, filterValue));
-		}
-	}
-
 	public JsonResultResponse<AlleleDiseaseAnnotationDocument> getDiseaseAnnotations(String alleleID, Pagination pagination, boolean excludeNegated, boolean debug) {
 		// unfiltered base query
 		BoolQueryBuilder query = getBaseQuery(List.of(alleleID), null, excludeNegated, "allele_disease_annotation", true);
@@ -173,8 +157,8 @@ public class DiseaseESService {
 		ret.setSupplementalData(getSupplementalData(null, false, debug, query));
 
 		// add table filter
-		addTableFilter(pagination, query);
-		SearchResponse searchResponse = getSearchResponse(query, pagination, getAnnotationSorts(null, debug), false);
+		elasticSearchHelper.addTableFilter(pagination, query);
+		SearchResponse searchResponse = elasticSearchHelper.getSearchResponse(query, pagination, getAnnotationSorts(null, debug), false);
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
 
 		List<AlleleDiseaseAnnotationDocument> list = Arrays.stream(searchResponse.getHits().getHits())
@@ -191,51 +175,6 @@ public class DiseaseESService {
 		ret.setResults(list);
 		return ret;
 
-	}
-
-	private void generateFilter(BoolQueryBuilder bool, String filterName, String filterValue) {
-		if (filterValue.contains("|")) {
-			//Log.info("Or Filter: " + filterName + " " + filterValue);
-			BoolQueryBuilder orClause = boolQuery();
-			String[] elements = filterValue.split("\\|");
-			Arrays.stream(elements).forEach(element -> orClause.should(QueryBuilders.termQuery(filterName, escapeValue(element))));
-			bool.must(orClause);
-		} else {
-			//Log.info("Other Filter: " + filterName + " " + filterValue);
-			if (filterName.endsWith("keyword")) {
-				bool.must(QueryBuilders.termQuery(filterName, filterValue));
-			} else {
-				if (filterName.contains("OR")) {
-					BoolQueryBuilder outerAndClause = boolQuery();
-					String[] filterNames = filterName.split("OR");
-					Arrays.stream(filterNames).forEach(indivFilterName -> {
-						BoolQueryBuilder orClause = getBooleanAndedQueryBuilder(indivFilterName.trim(), filterValue);
-						outerAndClause.should(orClause);
-					});
-					bool.must(outerAndClause);
-				} else {
-					BoolQueryBuilder andClause = getBooleanAndedQueryBuilder(filterName, filterValue);
-					bool.must(andClause);
-				}
-			}
-		}
-		//Log.info(bool);
-	}
-
-	/*
-	 * split filter values by white spaces and create and ANDed boolean query
-	 */
-	private BoolQueryBuilder getBooleanAndedQueryBuilder(String filterName, String filterValue) {
-		BoolQueryBuilder andClause = boolQuery();
-		String[] elements = escapeValue(filterValue).split(" ");
-		Arrays.stream(elements).forEach(element -> andClause.must(QueryBuilders.queryStringQuery("*" + element + "*").field(filterName)));
-		return andClause;
-	}
-
-	private String escapeValue(String value) {
-		value = value.replaceAll("'", " ");
-		value = QueryParser.escape(value);
-		return value;
 	}
 
 	private Map<String, List<String>> getAggregations(BoolQueryBuilder bool, Map<String, String> aggregationFields, String focusTaxonId, boolean useSpeciesAggregation, boolean debug) {
@@ -373,9 +312,9 @@ public class DiseaseESService {
 
 		// create histogram of select columns of unfiltered query
 
-		addTableFilter(pagination, bool);
+		elasticSearchHelper.addTableFilter(pagination, bool);
 
-		SearchResponse searchResponse = getSearchResponse(bool, pagination, null, debug);
+		SearchResponse searchResponse = elasticSearchHelper.getSearchResponse(bool, pagination, null, debug);
 
 		JsonResultResponse<GeneDiseaseAnnotationDocument> ret = new JsonResultResponse<>();
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
@@ -421,7 +360,7 @@ public class DiseaseESService {
 		ret.setSupplementalData(getSupplementalData(null, true, debug, bool));
 
 		// create histogram of select columns of unfiltered query
-		addTableFilter(pagination, bool);
+		elasticSearchHelper.addTableFilter(pagination, bool);
 
 		// Sorting sets for different names of the sorting selection box
 		Map<String, List<String>> sortingSetMap = new HashMap<>();
@@ -438,7 +377,7 @@ public class DiseaseESService {
 		}
 		sortFields.forEach(sortField -> sortingMap.put(sortField, SortOrder.ASC));
 
-		SearchResponse searchResponse = getSearchResponse(bool, pagination, sortingMap, debug);
+		SearchResponse searchResponse = elasticSearchHelper.getSearchResponse(bool, pagination, sortingMap, debug);
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
 
 		List<GeneDiseaseAnnotationDocument> list = new ArrayList<>();
@@ -468,7 +407,7 @@ public class DiseaseESService {
 		ret.setSupplementalData(getSupplementalData(null, true, debug, bool));
 
 		// create histogram of select columns of unfiltered query
-		addTableFilter(pagination, bool);
+		elasticSearchHelper.addTableFilter(pagination, bool);
 
 		// Sorting sets for different names of the sorting selection box
 		Map<String, List<String>> sortingSetMap = new HashMap<>();
@@ -485,7 +424,7 @@ public class DiseaseESService {
 		}
 		sortFields.forEach(sortField -> sortingMap.put(sortField, SortOrder.ASC));
 
-		SearchResponse searchResponse = getSearchResponse(bool, pagination, sortingMap, debug);
+		SearchResponse searchResponse = elasticSearchHelper.getSearchResponse(bool, pagination, sortingMap, debug);
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
 
 		List<AGMDiseaseAnnotationDocument> list = new ArrayList<>();
@@ -516,7 +455,7 @@ public class DiseaseESService {
 		ret.setSupplementalData(supData);
 
 		// create histogram of select columns of unfiltered query
-		addTableFilter(pagination, bool);
+		elasticSearchHelper.addTableFilter(pagination, bool);
 
 		// Sorting sets for different names of the sorting selection box
 		Map<String, List<String>> sortingSetMap = new HashMap<>();
@@ -533,7 +472,7 @@ public class DiseaseESService {
 		}
 		sortFields.forEach(sortField -> sortingMap.put(sortField, SortOrder.ASC));
 
-		SearchResponse searchResponse = getSearchResponse(bool, pagination, sortingMap, false);
+		SearchResponse searchResponse = elasticSearchHelper.getSearchResponse(bool, pagination, sortingMap, false);
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
 		List<AlleleDiseaseAnnotationDocument> list = new ArrayList<>();
 

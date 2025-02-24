@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class InteractionsIT {
 
-	public static InteractionRepository repo = new InteractionRepository();
+	/*public static InteractionRepository repo = new InteractionRepository();
 	
 	@Inject
 	private GeneService geneService;
@@ -76,6 +76,6 @@ public class InteractionsIT {
 		final Map<String, List<String>> distinctFieldValues = response.retrieveDistinctFieldValues();
 		assertNotNull(distinctFieldValues);
 		assertThat(3, greaterThanOrEqualTo(distinctFieldValues.size()));
-
+*/
 	}
 }

@@ -54,6 +54,12 @@ public class View {
 	public static class Interaction extends API {
 	}
 
+	public static class GeneticInteraction extends Interaction {
+	}
+
+	public static class MolecularInteraction extends Interaction {
+	}
+
 	public static class GeneAPI extends API {
 	}
 
