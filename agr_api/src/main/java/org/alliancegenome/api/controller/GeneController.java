@@ -20,6 +20,9 @@ import org.alliancegenome.api.service.EntityType;
 import org.alliancegenome.api.service.ExpressionService;
 import org.alliancegenome.api.service.GeneService;
 import org.alliancegenome.api.service.GeneToGeneParalogyESService;
+import org.alliancegenome.api.entity.GenePhenotypeAnnotationDocument;
+import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
+import org.alliancegenome.api.service.*;
 import org.alliancegenome.api.service.helper.APIServiceHelper;
 import org.alliancegenome.api.translators.tdf.DiseaseAnnotationToTdfTranslator;
 import org.alliancegenome.cache.repository.ExpressionCacheRepository;
@@ -79,6 +82,7 @@ public class GeneController implements GeneRESTInterface {
 
 	@Inject
 	GeneToGeneParalogyESService geneToGeneParalogyESService;
+	PhenotypeESService phenotypeESService;
 
 	private static final PhenotypeAnnotationToTdfTranslator translator = new PhenotypeAnnotationToTdfTranslator();
 	private static final AlleleToTdfTranslator alleleTanslator = new AlleleToTdfTranslator();
@@ -372,10 +376,18 @@ public class GeneController implements GeneRESTInterface {
 	}
 
 	@Override
-	public JsonResultResponse<PhenotypeAnnotation> getPhenotypeAnnotations(String id, Integer limit, Integer page, String sortBy, String geneticEntity, String geneticEntityType, String phenotype, String reference, String asc) {
+	public JsonResultResponse<GenePhenotypeAnnotationDocument> getPhenotypeAnnotations(String id, Integer limit, Integer page, String sortBy,
+																		   String geneticEntity,
+																		   String geneticEntityType,
+																		   String phenotype,
+																		   String reference,
+																		   String asc) {
 		long startTime = System.currentTimeMillis();
+		Pagination pagination = new Pagination(page, limit, sortBy, asc);
+		pagination.addFilterOption("phenotypeStatement", phenotype);
+		pagination.addFilterOption("pubmedPubModIDs", reference);
 		try {
-			JsonResultResponse<PhenotypeAnnotation> phenotypes = getPhenotypeAnnotationDocumentJsonResultResponse(id, limit, page, sortBy, geneticEntity, geneticEntityType, phenotype, reference, asc);
+			JsonResultResponse<GenePhenotypeAnnotationDocument> phenotypes = phenotypeESService.getGenePhenotypeAnnotations(id, pagination, false);
 			phenotypes.setHttpServletRequest(null);
 			phenotypes.calculateRequestDuration(startTime);
 			return phenotypes;
@@ -397,8 +409,8 @@ public class GeneController implements GeneRESTInterface {
 			String reference,
 			String asc) {
 		// retrieve all records
-		JsonResultResponse<PhenotypeAnnotation> response =
-				getPhenotypeAnnotationDocumentJsonResultResponse(id, Integer.MAX_VALUE, 1, sortBy,
+		JsonResultResponse<GenePhenotypeAnnotationDocument> response =
+			getPhenotypeAnnotations(id, 250000, 1, sortBy,
 						geneticEntity,
 						geneticEntityType,
 						phenotype,
@@ -483,20 +495,6 @@ public class GeneController implements GeneRESTInterface {
 			error.addErrorMessage(e.getMessage());
 			throw new RestErrorException(error);
 		}
-	}
-
-	private JsonResultResponse<PhenotypeAnnotation> getPhenotypeAnnotationDocumentJsonResultResponse(String id, Integer limit, Integer page, String sortBy, String geneticEntity, String geneticEntityType, String phenotype, String reference, String asc) {
-		if (sortBy.isEmpty()) {
-			sortBy = FieldFilter.PHENOTYPE.getName();
-		}
-		Pagination pagination = new Pagination(page, limit, sortBy, asc);
-		pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY, geneticEntity);
-		pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY_TYPE, geneticEntityType);
-		pagination.addFieldFilter(FieldFilter.PHENOTYPE, phenotype);
-		pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
-		JsonResultResponse<PhenotypeAnnotation> phenotypeAnnotations = geneService.getPhenotypeAnnotations(id, pagination);
-		phenotypeAnnotations.addAnnotationSummarySupplementalData(getPhenotypeSummary(id));
-		return phenotypeAnnotations;
 	}
 
 	private JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotationDocumentJsonResultResponse(String id, Integer limit, Integer page, String sortBy, String geneticEntity, String geneticEntityType, String disease, String reference, String asc) {

@@ -256,6 +256,13 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		return phylogeneticSortOrder;
 	}
 
+	private void populateImplicatedDA(DiseaseAnnotation original, DiseaseAnnotation implicatedDA) {
+		implicatedDA.setRelation(original.getRelation());
+		implicatedDA.setDiseaseAnnotationObject(original.getDiseaseAnnotationObject());
+		implicatedDA.setDiseaseQualifiers(original.getDiseaseQualifiers());
+		implicatedDA.setSingleReference(original.getSingleReference());
+		implicatedDA.setEvidenceCodes(original.getEvidenceCodes());
+	}
 
 	private String getPubmedPubModID(Reference singleReference) {
 		if (singleReference == null || CollectionUtils.isEmpty(singleReference.getCrossReferences())) {
