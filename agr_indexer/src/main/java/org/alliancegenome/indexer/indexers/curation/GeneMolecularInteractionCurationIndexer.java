@@ -7,11 +7,14 @@ import java.util.concurrent.LinkedBlockingDeque;
 import org.alliancegenome.api.entity.GeneMolecularInteractionDocument;
 import org.alliancegenome.curation_api.model.entities.GeneMolecularInteraction;
 import org.alliancegenome.curation_api.response.SearchResponse;
+import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
 import org.alliancegenome.indexer.indexers.curation.service.GeneMolecularInteractionService;
 import org.alliancegenome.indexer.indexers.curation.service.helpers.GeneInteractionHelper;
 import org.apache.commons.collections.CollectionUtils;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -44,6 +47,11 @@ public class GeneMolecularInteractionCurationIndexer extends Indexer {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	protected ObjectMapper customizeObjectMapper(ObjectMapper objectMapper) {
+		return RestConfig.config.getJacksonObjectMapperFactory().createObjectMapper();
 	}
 
 	@Override
