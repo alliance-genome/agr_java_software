@@ -10,6 +10,7 @@ import org.alliancegenome.api.entity.GeneGeneticInteractionDocument;
 import org.alliancegenome.api.entity.GeneMolecularInteractionDocument;
 import org.alliancegenome.api.entity.GeneToGeneParalogyDocument;
 import org.alliancegenome.api.entity.GenePhenotypeAnnotationDocument;
+import org.alliancegenome.api.entity.GeneToGeneOrthologyDocument;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.DiseaseSummary;
@@ -406,10 +407,9 @@ public interface GeneRESTInterface {
 
 	@GET
 	@Path("/{id}/orthologs")
-	@JsonView(value = {View.Homology.class})
-	@Operation(summary = "Download homology records.")
+	@Operation(summary = "Get orthology records.")
 	@APIResponses(value = { @APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
-	JsonResultResponse<HomologView> getGeneOrthology(
+	JsonResultResponse<GeneToGeneOrthologyDocument> getGeneOrthology(
 		@Parameter(in = ParameterIn.PATH, name = "id", description = "Source Gene ID: the gene for which you are searching homologous gene, e.g. 'MGI:109583'", required = true, schema = @Schema(type = SchemaType.STRING))
 		@PathParam("id") String id,
 		@Parameter(in = ParameterIn.QUERY, name = "geneId", description = "List of additional source gene IDs for which homology is retrieved.", schema = @Schema(type = SchemaType.STRING))

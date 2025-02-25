@@ -12,6 +12,7 @@ import org.alliancegenome.api.entity.GenePhenotypeAnnotationDocument;
 import org.alliancegenome.api.entity.GeneGeneticInteractionDocument;
 import org.alliancegenome.api.entity.GeneMolecularInteractionDocument;
 import org.alliancegenome.api.entity.GeneToGeneParalogyDocument;
+import org.alliancegenome.api.entity.GeneToGeneOrthologyDocument;
 import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
 import org.alliancegenome.api.service.*;
 import org.alliancegenome.api.service.helper.APIServiceHelper;
@@ -53,8 +54,11 @@ public class GeneController implements GeneRESTInterface {
 	@Inject
 	AlleleService alleleService;
 
-	@Inject
-	ExpressionCacheRepository expressionCacheRepository;
+	@Inject OrthologyCacheRepository orthologyService;
+
+	@Inject OrthologyESService orthologyESService;
+
+	@Inject ExpressionCacheRepository expressionCacheRepository;
 
 	@Inject
 	DiseaseService diseaseService;
@@ -628,7 +632,7 @@ public class GeneController implements GeneRESTInterface {
 	}
 
 	@Override
-	public JsonResultResponse<HomologView> getGeneOrthology(String id,
+	public JsonResultResponse<GeneToGeneOrthologyDocument> getGeneOrthology(String id,
 															List<String> geneIDs,
 															String geneLister,
 															String stringencyFilter,
@@ -652,7 +656,7 @@ public class GeneController implements GeneRESTInterface {
 		pagination.addFieldFilter(FieldFilter.STRINGENCY, stringencyFilter);
 		pagination.addFieldFilter(FieldFilter.ORTHOLOGY_METHOD, method);
 		pagination.addFieldFilter(FieldFilter.ORTHOLOGY_TAXON, taxonID);
-		final JsonResultResponse<HomologView> response = orthologyCacheService.getOrthologyMultiGeneJson(geneList, pagination);
+		final JsonResultResponse<GeneToGeneOrthologyDocument> response = orthologyESService.getOrthologyList(id, pagination);
 		response.setHttpServletRequest(null);
 		return response;
 	}
