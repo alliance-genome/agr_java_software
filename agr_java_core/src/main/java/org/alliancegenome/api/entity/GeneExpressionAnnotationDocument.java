@@ -9,12 +9,11 @@ import org.alliancegenome.es.index.ESDocument;
 @EqualsAndHashCode(callSuper = true)
 public class GeneExpressionAnnotationDocument extends ESDocument {
 
-    String category = "gene_expression_annotation";
+	String category = "gene_expression_annotation";
+	GeneExpressionAnnotation geneExpressionAnnotation;
 
-    @Override
-    public String getType() {
-        return category;
-    }
-
-    GeneExpressionAnnotation geneExpressionAnnotation;
+	@Override
+	public String getType() {
+		return category;
+	}
 }

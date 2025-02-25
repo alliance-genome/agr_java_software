@@ -11,12 +11,12 @@ import java.util.HashMap;
 
 public class GeneExpressionAnnotationService {
 
-    private GeneExpressionAnnotationInterface geneExpressionAnnotationClient = RestProxyFactory.createProxy(GeneExpressionAnnotationInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
+	private GeneExpressionAnnotationInterface geneExpressionAnnotationClient = RestProxyFactory.createProxy(GeneExpressionAnnotationInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 
-    public SearchResponse<GeneExpressionAnnotation> getGeneExpressionAnnotations(Integer page, Integer limit) {
-        HashMap<String, Object> params = new HashMap<>();
-        params.put("internal", false);
-        params.put("obsolete", false);
-        return geneExpressionAnnotationClient.find(page, limit, params);
-    }
+	public SearchResponse<GeneExpressionAnnotation> getGeneExpressionAnnotations(Integer page, Integer limit) {
+		HashMap<String, Object> params = new HashMap<>();
+		params.put("internal", false);
+		params.put("obsolete", false);
+		return geneExpressionAnnotationClient.find(page, limit, params);
+	}
 }

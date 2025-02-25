@@ -13,12 +13,12 @@ import java.util.HashMap;
 @Produces({"application/json"})
 @Consumes({"application/json"})
 public interface GeneExpressionAnnotationInterface extends BaseIdCrudInterface<GeneExpressionAnnotation> {
-    @POST
-    @Path("/findForPublic")
-    @JsonView({View.ForPublic.class})
-    SearchResponse<GeneExpressionAnnotation> find(
-            @DefaultValue("0") @QueryParam("page") Integer page,
-            @DefaultValue("10") @QueryParam("limit") Integer limit,
-            HashMap<String, Object> params
-    );
+	@POST
+	@Path("/findForPublic")
+	@JsonView({View.ForPublic.class})
+	SearchResponse<GeneExpressionAnnotation> find(
+			@DefaultValue("0") @QueryParam("page") Integer page,
+			@DefaultValue("10") @QueryParam("limit") Integer limit,
+			HashMap<String, Object> params
+	);
 }
