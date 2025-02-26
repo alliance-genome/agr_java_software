@@ -190,7 +190,6 @@ public class OrthologyCacheRepository {
 	public JsonResultResponse<HomologView> getOrthologyMultiGeneJson(List<String> geneIDs, Pagination pagination) {
 		long start = System.currentTimeMillis();
 		List<HomologView> homologViewList = repo.getAllOrthologyGenes(geneIDs);
-		//filtering
 		FilterService<HomologView> filterService = new FilterService<>(new OrthologyFiltering());
 		List<HomologView> homologViewFiltered = filterService.filterAnnotations(homologViewList, pagination.getFieldFilterValueMap());
 

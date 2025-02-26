@@ -10,6 +10,7 @@ import lombok.EqualsAndHashCode;
 public class GeneToGeneOrthologyDocument extends ESDocument {
 	
 	protected String category = "gene_to_gene_orthology";
+	private String stringencyFilter = "all";
 
 	private GeneToGeneOrthologyGenerated geneToGeneOrthologyGenerated;
 

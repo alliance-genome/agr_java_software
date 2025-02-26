@@ -79,6 +79,13 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 		for (GeneToGeneOrthologyGenerated g2gOrtho : g2gOrthoList) {
 			GeneToGeneOrthologyDocument document1 = new GeneToGeneOrthologyDocument();
 			document1.setGeneToGeneOrthologyGenerated(g2gOrtho);
+
+			if (g2gOrtho.getStrictFilter()) {
+				document1.setStringencyFilter("stringent");
+			} else if (g2gOrtho.getModerateFilter()) {
+				document1.setStringencyFilter("moderate");
+			}
+			
 			documents.add(document1);
 
 			//this may cause duplicates with 
