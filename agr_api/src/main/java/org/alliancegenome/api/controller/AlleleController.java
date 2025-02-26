@@ -105,13 +105,14 @@ public class AlleleController implements AlleleRESTInterface {
 	}
 
 	@Override
-	public JsonResultResponse<AllelePhenotypeAnnotationDocument> getPhenotypePerAllele(String id,
-																					   Integer limit,
-																					   Integer page,
-																					   String phenotype,
-																					   String source,
-																					   String reference,
-																					   String sortBy) {
+	public JsonResultResponse<AllelePhenotypeAnnotationDocument> getPhenotypePerAllele(
+		String id,
+		Integer limit,
+		Integer page,
+		String phenotype,
+		String source,
+		String reference,
+		String sortBy) {
 		long startTime = System.currentTimeMillis();
 		Pagination pagination = new Pagination(page, limit, sortBy, null);
 		pagination.addFilterOption("phenotypeStatement", phenotype);
@@ -146,21 +147,22 @@ public class AlleleController implements AlleleRESTInterface {
 	}
 
 	@Override
-	public JsonResultResponse<AlleleDiseaseAnnotationDocument> getDiseasePerAllele(String alleleID,
-																				   String filterOptions,
-																				   String filterReference,
-																				   String diseaseTerm,
-																				   String filterSource,
-																				   String geneticEntity,
-																				   String geneticEntityType,
-																				   String associationType,
-																				   String diseaseQualifier,
-																				   String evidenceCode,
-																				   Boolean debug,
-																				   Integer limit,
-																				   Integer page,
-																				   String sortBy,
-																				   String asc) {
+	public JsonResultResponse<AlleleDiseaseAnnotationDocument> getDiseasePerAllele(
+		String alleleID,
+		String filterOptions,
+		String filterReference,
+		String diseaseTerm,
+		String filterSource,
+		String geneticEntity,
+		String geneticEntityType,
+		String associationType,
+		String diseaseQualifier,
+		String evidenceCode,
+		Boolean debug,
+		Integer limit,
+		Integer page,
+		String sortBy,
+		String asc) {
 
 		LocalDateTime startDate = LocalDateTime.now();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);

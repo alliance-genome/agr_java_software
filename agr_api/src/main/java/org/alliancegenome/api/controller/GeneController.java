@@ -136,26 +136,27 @@ public class GeneController implements GeneRESTInterface {
 	}
 
 	@Override
-	public JsonResultResponse<AlleleVariantSequence> getAllelesVariantPerGene(String id,
-																			  Integer limit,
-																			  Integer page,
-																			  String sortBy,
-																			  String asc,
-																			  String symbol,
-																			  String associatedGeneSymbol,
-																			  String synonyms,
-																			  String hgvsgName,
-																			  String variantType,
-																			  String molecularConsequence,
-																			  String impact,
-																			  String sequenceFeatureType,
-																			  String sequenceFeature,
-																			  String variantPolyphen,
-																			  String variantSift,
-																			  String hasDisease,
-																			  String hasPhenotype,
-																			  String category,
-																			  String location) {
+	public JsonResultResponse<AlleleVariantSequence> getAllelesVariantPerGene(
+		String id,
+		Integer limit,
+		Integer page,
+		String sortBy,
+		String asc,
+		String symbol,
+		String associatedGeneSymbol,
+		String synonyms,
+		String hgvsgName,
+		String variantType,
+		String molecularConsequence,
+		String impact,
+		String sequenceFeatureType,
+		String sequenceFeature,
+		String variantPolyphen,
+		String variantSift,
+		String hasDisease,
+		String hasPhenotype,
+		String category,
+		String location) {
 		long startTime = System.currentTimeMillis();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
 		pagination.addFieldFilter(FieldFilter.SYMBOL, symbol);
@@ -196,22 +197,23 @@ public class GeneController implements GeneRESTInterface {
 	}
 
 	@Override
-	public Response getAllelesVariantPerGeneDownload(String id,
-													 String symbol,
-													 String associatedGeneSymbol,
-													 String synonyms,
-													 String hgvsgName,
-													 String variantType,
-													 String molecularConsequence,
-													 String impact,
-													 String sequenceFeatureType,
-													 String sequenceFeature,
-													 String variantPolyphen,
-													 String variantSift,
-													 String hasDisease,
-													 String hasPhenotype,
-													 String category,
-													 String location) {
+	public Response getAllelesVariantPerGeneDownload(
+		String id,
+		String symbol,
+		String associatedGeneSymbol,
+		String synonyms,
+		String hgvsgName,
+		String variantType,
+		String molecularConsequence,
+		String impact,
+		String sequenceFeatureType,
+		String sequenceFeature,
+		String variantPolyphen,
+		String variantSift,
+		String hasDisease,
+		String hasPhenotype,
+		String category,
+		String location) {
 		JsonResultResponse<AlleleVariantSequence> alleles = getAllelesVariantPerGene(id,
 			Integer.MAX_VALUE,
 			1,
@@ -239,16 +241,17 @@ public class GeneController implements GeneRESTInterface {
 	}
 
 	@Override
-	public Response getAllelesPerGeneDownload(String id,
-											  String sortBy,
-											  String asc,
-											  String symbol,
-											  String synonym,
-											  String variantType,
-											  String molecularConsequence,
-											  String phenotype,
-											  String source,
-											  String disease) {
+	public Response getAllelesPerGeneDownload(
+		String id,
+		String sortBy,
+		String asc,
+		String symbol,
+		String synonym,
+		String variantType,
+		String molecularConsequence,
+		String phenotype,
+		String source,
+		String disease) {
 		Pagination pagination = new Pagination(1, Integer.MAX_VALUE, sortBy, asc);
 		pagination.addFieldFilter(FieldFilter.SYMBOL, symbol);
 		pagination.addFieldFilter(FieldFilter.SYNONYMS, synonym);
@@ -272,22 +275,23 @@ public class GeneController implements GeneRESTInterface {
 
 
 	@Override
-	public JsonResultResponse<InteractionGeneJoin> getInteractions(String id, Integer limit, Integer page, String sortBy, String asc,
-																   String moleculeType,
-																   JoinTypeValue joinType,
-																   String interactorGeneSymbol,
-																   String interactorSpecies,
-																   String interactorMoleculeType,
-																   String detectionMethod,
-																   String source,
-																   String reference,
-																   String role,
-																   String geneticPerturbation,
-																   String interacotorRole,
-																   String interactorGeneticPerturbation,
-																   String phenotypes,
-																   String interactionType,
-																   @Context UriInfo info) {
+	public JsonResultResponse<InteractionGeneJoin> getInteractions(
+		String id, Integer limit, Integer page, String sortBy, String asc,
+		String moleculeType,
+		JoinTypeValue joinType,
+		String interactorGeneSymbol,
+		String interactorSpecies,
+		String interactorMoleculeType,
+		String detectionMethod,
+		String source,
+		String reference,
+		String role,
+		String geneticPerturbation,
+		String interacotorRole,
+		String interactorGeneticPerturbation,
+		String phenotypes,
+		String interactionType,
+		@Context UriInfo info) {
 		long startTime = System.currentTimeMillis();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc, new InteractionColumnFieldMapping());
 		pagination.addFieldFilter(FieldFilter.MOLECULE_TYPE, moleculeType);
@@ -366,12 +370,13 @@ public class GeneController implements GeneRESTInterface {
 	}
 
 	@Override
-	public JsonResultResponse<GenePhenotypeAnnotationDocument> getPhenotypeAnnotations(String id, Integer limit, Integer page, String sortBy,
-																					   String geneticEntity,
-																					   String geneticEntityType,
-																					   String phenotype,
-																					   String reference,
-																					   String asc) {
+	public JsonResultResponse<GenePhenotypeAnnotationDocument> getPhenotypeAnnotations(
+		String id, Integer limit, Integer page, String sortBy,
+		String geneticEntity,
+		String geneticEntityType,
+		String phenotype,
+		String reference,
+		String asc) {
 		long startTime = System.currentTimeMillis();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
 		pagination.addFilterOption("phenotypeStatement", phenotype);
@@ -668,17 +673,18 @@ public class GeneController implements GeneRESTInterface {
 	}
 
 	@Override
-	public Response getDiseaseByExperimentDownload(String id,
-												   String sortBy,
-												   String geneticEntity,
-												   String geneticEntityType,
-												   String disease,
-												   String associationType,
-												   String evidenceCode,
-												   String source,
-												   String reference,
-												   String asc,
-												   UriInfo ui) {
+	public Response getDiseaseByExperimentDownload(
+		String id,
+		String sortBy,
+		String geneticEntity,
+		String geneticEntityType,
+		String disease,
+		String associationType,
+		String evidenceCode,
+		String source,
+		String reference,
+		String asc,
+		UriInfo ui) {
 		JsonResultResponse<DiseaseAnnotation> response = getEmpiricalDiseaseAnnotation(id,
 			Integer.MAX_VALUE,
 			null,
@@ -710,19 +716,20 @@ public class GeneController implements GeneRESTInterface {
 	}
 
 	@Override
-	public JsonResultResponse<Allele> getTransgenicAlleles(String geneID,
-														   Integer limit,
-														   Integer page,
-														   String sortBy,
-														   String alleleSymbol,
-														   String constructSymbol,
-														   String constructRegulatedGene,
-														   String constructTargetedGene,
-														   String constructExpressedGene,
-														   String species,
-														   String hasPhenotype,
-														   String hasDisease,
-														   UriInfo ui) {
+	public JsonResultResponse<Allele> getTransgenicAlleles(
+		String geneID,
+		Integer limit,
+		Integer page,
+		String sortBy,
+		String alleleSymbol,
+		String constructSymbol,
+		String constructRegulatedGene,
+		String constructTargetedGene,
+		String constructExpressedGene,
+		String species,
+		String hasPhenotype,
+		String hasDisease,
+		UriInfo ui) {
 		if (sortBy != null && sortBy.isBlank()) {
 			sortBy = "transgenicAllele";
 		}

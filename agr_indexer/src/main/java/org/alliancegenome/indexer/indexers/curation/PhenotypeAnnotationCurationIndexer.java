@@ -111,13 +111,15 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 
 	private String getPubmedPubModID(Reference singleReference) {
 		List<CrossReference> crossReferences = singleReference.getCrossReferences();
-		if (CollectionUtils.isEmpty(crossReferences))
+		if (CollectionUtils.isEmpty(crossReferences)) {
 			return null;
+		}
 		String[] prefixes = {"PMID", "MGI", "RGD", "ZFIN", "FB", "WB", "MGI"};
 		for (String prefix : prefixes) {
 			Optional<CrossReference> opt = crossReferences.stream().filter((reference) -> reference.getReferencedCurie().startsWith(prefix + ":")).findFirst();
-			if (opt.isPresent())
+			if (opt.isPresent()) {
 				return opt.get().getReferencedCurie();
+			}
 		}
 		return null;
 	}

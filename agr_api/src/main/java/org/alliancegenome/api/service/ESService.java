@@ -234,7 +234,9 @@ public class ESService {
 			}
 		}
 		sorts.put("object.name.sort", SortOrder.ASC);
-		if (debug) Log.info(sorts);
+		if (debug){
+			Log.info(sorts);
+		}
 		return sorts;
 	}
 
@@ -249,8 +251,9 @@ public class ESService {
 			Map<String, List<GeneDiseaseAnnotationDocument>> histogram = getDiseaseAnnotationHistogram(paginationResult);
 
 			Gene gene = geneRepository.getShallowGene(geneID);
-			if (gene == null)
+			if (gene == null) {
 				return;
+			}
 			// populate diseaseEntity records
 			populateDiseaseRibbonSummary(geneID, summary, histogram, gene);
 			summary.addAllAnnotationsCount(geneID, paginationResult.getTotal());
@@ -287,8 +290,9 @@ public class ESService {
 			}
 			group.setNumberOfAnnotations(size);
 			group.setId(slimId);
-			if (size > 0)
+			if (size > 0) {
 				entity.addDiseaseSlim(group);
+			}
 		});
 		entity.setNumberOfClasses(allTerms.size());
 		entity.setNumberOfAnnotations(allAnnotations.size());
@@ -296,14 +300,16 @@ public class ESService {
 
 	private Map<String, List<GeneDiseaseAnnotationDocument>> getDiseaseAnnotationHistogram(JsonResultResponse<GeneDiseaseAnnotationDocument> response) {
 		Map<String, List<GeneDiseaseAnnotationDocument>> histogram = new HashMap<>();
-		if (CollectionUtils.isEmpty(response.getResults()))
+		if (CollectionUtils.isEmpty(response.getResults())) {
 			return histogram;
+		}
 		response.getResults().forEach(annotation -> {
 			Set<String> parentIDs = diseaseRibbonService.getAllParentIDs(annotation.getObject().getCurie());
 			parentIDs.forEach(parentID -> {
 				List<GeneDiseaseAnnotationDocument> list = histogram.get(parentID);
-				if (list == null)
+				if (list == null) {
 					list = new ArrayList<>();
+				}
 				list.add(annotation);
 				histogram.put(parentID, list);
 			});

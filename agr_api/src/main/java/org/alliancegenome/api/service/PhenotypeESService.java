@@ -28,9 +28,10 @@ public class PhenotypeESService extends ESService {
 	private static final GeneDiseaseSearchHelper geneDiseaseSearchHelper = new GeneDiseaseSearchHelper();
 
 	// termID may be used in the future when converting disease page to new ES stack.
-	public JsonResultResponse<GenePhenotypeAnnotationDocument> getGenePhenotypeAnnotations(String geneId,
-																						   Pagination pagination,
-																						   boolean debug) {
+	public JsonResultResponse<GenePhenotypeAnnotationDocument> getGenePhenotypeAnnotations(
+		String geneId,
+		Pagination pagination,
+		boolean debug) {
 
 		// unfiltered query
 		BoolQueryBuilder query = getBaseQuery(List.of(geneId), null, false, GenePhenotypeAnnotationDocument.GENE_PHENOTYPE_ANNOTATION, false);
@@ -68,9 +69,10 @@ public class PhenotypeESService extends ESService {
 		return ret;
 	}
 
-	public JsonResultResponse<AllelePhenotypeAnnotationDocument> getAllelePhenotypeAnnotations(String alleleId,
-																							   Pagination pagination,
-																							   boolean debug) {
+	public JsonResultResponse<AllelePhenotypeAnnotationDocument> getAllelePhenotypeAnnotations(
+		String alleleId,
+		Pagination pagination,
+		boolean debug) {
 
 		// unfiltered query
 		BoolQueryBuilder query = getBaseQuery(List.of(alleleId), null, false, AllelePhenotypeAnnotationDocument.ALLELE_PHENOTYPE_ANNOTATION, false);
