@@ -22,16 +22,16 @@ import lombok.Setter;
 public class JsonResultResponse<T> {
 
 	public static final String DISTINCT_FIELD_VALUES = "distinctFieldValues";
-	@JsonView({ View.Default.class }) private List<T> results = new ArrayList<T>();
-	@JsonView({ View.Default.class }) private int total;
-	@JsonView({ View.Default.class }) private int returnedRecords;
-	@JsonView({ View.Default.class }) private String errorMessage = "";
-	@JsonView({ View.Default.class }) private String note = "";
-	@JsonView({ View.Default.class }) private String title = "";
-	@JsonView({ View.Default.class }) private String requestDuration;
-	@JsonView({ View.Default.class }) private Request request;
-	@JsonView({ View.Default.class }) private String apiVersion;
-	@JsonView({ View.Default.class }) private String requestDate;
+	@JsonView({ View.Default.class, View.Public.class }) private List<T> results = new ArrayList<T>();
+	@JsonView({ View.Default.class, View.Public.class }) private int total;
+	@JsonView({ View.Default.class, View.Public.class }) private int returnedRecords;
+	@JsonView({ View.Default.class, View.Public.class }) private String errorMessage = "";
+	@JsonView({ View.Default.class, View.Public.class }) private String note = "";
+	@JsonView({ View.Default.class, View.Public.class }) private String title = "";
+	@JsonView({ View.Default.class, View.Public.class }) private String requestDuration;
+	@JsonView({ View.Default.class, View.Public.class }) private Request request;
+	@JsonView({ View.Default.class, View.Public.class }) private String apiVersion;
+	@JsonView({ View.Default.class, View.Public.class }) private String requestDate;
 	@JsonView({ View.Default.class }) private Map<String, Object> supplementalData;
 
 	public JsonResultResponse() {

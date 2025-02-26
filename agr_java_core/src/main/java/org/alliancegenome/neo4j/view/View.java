@@ -1,9 +1,14 @@
 package org.alliancegenome.neo4j.view;
 
+import org.alliancegenome.curation_api.view.View.ForPublic;
+
 public class View {
 
 	// Generic Views
 	public static class Default {
+	}
+	
+	public static class Public extends ForPublic {
 	}
 
 	public static class DetailView {
@@ -51,7 +56,7 @@ public class View {
 	public static class PrimaryAnnotation extends API {
 	}
 
-	public static class Interaction extends API {
+	public static class Interaction extends Public {
 	}
 
 	public static class GeneticInteraction extends Interaction {

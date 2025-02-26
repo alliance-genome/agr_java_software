@@ -5,6 +5,7 @@ import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,12 +30,14 @@ import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.repository.InteractionRepository;
 import org.alliancegenome.neo4j.repository.PhenotypeRepository;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
+import org.elasticsearch.search.sort.SortOrder;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -103,9 +106,14 @@ public class GeneService {
 		// add table filter
 		elasticSearchHelper.addTableFilter(pagination, query);
 		
+		LinkedHashMap<String, SortOrder> sorts = new LinkedHashMap<>();
+		if (StringUtils.isNotBlank(pagination.getSortBy())) {
+			sorts.put(pagination.getSortBy(), SortOrder.ASC);
+		}
+		
 		List<AggregationBuilder> aggBuilders = new ArrayList<>();
 		HighlightBuilder hlb = new HighlightBuilder();
-		SearchResponse searchResponse = searchDAO.performQuery(query, aggBuilders, null, List.of("*"), pagination.getLimit(), pagination.getOffset(), hlb, null, false);
+		SearchResponse searchResponse = searchDAO.performQuery(query, aggBuilders, null, List.of("*"), pagination.getLimit(), pagination.getOffset(), hlb, sorts, false);
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
 
 		List<GeneGeneticInteractionDocument> list = Arrays.stream(searchResponse.getHits().getHits())
@@ -138,9 +146,14 @@ public class GeneService {
 		// add table filter
 		elasticSearchHelper.addTableFilter(pagination, query);
 		
+		LinkedHashMap<String, SortOrder> sorts = new LinkedHashMap<>();
+		if (StringUtils.isNotBlank(pagination.getSortBy())) {
+			sorts.put(pagination.getSortBy(), SortOrder.ASC);
+		}
+		
 		List<AggregationBuilder> aggBuilders = new ArrayList<>();
 		HighlightBuilder hlb = new HighlightBuilder();
-		SearchResponse searchResponse = searchDAO.performQuery(query, aggBuilders, null, List.of("*"), pagination.getLimit(), pagination.getOffset(), hlb, null, false);
+		SearchResponse searchResponse = searchDAO.performQuery(query, aggBuilders, null, List.of("*"), pagination.getLimit(), pagination.getOffset(), hlb, sorts, false);
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
 
 		List<GeneMolecularInteractionDocument> list = Arrays.stream(searchResponse.getHits().getHits())

@@ -82,9 +82,9 @@ public class GeneController implements GeneRESTInterface {
 	GeneToGeneParalogyESService geneToGeneParalogyESService;
 
 	private static final PhenotypeAnnotationToTdfTranslator translator = new PhenotypeAnnotationToTdfTranslator();
-	private static final AlleleToTdfTranslator alleleTanslator = new AlleleToTdfTranslator();
-	private static final GeneGeneticInteractionToTdfTranslator geneticInteractionTanslator = new GeneGeneticInteractionToTdfTranslator();
-	private static final GeneMolecularInteractionToTdfTranslator molecularInteractionTanslator = new GeneMolecularInteractionToTdfTranslator();
+	private static final AlleleToTdfTranslator alleleTranslator = new AlleleToTdfTranslator();
+	private static final GeneGeneticInteractionToTdfTranslator geneticInteractionTranslator = new GeneGeneticInteractionToTdfTranslator();
+	private static final GeneMolecularInteractionToTdfTranslator molecularInteractionTranslator = new GeneMolecularInteractionToTdfTranslator();
 	private static final DiseaseAnnotationToTdfTranslator diseaseTranslator = new DiseaseAnnotationToTdfTranslator();
 
 	@Override
@@ -241,7 +241,7 @@ public class GeneController implements GeneRESTInterface {
 				category,
 				location);
 
-		Response.ResponseBuilder responseBuilder = Response.ok(alleleTanslator.getAllAlleleVariantDetailRows(alleles.getResults()));
+		Response.ResponseBuilder responseBuilder = Response.ok(alleleTranslator.getAllAlleleVariantDetailRows(alleles.getResults()));
 		APIServiceHelper.setDownloadHeader(id, EntityType.GENE, EntityType.ALLELESANDVARIANT, responseBuilder);
 		return responseBuilder.build();
 	}
@@ -273,7 +273,7 @@ public class GeneController implements GeneRESTInterface {
 
 		JsonResultResponse<Allele> alleles = geneService.getAlleles(id, pagination);
 
-		Response.ResponseBuilder responseBuilder = Response.ok(alleleTanslator.getAllRows(alleles.getResults()));
+		Response.ResponseBuilder responseBuilder = Response.ok(alleleTranslator.getAllRows(alleles.getResults()));
 		APIServiceHelper.setDownloadHeader(id, EntityType.GENE, EntityType.ALLELE, responseBuilder);
 		return responseBuilder.build();
 	}
@@ -293,11 +293,12 @@ public class GeneController implements GeneRESTInterface {
 																String interactionType,
 																@Context UriInfo info) {
 		long startTime = System.currentTimeMillis();
+		
 		Pagination pagination = new Pagination(page, limit, sortBy, asc, new InteractionColumnFieldMapping());
 		pagination.addFilterOption("geneGeneticInteraction.geneGeneAssociationObject.geneSymbol.displayText", interactorGeneSymbol);
 		pagination.addFilterOption("geneGeneticInteraction.geneGeneAssociationObject.taxon.name.keyword", interactorSpecies);
-		pagination.addFilterOption("geneGeneticInteraction.interactionSource.name", source);
-		pagination.addFilterOption("geneGeneticInteraction.evidence.crossReferences.referencedCurie", reference);
+		pagination.addFilterOption("geneGeneticInteraction.interactionId", source);
+		pagination.addFilterOption("geneGeneticInteraction.evidence.referenceID", reference);
 		pagination.addFilterOption("geneGeneticInteraction.interactorARole.name.keyword", role);
 		pagination.addFilterOption("geneGeneticInteraction.interactorAGeneticPerturbation.name", geneticPerturbation);
 		pagination.addFilterOption("geneGeneticInteraction.interactorBRole.name.keyword", interactorRole);
@@ -337,11 +338,11 @@ public class GeneController implements GeneRESTInterface {
 											String phenotypes,
 											String interactionType
 	) {
-		Pagination pagination = new Pagination(1, Integer.MAX_VALUE, sortBy, asc);
+		Pagination pagination = new Pagination(1, 150000, sortBy, asc);
 		pagination.addFilterOption("geneGeneticInteraction.geneGeneAssociationObject.geneSymbol.displayText", interactorGeneSymbol);
 		pagination.addFilterOption("geneGeneticInteraction.geneGeneAssociationObject.taxon.name.keyword", interactorSpecies);
-		pagination.addFilterOption("geneGeneticInteraction.interactionSource.name", source);
-		pagination.addFilterOption("geneGeneticInteraction.evidence.crossReferences.referencedCurie", reference);
+		pagination.addFilterOption("geneGeneticInteraction.interactionId", source);
+		pagination.addFilterOption("geneGeneticInteraction.evidence.referenceID", reference);
 		pagination.addFilterOption("geneGeneticInteraction.interactorARole.name.keyword", role);
 		pagination.addFilterOption("geneGeneticInteraction.interactorAGeneticPerturbation.name", geneticPerturbation);
 		pagination.addFilterOption("geneGeneticInteraction.interactorBRole.name.keyword", interactorRole);
@@ -350,7 +351,7 @@ public class GeneController implements GeneRESTInterface {
 		pagination.addFilterOption("geneGeneticInteraction.interactionType.name.keyword", interactionType);
 		JsonResultResponse<GeneGeneticInteractionDocument> interactions = geneService.getGeneticInteractions(id, pagination);
 
-		Response.ResponseBuilder responseBuilder = Response.ok(geneticInteractionTanslator.getAllRows(interactions.getResults()));
+		Response.ResponseBuilder responseBuilder = Response.ok(geneticInteractionTranslator.getAllRows(interactions.getResults()));
 		APIServiceHelper.setDownloadHeader(id, EntityType.GENE, EntityType.INTERACTION, "genetic_interaction", responseBuilder);
 		return responseBuilder.build();
 	}
@@ -371,8 +372,8 @@ public class GeneController implements GeneRESTInterface {
 		pagination.addFilterOption("geneMolecularInteraction.interactorAType.name.keyword", moleculeType);
 		pagination.addFilterOption("geneMolecularInteraction.geneGeneAssociationObject.geneSymbol.displayText", interactorGeneSymbol);
 		pagination.addFilterOption("geneMolecularInteraction.geneGeneAssociationObject.taxon.name.keyword", interactorSpecies);
-		pagination.addFilterOption("geneMolecularInteraction.interactionSource.name", source);
-		pagination.addFilterOption("geneMolecularInteraction.evidence.curie", reference);
+		pagination.addFilterOption("geneMolecularInteraction.interactionId", source);
+		pagination.addFilterOption("geneMolecularInteraction.evidence.referenceID", reference);
 		pagination.addFilterOption("geneMolecularInteraction.interactorBType.name.keyword", interactorMoleculeType);
 		pagination.addFilterOption("geneMolecularInteraction.detectionMethod.name", detectionMethod);
 		// Todo: needs to be made generic
@@ -405,17 +406,17 @@ public class GeneController implements GeneRESTInterface {
 			String interactorMoleculeType,
 			String detectionMethod
 	) {
-		Pagination pagination = new Pagination(1, Integer.MAX_VALUE, sortBy, asc);
+		Pagination pagination = new Pagination(1, 150000, sortBy, asc);
 		pagination.addFilterOption("geneMolecularInteraction.interactorAType.name.keyword", moleculeType);
 		pagination.addFilterOption("geneMolecularInteraction.geneGeneAssociationObject.geneSymbol.displayText", interactorGeneSymbol);
 		pagination.addFilterOption("geneMolecularInteraction.geneGeneAssociationObject.taxon.name.keyword", interactorSpecies);
-		pagination.addFilterOption("geneMolecularInteraction.interactionSource.name", source);
-		pagination.addFilterOption("geneMolecularInteraction.evidence.curie", reference);
+		pagination.addFilterOption("geneMolecularInteraction.interactionId", source);
+		pagination.addFilterOption("geneMolecularInteraction.evidence.referenceID", reference);
 		pagination.addFilterOption("geneMolecularInteraction.interactorBType.name.keyword", interactorMoleculeType);
 		pagination.addFilterOption("geneMolecularInteraction.detectionMethod.name", detectionMethod);
 		JsonResultResponse<GeneMolecularInteractionDocument> interactions = geneService.getMolecularInteractions(id, pagination);
 
-		Response.ResponseBuilder responseBuilder = Response.ok(molecularInteractionTanslator.getAllRows(interactions.getResults()));
+		Response.ResponseBuilder responseBuilder = Response.ok(molecularInteractionTranslator.getAllRows(interactions.getResults()));
 		APIServiceHelper.setDownloadHeader(id, EntityType.GENE, EntityType.INTERACTION, "molecular_interaction", responseBuilder);
 		return responseBuilder.build();
 	}
@@ -840,7 +841,7 @@ public class GeneController implements GeneRESTInterface {
 				hasDisease,
 				ui);
 
-		Response.ResponseBuilder responseBuilder = Response.ok(alleleTanslator.getAllTransgenicAlleleRows(alleles.getResults()));
+		Response.ResponseBuilder responseBuilder = Response.ok(alleleTranslator.getAllTransgenicAlleleRows(alleles.getResults()));
 		APIServiceHelper.setDownloadHeader(geneId, EntityType.GENE, EntityType.TRANSGENICALLELE, responseBuilder);
 		return responseBuilder.build();
 	}
