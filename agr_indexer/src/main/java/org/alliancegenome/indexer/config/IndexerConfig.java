@@ -2,6 +2,7 @@ package org.alliancegenome.indexer.config;
 
 import org.alliancegenome.indexer.indexers.*;
 import org.alliancegenome.indexer.indexers.curation.DiseaseAnnotationCurationIndexer;
+import org.alliancegenome.indexer.indexers.curation.GeneExpressionAnnotationIndexer;
 import org.alliancegenome.indexer.indexers.curation.GeneGeneticInteractionCurationIndexer;
 import org.alliancegenome.indexer.indexers.curation.GeneMolecularInteractionCurationIndexer;
 import org.alliancegenome.indexer.indexers.curation.PhenotypeAnnotationCurationIndexer;
@@ -21,6 +22,7 @@ public enum IndexerConfig {
 	GoIndexer("go", GoIndexer.class, 4, 914, 914, 8, 1),                // (44087,	262, 460247, 1093)
 	ModelIndexer("model", ModelIndexer.class, 4, 1426, 1426, 8, 1),           // (132447, 314,	 18593,	 701)
 	DiseaseAnnotationMlIndexer("diseaseAnnotation", DiseaseAnnotationCurationIndexer.class, 1, 1426, 1426, 2, 1),
+	GeneExpressionAnnotationIndexer("geneExpressionAnnotation", GeneExpressionAnnotationIndexer.class, 4, 1500, 1500, 2, 1),
 	GeneGeneticInteractionIndexers("geneGeneticInteraction", GeneGeneticInteractionCurationIndexer.class, 4, 1500, 1500, 2, 1),
 	GeneMolecularInteractionIndexers("geneMolecularInteraction", GeneMolecularInteractionCurationIndexer.class, 4, 1500, 1500, 2, 1),
 	//PhenotypeAnnotationMlIndexer("phenotypeAnnotation", PhenotypeCurationIndexer.class, 1, 1426, 1426, 2, 1),
