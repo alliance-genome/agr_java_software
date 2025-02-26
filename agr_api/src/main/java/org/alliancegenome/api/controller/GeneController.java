@@ -71,6 +71,7 @@ public class GeneController implements GeneRESTInterface {
 
 	@Inject
 	GeneToGeneParalogyESService geneToGeneParalogyESService;
+	@Inject
 	PhenotypeESService phenotypeESService;
 
 	private static final PhenotypeAnnotationToTdfTranslator translator = new PhenotypeAnnotationToTdfTranslator();

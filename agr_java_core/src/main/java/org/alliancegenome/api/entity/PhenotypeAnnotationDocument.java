@@ -1,12 +1,12 @@
 package org.alliancegenome.api.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.alliancegenome.curation_api.model.entities.*;
 import org.alliancegenome.curation_api.model.entities.ontology.ECOTerm;
-import org.alliancegenome.es.index.site.document.SearchableItemDocument;
-import org.apache.commons.collections4.CollectionUtils;
+import org.alliancegenome.es.index.ESDocument;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -15,8 +15,9 @@ import java.util.Set;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class PhenotypeAnnotationDocument extends SearchableItemDocument {
+public class PhenotypeAnnotationDocument extends ESDocument {
 
+	private String category;
 	private String uniqueId;
 	private VocabularyTerm relation;
 	private String phenotypeStatement;
@@ -49,22 +50,6 @@ public class PhenotypeAnnotationDocument extends SearchableItemDocument {
 		references.add(singleReference);
 	}
 
-	public void addEvidenceCodes(List<ECOTerm> ecoTerms) {
-		if (CollectionUtils.isEmpty(ecoTerms)) {
-			return;
-		}
-		if (evidenceCodes == null) {
-			evidenceCodes = new ArrayList<>();
-		}
-		List<String> ecoValues = evidenceCodes.stream().map(ECOTerm::getCurie).toList();
-		// make unique list
-		ecoTerms.forEach(ecoTerm -> {
-			if (!ecoValues.contains(ecoTerm.getCurie())) {
-				evidenceCodes.add(ecoTerm);
-			}
-		});
-	}
-
 	public void addPubMedPubModID(String id) {
 		if (pubmedPubModIDs == null) {
 			pubmedPubModIDs = new HashSet<>();
@@ -79,4 +64,10 @@ public class PhenotypeAnnotationDocument extends SearchableItemDocument {
 		primaryAnnotations.add(da);
 	}
 
+
+	@Override
+	@JsonIgnore
+	public String getType() {
+		return "phenotype_annotation";
+	}
 }

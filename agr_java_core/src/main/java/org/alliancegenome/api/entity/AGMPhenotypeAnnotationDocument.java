@@ -13,10 +13,11 @@ import org.alliancegenome.neo4j.view.View;
 @JsonView({View.DiseaseAnnotationAll.class})
 public class AGMPhenotypeAnnotationDocument extends PhenotypeAnnotationDocument {
 
+	public static final String AGM_PHENOTYPE_ANNOTATION = "agm_phenotype_annotation";
 	private AffectedGenomicModel subject;
 
 	public AGMPhenotypeAnnotationDocument() {
-		setCategory("agm_phenotype_annotation");
+		setCategory(AGM_PHENOTYPE_ANNOTATION);
 	}
 
 }
