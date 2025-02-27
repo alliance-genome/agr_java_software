@@ -28,6 +28,10 @@ public class GeneInteractionHelper {
 	
 
 	private <E extends GeneInteraction> E reverseInteraction(E forwardInteraction, E reverseInteraction) {
+		if (forwardInteraction.getGeneAssociationSubject() == null || forwardInteraction.getGeneGeneAssociationObject() == null) {
+			return null;
+		}
+		
 		if (Objects.equals(forwardInteraction.getGeneAssociationSubject().getIdentifier(), forwardInteraction.getGeneGeneAssociationObject().getIdentifier())) {
 			return null;
 		}
