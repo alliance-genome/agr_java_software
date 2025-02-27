@@ -4,13 +4,13 @@ import org.alliancegenome.indexer.indexers.AlleleIndexer;
 import org.alliancegenome.indexer.indexers.DatasetIndexer;
 import org.alliancegenome.indexer.indexers.DiseaseIndexer;
 import org.alliancegenome.indexer.indexers.GeneIndexer;
-import org.alliancegenome.indexer.indexers.GeneToGeneParalogyIndexer;
 import org.alliancegenome.indexer.indexers.GoIndexer;
 import org.alliancegenome.indexer.indexers.ModelIndexer;
 import org.alliancegenome.indexer.indexers.curation.DiseaseAnnotationCurationIndexer;
 import org.alliancegenome.indexer.indexers.curation.GeneExpressionAnnotationIndexer;
 import org.alliancegenome.indexer.indexers.curation.GeneGeneticInteractionCurationIndexer;
 import org.alliancegenome.indexer.indexers.curation.GeneMolecularInteractionCurationIndexer;
+import org.alliancegenome.indexer.indexers.curation.GeneToGeneParalogyIndexer;
 
 public enum IndexerConfig {
 
