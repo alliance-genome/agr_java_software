@@ -61,7 +61,7 @@ public class GeneToGeneParalogyIndexer extends Indexer {
 					return;
 				}
 				String page = queue.takeFirst();
-				log.info(queue.size() + " pages to process " + Thread.currentThread().getName() + " starting page: " + page);
+				//log.info(queue.size() + " pages to process " + Thread.currentThread().getName() + " starting page: " + page);
 				SearchResponse<GeneToGeneParalogy> resp = service.getGeneToGeneParalogy(Integer.valueOf(page), indexerConfig.getBufferSize());
 				indexDocuments(generateDocuments(resp.getResults()));
 			} catch (Exception e) {
