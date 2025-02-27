@@ -1,12 +1,15 @@
 package org.alliancegenome.api.service;
 
+import static org.alliancegenome.cache.repository.helper.JsonResultResponse.DISTINCT_FIELD_VALUES;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.alliancegenome.api.entity.AlleleVariantSequence;
@@ -36,6 +39,10 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
+import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
+import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
@@ -101,7 +108,7 @@ public class GeneService {
 		query.should(new MatchQueryBuilder("geneGeneticInteraction.geneAssociationSubject.modInternalId.keyword", geneId));
 
 		JsonResultResponse<GeneGeneticInteractionDocument> ret = new JsonResultResponse<>();
-		//ret.setSupplementalData(getSupplementalData(null, false, debug, query));
+		ret.setSupplementalData(getGeneticInteractionSupplementalData(query));
 
 		// add table filter
 		elasticSearchHelper.addTableFilter(pagination, query);
@@ -141,7 +148,7 @@ public class GeneService {
 
 		query.filter(new TermQueryBuilder("category", "gene_molecular_interaction"));
 		JsonResultResponse<GeneMolecularInteractionDocument> ret = new JsonResultResponse<>();
-		//ret.setSupplementalData(getSupplementalData(null, false, debug, query));
+		ret.setSupplementalData(getMolecularInteractionSupplementalData(query));
 
 		// add table filter
 		elasticSearchHelper.addTableFilter(pagination, query);
@@ -169,6 +176,54 @@ public class GeneService {
 		ret.setResults(list);
 		return ret;
 
+	}
+	
+	private Map<String, Object> getGeneticInteractionSupplementalData(BoolQueryBuilder unfilteredQuery) {
+		Map<String, String> aggregationFields = new HashMap<>();
+		aggregationFields.put("geneGeneticInteraction.interactorARole.name.keyword", "filter.role");
+		aggregationFields.put("geneGeneticInteraction.interactorBRole.name.keyword", "filter.interactorRole");
+		aggregationFields.put("geneGeneticInteraction.interactionType.name.keyword", "filter.interactionType");
+		return getInteractionSupplementalData(aggregationFields, unfilteredQuery);
+	}
+	
+	private Map<String, Object> getMolecularInteractionSupplementalData(BoolQueryBuilder unfilteredQuery) {
+		Map<String, String> aggregationFields = new HashMap<>();
+		aggregationFields.put("geneMolecularInteraction.interactorBType.name.keyword", "filter.interactorMoleculeType");
+		aggregationFields.put("geneMolecularInteraction.interactorAType.name.keyword", "filter.moleculeType");
+		aggregationFields.put("geneMolecularInteraction.detectionMethod.name.keyword", "filter.detectionMethod");
+		return getInteractionSupplementalData(aggregationFields, unfilteredQuery);
+	}
+	
+	private Map<String, Object> getInteractionSupplementalData(Map<String,String> aggregationFields, BoolQueryBuilder unfilteredQuery) {
+		aggregationFields.put("geneGeneticInteraction.geneGeneAssociationObject.taxon.name", "filter.interactorSpecies");
+		Map<String, List<String>> distinctFieldValueMap = getAggregations(unfilteredQuery, aggregationFields);
+		Map<String, Object> supplementalData = new LinkedHashMap<>();
+		supplementalData.put(DISTINCT_FIELD_VALUES, distinctFieldValueMap);
+		return supplementalData;
+	}
+
+	private Map<String, List<String>> getAggregations(BoolQueryBuilder bool, Map<String, String> aggregationFields) {
+		List<AggregationBuilder> aggBuilders = new ArrayList<>();
+		aggregationFields.forEach((field, colName) -> {
+			String fieldNameAgg = field + "_agg";
+			TermsAggregationBuilder aggregationBuilder = AggregationBuilders.terms(fieldNameAgg);
+			aggregationBuilder.bucketCardinality();
+			aggregationBuilder.field(field);
+			aggBuilders.add(aggregationBuilder);
+		});
+
+		SearchResponse searchResponseHistogram = searchDAO.performQuery(
+			bool, aggBuilders, null, List.of("*"),
+			0, 0, new HighlightBuilder(), null, false);
+
+		Map<String, List<String>> distinctFieldValueMap = new HashMap<>();
+		aggregationFields.forEach((field, colName) -> {
+			String fieldNameAgg = field + "_agg";
+			List<String> values = ((ParsedStringTerms) searchResponseHistogram.getAggregations().get(fieldNameAgg)).getBuckets().stream()
+				.map(MultiBucketsAggregation.Bucket::getKeyAsString).collect(Collectors.toList());
+			distinctFieldValueMap.put(colName, values);
+		});
+		return distinctFieldValueMap;
 	}
 
 	public JsonResultResponse<PhenotypeAnnotation> getPhenotypeAnnotations(String geneID, Pagination pagination) {

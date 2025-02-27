@@ -375,7 +375,7 @@ public class GeneController implements GeneRESTInterface {
 		pagination.addFilterOption("geneMolecularInteraction.interactionId", source);
 		pagination.addFilterOption("geneMolecularInteraction.evidence.referenceID", reference);
 		pagination.addFilterOption("geneMolecularInteraction.interactorBType.name.keyword", interactorMoleculeType);
-		pagination.addFilterOption("geneMolecularInteraction.detectionMethod.name", detectionMethod);
+		pagination.addFilterOption("geneMolecularInteraction.detectionMethod.name.keyword", detectionMethod);
 		// Todo: needs to be made generic
 		//pagination.validateFilterValues(info.getQueryParameters());
 		if (pagination.hasErrors()) {
