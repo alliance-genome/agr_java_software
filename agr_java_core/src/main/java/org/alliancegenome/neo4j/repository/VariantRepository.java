@@ -66,7 +66,7 @@ public class VariantRepository extends Neo4jRepository<Variant> {
 		query += " OPTIONAL MATCH geneSpecies=(t:Transcript)-[:TRANSCRIPT]-(ge:Gene)--(:Species)";
 		query += " OPTIONAL MATCH transcriptLocation=(t:Transcript)-[:ASSOCIATION]-(:GenomicLocation)";
 		query += " OPTIONAL MATCH exons=(:GenomicLocation)--(:Exon)-[:EXON]->(t:Transcript)";
-		query += " RETURN p1, consequence, gene, exons, transcriptLocation ";
+		query += " RETURN p1, consequence, gene, geneSpecies, exons, transcriptLocation ";
 
 		Iterable<Variant> variants = query(query, map);
 		for (Variant a : variants) {
