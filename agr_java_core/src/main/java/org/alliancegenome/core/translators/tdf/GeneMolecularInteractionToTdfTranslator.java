@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.StringJoiner;
 
 import org.alliancegenome.api.entity.GeneMolecularInteractionDocument;
-import org.alliancegenome.api.entity.JoinTypeValue;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.apache.commons.collections.CollectionUtils;
 

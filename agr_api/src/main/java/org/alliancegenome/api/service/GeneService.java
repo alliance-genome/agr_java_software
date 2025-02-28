@@ -194,7 +194,7 @@ public class GeneService {
 		return getInteractionSupplementalData(aggregationFields, unfilteredQuery);
 	}
 	
-	private Map<String, Object> getInteractionSupplementalData(Map<String,String> aggregationFields, BoolQueryBuilder unfilteredQuery) {
+	private Map<String, Object> getInteractionSupplementalData(Map<String, String> aggregationFields, BoolQueryBuilder unfilteredQuery) {
 		Map<String, List<String>> distinctFieldValueMap = getAggregations(unfilteredQuery, aggregationFields);
 		Map<String, Object> supplementalData = new LinkedHashMap<>();
 		supplementalData.put(DISTINCT_FIELD_VALUES, distinctFieldValueMap);
