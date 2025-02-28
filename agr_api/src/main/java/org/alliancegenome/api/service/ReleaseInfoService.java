@@ -36,10 +36,10 @@ public class ReleaseInfoService {
 		bool.must(new MatchQueryBuilder("category", "release_info"));
 		SearchResponse resp = searchDAO.performQuery(
 			bool, aggBuilders, null, List.of("*"),
-			pagination.getLimit(), (int)pagination.getOffset(), hlb, sorts, false);
+			pagination.getLimit(), (int) pagination.getOffset(), hlb, sorts, false);
 
-		if(resp.getHits().getHits().length > 0) {
-			try{
+		if (resp.getHits().getHits().length > 0) {
+			try {
 				return mapper.readValue(resp.getHits().getHits()[0].getSourceAsString(), ReleaseInfoDocument.class);
 			} catch (Exception e) {
 				e.printStackTrace();
