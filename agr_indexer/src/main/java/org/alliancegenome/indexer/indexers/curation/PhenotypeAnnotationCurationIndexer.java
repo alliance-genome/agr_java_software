@@ -14,7 +14,6 @@ import org.alliancegenome.indexer.indexers.curation.service.AGMPhenotypeAnnotati
 import org.alliancegenome.indexer.indexers.curation.service.AllelePhenotypeAnnotationService;
 import org.alliancegenome.indexer.indexers.curation.service.GenePhenotypeAnnotationService;
 import org.alliancegenome.indexer.indexers.curation.service.VocabularyService;
-import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.Pair;
 

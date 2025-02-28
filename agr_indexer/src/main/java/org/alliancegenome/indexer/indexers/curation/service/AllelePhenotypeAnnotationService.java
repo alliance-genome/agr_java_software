@@ -2,7 +2,6 @@ package org.alliancegenome.indexer.indexers.curation.service;
 
 import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.curation_api.model.entities.AGMPhenotypeAnnotation;
 import org.alliancegenome.curation_api.model.entities.AllelePhenotypeAnnotation;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
@@ -10,7 +9,6 @@ import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.indexers.curation.interfaces.AllelePhenotypeAnnotationInterface;
 import si.mazi.rescu.RestProxyFactory;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
