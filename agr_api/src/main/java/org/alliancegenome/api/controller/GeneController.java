@@ -47,6 +47,7 @@ import org.alliancegenome.neo4j.view.HomologView;
 import org.alliancegenome.neo4j.view.OrthologyFilter;
 import org.apache.commons.collections.CollectionUtils;
 
+import io.quarkus.logging.Log;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Context;
@@ -375,10 +376,10 @@ public class GeneController implements GeneRESTInterface {
 																String moleculeType,
 																String interactorGeneSymbol,
 																String interactorSpecies,
-																String source,
-																String reference,
 																String interactorMoleculeType,
 																String detectionMethod,
+																String source,
+																String reference,
 																@Context UriInfo info) {
 		long startTime = System.currentTimeMillis();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc, new InteractionColumnFieldMapping());
@@ -420,10 +421,10 @@ public class GeneController implements GeneRESTInterface {
 			String moleculeType,
 			String interactorGeneSymbol,
 			String interactorSpecies,
-			String source,
-			String reference,
 			String interactorMoleculeType,
-			String detectionMethod
+			String detectionMethod,
+			String source,
+			String reference
 	) {
 		Pagination pagination = new Pagination(1, 150000, sortBy, asc);
 		pagination.addFilterOption("geneMolecularInteraction.interactorAType.name.keyword", moleculeType);
@@ -431,7 +432,7 @@ public class GeneController implements GeneRESTInterface {
 		pagination.addFilterOption("geneMolecularInteraction.interactionId", source);
 		pagination.addFilterOption("geneMolecularInteraction.evidence.referenceID", reference);
 		pagination.addFilterOption("geneMolecularInteraction.interactorBType.name.keyword", interactorMoleculeType);
-		pagination.addFilterOption("geneMolecularInteraction.detectionMethod.name", detectionMethod);
+		pagination.addFilterOption("geneMolecularInteraction.detectionMethod.name.keyword", detectionMethod);
 		if (interactorSpecies != null) {
 			if (interactorSpecies.equals("Saccharomyces cerevisiae")) {
 				pagination.addFilterOption("geneMolecularInteraction.geneGeneAssociationObject.taxon.name.keyword", "Saccharomyces cerevisiae S288C");
