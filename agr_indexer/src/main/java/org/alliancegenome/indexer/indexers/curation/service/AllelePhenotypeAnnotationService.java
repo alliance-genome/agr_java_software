@@ -2,6 +2,7 @@ package org.alliancegenome.indexer.indexers.curation.service;
 
 import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.curation_api.model.entities.AGMPhenotypeAnnotation;
 import org.alliancegenome.curation_api.model.entities.AllelePhenotypeAnnotation;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
@@ -17,16 +18,15 @@ import java.util.List;
 public class AllelePhenotypeAnnotationService extends BaseDiseaseAnnotationService {
 
 	private final AllelePhenotypeAnnotationInterface alleleApi = RestProxyFactory.createProxy(AllelePhenotypeAnnotationInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
-	private VocabularyService vocabService = new VocabularyService();
-	private EcoTermService ecoTermService = new EcoTermService();
-	private OrganizationService orgService = new OrganizationService();
-	private ReferenceService referenceService = new ReferenceService();
 
 	private final String cacheFileName = "allele_phenotype_annotation.json.gz";
 
 	public List<AllelePhenotypeAnnotation> getFiltered() {
+		List<AllelePhenotypeAnnotation> ret = readFromCache(cacheFileName, List.class);
+		if (ret != null && ret.size() > 0) {
+			return ret;
+		}
 		ProcessDisplayHelper display = new ProcessDisplayHelper(2000);
-		List<AllelePhenotypeAnnotation> ret = new ArrayList<>();
 		log.info("Gene IDs #: " + allGeneIDs);
 		log.info("Allele IDs #: " + allAlleleIds);
 

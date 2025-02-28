@@ -7,7 +7,6 @@ import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.indexers.curation.interfaces.GenePhenotypeAnnotationInterface;
-import org.alliancegenome.indexer.indexers.curation.interfaces.GeneToGeneOrthologyGeneratedInterface;
 import si.mazi.rescu.RestProxyFactory;
 
 import java.util.ArrayList;
@@ -18,13 +17,6 @@ import java.util.List;
 public class GenePhenotypeAnnotationService extends BaseDiseaseAnnotationService {
 
 	private final GenePhenotypeAnnotationInterface geneApi = RestProxyFactory.createProxy(GenePhenotypeAnnotationInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
-	private final GeneToGeneOrthologyGeneratedInterface orthologyApi = RestProxyFactory.createProxy(GeneToGeneOrthologyGeneratedInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
-
-	private VocabularyService vocabService = new VocabularyService();
-	private EcoTermService ecoTermService = new EcoTermService();
-	private OrganizationService orgService = new OrganizationService();
-	private ReferenceService referenceService = new ReferenceService();
-
 	private final String cacheFileName = "gene_phenotype_annotation.json.gz";
 
 	public List<GenePhenotypeAnnotation> getFiltered() {

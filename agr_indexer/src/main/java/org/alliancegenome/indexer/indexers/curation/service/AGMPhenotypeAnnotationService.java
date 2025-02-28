@@ -17,11 +17,6 @@ import java.util.List;
 public class AGMPhenotypeAnnotationService extends BaseDiseaseAnnotationService {
 
 	private final AGMPhenotypeAnnotationInterface agmApi = RestProxyFactory.createProxy(AGMPhenotypeAnnotationInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
-	private VocabularyService vocabService = new VocabularyService();
-	private EcoTermService ecoTermService = new EcoTermService();
-	private OrganizationService orgService = new OrganizationService();
-	private ReferenceService referenceService = new ReferenceService();
-
 	private final String cacheFileName = "agm_phenotype_annotation.json.gz";
 
 	public List<AGMPhenotypeAnnotation> getFiltered() {

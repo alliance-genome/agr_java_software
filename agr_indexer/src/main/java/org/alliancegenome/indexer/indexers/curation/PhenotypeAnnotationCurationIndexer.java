@@ -29,9 +29,6 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 	private AllelePhenotypeAnnotationService alleleService = new AllelePhenotypeAnnotationService();
 	private AGMPhenotypeAnnotationService agmService = new AGMPhenotypeAnnotationService();
 	private VocabularyService vocabService = new VocabularyService();
-	private DiseaseRepository diseaseRepository;
-
-	private Map<String, Set<String>> closureMap;
 	private Map<String, Pair<Gene, ArrayList<PhenotypeAnnotation>>> geneMap = new HashMap<>();
 	private Map<String, Pair<Allele, ArrayList<PhenotypeAnnotation>>> alleleMap = new HashMap<>();
 	private Map<String, Pair<AffectedGenomicModel, ArrayList<PhenotypeAnnotation>>> agmMap = new HashMap<>();
@@ -53,9 +50,6 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 	@Override
 	protected void index() {
 
-		diseaseRepository = new DiseaseRepository();
-		closureMap = diseaseRepository.getDOClosureChildMapping();
-
 		indexGenes();
 		indexAlleles();
 		indexAGMs();
@@ -69,7 +63,6 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 		indexDocuments(alleleList);
 
 		log.info("Finished Indexing Phenotype Annotations");
-		diseaseRepository.close();
 	}
 
 	private List<GenePhenotypeAnnotationDocument> createGenePhenotypeAnnotationDocuments() {

@@ -42,7 +42,6 @@ public class AlleleController implements AlleleRESTInterface {
 
 	private AlleleToTdfTranslator translator = new AlleleToTdfTranslator();
 	private PhenotypeAnnotationToTdfTranslator phenotypeTranslator = new PhenotypeAnnotationToTdfTranslator();
-	private final PhenotypeAnnotationToTdfTranslator phenotypeAnnotationToTdfTranslator = new PhenotypeAnnotationToTdfTranslator();
 	private final DiseaseAnnotationToTdfTranslator diseaseToTdfTranslator = new DiseaseAnnotationToTdfTranslator();
 
 	@Override
@@ -142,7 +141,7 @@ public class AlleleController implements AlleleRESTInterface {
 				reference,
 				sortBy);
 		Response.ResponseBuilder responseBuilder = Response.ok(phenotypeTranslator.getAllRows(response.getResults()));
-		APIServiceHelper.setDownloadHeader(id, EntityType.GENE, EntityType.PHENOTYPE, responseBuilder);
+		APIServiceHelper.setDownloadHeader(id, EntityType.ALLELE, EntityType.PHENOTYPE, responseBuilder);
 		return responseBuilder.build();
 	}
 
