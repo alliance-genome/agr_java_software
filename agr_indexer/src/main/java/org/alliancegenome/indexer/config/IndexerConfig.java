@@ -12,6 +12,7 @@ import org.alliancegenome.indexer.indexers.curation.GeneGeneticInteractionCurati
 import org.alliancegenome.indexer.indexers.curation.GeneMolecularInteractionCurationIndexer;
 import org.alliancegenome.indexer.indexers.curation.GeneToGeneParalogyIndexer;
 import org.alliancegenome.indexer.indexers.curation.PhenotypeAnnotationCurationIndexer;
+import org.alliancegenome.indexer.indexers.curation.ReleaseInfoIndexer;
 
 public enum IndexerConfig {
 	
@@ -30,6 +31,7 @@ public enum IndexerConfig {
 	GeneMolecularInteractionIndexers("geneMolecularInteraction", GeneMolecularInteractionCurationIndexer.class, 4, 1500, 1500, 2, 1),
 	ParalogyIndexer("paralogy", GeneToGeneParalogyIndexer.class, 4, 5000, 5000, 8, 1),
 	PhenotypeAnnotationIndexer("phenotypeAnnotation", PhenotypeAnnotationCurationIndexer.class, 1, 1500, 1500, 2, 1),
+	ReleaseInfoIndexer("release", ReleaseInfoIndexer.class, 1, 1, 1, 1, 1),
 	;
 
 

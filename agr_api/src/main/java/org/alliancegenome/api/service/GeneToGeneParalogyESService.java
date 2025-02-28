@@ -25,7 +25,6 @@ import jakarta.inject.Inject;
 @RequestScoped
 public class GeneToGeneParalogyESService {
 	
-	@Inject DiseaseESService diseaseESService;
 	@Inject ObjectMapper mapper;
 	private static final SearchDAO searchDAO = new SearchDAO();
 
@@ -47,7 +46,7 @@ public class GeneToGeneParalogyESService {
 		bool.filter(new TermQueryBuilder("category", "gene_to_gene_paralogy"));
 		sorts.put("geneToGeneParalogy.rank", SortOrder.ASC);
 
-		SearchResponse searchResponse = getSearchResponse(bool, pagination, sorts, true);
+		SearchResponse searchResponse = getSearchResponse(bool, pagination, sorts, false);
 		
 		List<GeneToGeneParalogyDocument> list = Arrays.stream(searchResponse.getHits().getHits())
 			.map(searchHit -> {
