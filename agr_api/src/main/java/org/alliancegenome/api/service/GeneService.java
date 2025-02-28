@@ -30,7 +30,6 @@ import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.repository.GeneRepository;
-import org.alliancegenome.neo4j.repository.InteractionRepository;
 import org.alliancegenome.neo4j.repository.PhenotypeRepository;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -55,7 +54,6 @@ import jakarta.inject.Inject;
 public class GeneService {
 
 	private static GeneRepository geneRepo = new GeneRepository();
-	private static InteractionRepository interRepo = new InteractionRepository();
 	private static PhenotypeRepository phenoRepo = new PhenotypeRepository();
 	private static final ElasticSearchHelper elasticSearchHelper = new ElasticSearchHelper();
 	private static final SearchDAO searchDAO = new SearchDAO();
@@ -183,6 +181,7 @@ public class GeneService {
 		aggregationFields.put("geneGeneticInteraction.interactorARole.name.keyword", "filter.role");
 		aggregationFields.put("geneGeneticInteraction.interactorBRole.name.keyword", "filter.interactorRole");
 		aggregationFields.put("geneGeneticInteraction.interactionType.name.keyword", "filter.interactionType");
+		aggregationFields.put("geneGeneticInteraction.geneGeneAssociationObject.taxon.name.keyword", "filter.interactorSpecies");
 		return getInteractionSupplementalData(aggregationFields, unfilteredQuery);
 	}
 	
@@ -191,11 +190,11 @@ public class GeneService {
 		aggregationFields.put("geneMolecularInteraction.interactorBType.name.keyword", "filter.interactorMoleculeType");
 		aggregationFields.put("geneMolecularInteraction.interactorAType.name.keyword", "filter.moleculeType");
 		aggregationFields.put("geneMolecularInteraction.detectionMethod.name.keyword", "filter.detectionMethod");
+		aggregationFields.put("geneMolecularInteraction.geneGeneAssociationObject.taxon.name.keyword", "filter.interactorSpecies");
 		return getInteractionSupplementalData(aggregationFields, unfilteredQuery);
 	}
 	
 	private Map<String, Object> getInteractionSupplementalData(Map<String,String> aggregationFields, BoolQueryBuilder unfilteredQuery) {
-		aggregationFields.put("geneGeneticInteraction.geneGeneAssociationObject.taxon.name", "filter.interactorSpecies");
 		Map<String, List<String>> distinctFieldValueMap = getAggregations(unfilteredQuery, aggregationFields);
 		Map<String, Object> supplementalData = new LinkedHashMap<>();
 		supplementalData.put(DISTINCT_FIELD_VALUES, distinctFieldValueMap);
@@ -240,13 +239,6 @@ public class GeneService {
 		EntitySummary summary = new EntitySummary();
 		summary.setNumberOfAnnotations(phenoRepo.getTotalPhenotypeCount(geneID, new Pagination()));
 		summary.setNumberOfEntities(phenoRepo.getDistinctPhenotypeCount(geneID));
-		return summary;
-	}
-
-	public EntitySummary getInteractionSummary(String geneID) {
-		EntitySummary summary = new EntitySummary();
-		summary.setNumberOfAnnotations(interRepo.getInteractionCount(geneID));
-		summary.setNumberOfEntities(interRepo.getInteractorCount(geneID));
 		return summary;
 	}
 

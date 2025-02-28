@@ -648,17 +648,6 @@ public interface GeneRESTInterface {
 	) throws JsonProcessingException;
 
 	@GET
-	@Path("/{id}/interaction-summary")
-	@JsonView(value = {View.Expression.class})
-	@Operation(summary = "Retrieve interaction summary records of a given gene")
-	@APIResponses(value = { @APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
-	EntitySummary getInteractionSummary(
-		@Parameter(in = ParameterIn.PATH, name = "id", description = "Gene by ID, e.g. 'RGD:2129' or 'ZFIN:ZDB-GENE-990415-72 fgf8a'", required = true, schema = @Schema(type = SchemaType.STRING))
-		@PathParam("id") String id
-	) throws JsonProcessingException;
-
-
-	@GET
 	@Path("/{id}/diseases-by-experiment")
 	@Operation(summary = "Retrieve disease annotations for a given gene")
 	@APIResponses(

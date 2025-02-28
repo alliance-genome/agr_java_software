@@ -296,7 +296,6 @@ public class GeneController implements GeneRESTInterface {
 		
 		Pagination pagination = new Pagination(page, limit, sortBy, asc, new InteractionColumnFieldMapping());
 		pagination.addFilterOption("geneGeneticInteraction.geneGeneAssociationObject.geneSymbol.displayText", interactorGeneSymbol);
-		pagination.addFilterOption("geneGeneticInteraction.geneGeneAssociationObject.taxon.name.keyword", interactorSpecies);
 		pagination.addFilterOption("geneGeneticInteraction.interactionId", source);
 		pagination.addFilterOption("geneGeneticInteraction.evidence.referenceID", reference);
 		pagination.addFilterOption("geneGeneticInteraction.interactorARole.name.keyword", role);
@@ -305,6 +304,13 @@ public class GeneController implements GeneRESTInterface {
 		pagination.addFilterOption("geneGeneticInteraction.interactorBGeneticPerturbation.name", interactorGeneticPerturbation);
 		pagination.addFilterOption("geneGeneticInteraction.phenotypesOrTraits", phenotypes);
 		pagination.addFilterOption("geneGeneticInteraction.interactionType.name.keyword", interactionType);
+		if (interactorSpecies != null) {
+			if (interactorSpecies.equals("Saccharomyces cerevisiae")) {
+				pagination.addFilterOption("geneGeneticInteraction.geneGeneAssociationObject.taxon.name.keyword", "Saccharomyces cerevisiae S288C");
+			} else {
+				pagination.addFilterOption("geneGeneticInteraction.geneGeneAssociationObject.taxon.name.keyword", interactorSpecies);
+			}
+		}
 		// Todo: needs to be made generic
 		//pagination.validateFilterValues(info.getQueryParameters());
 		if (pagination.hasErrors()) {
@@ -340,7 +346,6 @@ public class GeneController implements GeneRESTInterface {
 	) {
 		Pagination pagination = new Pagination(1, 150000, sortBy, asc);
 		pagination.addFilterOption("geneGeneticInteraction.geneGeneAssociationObject.geneSymbol.displayText", interactorGeneSymbol);
-		pagination.addFilterOption("geneGeneticInteraction.geneGeneAssociationObject.taxon.name.keyword", interactorSpecies);
 		pagination.addFilterOption("geneGeneticInteraction.interactionId", source);
 		pagination.addFilterOption("geneGeneticInteraction.evidence.referenceID", reference);
 		pagination.addFilterOption("geneGeneticInteraction.interactorARole.name.keyword", role);
@@ -349,6 +354,14 @@ public class GeneController implements GeneRESTInterface {
 		pagination.addFilterOption("geneGeneticInteraction.interactorBGeneticPerturbation.name", interactorGeneticPerturbation);
 		pagination.addFilterOption("geneGeneticInteraction.phenotypesOrTraits", phenotypes);
 		pagination.addFilterOption("geneGeneticInteraction.interactionType.name.keyword", interactionType);
+		if (interactorSpecies != null) {
+			if (interactorSpecies.equals("Saccharomyces cerevisiae")) {
+				pagination.addFilterOption("geneGeneticInteraction.geneGeneAssociationObject.taxon.name.keyword", "Saccharomyces cerevisiae S288C");
+			} else {
+				pagination.addFilterOption("geneGeneticInteraction.geneGeneAssociationObject.taxon.name.keyword", interactorSpecies);
+			}
+		}
+		
 		JsonResultResponse<GeneGeneticInteractionDocument> interactions = geneService.getGeneticInteractions(id, pagination);
 
 		Response.ResponseBuilder responseBuilder = Response.ok(geneticInteractionTranslator.getAllRows(interactions.getResults()));
@@ -371,11 +384,17 @@ public class GeneController implements GeneRESTInterface {
 		Pagination pagination = new Pagination(page, limit, sortBy, asc, new InteractionColumnFieldMapping());
 		pagination.addFilterOption("geneMolecularInteraction.interactorAType.name.keyword", moleculeType);
 		pagination.addFilterOption("geneMolecularInteraction.geneGeneAssociationObject.geneSymbol.displayText", interactorGeneSymbol);
-		pagination.addFilterOption("geneMolecularInteraction.geneGeneAssociationObject.taxon.name.keyword", interactorSpecies);
 		pagination.addFilterOption("geneMolecularInteraction.interactionId", source);
 		pagination.addFilterOption("geneMolecularInteraction.evidence.referenceID", reference);
 		pagination.addFilterOption("geneMolecularInteraction.interactorBType.name.keyword", interactorMoleculeType);
 		pagination.addFilterOption("geneMolecularInteraction.detectionMethod.name.keyword", detectionMethod);
+		if (interactorSpecies != null) {
+			if (interactorSpecies.equals("Saccharomyces cerevisiae")) {
+				pagination.addFilterOption("geneMolecularInteraction.geneGeneAssociationObject.taxon.name.keyword", "Saccharomyces cerevisiae S288C");
+			} else {
+				pagination.addFilterOption("geneMolecularInteraction.geneGeneAssociationObject.taxon.name.keyword", interactorSpecies);
+			}
+		}
 		// Todo: needs to be made generic
 		//pagination.validateFilterValues(info.getQueryParameters());
 		if (pagination.hasErrors()) {
@@ -409,11 +428,17 @@ public class GeneController implements GeneRESTInterface {
 		Pagination pagination = new Pagination(1, 150000, sortBy, asc);
 		pagination.addFilterOption("geneMolecularInteraction.interactorAType.name.keyword", moleculeType);
 		pagination.addFilterOption("geneMolecularInteraction.geneGeneAssociationObject.geneSymbol.displayText", interactorGeneSymbol);
-		pagination.addFilterOption("geneMolecularInteraction.geneGeneAssociationObject.taxon.name.keyword", interactorSpecies);
 		pagination.addFilterOption("geneMolecularInteraction.interactionId", source);
 		pagination.addFilterOption("geneMolecularInteraction.evidence.referenceID", reference);
 		pagination.addFilterOption("geneMolecularInteraction.interactorBType.name.keyword", interactorMoleculeType);
 		pagination.addFilterOption("geneMolecularInteraction.detectionMethod.name", detectionMethod);
+		if (interactorSpecies != null) {
+			if (interactorSpecies.equals("Saccharomyces cerevisiae")) {
+				pagination.addFilterOption("geneMolecularInteraction.geneGeneAssociationObject.taxon.name.keyword", "Saccharomyces cerevisiae S288C");
+			} else {
+				pagination.addFilterOption("geneMolecularInteraction.geneGeneAssociationObject.taxon.name.keyword", interactorSpecies);
+			}
+		}
 		JsonResultResponse<GeneMolecularInteractionDocument> interactions = geneService.getMolecularInteractions(id, pagination);
 
 		Response.ResponseBuilder responseBuilder = Response.ok(molecularInteractionTranslator.getAllRows(interactions.getResults()));
@@ -693,11 +718,6 @@ public class GeneController implements GeneRESTInterface {
 			error.addErrorMessage(e.getMessage());
 			throw new RestErrorException(error);
 		}
-	}
-
-	@Override
-	public EntitySummary getInteractionSummary(String geneID) {
-		return geneService.getInteractionSummary(geneID);
 	}
 
 	@Override
