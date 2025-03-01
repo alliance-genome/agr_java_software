@@ -4,19 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
-import org.alliancegenome.api.entity.DiseaseEntitySubgroupSlim;
-import org.alliancegenome.api.entity.DiseaseRibbonEntity;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
-import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.api.service.helper.GeneDiseaseSearchHelper;
-import org.alliancegenome.core.api.service.DiseaseRibbonService;
 import org.alliancegenome.es.index.site.dao.SearchDAO;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.SimpleTerm;
-import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.lucene.queryparser.classic.QueryParser;
@@ -35,7 +28,6 @@ import org.elasticsearch.search.sort.SortOrder;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.toList;
 import static org.alliancegenome.cache.repository.helper.JsonResultResponse.DISTINCT_FIELD_VALUES;
 import static org.elasticsearch.index.query.QueryBuilders.*;
 
@@ -46,7 +38,6 @@ public class ESService {
 	@Inject
 	ObjectMapper mapper;
 
-	private static final DiseaseRepository diseaseRepository = new DiseaseRepository();
 	private static final SearchDAO searchDAO = new SearchDAO();
 	private static final GeneDiseaseSearchHelper geneDiseaseSearchHelper = new GeneDiseaseSearchHelper();
 
@@ -159,7 +150,7 @@ public class ESService {
 		return value;
 	}
 
-	private Map<String, List<String>> getAggregations(BoolQueryBuilder bool, Map<String, String> aggregationFields, String focusTaxonId, boolean useSpeciesAggregation, boolean debug) {
+	protected Map<String, List<String>> getAggregations(BoolQueryBuilder bool, Map<String, String> aggregationFields, String focusTaxonId, boolean useSpeciesAggregation, boolean debug) {
 		List<AggregationBuilder> aggBuilders = new ArrayList<>();
 		aggregationFields.forEach((field, colName) -> {
 			String fieldNameAgg = field + "_agg";
@@ -202,44 +193,7 @@ public class ESService {
 		return sorts;
 	}
 
-	public void populateDiseaseRibbonSummary(String geneID, DiseaseRibbonSummary summary, Map<String, List<GeneDiseaseAnnotationDocument>> histogram, Gene gene) {
-		DiseaseRibbonEntity entity = new DiseaseRibbonEntity();
-		entity.setId(geneID);
-		entity.setLabel(gene.getSymbol());
-		entity.setTaxonID(gene.getTaxonId());
-		entity.setTaxonName(gene.getSpecies().getName());
-		summary.addDiseaseRibbonEntity(entity);
-
-		Set<String> allTerms = new HashSet<>();
-		Set<GeneDiseaseAnnotationDocument> allAnnotations = new HashSet<>();
-		List<String> agrDoSlimIDs = diseaseRepository.getAgrDoSlim().stream()
-			.map(SimpleTerm::getPrimaryKey)
-			.collect(toList());
-		// add category term IDs to get the full histogram mapped into the response
-		agrDoSlimIDs.addAll(DiseaseRibbonService.slimParentTermIdMap.keySet());
-		agrDoSlimIDs.forEach(slimId -> {
-			DiseaseEntitySubgroupSlim group = new DiseaseEntitySubgroupSlim();
-			int size = 0;
-			List<GeneDiseaseAnnotationDocument> diseaseAnnotations = histogram.get(slimId);
-			if (diseaseAnnotations != null) {
-				allAnnotations.addAll(diseaseAnnotations);
-				size = diseaseAnnotations.size();
-				Set<String> terms = diseaseAnnotations.stream().map(diseaseAnnotation -> diseaseAnnotation.getObject().getCurie())
-					.collect(Collectors.toSet());
-				allTerms.addAll(terms);
-				group.setNumberOfClasses(terms.size());
-			}
-			group.setNumberOfAnnotations(size);
-			group.setId(slimId);
-			if (size > 0) {
-				entity.addDiseaseSlim(group);
-			}
-		});
-		entity.setNumberOfClasses(allTerms.size());
-		entity.setNumberOfAnnotations(allAnnotations.size());
-	}
-
-	private static void setEntityIdMatcher(String geneID, BoolQueryBuilder bool2) {
+	protected void setEntityIdMatcher(String geneID, BoolQueryBuilder bool2) {
 		bool2.should(new MatchQueryBuilder("subject.curie.keyword", geneID));
 		bool2.should(new MatchQueryBuilder("subject.primaryExternalId.keyword", geneID));
 		bool2.should(new MatchQueryBuilder("subject.modInternalId.keyword", geneID));
