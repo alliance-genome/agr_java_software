@@ -84,7 +84,7 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 				}
 
 				String key = getConsolidationKey(da);
-				GenePhenotypeAnnotationDocument gpad = lookup.computeIfAbsent(key, (k) -> new GenePhenotypeAnnotationDocument());
+				GenePhenotypeAnnotationDocument gpad = lookup.computeIfAbsent(key, k -> new GenePhenotypeAnnotationDocument());
 				if (gpad.getSubject() == null) {
 					gpad.setSubject(gene);
 					gpad.setRelation(relation);
@@ -108,7 +108,7 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 		}
 		String[] prefixes = {"PMID", "MGI", "RGD", "ZFIN", "FB", "WB", "MGI"};
 		for (String prefix : prefixes) {
-			Optional<CrossReference> opt = crossReferences.stream().filter((reference) -> reference.getReferencedCurie().startsWith(prefix + ":")).findFirst();
+			Optional<CrossReference> opt = crossReferences.stream().filter(reference -> reference.getReferencedCurie().startsWith(prefix + ":")).findFirst();
 			if (opt.isPresent()) {
 				return opt.get().getReferencedCurie();
 			}

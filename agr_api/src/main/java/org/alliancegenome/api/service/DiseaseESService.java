@@ -1,45 +1,22 @@
 package org.alliancegenome.api.service;
 
-import static java.util.stream.Collectors.toList;
-import static org.alliancegenome.cache.repository.helper.JsonResultResponse.DISTINCT_FIELD_VALUES;
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
-import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
-import static org.elasticsearch.index.query.QueryBuilders.termQuery;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.alliancegenome.api.entity.AGMDiseaseAnnotationDocument;
-import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
-import org.alliancegenome.api.entity.DiseaseEntitySubgroupSlim;
-import org.alliancegenome.api.entity.DiseaseRibbonEntity;
-import org.alliancegenome.api.entity.DiseaseRibbonSummary;
-import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
+import io.quarkus.logging.Log;
+import jakarta.enterprise.context.RequestScoped;
+import org.alliancegenome.api.entity.*;
 import org.alliancegenome.api.service.helper.GeneDiseaseSearchHelper;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.api.service.DiseaseRibbonService;
 import org.alliancegenome.es.index.site.dao.SearchDAO;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.SimpleTerm;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.lucene.queryparser.classic.QueryParser;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
@@ -50,22 +27,17 @@ import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilde
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import java.util.*;
+import java.util.stream.Collectors;
 
-import io.quarkus.logging.Log;
-import jakarta.enterprise.context.RequestScoped;
-import jakarta.inject.Inject;
+import static java.util.stream.Collectors.toList;
+import static org.alliancegenome.cache.repository.helper.JsonResultResponse.DISTINCT_FIELD_VALUES;
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 
 
 @RequestScoped
-public class DiseaseESService {
-
-	@Inject
-	ObjectMapper mapper;
+public class DiseaseESService extends ESService {
 
 	private static final GeneRepository geneRepository = new GeneRepository();
 	private static final DiseaseRepository diseaseRepository = new DiseaseRepository();
@@ -116,53 +88,13 @@ public class DiseaseESService {
 		return supplementalData;
 	}
 
-	private SearchResponse getSearchResponse(BoolQueryBuilder bool, Pagination pagination, LinkedHashMap<String, SortOrder> focusTaxonId, boolean debug) {
+	protected SearchResponse getSearchResponse(BoolQueryBuilder bool, Pagination pagination, LinkedHashMap<String, SortOrder> focusTaxonId, boolean debug) {
 		List<AggregationBuilder> aggBuilders = new ArrayList<>();
 		HighlightBuilder hlb = new HighlightBuilder();
 
 		return searchDAO.performQuery(
 			bool, aggBuilders, null, geneDiseaseSearchHelper.getResponseFields(),
 			pagination.getLimit(), pagination.getOffset(), hlb, focusTaxonId, debug);
-	}
-
-	private BoolQueryBuilder getBaseQuery(List<String> entityIDs, String termID, boolean excludeNegated, String recordType, boolean excludeViaOrthologyRecords) {
-		BoolQueryBuilder bool = boolQuery();
-		BoolQueryBuilder bool2 = boolQuery();
-		bool.must(bool2);
-
-		bool.filter(termQuery("category", recordType));
-
-		if (CollectionUtils.isNotEmpty(entityIDs)) {
-			for (String geneId : entityIDs) {
-				setEntityIdMatcher(geneId, bool2);
-			}
-		}
-		if (excludeNegated) {
-			bool.must(matchQuery("primaryAnnotations.negated", false));
-		}
-		if (excludeViaOrthologyRecords) {
-			bool.must(matchQuery("viaOrthologyOrder", 0));
-		}
-		if (termID != null) {
-			BoolQueryBuilder bool3 = boolQuery();
-			bool.must(bool3);
-			if (termID.equals(DiseaseRibbonSummary.DOID_OTHER)) {
-				BoolQueryBuilder orClause = boolQuery();
-				DOTerm.getAllOtherDiseaseTerms().forEach(parentID -> orClause.should(QueryBuilders.termQuery("parentSlimIDs.keyword", parentID)));
-				bool3.should(orClause);
-
-			} else {
-				bool3.should(new MatchQueryBuilder("parentSlimIDs.keyword", termID));
-			}
-		}
-		return bool;
-	}
-
-	private void addTableFilter(Pagination pagination, BoolQueryBuilder bool) {
-		HashMap<String, String> filterOptionMap = pagination.getFilterOptionMap();
-		if (MapUtils.isNotEmpty(filterOptionMap)) {
-			filterOptionMap.forEach((filterName, filterValue) -> generateFilter(bool, filterName, filterValue));
-		}
 	}
 
 	public JsonResultResponse<AlleleDiseaseAnnotationDocument> getDiseaseAnnotations(String alleleID, Pagination pagination, boolean excludeNegated, boolean debug) {
@@ -193,51 +125,9 @@ public class DiseaseESService {
 
 	}
 
-	private void generateFilter(BoolQueryBuilder bool, String filterName, String filterValue) {
-		if (filterValue.contains("|")) {
-			//Log.info("Or Filter: " + filterName + " " + filterValue);
-			BoolQueryBuilder orClause = boolQuery();
-			String[] elements = filterValue.split("\\|");
-			Arrays.stream(elements).forEach(element -> orClause.should(QueryBuilders.termQuery(filterName, escapeValue(element))));
-			bool.must(orClause);
-		} else {
-			//Log.info("Other Filter: " + filterName + " " + filterValue);
-			if (filterName.endsWith("keyword")) {
-				bool.must(QueryBuilders.termQuery(filterName, filterValue));
-			} else {
-				if (filterName.contains("OR")) {
-					BoolQueryBuilder outerAndClause = boolQuery();
-					String[] filterNames = filterName.split("OR");
-					Arrays.stream(filterNames).forEach(indivFilterName -> {
-						BoolQueryBuilder orClause = getBooleanAndedQueryBuilder(indivFilterName.trim(), filterValue);
-						outerAndClause.should(orClause);
-					});
-					bool.must(outerAndClause);
-				} else {
-					BoolQueryBuilder andClause = getBooleanAndedQueryBuilder(filterName, filterValue);
-					bool.must(andClause);
-				}
-			}
-		}
-		//Log.info(bool);
-	}
-
 	/*
 	 * split filter values by white spaces and create and ANDed boolean query
 	 */
-	private BoolQueryBuilder getBooleanAndedQueryBuilder(String filterName, String filterValue) {
-		BoolQueryBuilder andClause = boolQuery();
-		String[] elements = escapeValue(filterValue).split(" ");
-		Arrays.stream(elements).forEach(element -> andClause.must(QueryBuilders.queryStringQuery("*" + element + "*").field(filterName)));
-		return andClause;
-	}
-
-	private String escapeValue(String value) {
-		value = value.replaceAll("'", " ");
-		value = QueryParser.escape(value);
-		return value;
-	}
-
 	private Map<String, List<String>> getAggregations(BoolQueryBuilder bool, Map<String, String> aggregationFields, String focusTaxonId, boolean useSpeciesAggregation, boolean debug) {
 		List<AggregationBuilder> aggBuilders = new ArrayList<>();
 		aggregationFields.forEach((field, colName) -> {

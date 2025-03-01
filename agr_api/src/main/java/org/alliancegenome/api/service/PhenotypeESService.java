@@ -1,18 +1,12 @@
 package org.alliancegenome.api.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.enterprise.context.RequestScoped;
-import jakarta.inject.Inject;
 import org.alliancegenome.api.entity.AllelePhenotypeAnnotationDocument;
 import org.alliancegenome.api.entity.GenePhenotypeAnnotationDocument;
-import org.alliancegenome.api.service.helper.GeneDiseaseSearchHelper;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.es.index.site.dao.SearchDAO;
 import org.alliancegenome.es.model.query.Pagination;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.search.aggregations.AggregationBuilder;
-import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
 import java.util.*;
@@ -20,12 +14,6 @@ import java.util.*;
 
 @RequestScoped
 public class PhenotypeESService extends ESService {
-
-	@Inject
-	ObjectMapper mapper;
-
-	private static final SearchDAO searchDAO = new SearchDAO();
-	private static final GeneDiseaseSearchHelper geneDiseaseSearchHelper = new GeneDiseaseSearchHelper();
 
 	// termID may be used in the future when converting disease page to new ES stack.
 	public JsonResultResponse<GenePhenotypeAnnotationDocument> getGenePhenotypeAnnotations(
@@ -108,15 +96,6 @@ public class PhenotypeESService extends ESService {
 			}).toList();
 		ret.setResults(list);
 		return ret;
-	}
-
-	private SearchResponse getSearchResponse(BoolQueryBuilder bool, Pagination pagination, LinkedHashMap<String, SortOrder> focusTaxonId, boolean debug) {
-		List<AggregationBuilder> aggBuilders = new ArrayList<>();
-		HighlightBuilder hlb = new HighlightBuilder();
-
-		return searchDAO.performQuery(
-			bool, aggBuilders, null, geneDiseaseSearchHelper.getResponseFields(),
-			pagination.getLimit(), pagination.getOffset(), hlb, focusTaxonId, debug);
 	}
 
 }
