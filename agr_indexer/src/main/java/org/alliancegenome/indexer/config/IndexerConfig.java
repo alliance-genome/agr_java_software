@@ -6,6 +6,7 @@ import org.alliancegenome.indexer.indexers.curation.GeneExpressionAnnotationInde
 import org.alliancegenome.indexer.indexers.curation.GeneGeneticInteractionCurationIndexer;
 import org.alliancegenome.indexer.indexers.curation.GeneMolecularInteractionCurationIndexer;
 import org.alliancegenome.indexer.indexers.curation.PhenotypeAnnotationCurationIndexer;
+import org.alliancegenome.indexer.indexers.curation.GeneToGeneParalogyIndexer;
 
 public enum IndexerConfig {
 

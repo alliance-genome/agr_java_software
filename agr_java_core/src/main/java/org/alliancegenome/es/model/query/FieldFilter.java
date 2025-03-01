@@ -26,9 +26,9 @@ public enum FieldFilter {
 	SYNONYMS("filter.synonyms"),
 	//those for molecular interaction
 	INTERACTOR_MOLECULE_TYPE("filter.interactorMoleculeType"),
-	INTERACTOR_GENE_SYMBOL("filter.interactorGeneSymbol"),
+	INTERACTOR_GENE_SYMBOL("geneGeneticInteraction.geneGeneAssociationObject.geneSymbol.displayText"),
 	DETECTION_METHOD("filter.detectionMethod"),
-	INTERACTOR_SPECIES("filter.interactorSpecies"),
+	INTERACTOR_SPECIES("geneGeneticInteraction.geneGeneAssociationObject.taxon.name"),
 	VARIANT_TYPE("filter.variantType"),
 	CONSEQUENCE_TYPE("filter.consequenceType"),
 	VARIANT_POLYPHEN("filter.variantPolyphen"),
@@ -39,7 +39,7 @@ public enum FieldFilter {
 	//those for genetic interaction
 	ROLE("filter.role"),
 	GENETIC_PERTURBATION("filter.geneticPerturbation"),
-	INTERACTOR_ROLE("filter.interacotorRole"),
+	INTERACTOR_ROLE("filter.interactorRole"),
 	INTERACTOR_GENETIC_PERTURBATION("filter.interactorGeneticPerturbation"),
 	PHENOTYPES("filter.phenotypes"),
 	INTERACTION_TYPE("filter.interactionType"),

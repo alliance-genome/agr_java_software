@@ -21,9 +21,10 @@ import jakarta.ws.rs.QueryParam;
 @Consumes({"application/json"})
 public interface GeneMolecularInteractionInterface extends BaseIdCrudInterface<GeneMolecularInteraction> {
 
+	@Override
 	@POST
 	@Path("/findForPublic")
 	@JsonView({View.ForPublic.class})
-	SearchResponse<GeneMolecularInteraction> find(@DefaultValue("0") @QueryParam("page") Integer page, @DefaultValue("10") @QueryParam("limit") Integer limit, HashMap<String, Object> params);
+	SearchResponse<GeneMolecularInteraction> findForPublic(@DefaultValue("0") @QueryParam("page") Integer page, @DefaultValue("10") @QueryParam("limit") Integer limit, HashMap<String, Object> params);
 
 }

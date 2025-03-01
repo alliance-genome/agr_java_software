@@ -45,8 +45,8 @@ public class DiseaseESService extends ESService {
 		ret.setSupplementalData(getSupplementalData(focusTaxonId, true, debug, query));
 
 		// add table filter
-		addTableFilter(pagination, query);
-		SearchResponse searchResponse = getSearchResponse(query, pagination, getAnnotationSorts(focusTaxonId, debug), false);
+		elasticSearchHelper.addTableFilter(pagination, query);
+		SearchResponse searchResponse = elasticSearchHelper.getSearchResponse(query, pagination, getAnnotationSorts(focusTaxonId, debug), false);
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
 
 		List<GeneDiseaseAnnotationDocument> list = Arrays.stream(searchResponse.getHits().getHits())
@@ -86,8 +86,8 @@ public class DiseaseESService extends ESService {
 		ret.setSupplementalData(getSupplementalData(null, false, debug, query));
 
 		// add table filter
-		addTableFilter(pagination, query);
-		SearchResponse searchResponse = getSearchResponse(query, pagination, getAnnotationSorts(null, debug), false);
+		elasticSearchHelper.addTableFilter(pagination, query);
+		SearchResponse searchResponse = elasticSearchHelper.getSearchResponse(query, pagination, getAnnotationSorts(null, debug), false);
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
 
 		List<AlleleDiseaseAnnotationDocument> list = Arrays.stream(searchResponse.getHits().getHits())
@@ -217,9 +217,9 @@ public class DiseaseESService extends ESService {
 
 		// create histogram of select columns of unfiltered query
 
-		addTableFilter(pagination, bool);
+		elasticSearchHelper.addTableFilter(pagination, bool);
 
-		SearchResponse searchResponse = getSearchResponse(bool, pagination, null, debug);
+		SearchResponse searchResponse = elasticSearchHelper.getSearchResponse(bool, pagination, null, debug);
 
 		JsonResultResponse<GeneDiseaseAnnotationDocument> ret = new JsonResultResponse<>();
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
@@ -251,7 +251,7 @@ public class DiseaseESService extends ESService {
 		ret.setSupplementalData(getSupplementalData(null, true, debug, bool));
 
 		// create histogram of select columns of unfiltered query
-		addTableFilter(pagination, bool);
+		elasticSearchHelper.addTableFilter(pagination, bool);
 
 		// Sorting sets for different names of the sorting selection box
 		Map<String, List<String>> sortingSetMap = new HashMap<>();
@@ -268,7 +268,7 @@ public class DiseaseESService extends ESService {
 		}
 		sortFields.forEach(sortField -> sortingMap.put(sortField, SortOrder.ASC));
 
-		SearchResponse searchResponse = getSearchResponse(bool, pagination, sortingMap, debug);
+		SearchResponse searchResponse = elasticSearchHelper.getSearchResponse(bool, pagination, sortingMap, debug);
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
 
 		List<GeneDiseaseAnnotationDocument> list = new ArrayList<>();
@@ -298,7 +298,7 @@ public class DiseaseESService extends ESService {
 		ret.setSupplementalData(getSupplementalData(null, true, debug, bool));
 
 		// create histogram of select columns of unfiltered query
-		addTableFilter(pagination, bool);
+		elasticSearchHelper.addTableFilter(pagination, bool);
 
 		// Sorting sets for different names of the sorting selection box
 		Map<String, List<String>> sortingSetMap = new HashMap<>();
@@ -315,7 +315,7 @@ public class DiseaseESService extends ESService {
 		}
 		sortFields.forEach(sortField -> sortingMap.put(sortField, SortOrder.ASC));
 
-		SearchResponse searchResponse = getSearchResponse(bool, pagination, sortingMap, debug);
+		SearchResponse searchResponse = elasticSearchHelper.getSearchResponse(bool, pagination, sortingMap, debug);
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
 
 		List<AGMDiseaseAnnotationDocument> list = new ArrayList<>();
@@ -346,7 +346,7 @@ public class DiseaseESService extends ESService {
 		ret.setSupplementalData(supData);
 
 		// create histogram of select columns of unfiltered query
-		addTableFilter(pagination, bool);
+		elasticSearchHelper.addTableFilter(pagination, bool);
 
 		// Sorting sets for different names of the sorting selection box
 		Map<String, List<String>> sortingSetMap = new HashMap<>();
@@ -363,7 +363,7 @@ public class DiseaseESService extends ESService {
 		}
 		sortFields.forEach(sortField -> sortingMap.put(sortField, SortOrder.ASC));
 
-		SearchResponse searchResponse = getSearchResponse(bool, pagination, sortingMap, false);
+		SearchResponse searchResponse = elasticSearchHelper.getSearchResponse(bool, pagination, sortingMap, false);
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
 		List<AlleleDiseaseAnnotationDocument> list = new ArrayList<>();
 

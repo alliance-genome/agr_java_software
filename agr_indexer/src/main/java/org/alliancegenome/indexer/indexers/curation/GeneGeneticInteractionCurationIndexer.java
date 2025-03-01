@@ -11,7 +11,6 @@ import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
 import org.alliancegenome.indexer.indexers.curation.service.GeneGeneticInteractionService;
-import org.alliancegenome.indexer.indexers.curation.service.helpers.GeneInteractionHelper;
 import org.apache.commons.collections.CollectionUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 public class GeneGeneticInteractionCurationIndexer extends Indexer {
 
 	private GeneGeneticInteractionService geneGeneticInteractionService = new GeneGeneticInteractionService();
-	private GeneInteractionHelper interactionHelper = new GeneInteractionHelper();
 
 	public GeneGeneticInteractionCurationIndexer(IndexerConfig config) {
 		super(config);
@@ -64,21 +62,17 @@ public class GeneGeneticInteractionCurationIndexer extends Indexer {
 				
 				String page = queue.takeFirst();
 				log.debug(queue.size() + " pages to process " + Thread.currentThread().getName() + " starting page: " + page);
-				SearchResponse<GeneGeneticInteraction> gmiResponse = geneGeneticInteractionService.getGeneGeneticInteractions(Integer.valueOf(page), indexerConfig.getBufferSize());
+				SearchResponse<GeneGeneticInteraction> ggiResponse = geneGeneticInteractionService.getGeneGeneticInteractions(Integer.valueOf(page), indexerConfig.getBufferSize());
 
-				if (gmiResponse == null || CollectionUtils.isEmpty(gmiResponse.getResults())) {
+				if (ggiResponse == null || CollectionUtils.isEmpty(ggiResponse.getResults())) {
 					return;
 				}
 				
 				List<GeneGeneticInteractionDocument> documentsToIndex = new ArrayList<>();
-				List<GeneGeneticInteraction> forwardInteractions = gmiResponse.getResults();
+				List<GeneGeneticInteraction> interactions = geneGeneticInteractionService.getFilteredAndReversedInteractions(ggiResponse.getResults());
 				
-				for (GeneGeneticInteraction forwardInteraction : forwardInteractions) {
-					documentsToIndex.add(createDocument(forwardInteraction));
-					GeneGeneticInteraction reverseInteraction = interactionHelper.generateReverseInteraction(forwardInteraction);
-					if (reverseInteraction != null) {
-						documentsToIndex.add(createDocument(reverseInteraction));
-					}
+				for (GeneGeneticInteraction interaction : interactions) {
+					documentsToIndex.add(createDocument(interaction));
 				}
 				
 				indexDocuments(documentsToIndex);

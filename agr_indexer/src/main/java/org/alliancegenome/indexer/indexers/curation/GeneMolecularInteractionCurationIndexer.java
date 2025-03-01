@@ -11,7 +11,6 @@ import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
 import org.alliancegenome.indexer.indexers.curation.service.GeneMolecularInteractionService;
-import org.alliancegenome.indexer.indexers.curation.service.helpers.GeneInteractionHelper;
 import org.apache.commons.collections.CollectionUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 public class GeneMolecularInteractionCurationIndexer extends Indexer {
 
 	private GeneMolecularInteractionService geneMolecularInteractionService = new GeneMolecularInteractionService();
-	private GeneInteractionHelper interactionHelper = new GeneInteractionHelper();
 
 	public GeneMolecularInteractionCurationIndexer(IndexerConfig config) {
 		super(config);
@@ -71,14 +69,10 @@ public class GeneMolecularInteractionCurationIndexer extends Indexer {
 				}
 				
 				List<GeneMolecularInteractionDocument> documentsToIndex = new ArrayList<>();
-				List<GeneMolecularInteraction> forwardInteractions = gmiResponse.getResults();
+				List<GeneMolecularInteraction> interactions = geneMolecularInteractionService.getFilteredAndReversedInteractions(gmiResponse.getResults());
 				
-				for (GeneMolecularInteraction forwardInteraction : forwardInteractions) {
-					documentsToIndex.add(createDocument(forwardInteraction));
-					GeneMolecularInteraction reverseInteraction = interactionHelper.generateReverseInteraction(forwardInteraction);
-					if (reverseInteraction != null) {
-						documentsToIndex.add(createDocument(reverseInteraction));
-					}
+				for (GeneMolecularInteraction interaction : interactions) {
+					documentsToIndex.add(createDocument(interaction));
 				}
 				
 				indexDocuments(documentsToIndex);

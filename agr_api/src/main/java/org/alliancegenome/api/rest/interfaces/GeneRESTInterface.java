@@ -4,9 +4,10 @@ import java.io.IOException;
 import java.util.List;
 
 import org.alliancegenome.api.dto.ExpressionSummary;
-import org.alliancegenome.api.dto.JoinTypeValue;
 import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
+import org.alliancegenome.api.entity.GeneGeneticInteractionDocument;
+import org.alliancegenome.api.entity.GeneMolecularInteractionDocument;
 import org.alliancegenome.api.entity.GeneToGeneParalogyDocument;
 import org.alliancegenome.api.entity.GenePhenotypeAnnotationDocument;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
@@ -17,7 +18,6 @@ import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
 import org.alliancegenome.neo4j.view.HomologView;
 import org.alliancegenome.neo4j.view.View;
 import org.alliancegenome.neo4j.view.View.GeneAPI;
@@ -458,9 +458,10 @@ public interface GeneRESTInterface {
 		@Parameter(in = ParameterIn.QUERY, name = "stringencyFilter", description = "apply stringency containsFilterdescription", schema = @Schema(type = SchemaType.STRING))
 		@DefaultValue("stringent") @QueryParam("stringencyFilter") String stringencyFilter);
 
+	
 	@GET
-	@Path("/{id}/interactions")
-	@Operation(summary = "Retrieve interactions for a given gene")
+	@Path("/{id}/genetic-interactions")
+	@Operation(summary = "Retrieve genetic interactions for a given gene")
 	@APIResponses(
 		value = {
 			@APIResponse(
@@ -469,11 +470,98 @@ public interface GeneRESTInterface {
 				content = @Content(mediaType = "text/plain")),
 			@APIResponse(
 				responseCode = "200",
-				description = "Interactions for a gene.",
+				description = "Gentic interactions for a gene.",
 				content = @Content(mediaType = "application/json",
 					schema = @Schema(implementation = Null.class)))})
-	@JsonView(value = {View.Interaction.class})
-	JsonResultResponse<InteractionGeneJoin> getInteractions(
+	@JsonView(value = {View.GeneticInteraction.class})
+	JsonResultResponse<GeneGeneticInteractionDocument> getGeneticInteractions(
+		@Parameter(in = ParameterIn.PATH, name = "id", description = " Gene ID", required = true, schema = @Schema(type = SchemaType.STRING))
+		@PathParam("id") String id,
+		@Parameter(in = ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
+		@DefaultValue("20") @QueryParam("limit") Integer limit,
+		@Parameter(in = ParameterIn.QUERY, name = "page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER))
+		@DefaultValue("1") @QueryParam("page") Integer page,
+		@Parameter(in = ParameterIn.QUERY, name = "sortBy", description = "Field name by which to sort", schema = @Schema(type = SchemaType.STRING))
+//, allowedValues = "nteractorGeneSymbol,interactorMoleculeType,interactorSpecies,interactorSpecies,reference")
+		@QueryParam("sortBy") String sortBy,
+		@Parameter(in = ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))
+//,allowedValues = "true,false")
+		@DefaultValue("true")
+		@QueryParam("asc") String asc,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.interactorGeneSymbol", description = "Gene symbol")
+		@QueryParam("filter.interactorGeneSymbol") String interactorGeneSymbol,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.interactorSpecies", description = "Species")
+		@QueryParam("filter.interactorSpecies") String interactorSpecies,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.source", description = "database")
+		@QueryParam("filter.source") String source,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.reference", description = "References")
+		@QueryParam("filter.reference") String reference,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.role", description = "Role")
+		@QueryParam("filter.role") String role,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.geneticPerturbation", description = "Genetic Perturbation")
+		@QueryParam("filter.geneticPerturbation") String geneticPerturbation,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.interactorRole", description = "Interactor Role")
+		@QueryParam("filter.interactorRole") String interactorRole,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.interactorGeneticPerturbation", description = "Interactor Genetic Perturbation")
+		@QueryParam("filter.interactorGeneticPerturbation") String interactorGeneticPerturbation,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.phenotypes", description = "Phenotypes")
+		@QueryParam("filter.phenotypes") String phenotypes,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.interactionType", description = "Interaction Type")
+		@QueryParam("filter.interactionType") String interactionType,
+		@Context UriInfo info) throws IOException;
+	
+	@GET
+	@Path("/{id}/genetic-interactions/download")
+	@Operation(summary = "Retrieve genetic interactions for a given gene")
+	@Produces(MediaType.TEXT_PLAIN)
+	Response getGeneticInteractionsDownload(
+		@Parameter(in = ParameterIn.PATH, name = "id", description = " Gene ID", required = true, schema = @Schema(type = SchemaType.STRING))
+		@PathParam("id") String id,
+		@Parameter(in = ParameterIn.QUERY, name = "sortBy", description = "Name by which to sort", schema = @Schema(type = SchemaType.STRING))
+//allowedValues = "interactorGeneSymbol,interactorMoleculeType,interactorSpecies,interactorSpecies,reference")
+		@QueryParam("sortBy") String sortBy,
+		@Parameter(in = ParameterIn.QUERY, name = "asc", description = "ascending order: true or false", schema = @Schema(type = SchemaType.STRING))
+// allowedValues = "true,false")
+		@DefaultValue("true")
+		@QueryParam("asc") String asc,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.moleculeType", description = "molecule type")
+		@QueryParam("filter.interactorGeneSymbol") String interactorGeneSymbol,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.interactorSpecies", description = "species")
+		@QueryParam("filter.interactorSpecies") String interactorSpecies,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.interactorMoleculeType", description = "molecule type")
+		@QueryParam("filter.source") String source,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.reference", description = "References")
+		@QueryParam("filter.reference") String reference,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.role", description = "Role")
+		@QueryParam("filter.role") String role,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.geneticPerturbation", description = "Genetic Perturbation")
+		@QueryParam("filter.geneticPerturbation") String geneticPerturbation,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.interactorRole", description = "Interactor Role")
+		@QueryParam("filter.interactorRole") String interactorRole,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.interactorGeneticPerturbation", description = "Interactor Genetic Perturbation")
+		@QueryParam("filter.interactorGeneticPerturbation") String interactorGeneticPerturbation,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.phenotypes", description = "Phenotypes")
+		@QueryParam("filter.phenotypes") String phenotypes,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.interactionType", description = "Interaction Type")
+		@QueryParam("filter.interactionType") String interactionType
+	);
+	
+	@GET
+	@Path("/{id}/molecular-interactions")
+	@Operation(summary = "Retrieve molecular interactions for a given gene")
+	@APIResponses(
+		value = {
+			@APIResponse(
+				responseCode = "404",
+				description = "Missing interactions",
+				content = @Content(mediaType = "text/plain")),
+			@APIResponse(
+				responseCode = "200",
+				description = "Molecular interactions for a gene.",
+				content = @Content(mediaType = "application/json",
+					schema = @Schema(implementation = Null.class)))})
+	@JsonView(value = {View.MolecularInteraction.class})
+	JsonResultResponse<GeneMolecularInteractionDocument> getMolecularInteractions(
 		@Parameter(in = ParameterIn.PATH, name = "id", description = " Gene ID", required = true, schema = @Schema(type = SchemaType.STRING))
 		@PathParam("id") String id,
 		@Parameter(in = ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
@@ -489,8 +577,6 @@ public interface GeneRESTInterface {
 		@QueryParam("asc") String asc,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.moleculeType")
 		@QueryParam("filter.moleculeType") String moleculeType,
-		@Parameter(in = ParameterIn.QUERY, name = "filter.joinType", description = " molecylar_interaction or genetic_interaction", required = true)
-		@QueryParam("filter.joinType") JoinTypeValue joinType,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.interactorGeneSymbol", description = "Gene symbol")
 		@QueryParam("filter.interactorGeneSymbol") String interactorGeneSymbol,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.interactorSpecies", description = "Species")
@@ -503,26 +589,13 @@ public interface GeneRESTInterface {
 		@QueryParam("filter.source") String source,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.reference", description = "References")
 		@QueryParam("filter.reference") String reference,
-		//for genetic interaction
-		@Parameter(in = ParameterIn.QUERY, name = "filter.role", description = "Role")
-		@QueryParam("filter.role") String role,
-		@Parameter(in = ParameterIn.QUERY, name = "filter.geneticPerturbation", description = "Genetic Perturbation")
-		@QueryParam("filter.geneticPerturbation") String geneticPerturbation,
-		@Parameter(in = ParameterIn.QUERY, name = "filter.interacotorRole", description = "Interacotor Role")
-		@QueryParam("filter.interacotorRole") String interacotorRole,
-		@Parameter(in = ParameterIn.QUERY, name = "filter.interactorGeneticPerturbation", description = "Interactor Genetic Perturbation")
-		@QueryParam("filter.interactorGeneticPerturbation") String interactorGeneticPerturbation,
-		@Parameter(in = ParameterIn.QUERY, name = "filter.phenotypes", description = "Phenotypes")
-		@QueryParam("filter.phenotypes") String phenotypes,
-		@Parameter(in = ParameterIn.QUERY, name = "filter.interactionType", description = "Interaction Type")
-		@QueryParam("filter.interactionType") String interactionType,
-		@Context UriInfo info);
+		@Context UriInfo info) throws IOException;
 
 	@GET
-	@Path("/{id}/interactions/download")
-	@Operation(summary = "Retrieve interactions for a given gene")
+	@Path("/{id}/molecular-interactions/download")
+	@Operation(summary = "Retrieve molecular interactions for a given gene")
 	@Produces(MediaType.TEXT_PLAIN)
-	Response getInteractionsDownload(
+	Response getMolecularInteractionsDownload(
 		@Parameter(in = ParameterIn.PATH, name = "id", description = " Gene ID", required = true, schema = @Schema(type = SchemaType.STRING))
 		@PathParam("id") String id,
 		@Parameter(in = ParameterIn.QUERY, name = "sortBy", description = "Name by which to sort", schema = @Schema(type = SchemaType.STRING))
@@ -534,8 +607,6 @@ public interface GeneRESTInterface {
 		@QueryParam("asc") String asc,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.moleculeType", description = "molecule type")
 		@QueryParam("filter.moleculeType") String moleculeType,
-		@Parameter(in = ParameterIn.QUERY, name = "filter.joinType", description = " molecylar_interaction or genetic_interaction", required = true)
-		@QueryParam("filter.joinType") JoinTypeValue joinType,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.interactorGeneSymbol", description = "gene symbol")
 		@QueryParam("filter.interactorGeneSymbol") String interactorGeneSymbol,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.interactorSpecies", description = "species")
@@ -547,20 +618,7 @@ public interface GeneRESTInterface {
 		@Parameter(in = ParameterIn.QUERY, name = "filter.source", description = "database")
 		@QueryParam("filter.source") String source,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.reference", description = "References")
-		@QueryParam("filter.reference") String reference,
-		//for genetic interaction
-		@Parameter(in = ParameterIn.QUERY, name = "filter.role", description = "Role")
-		@QueryParam("filter.role") String role,
-		@Parameter(in = ParameterIn.QUERY, name = "filter.geneticPerturbation", description = "Genetic Perturbation")
-		@QueryParam("filter.geneticPerturbation") String geneticPerturbation,
-		@Parameter(in = ParameterIn.QUERY, name = "filter.interacotorRole", description = "Interacotor Role")
-		@QueryParam("filter.interacotorRole") String interacotorRole,
-		@Parameter(in = ParameterIn.QUERY, name = "filter.interactorGeneticPerturbation", description = "Interactor Genetic Perturbation")
-		@QueryParam("filter.interactorGeneticPerturbation") String interactorGeneticPerturbation,
-		@Parameter(in = ParameterIn.QUERY, name = "filter.phenotypes", description = "Phenotypes")
-		@QueryParam("filter.phenotypes") String phenotypes,
-		@Parameter(in = ParameterIn.QUERY, name = "filter.interactionType", description = "Interaction Type")
-		@QueryParam("filter.interactionType") String interactionType
+		@QueryParam("filter.reference") String reference
 	);
 
 	@GET
@@ -588,17 +646,6 @@ public interface GeneRESTInterface {
 		@Parameter(in = ParameterIn.QUERY, name = "debug", description = "debug the query", schema = @Schema(type = SchemaType.STRING))
 		@DefaultValue("false") @QueryParam("debug") Boolean debug
 	) throws JsonProcessingException;
-
-	@GET
-	@Path("/{id}/interaction-summary")
-	@JsonView(value = {View.Expression.class})
-	@Operation(summary = "Retrieve interaction summary records of a given gene")
-	@APIResponses(value = { @APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
-	EntitySummary getInteractionSummary(
-		@Parameter(in = ParameterIn.PATH, name = "id", description = "Gene by ID, e.g. 'RGD:2129' or 'ZFIN:ZDB-GENE-990415-72 fgf8a'", required = true, schema = @Schema(type = SchemaType.STRING))
-		@PathParam("id") String id
-	) throws JsonProcessingException;
-
 
 	@GET
 	@Path("/{id}/diseases-by-experiment")

@@ -6,10 +6,11 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.core.*;
 import lombok.extern.slf4j.Slf4j;
 import org.alliancegenome.api.dto.ExpressionSummary;
-import org.alliancegenome.api.dto.JoinTypeValue;
 import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.api.entity.GenePhenotypeAnnotationDocument;
+import org.alliancegenome.api.entity.GeneGeneticInteractionDocument;
+import org.alliancegenome.api.entity.GeneMolecularInteractionDocument;
 import org.alliancegenome.api.entity.GeneToGeneParalogyDocument;
 import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
 import org.alliancegenome.api.service.*;
@@ -23,7 +24,8 @@ import org.alliancegenome.core.api.service.InteractionColumnFieldMapping;
 import org.alliancegenome.core.exceptions.RestErrorException;
 import org.alliancegenome.core.exceptions.RestErrorMessage;
 import org.alliancegenome.core.translators.tdf.AlleleToTdfTranslator;
-import org.alliancegenome.core.translators.tdf.InteractionToTdfTranslator;
+import org.alliancegenome.core.translators.tdf.GeneGeneticInteractionToTdfTranslator;
+import org.alliancegenome.core.translators.tdf.GeneMolecularInteractionToTdfTranslator;
 import org.alliancegenome.core.translators.tdf.PhenotypeAnnotationToTdfTranslator;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
@@ -33,7 +35,6 @@ import org.alliancegenome.neo4j.entity.EntitySummary;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
 import org.alliancegenome.neo4j.view.HomologView;
 import org.alliancegenome.neo4j.view.OrthologyFilter;
 import org.apache.commons.collections.CollectionUtils;
@@ -75,8 +76,9 @@ public class GeneController implements GeneRESTInterface {
 	PhenotypeESService phenotypeESService;
 
 	private static final PhenotypeAnnotationToTdfTranslator translator = new PhenotypeAnnotationToTdfTranslator();
-	private static final AlleleToTdfTranslator alleleTanslator = new AlleleToTdfTranslator();
-	private static final InteractionToTdfTranslator interactionTanslator = new InteractionToTdfTranslator();
+	private static final AlleleToTdfTranslator alleleTranslator = new AlleleToTdfTranslator();
+	private static final GeneGeneticInteractionToTdfTranslator geneticInteractionTranslator = new GeneGeneticInteractionToTdfTranslator();
+	private static final GeneMolecularInteractionToTdfTranslator molecularInteractionTranslator = new GeneMolecularInteractionToTdfTranslator();
 	private static final DiseaseAnnotationToTdfTranslator diseaseTranslator = new DiseaseAnnotationToTdfTranslator();
 
 	@Override
@@ -235,7 +237,7 @@ public class GeneController implements GeneRESTInterface {
 			category,
 			location);
 
-		Response.ResponseBuilder responseBuilder = Response.ok(alleleTanslator.getAllAlleleVariantDetailRows(alleles.getResults()));
+		Response.ResponseBuilder responseBuilder = Response.ok(alleleTranslator.getAllAlleleVariantDetailRows(alleles.getResults()));
 		APIServiceHelper.setDownloadHeader(id, EntityType.GENE, EntityType.ALLELESANDVARIANT, responseBuilder);
 		return responseBuilder.build();
 	}
@@ -268,47 +270,44 @@ public class GeneController implements GeneRESTInterface {
 
 		JsonResultResponse<Allele> alleles = geneService.getAlleles(id, pagination);
 
-		Response.ResponseBuilder responseBuilder = Response.ok(alleleTanslator.getAllRows(alleles.getResults()));
+		Response.ResponseBuilder responseBuilder = Response.ok(alleleTranslator.getAllRows(alleles.getResults()));
 		APIServiceHelper.setDownloadHeader(id, EntityType.GENE, EntityType.ALLELE, responseBuilder);
 		return responseBuilder.build();
 	}
 
 
 	@Override
-	public JsonResultResponse<InteractionGeneJoin> getInteractions(
-		String id, Integer limit, Integer page, String sortBy, String asc,
-		String moleculeType,
-		JoinTypeValue joinType,
-		String interactorGeneSymbol,
-		String interactorSpecies,
-		String interactorMoleculeType,
-		String detectionMethod,
-		String source,
-		String reference,
-		String role,
-		String geneticPerturbation,
-		String interacotorRole,
-		String interactorGeneticPerturbation,
-		String phenotypes,
-		String interactionType,
-		@Context UriInfo info) {
+	public JsonResultResponse<GeneGeneticInteractionDocument> getGeneticInteractions(String id, Integer limit, Integer page, String sortBy, String asc,
+																String interactorGeneSymbol,
+																String interactorSpecies,
+																String source,
+																String reference,
+																String role,
+																String geneticPerturbation,
+																String interactorRole,
+																String interactorGeneticPerturbation,
+																String phenotypes,
+																String interactionType,
+																@Context UriInfo info) {
 		long startTime = System.currentTimeMillis();
+		
 		Pagination pagination = new Pagination(page, limit, sortBy, asc, new InteractionColumnFieldMapping());
-		pagination.addFieldFilter(FieldFilter.MOLECULE_TYPE, moleculeType);
-		pagination.addFieldFilter(FieldFilter.JOIN_TYPE, joinType.getName());
-		pagination.addFieldFilter(FieldFilter.INTERACTOR_GENE_SYMBOL, interactorGeneSymbol);
-		pagination.addFieldFilter(FieldFilter.INTERACTOR_SPECIES, interactorSpecies);
-		pagination.addFieldFilter(FieldFilter.INTERACTOR_MOLECULE_TYPE, interactorMoleculeType);
-		pagination.addFieldFilter(FieldFilter.DETECTION_METHOD, detectionMethod);
-		pagination.addFieldFilter(FieldFilter.SOURCE, source);
-		pagination.addFieldFilter(FieldFilter.INTERACTOR_REFERENCE, reference);
-		//for genetic interaction
-		pagination.addFieldFilter(FieldFilter.ROLE, role);
-		pagination.addFieldFilter(FieldFilter.GENETIC_PERTURBATION, geneticPerturbation);
-		pagination.addFieldFilter(FieldFilter.INTERACTOR_ROLE, interacotorRole);
-		pagination.addFieldFilter(FieldFilter.INTERACTOR_GENETIC_PERTURBATION, interactorGeneticPerturbation);
-		pagination.addFieldFilter(FieldFilter.PHENOTYPES, phenotypes);
-		pagination.addFieldFilter(FieldFilter.INTERACTION_TYPE, interactionType);
+		pagination.addFilterOption("geneGeneticInteraction.geneGeneAssociationObject.geneSymbol.displayText", interactorGeneSymbol);
+		pagination.addFilterOption("geneGeneticInteraction.interactionId", source);
+		pagination.addFilterOption("geneGeneticInteraction.evidence.referenceID", reference);
+		pagination.addFilterOption("geneGeneticInteraction.interactorARole.name.keyword", role);
+		pagination.addFilterOption("geneGeneticInteraction.interactorAGeneticPerturbation.name", geneticPerturbation);
+		pagination.addFilterOption("geneGeneticInteraction.interactorBRole.name.keyword", interactorRole);
+		pagination.addFilterOption("geneGeneticInteraction.interactorBGeneticPerturbation.name", interactorGeneticPerturbation);
+		pagination.addFilterOption("geneGeneticInteraction.phenotypesOrTraits", phenotypes);
+		pagination.addFilterOption("geneGeneticInteraction.interactionType.name.keyword", interactionType);
+		if (interactorSpecies != null) {
+			if (interactorSpecies.equals("Saccharomyces cerevisiae")) {
+				pagination.addFilterOption("geneGeneticInteraction.geneGeneAssociationObject.taxon.name.keyword", "Saccharomyces cerevisiae S288C");
+			} else {
+				pagination.addFilterOption("geneGeneticInteraction.geneGeneAssociationObject.taxon.name.keyword", interactorSpecies);
+			}
+		}
 		// Todo: needs to be made generic
 		//pagination.validateFilterValues(info.getQueryParameters());
 		if (pagination.hasErrors()) {
@@ -317,7 +316,7 @@ public class GeneController implements GeneRESTInterface {
 			throw new RestErrorException(message);
 		}
 		try {
-			JsonResultResponse<InteractionGeneJoin> interactions = geneService.getInteractions(id, pagination, joinType.getName());
+			JsonResultResponse<GeneGeneticInteractionDocument> interactions = geneService.getGeneticInteractions(id, pagination);
 			interactions.setHttpServletRequest(null);
 			interactions.calculateRequestDuration(startTime);
 			return interactions;
@@ -330,42 +329,117 @@ public class GeneController implements GeneRESTInterface {
 	}
 
 	@Override
-	public Response getInteractionsDownload(String id, String sortBy, String asc,
-											String moleculeType,
-											JoinTypeValue joinType,
+	public Response getGeneticInteractionsDownload(String id, String sortBy, String asc,
 											String interactorGeneSymbol,
 											String interactorSpecies,
-											String interactorMoleculeType,
-											String detectionMethod,
 											String source,
 											String reference,
 											String role,
 											String geneticPerturbation,
-											String interacotorRole,
+											String interactorRole,
 											String interactorGeneticPerturbation,
 											String phenotypes,
 											String interactionType
 	) {
-		Pagination pagination = new Pagination(1, Integer.MAX_VALUE, sortBy, asc);
-		pagination.addFieldFilter(FieldFilter.MOLECULE_TYPE, moleculeType);
-		pagination.addFieldFilter(FieldFilter.JOIN_TYPE, joinType.getName());
-		pagination.addFieldFilter(FieldFilter.INTERACTOR_GENE_SYMBOL, interactorGeneSymbol);
-		pagination.addFieldFilter(FieldFilter.INTERACTOR_SPECIES, interactorSpecies);
-		pagination.addFieldFilter(FieldFilter.INTERACTOR_MOLECULE_TYPE, interactorMoleculeType);
-		pagination.addFieldFilter(FieldFilter.DETECTION_METHOD, detectionMethod);
-		pagination.addFieldFilter(FieldFilter.SOURCE, source);
-		pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
-		//for genetic interaction
-		pagination.addFieldFilter(FieldFilter.ROLE, role);
-		pagination.addFieldFilter(FieldFilter.GENETIC_PERTURBATION, geneticPerturbation);
-		pagination.addFieldFilter(FieldFilter.INTERACTOR_ROLE, interacotorRole);
-		pagination.addFieldFilter(FieldFilter.INTERACTOR_GENETIC_PERTURBATION, interactorGeneticPerturbation);
-		pagination.addFieldFilter(FieldFilter.PHENOTYPES, phenotypes);
-		pagination.addFieldFilter(FieldFilter.INTERACTION_TYPE, interactionType);
-		JsonResultResponse<InteractionGeneJoin> interactions = geneService.getInteractions(id, pagination);
+		Pagination pagination = new Pagination(1, 150000, sortBy, asc);
+		pagination.addFilterOption("geneGeneticInteraction.geneGeneAssociationObject.geneSymbol.displayText", interactorGeneSymbol);
+		pagination.addFilterOption("geneGeneticInteraction.interactionId", source);
+		pagination.addFilterOption("geneGeneticInteraction.evidence.referenceID", reference);
+		pagination.addFilterOption("geneGeneticInteraction.interactorARole.name.keyword", role);
+		pagination.addFilterOption("geneGeneticInteraction.interactorAGeneticPerturbation.name", geneticPerturbation);
+		pagination.addFilterOption("geneGeneticInteraction.interactorBRole.name.keyword", interactorRole);
+		pagination.addFilterOption("geneGeneticInteraction.interactorBGeneticPerturbation.name", interactorGeneticPerturbation);
+		pagination.addFilterOption("geneGeneticInteraction.phenotypesOrTraits", phenotypes);
+		pagination.addFilterOption("geneGeneticInteraction.interactionType.name.keyword", interactionType);
+		if (interactorSpecies != null) {
+			if (interactorSpecies.equals("Saccharomyces cerevisiae")) {
+				pagination.addFilterOption("geneGeneticInteraction.geneGeneAssociationObject.taxon.name.keyword", "Saccharomyces cerevisiae S288C");
+			} else {
+				pagination.addFilterOption("geneGeneticInteraction.geneGeneAssociationObject.taxon.name.keyword", interactorSpecies);
+			}
+		}
+		
+		JsonResultResponse<GeneGeneticInteractionDocument> interactions = geneService.getGeneticInteractions(id, pagination);
 
-		Response.ResponseBuilder responseBuilder = Response.ok(interactionTanslator.getAllRows(interactions.getResults()));
-		APIServiceHelper.setDownloadHeader(id, EntityType.GENE, EntityType.INTERACTION, joinType.getName(), responseBuilder);
+		Response.ResponseBuilder responseBuilder = Response.ok(geneticInteractionTranslator.getAllRows(interactions.getResults()));
+		APIServiceHelper.setDownloadHeader(id, EntityType.GENE, EntityType.INTERACTION, "genetic_interaction", responseBuilder);
+		return responseBuilder.build();
+	}
+
+
+	@Override
+	public JsonResultResponse<GeneMolecularInteractionDocument> getMolecularInteractions(String id, Integer limit, Integer page, String sortBy, String asc,
+																String moleculeType,
+																String interactorGeneSymbol,
+																String interactorSpecies,
+																String interactorMoleculeType,
+																String detectionMethod,
+																String source,
+																String reference,
+																@Context UriInfo info) {
+		long startTime = System.currentTimeMillis();
+		Pagination pagination = new Pagination(page, limit, sortBy, asc, new InteractionColumnFieldMapping());
+		pagination.addFilterOption("geneMolecularInteraction.interactorAType.name.keyword", moleculeType);
+		pagination.addFilterOption("geneMolecularInteraction.geneGeneAssociationObject.geneSymbol.displayText", interactorGeneSymbol);
+		pagination.addFilterOption("geneMolecularInteraction.interactionId", source);
+		pagination.addFilterOption("geneMolecularInteraction.evidence.referenceID", reference);
+		pagination.addFilterOption("geneMolecularInteraction.interactorBType.name.keyword", interactorMoleculeType);
+		pagination.addFilterOption("geneMolecularInteraction.detectionMethod.name.keyword", detectionMethod);
+		if (interactorSpecies != null) {
+			if (interactorSpecies.equals("Saccharomyces cerevisiae")) {
+				pagination.addFilterOption("geneMolecularInteraction.geneGeneAssociationObject.taxon.name.keyword", "Saccharomyces cerevisiae S288C");
+			} else {
+				pagination.addFilterOption("geneMolecularInteraction.geneGeneAssociationObject.taxon.name.keyword", interactorSpecies);
+			}
+		}
+		// Todo: needs to be made generic
+		//pagination.validateFilterValues(info.getQueryParameters());
+		if (pagination.hasErrors()) {
+			RestErrorMessage message = new RestErrorMessage();
+			message.setErrors(pagination.getErrors());
+			throw new RestErrorException(message);
+		}
+		try {
+			JsonResultResponse<GeneMolecularInteractionDocument> interactions = geneService.getMolecularInteractions(id, pagination);
+			interactions.setHttpServletRequest(null);
+			interactions.calculateRequestDuration(startTime);
+			return interactions;
+		} catch (Exception e) {
+			log.error("Error while retrieving interaction data", e);
+			RestErrorMessage error = new RestErrorMessage();
+			error.addErrorMessage(e.getMessage());
+			throw new RestErrorException(error);
+		}
+	}
+
+	@Override
+	public Response getMolecularInteractionsDownload(String id, String sortBy, String asc,
+			String moleculeType,
+			String interactorGeneSymbol,
+			String interactorSpecies,
+			String interactorMoleculeType,
+			String detectionMethod,
+			String source,
+			String reference
+	) {
+		Pagination pagination = new Pagination(1, 150000, sortBy, asc);
+		pagination.addFilterOption("geneMolecularInteraction.interactorAType.name.keyword", moleculeType);
+		pagination.addFilterOption("geneMolecularInteraction.geneGeneAssociationObject.geneSymbol.displayText", interactorGeneSymbol);
+		pagination.addFilterOption("geneMolecularInteraction.interactionId", source);
+		pagination.addFilterOption("geneMolecularInteraction.evidence.referenceID", reference);
+		pagination.addFilterOption("geneMolecularInteraction.interactorBType.name.keyword", interactorMoleculeType);
+		pagination.addFilterOption("geneMolecularInteraction.detectionMethod.name.keyword", detectionMethod);
+		if (interactorSpecies != null) {
+			if (interactorSpecies.equals("Saccharomyces cerevisiae")) {
+				pagination.addFilterOption("geneMolecularInteraction.geneGeneAssociationObject.taxon.name.keyword", "Saccharomyces cerevisiae S288C");
+			} else {
+				pagination.addFilterOption("geneMolecularInteraction.geneGeneAssociationObject.taxon.name.keyword", interactorSpecies);
+			}
+		}
+		JsonResultResponse<GeneMolecularInteractionDocument> interactions = geneService.getMolecularInteractions(id, pagination);
+
+		Response.ResponseBuilder responseBuilder = Response.ok(molecularInteractionTranslator.getAllRows(interactions.getResults()));
+		APIServiceHelper.setDownloadHeader(id, EntityType.GENE, EntityType.INTERACTION, "molecular_interaction", responseBuilder);
 		return responseBuilder.build();
 	}
 
@@ -639,11 +713,6 @@ public class GeneController implements GeneRESTInterface {
 	}
 
 	@Override
-	public EntitySummary getInteractionSummary(String geneID) {
-		return geneService.getInteractionSummary(geneID);
-	}
-
-	@Override
 	public JsonResultResponse<DiseaseAnnotation> getDiseaseByExperiment(String id,
 																		Integer limit,
 																		Integer page,
@@ -786,7 +855,7 @@ public class GeneController implements GeneRESTInterface {
 			hasDisease,
 			ui);
 
-		Response.ResponseBuilder responseBuilder = Response.ok(alleleTanslator.getAllTransgenicAlleleRows(alleles.getResults()));
+		Response.ResponseBuilder responseBuilder = Response.ok(alleleTranslator.getAllTransgenicAlleleRows(alleles.getResults()));
 		APIServiceHelper.setDownloadHeader(geneId, EntityType.GENE, EntityType.TRANSGENICALLELE, responseBuilder);
 		return responseBuilder.build();
 	}
