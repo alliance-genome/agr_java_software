@@ -67,8 +67,8 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 		do {
 			SearchResponse<GeneDiseaseAnnotation> response = geneApi.findForPublic(page, batchSize, params);
 			for (GeneDiseaseAnnotation da : response.getResults()) {
-				if (isValidEntity(allGeneIDs, da.getDiseaseAnnotationSubject().getIdentifier()) && hasNoObsoletedOrInternalEntities(da)) {
-					if (hasValidGeneticModifiers(da, allGeneIDs, allAlleleIds, allModelIDs)) {
+				if (isValidNeoEntity(allNeoGeneIDs, da.getDiseaseAnnotationSubject().getIdentifier()) && hasNoObsoletedOrInternalEntities(da)) {
+					if (hasValidGeneticModifiers(da, allNeoGeneIDs, allNeoAlleleIDs, allNeoModelIDs)) {
 						ret.add(da);
 					}
 				}
@@ -129,7 +129,7 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 			SearchResponse<GeneToGeneOrthologyGenerated> response = orthologyApi.find(0, 500, params);
 			for (GeneToGeneOrthologyGenerated geneGeneOrthology : response.getResults()) {
 				Gene orthologousGene = geneGeneOrthology.getObjectGene();
-				if (!isValidEntity(allGeneIDs, orthologousGene.getIdentifier()) || orthologousGene.getObsolete() || orthologousGene.getInternal()) {
+				if (!isValidNeoEntity(allNeoGeneIDs, orthologousGene.getIdentifier()) || orthologousGene.getObsolete() || orthologousGene.getInternal()) {
 					continue;
 				}
 				// create orthologous DAs for each focus DA
