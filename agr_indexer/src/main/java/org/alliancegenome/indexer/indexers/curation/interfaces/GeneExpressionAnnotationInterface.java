@@ -2,7 +2,6 @@ package org.alliancegenome.indexer.indexers.curation.interfaces;
 
 import java.util.HashMap;
 
-import org.alliancegenome.curation_api.interfaces.base.BaseIdCrudInterface;
 import org.alliancegenome.curation_api.model.entities.GeneExpressionAnnotation;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.curation_api.view.View;
@@ -19,7 +18,8 @@ import jakarta.ws.rs.QueryParam;
 @Path("/gene-expression-annotation")
 @Produces({"application/json"})
 @Consumes({"application/json"})
-public interface GeneExpressionAnnotationInterface extends BaseIdCrudInterface<GeneExpressionAnnotation> {
+public interface GeneExpressionAnnotationInterface extends ForPublicFindInterface<GeneExpressionAnnotation> {
+	@Override
 	@POST
 	@Path("/findForPublic")
 	@JsonView({View.ForPublic.class})

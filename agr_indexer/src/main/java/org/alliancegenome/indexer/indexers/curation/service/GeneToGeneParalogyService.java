@@ -18,6 +18,6 @@ public class GeneToGeneParalogyService {
 		HashMap<String, Object> params = new HashMap<>();
 		params.put("internal", false);
 		params.put("obsolete", false);
-		return paralogyApi.find(page, limit, params);
+		return paralogyApi.findForPublic(page, limit, params);
 	}
 }

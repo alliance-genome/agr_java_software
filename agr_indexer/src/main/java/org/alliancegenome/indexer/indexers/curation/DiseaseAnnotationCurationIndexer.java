@@ -19,7 +19,7 @@ import org.alliancegenome.indexer.indexers.Indexer;
 import org.alliancegenome.indexer.indexers.curation.service.AGMDiseaseAnnotationService;
 import org.alliancegenome.indexer.indexers.curation.service.AlleleDiseaseAnnotationService;
 import org.alliancegenome.indexer.indexers.curation.service.GeneDiseaseAnnotationService;
-import org.alliancegenome.indexer.indexers.curation.service.VocabularyService;
+import org.alliancegenome.indexer.indexers.curation.service.VocabularyTermService;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.apache.commons.collections4.CollectionUtils;
@@ -38,7 +38,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 	private GeneDiseaseAnnotationService geneService = new GeneDiseaseAnnotationService();
 	private AlleleDiseaseAnnotationService alleleService = new AlleleDiseaseAnnotationService();
 	private AGMDiseaseAnnotationService agmService = new AGMDiseaseAnnotationService();
-	private VocabularyService vocabService = new VocabularyService();
+	private VocabularyTermService vocabService = new VocabularyTermService();
 	private DiseaseRepository diseaseRepository;
 
 	private Map<String, Set<String>> closureMap;

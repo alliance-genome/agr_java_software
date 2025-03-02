@@ -13,10 +13,10 @@ import java.util.stream.Collectors;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.Organization;
 import org.alliancegenome.curation_api.model.entities.DiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.Gene;
 import org.alliancegenome.curation_api.model.entities.GeneDiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.Organization;
 import org.alliancegenome.curation_api.model.entities.Reference;
 import org.alliancegenome.curation_api.model.entities.VocabularyTerm;
 import org.alliancegenome.curation_api.model.entities.ontology.ECOTerm;
@@ -38,7 +38,7 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 	private final GeneDiseaseAnnotationInterface geneApi = RestProxyFactory.createProxy(GeneDiseaseAnnotationInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 	private final GeneToGeneOrthologyGeneratedInterface orthologyApi = RestProxyFactory.createProxy(GeneToGeneOrthologyGeneratedInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 
-	private VocabularyService vocabService = new VocabularyService();
+	private VocabularyTermService vocabService = new VocabularyTermService();
 	private EcoTermService ecoTermService = new EcoTermService();
 	private OrganizationService orgService = new OrganizationService();
 	private ReferenceService referenceService = new ReferenceService();
@@ -126,7 +126,7 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 		for (String geneID : geneIDs) {
 			List<DiseaseAnnotation> focusDiseaseAnnotations = geneMap.get(geneID).getRight();
 			params.put("subjectGene.primaryExternalId", geneID);
-			SearchResponse<GeneToGeneOrthologyGenerated> response = orthologyApi.find(0, 500, params);
+			SearchResponse<GeneToGeneOrthologyGenerated> response = orthologyApi.findForPublic(0, 500, params);
 			for (GeneToGeneOrthologyGenerated geneGeneOrthology : response.getResults()) {
 				Gene orthologousGene = geneGeneOrthology.getObjectGene();
 				if (!isValidNeoEntity(allNeoGeneIDs, orthologousGene.getIdentifier()) || orthologousGene.getObsolete() || orthologousGene.getInternal()) {

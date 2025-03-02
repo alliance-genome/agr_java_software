@@ -1,6 +1,6 @@
 package org.alliancegenome.indexer.indexers.curation.interfaces;
 
-import org.alliancegenome.curation_api.interfaces.base.BaseIdCrudInterface;
+import org.alliancegenome.curation_api.interfaces.base.crud.BaseReadCurieControllerInterface;
 import org.alliancegenome.curation_api.model.entities.Reference;
 import org.alliancegenome.curation_api.response.ObjectResponse;
 import org.alliancegenome.curation_api.view.View;
@@ -16,7 +16,7 @@ import jakarta.ws.rs.Produces;
 @Path("/reference")
 @Produces({"application/json"})
 @Consumes({"application/json"})
-public interface ReferenceInterface extends BaseIdCrudInterface<Reference> {
+public interface ReferenceInterface extends BaseReadCurieControllerInterface<Reference> {
 
 	@GET
 	@Path("/{curie}")

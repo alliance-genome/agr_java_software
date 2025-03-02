@@ -2,7 +2,6 @@ package org.alliancegenome.indexer.indexers.curation.interfaces;
 
 import java.util.HashMap;
 
-import org.alliancegenome.curation_api.interfaces.base.BaseIdCrudInterface;
 import org.alliancegenome.curation_api.model.entities.GeneMolecularInteraction;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.curation_api.view.View;
@@ -19,11 +18,10 @@ import jakarta.ws.rs.QueryParam;
 @Path("/gene-molecular-interaction")
 @Produces({"application/json"})
 @Consumes({"application/json"})
-public interface GeneMolecularInteractionInterface extends BaseIdCrudInterface<GeneMolecularInteraction> {
-
+public interface GeneMolecularInteractionInterface extends ForPublicFindInterface<GeneMolecularInteraction> {
+	@Override
 	@POST
 	@Path("/findForPublic")
 	@JsonView({View.ForPublic.class})
 	SearchResponse<GeneMolecularInteraction> findForPublic(@DefaultValue("0") @QueryParam("page") Integer page, @DefaultValue("10") @QueryParam("limit") Integer limit, HashMap<String, Object> params);
-
 }

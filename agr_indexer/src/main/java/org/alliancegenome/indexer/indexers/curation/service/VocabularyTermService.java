@@ -6,13 +6,13 @@ import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.model.entities.VocabularyTerm;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.indexer.RestConfig;
-import org.alliancegenome.indexer.indexers.curation.interfaces.VocabularyRESTInterface;
+import org.alliancegenome.indexer.indexers.curation.interfaces.VocabularyTermRESTInterface;
 
 import si.mazi.rescu.RestProxyFactory;
 
-public class VocabularyService {
+public class VocabularyTermService {
 
-	private VocabularyRESTInterface vocabularyApi = RestProxyFactory.createProxy(VocabularyRESTInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
+	private VocabularyTermRESTInterface vocabularyApi = RestProxyFactory.createProxy(VocabularyTermRESTInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 
 	private HashMap<String, VocabularyTerm> terms;
 
@@ -23,7 +23,7 @@ public class VocabularyService {
 
 		HashMap<String, Object> params = new HashMap<>();
 		params.put("vocabulary.name", "Disease Relation");
-		SearchResponse<VocabularyTerm> response = vocabularyApi.find(0, 1000, params);
+		SearchResponse<VocabularyTerm> response = vocabularyApi.findForPublic(0, 1000, params);
 		terms = new HashMap<>();
 		for (VocabularyTerm vt : response.getResults()) {
 			terms.put(vt.getName(), vt);

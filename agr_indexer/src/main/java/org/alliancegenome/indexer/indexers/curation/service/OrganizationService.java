@@ -26,7 +26,7 @@ public class OrganizationService {
 		}
 		HashMap<String, Object> params = new HashMap<>();
 		params.put("abbreviation", abbreviation);
-		SearchResponse<Organization> response = organizationApi.find(0, 1000, params);
+		SearchResponse<Organization> response = organizationApi.findForPublic(0, 1000, params);
 		List<Organization> list = response.getResults();
 		if (CollectionUtils.isEmpty(list) || list.size() > 1) {
 			throw new RuntimeException("Could not find organization by abbreviation " + abbreviation);

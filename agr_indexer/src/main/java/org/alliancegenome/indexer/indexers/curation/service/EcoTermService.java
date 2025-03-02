@@ -13,7 +13,7 @@ public class EcoTermService {
 	private EcoTermRESTInterface ecoTermApi = RestProxyFactory.createProxy(EcoTermRESTInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 	
 	public ECOTerm getEcoTerm(String curie) {
-		ObjectResponse<ECOTerm> response = ecoTermApi.find(curie);
+		ObjectResponse<ECOTerm> response = ecoTermApi.getByCurie(curie);
 		return response.getEntity();
 	}
 
