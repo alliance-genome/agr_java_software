@@ -25,8 +25,6 @@ public class AllelePhenotypeAnnotationService extends BaseDiseaseAnnotationServi
 			return ret;
 		}
 		ProcessDisplayHelper display = new ProcessDisplayHelper(2000);
-		log.info("Gene IDs #: " + allGeneIDs);
-		log.info("Allele IDs #: " + allAlleleIds);
 
 		int batchSize = 1000;
 		int page = 0;
@@ -41,7 +39,7 @@ public class AllelePhenotypeAnnotationService extends BaseDiseaseAnnotationServi
 		do {
 			SearchResponse<AllelePhenotypeAnnotation> response = alleleApi.findForPublic(page, batchSize, params);
 			for (AllelePhenotypeAnnotation da : response.getResults()) {
-				if (isValidEntity(allAlleleIds, da.getPhenotypeAnnotationSubject().getIdentifier())) {
+				if (isValidNeoEntity(allNeoAlleleIDs, da.getPhenotypeAnnotationSubject().getIdentifier())) {
 					ret.add(da);
 				}
 			}

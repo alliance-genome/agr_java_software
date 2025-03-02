@@ -28,8 +28,6 @@ public class GenePhenotypeAnnotationService extends BaseDiseaseAnnotationService
 		}
 
 		ProcessDisplayHelper display = new ProcessDisplayHelper(2000);
-		log.info("Gene IDs #: " + allGeneIDs);
-		log.info("AGM IDs #: " + allModelIDs);
 
 		int batchSize = 1000;
 		int page = 0;
@@ -42,7 +40,7 @@ public class GenePhenotypeAnnotationService extends BaseDiseaseAnnotationService
 		do {
 			SearchResponse<GenePhenotypeAnnotation> response = geneApi.findForPublic(page, batchSize, params);
 			for (GenePhenotypeAnnotation pa : response.getResults()) {
-				if (isValidEntity(allGeneIDs, pa.getPhenotypeAnnotationSubject().getIdentifier())) {
+				if (isValidNeoEntity(allNeoGeneIDs, pa.getPhenotypeAnnotationSubject().getIdentifier())) {
 					ret.add(pa);
 				}
 			}
