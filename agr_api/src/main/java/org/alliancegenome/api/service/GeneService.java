@@ -1,31 +1,16 @@
 package org.alliancegenome.api.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import org.alliancegenome.api.entity.AlleleVariantSequence;
-import org.alliancegenome.api.entity.GenePhenotypeAnnotationDocument;
-import org.alliancegenome.cache.repository.AlleleCacheRepository;
-import org.alliancegenome.cache.repository.InteractionCacheRepository;
-import static org.alliancegenome.cache.repository.helper.JsonResultResponse.DISTINCT_FIELD_VALUES;
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.api.entity.GeneGeneticInteractionDocument;
 import org.alliancegenome.api.entity.GeneMolecularInteractionDocument;
+import org.alliancegenome.api.entity.GenePhenotypeAnnotationDocument;
 import org.alliancegenome.api.service.helper.ElasticSearchHelper;
 import org.alliancegenome.cache.repository.AlleleCacheRepository;
-import org.alliancegenome.cache.repository.PhenotypeCacheRepository;
+import org.alliancegenome.cache.repository.InteractionCacheRepository;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.cache.repository.helper.PaginationResult;
 import org.alliancegenome.core.variant.service.AlleleVariantIndexService;
 import org.alliancegenome.es.index.site.dao.SearchDAO;
 import org.alliancegenome.es.model.query.Pagination;
@@ -50,12 +35,12 @@ import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilde
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import static org.alliancegenome.cache.repository.helper.JsonResultResponse.DISTINCT_FIELD_VALUES;
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 
 @RequestScoped
 public class GeneService {
@@ -74,10 +59,13 @@ public class GeneService {
 
 	@Inject
 	PhenotypeESService phenotypeESService;
+	@Inject
+	ObjectMapper mapper;
 
-  private static final ElasticSearchHelper elasticSearchHelper = new ElasticSearchHelper();
+
+	private static final ElasticSearchHelper elasticSearchHelper = new ElasticSearchHelper();
 	private static final SearchDAO searchDAO = new SearchDAO();
-	
+
 
 	public Gene getById(String id) {
 		Gene gene = geneRepo.getOneGene(id);
@@ -113,7 +101,7 @@ public class GeneService {
 		}
 		return alleleCacheRepository.getAlleleAndVariantJsonResultResponse(pagination, allelesNVariants);
 	}
-	
+
 	public JsonResultResponse<GeneGeneticInteractionDocument> getGeneticInteractions(String geneId, Pagination pagination) {
 		BoolQueryBuilder query = boolQuery();
 		query.should(new MatchQueryBuilder("geneGeneticInteraction.geneAssociationSubject.curie.keyword", geneId));
@@ -125,12 +113,12 @@ public class GeneService {
 
 		// add table filter
 		elasticSearchHelper.addTableFilter(pagination, query);
-		
+
 		LinkedHashMap<String, SortOrder> sorts = new LinkedHashMap<>();
 		if (StringUtils.isNotBlank(pagination.getSortBy())) {
 			sorts.put(pagination.getSortBy(), SortOrder.ASC);
 		}
-		
+
 		List<AggregationBuilder> aggBuilders = new ArrayList<>();
 		HighlightBuilder hlb = new HighlightBuilder();
 		SearchResponse searchResponse = searchDAO.performQuery(query, aggBuilders, null, List.of("*"), pagination.getLimit(), pagination.getOffset(), hlb, sorts, false);
@@ -150,7 +138,7 @@ public class GeneService {
 		return ret;
 
 	}
-	
+
 	public JsonResultResponse<GeneMolecularInteractionDocument> getMolecularInteractions(String geneId, Pagination pagination) {
 		BoolQueryBuilder query = boolQuery();
 		BoolQueryBuilder query2 = boolQuery();
@@ -165,12 +153,12 @@ public class GeneService {
 
 		// add table filter
 		elasticSearchHelper.addTableFilter(pagination, query);
-		
+
 		LinkedHashMap<String, SortOrder> sorts = new LinkedHashMap<>();
 		if (StringUtils.isNotBlank(pagination.getSortBy())) {
 			sorts.put(pagination.getSortBy(), SortOrder.ASC);
 		}
-		
+
 		List<AggregationBuilder> aggBuilders = new ArrayList<>();
 		HighlightBuilder hlb = new HighlightBuilder();
 		SearchResponse searchResponse = searchDAO.performQuery(query, aggBuilders, null, List.of("*"), pagination.getLimit(), pagination.getOffset(), hlb, sorts, false);
@@ -190,7 +178,7 @@ public class GeneService {
 		return ret;
 
 	}
-	
+
 	private Map<String, Object> getGeneticInteractionSupplementalData(BoolQueryBuilder unfilteredQuery) {
 		Map<String, String> aggregationFields = new HashMap<>();
 		aggregationFields.put("geneGeneticInteraction.interactorARole.name.keyword", "filter.role");
@@ -199,7 +187,7 @@ public class GeneService {
 		aggregationFields.put("geneGeneticInteraction.geneGeneAssociationObject.taxon.name.keyword", "filter.interactorSpecies");
 		return getInteractionSupplementalData(aggregationFields, unfilteredQuery);
 	}
-	
+
 	private Map<String, Object> getMolecularInteractionSupplementalData(BoolQueryBuilder unfilteredQuery) {
 		Map<String, String> aggregationFields = new HashMap<>();
 		aggregationFields.put("geneMolecularInteraction.interactorBType.name.keyword", "filter.interactorMoleculeType");
@@ -208,7 +196,7 @@ public class GeneService {
 		aggregationFields.put("geneMolecularInteraction.geneGeneAssociationObject.taxon.name.keyword", "filter.interactorSpecies");
 		return getInteractionSupplementalData(aggregationFields, unfilteredQuery);
 	}
-	
+
 	private Map<String, Object> getInteractionSupplementalData(Map<String, String> aggregationFields, BoolQueryBuilder unfilteredQuery) {
 		Map<String, List<String>> distinctFieldValueMap = getAggregations(unfilteredQuery, aggregationFields);
 		Map<String, Object> supplementalData = new LinkedHashMap<>();

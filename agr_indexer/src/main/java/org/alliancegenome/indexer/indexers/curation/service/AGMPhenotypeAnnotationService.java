@@ -27,8 +27,6 @@ public class AGMPhenotypeAnnotationService extends BaseDiseaseAnnotationService 
 			ret = new ArrayList<>();
 		}
 		ProcessDisplayHelper display = new ProcessDisplayHelper(2000);
-		log.info("Gene IDs #: " + allGeneIDs);
-		log.info("AGM IDs #: " + allModelIDs);
 
 		int batchSize = 1000;
 		int page = 0;
@@ -43,7 +41,7 @@ public class AGMPhenotypeAnnotationService extends BaseDiseaseAnnotationService 
 		do {
 			SearchResponse<AGMPhenotypeAnnotation> response = agmApi.findForPublic(page, batchSize, params);
 			for (AGMPhenotypeAnnotation da : response.getResults()) {
-				if (isValidEntity(allModelIDs, da.getPhenotypeAnnotationSubject().getIdentifier())) {
+				if (isValidNeoEntity(allNeoModelIDs, da.getPhenotypeAnnotationSubject().getIdentifier())) {
 					ret.add(da);
 				}
 			}
