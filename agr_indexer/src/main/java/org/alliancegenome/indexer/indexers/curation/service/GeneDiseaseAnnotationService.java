@@ -38,7 +38,7 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 	private final GeneDiseaseAnnotationInterface geneApi = RestProxyFactory.createProxy(GeneDiseaseAnnotationInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 	private final GeneToGeneOrthologyGeneratedInterface orthologyApi = RestProxyFactory.createProxy(GeneToGeneOrthologyGeneratedInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 
-	private VocabularyTermService vocabService = new VocabularyTermService();
+	private VocabularyTermService vocabularyTermService = new VocabularyTermService();
 	private EcoTermService ecoTermService = new EcoTermService();
 	private OrganizationService orgService = new OrganizationService();
 	private ReferenceService referenceService = new ReferenceService();
@@ -108,8 +108,8 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 		params.put("obsolete", false);
 		params.put("strictFilter", true);
 
-		VocabularyTerm isMarkerViaOrthology = vocabService.getDiseaseRelationTerms().get("is_marker_via_orthology");
-		VocabularyTerm isImplicatedViaOrthology = vocabService.getDiseaseRelationTerms().get("is_implicated_via_orthology");
+		VocabularyTerm isMarkerViaOrthology = vocabularyTermService.getDiseaseRelationTerms().get("is_marker_via_orthology");
+		VocabularyTerm isImplicatedViaOrthology = vocabularyTermService.getDiseaseRelationTerms().get("is_implicated_via_orthology");
 		ECOTerm ecoTermIEA = ecoTermService.getEcoTerm("ECO:0000501");
 		// hard code MGI:6194238 with corresponding AGRKB ID
 		Reference allianceReference = referenceService.getReference("AGRKB:101000000828456");
