@@ -1,12 +1,10 @@
 package org.alliancegenome.api.service;
 
-import io.quarkus.logging.Log;
 import jakarta.enterprise.context.RequestScoped;
 import org.alliancegenome.api.entity.*;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.api.service.DiseaseRibbonService;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.SimpleTerm;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
@@ -104,25 +102,6 @@ public class DiseaseESService extends ESService {
 		ret.setResults(list);
 		return ret;
 
-	}
-
-	private LinkedHashMap<String, SortOrder> getAnnotationSorts(String focusTaxonId, boolean debug) {
-		SpeciesType type = SpeciesType.getTypeByID(focusTaxonId);
-		LinkedHashMap<String, SortOrder> sorts = new LinkedHashMap<>();
-		if (type != null) {
-			sorts.put("speciesOrder." + type.getTaxonIDPart(), SortOrder.ASC);
-		} else {
-			if (debug) {
-				Log.info("Species could not be found for: " + focusTaxonId);
-			} else {
-				Log.debug("Species could not be found for: " + focusTaxonId);
-			}
-		}
-		sorts.put("object.name.sort", SortOrder.ASC);
-		if (debug) {
-			Log.info(sorts);
-		}
-		return sorts;
 	}
 
 	public DiseaseRibbonSummary getDiseaseRibbonSummary(List<String> geneIDs, Boolean includeNegation, boolean debug) {

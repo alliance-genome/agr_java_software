@@ -28,7 +28,6 @@ import org.elasticsearch.search.sort.SortOrder;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.alliancegenome.cache.repository.helper.JsonResultResponse.DISTINCT_FIELD_VALUES;
 import static org.elasticsearch.index.query.QueryBuilders.*;
 
 
@@ -160,7 +159,7 @@ public class ESService {
 		return distinctFieldValueMap;
 	}
 
-	private LinkedHashMap<String, SortOrder> getAnnotationSorts(String focusTaxonId, boolean debug) {
+	protected LinkedHashMap<String, SortOrder> getAnnotationSorts(String focusTaxonId, boolean debug) {
 		SpeciesType type = SpeciesType.getTypeByID(focusTaxonId);
 		LinkedHashMap<String, SortOrder> sorts = new LinkedHashMap<>();
 		if (type != null) {
