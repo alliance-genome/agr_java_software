@@ -14,10 +14,11 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.MediaType;
 
 @Path("/allele-disease-annotation")
-@Produces({"application/json"})
-@Consumes({"application/json"})
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
 public interface AlleleDiseaseAnnotationInterface extends ForPublicFindInterface<AlleleDiseaseAnnotation> {
 	@Override
 	@POST

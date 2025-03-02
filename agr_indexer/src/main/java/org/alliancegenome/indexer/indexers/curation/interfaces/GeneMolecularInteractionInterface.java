@@ -14,10 +14,11 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.MediaType;
 
 @Path("/gene-molecular-interaction")
-@Produces({"application/json"})
-@Consumes({"application/json"})
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
 public interface GeneMolecularInteractionInterface extends ForPublicFindInterface<GeneMolecularInteraction> {
 	@Override
 	@POST
