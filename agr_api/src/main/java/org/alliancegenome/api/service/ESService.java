@@ -42,20 +42,6 @@ public class ESService {
 	private static final GeneDiseaseSearchHelper geneDiseaseSearchHelper = new GeneDiseaseSearchHelper();
 
 
-	private Map<String, Object> getSupplementalData(String focusTaxonId, boolean useSpeciesAggregation, boolean debug, BoolQueryBuilder unfilteredQuery) {
-		// create histogram of select columns of unfiltered query
-		Map<String, String> aggregationFields = new HashMap<>();
-		if (useSpeciesAggregation) {
-			aggregationFields.put("subject.taxon.name.keyword", "species");
-		}
-		aggregationFields.put("generatedRelationString.keyword", "associationType");
-		aggregationFields.put("diseaseQualifiers.keyword", "diseaseQualifiers");
-		Map<String, List<String>> distinctFieldValueMap = getAggregations(unfilteredQuery, aggregationFields, focusTaxonId, useSpeciesAggregation, debug);
-		Map<String, Object> supplementalData = new LinkedHashMap<>();
-		supplementalData.put(DISTINCT_FIELD_VALUES, distinctFieldValueMap);
-		return supplementalData;
-	}
-
 	protected SearchResponse getSearchResponse(BoolQueryBuilder bool, Pagination pagination, LinkedHashMap<String, SortOrder> focusTaxonId, boolean debug) {
 		List<AggregationBuilder> aggBuilders = new ArrayList<>();
 		HighlightBuilder hlb = new HighlightBuilder();
