@@ -22,7 +22,7 @@ public class ReferenceService {
 		if (ref != null) {
 			return ref;
 		}
-		ObjectResponse<Reference> objectRef = referenceApi.get(curie);
+		ObjectResponse<Reference> objectRef = referenceApi.getByCurie(curie);
 		Reference reference = objectRef.getEntity();
 		if (reference == null) {
 			throw new RuntimeException("Could not find Reference by curie " + curie);
