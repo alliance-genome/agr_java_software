@@ -25,8 +25,8 @@ import org.elasticsearch.client.RestClientBuilder.RequestConfigCallback;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.unit.ByteSizeUnit;
 import org.elasticsearch.common.unit.ByteSizeValue;
-import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.core.TimeValue;
+import org.elasticsearch.xcontent.XContentType;
 
 import lombok.extern.slf4j.Slf4j;
 
