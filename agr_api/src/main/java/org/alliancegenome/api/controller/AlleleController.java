@@ -1,13 +1,13 @@
 package org.alliancegenome.api.controller;
 
-import java.time.LocalDateTime;
-
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.core.Response;
+import lombok.extern.slf4j.Slf4j;
 import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
+import org.alliancegenome.api.entity.AllelePhenotypeAnnotationDocument;
 import org.alliancegenome.api.rest.interfaces.AlleleRESTInterface;
-import org.alliancegenome.api.service.AlleleService;
-import org.alliancegenome.api.service.DiseaseESService;
-import org.alliancegenome.api.service.EntityType;
-import org.alliancegenome.api.service.VariantService;
+import org.alliancegenome.api.service.*;
 import org.alliancegenome.api.service.helper.APIServiceHelper;
 import org.alliancegenome.api.translators.tdf.DiseaseAnnotationToTdfTranslator;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
@@ -17,14 +17,10 @@ import org.alliancegenome.core.translators.tdf.AlleleToTdfTranslator;
 import org.alliancegenome.core.translators.tdf.PhenotypeAnnotationToTdfTranslator;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Variant;
 
-import jakarta.enterprise.context.RequestScoped;
-import jakarta.inject.Inject;
-import jakarta.ws.rs.core.Response;
-import lombok.extern.slf4j.Slf4j;
+import java.time.LocalDateTime;
 
 @Slf4j
 @RequestScoped
@@ -39,11 +35,13 @@ public class AlleleController implements AlleleRESTInterface {
 	@Inject
 	DiseaseESService diseaseESService;
 
+	@Inject
+	PhenotypeESService phenotypeESService;
 	//@Inject
 	//private HttpRequest request;
 
 	private AlleleToTdfTranslator translator = new AlleleToTdfTranslator();
-	private final PhenotypeAnnotationToTdfTranslator phenotypeAnnotationToTdfTranslator = new PhenotypeAnnotationToTdfTranslator();
+	private PhenotypeAnnotationToTdfTranslator phenotypeTranslator = new PhenotypeAnnotationToTdfTranslator();
 	private final DiseaseAnnotationToTdfTranslator diseaseToTdfTranslator = new DiseaseAnnotationToTdfTranslator();
 
 	@Override
@@ -106,25 +104,25 @@ public class AlleleController implements AlleleRESTInterface {
 	}
 
 	@Override
-	public JsonResultResponse<PhenotypeAnnotation> getPhenotypePerAllele(String id, Integer limit, Integer page, String phenotype, String source, String reference, String sortBy) {
+	public JsonResultResponse<AllelePhenotypeAnnotationDocument> getPhenotypePerAllele(
+		String id,
+		Integer limit,
+		Integer page,
+		String phenotype,
+		String source,
+		String reference,
+		String sortBy) {
 		long startTime = System.currentTimeMillis();
 		Pagination pagination = new Pagination(page, limit, sortBy, null);
-		pagination.addFieldFilter(FieldFilter.PHENOTYPE, phenotype);
-		pagination.addFieldFilter(FieldFilter.SOURCE, source);
-		pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
-		if (pagination.hasErrors()) {
-			RestErrorMessage message = new RestErrorMessage();
-			message.setErrors(pagination.getErrors());
-			throw new RestErrorException(message);
-		}
-
+		pagination.addFilterOption("phenotypeStatement", phenotype);
+		pagination.addFilterOption("pubmedPubModIDs", reference);
 		try {
-			JsonResultResponse<PhenotypeAnnotation> phenotypeAnnotation = alleleService.getPhenotype(id, pagination);
-			phenotypeAnnotation.setHttpServletRequest(null);
-			phenotypeAnnotation.calculateRequestDuration(startTime);
-			return phenotypeAnnotation;
+			JsonResultResponse<AllelePhenotypeAnnotationDocument> phenotypes = phenotypeESService.getAllelePhenotypeAnnotations(id, pagination, false);
+			phenotypes.setHttpServletRequest(null);
+			phenotypes.calculateRequestDuration(startTime);
+			return phenotypes;
 		} catch (Exception e) {
-			log.error("Error while retrieving phenotype info", e);
+			log.error("Error while retrieving phenotypes", e);
 			RestErrorMessage error = new RestErrorMessage();
 			error.addErrorMessage(e.getMessage());
 			throw new RestErrorException(error);
@@ -133,34 +131,37 @@ public class AlleleController implements AlleleRESTInterface {
 
 	@Override
 	public Response getPhenotypesPerAlleleDownload(String id, String phenotype, String source, String reference, String sortBy) {
-		JsonResultResponse<PhenotypeAnnotation> response = getPhenotypePerAllele(id,
-			Integer.MAX_VALUE,
-			1,
-			phenotype,
-			source,
-			reference,
-			sortBy);
-		Response.ResponseBuilder responseBuilder = Response.ok(phenotypeAnnotationToTdfTranslator.getAllRowsForAlleles(response.getResults()));
+		// retrieve all records
+		JsonResultResponse<AllelePhenotypeAnnotationDocument> response =
+			getPhenotypePerAllele(id,
+				250000,
+				1,
+				phenotype,
+				source,
+				reference,
+				sortBy);
+		Response.ResponseBuilder responseBuilder = Response.ok(phenotypeTranslator.getAllRows(response.getResults()));
 		APIServiceHelper.setDownloadHeader(id, EntityType.ALLELE, EntityType.PHENOTYPE, responseBuilder);
 		return responseBuilder.build();
 	}
 
 	@Override
-	public JsonResultResponse<AlleleDiseaseAnnotationDocument> getDiseasePerAllele(String alleleID,
-																					String filterOptions,
-																					String filterReference,
-																					String diseaseTerm,
-																					String filterSource,
-																					String geneticEntity,
-																					String geneticEntityType,
-																					String associationType,
-																					String diseaseQualifier,
-																					String evidenceCode,
-																					Boolean debug,
-																					Integer limit,
-																					Integer page,
-																					String sortBy,
-																					String asc) {
+	public JsonResultResponse<AlleleDiseaseAnnotationDocument> getDiseasePerAllele(
+		String alleleID,
+		String filterOptions,
+		String filterReference,
+		String diseaseTerm,
+		String filterSource,
+		String geneticEntity,
+		String geneticEntityType,
+		String associationType,
+		String diseaseQualifier,
+		String evidenceCode,
+		Boolean debug,
+		Integer limit,
+		Integer page,
+		String sortBy,
+		String asc) {
 
 		LocalDateTime startDate = LocalDateTime.now();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);

@@ -1,35 +1,10 @@
 package org.alliancegenome.api.service;
 
-import static java.util.stream.Collectors.toList;
-import static org.alliancegenome.cache.repository.helper.JsonResultResponse.DISTINCT_FIELD_VALUES;
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
-import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
-import static org.elasticsearch.index.query.QueryBuilders.termQuery;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.alliancegenome.api.entity.AGMDiseaseAnnotationDocument;
-import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
-import org.alliancegenome.api.entity.DiseaseEntitySubgroupSlim;
-import org.alliancegenome.api.entity.DiseaseRibbonEntity;
-import org.alliancegenome.api.entity.DiseaseRibbonSummary;
-import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
-import org.alliancegenome.api.service.helper.ElasticSearchHelper;
-import org.alliancegenome.api.service.helper.GeneDiseaseSearchHelper;
+import jakarta.enterprise.context.RequestScoped;
+import org.alliancegenome.api.entity.*;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.api.service.DiseaseRibbonService;
-import org.alliancegenome.es.index.site.dao.SearchDAO;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.SimpleTerm;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
@@ -38,40 +13,25 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.aggregations.AggregationBuilder;
-import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
-import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
-import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
-import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import java.util.*;
+import java.util.stream.Collectors;
 
-import io.quarkus.logging.Log;
-import jakarta.enterprise.context.RequestScoped;
-import jakarta.inject.Inject;
+import static java.util.stream.Collectors.toList;
+import static org.alliancegenome.cache.repository.helper.JsonResultResponse.DISTINCT_FIELD_VALUES;
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 
 
 @RequestScoped
-public class DiseaseESService {
-
-	@Inject
-	ObjectMapper mapper;
+public class DiseaseESService extends ESService {
 
 	private static final GeneRepository geneRepository = new GeneRepository();
 	private static final DiseaseRepository diseaseRepository = new DiseaseRepository();
 	private static final DiseaseRibbonService diseaseRibbonService = new DiseaseRibbonService(diseaseRepository);
-	private static final SearchDAO searchDAO = new SearchDAO();
-	private static final GeneDiseaseSearchHelper geneDiseaseSearchHelper = new GeneDiseaseSearchHelper();
-	private static final ElasticSearchHelper elasticSearchHelper = new ElasticSearchHelper();
 
 	// termID may be used in the future when converting disease page to new ES stack.
 	public JsonResultResponse<GeneDiseaseAnnotationDocument> getRibbonDiseaseAnnotations(String focusTaxonId, List<String> geneIDs, String termID, Pagination pagination, boolean excludeNegated, boolean debug) {
@@ -83,8 +43,8 @@ public class DiseaseESService {
 		ret.setSupplementalData(getSupplementalData(focusTaxonId, true, debug, query));
 
 		// add table filter
-		elasticSearchHelper.addTableFilter(pagination, query);
-		SearchResponse searchResponse = elasticSearchHelper.getSearchResponse(query, pagination, getAnnotationSorts(focusTaxonId, debug), false);
+		addTableFilter(pagination, query);
+		SearchResponse searchResponse = getSearchResponse(query, pagination, getAnnotationSorts(focusTaxonId, debug), false);
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
 
 		List<GeneDiseaseAnnotationDocument> list = Arrays.stream(searchResponse.getHits().getHits())
@@ -116,39 +76,6 @@ public class DiseaseESService {
 		return supplementalData;
 	}
 
-	private BoolQueryBuilder getBaseQuery(List<String> entityIDs, String termID, boolean excludeNegated, String recordType, boolean excludeViaOrthologyRecords) {
-		BoolQueryBuilder bool = boolQuery();
-		BoolQueryBuilder bool2 = boolQuery();
-		bool.must(bool2);
-
-		bool.filter(termQuery("category", recordType));
-
-		if (CollectionUtils.isNotEmpty(entityIDs)) {
-			for (String geneId : entityIDs) {
-				setEntityIdMatcher(geneId, bool2);
-			}
-		}
-		if (excludeNegated) {
-			bool.must(matchQuery("primaryAnnotations.negated", false));
-		}
-		if (excludeViaOrthologyRecords) {
-			bool.must(matchQuery("viaOrthologyOrder", 0));
-		}
-		if (termID != null) {
-			BoolQueryBuilder bool3 = boolQuery();
-			bool.must(bool3);
-			if (termID.equals(DiseaseRibbonSummary.DOID_OTHER)) {
-				BoolQueryBuilder orClause = boolQuery();
-				DOTerm.getAllOtherDiseaseTerms().forEach(parentID -> orClause.should(QueryBuilders.termQuery("parentSlimIDs.keyword", parentID)));
-				bool3.should(orClause);
-
-			} else {
-				bool3.should(new MatchQueryBuilder("parentSlimIDs.keyword", termID));
-			}
-		}
-		return bool;
-	}
-
 	public JsonResultResponse<AlleleDiseaseAnnotationDocument> getDiseaseAnnotations(String alleleID, Pagination pagination, boolean excludeNegated, boolean debug) {
 		// unfiltered base query
 		BoolQueryBuilder query = getBaseQuery(List.of(alleleID), null, excludeNegated, "allele_disease_annotation", true);
@@ -157,8 +84,8 @@ public class DiseaseESService {
 		ret.setSupplementalData(getSupplementalData(null, false, debug, query));
 
 		// add table filter
-		elasticSearchHelper.addTableFilter(pagination, query);
-		SearchResponse searchResponse = elasticSearchHelper.getSearchResponse(query, pagination, getAnnotationSorts(null, debug), false);
+		addTableFilter(pagination, query);
+		SearchResponse searchResponse = getSearchResponse(query, pagination, getAnnotationSorts(null, debug), false);
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
 
 		List<AlleleDiseaseAnnotationDocument> list = Arrays.stream(searchResponse.getHits().getHits())
@@ -175,49 +102,6 @@ public class DiseaseESService {
 		ret.setResults(list);
 		return ret;
 
-	}
-
-	private Map<String, List<String>> getAggregations(BoolQueryBuilder bool, Map<String, String> aggregationFields, String focusTaxonId, boolean useSpeciesAggregation, boolean debug) {
-		List<AggregationBuilder> aggBuilders = new ArrayList<>();
-		aggregationFields.forEach((field, colName) -> {
-			String fieldNameAgg = field + "_agg";
-			TermsAggregationBuilder aggregationBuilder = AggregationBuilders.terms(fieldNameAgg);
-			aggregationBuilder.bucketCardinality();
-			aggregationBuilder.field(field);
-			aggBuilders.add(aggregationBuilder);
-		});
-
-		SearchResponse searchResponseHistogram = searchDAO.performQuery(
-			bool, aggBuilders, null, geneDiseaseSearchHelper.getResponseFields(),
-			0, 0, new HighlightBuilder(), useSpeciesAggregation ? getAnnotationSorts(focusTaxonId, debug) : null, debug);
-
-		Map<String, List<String>> distinctFieldValueMap = new HashMap<>();
-		aggregationFields.forEach((field, colName) -> {
-			String fieldNameAgg = field + "_agg";
-			List<String> values = ((ParsedStringTerms) searchResponseHistogram.getAggregations().get(fieldNameAgg)).getBuckets().stream()
-				.map(MultiBucketsAggregation.Bucket::getKeyAsString).collect(Collectors.toList());
-			distinctFieldValueMap.put(colName, values);
-		});
-		return distinctFieldValueMap;
-	}
-
-	private LinkedHashMap<String, SortOrder> getAnnotationSorts(String focusTaxonId, boolean debug) {
-		SpeciesType type = SpeciesType.getTypeByID(focusTaxonId);
-		LinkedHashMap<String, SortOrder> sorts = new LinkedHashMap<>();
-		if (type != null) {
-			sorts.put("speciesOrder." + type.getTaxonIDPart(), SortOrder.ASC);
-		} else {
-			if (debug) {
-				Log.info("Species could not be found for: " + focusTaxonId);
-			} else {
-				Log.debug("Species could not be found for: " + focusTaxonId);
-			}
-		}
-		sorts.put("object.name.sort", SortOrder.ASC);
-		if (debug) {
-			Log.info(sorts);
-		}
-		return sorts;
 	}
 
 	public DiseaseRibbonSummary getDiseaseRibbonSummary(List<String> geneIDs, Boolean includeNegation, boolean debug) {
@@ -312,9 +196,9 @@ public class DiseaseESService {
 
 		// create histogram of select columns of unfiltered query
 
-		elasticSearchHelper.addTableFilter(pagination, bool);
+		addTableFilter(pagination, bool);
 
-		SearchResponse searchResponse = elasticSearchHelper.getSearchResponse(bool, pagination, null, debug);
+		SearchResponse searchResponse = getSearchResponse(bool, pagination, null, debug);
 
 		JsonResultResponse<GeneDiseaseAnnotationDocument> ret = new JsonResultResponse<>();
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
@@ -334,12 +218,6 @@ public class DiseaseESService {
 		return ret;
 	}
 
-	private static void setEntityIdMatcher(String geneID, BoolQueryBuilder bool2) {
-		bool2.should(new MatchQueryBuilder("subject.curie.keyword", geneID));
-		bool2.should(new MatchQueryBuilder("subject.primaryExternalId.keyword", geneID));
-		bool2.should(new MatchQueryBuilder("subject.modInternalId.keyword", geneID));
-	}
-
 	public JsonResultResponse<GeneDiseaseAnnotationDocument> getDiseaseAnnotationsWithGenes(String diseaseID, Pagination pagination, boolean excludeNegatedAnnotation, boolean debug) {
 		BoolQueryBuilder bool = boolQuery();
 		BoolQueryBuilder bool2 = boolQuery();
@@ -352,7 +230,7 @@ public class DiseaseESService {
 		ret.setSupplementalData(getSupplementalData(null, true, debug, bool));
 
 		// create histogram of select columns of unfiltered query
-		elasticSearchHelper.addTableFilter(pagination, bool);
+		addTableFilter(pagination, bool);
 
 		// Sorting sets for different names of the sorting selection box
 		Map<String, List<String>> sortingSetMap = new HashMap<>();
@@ -369,7 +247,7 @@ public class DiseaseESService {
 		}
 		sortFields.forEach(sortField -> sortingMap.put(sortField, SortOrder.ASC));
 
-		SearchResponse searchResponse = elasticSearchHelper.getSearchResponse(bool, pagination, sortingMap, debug);
+		SearchResponse searchResponse = getSearchResponse(bool, pagination, sortingMap, debug);
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
 
 		List<GeneDiseaseAnnotationDocument> list = new ArrayList<>();
@@ -399,7 +277,7 @@ public class DiseaseESService {
 		ret.setSupplementalData(getSupplementalData(null, true, debug, bool));
 
 		// create histogram of select columns of unfiltered query
-		elasticSearchHelper.addTableFilter(pagination, bool);
+		addTableFilter(pagination, bool);
 
 		// Sorting sets for different names of the sorting selection box
 		Map<String, List<String>> sortingSetMap = new HashMap<>();
@@ -416,7 +294,7 @@ public class DiseaseESService {
 		}
 		sortFields.forEach(sortField -> sortingMap.put(sortField, SortOrder.ASC));
 
-		SearchResponse searchResponse = elasticSearchHelper.getSearchResponse(bool, pagination, sortingMap, debug);
+		SearchResponse searchResponse = getSearchResponse(bool, pagination, sortingMap, debug);
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
 
 		List<AGMDiseaseAnnotationDocument> list = new ArrayList<>();
@@ -447,7 +325,7 @@ public class DiseaseESService {
 		ret.setSupplementalData(supData);
 
 		// create histogram of select columns of unfiltered query
-		elasticSearchHelper.addTableFilter(pagination, bool);
+		addTableFilter(pagination, bool);
 
 		// Sorting sets for different names of the sorting selection box
 		Map<String, List<String>> sortingSetMap = new HashMap<>();
@@ -464,7 +342,7 @@ public class DiseaseESService {
 		}
 		sortFields.forEach(sortField -> sortingMap.put(sortField, SortOrder.ASC));
 
-		SearchResponse searchResponse = elasticSearchHelper.getSearchResponse(bool, pagination, sortingMap, false);
+		SearchResponse searchResponse = getSearchResponse(bool, pagination, sortingMap, false);
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
 		List<AlleleDiseaseAnnotationDocument> list = new ArrayList<>();
 

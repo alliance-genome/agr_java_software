@@ -256,7 +256,6 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		return phylogeneticSortOrder;
 	}
 
-
 	private String getPubmedPubModID(Reference singleReference) {
 		if (singleReference == null || CollectionUtils.isEmpty(singleReference.getCrossReferences())) {
 			return null;
