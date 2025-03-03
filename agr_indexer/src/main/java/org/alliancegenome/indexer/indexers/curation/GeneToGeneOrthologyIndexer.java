@@ -87,31 +87,6 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 			}
 			
 			documents.add(document1);
-
-			//this may cause duplicates with 
-			//could create a map with unique pairs
-						//gene_id1_gene_id2
-						//gene_id2_gene_id1
-						//this would be unique
-						//create map as I iterate
-			//could just remove the flip now if a gene doesn't have it's fliped version
-			//may need to make a 
-			//just remove this flip for now, identify what genes are not connected to their pair
-			// GeneToGeneOrthologyDocument document2 = new GeneToGeneOrthologyDocument();
-			// GeneToGeneOrthologyGenerated geneToGeneOrthologyGenerated = new GeneToGeneOrthologyGenerated();
-			// geneToGeneOrthologyGenerated.setObjectGene(g2gOrtho.getSubjectGene());
-			// geneToGeneOrthologyGenerated.setSubjectGene(g2gOrtho.getObjectGene());
-			// geneToGeneOrthologyGenerated.setIsBestScore(g2gOrtho.getIsBestScore());
-			// geneToGeneOrthologyGenerated.setIsBestScoreReverse(g2gOrtho.getIsBestScoreReverse());
-			// geneToGeneOrthologyGenerated.setConfidence(g2gOrtho.getConfidence());
-			// geneToGeneOrthologyGenerated.setStrictFilter(g2gOrtho.getStrictFilter());
-			// geneToGeneOrthologyGenerated.setModerateFilter(g2gOrtho.getModerateFilter());
-			// geneToGeneOrthologyGenerated.setPredictionMethodsMatched(g2gOrtho.getPredictionMethodsMatched());
-			// geneToGeneOrthologyGenerated.setPredictionMethodsNotMatched(g2gOrtho.getPredictionMethodsNotMatched());
-			// geneToGeneOrthologyGenerated.setPredictionMethodsNotCalled(g2gOrtho.getPredictionMethodsNotCalled());
-			
-			// document2.setGeneToGeneOrthologyGenerated(geneToGeneOrthologyGenerated);
-			// documents.add(document2);
 		}
 		return documents;
 	}

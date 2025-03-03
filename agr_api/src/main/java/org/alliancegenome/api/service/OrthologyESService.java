@@ -82,24 +82,10 @@ public class OrthologyESService {
 		
 		FilterService<GeneToGeneOrthologyDocument> filterService = new FilterService<>(new OrthologyCurationFiltering());
 		List<GeneToGeneOrthologyDocument> gene2GeneOrthoFiltered = filterService.filterAnnotations(list, pagination.getFieldFilterValueMap());
-
-		Map<String, Object> map = new HashMap<>();
-
-		gene2GeneOrthoFiltered.forEach(orthoDoc -> {
-			putGeneInfo(map, orthoDoc.getGeneToGeneOrthologyGenerated().getSubjectGene());
-			putGeneInfo(map, orthoDoc.getGeneToGeneOrthologyGenerated().getObjectGene());
-		});
 		
 		response.setResults(gene2GeneOrthoFiltered);
-		response.setSupplementalData(map);
 		return response;
 	}
 
-	private void putGeneInfo(Map<String, Object> map, Gene gene) {
-		Map<String, Object> data = new HashMap<>();
-		data.put("taxonId", gene.getTaxon().getCurie());
-		data.put("hasExpressionAnnotations", expressionCacheRepository.hasExpression(gene.getIdentifier()));
-		data.put("hasDiseaseAnnotations", diseaseCacheRepository.hasDiseaseAnnotations(gene.getIdentifier()));
-		map.put(gene.getIdentifier(), data);
-	}
+
 }

@@ -82,7 +82,8 @@ public class OrthologyController implements OrthologyRESTInterface {
 	@Override
 	public JsonResultResponse<HomologView> getMultiGeneOrthology(List<String> geneIDs, String geneList, String stringencyFilter, String method, Integer rows, Integer page) {
 		// controller.setRequest(request);
-		return controller.getGeneOrthology(null, geneIDs, geneList, stringencyFilter, null, method, rows, page);
+		// return controller.getGeneOrthology(null, geneIDs, geneList, stringencyFilter, null, method, rows, page);
+		return null;
 	}
 
 	@Override
