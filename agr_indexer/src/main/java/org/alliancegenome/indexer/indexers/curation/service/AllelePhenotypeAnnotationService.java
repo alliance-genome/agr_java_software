@@ -9,6 +9,7 @@ import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.indexers.curation.interfaces.AllelePhenotypeAnnotationInterface;
 import si.mazi.rescu.RestProxyFactory;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -23,6 +24,8 @@ public class AllelePhenotypeAnnotationService extends BaseDiseaseAnnotationServi
 		List<AllelePhenotypeAnnotation> ret = readFromCache(cacheFileName, List.class);
 		if (ret != null && ret.size() > 0) {
 			return ret;
+		} else {
+			ret = new ArrayList<>();
 		}
 		ProcessDisplayHelper display = new ProcessDisplayHelper(2000);
 
