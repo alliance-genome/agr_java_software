@@ -23,6 +23,6 @@ public interface AGMPhenotypeAnnotationInterface extends ForPublicFindInterface<
 	@Override
 	@POST
 	@Path("/findForPublic")
-	@JsonView({View.PhenotypeAnnotationView.class})
+	@JsonView({ View.PhenotypeAnnotationView.class })
 	SearchResponse<AGMPhenotypeAnnotation> findForPublic(@DefaultValue("0") @QueryParam("page") Integer page, @DefaultValue("10") @QueryParam("limit") Integer limit, HashMap<String, Object> params);
 }
