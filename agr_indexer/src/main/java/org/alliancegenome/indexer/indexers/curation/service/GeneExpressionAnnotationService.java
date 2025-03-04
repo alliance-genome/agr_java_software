@@ -1,13 +1,14 @@
 package org.alliancegenome.indexer.indexers.curation.service;
 
+import java.util.HashMap;
+
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.model.entities.GeneExpressionAnnotation;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.indexers.curation.interfaces.GeneExpressionAnnotationInterface;
-import si.mazi.rescu.RestProxyFactory;
 
-import java.util.HashMap;
+import si.mazi.rescu.RestProxyFactory;
 
 public class GeneExpressionAnnotationService {
 
@@ -17,6 +18,6 @@ public class GeneExpressionAnnotationService {
 		HashMap<String, Object> params = new HashMap<>();
 		params.put("internal", false);
 		params.put("obsolete", false);
-		return geneExpressionAnnotationClient.find(page, limit, params);
+		return geneExpressionAnnotationClient.findForPublic(page, limit, params);
 	}
 }
