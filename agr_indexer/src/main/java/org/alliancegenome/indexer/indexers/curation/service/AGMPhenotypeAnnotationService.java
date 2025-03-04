@@ -31,18 +31,17 @@ public class AGMPhenotypeAnnotationService extends BaseDiseaseAnnotationService 
 		}
 		ProcessDisplayHelper display = new ProcessDisplayHelper(2000);
 
-		
 		LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
 		LinkedBlockingDeque<AGMPhenotypeAnnotation> fullList = new LinkedBlockingDeque<>();
-		
+
 		SearchResponse<AGMPhenotypeAnnotation> response = agmApi.findForPublic(0, 0, null);
 
 		int totalPages = (int) (response.getTotalResults() / bufferSize);
-		
+
 		display.startProcess("Pulling AGM PA's from curation", response.getTotalResults());
-		
+
 		for (int i = 0; i <= totalPages; i++) {
-			//log.info("page: " + i + " limit: " + indexerConfig.getBufferSize());
+			// log.info("page: " + i + " limit: " + indexerConfig.getBufferSize());
 			queue.add(String.valueOf(i));
 		}
 
@@ -57,7 +56,7 @@ public class AGMPhenotypeAnnotationService extends BaseDiseaseAnnotationService 
 			while (queue.size() > 0) {
 				TimeUnit.SECONDS.sleep(10);
 			}
-	
+
 			for (Thread t : threads) {
 				t.join();
 			}
@@ -66,9 +65,9 @@ public class AGMPhenotypeAnnotationService extends BaseDiseaseAnnotationService 
 			System.exit(-1);
 		}
 		display.finishProcess();
-		
+
 		ret = new ArrayList<>(fullList);
-		
+
 		writeToCache(cacheFileName, ret);
 
 		return ret;
@@ -80,7 +79,7 @@ public class AGMPhenotypeAnnotationService extends BaseDiseaseAnnotationService 
 		private LinkedBlockingDeque<String> queue;
 		private LinkedBlockingDeque<AGMPhenotypeAnnotation> fullList;
 		private ProcessDisplayHelper display;
-		
+
 		public WorkerThread(int bufferSize, LinkedBlockingDeque<String> queue, LinkedBlockingDeque<AGMPhenotypeAnnotation> fullList, ProcessDisplayHelper display) {
 			this.bufferSize = bufferSize;
 			this.queue = queue;
@@ -94,10 +93,10 @@ public class AGMPhenotypeAnnotationService extends BaseDiseaseAnnotationService 
 			HashMap<String, Object> params = new HashMap<>();
 			params.put("internal", false);
 			params.put("obsolete", false);
-			//params.put("phenotypeAnnotationSubject.primaryExternalId", "SGD:S000001240");
+			// params.put("phenotypeAnnotationSubject.primaryExternalId", "SGD:S000001240");
 
-			while(true) {
-				if(queue.isEmpty()) {
+			while (true) {
+				if (queue.isEmpty()) {
 					return;
 				}
 
@@ -118,7 +117,7 @@ public class AGMPhenotypeAnnotationService extends BaseDiseaseAnnotationService 
 			}
 
 		}
-		
+
 	}
 
 }

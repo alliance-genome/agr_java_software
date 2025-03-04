@@ -20,9 +20,9 @@ public class BaseService {
 	private static HashSet<String> allNeoAlleleIDs;
 	private static HashSet<String> allNeoGeneIDs;
 	private static HashSet<String> allNeoModelIDs;
-	
+
 	protected HashSet<String> getAllNeoAlleleIDs() {
-		if(allNeoAlleleIDs == null) {
+		if (allNeoAlleleIDs == null) {
 			String alleleIdsFileName = "allele_ids.gz";
 			List<String> alleleList = readFromCache(alleleIdsFileName, List.class);
 
@@ -37,10 +37,10 @@ public class BaseService {
 		}
 		return allNeoAlleleIDs;
 	}
-	
+
 	protected HashSet<String> getAllNeoGeneIDs() {
-		
-		if(allNeoGeneIDs == null) {
+
+		if (allNeoGeneIDs == null) {
 			String geneIdsFileName = "gene_ids.gz";
 			List<String> geneList = readFromCache(geneIdsFileName, List.class);
 
@@ -53,12 +53,12 @@ public class BaseService {
 				writeToCache(geneIdsFileName, new ArrayList<>(allNeoGeneIDs));
 			}
 		}
-		
+
 		return allNeoGeneIDs;
 	}
-	
+
 	protected HashSet<String> getAllNeoModelIDs() {
-		if(allNeoModelIDs == null) {
+		if (allNeoModelIDs == null) {
 			String modelIdsFileName = "model_ids.gz";
 			List<String> modelList = readFromCache(modelIdsFileName, List.class);
 
@@ -95,10 +95,10 @@ public class BaseService {
 			e.printStackTrace();
 		}
 	}
-	
+
 	protected boolean hasNoExcludedEntities(List<AuditedObject> entitiesToBeValidated) {
 		AtomicBoolean hasNoExcludedEntities = new AtomicBoolean(true);
-		for (AuditedObject auditedObject: entitiesToBeValidated) {
+		for (AuditedObject auditedObject : entitiesToBeValidated) {
 			if (auditedObject.getObsolete()) {
 				hasNoExcludedEntities.set(false);
 			}
