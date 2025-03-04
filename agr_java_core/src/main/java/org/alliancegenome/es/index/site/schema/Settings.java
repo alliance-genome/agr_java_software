@@ -6,8 +6,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.alliancegenome.neo4j.repository.indexer.GeneIndexerRepository;
-
 public abstract class Settings extends Builder {
 
 	public Settings(Boolean pretty) {
@@ -119,11 +117,35 @@ public abstract class Settings extends Builder {
 		if (skipSynonymFetching) {
 			return new String[0];
 		}
-
-		GeneIndexerRepository geneIndexerRepository = new GeneIndexerRepository();
-		Map<String, Set<String>> synonymMap = geneIndexerRepository.getSpeciesCommonNames();
+		
+		// TODO remove this hardcoding due to getting rid of NEO
+		Map<String, Set<String>> synonymMap = Map.of(
+			"Caenorhabditis elegans", Set.of("worm", "cel"),
+			"Mus musculus", Set.of("mouse", "mmu"),
+			"SARS-CoV-2", Set.of(
+				"SARS-CoV-2",
+				"Severe acute respiratory syndrome coronavirus 2",
+				"SARS-CoV2",
+				"sars cov 2",
+				"SARS-2",
+				"SARS2",
+				"COVID",
+				"COVID19",
+				"COVID-19",
+				"COVID-19 virus", "2019-nCoV", "HCoV-19",
+				"Human coronavirus 2019"
+			),
+			"Xenopus laevis", Set.of("African clawed frog", "xbxl", "X.laevis", "X. laevis", "Bufo laevis", "Common platanna", "Platanna", "African claw-toed frog"),
+			"Rattus norvegicus", Set.of("rat", "rno"),
+			"Danio rerio", Set.of("zebrafish", "fish", "dre"),
+			"Homo sapiens", Set.of("human", "hsa"),
+			"Xenopus tropicalis", Set.of("Western clawed frog", "xbxt", "X.tropicalis", "X. tropicalis", "Tropical clawed frog", "Silurana tropicalis"),
+			"Saccharomyces cerevisiae", Set.of("yeast", "sce"),
+			"Drosophila melanogaster", Set.of("fly", "fruit fly", "dme")
+		);
 
 		Set<String> synonymMapping = new HashSet<>();
+
 		for (String speciesName : synonymMap.keySet()) {
 			StringBuilder sb = new StringBuilder();
 			sb.append(speciesName.toLowerCase());
@@ -137,7 +159,7 @@ public abstract class Settings extends Builder {
 			);
 			synonymMapping.add(sb.toString());
 		}
-		geneIndexerRepository.close();
+		
 		return synonymMapping.toArray(new String[0]);
 	}
 

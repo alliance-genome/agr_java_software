@@ -70,7 +70,8 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
 	@Relationship(type = "ASSOCIATION") private GenomeLocation location;
 
 	@JsonView({ View.API.class })
-	@Relationship(type = "ASSOCIATION", direction = Relationship.Direction.INCOMING) protected List<Transcript> transcriptList;
+	@Relationship(type = "ASSOCIATION", direction = Relationship.Direction.INCOMING)
+	protected List<Transcript> transcriptList;
 
 	@JsonView({ View.API.class, View.AlleleVariantSequenceConverterForES.class })
 	@Relationship(type = "ASSOCIATION") protected List<TranscriptLevelConsequence> transcriptLevelConsequence;

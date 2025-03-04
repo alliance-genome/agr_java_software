@@ -20,7 +20,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class GeneGeneticInteractionCurationIndexer extends Indexer {
 
-	private GeneGeneticInteractionService geneGeneticInteractionService = new GeneGeneticInteractionService();
+
+	private GeneGeneticInteractionService geneGeneticInteractionService;
 
 	public GeneGeneticInteractionCurationIndexer(IndexerConfig config) {
 		super(config);
@@ -28,7 +29,7 @@ public class GeneGeneticInteractionCurationIndexer extends Indexer {
 	
 	@Override
 	protected void index() {
-
+		geneGeneticInteractionService = new GeneGeneticInteractionService();
 		try {
 			SearchResponse<GeneGeneticInteraction> interactionResponse = geneGeneticInteractionService.getGeneGeneticInteractions(0, 0);
 			log.info("GeneGeneticInteraction count: " + interactionResponse.getTotalResults());

@@ -1,13 +1,36 @@
 package org.alliancegenome.indexer.indexers.curation;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
+import static java.util.stream.Collectors.groupingBy;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.stream.Collectors;
+
 import org.alliancegenome.api.entity.AGMDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.DiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.core.helpers.DiseaseAnnotationHelper;
-import org.alliancegenome.curation_api.model.entities.*;
+import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.AffectedGenomicModel;
+import org.alliancegenome.curation_api.model.entities.Allele;
+import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.BiologicalEntity;
+import org.alliancegenome.curation_api.model.entities.ConditionRelation;
+import org.alliancegenome.curation_api.model.entities.DiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.ExperimentalCondition;
+import org.alliancegenome.curation_api.model.entities.Gene;
+import org.alliancegenome.curation_api.model.entities.GeneDiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.Reference;
+import org.alliancegenome.curation_api.model.entities.VocabularyTerm;
 import org.alliancegenome.curation_api.model.entities.base.SubmittedObject;
 import org.alliancegenome.curation_api.model.entities.ontology.DOTerm;
 import org.alliancegenome.curation_api.model.entities.ontology.ECOTerm;
@@ -25,25 +48,22 @@ import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.stream.Collectors;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import static java.util.stream.Collectors.groupingBy;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class DiseaseAnnotationCurationIndexer extends Indexer {
 
-	private GeneDiseaseAnnotationService geneService = new GeneDiseaseAnnotationService();
-	private AlleleDiseaseAnnotationService alleleService = new AlleleDiseaseAnnotationService();
-	private AGMDiseaseAnnotationService agmService = new AGMDiseaseAnnotationService();
-	private VocabularyTermService vocabService = new VocabularyTermService();
+	private GeneDiseaseAnnotationService geneService;
+	private AlleleDiseaseAnnotationService alleleService;
+	private AGMDiseaseAnnotationService agmService;
+	private VocabularyTermService vocabTermService;
 	private DiseaseRepository diseaseRepository;
 
 	private Map<String, Set<String>> closureMap;
 	private Map<String, Pair<Gene, ArrayList<DiseaseAnnotation>>> geneMap = new HashMap<>();
-	Map<String, Pair<Gene, ArrayList<DiseaseAnnotation>>> generatedImplicatedGeneMap = new HashMap<>();
+	private Map<String, Pair<Gene, ArrayList<DiseaseAnnotation>>> generatedImplicatedGeneMap = new HashMap<>();
 
 	private Map<String, Pair<Allele, ArrayList<DiseaseAnnotation>>> alleleMap = new HashMap<>();
 	private Map<String, Pair<AffectedGenomicModel, ArrayList<DiseaseAnnotation>>> agmMap = new HashMap<>();
@@ -66,8 +86,12 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 
 	@Override
 	protected void index() {
-
+		geneService = new GeneDiseaseAnnotationService();
+		alleleService = new AlleleDiseaseAnnotationService();
+		agmService = new AGMDiseaseAnnotationService();
+		vocabTermService = new VocabularyTermService();
 		diseaseRepository = new DiseaseRepository();
+		
 		closureMap = diseaseRepository.getDOClosureChildMapping();
 
 		indexGenes();
@@ -185,7 +209,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		ProcessDisplayHelper ph = new ProcessDisplayHelper(10000);
 		ph.startProcess("Creating Gene Disease Annotations", geneMap.size());
 
-		final VocabularyTerm relationIsImplicatedIn = vocabService.getDiseaseRelationTerms().get("is_implicated_in");
+		final VocabularyTerm relationIsImplicatedIn = vocabTermService.getDiseaseRelationTerms().get("is_implicated_in");
 
 		for (Entry<String, Pair<Gene, ArrayList<DiseaseAnnotation>>> entry : geneMap.entrySet()) {
 			HashMap<String, GeneDiseaseAnnotationDocument> lookup = new HashMap<>();
@@ -287,7 +311,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		ProcessDisplayHelper ph = new ProcessDisplayHelper(10000);
 		ph.startProcess("Creating Allele Disease Annotations", alleleMap.size());
 
-		VocabularyTerm relation = vocabService.getDiseaseRelationTerms().get("is_implicated_in");
+		VocabularyTerm relation = vocabTermService.getDiseaseRelationTerms().get("is_implicated_in");
 
 		for (Entry<String, Pair<Allele, ArrayList<DiseaseAnnotation>>> entry : alleleMap.entrySet()) {
 			HashMap<String, AlleleDiseaseAnnotationDocument> lookup = new HashMap<>();
