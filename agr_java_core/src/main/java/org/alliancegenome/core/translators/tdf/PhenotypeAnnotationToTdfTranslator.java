@@ -1,6 +1,5 @@
 package org.alliancegenome.core.translators.tdf;
 
-import com.fasterxml.jackson.jakarta.rs.cfg.Annotations;
 import org.alliancegenome.api.entity.PhenotypeAnnotationDocument;
 import org.alliancegenome.curation_api.model.entities.AGMPhenotypeAnnotation;
 import org.alliancegenome.curation_api.model.entities.AllelePhenotypeAnnotation;
