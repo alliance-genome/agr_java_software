@@ -23,10 +23,6 @@ public interface GeneExpressionAnnotationInterface extends ForPublicFindInterfac
 	@Override
 	@POST
 	@Path("/findForPublic")
-	@JsonView({View.ForPublic.class})
-	SearchResponse<GeneExpressionAnnotation> findForPublic(
-			@DefaultValue("0") @QueryParam("page") Integer page,
-			@DefaultValue("10") @QueryParam("limit") Integer limit,
-			HashMap<String, Object> params
-	);
+	@JsonView({ View.ForPublic.class })
+	SearchResponse<GeneExpressionAnnotation> findForPublic(@DefaultValue("0") @QueryParam("page") Integer page, @DefaultValue("10") @QueryParam("limit") Integer limit, HashMap<String, Object> params);
 }

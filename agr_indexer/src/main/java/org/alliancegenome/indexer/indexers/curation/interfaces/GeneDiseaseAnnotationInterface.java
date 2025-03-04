@@ -23,6 +23,6 @@ public interface GeneDiseaseAnnotationInterface extends ForPublicFindInterface<G
 	@Override
 	@POST
 	@Path("/findForPublic")
-	@JsonView({View.ForPublic.class})
+	@JsonView({ View.ForPublic.class })
 	SearchResponse<GeneDiseaseAnnotation> findForPublic(@DefaultValue("0") @QueryParam("page") Integer page, @DefaultValue("10") @QueryParam("limit") Integer limit, HashMap<String, Object> params);
 }

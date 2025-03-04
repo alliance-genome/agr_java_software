@@ -22,6 +22,7 @@ import org.alliancegenome.curation_api.model.entities.GenePhenotypeAnnotation;
 import org.alliancegenome.curation_api.model.entities.PhenotypeAnnotation;
 import org.alliancegenome.curation_api.model.entities.Reference;
 import org.alliancegenome.curation_api.model.entities.VocabularyTerm;
+import org.alliancegenome.curation_api.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
@@ -35,7 +36,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
-import net.nilosplace.process_display.ProcessDisplayHelper;
+
 
 @Slf4j
 public class PhenotypeAnnotationCurationIndexer extends Indexer {
@@ -92,7 +93,7 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 		ProcessDisplayHelper ph = new ProcessDisplayHelper(10000);
 		ph.startProcess("Creating Gene Phenotype Annotations", geneMap.size());
 
-		final VocabularyTerm relationIsImplicatedIn = vocabTermService.getDiseaseRelationTerms().get("is_implicated_in");
+		VocabularyTerm relationIsImplicatedIn = vocabTermService.getDiseaseRelationTerms().get("is_implicated_in");
 
 		for (Entry<String, Pair<Gene, ArrayList<PhenotypeAnnotation>>> pairMap : geneMap.entrySet()) {
 			HashMap<String, GenePhenotypeAnnotationDocument> lookup = new HashMap<>();
@@ -168,7 +169,7 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 	private void indexAlleles() {
 
 		List<AllelePhenotypeAnnotation> allelePhenotypeAnnotations = alleleService.getFiltered(indexerConfig.getThreadCount(), indexerConfig.getBufferSize());
-		log.info("Filtered Alleles: " + allelePhenotypeAnnotations.size());
+		log.info("Filtered Alleles: " + String.format("%,d", allelePhenotypeAnnotations.size()));
 		for (AllelePhenotypeAnnotation da : allelePhenotypeAnnotations) {
 			Allele allele = da.getPhenotypeAnnotationSubject();
 			Pair<Allele, ArrayList<PhenotypeAnnotation>> allelePair = alleleMap.computeIfAbsent(allele.getIdentifier(), alleleCurie -> Pair.of(allele, new ArrayList<>()));
