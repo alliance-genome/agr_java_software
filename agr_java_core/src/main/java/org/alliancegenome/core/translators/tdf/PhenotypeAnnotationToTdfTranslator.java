@@ -1,7 +1,10 @@
 package org.alliancegenome.core.translators.tdf;
 
+import com.fasterxml.jackson.jakarta.rs.cfg.Annotations;
 import org.alliancegenome.api.entity.PhenotypeAnnotationDocument;
 import org.alliancegenome.curation_api.model.entities.AGMPhenotypeAnnotation;
+import org.alliancegenome.curation_api.model.entities.AllelePhenotypeAnnotation;
+import org.alliancegenome.curation_api.model.entities.GenePhenotypeAnnotation;
 import org.alliancegenome.curation_api.model.entities.PhenotypeAnnotation;
 import org.apache.commons.collections.CollectionUtils;
 
@@ -42,6 +45,16 @@ public class PhenotypeAnnotationToTdfTranslator {
 			row.setGeneticEntityID(annot.getPhenotypeAnnotationSubject().getPrimaryExternalId());
 			row.setGeneticEntityName(annot.getPhenotypeAnnotationSubject().getName());
 			row.setGeneticEntityType(annot.getPhenotypeAnnotationSubject().getSubtype().getName());
+		}
+		if (annotation instanceof AllelePhenotypeAnnotation annot) {
+			row.setGeneticEntityID(annot.getPhenotypeAnnotationSubject().getPrimaryExternalId());
+			row.setGeneticEntityName(annot.getPhenotypeAnnotationSubject().getAlleleSymbol().getDisplayText());
+			row.setGeneticEntityType("allele");
+		}
+		if (annotation instanceof GenePhenotypeAnnotation annot) {
+			row.setGeneticEntityID(annot.getPhenotypeAnnotationSubject().getPrimaryExternalId());
+			row.setGeneticEntityName(annot.getPhenotypeAnnotationSubject().getGeneSymbol().getDisplayText());
+			row.setGeneticEntityType("gene");
 		}
 		return row;
 	}
