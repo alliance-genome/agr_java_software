@@ -40,12 +40,12 @@ public class BaseInteractionService extends BaseService {
 
 	protected <E extends GeneInteraction> boolean hasInteractingGenesInNeo(E interaction) {
 		if (interaction.getGeneAssociationSubject() != null) {
-			if (!isValidNeoEntity(allNeoGeneIDs, interaction.getGeneAssociationSubject().getIdentifier())) {
+			if (!isValidNeoEntity(getAllNeoGeneIDs(), interaction.getGeneAssociationSubject().getIdentifier())) {
 				return false;
 			}
 		}
 		if (interaction.getGeneGeneAssociationObject() != null) {
-			if (!isValidNeoEntity(allNeoGeneIDs, interaction.getGeneGeneAssociationObject().getIdentifier())) {
+			if (!isValidNeoEntity(getAllNeoGeneIDs(), interaction.getGeneGeneAssociationObject().getIdentifier())) {
 				return false;
 			}
 		}

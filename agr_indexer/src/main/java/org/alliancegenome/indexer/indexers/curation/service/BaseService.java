@@ -17,47 +17,61 @@ import net.nilosplace.process_display.util.ObjectFileStorage;
 @Log4j2
 public class BaseService {
 
-	protected HashSet<String> allNeoAlleleIDs;
-	protected HashSet<String> allNeoGeneIDs;
-	protected HashSet<String> allNeoModelIDs;
+	private static HashSet<String> allNeoAlleleIDs;
+	private static HashSet<String> allNeoGeneIDs;
+	private static HashSet<String> allNeoModelIDs;
+	
+	protected HashSet<String> getAllNeoAlleleIDs() {
+		if(allNeoAlleleIDs == null) {
+			String alleleIdsFileName = "allele_ids.gz";
+			List<String> alleleList = readFromCache(alleleIdsFileName, List.class);
 
-	public BaseService() {
-		AlleleRepository alleleRepository = new AlleleRepository();
-		GeneRepository geneRepository = new GeneRepository();
-
-		String alleleIdsFileName = "allele_ids.gz";
-		List<String> alleleList = readFromCache(alleleIdsFileName, List.class);
-
-		if (CollectionUtils.isNotEmpty(alleleList)) {
-			allNeoAlleleIDs = new HashSet<>(alleleList);
-		} else {
-			allNeoAlleleIDs = new HashSet<>(alleleRepository.getAllAlleleIDs());
-			writeToCache(alleleIdsFileName, new ArrayList<>(allNeoAlleleIDs));
+			if (CollectionUtils.isNotEmpty(alleleList)) {
+				allNeoAlleleIDs = new HashSet<>(alleleList);
+			} else {
+				AlleleRepository alleleRepository = new AlleleRepository();
+				allNeoAlleleIDs = new HashSet<>(alleleRepository.getAllAlleleIDs());
+				alleleRepository.close();
+				writeToCache(alleleIdsFileName, new ArrayList<>(allNeoAlleleIDs));
+			}
 		}
+		return allNeoAlleleIDs;
+	}
+	
+	protected HashSet<String> getAllNeoGeneIDs() {
+		
+		if(allNeoGeneIDs == null) {
+			String geneIdsFileName = "gene_ids.gz";
+			List<String> geneList = readFromCache(geneIdsFileName, List.class);
 
-		String geneIdsFileName = "gene_ids.gz";
-		List<String> geneList = readFromCache(geneIdsFileName, List.class);
-
-		if (CollectionUtils.isNotEmpty(geneList)) {
-			allNeoGeneIDs = new HashSet<>(geneList);
-		} else {
-			allNeoGeneIDs = new HashSet<>(geneRepository.getAllGeneKeys());
-			writeToCache(geneIdsFileName, new ArrayList<>(allNeoGeneIDs));
+			if (CollectionUtils.isNotEmpty(geneList)) {
+				allNeoGeneIDs = new HashSet<>(geneList);
+			} else {
+				GeneRepository geneRepository = new GeneRepository();
+				allNeoGeneIDs = new HashSet<>(geneRepository.getAllGeneKeys());
+				geneRepository.close();
+				writeToCache(geneIdsFileName, new ArrayList<>(allNeoGeneIDs));
+			}
 		}
-		log.info("Number of all Gene IDs from Neo4j: " + allNeoGeneIDs.size());
+		
+		return allNeoGeneIDs;
+	}
+	
+	protected HashSet<String> getAllNeoModelIDs() {
+		if(allNeoModelIDs == null) {
+			String modelIdsFileName = "model_ids.gz";
+			List<String> modelList = readFromCache(modelIdsFileName, List.class);
 
-		String modelIdsFileName = "model_ids.gz";
-		List<String> modelList = readFromCache(modelIdsFileName, List.class);
-
-		if (CollectionUtils.isNotEmpty(modelList)) {
-			allNeoModelIDs = new HashSet<>(modelList);
-		} else {
-			allNeoModelIDs = new HashSet<>(alleleRepository.getAllModelKeys());
-			writeToCache(modelIdsFileName, new ArrayList<>(allNeoModelIDs));
+			if (CollectionUtils.isNotEmpty(modelList)) {
+				allNeoModelIDs = new HashSet<>(modelList);
+			} else {
+				AlleleRepository alleleRepository = new AlleleRepository();
+				allNeoModelIDs = new HashSet<>(alleleRepository.getAllModelKeys());
+				alleleRepository.close();
+				writeToCache(modelIdsFileName, new ArrayList<>(allNeoModelIDs));
+			}
 		}
-
-		alleleRepository.close();
-		geneRepository.close();
+		return allNeoModelIDs;
 	}
 
 	protected <E> E readFromCache(String fileName, Class<E> clazz) {

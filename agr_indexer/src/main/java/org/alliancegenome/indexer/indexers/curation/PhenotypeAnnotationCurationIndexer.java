@@ -40,10 +40,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class PhenotypeAnnotationCurationIndexer extends Indexer {
 
-	private GenePhenotypeAnnotationService geneService = new GenePhenotypeAnnotationService();
-	private AllelePhenotypeAnnotationService alleleService = new AllelePhenotypeAnnotationService();
-	private AGMPhenotypeAnnotationService agmService = new AGMPhenotypeAnnotationService();
-	private VocabularyTermService vocabTermService = new VocabularyTermService();
+	private GenePhenotypeAnnotationService geneService;
+	private AllelePhenotypeAnnotationService alleleService;
+	private AGMPhenotypeAnnotationService agmService;
+	private VocabularyTermService vocabTermService;
+	
 	private Map<String, Pair<Gene, ArrayList<PhenotypeAnnotation>>> geneMap = new HashMap<>();
 	private Map<String, Pair<Allele, ArrayList<PhenotypeAnnotation>>> alleleMap = new HashMap<>();
 	private Map<String, Pair<AffectedGenomicModel, ArrayList<PhenotypeAnnotation>>> agmMap = new HashMap<>();
@@ -65,6 +66,11 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 	@Override
 	protected void index() {
 
+		geneService = new GenePhenotypeAnnotationService();
+		alleleService = new AllelePhenotypeAnnotationService();
+		agmService = new AGMPhenotypeAnnotationService();
+		vocabTermService = new VocabularyTermService();
+		
 		indexGenes();
 		indexAlleles();
 		indexAGMs();

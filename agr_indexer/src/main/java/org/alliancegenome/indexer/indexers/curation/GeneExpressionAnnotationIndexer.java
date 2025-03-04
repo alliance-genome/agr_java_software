@@ -1,7 +1,9 @@
 package org.alliancegenome.indexer.indexers.curation;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.LinkedBlockingDeque;
+
 import org.alliancegenome.api.entity.GeneExpressionAnnotationDocument;
 import org.alliancegenome.curation_api.model.entities.GeneExpressionAnnotation;
 import org.alliancegenome.curation_api.response.SearchResponse;
@@ -11,14 +13,14 @@ import org.alliancegenome.indexer.indexers.Indexer;
 import org.alliancegenome.indexer.indexers.curation.service.GeneExpressionAnnotationService;
 import org.apache.commons.collections.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.LinkedBlockingDeque;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class GeneExpressionAnnotationIndexer extends Indexer {
 
-	GeneExpressionAnnotationService geneExpressionAnnotationService = new GeneExpressionAnnotationService();
+	GeneExpressionAnnotationService geneExpressionAnnotationService;
 
 	public GeneExpressionAnnotationIndexer(IndexerConfig indexerConfig) {
 		super(indexerConfig);
@@ -27,6 +29,7 @@ public class GeneExpressionAnnotationIndexer extends Indexer {
 	@Override
 	protected void index() {
 		try {
+			geneExpressionAnnotationService = new GeneExpressionAnnotationService();
 			SearchResponse<GeneExpressionAnnotation> response = geneExpressionAnnotationService.getGeneExpressionAnnotations(0, 0);
 			log.info("GeneExpressionAnnotation count: " + response.getTotalResults());
 			int totalPages = (int) (response.getTotalResults() / indexerConfig.getBufferSize());

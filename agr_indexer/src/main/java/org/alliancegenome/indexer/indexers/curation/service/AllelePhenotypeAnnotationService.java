@@ -1,17 +1,18 @@
 package org.alliancegenome.indexer.indexers.curation.service;
 
-import lombok.extern.log4j.Log4j2;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.model.entities.AllelePhenotypeAnnotation;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.indexers.curation.interfaces.AllelePhenotypeAnnotationInterface;
-import si.mazi.rescu.RestProxyFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import lombok.extern.log4j.Log4j2;
+import si.mazi.rescu.RestProxyFactory;
 
 @Log4j2
 public class AllelePhenotypeAnnotationService extends BaseDiseaseAnnotationService {
@@ -42,7 +43,7 @@ public class AllelePhenotypeAnnotationService extends BaseDiseaseAnnotationServi
 		do {
 			SearchResponse<AllelePhenotypeAnnotation> response = alleleApi.findForPublic(page, batchSize, params);
 			for (AllelePhenotypeAnnotation da : response.getResults()) {
-				if (isValidNeoEntity(allNeoAlleleIDs, da.getPhenotypeAnnotationSubject().getIdentifier())) {
+				if (isValidNeoEntity(getAllNeoAlleleIDs(), da.getPhenotypeAnnotationSubject().getIdentifier())) {
 					ret.add(da);
 				}
 			}

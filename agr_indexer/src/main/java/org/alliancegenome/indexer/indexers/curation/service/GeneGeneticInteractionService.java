@@ -52,12 +52,12 @@ public class GeneGeneticInteractionService extends BaseInteractionService {
 
 	private boolean hasPerturbatingAllelesInNeo(GeneGeneticInteraction interaction) {
 		if (interaction.getInteractorAGeneticPerturbation() != null) {
-			if (!isValidNeoEntity(allNeoAlleleIDs, interaction.getInteractorAGeneticPerturbation().getIdentifier())) {
+			if (!isValidNeoEntity(getAllNeoAlleleIDs(), interaction.getInteractorAGeneticPerturbation().getIdentifier())) {
 				return false;
 			}
 		}
 		if (interaction.getInteractorBGeneticPerturbation() != null) {
-			if (!isValidNeoEntity(allNeoAlleleIDs, interaction.getInteractorBGeneticPerturbation().getIdentifier())) {
+			if (!isValidNeoEntity(getAllNeoAlleleIDs(), interaction.getInteractorBGeneticPerturbation().getIdentifier())) {
 				return false;
 			}
 		}
