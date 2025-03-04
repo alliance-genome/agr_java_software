@@ -21,7 +21,6 @@ import jakarta.ws.rs.QueryParam;
 @Consumes({"application/json"})
 public interface GeneMolecularInteractionInterface extends BaseIdCrudInterface<GeneMolecularInteraction> {
 
-	@Override
 	@POST
 	@Path("/findForPublic")
 	@JsonView({View.ForPublic.class})
