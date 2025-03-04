@@ -20,7 +20,7 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>org.alliancegenome</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>agr_java_core</artifactId>
 			<version>${project.version}</version>
 		</dependency>
