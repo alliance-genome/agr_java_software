@@ -22,7 +22,6 @@ import org.alliancegenome.curation_api.model.entities.GenePhenotypeAnnotation;
 import org.alliancegenome.curation_api.model.entities.PhenotypeAnnotation;
 import org.alliancegenome.curation_api.model.entities.Reference;
 import org.alliancegenome.curation_api.model.entities.VocabularyTerm;
-import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
@@ -36,6 +35,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
+import net.nilosplace.process_display.ProcessDisplayHelper;
 
 @Slf4j
 public class PhenotypeAnnotationCurationIndexer extends Indexer {
@@ -152,7 +152,7 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 	}
 
 	private void indexGenes() {
-		List<GenePhenotypeAnnotation> genePhenotypeAnnotations = geneService.getFiltered();
+		List<GenePhenotypeAnnotation> genePhenotypeAnnotations = geneService.getFiltered(indexerConfig.getThreadCount(), indexerConfig.getBufferSize());
 		addPhenotypeAnnotationsToLGlobalMap(genePhenotypeAnnotations);
 	}
 
@@ -167,7 +167,7 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 
 	private void indexAlleles() {
 
-		List<AllelePhenotypeAnnotation> allelePhenotypeAnnotations = alleleService.getFiltered();
+		List<AllelePhenotypeAnnotation> allelePhenotypeAnnotations = alleleService.getFiltered(indexerConfig.getThreadCount(), indexerConfig.getBufferSize());
 		log.info("Filtered Alleles: " + allelePhenotypeAnnotations.size());
 		for (AllelePhenotypeAnnotation da : allelePhenotypeAnnotations) {
 			Allele allele = da.getPhenotypeAnnotationSubject();
@@ -194,7 +194,7 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 
 	private void indexAGMs() {
 
-		List<AGMPhenotypeAnnotation> agmDiseaseAnnotations = agmService.getFiltered();
+		List<AGMPhenotypeAnnotation> agmDiseaseAnnotations = agmService.getFiltered(indexerConfig.getThreadCount(), indexerConfig.getBufferSize());
 		log.info("Filtered AGM PAs: " + String.format("%,d", agmDiseaseAnnotations.size()));
 
 		for (AGMPhenotypeAnnotation da : agmDiseaseAnnotations) {

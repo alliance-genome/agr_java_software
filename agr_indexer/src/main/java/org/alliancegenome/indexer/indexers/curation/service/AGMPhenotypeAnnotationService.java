@@ -3,11 +3,13 @@ package org.alliancegenome.indexer.indexers.curation.service;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.model.entities.AGMPhenotypeAnnotation;
 import org.alliancegenome.curation_api.response.SearchResponse;
-import org.alliancegenome.es.util.ProcessDisplayHelper;
+import org.alliancegenome.curation_api.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.indexers.curation.interfaces.AGMPhenotypeAnnotationInterface;
 
@@ -20,7 +22,7 @@ public class AGMPhenotypeAnnotationService extends BaseDiseaseAnnotationService 
 	private final AGMPhenotypeAnnotationInterface agmApi = RestProxyFactory.createProxy(AGMPhenotypeAnnotationInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 	private final String cacheFileName = "agm_phenotype_annotation.json.gz";
 
-	public List<AGMPhenotypeAnnotation> getFiltered() {
+	public List<AGMPhenotypeAnnotation> getFiltered(int threadCount, int bufferSize) {
 		List<AGMPhenotypeAnnotation> ret = readFromCache(cacheFileName, List.class);
 		if (ret != null && ret.size() > 0) {
 			return ret;
@@ -29,36 +31,94 @@ public class AGMPhenotypeAnnotationService extends BaseDiseaseAnnotationService 
 		}
 		ProcessDisplayHelper display = new ProcessDisplayHelper(2000);
 
-		int batchSize = 1000;
-		int page = 0;
-		int pages;
+		
+		LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
+		LinkedBlockingDeque<AGMPhenotypeAnnotation> fullList = new LinkedBlockingDeque<>();
+		
+		SearchResponse<AGMPhenotypeAnnotation> response = agmApi.findForPublic(0, 0, null);
 
-		HashMap<String, Object> params = new HashMap<>();
-		params.put("internal", false);
-		params.put("obsolete", false);
-		//params.put("phenotypeAnnotationSubject.primaryExternalId", "ZFIN:ZDB-FISH-210325-47");
-		//params.put("phenotypeAnnotationSubject.modEntityId", "MGI:4829791");
+		int totalPages = (int) (response.getTotalResults() / bufferSize);
+		
+		display.startProcess("Pulling AGM PA's from curation", response.getTotalResults());
+		
+		for (int i = 0; i <= totalPages; i++) {
+			//log.info("page: " + i + " limit: " + indexerConfig.getBufferSize());
+			queue.add(String.valueOf(i));
+		}
 
-		do {
-			SearchResponse<AGMPhenotypeAnnotation> response = agmApi.findForPublic(page, batchSize, params);
-			for (AGMPhenotypeAnnotation da : response.getResults()) {
-				if (isValidNeoEntity(getAllNeoModelIDs(), da.getPhenotypeAnnotationSubject().getIdentifier())) {
-					ret.add(da);
-				}
+		List<Thread> threads = new ArrayList<Thread>();
+		for (int i = 0; i < threadCount; i++) {
+			WorkerThread thread = new WorkerThread(bufferSize, queue, fullList, display);
+			threads.add(thread);
+			thread.start();
+		}
+
+		try {
+			while (queue.size() > 0) {
+				TimeUnit.SECONDS.sleep(10);
 			}
-
-			if (page == 0) {
-				display.startProcess("Pulling AGM PA's from curation", response.getTotalResults());
+	
+			for (Thread t : threads) {
+				t.join();
 			}
-			display.progressProcess(response.getReturnedRecords().longValue());
-			pages = (int) (response.getTotalResults() / batchSize);
-			page++;
-		} while (page <= pages);
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(-1);
+		}
 		display.finishProcess();
-
+		
+		ret = new ArrayList<>(fullList);
+		
 		writeToCache(cacheFileName, ret);
 
 		return ret;
+
+	}
+
+	public class WorkerThread extends Thread {
+		private int bufferSize;
+		private LinkedBlockingDeque<String> queue;
+		private LinkedBlockingDeque<AGMPhenotypeAnnotation> fullList;
+		private ProcessDisplayHelper display;
+		
+		public WorkerThread(int bufferSize, LinkedBlockingDeque<String> queue, LinkedBlockingDeque<AGMPhenotypeAnnotation> fullList, ProcessDisplayHelper display) {
+			this.bufferSize = bufferSize;
+			this.queue = queue;
+			this.fullList = fullList;
+			this.display = display;
+		}
+
+		@Override
+		public void run() {
+
+			HashMap<String, Object> params = new HashMap<>();
+			params.put("internal", false);
+			params.put("obsolete", false);
+			//params.put("phenotypeAnnotationSubject.primaryExternalId", "SGD:S000001240");
+
+			while(true) {
+				if(queue.isEmpty()) {
+					return;
+				}
+
+				try {
+					int page = Integer.parseInt(queue.takeFirst());
+
+					SearchResponse<AGMPhenotypeAnnotation> response = agmApi.findForPublic(page, bufferSize, params);
+					for (AGMPhenotypeAnnotation pa : response.getResults()) {
+						if (isValidNeoEntity(getAllNeoModelIDs(), pa.getPhenotypeAnnotationSubject().getIdentifier())) {
+							fullList.offer(pa);
+						}
+						display.progressProcess();
+					}
+
+				} catch (NumberFormatException | InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+
+		}
+		
 	}
 
 }
