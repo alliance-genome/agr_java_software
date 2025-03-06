@@ -19,12 +19,12 @@ import jakarta.ws.rs.core.MediaType;
 @Path("/vocabularyterm")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public interface VocabularyTermRESTInterface extends ForPublicFindInterface<VocabularyTerm> {
-	
-	@Override
+public interface VocabularyTermRESTInterface {
 	@POST
 	@Path("/findForPublic")
-	@JsonView({View.ForPublic.class})
-	SearchResponse<VocabularyTerm> findForPublic(@DefaultValue("0") @QueryParam("page") Integer page, @DefaultValue("10") @QueryParam("limit") Integer limit, HashMap<String, Object> params);
-
+	@JsonView({ View.ForPublic.class })
+	SearchResponse<VocabularyTerm> findForPublic(
+		@DefaultValue("0") @QueryParam("page") Integer page,
+		@DefaultValue("10") @QueryParam("limit") Integer limit,
+		HashMap<String, Object> params);
 }

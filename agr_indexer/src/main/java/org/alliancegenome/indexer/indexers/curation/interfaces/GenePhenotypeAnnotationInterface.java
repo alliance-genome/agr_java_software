@@ -19,10 +19,12 @@ import jakarta.ws.rs.core.MediaType;
 @Path("/gene-phenotype-annotation")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public interface GenePhenotypeAnnotationInterface extends ForPublicFindInterface<GenePhenotypeAnnotation> {
-	@Override
+public interface GenePhenotypeAnnotationInterface {
 	@POST
 	@Path("/findForPublic")
-	@JsonView({ View.PhenotypeAnnotationView.class })
-	SearchResponse<GenePhenotypeAnnotation> findForPublic(@DefaultValue("0") @QueryParam("page") Integer page, @DefaultValue("10") @QueryParam("limit") Integer limit, HashMap<String, Object> params);
+	@JsonView({ View.ForPublic.class })
+	SearchResponse<GenePhenotypeAnnotation> findForPublic(
+		@DefaultValue("0") @QueryParam("page") Integer page,
+		@DefaultValue("10") @QueryParam("limit") Integer limit,
+		HashMap<String, Object> params);
 }

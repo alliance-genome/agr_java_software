@@ -19,10 +19,12 @@ import jakarta.ws.rs.core.MediaType;
 @Path("/gene-molecular-interaction")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public interface GeneMolecularInteractionInterface extends ForPublicFindInterface<GeneMolecularInteraction> {
-	@Override
+public interface GeneMolecularInteractionInterface {
 	@POST
 	@Path("/findForPublic")
 	@JsonView({ View.ForPublic.class })
-	SearchResponse<GeneMolecularInteraction> findForPublic(@DefaultValue("0") @QueryParam("page") Integer page, @DefaultValue("10") @QueryParam("limit") Integer limit, HashMap<String, Object> params);
+	SearchResponse<GeneMolecularInteraction> findForPublic(
+		@DefaultValue("0") @QueryParam("page") Integer page,
+		@DefaultValue("10") @QueryParam("limit") Integer limit,
+		HashMap<String, Object> params);
 }
