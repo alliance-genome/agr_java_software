@@ -5,6 +5,8 @@ import java.util.StringJoiner;
 
 import org.alliancegenome.api.entity.GeneGeneticInteractionDocument;
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.curation_api.model.entities.InformationContentEntity;
+import org.alliancegenome.curation_api.model.entities.Reference;
 import org.apache.commons.collections.CollectionUtils;
 
 public class GeneGeneticInteractionToTdfTranslator {
@@ -81,7 +83,10 @@ public class GeneGeneticInteractionToTdfTranslator {
 			String referenceCuries = "";
 			if (CollectionUtils.isNotEmpty(interaction.getGeneGeneticInteraction().getEvidence())) {
 				StringJoiner referenceJoiner = new StringJoiner(",");
-				interaction.getGeneGeneticInteraction().getEvidence().forEach(reference -> referenceJoiner.add(reference.getCurie()));
+				for (InformationContentEntity ice : interaction.getGeneGeneticInteraction().getEvidence()) {
+					Reference reference = (Reference) ice;
+					referenceJoiner.add(reference.getReferenceID());
+				}
 				referenceCuries = referenceJoiner.toString();
 			}
 			joiner.add(referenceCuries);

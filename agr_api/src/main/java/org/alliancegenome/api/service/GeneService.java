@@ -1,8 +1,17 @@
 package org.alliancegenome.api.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.enterprise.context.RequestScoped;
-import jakarta.inject.Inject;
+import static org.alliancegenome.cache.repository.helper.JsonResultResponse.DISTINCT_FIELD_VALUES;
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.api.entity.GeneGeneticInteractionDocument;
 import org.alliancegenome.api.entity.GeneMolecularInteractionDocument;
@@ -25,8 +34,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.MatchQueryBuilder;
-import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
@@ -35,12 +42,10 @@ import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilde
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import static org.alliancegenome.cache.repository.helper.JsonResultResponse.DISTINCT_FIELD_VALUES;
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
 
 @RequestScoped
 public class GeneService {
@@ -104,10 +109,20 @@ public class GeneService {
 
 	public JsonResultResponse<GeneGeneticInteractionDocument> getGeneticInteractions(String geneId, Pagination pagination) {
 		BoolQueryBuilder query = boolQuery();
-		query.should(new MatchQueryBuilder("geneGeneticInteraction.geneAssociationSubject.curie.keyword", geneId));
-		query.should(new MatchQueryBuilder("geneGeneticInteraction.geneAssociationSubject.primaryExternalId.keyword", geneId));
-		query.should(new MatchQueryBuilder("geneGeneticInteraction.geneAssociationSubject.modInternalId.keyword", geneId));
+		
+		String[] idFields = {
+				"geneGeneticInteraction.geneAssociationSubject.curie.keyword",
+				"geneGeneticInteraction.geneAssociationSubject.primaryExternalId.keyword",
+				"geneGeneticInteraction.geneAssociationSubject.modInternalId.keyword"
+		};
+		BoolQueryBuilder idQuery = boolQuery();
+		Arrays.stream(idFields).forEach(idField -> {
+			BoolQueryBuilder orClause = elasticSearchHelper.getBooleanAndedQueryBuilder(idField, geneId);
+			idQuery.should(orClause);
+		});
 
+		query.must(idQuery);
+		
 		JsonResultResponse<GeneGeneticInteractionDocument> ret = new JsonResultResponse<>();
 		ret.setSupplementalData(getGeneticInteractionSupplementalData(query));
 
@@ -141,13 +156,19 @@ public class GeneService {
 
 	public JsonResultResponse<GeneMolecularInteractionDocument> getMolecularInteractions(String geneId, Pagination pagination) {
 		BoolQueryBuilder query = boolQuery();
-		BoolQueryBuilder query2 = boolQuery();
-		query.must(query2);
-		query2.should(new MatchQueryBuilder("geneMolecularInteraction.geneAssociationSubject.curie.keyword", geneId));
-		query2.should(new MatchQueryBuilder("geneMolecularInteraction.geneAssociationSubject.primaryExternalId.keyword", geneId));
-		query2.should(new MatchQueryBuilder("geneMolecularInteraction.geneAssociationSubject.modInternalId.keyword", geneId));
+		String[] idFields = {
+				"geneMolecularInteraction.geneAssociationSubject.curie.keyword",
+				"geneMolecularInteraction.geneAssociationSubject.primaryExternalId.keyword",
+				"geneMolecularInteraction.geneAssociationSubject.modInternalId.keyword"
+		};
+		BoolQueryBuilder idQuery = boolQuery();
+		Arrays.stream(idFields).forEach(idField -> {
+			BoolQueryBuilder orClause = elasticSearchHelper.getBooleanAndedQueryBuilder(idField, geneId);
+			idQuery.should(orClause);
+		});
 
-		query.filter(new TermQueryBuilder("category", "gene_molecular_interaction"));
+		query.must(idQuery);
+		
 		JsonResultResponse<GeneMolecularInteractionDocument> ret = new JsonResultResponse<>();
 		ret.setSupplementalData(getMolecularInteractionSupplementalData(query));
 
