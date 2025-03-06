@@ -21,6 +21,6 @@ public class GeneToGeneOrthologyService {
 		params.put("internal", false);
 		params.put("obsolete", false);
 
-		return orthologyApi.find(page, limit, params);
+		return orthologyApi.findForPublic(page, limit, "GeneToGeneOrthologyForIndexer", params);
 	}
 }

@@ -1,6 +1,7 @@
 package org.alliancegenome.indexer;
 
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.curation_api.model.entities.orthology.GeneToGeneOrthologyGenerated;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -33,6 +34,7 @@ public class RestConfig {
 				mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
 				mapper.setSerializationInclusion(Include.NON_NULL);
 				mapper.setSerializationInclusion(Include.NON_EMPTY);
+
 				return mapper;
 			}
 
