@@ -463,11 +463,13 @@ public class GeneController implements GeneRESTInterface {
 		String geneticEntityType,
 		String phenotype,
 		String reference,
+		String dataProvider,
 		String asc) {
 		long startTime = System.currentTimeMillis();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
 		pagination.addFilterOption("phenotypeStatement", phenotype);
 		pagination.addFilterOption("pubmedPubModIDs", reference);
+		pagination.addFilterOption("primaryAnnotations.dataProvider.abbreviation", dataProvider);
 		try {
 			JsonResultResponse<GenePhenotypeAnnotationDocument> phenotypes = phenotypeESService.getGenePhenotypeAnnotations(id, pagination, false);
 			phenotypes.setHttpServletRequest(null);
@@ -489,6 +491,7 @@ public class GeneController implements GeneRESTInterface {
 		String geneticEntityType,
 		String phenotype,
 		String reference,
+		String dataProvider,
 		String asc) {
 		// retrieve all records
 		JsonResultResponse<GenePhenotypeAnnotationDocument> response =
@@ -497,6 +500,7 @@ public class GeneController implements GeneRESTInterface {
 				geneticEntityType,
 				phenotype,
 				reference,
+				dataProvider,
 				asc);
 		Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRows(response.getResults()));
 		APIServiceHelper.setDownloadHeader(id, EntityType.GENE, EntityType.PHENOTYPE, responseBuilder);
