@@ -11,13 +11,15 @@ import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
 import org.alliancegenome.indexer.indexers.curation.service.GeneToGeneParalogyService;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class GeneToGeneParalogyIndexer extends Indexer {
 
-	GeneToGeneParalogyService service = new GeneToGeneParalogyService();
+	GeneToGeneParalogyService service;
 
 	public GeneToGeneParalogyIndexer(IndexerConfig indexerConfig) {
 		super(indexerConfig);
@@ -25,6 +27,7 @@ public class GeneToGeneParalogyIndexer extends Indexer {
 
 	@Override
 	protected void index() {
+		service = new GeneToGeneParalogyService();
 		try {
 			SearchResponse<GeneToGeneParalogy> paralogyResponse = service.getGeneToGeneParalogy(0, 0);
 			//log.info("GeneToGeneParalogy count: " + paralogyResponse.getTotalResults());

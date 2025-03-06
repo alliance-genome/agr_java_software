@@ -13,8 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class GoIndexer extends Indexer {
 
-	private final GoRepository goRepo = new GoRepository();
-	private final GoTranslator goTrans = new GoTranslator();
+	private GoRepository goRepo;
+	private GoTranslator goTrans;
 
 	public GoIndexer(IndexerConfig config) {
 		super(config);
@@ -22,6 +22,9 @@ public class GoIndexer extends Indexer {
 
 	@Override
 	public void index() {
+		
+		goRepo = new GoRepository();
+		goTrans = new GoTranslator();
 
 		log.info("Pulling All Terms");
 

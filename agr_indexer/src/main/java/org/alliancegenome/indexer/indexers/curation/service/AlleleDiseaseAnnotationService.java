@@ -44,8 +44,8 @@ public class AlleleDiseaseAnnotationService extends BaseDiseaseAnnotationService
 			SearchResponse<AlleleDiseaseAnnotation> response = alleleApi.findForPublic(page, batchSize, params);
 
 			for (AlleleDiseaseAnnotation da: response.getResults()) {
-				if (isValidNeoEntity(allNeoAlleleIDs, da.getDiseaseAnnotationSubject().getIdentifier()) && hasNoObsoletedOrInternalEntities(da)) {
-					if (hasValidEntities(da, allNeoGeneIDs, allNeoAlleleIDs, allNeoModelIDs)) {
+				if (isValidNeoEntity(getAllNeoAlleleIDs(), da.getDiseaseAnnotationSubject().getIdentifier()) && hasNoObsoletedOrInternalEntities(da)) {
+					if (hasValidEntities(da, getAllNeoGeneIDs(), getAllNeoAlleleIDs(), getAllNeoModelIDs())) {
 						if (da.getInferredGene() != null && da.getInferredGene().getConstructGenomicEntityAssociations() != null) {
 							da.getInferredGene().getConstructGenomicEntityAssociations().clear();
 						}

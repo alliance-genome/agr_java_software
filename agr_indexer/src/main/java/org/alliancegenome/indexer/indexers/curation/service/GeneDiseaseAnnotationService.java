@@ -13,10 +13,10 @@ import java.util.stream.Collectors;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.Organization;
 import org.alliancegenome.curation_api.model.entities.DiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.Gene;
 import org.alliancegenome.curation_api.model.entities.GeneDiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.Organization;
 import org.alliancegenome.curation_api.model.entities.Reference;
 import org.alliancegenome.curation_api.model.entities.VocabularyTerm;
 import org.alliancegenome.curation_api.model.entities.ontology.ECOTerm;
@@ -38,7 +38,7 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 	private final GeneDiseaseAnnotationInterface geneApi = RestProxyFactory.createProxy(GeneDiseaseAnnotationInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 	private final GeneToGeneOrthologyGeneratedInterface orthologyApi = RestProxyFactory.createProxy(GeneToGeneOrthologyGeneratedInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 
-	private VocabularyService vocabService = new VocabularyService();
+	private VocabularyTermService vocabularyTermService = new VocabularyTermService();
 	private EcoTermService ecoTermService = new EcoTermService();
 	private OrganizationService orgService = new OrganizationService();
 	private ReferenceService referenceService = new ReferenceService();
@@ -67,8 +67,8 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 		do {
 			SearchResponse<GeneDiseaseAnnotation> response = geneApi.findForPublic(page, batchSize, params);
 			for (GeneDiseaseAnnotation da : response.getResults()) {
-				if (isValidNeoEntity(allNeoGeneIDs, da.getDiseaseAnnotationSubject().getIdentifier()) && hasNoObsoletedOrInternalEntities(da)) {
-					if (hasValidGeneticModifiers(da, allNeoGeneIDs, allNeoAlleleIDs, allNeoModelIDs)) {
+				if (isValidNeoEntity(getAllNeoGeneIDs(), da.getDiseaseAnnotationSubject().getIdentifier()) && hasNoObsoletedOrInternalEntities(da)) {
+					if (hasValidGeneticModifiers(da, getAllNeoGeneIDs(), getAllNeoAlleleIDs(), getAllNeoModelIDs())) {
 						ret.add(da);
 					}
 				}
@@ -108,8 +108,8 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 		params.put("obsolete", false);
 		params.put("strictFilter", true);
 
-		VocabularyTerm isMarkerViaOrthology = vocabService.getDiseaseRelationTerms().get("is_marker_via_orthology");
-		VocabularyTerm isImplicatedViaOrthology = vocabService.getDiseaseRelationTerms().get("is_implicated_via_orthology");
+		VocabularyTerm isMarkerViaOrthology = vocabularyTermService.getDiseaseRelationTerms().get("is_marker_via_orthology");
+		VocabularyTerm isImplicatedViaOrthology = vocabularyTermService.getDiseaseRelationTerms().get("is_implicated_via_orthology");
 		ECOTerm ecoTermIEA = ecoTermService.getEcoTerm("ECO:0000501");
 		// hard code MGI:6194238 with corresponding AGRKB ID
 		Reference allianceReference = referenceService.getReference("AGRKB:101000000828456");
@@ -126,10 +126,10 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 		for (String geneID : geneIDs) {
 			List<DiseaseAnnotation> focusDiseaseAnnotations = geneMap.get(geneID).getRight();
 			params.put("subjectGene.primaryExternalId", geneID);
-			SearchResponse<GeneToGeneOrthologyGenerated> response = orthologyApi.find(0, 500, params);
+			SearchResponse<GeneToGeneOrthologyGenerated> response = orthologyApi.findForPublic(0, 500, params);
 			for (GeneToGeneOrthologyGenerated geneGeneOrthology : response.getResults()) {
 				Gene orthologousGene = geneGeneOrthology.getObjectGene();
-				if (!isValidNeoEntity(allNeoGeneIDs, orthologousGene.getIdentifier()) || orthologousGene.getObsolete() || orthologousGene.getInternal()) {
+				if (!isValidNeoEntity(getAllNeoGeneIDs(), orthologousGene.getIdentifier()) || orthologousGene.getObsolete() || orthologousGene.getInternal()) {
 					continue;
 				}
 				// create orthologous DAs for each focus DA

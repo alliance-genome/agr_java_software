@@ -1,33 +1,51 @@
 package org.alliancegenome.indexer.indexers.curation;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.concurrent.LinkedBlockingDeque;
+
 import org.alliancegenome.api.entity.AllelePhenotypeAnnotationDocument;
 import org.alliancegenome.api.entity.GenePhenotypeAnnotationDocument;
 import org.alliancegenome.api.entity.PhenotypeAnnotationDocument;
-import org.alliancegenome.curation_api.model.entities.*;
-import org.alliancegenome.es.util.ProcessDisplayHelper;
+import org.alliancegenome.curation_api.model.entities.AGMPhenotypeAnnotation;
+import org.alliancegenome.curation_api.model.entities.AffectedGenomicModel;
+import org.alliancegenome.curation_api.model.entities.Allele;
+import org.alliancegenome.curation_api.model.entities.AllelePhenotypeAnnotation;
+import org.alliancegenome.curation_api.model.entities.BiologicalEntity;
+import org.alliancegenome.curation_api.model.entities.CrossReference;
+import org.alliancegenome.curation_api.model.entities.Gene;
+import org.alliancegenome.curation_api.model.entities.GenePhenotypeAnnotation;
+import org.alliancegenome.curation_api.model.entities.PhenotypeAnnotation;
+import org.alliancegenome.curation_api.model.entities.Reference;
+import org.alliancegenome.curation_api.model.entities.VocabularyTerm;
+import org.alliancegenome.curation_api.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
 import org.alliancegenome.indexer.indexers.curation.service.AGMPhenotypeAnnotationService;
 import org.alliancegenome.indexer.indexers.curation.service.AllelePhenotypeAnnotationService;
 import org.alliancegenome.indexer.indexers.curation.service.GenePhenotypeAnnotationService;
-import org.alliancegenome.indexer.indexers.curation.service.VocabularyService;
+import org.alliancegenome.indexer.indexers.curation.service.VocabularyTermService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.concurrent.LinkedBlockingDeque;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.extern.slf4j.Slf4j;
+
 
 @Slf4j
 public class PhenotypeAnnotationCurationIndexer extends Indexer {
 
-	private GenePhenotypeAnnotationService geneService = new GenePhenotypeAnnotationService();
-	private AllelePhenotypeAnnotationService alleleService = new AllelePhenotypeAnnotationService();
-	private AGMPhenotypeAnnotationService agmService = new AGMPhenotypeAnnotationService();
-	private VocabularyService vocabService = new VocabularyService();
+	private GenePhenotypeAnnotationService geneService;
+	private AllelePhenotypeAnnotationService alleleService;
+	private AGMPhenotypeAnnotationService agmService;
+	private VocabularyTermService vocabTermService;
+	
 	private Map<String, Pair<Gene, ArrayList<PhenotypeAnnotation>>> geneMap = new HashMap<>();
 	private Map<String, Pair<Allele, ArrayList<PhenotypeAnnotation>>> alleleMap = new HashMap<>();
 	private Map<String, Pair<AffectedGenomicModel, ArrayList<PhenotypeAnnotation>>> agmMap = new HashMap<>();
@@ -49,6 +67,11 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 	@Override
 	protected void index() {
 
+		geneService = new GenePhenotypeAnnotationService();
+		alleleService = new AllelePhenotypeAnnotationService();
+		agmService = new AGMPhenotypeAnnotationService();
+		vocabTermService = new VocabularyTermService();
+		
 		indexGenes();
 		indexAlleles();
 		indexAGMs();
@@ -70,7 +93,7 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 		ProcessDisplayHelper ph = new ProcessDisplayHelper(10000);
 		ph.startProcess("Creating Gene Phenotype Annotations", geneMap.size());
 
-		final VocabularyTerm relationIsImplicatedIn = vocabService.getDiseaseRelationTerms().get("is_implicated_in");
+		VocabularyTerm relationIsImplicatedIn = vocabTermService.getDiseaseRelationTerms().get("is_implicated_in");
 
 		for (Entry<String, Pair<Gene, ArrayList<PhenotypeAnnotation>>> pairMap : geneMap.entrySet()) {
 			HashMap<String, GenePhenotypeAnnotationDocument> lookup = new HashMap<>();
@@ -130,7 +153,7 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 	}
 
 	private void indexGenes() {
-		List<GenePhenotypeAnnotation> genePhenotypeAnnotations = geneService.getFiltered();
+		List<GenePhenotypeAnnotation> genePhenotypeAnnotations = geneService.getFiltered(indexerConfig.getThreadCount(), indexerConfig.getBufferSize());
 		addPhenotypeAnnotationsToLGlobalMap(genePhenotypeAnnotations);
 	}
 
@@ -145,8 +168,8 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 
 	private void indexAlleles() {
 
-		List<AllelePhenotypeAnnotation> allelePhenotypeAnnotations = alleleService.getFiltered();
-		log.info("Filtered Alleles: " + allelePhenotypeAnnotations.size());
+		List<AllelePhenotypeAnnotation> allelePhenotypeAnnotations = alleleService.getFiltered(indexerConfig.getThreadCount(), indexerConfig.getBufferSize());
+		log.info("Filtered Alleles: " + String.format("%,d", allelePhenotypeAnnotations.size()));
 		for (AllelePhenotypeAnnotation da : allelePhenotypeAnnotations) {
 			Allele allele = da.getPhenotypeAnnotationSubject();
 			Pair<Allele, ArrayList<PhenotypeAnnotation>> allelePair = alleleMap.computeIfAbsent(allele.getIdentifier(), alleleCurie -> Pair.of(allele, new ArrayList<>()));
@@ -172,7 +195,7 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 
 	private void indexAGMs() {
 
-		List<AGMPhenotypeAnnotation> agmDiseaseAnnotations = agmService.getFiltered();
+		List<AGMPhenotypeAnnotation> agmDiseaseAnnotations = agmService.getFiltered(indexerConfig.getThreadCount(), indexerConfig.getBufferSize());
 		log.info("Filtered AGM PAs: " + String.format("%,d", agmDiseaseAnnotations.size()));
 
 		for (AGMPhenotypeAnnotation da : agmDiseaseAnnotations) {
@@ -209,7 +232,7 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 		ProcessDisplayHelper ph = new ProcessDisplayHelper(10000);
 		ph.startProcess("Creating Allele Disease Annotations", alleleMap.size());
 
-		VocabularyTerm relation = vocabService.getDiseaseRelationTerms().get("is_implicated_in");
+		VocabularyTerm relation = vocabTermService.getDiseaseRelationTerms().get("is_implicated_in");
 
 		for (Entry<String, Pair<Allele, ArrayList<PhenotypeAnnotation>>> pairMap : alleleMap.entrySet()) {
 			HashMap<String, AllelePhenotypeAnnotationDocument> lookup = new HashMap<>();

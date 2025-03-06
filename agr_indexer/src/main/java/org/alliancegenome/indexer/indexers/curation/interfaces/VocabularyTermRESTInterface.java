@@ -14,15 +14,17 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.MediaType;
 
 @Path("/vocabularyterm")
-@Produces({ "application/json" })
-@Consumes({ "application/json" })
-public interface VocabularyRESTInterface {
-
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
+public interface VocabularyTermRESTInterface extends ForPublicFindInterface<VocabularyTerm> {
+	
+	@Override
 	@POST
-	@Path("/find")
-	@JsonView({ View.FieldsAndLists.class })
-	SearchResponse<VocabularyTerm> find(@DefaultValue("0") @QueryParam("page") Integer page, @DefaultValue("10") @QueryParam("limit") Integer limit, HashMap<String, Object> params);
+	@Path("/findForPublic")
+	@JsonView({View.ForPublic.class})
+	SearchResponse<VocabularyTerm> findForPublic(@DefaultValue("0") @QueryParam("page") Integer page, @DefaultValue("10") @QueryParam("limit") Integer limit, HashMap<String, Object> params);
 
 }

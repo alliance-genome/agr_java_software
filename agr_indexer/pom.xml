@@ -32,6 +32,19 @@
 			<artifactId>process-display</artifactId>
 			<version>1.0.12</version>
 		</dependency>
+
+
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-to-slf4j</artifactId>
+			<version>2.20.0</version>
+		</dependency>
+
+		<!-- Required for Log4j2 API calls -->
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-api</artifactId>
+		</dependency>
 	</dependencies>
 	<build>
 		<finalName>${project.artifactId}</finalName>
