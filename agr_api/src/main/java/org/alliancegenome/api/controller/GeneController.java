@@ -54,11 +54,11 @@ public class GeneController implements GeneRESTInterface {
 	@Inject
 	AlleleService alleleService;
 
-	@Inject OrthologyCacheRepository orthologyService;
+	@Inject
+	ExpressionCacheRepository expressionCacheRepository;
 
-	@Inject OrthologyESService orthologyESService;
-
-	@Inject ExpressionCacheRepository expressionCacheRepository;
+	@Inject
+	OrthologyESService orthologyESService;
 
 	@Inject
 	DiseaseService diseaseService;

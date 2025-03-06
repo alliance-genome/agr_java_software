@@ -33,20 +33,20 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 	public void index() {
 		try {
 			log.info("Getting orthologs");
-	
+
 			SearchResponse<GeneToGeneOrthologyGenerated> orthologyResponse = service.getGeneToGeneOrthology(0, 0);
-	
+
 			log.info("GeneToGeneParalogy count: " + orthologyResponse.getTotalResults());
-	
-			int totalPages = (int)(orthologyResponse.getTotalResults() / indexerConfig.getBufferSize());
-	
+
+			int totalPages = (int) (orthologyResponse.getTotalResults() / indexerConfig.getBufferSize());
+
 			LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
 			for (int i = 0; i <= totalPages; i++) {
 				queue.add(String.valueOf(i));
 			}
-			
+
 			initiateThreading(queue);
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -58,27 +58,28 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 		return RestConfig.config.getJacksonObjectMapperFactory().createObjectMapper();
 	}
 
-
 	protected void startSingleThread(LinkedBlockingDeque<String> queue) {
-		while(true) {
-            try {
-                if (queue.isEmpty()) {
-                    return;
-                }
-                String page = queue.takeFirst();
-                SearchResponse<GeneToGeneOrthologyGenerated> resp = service.getGeneToGeneOrthology(Integer.valueOf(page), indexerConfig.getBufferSize());
+		while (true) {
+			try {
+				if (queue.isEmpty()) {
+					return;
+				}
+				String page = queue.takeFirst();
+				SearchResponse<GeneToGeneOrthologyGenerated> resp = service
+						.getGeneToGeneOrthology(Integer.valueOf(page), indexerConfig.getBufferSize());
 				List<GeneToGeneOrthologyDocument> docs = createGeneToGeneOrthologyDocuments(resp.getResults());
-	
-                indexDocuments(docs);
-            } catch (Exception e) {
-                log.error("Error while indexing...", e);
-                System.exit(-1);
-                return;
-            }
-        }
+
+				indexDocuments(docs);
+			} catch (Exception e) {
+				log.error("Error while indexing...", e);
+				System.exit(-1);
+				return;
+			}
+		}
 	}
 
-	private List<GeneToGeneOrthologyDocument> createGeneToGeneOrthologyDocuments(List<GeneToGeneOrthologyGenerated> g2gOrthoList) {
+	private List<GeneToGeneOrthologyDocument> createGeneToGeneOrthologyDocuments(
+			List<GeneToGeneOrthologyGenerated> g2gOrthoList) {
 		List<GeneToGeneOrthologyDocument> documents = new ArrayList<>();
 		for (GeneToGeneOrthologyGenerated g2gOrtho : g2gOrthoList) {
 			GeneToGeneOrthologyDocument document = new GeneToGeneOrthologyDocument();
@@ -93,7 +94,6 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 		return documents;
 	}
 
-	
 	private void createStringencyFilter(GeneToGeneOrthologyGenerated g2gOrtho, GeneToGeneOrthologyDocument document) {
 		if (Boolean.TRUE.equals(g2gOrtho.getStrictFilter())) {
 			document.setStringencyFilter("stringent");
@@ -108,7 +108,7 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 		putGeneInfo(map, g2gOrtho.getObjectGene());
 		document.setGeneAnnotations(map);
 	}
-	
+
 	private void putGeneInfo(Map<String, Object> map, Gene gene) {
 		Map<String, Object> data = new HashMap<>();
 		data.put("hasExpressionAnnotations", hasExpressionAnnotations(gene));
@@ -130,7 +130,5 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 		document.getGeneToGeneOrthologyGenerated().getObjectGene().setGeneDiseaseAnnotations(null);
 		document.getGeneToGeneOrthologyGenerated().getObjectGene().setGeneExpressionAnnotations(null);
 	}
-
-
 
 }
