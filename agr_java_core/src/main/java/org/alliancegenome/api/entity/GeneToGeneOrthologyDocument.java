@@ -1,5 +1,7 @@
 package org.alliancegenome.api.entity;
 
+import java.util.Map;
+
 import org.alliancegenome.curation_api.model.entities.orthology.GeneToGeneOrthologyGenerated;
 import org.alliancegenome.es.index.ESDocument;
 
@@ -11,6 +13,7 @@ public class GeneToGeneOrthologyDocument extends ESDocument {
 	
 	protected String category = "gene_to_gene_orthology";
 	private String stringencyFilter = "all";
+	private Map<String, Object> geneAnnotations;
 
 	private GeneToGeneOrthologyGenerated geneToGeneOrthologyGenerated;
 

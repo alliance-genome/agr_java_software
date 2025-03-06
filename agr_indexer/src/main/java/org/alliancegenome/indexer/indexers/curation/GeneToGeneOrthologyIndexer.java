@@ -1,16 +1,20 @@
 package org.alliancegenome.indexer.indexers.curation;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import org.alliancegenome.api.entity.GeneToGeneOrthologyDocument;
+import org.alliancegenome.curation_api.model.entities.Gene;
 import org.alliancegenome.curation_api.model.entities.orthology.GeneToGeneOrthologyGenerated;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
 import org.alliancegenome.indexer.indexers.curation.service.GeneToGeneOrthologyService;
+import org.apache.commons.collections4.CollectionUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -77,18 +81,56 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 	private List<GeneToGeneOrthologyDocument> createGeneToGeneOrthologyDocuments(List<GeneToGeneOrthologyGenerated> g2gOrthoList) {
 		List<GeneToGeneOrthologyDocument> documents = new ArrayList<>();
 		for (GeneToGeneOrthologyGenerated g2gOrtho : g2gOrthoList) {
-			GeneToGeneOrthologyDocument document1 = new GeneToGeneOrthologyDocument();
-			document1.setGeneToGeneOrthologyGenerated(g2gOrtho);
+			GeneToGeneOrthologyDocument document = new GeneToGeneOrthologyDocument();
 
-			if (g2gOrtho.getStrictFilter()) {
-				document1.setStringencyFilter("stringent");
-			} else if (g2gOrtho.getModerateFilter()) {
-				document1.setStringencyFilter("moderate");
-			}
-			
-			documents.add(document1);
+			document.setGeneToGeneOrthologyGenerated(g2gOrtho);
+			createStringencyFilter(g2gOrtho, document);
+			createGeneAnnotations(g2gOrtho, document);
+			removeAnnotationLists(document);
+
+			documents.add(document);
 		}
 		return documents;
 	}
+
+	
+	private void createStringencyFilter(GeneToGeneOrthologyGenerated g2gOrtho, GeneToGeneOrthologyDocument document) {
+		if (Boolean.TRUE.equals(g2gOrtho.getStrictFilter())) {
+			document.setStringencyFilter("stringent");
+		} else if (Boolean.TRUE.equals(g2gOrtho.getModerateFilter())) {
+			document.setStringencyFilter("moderate");
+		}
+	}
+
+	private void createGeneAnnotations(GeneToGeneOrthologyGenerated g2gOrtho, GeneToGeneOrthologyDocument document) {
+		Map<String, Object> map = new HashMap<>();
+		putGeneInfo(map, g2gOrtho.getSubjectGene());
+		putGeneInfo(map, g2gOrtho.getObjectGene());
+		document.setGeneAnnotations(map);
+	}
+	
+	private void putGeneInfo(Map<String, Object> map, Gene gene) {
+		Map<String, Object> data = new HashMap<>();
+		data.put("hasExpressionAnnotations", hasExpressionAnnotations(gene));
+		data.put("hasDiseaseAnnotations", hasDiseaseAnnotations(gene));
+		map.put(gene.getIdentifier(), data);
+	}
+
+	private boolean hasDiseaseAnnotations(Gene gene) {
+		return CollectionUtils.isNotEmpty(gene.getGeneDiseaseAnnotations());
+	}
+
+	private boolean hasExpressionAnnotations(Gene gene) {
+		return CollectionUtils.isNotEmpty(gene.getGeneExpressionAnnotations());
+	}
+
+	private void removeAnnotationLists(GeneToGeneOrthologyDocument document) {
+		document.getGeneToGeneOrthologyGenerated().getSubjectGene().setGeneDiseaseAnnotations(null);
+		document.getGeneToGeneOrthologyGenerated().getSubjectGene().setGeneExpressionAnnotations(null);
+		document.getGeneToGeneOrthologyGenerated().getObjectGene().setGeneDiseaseAnnotations(null);
+		document.getGeneToGeneOrthologyGenerated().getObjectGene().setGeneExpressionAnnotations(null);
+	}
+
+
 
 }
