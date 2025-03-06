@@ -36,7 +36,7 @@ public class GenePhenotypeAnnotationService extends BaseDiseaseAnnotationService
 		LinkedBlockingDeque<GenePhenotypeAnnotation> fullList = new LinkedBlockingDeque<>();
 
 		SearchResponse<GenePhenotypeAnnotation> response = geneApi.findForPublic(0, 0, null);
-
+		
 		int totalPages = (int) (response.getTotalResults() / bufferSize);
 
 		display.startProcess("Pulling Gene PA's from curation", response.getTotalResults());

@@ -19,10 +19,12 @@ import jakarta.ws.rs.core.MediaType;
 @Path("/gene-disease-annotation")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public interface GeneDiseaseAnnotationInterface extends ForPublicFindInterface<GeneDiseaseAnnotation> {
-	@Override
+public interface GeneDiseaseAnnotationInterface {
 	@POST
 	@Path("/findForPublic")
 	@JsonView({ View.ForPublic.class })
-	SearchResponse<GeneDiseaseAnnotation> findForPublic(@DefaultValue("0") @QueryParam("page") Integer page, @DefaultValue("10") @QueryParam("limit") Integer limit, HashMap<String, Object> params);
+	SearchResponse<GeneDiseaseAnnotation> findForPublic(
+		@DefaultValue("0") @QueryParam("page") Integer page,
+		@DefaultValue("10") @QueryParam("limit") Integer limit,
+		HashMap<String, Object> params);
 }

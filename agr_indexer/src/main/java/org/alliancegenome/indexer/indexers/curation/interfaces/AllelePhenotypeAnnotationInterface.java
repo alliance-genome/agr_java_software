@@ -19,10 +19,12 @@ import jakarta.ws.rs.core.MediaType;
 @Path("/allele-phenotype-annotation")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public interface AllelePhenotypeAnnotationInterface extends ForPublicFindInterface<AllelePhenotypeAnnotation> {
-	@Override
+public interface AllelePhenotypeAnnotationInterface {
 	@POST
 	@Path("/findForPublic")
-	@JsonView({ View.PhenotypeAnnotationView.class })
-	SearchResponse<AllelePhenotypeAnnotation> findForPublic(@DefaultValue("0") @QueryParam("page") Integer page, @DefaultValue("10") @QueryParam("limit") Integer limit, HashMap<String, Object> params);
+	@JsonView({ View.ForPublic.class })
+	SearchResponse<AllelePhenotypeAnnotation> findForPublic(
+		@DefaultValue("0") @QueryParam("page") Integer page,
+		@DefaultValue("10") @QueryParam("limit") Integer limit,
+		HashMap<String, Object> params);
 }

@@ -19,11 +19,12 @@ import jakarta.ws.rs.core.MediaType;
 @Path("/paralogy")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public interface GeneToGeneParalogyInterface extends ForPublicFindInterface<GeneToGeneParalogy> {
-	@Override
+public interface GeneToGeneParalogyInterface {
 	@POST
 	@Path("/findForPublic")
-	@JsonView({View.ForPublic.class})
-	SearchResponse<GeneToGeneParalogy> findForPublic(@DefaultValue("0") @QueryParam("page") Integer page, @DefaultValue("10") @QueryParam("limit") Integer limit, HashMap<String, Object> params);
-
+	@JsonView({ View.ForPublic.class })
+	SearchResponse<GeneToGeneParalogy> findForPublic(
+		@DefaultValue("0") @QueryParam("page") Integer page,
+		@DefaultValue("10") @QueryParam("limit") Integer limit,
+		HashMap<String, Object> params);
 }

@@ -19,10 +19,12 @@ import jakarta.ws.rs.core.MediaType;
 @Path("/allele-disease-annotation")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public interface AlleleDiseaseAnnotationInterface extends ForPublicFindInterface<AlleleDiseaseAnnotation> {
-	@Override
+public interface AlleleDiseaseAnnotationInterface {
 	@POST
 	@Path("/findForPublic")
 	@JsonView({ View.ForPublic.class })
-	SearchResponse<AlleleDiseaseAnnotation> findForPublic(@DefaultValue("0") @QueryParam("page") Integer page, @DefaultValue("10") @QueryParam("limit") Integer limit, HashMap<String, Object> params);
+	SearchResponse<AlleleDiseaseAnnotation> findForPublic(
+		@DefaultValue("0") @QueryParam("page") Integer page,
+		@DefaultValue("10") @QueryParam("limit") Integer limit,
+		HashMap<String, Object> params);
 }

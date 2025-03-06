@@ -19,10 +19,12 @@ import jakarta.ws.rs.core.MediaType;
 @Path("/agm-disease-annotation")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public interface AGMDiseaseAnnotationInterface extends ForPublicFindInterface<AGMDiseaseAnnotation> {
-	@Override
+public interface AGMDiseaseAnnotationInterface {
 	@POST
 	@Path("/findForPublic")
-	@JsonView({View.ForPublic.class})
-	SearchResponse<AGMDiseaseAnnotation> findForPublic(@DefaultValue("0") @QueryParam("page") Integer page, @DefaultValue("10") @QueryParam("limit") Integer limit, HashMap<String, Object> params);
+	@JsonView({ View.ForPublic.class })
+	SearchResponse<AGMDiseaseAnnotation> findForPublic(
+		@DefaultValue("0") @QueryParam("page") Integer page,
+		@DefaultValue("10") @QueryParam("limit") Integer limit,
+		HashMap<String, Object> params);
 }

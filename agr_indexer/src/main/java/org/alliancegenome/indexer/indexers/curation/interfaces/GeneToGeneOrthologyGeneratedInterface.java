@@ -19,12 +19,12 @@ import jakarta.ws.rs.core.MediaType;
 @Path("/orthologygenerated")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public interface GeneToGeneOrthologyGeneratedInterface extends ForPublicFindInterface<GeneToGeneOrthologyGenerated> {
-
-	@Override
+public interface GeneToGeneOrthologyGeneratedInterface {
 	@POST
 	@Path("/findForPublic")
-	@JsonView({View.ForPublic.class})
-	SearchResponse<GeneToGeneOrthologyGenerated> findForPublic(@DefaultValue("0") @QueryParam("page") Integer page, @DefaultValue("10") @QueryParam("limit") Integer limit, HashMap<String, Object> params);
-
+	@JsonView({ View.ForPublic.class })
+	SearchResponse<GeneToGeneOrthologyGenerated> findForPublic(
+		@DefaultValue("0") @QueryParam("page") Integer page,
+		@DefaultValue("10") @QueryParam("limit") Integer limit,
+		HashMap<String, Object> params);
 }
