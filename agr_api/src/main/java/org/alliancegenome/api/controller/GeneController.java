@@ -38,6 +38,7 @@ import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.view.HomologView;
 import org.alliancegenome.neo4j.view.OrthologyFilter;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -291,6 +292,9 @@ public class GeneController implements GeneRESTInterface {
 																@Context UriInfo info) {
 		long startTime = System.currentTimeMillis();
 		
+		if (StringUtils.isEmpty(sortBy)) {
+			sortBy = "geneGeneticInteraction.geneGeneAssociationObject.geneSymbol.displayText.keyword";
+		}
 		Pagination pagination = new Pagination(page, limit, sortBy, asc, new InteractionColumnFieldMapping());
 		pagination.addFilterOption("geneGeneticInteraction.geneGeneAssociationObject.geneSymbol.displayText", interactorGeneSymbol);
 		pagination.addFilterOption("geneGeneticInteraction.interactionId", source);
@@ -341,6 +345,9 @@ public class GeneController implements GeneRESTInterface {
 											String phenotypes,
 											String interactionType
 	) {
+		if (StringUtils.isEmpty(sortBy)) {
+			sortBy = "geneGeneticInteraction.geneGeneAssociationObject.geneSymbol.displayText.keyword";
+		}
 		Pagination pagination = new Pagination(1, 150000, sortBy, asc);
 		pagination.addFilterOption("geneGeneticInteraction.geneGeneAssociationObject.geneSymbol.displayText", interactorGeneSymbol);
 		pagination.addFilterOption("geneGeneticInteraction.interactionId", source);
@@ -378,6 +385,9 @@ public class GeneController implements GeneRESTInterface {
 																String reference,
 																@Context UriInfo info) {
 		long startTime = System.currentTimeMillis();
+		if (StringUtils.isEmpty(sortBy)) {
+			sortBy = "geneMolecularInteraction.geneGeneAssociationObject.geneSymbol.displayText.keyword";
+		}
 		Pagination pagination = new Pagination(page, limit, sortBy, asc, new InteractionColumnFieldMapping());
 		pagination.addFilterOption("geneMolecularInteraction.interactorAType.name.keyword", moleculeType);
 		pagination.addFilterOption("geneMolecularInteraction.geneGeneAssociationObject.geneSymbol.displayText", interactorGeneSymbol);
@@ -422,6 +432,9 @@ public class GeneController implements GeneRESTInterface {
 			String source,
 			String reference
 	) {
+		if (StringUtils.isEmpty(sortBy)) {
+			sortBy = "geneMolecularInteraction.geneGeneAssociationObject.geneSymbol.displayText.keyword";
+		}
 		Pagination pagination = new Pagination(1, 150000, sortBy, asc);
 		pagination.addFilterOption("geneMolecularInteraction.interactorAType.name.keyword", moleculeType);
 		pagination.addFilterOption("geneMolecularInteraction.geneGeneAssociationObject.geneSymbol.displayText", interactorGeneSymbol);
