@@ -6,13 +6,7 @@ import org.alliancegenome.indexer.indexers.DiseaseIndexer;
 import org.alliancegenome.indexer.indexers.GeneIndexer;
 import org.alliancegenome.indexer.indexers.GoIndexer;
 import org.alliancegenome.indexer.indexers.ModelIndexer;
-import org.alliancegenome.indexer.indexers.curation.DiseaseAnnotationCurationIndexer;
-import org.alliancegenome.indexer.indexers.curation.GeneExpressionAnnotationIndexer;
-import org.alliancegenome.indexer.indexers.curation.GeneGeneticInteractionCurationIndexer;
-import org.alliancegenome.indexer.indexers.curation.GeneMolecularInteractionCurationIndexer;
-import org.alliancegenome.indexer.indexers.curation.GeneToGeneParalogyIndexer;
-import org.alliancegenome.indexer.indexers.curation.PhenotypeAnnotationCurationIndexer;
-import org.alliancegenome.indexer.indexers.curation.ReleaseInfoIndexer;
+import org.alliancegenome.indexer.indexers.curation.*;
 
 public enum IndexerConfig {
 	
@@ -27,6 +21,7 @@ public enum IndexerConfig {
 	// Curation Indexers
 	DiseaseAnnotationIndexer("diseaseAnnotation", DiseaseAnnotationCurationIndexer.class, 1, 1500, 1500, 2, 1),
 	GeneExpressionAnnotationIndexer("geneExpressionAnnotation", GeneExpressionAnnotationIndexer.class, 4, 1500, 1500, 2, 1),
+	GeneExpressionExperimentIndexer("geneExpressionExperiment", GeneExpressionExperimentIndexer.class, 4, 1500, 1500, 2, 1),
 	GeneGeneticInteractionIndexers("geneGeneticInteraction", GeneGeneticInteractionCurationIndexer.class, 4, 1500, 1500, 2, 1),
 	GeneMolecularInteractionIndexers("geneMolecularInteraction", GeneMolecularInteractionCurationIndexer.class, 4, 1500, 1500, 2, 1),
 	ParalogyIndexer("paralogy", GeneToGeneParalogyIndexer.class, 4, 5000, 5000, 8, 1),
