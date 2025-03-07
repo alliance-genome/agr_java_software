@@ -2,9 +2,7 @@ package org.alliancegenome.indexer.indexers.curation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.alliancegenome.api.entity.GeneExpressionAnnotationDocument;
 import org.alliancegenome.api.entity.GeneExpressionExperimentDocument;
-import org.alliancegenome.curation_api.model.entities.GeneExpressionAnnotation;
 import org.alliancegenome.curation_api.model.entities.GeneExpressionExperiment;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.indexer.RestConfig;
