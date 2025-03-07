@@ -70,19 +70,6 @@ public interface OrthologyRESTInterface {
 		@DefaultValue("20") @QueryParam("rows") Integer rows, @DefaultValue("1") @QueryParam("start") Integer start) throws IOException;
 
 	@GET
-	@Path("/geneMap")
-	@JsonView(value = { View.Homology.class })
-	@Operation(summary = "Retrieve homologous gene records for given list of geneMap")
-	@APIResponses(value = { @APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
-	JsonResultResponse<HomologView> getMultiGeneOrthology(
-		@Parameter(in = ParameterIn.QUERY, name = "geneID", description = "List of geneMap (specified by their ID) for which homology is retrieved, e.g. 'MGI:109583'", schema = @Schema(type = SchemaType.STRING)) @QueryParam("geneID") List<String> geneID,
-		@Parameter(in = ParameterIn.QUERY, name = "geneIdList", description = "List of additional source gene IDs for which homology is retrieved in a comma-delimited list, e.g. 'MGI:109583,RGD:2129,MGI:97570", schema = @Schema(type = SchemaType.STRING)) @QueryParam("geneIdList") String geneList,
-		@Parameter(in = ParameterIn.QUERY, name = "filter.stringency", description = "apply stringency containsFilterValue", schema = @Schema(type = SchemaType.STRING)) @DefaultValue("stringent") @QueryParam("filter.stringency") String stringency,
-		@Parameter(in = ParameterIn.QUERY, name = "filter.method", description = "calculation methods", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.method") String method,
-		@Parameter(in = ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("20") @QueryParam("limit") Integer limit,
-		@Parameter(in = ParameterIn.QUERY, name = "page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("1") @QueryParam("page") Integer page) throws IOException;
-
-	@GET
 	@Path("/methods")
 	@JsonView(value = { View.OrthologyMethod.class })
 	@Operation(summary = "Retrieve all methods used for calculation of homology")
