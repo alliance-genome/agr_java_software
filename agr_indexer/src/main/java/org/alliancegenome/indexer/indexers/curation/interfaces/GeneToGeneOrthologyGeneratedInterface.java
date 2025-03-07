@@ -27,4 +27,12 @@ public interface GeneToGeneOrthologyGeneratedInterface {
 		@DefaultValue("0") @QueryParam("page") Integer page,
 		@DefaultValue("10") @QueryParam("limit") Integer limit,
 		HashMap<String, Object> params);
+
+	@POST
+	@Path("/findForPublic")
+	SearchResponse<GeneToGeneOrthologyGenerated> findForPublic(
+		@DefaultValue("0") @QueryParam("page") Integer page,
+		@DefaultValue("10") @QueryParam("limit") Integer limit,
+		@DefaultValue("ForPublic") @QueryParam("view") String view,
+		HashMap<String, Object> params);
 }

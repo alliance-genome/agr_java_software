@@ -23,6 +23,7 @@ import org.alliancegenome.api.controller.OrthologyController;
 import org.alliancegenome.api.dto.ExpressionSummary;
 import org.alliancegenome.api.dto.ExpressionSummaryGroup;
 import org.alliancegenome.api.dto.ExpressionSummaryGroupTerm;
+import org.alliancegenome.api.entity.GeneToGeneOrthologyDocument;
 import org.alliancegenome.api.service.GeneService;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.ExpressionDetail;
@@ -98,7 +99,7 @@ public class GeneIT {
 
 		GeneController controller = new GeneController();
 		String[] geneIDs = {"RGD:2129"};
-		JsonResultResponse<HomologView> response = controller.getGeneOrthology("MGI:109583", asList(geneIDs), null, "stringENT", null, null, 20, 1);
+		JsonResultResponse<GeneToGeneOrthologyDocument> response = controller.getGeneOrthology("MGI:109583", asList(geneIDs), null, "stringENT", null, null, 20, 1);
 		assertThat("Matches found for containsFilterValue 'stringent", response.getTotal(), greaterThan(0));
 	}
 
@@ -106,7 +107,7 @@ public class GeneIT {
 	public void checkOrthologyForListOfGenes() {
 
 		GeneController controller = new GeneController();
-		JsonResultResponse<HomologView> response = controller.getGeneOrthology("MGI:109583", null, null, "stringENT", null, null, 20, 1);
+		JsonResultResponse<GeneToGeneOrthologyDocument> response = controller.getGeneOrthology("MGI:109583", null, null, "stringENT", null, null, 20, 1);
 		assertThat("Matches found for containsFilterValue 'stringent", response.getTotal(), greaterThan(0));
 	}
 
@@ -122,7 +123,7 @@ public class GeneIT {
 	public void checkOrthologyAPIWithSpecies() {
 
 		GeneController controller = new GeneController();
-		JsonResultResponse<HomologView> response = controller.getGeneOrthology("MGI:109583", null, null, "stringent", null, null, 20, 1);
+		JsonResultResponse<GeneToGeneOrthologyDocument> response = controller.getGeneOrthology("MGI:109583", null, null, "stringent", null, null, 20, 1);
 		assertThat("No matches found for species 'NCBITaxon:10115", response.getTotal(), greaterThan(5));
 
 		String taxonArray = "NCBITaxon:10116";
@@ -147,7 +148,7 @@ public class GeneIT {
 
 		GeneController controller = new GeneController();
 		String methods = "ZFIN";
-		JsonResultResponse<HomologView> response = controller.getGeneOrthology("MGI:109583", null, null, null, null, methods, 20, 1);
+		JsonResultResponse<GeneToGeneOrthologyDocument> response = controller.getGeneOrthology("MGI:109583", null, null, null, null, methods, 20, 1);
 		assertThat("No match against method 'ZFIN'", response.getTotal(), greaterThan(0));
 
 		methods = "OrthoFinder";
@@ -167,7 +168,7 @@ public class GeneIT {
 	public void checkOrthologyAPINoFilters() {
 
 		GeneController controller = new GeneController();
-		JsonResultResponse<HomologView> response = controller.getGeneOrthology("MGI:109583", null, null, null, null, null, 20, 1);
+		JsonResultResponse<GeneToGeneOrthologyDocument> response = controller.getGeneOrthology("MGI:109583", null, null, null, null, null, 20, 1);
 		assertThat("matches found for gene MGI:109583'", response.getTotal(), greaterThan(0));
 	}
 

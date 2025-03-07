@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.cache.repository.helper.OrthologyFiltering;
+import org.alliancegenome.cache.repository.helper.OrthologyNeoCacheFiltering;
 import org.alliancegenome.cache.repository.helper.OrthologySorting;
 import org.alliancegenome.core.api.service.FilterService;
 import org.alliancegenome.es.index.site.doclet.OrthologyDoclet;
@@ -191,7 +191,7 @@ public class OrthologyCacheRepository {
 		long start = System.currentTimeMillis();
 		List<HomologView> homologViewList = repo.getAllOrthologyGenes(geneIDs);
 		//filtering
-		FilterService<HomologView> filterService = new FilterService<>(new OrthologyFiltering());
+		FilterService<HomologView> filterService = new FilterService<>(new OrthologyNeoCacheFiltering());
 		List<HomologView> homologViewFiltered = filterService.filterAnnotations(homologViewList, pagination.getFieldFilterValueMap());
 
 		List<HomologView> paginatedViewFiltered = homologViewFiltered.stream()
@@ -275,7 +275,7 @@ public class OrthologyCacheRepository {
 		JsonResultResponse<HomologView> response = new JsonResultResponse<>();
 
 		//filtering
-		FilterService<HomologView> filterService = new FilterService<>(new OrthologyFiltering());
+		FilterService<HomologView> filterService = new FilterService<>(new OrthologyNeoCacheFiltering());
 		List<HomologView> filteredOrthologyList = filterService.filterAnnotations(homologViewList, pagination.getFieldFilterValueMap());
 		response.setTotal(filteredOrthologyList.size());
 
@@ -292,7 +292,7 @@ public class OrthologyCacheRepository {
 		JsonResultResponse<HomologView> response = new JsonResultResponse<>();
 
 		//filtering
-		FilterService<HomologView> filterService = new FilterService<>(new OrthologyFiltering());
+		FilterService<HomologView> filterService = new FilterService<>(new OrthologyNeoCacheFiltering());
 		List<HomologView> filteredOrthologyList = filterService.filterAnnotations(homologViewList, pagination.getFieldFilterValueMap());
 		response.setTotal(filteredOrthologyList.size());
 
