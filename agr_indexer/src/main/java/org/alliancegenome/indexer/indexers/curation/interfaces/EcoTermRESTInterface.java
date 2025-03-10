@@ -6,7 +6,6 @@ import org.alliancegenome.curation_api.view.View;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
-import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -15,7 +14,6 @@ import jakarta.ws.rs.core.MediaType;
 
 @Path("/ecoterm")
 @Produces(MediaType.APPLICATION_JSON)
-@Consumes(MediaType.APPLICATION_JSON)
 public interface EcoTermRESTInterface {
 	@GET
 	@Path("/{curie}")

@@ -500,7 +500,6 @@ public class IndexManager {
 				map.put(d, info);
 			}
 		}
-		log.info("Map: " + map);
 		log.info("First Snapshot: " + map.firstKey());
 		log.info("Lastest Snapshot: " + map.lastKey());
 		SnapshotInfo info = map.get(map.lastKey());
