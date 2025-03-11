@@ -1,7 +1,9 @@
 package org.alliancegenome.api.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 
@@ -34,8 +36,16 @@ public class OrthologyESService extends ESService {
 		for (SearchHit searchHit : searchResponse.getHits().getHits()) {
 			try {
 				String source = searchHit.getSourceAsString();
-				GeneToGeneOrthologyDocument object = mapper.readValue(source, GeneToGeneOrthologyDocument.class);
-				list.add(object);
+				GeneToGeneOrthologyDocument doc = mapper.readValue(source, GeneToGeneOrthologyDocument.class);
+				
+				Map<String, Map<String, Object>> geneAnnotationsMap = new HashMap<>();
+				doc.setGeneAnnotationsMap(geneAnnotationsMap);
+				for (Map<String, Object> geneAnnotation : doc.getGeneAnnotations()) {
+					String geneIdentifier = (String) geneAnnotation.get("geneIdentifier");
+					geneAnnotationsMap.put(geneIdentifier, geneAnnotation);
+				}
+
+				list.add(doc);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
