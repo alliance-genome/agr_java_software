@@ -36,7 +36,7 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 
 			SearchResponse<GeneToGeneOrthologyGenerated> orthologyResponse = service.getGeneToGeneOrthology(0, 0);
 
-			log.info("GeneToGeneParalogy count: " + orthologyResponse.getTotalResults());
+			log.info("GeneToGeneOrthology count: " + orthologyResponse.getTotalResults());
 
 			int totalPages = (int) (orthologyResponse.getTotalResults() / indexerConfig.getBufferSize());
 
@@ -78,8 +78,7 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 		}
 	}
 
-	private List<GeneToGeneOrthologyDocument> createGeneToGeneOrthologyDocuments(
-			List<GeneToGeneOrthologyGenerated> g2gOrthoList) {
+	private List<GeneToGeneOrthologyDocument> createGeneToGeneOrthologyDocuments(List<GeneToGeneOrthologyGenerated> g2gOrthoList) {
 		List<GeneToGeneOrthologyDocument> documents = new ArrayList<>();
 		for (GeneToGeneOrthologyGenerated g2gOrtho : g2gOrthoList) {
 			GeneToGeneOrthologyDocument document = new GeneToGeneOrthologyDocument();
@@ -103,17 +102,18 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 	}
 
 	private void createGeneAnnotations(GeneToGeneOrthologyGenerated g2gOrtho, GeneToGeneOrthologyDocument document) {
-		Map<String, Object> map = new HashMap<>();
-		putGeneInfo(map, g2gOrtho.getSubjectGene());
-		putGeneInfo(map, g2gOrtho.getObjectGene());
-		document.setGeneAnnotations(map);
+		List<Map<String, Object>> geneAnnotationsList = new ArrayList<>();
+		putGeneInfo(geneAnnotationsList, g2gOrtho.getSubjectGene());
+		putGeneInfo(geneAnnotationsList, g2gOrtho.getObjectGene());
+		document.setGeneAnnotations(geneAnnotationsList);
 	}
 
-	private void putGeneInfo(Map<String, Object> map, Gene gene) {
+	private void putGeneInfo(List<Map<String, Object>> list, Gene gene) {
 		Map<String, Object> data = new HashMap<>();
+		data.put("geneIdentifier", gene.getIdentifier());
 		data.put("hasExpressionAnnotations", hasExpressionAnnotations(gene));
 		data.put("hasDiseaseAnnotations", hasDiseaseAnnotations(gene));
-		map.put(gene.getIdentifier(), data);
+		list.add(data);
 	}
 
 	private boolean hasDiseaseAnnotations(Gene gene) {
