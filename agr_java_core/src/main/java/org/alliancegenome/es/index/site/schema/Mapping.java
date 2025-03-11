@@ -147,7 +147,17 @@ public class Mapping extends Builder {
 		new FieldBuilder(builder, "species", "text").keyword().synonym().sort().build(); // allele, gene, model, dataset
 		new FieldBuilder(builder, "synonyms", "text").analyzer("symbols").autocomplete().keyword().keywordAutocomplete().htmlSmoosh().standardBigrams().build(); // gene, go, disease, model
 
+		new FieldBuilder(builder, "geneMolecularInteraction.geneGeneAssociationObject.geneSymbol.displayText", "text").keyword().sort().build();
+		new FieldBuilder(builder, "geneMolecularInteraction.interactorAType.name", "text").keyword().sort().build();
+		new FieldBuilder(builder, "geneMolecularInteraction.interactorBType.name", "text").keyword().sort().build();
+		new FieldBuilder(builder, "geneMolecularInteraction.detectionMethod.name", "text").keyword().sort().build();
+		new FieldBuilder(builder, "geneMolecularInteraction.geneGeneAssociationObject.taxon.name", "text").keyword().sort().build();
 
+		new FieldBuilder(builder, "geneGeneticInteraction.geneGeneAssociationObject.geneSymbol.displayText", "text").keyword().sort().build();
+		new FieldBuilder(builder, "geneGeneticInteraction.interactorARole.name", "text").keyword().build();
+		new FieldBuilder(builder, "geneGeneticInteraction.interactorBRole.name", "text").keyword().build();
+		new FieldBuilder(builder, "geneGeneticInteraction.interactionType.name", "text").keyword().build();
+		new FieldBuilder(builder, "geneGeneticInteraction.geneGeneAssociationObject.taxon.name", "text").keyword().sort().build();
 	}
 	
 	public static class FieldBuilder {
