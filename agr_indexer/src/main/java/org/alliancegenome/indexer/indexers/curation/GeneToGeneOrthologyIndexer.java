@@ -78,7 +78,7 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 		}
 	}
 
-	private List<GeneToGeneOrthologyDocument> createGeneToGeneOrthologyDocuments( List<GeneToGeneOrthologyGenerated> g2gOrthoList) {
+	private List<GeneToGeneOrthologyDocument> createGeneToGeneOrthologyDocuments(List<GeneToGeneOrthologyGenerated> g2gOrthoList) {
 		List<GeneToGeneOrthologyDocument> documents = new ArrayList<>();
 		for (GeneToGeneOrthologyGenerated g2gOrtho : g2gOrthoList) {
 			GeneToGeneOrthologyDocument document = new GeneToGeneOrthologyDocument();

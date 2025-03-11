@@ -9,7 +9,7 @@ import org.alliancegenome.es.index.ESDocument;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-@Data 
+@Data
 @EqualsAndHashCode(callSuper = true)
 public class GeneToGeneOrthologyDocument extends ESDocument {
 	
