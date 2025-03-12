@@ -95,6 +95,7 @@ public class Mapping extends Builder {
 		new FieldBuilder(builder, "diseasesAgrSlim", "text").keyword().build(); // gene, allele, model
 		new FieldBuilder(builder, "diseasesWithParents", "text").keyword().build(); // gene, allele, model
 		new FieldBuilder(builder, "phenotypeStatements", "text").keyword().build(); // gene, allele, model
+		new FieldBuilder(builder, "phenotypeStatement", "text").keyword().sort().build(); // phenotype annotation
 
 		new FieldBuilder(builder, "object.name", "text").keyword().sort().build(); // gene_disease_annotation, allele_disease_annotation, agm_disease_annotation
 		new FieldBuilder(builder, "object.curie", "text").keyword().sort().build(); // gene_disease_annotation, allele_disease_annotation, agm_disease_annotation
