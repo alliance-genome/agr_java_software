@@ -297,7 +297,7 @@ public class GeneController implements GeneRESTInterface {
 		long startTime = System.currentTimeMillis();
 		
 		if (StringUtils.isEmpty(sortBy)) {
-			sortBy = "geneGeneticInteraction.geneGeneAssociationObject.geneSymbol.displayText.keyword";
+			sortBy = "geneGeneticInteraction.geneGeneAssociationObject.geneSymbol.displayText.sort";
 		}
 		Pagination pagination = new Pagination(page, limit, sortBy, asc, new InteractionColumnFieldMapping());
 		pagination.addFilterOption("geneGeneticInteraction.geneGeneAssociationObject.geneSymbol.displayText", interactorGeneSymbol);
@@ -350,7 +350,7 @@ public class GeneController implements GeneRESTInterface {
 											String interactionType
 	) {
 		if (StringUtils.isEmpty(sortBy)) {
-			sortBy = "geneGeneticInteraction.geneGeneAssociationObject.geneSymbol.displayText.keyword";
+			sortBy = "geneGeneticInteraction.geneGeneAssociationObject.geneSymbol.displayText.sort";
 		}
 		Pagination pagination = new Pagination(1, 150000, sortBy, asc);
 		pagination.addFilterOption("geneGeneticInteraction.geneGeneAssociationObject.geneSymbol.displayText", interactorGeneSymbol);
@@ -390,7 +390,7 @@ public class GeneController implements GeneRESTInterface {
 																@Context UriInfo info) {
 		long startTime = System.currentTimeMillis();
 		if (StringUtils.isEmpty(sortBy)) {
-			sortBy = "geneMolecularInteraction.geneGeneAssociationObject.geneSymbol.displayText.keyword";
+			sortBy = "geneMolecularInteraction.geneGeneAssociationObject.geneSymbol.displayText.sort";
 		}
 		Pagination pagination = new Pagination(page, limit, sortBy, asc, new InteractionColumnFieldMapping());
 		pagination.addFilterOption("geneMolecularInteraction.interactorAType.name.keyword", moleculeType);
@@ -437,7 +437,7 @@ public class GeneController implements GeneRESTInterface {
 			String reference
 	) {
 		if (StringUtils.isEmpty(sortBy)) {
-			sortBy = "geneMolecularInteraction.geneGeneAssociationObject.geneSymbol.displayText.keyword";
+			sortBy = "geneMolecularInteraction.geneGeneAssociationObject.geneSymbol.displayText.sort";
 		}
 		Pagination pagination = new Pagination(1, 150000, sortBy, asc);
 		pagination.addFilterOption("geneMolecularInteraction.interactorAType.name.keyword", moleculeType);
