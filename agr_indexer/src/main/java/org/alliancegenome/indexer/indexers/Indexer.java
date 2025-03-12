@@ -186,14 +186,9 @@ public abstract class Indexer extends Thread {
 	public void initiateThreading(LinkedBlockingDeque<String> queue) throws InterruptedException {
 		Integer numberOfThreads = indexerConfig.getThreadCount();
 
-		List<Thread> threads = new ArrayList<Thread>();
+		List<Thread> threads = new ArrayList<>();
 		for (int i = 0; i < numberOfThreads; i++) {
-			Thread t = new Thread(new Runnable() {
-				@Override
-				public void run() {
-					startSingleThread(queue);
-				}
-			});
+			Thread t = new Thread(() -> startSingleThread(queue));
 			threads.add(t);
 			t.start();
 		}

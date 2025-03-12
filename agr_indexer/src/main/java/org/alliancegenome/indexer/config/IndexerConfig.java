@@ -1,22 +1,10 @@
 package org.alliancegenome.indexer.config;
 
-import org.alliancegenome.indexer.indexers.AlleleIndexer;
-import org.alliancegenome.indexer.indexers.DatasetIndexer;
-import org.alliancegenome.indexer.indexers.DiseaseIndexer;
-import org.alliancegenome.indexer.indexers.GeneIndexer;
-import org.alliancegenome.indexer.indexers.GoIndexer;
-import org.alliancegenome.indexer.indexers.ModelIndexer;
-import org.alliancegenome.indexer.indexers.curation.DiseaseAnnotationCurationIndexer;
-import org.alliancegenome.indexer.indexers.curation.GeneExpressionAnnotationIndexer;
-import org.alliancegenome.indexer.indexers.curation.GeneGeneticInteractionCurationIndexer;
-import org.alliancegenome.indexer.indexers.curation.GeneMolecularInteractionCurationIndexer;
-import org.alliancegenome.indexer.indexers.curation.GeneToGeneParalogyIndexer;
-import org.alliancegenome.indexer.indexers.curation.PhenotypeAnnotationCurationIndexer;
-import org.alliancegenome.indexer.indexers.curation.ReleaseInfoIndexer;
-import org.alliancegenome.indexer.indexers.curation.GeneToGeneOrthologyIndexer;
+import org.alliancegenome.indexer.indexers.*;
+import org.alliancegenome.indexer.indexers.curation.*;
 
 public enum IndexerConfig {
-	
+
 	// Neo Indexers
 	GeneIndexer("gene", GeneIndexer.class, 4, 359, 359, 8, 1),
 	DatasetIndexer("dataset", DatasetIndexer.class, 4, 566, 566, 8, 1),
@@ -24,7 +12,7 @@ public enum IndexerConfig {
 	AlleleIndexer("allele", AlleleIndexer.class, 4, 1517, 1517, 8, 1),
 	GoIndexer("go", GoIndexer.class, 4, 914, 914, 8, 1),
 	ModelIndexer("model", ModelIndexer.class, 4, 1426, 1426, 8, 1),
-	
+
 	// Curation Indexers
 	DiseaseAnnotationIndexer("diseaseAnnotation", DiseaseAnnotationCurationIndexer.class, 1, 1500, 1500, 2, 1),
 	GeneExpressionAnnotationIndexer("geneExpressionAnnotation", GeneExpressionAnnotationIndexer.class, 4, 1500, 1500, 2, 1),
@@ -33,8 +21,8 @@ public enum IndexerConfig {
 	ParalogyIndexer("paralogy", GeneToGeneParalogyIndexer.class, 4, 5000, 5000, 8, 1),
 	PhenotypeAnnotationIndexer("phenotypeAnnotation", PhenotypeAnnotationCurationIndexer.class, 4, 1500, 1500, 2, 1),
 	ReleaseInfoIndexer("release", ReleaseInfoIndexer.class, 1, 1, 1, 1, 1),
-	GeneToGeneOrthologyIndexer("geneToGeneOrthology", GeneToGeneOrthologyIndexer.class, 4, 1500, 1500, 8, 1)
-	;
+	GeneToGeneOrthologyIndexer("geneToGeneOrthology", GeneToGeneOrthologyIndexer.class, 4, 1500, 1500, 8, 1),
+	GeneSummaryIndexer("geneSummary", GeneSummaryIndexer.class, 4, 2000, 20, 8, 1);
 
 
 	private String typeName;
