@@ -53,6 +53,7 @@ public class Mapping extends Builder {
 		
 		// Allele Only Fields
 		new FieldBuilder(builder, "alterationType", "text").keyword().build(); // Allele
+		new FieldBuilder(builder, "allele.category", "text").keyword().build(); // Allele
 		new FieldBuilder(builder, "constructs", "text").keyword().classicText().build(); // allele
 		new FieldBuilder(builder, "constructExpressedComponent", "text").keyword().build(); // allele
 		new FieldBuilder(builder, "constructKnockdownComponent", "text").keyword().build(); // allele
