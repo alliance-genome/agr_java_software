@@ -312,6 +312,7 @@ public class Mapping extends Builder {
 					buildProperty("synonyms", "text", "generic_synonym", "autocomplete_search", null);
 				}
 				if (sort) {
+					//buildProperty("sort", "keyword", null, null, "lowercase");
 					buildProperty("sort", "keyword", null, null, "smart_alpha_sort");
 				}
 				if (htmlSmoosh) {
