@@ -3,7 +3,7 @@ package org.alliancegenome.core.translators;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.alliancegenome.es.index.ESDocument;
+import org.alliancegenome.curation_api.model.document.es.ESDocument;
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
 
 public abstract class EntityDocumentListTranslator<E extends Neo4jEntity, D extends ESDocument> {

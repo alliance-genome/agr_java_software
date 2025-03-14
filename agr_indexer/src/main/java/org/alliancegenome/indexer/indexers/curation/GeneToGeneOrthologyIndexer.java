@@ -58,6 +58,7 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 		return RestConfig.config.getJacksonObjectMapperFactory().createObjectMapper();
 	}
 
+	@Override
 	protected void startSingleThread(LinkedBlockingDeque<String> queue) {
 		while (true) {
 			try {
@@ -65,8 +66,7 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 					return;
 				}
 				String page = queue.takeFirst();
-				SearchResponse<GeneToGeneOrthologyGenerated> resp = service
-						.getGeneToGeneOrthology(Integer.valueOf(page), indexerConfig.getBufferSize());
+				SearchResponse<GeneToGeneOrthologyGenerated> resp = service.getGeneToGeneOrthology(Integer.valueOf(page), indexerConfig.getBufferSize());
 				List<GeneToGeneOrthologyDocument> docs = createGeneToGeneOrthologyDocuments(resp.getResults());
 
 				indexDocuments(docs);

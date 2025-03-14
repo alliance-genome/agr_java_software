@@ -9,14 +9,12 @@ import java.util.concurrent.TimeUnit;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.model.entities.AllelePhenotypeAnnotation;
 import org.alliancegenome.curation_api.response.SearchResponse;
-import org.alliancegenome.curation_api.util.ProcessDisplayHelper;
+import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.indexers.curation.interfaces.AllelePhenotypeAnnotationInterface;
 
-import lombok.extern.log4j.Log4j2;
 import si.mazi.rescu.RestProxyFactory;
 
-@Log4j2
 public class AllelePhenotypeAnnotationService extends BaseDiseaseAnnotationService {
 
 	private final AllelePhenotypeAnnotationInterface alleleApi = RestProxyFactory.createProxy(AllelePhenotypeAnnotationInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
@@ -35,7 +33,10 @@ public class AllelePhenotypeAnnotationService extends BaseDiseaseAnnotationServi
 		LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
 		LinkedBlockingDeque<AllelePhenotypeAnnotation> fullList = new LinkedBlockingDeque<>();
 
-		SearchResponse<AllelePhenotypeAnnotation> response = alleleApi.findForPublic(0, 0, null);
+		HashMap<String, Object> params = new HashMap<>();
+		params.put("internal", false);
+		params.put("obsolete", false);
+		SearchResponse<AllelePhenotypeAnnotation> response = alleleApi.findForPublic(0, 0, params);
 
 		int totalPages = (int) (response.getTotalResults() / bufferSize);
 

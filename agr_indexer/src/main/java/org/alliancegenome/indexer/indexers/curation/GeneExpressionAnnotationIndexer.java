@@ -37,6 +37,7 @@ public class GeneExpressionAnnotationIndexer extends Indexer {
 			for (int i = 0; i <= totalPages; i++) {
 				queue.add(String.valueOf(i));
 			}
+			
 			initiateThreading(queue);
 		} catch (InterruptedException e) {
 			e.printStackTrace();

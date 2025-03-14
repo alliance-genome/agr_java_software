@@ -3,6 +3,8 @@ package org.alliancegenome.indexer;
 import org.alliancegenome.core.config.ConfigHelper;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.StreamReadFeature;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,7 +28,11 @@ public class RestConfig {
 			@Override
 			public ObjectMapper createObjectMapper() {
 				// Curation Object Mapper
-				ObjectMapper mapper = new ObjectMapper();
+				JsonFactory factory = JsonFactory.builder()
+					.enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION)
+					.build();
+				
+				ObjectMapper mapper = new ObjectMapper(factory);
 				mapper.registerModule(new JavaTimeModule());
 				mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
 				mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);

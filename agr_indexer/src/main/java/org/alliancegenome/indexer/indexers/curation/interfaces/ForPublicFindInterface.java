@@ -14,6 +14,8 @@ import jakarta.ws.rs.QueryParam;
 
 public interface ForPublicFindInterface<E> {
 
+	// Can't use this generic endpoints until this issue: https://github.com/mmazi/rescu/issues/150 is solved.
+	
 	@POST
 	@Path("/findForPublic")
 	SearchResponse<E> findForPublic(
