@@ -3,9 +3,7 @@ package org.alliancegenome.indexer.indexers.curation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.alliancegenome.api.entity.GeneSummaryDocument;
-import org.alliancegenome.api.entity.GeneToGeneOrthologyDocument;
 import org.alliancegenome.curation_api.model.entities.Gene;
-import org.alliancegenome.curation_api.model.entities.orthology.GeneToGeneOrthologyGenerated;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.config.IndexerConfig;
@@ -32,24 +30,17 @@ public class GeneSummaryIndexer extends Indexer {
 	public void index() {
 		try {
 			log.info("Getting Gene Summary Info");
-
 			SearchResponse<Gene> geneSummaryResponse = service.getGeneSummary(0, 0);
-
 			log.info("GeneSummary count: " + geneSummaryResponse.getTotalResults());
-
 			int totalPages = (int) (geneSummaryResponse.getTotalResults() / indexerConfig.getBufferSize());
-
 			LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
 			for (int i = 0; i <= totalPages; i++) {
 				queue.add(String.valueOf(i));
 			}
-
 			initiateThreading(queue);
-
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
 	}
 
 	@Override
@@ -65,7 +56,7 @@ public class GeneSummaryIndexer extends Indexer {
 				}
 				String page = queue.takeFirst();
 				SearchResponse<Gene> resp = service.getGeneSummary(Integer.valueOf(page), indexerConfig.getBufferSize());
-				List<GeneSummaryDocument> docs = createGeneToGeneOrthologyDocuments(resp.getResults());
+				List<GeneSummaryDocument> docs = createGeneSummaryDocuments(resp.getResults());
 
 				indexDocuments(docs);
 			} catch (Exception e) {
@@ -76,22 +67,14 @@ public class GeneSummaryIndexer extends Indexer {
 		}
 	}
 
-	private List<GeneSummaryDocument> createGeneToGeneOrthologyDocuments(List<Gene> geneSummaryList) {
+	private List<GeneSummaryDocument> createGeneSummaryDocuments(List<Gene> geneInfoList) {
 		List<GeneSummaryDocument> documents = new ArrayList<>();
-		for (Gene gene : geneSummaryList) {
+		for (Gene gene : geneInfoList) {
 			GeneSummaryDocument document = new GeneSummaryDocument();
-
 			document.setGene(gene);
 			documents.add(document);
 		}
 		return documents;
-	}
-
-	private void createGeneAnnotations(GeneToGeneOrthologyGenerated g2gOrtho, GeneToGeneOrthologyDocument document) {
-		Map<String, Object> map = new HashMap<>();
-		putGeneInfo(map, g2gOrtho.getSubjectGene());
-		putGeneInfo(map, g2gOrtho.getObjectGene());
-		document.setGeneAnnotations(map);
 	}
 
 	private void putGeneInfo(Map<String, Object> map, Gene gene) {

@@ -19,7 +19,7 @@ public class GeneSummaryService {
 		HashMap<String, Object> params = new HashMap<>();
 		params.put("internal", false);
 		params.put("obsolete", false);
-		//params.put("primaryExternalId", "MGI:109583");
+		params.put("primaryExternalId", "MGI:109583");
 
 		return geneSummaryApi.findForPublic(page, limit, "GeneView", params);
 	}
