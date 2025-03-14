@@ -9,12 +9,9 @@ import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
 import org.alliancegenome.indexer.indexers.curation.service.GeneSummaryService;
-import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.LinkedBlockingDeque;
 
 @Slf4j
@@ -76,20 +73,4 @@ public class GeneSummaryIndexer extends Indexer {
 		}
 		return documents;
 	}
-
-	private void putGeneInfo(Map<String, Object> map, Gene gene) {
-		Map<String, Object> data = new HashMap<>();
-		data.put("hasExpressionAnnotations", hasExpressionAnnotations(gene));
-		data.put("hasDiseaseAnnotations", hasDiseaseAnnotations(gene));
-		map.put(gene.getIdentifier(), data);
-	}
-
-	private boolean hasDiseaseAnnotations(Gene gene) {
-		return CollectionUtils.isNotEmpty(gene.getGeneDiseaseAnnotations());
-	}
-
-	private boolean hasExpressionAnnotations(Gene gene) {
-		return CollectionUtils.isNotEmpty(gene.getGeneExpressionAnnotations());
-	}
-
 }
