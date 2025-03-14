@@ -37,9 +37,9 @@ public class GeneSearchResultCurationIndexer extends Indexer {
 			SearchResponse<GeneSearchResultDocument> resp = geneApi.find(0, 0, params);
 
 			log.info("Gene count: " + resp.getTotalResults());
-			
+
 			int totalPages = (int) (resp.getTotalResults() / indexerConfig.getBufferSize());
-			
+
 			LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
 
 			for (int i = 0; i <= totalPages; i++) {
@@ -56,33 +56,34 @@ public class GeneSearchResultCurationIndexer extends Indexer {
 
 	@Override
 	protected void startSingleThread(LinkedBlockingDeque<String> queue) {
-		
+
 		HashMap<String, Object> params = new HashMap<>();
 		params.put("internal", false);
 		params.put("obsolete", false);
-		//params.put("primaryExternalId", "Xenbase:XB-GENE-17345583"); // getGeneOntologyAnnotations
-		//params.put("primaryExternalId", "RGD:621017");
+		// params.put("primaryExternalId", "Xenbase:XB-GENE-17345583"); //
+		// getGeneOntologyAnnotations
+		// params.put("primaryExternalId", "RGD:621017");
 		params.put("primaryExternalId", "WB:WBGene00003883"); // alleles
-		
-		//SGD:S000002812
-		//params.put("primaryExternalId", "ZFIN:ZDB-GENE-110114-3");
-		
-		
+
+		// SGD:S000002812
+		// params.put("primaryExternalId", "ZFIN:ZDB-GENE-110114-3");
+
 		while (true) {
 			try {
 				if (queue.isEmpty()) {
-					return; 
+					return;
 				}
 
 				String page = queue.takeFirst();
-				//log.info(queue.size() + " pages to process " + Thread.currentThread().getName() + " starting page: " + page);
-				
+				// log.info(queue.size() + " pages to process " +
+				// Thread.currentThread().getName() + " starting page: " + page);
+
 				SearchResponse<GeneSearchResultDocument> response = geneApi.find(Integer.valueOf(page), indexerConfig.getBufferSize(), params);
-				//log.info("Search Response: " + response);
+				// log.info("Search Response: " + response);
 				if (response == null || CollectionUtils.isEmpty(response.getResults())) {
 					return;
 				}
-				
+
 				indexDocuments(response.getResults());
 				queue.clear();
 				return;
@@ -99,6 +100,5 @@ public class GeneSearchResultCurationIndexer extends Indexer {
 	protected ObjectMapper customizeObjectMapper(ObjectMapper objectMapper) {
 		return RestConfig.config.getJacksonObjectMapperFactory().createObjectMapper();
 	}
-	
-	
+
 }
