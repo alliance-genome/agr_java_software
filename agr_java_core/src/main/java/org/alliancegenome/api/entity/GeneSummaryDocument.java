@@ -5,8 +5,6 @@ import lombok.EqualsAndHashCode;
 import org.alliancegenome.curation_api.model.entities.Gene;
 import org.alliancegenome.es.index.ESDocument;
 
-import java.util.Map;
-
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class GeneSummaryDocument extends ESDocument {
