@@ -22,7 +22,7 @@ public enum IndexerConfig {
 	PhenotypeAnnotationIndexer("phenotypeAnnotation", PhenotypeAnnotationCurationIndexer.class, 4, 1500, 1500, 2, 1),
 	ReleaseInfoIndexer("release", ReleaseInfoIndexer.class, 1, 1, 1, 1, 1),
 	GeneToGeneOrthologyIndexer("geneToGeneOrthology", GeneToGeneOrthologyIndexer.class, 4, 1500, 1500, 8, 1),
-	GeneSummaryIndexer("geneSummary", GeneSummaryIndexer.class, 4, 2000, 20, 8, 1);
+	GeneSummaryIndexer("geneSummary", GeneSummaryIndexer.class, 4, 2000, 2000, 8, 1);
 
 
 	private String typeName;

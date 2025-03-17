@@ -12,8 +12,6 @@ import java.util.Map;
 public class GeneSummaryDocument extends ESDocument {
 
 	protected String category = "gene_summary";
-	private Map<String, Object> geneAnnotations;
-
 	private Gene gene;
 
 	@Override
