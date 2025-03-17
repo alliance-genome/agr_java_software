@@ -17,6 +17,13 @@ public abstract class Settings extends Builder {
 	public void buildAnalysis(boolean skipSynonymFetching) throws IOException {
 		builder
 				.startObject("analysis")
+					.startObject("char_filter")
+						.startObject("zero_pad_numbers")
+							.field("type", "pattern_replace")
+							.field("pattern", "(?<!\\d)(\\d)(?!\\d)")
+							.field("replacement", "000$1")
+						.endObject()
+					.endObject()
 					.startObject("analyzer")
 						.startObject("default")
 							.field("type", "custom")
@@ -105,6 +112,11 @@ public abstract class Settings extends Builder {
 						.startObject("lowercase")
 							.field("type", "custom")
 							.field("filter", "lowercase")
+						.endObject()
+						.startObject("smart_alpha_sort")
+							.field("type", "custom")
+							.field("filter", "lowercase")
+							.field("char_filter", "zero_pad_numbers")
 						.endObject()
 					.endObject()
 				.endObject();
