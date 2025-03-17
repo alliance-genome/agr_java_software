@@ -34,7 +34,7 @@ public class GeneSearchResultCurationIndexer extends Indexer {
 		params.put("obsolete", false);
 
 		try {
-			SearchResponse<GeneSearchResultDocument> resp = geneApi.find(0, 0, params);
+			SearchResponse<GeneSearchResultDocument> resp = geneApi.findSearchResult(0, 0, params);
 
 			log.info("Gene count: " + resp.getTotalResults());
 
@@ -78,7 +78,7 @@ public class GeneSearchResultCurationIndexer extends Indexer {
 				// log.info(queue.size() + " pages to process " +
 				// Thread.currentThread().getName() + " starting page: " + page);
 
-				SearchResponse<GeneSearchResultDocument> response = geneApi.find(Integer.valueOf(page), indexerConfig.getBufferSize(), params);
+				SearchResponse<GeneSearchResultDocument> response = geneApi.findSearchResult(Integer.valueOf(page), indexerConfig.getBufferSize(), params);
 				// log.info("Search Response: " + response);
 				if (response == null || CollectionUtils.isEmpty(response.getResults())) {
 					return;
