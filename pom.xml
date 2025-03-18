@@ -19,19 +19,16 @@
 		<module>agr_intermine_data_extractor</module>
 		<module>agr_variant_indexer</module>
 	</modules>
+
 	<properties>
 		<maven.compiler.source>17</maven.compiler.source>
 		<maven.compiler.target>17</maven.compiler.target>
 		<revision>8.1.0</revision>
-		<quarkus.version>3.13.3</quarkus.version>
 		<infinispan.version>15.1.7.Final</infinispan.version>
 		<maven-checkstyle-plugin.version>3.3.1</maven-checkstyle-plugin.version>
 		<checkstyle.version>10.17.0</checkstyle.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
-		<quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
-		<quarkus.platform.version>${quarkus.version}</quarkus.platform.version>
 		<curation.version>v0.37.3</curation.version>
 		<!-- <curation.version>0.0.0-SNAPSHOT</curation.version> -->
 	</properties>
@@ -39,6 +36,16 @@
 
 	<dependencyManagement>
 		<dependencies>
+
+			<dependency>
+				<groupId>io.quarkus.platform</groupId>
+				<artifactId>quarkus-bom</artifactId>
+				<version>3.13.3</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+
+
 			<dependency>
 				<groupId>org.alliancegenome</groupId>
 				<artifactId>agr_curation_api</artifactId>
@@ -50,13 +57,6 @@
 					</exclusion>
 				</exclusions>
 			</dependency>
-			<dependency>
-				<groupId>${quarkus.platform.group-id}</groupId>
-				<artifactId>${quarkus.platform.artifact-id}</artifactId>
-				<version>${quarkus.platform.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
 
 			<dependency>
 				<groupId>org.apache.commons</groupId>
@@ -67,6 +67,13 @@
 				<groupId>commons-collections</groupId>
 				<artifactId>commons-collections</artifactId>
 				<version>3.2.2</version>
+			</dependency>
+
+
+			<dependency>
+				<groupId>com.github.samtools</groupId>
+				<artifactId>htsjdk</artifactId>
+				<version>2.21.1</version>
 			</dependency>
 
 
@@ -84,6 +91,17 @@
 				<groupId>org.elasticsearch.client</groupId>
 				<artifactId>elasticsearch-rest-high-level-client</artifactId>
 				<version>7.17.28</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.neo4j</groupId>
+				<artifactId>neo4j-ogm-bolt-driver</artifactId>
+				<version>4.0.8</version>
+			</dependency>
+			<dependency>
+				<groupId>org.neo4j</groupId>
+				<artifactId>neo4j-ogm-core</artifactId>
+				<version>4.0.8</version>
 			</dependency>
 
 
@@ -196,6 +214,8 @@
 
 		</dependencies>
 	</dependencyManagement>
+
+
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
@@ -203,22 +223,13 @@
 			<version>4.13.1</version>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter-engine</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-lang3</artifactId>
-		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
 			<plugin>
 				<groupId>io.quarkus</groupId>
 				<artifactId>quarkus-maven-plugin</artifactId>
-				<version>${quarkus.platform.version}</version>
+				<version>3.13.3</version>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
