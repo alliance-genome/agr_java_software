@@ -304,9 +304,9 @@ public class GeneController implements GeneRESTInterface {
 		pagination.addFilterOption("geneGeneticInteraction.interactionId", source);
 		pagination.addFilterOption("geneGeneticInteraction.evidence.referenceID", reference);
 		pagination.addFilterOption("geneGeneticInteraction.interactorARole.name.keyword", role);
-		pagination.addFilterOption("geneGeneticInteraction.interactorAGeneticPerturbation.name", geneticPerturbation);
+		pagination.addFilterOption("geneGeneticInteraction.interactorAGeneticPerturbation.alleleSymbol.displayText", geneticPerturbation);
 		pagination.addFilterOption("geneGeneticInteraction.interactorBRole.name.keyword", interactorRole);
-		pagination.addFilterOption("geneGeneticInteraction.interactorBGeneticPerturbation.name", interactorGeneticPerturbation);
+		pagination.addFilterOption("geneGeneticInteraction.interactorBGeneticPerturbation.alleleSymbol.displayText", interactorGeneticPerturbation);
 		pagination.addFilterOption("geneGeneticInteraction.phenotypesOrTraits", phenotypes);
 		pagination.addFilterOption("geneGeneticInteraction.interactionType.name.keyword", interactionType);
 		if (interactorSpecies != null) {
@@ -357,9 +357,9 @@ public class GeneController implements GeneRESTInterface {
 		pagination.addFilterOption("geneGeneticInteraction.interactionId", source);
 		pagination.addFilterOption("geneGeneticInteraction.evidence.referenceID", reference);
 		pagination.addFilterOption("geneGeneticInteraction.interactorARole.name.keyword", role);
-		pagination.addFilterOption("geneGeneticInteraction.interactorAGeneticPerturbation.name", geneticPerturbation);
+		pagination.addFilterOption("geneGeneticInteraction.interactorAGeneticPerturbation.alleleSymbol.displayText", geneticPerturbation);
 		pagination.addFilterOption("geneGeneticInteraction.interactorBRole.name.keyword", interactorRole);
-		pagination.addFilterOption("geneGeneticInteraction.interactorBGeneticPerturbation.name", interactorGeneticPerturbation);
+		pagination.addFilterOption("geneGeneticInteraction.interactorBGeneticPerturbation.alleleSymbol.displayText", interactorGeneticPerturbation);
 		pagination.addFilterOption("geneGeneticInteraction.phenotypesOrTraits", phenotypes);
 		pagination.addFilterOption("geneGeneticInteraction.interactionType.name.keyword", interactionType);
 		if (interactorSpecies != null) {

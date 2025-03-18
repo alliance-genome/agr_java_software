@@ -243,7 +243,7 @@ public class GeneService {
 		aggregationFields.forEach((field, colName) -> {
 			String fieldNameAgg = field + "_agg";
 			List<String> values = ((ParsedStringTerms) searchResponseHistogram.getAggregations().get(fieldNameAgg)).getBuckets().stream()
-				.map(MultiBucketsAggregation.Bucket::getKeyAsString).collect(Collectors.toList());
+				.map(MultiBucketsAggregation.Bucket::getKeyAsString).sorted().collect(Collectors.toList());
 			distinctFieldValueMap.put(colName, values);
 		});
 		return distinctFieldValueMap;
