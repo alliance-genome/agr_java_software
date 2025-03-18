@@ -31,7 +31,7 @@ public class Main {
 			argumentSet.add(args[i]);
 			log.info("Args[" + i + "]: " + args[i]);
 		}
-
+ 
 		Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
 			log.error("Thread: " + t.getId() + " has uncaught exceptions");
 			e.printStackTrace();

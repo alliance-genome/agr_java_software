@@ -210,7 +210,16 @@
 				<artifactId>infinispan-client-hotrod</artifactId>
 				<version>${infinispan.version}</version>
 			</dependency>
-
+			<dependency>
+				<groupId>com.amazonaws</groupId>
+				<artifactId>aws-java-sdk-s3</artifactId>
+				<version>1.12.261</version>
+			</dependency>
+			<dependency>
+				<groupId>com.amazonaws</groupId>
+				<artifactId>aws-java-sdk-ec2</artifactId>
+				<version>1.11.475</version>
+			</dependency>
 
 		</dependencies>
 	</dependencyManagement>
