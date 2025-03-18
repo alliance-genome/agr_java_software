@@ -44,7 +44,6 @@ public class GeneSearchResultCurationIndexer extends Indexer {
 
 			for (int i = 0; i <= totalPages; i++) {
 				queue.add(String.valueOf(i));
-				break;
 			}
 
 			initiateThreading(queue);
@@ -61,11 +60,8 @@ public class GeneSearchResultCurationIndexer extends Indexer {
 		params.put("internal", false);
 		params.put("obsolete", false);
 		// params.put("primaryExternalId", "Xenbase:XB-GENE-17345583"); //
-		// getGeneOntologyAnnotations
 		// params.put("primaryExternalId", "RGD:621017");
-		params.put("primaryExternalId", "WB:WBGene00003883"); // alleles
-
-		// SGD:S000002812
+		// params.put("primaryExternalId", "WB:WBGene00003883"); // alleles
 		// params.put("primaryExternalId", "ZFIN:ZDB-GENE-110114-3");
 
 		while (true) {
@@ -85,8 +81,6 @@ public class GeneSearchResultCurationIndexer extends Indexer {
 				}
 
 				indexDocuments(response.getResults());
-				queue.clear();
-				return;
 			} catch (Exception e) {
 				log.error("Error while indexing...", e);
 				System.exit(-1);

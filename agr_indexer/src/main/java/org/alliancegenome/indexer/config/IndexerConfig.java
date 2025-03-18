@@ -20,7 +20,6 @@ public enum IndexerConfig {
 	
 	// Neo Indexers
 	GeneIndexer("gene", GeneIndexer.class, 4, 359, 359, 8, 1),
-	GeneSearchResultCurationIndexer("geneSearchResult", GeneSearchResultCurationIndexer.class, 4, 250, 1000, 4, 1),
 	DatasetIndexer("dataset", DatasetIndexer.class, 4, 566, 566, 8, 1),
 	DiseaseIndexer("disease", DiseaseIndexer.class, 4, 680, 680, 8, 1),
 	AlleleIndexer("allele", AlleleIndexer.class, 4, 1517, 1517, 8, 1),
@@ -35,7 +34,8 @@ public enum IndexerConfig {
 	ParalogyIndexer("paralogy", GeneToGeneParalogyIndexer.class, 4, 5000, 5000, 8, 1),
 	PhenotypeAnnotationIndexer("phenotypeAnnotation", PhenotypeAnnotationCurationIndexer.class, 4, 1500, 1500, 2, 1),
 	ReleaseInfoIndexer("release", ReleaseInfoIndexer.class, 1, 1, 1, 1, 1),
-	GeneToGeneOrthologyIndexer("geneToGeneOrthology", GeneToGeneOrthologyIndexer.class, 4, 500, 500, 8, 1)
+	GeneToGeneOrthologyIndexer("geneToGeneOrthology", GeneToGeneOrthologyIndexer.class, 4, 500, 500, 8, 1),
+	GeneSearchResultCurationIndexer("geneSearchResult", GeneSearchResultCurationIndexer.class, 4, 250, 1000, 4, 1),
 	;
 
 
