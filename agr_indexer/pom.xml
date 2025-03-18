@@ -133,10 +133,6 @@
 
 
 		<dependency>
-			<groupId>com.opencsv</groupId>
-			<artifactId>opencsv</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.knowm.xchart</groupId>
 			<artifactId>xchart</artifactId>
 		</dependency>
@@ -217,6 +213,8 @@
 					</execution>
 				</executions>
 			</plugin>
+			
+			
 		</plugins>
 	</build>
 </project>
