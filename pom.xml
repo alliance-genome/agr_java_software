@@ -21,8 +21,8 @@
 	</modules>
 
 	<properties>
-		<maven.compiler.source>17</maven.compiler.source>
-		<maven.compiler.target>17</maven.compiler.target>
+		<maven.compiler.source>21</maven.compiler.source>
+		<maven.compiler.target>21</maven.compiler.target>
 		<revision>8.1.0</revision>
 		<infinispan.version>15.1.7.Final</infinispan.version>
 		<maven-checkstyle-plugin.version>3.3.1</maven-checkstyle-plugin.version>
@@ -186,7 +186,7 @@
 			<dependency>
 				<groupId>net.nilosplace</groupId>
 				<artifactId>process-display</artifactId>
-				<version>1.0.12</version>
+				<version>1.0.13</version>
 			</dependency>
 			<dependency>
 				<groupId>org.projectlombok</groupId>
