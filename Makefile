@@ -1,7 +1,7 @@
 PROCS = -T 8
 PACKAGE = clean package
 #FLAGS = -DskipTests=true -ntp -Dorg.slf4j.simpleLogger.defaultLogLevel=WARN
-FLAGS = -DskipTests=true
+FLAGS = -DskipTests=true -Dmaven.javadoc.skip=true
 
 OPTS = $(PROCS) $(PACKAGE) $(FLAGS)
 
