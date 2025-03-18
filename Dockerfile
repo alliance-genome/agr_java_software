@@ -9,4 +9,4 @@ ADD . .
 
 RUN cp /workdir/agr_java_software/agr_api/src/main/resources/application.properties.defaults /workdir/agr_java_software/agr_api/src/main/resources/application.properties
 
-RUN mvn clean package
+RUN mvn -ntp clean package
