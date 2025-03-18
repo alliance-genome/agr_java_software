@@ -17,8 +17,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class Main {
 
-	private Main() { }
-	
+	private Main() {
+	}
+
 	public static void main(String[] args) {
 		VariantConfigHelper.init();
 		ConfigHelper.init();
@@ -31,7 +32,7 @@ public class Main {
 			argumentSet.add(args[i]);
 			log.info("Args[" + i + "]: " + args[i]);
 		}
- 
+
 		Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
 			log.error("Thread: " + t.getId() + " has uncaught exceptions");
 			e.printStackTrace();
