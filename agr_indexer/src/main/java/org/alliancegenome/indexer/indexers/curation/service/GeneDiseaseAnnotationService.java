@@ -56,15 +56,16 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 		}
 
 		int batchSize = 1000;
-		int page = 0;
-		int pages;
 
 		HashMap<String, Object> params = new HashMap<>();
 		params.put("internal", false);
 		params.put("obsolete", false);
 		//params.put("diseaseAnnotationSubject.primaryExternalId", "RGD:69258");
-
-		do {
+		
+		SearchResponse<GeneDiseaseAnnotation> totalResponse = geneApi.findForPublic(0, 0, params);
+		display.startProcess("Pulling Gene DA's from curation", totalResponse.getTotalResults());
+		
+		for(int page = 0; page < (int)(totalResponse.getTotalResults() / batchSize); page++) {
 			SearchResponse<GeneDiseaseAnnotation> response = geneApi.findForPublic(page, batchSize, params);
 			for (GeneDiseaseAnnotation da : response.getResults()) {
 				if (isValidNeoEntity(getAllNeoGeneIDs(), da.getDiseaseAnnotationSubject().getIdentifier()) && hasNoObsoletedOrInternalEntities(da)) {
@@ -73,17 +74,10 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 					}
 				}
 			}
-			if (page == 0) {
-				display.startProcess("Pulling Gene DA's from curation");
-			}
 			display.progressProcess(response.getReturnedRecords().longValue());
-			pages = (int) (response.getTotalResults() / batchSize);
-			page++;
-		} while (page <= pages);
+		}
 		display.finishProcess();
-
 		writeToCache(cacheFileName, ret);
-
 		return ret;
 	}
 

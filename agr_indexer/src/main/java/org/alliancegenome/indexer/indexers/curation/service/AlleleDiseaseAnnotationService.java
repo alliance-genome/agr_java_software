@@ -32,17 +32,18 @@ public class AlleleDiseaseAnnotationService extends BaseDiseaseAnnotationService
 		ProcessDisplayHelper display = new ProcessDisplayHelper(10000);
 
 		int batchSize = 1000;
-		int page = 0;
-		int pages = 0;
 
 		HashMap<String, Object> params = new HashMap<>();
 		params.put("internal", false);
 		params.put("obsolete", false);
 		//params.put("diseaseAnnotationSubject.primaryExternalId", "WB:WBVar00266693");
 
-		do {
+		SearchResponse<AlleleDiseaseAnnotation> totalResponse = alleleApi.findForPublic(0, 0, params);
+		display.startProcess("Pulling Allele DA's from curation", totalResponse.getTotalResults());
+		
+		for(int page = 0; page < (int)(totalResponse.getTotalResults() / batchSize); page++) {
+			
 			SearchResponse<AlleleDiseaseAnnotation> response = alleleApi.findForPublic(page, batchSize, params);
-
 			for (AlleleDiseaseAnnotation da: response.getResults()) {
 				if (isValidNeoEntity(getAllNeoAlleleIDs(), da.getDiseaseAnnotationSubject().getIdentifier()) && hasNoObsoletedOrInternalEntities(da)) {
 					if (hasValidEntities(da, getAllNeoGeneIDs(), getAllNeoAlleleIDs(), getAllNeoModelIDs())) {
@@ -60,18 +61,10 @@ public class AlleleDiseaseAnnotationService extends BaseDiseaseAnnotationService
 					}
 				}
 			}
-			if (page == 0) {
-				display.startProcess("Pulling Allele DA's from curation");
-			}
 			display.progressProcess(response.getReturnedRecords().longValue());
-
-			pages = (int) (response.getTotalResults() / batchSize);
-			page++;
-		} while (page <= pages);
+		}
 		display.finishProcess();
-
 		writeToCache(cacheFileName, ret);
-
 		return ret;
 	}
 

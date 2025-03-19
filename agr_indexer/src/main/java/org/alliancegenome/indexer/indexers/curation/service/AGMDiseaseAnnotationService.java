@@ -32,8 +32,6 @@ public class AGMDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 		ProcessDisplayHelper display = new ProcessDisplayHelper(10000);
 
 		int batchSize = 1000;
-		int page = 0;
-		int pages = 0;
 
 		HashMap<String, Object> params = new HashMap<>();
 		params.put("internal", false);
@@ -42,9 +40,11 @@ public class AGMDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 		// params.put("diseaseAnnotationSubject.primaryExternalId",
 		// "ZFIN:ZDB-FISH-150901-27842");
 
-		do {
+		SearchResponse<AGMDiseaseAnnotation> totalResponse = agmApi.findForPublic(0, 0, params);
+		display.startProcess("Pulling AGM DA's from curation", totalResponse.getTotalResults());
+		
+		for(int page = 0; page < (int)(totalResponse.getTotalResults() / batchSize); page++) {
 			SearchResponse<AGMDiseaseAnnotation> response = agmApi.findForPublic(page, batchSize, params);
-
 			for (AGMDiseaseAnnotation da: response.getResults()) {
 				if (isValidNeoEntity(getAllNeoModelIDs(), da.getDiseaseAnnotationSubject().getIdentifier()) && hasNoObsoletedOrInternalEntities(da)) {
 					if (hasValidEntities(da, getAllNeoGeneIDs(), getAllNeoAlleleIDs(), getAllNeoModelIDs())) {
@@ -62,19 +62,10 @@ public class AGMDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 					}
 				}
 			}
-
-			if (page == 0) {
-				display.startProcess("Pulling AGM DA's from curation");
-			}
 			display.progressProcess(response.getReturnedRecords().longValue());
-
-			pages = (int) (response.getTotalResults() / batchSize);
-			page++;
-		} while (page <= pages);
+		}
 		display.finishProcess();
-
 		writeToCache(cacheFileName, ret);
-
 		return ret;
 	}
 
