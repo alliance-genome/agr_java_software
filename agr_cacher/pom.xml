@@ -13,21 +13,18 @@
 	<properties>
 		<failOnMissingWebXml>false</failOnMissingWebXml>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<jackson.version>2.14.0</jackson.version>
 	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>agr_java_core</artifactId>
 			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-databind</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.alliancegenome</groupId>
-			<artifactId>agr_curation_api</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>io.quarkus</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 	</dependencies>
 	<build>
@@ -95,6 +92,7 @@
 					</execution>
 				</executions>
 			</plugin>
+
 		</plugins>
 	</build>
 </project>

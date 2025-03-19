@@ -4,12 +4,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.alliancegenome.core.config.Constants;
-import org.alliancegenome.es.index.ESDocument;
+import org.alliancegenome.curation_api.model.document.es.ESDocument;
 import org.alliancegenome.es.index.site.doclet.CrossReferenceDoclet;
 import org.alliancegenome.neo4j.view.View;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -139,12 +137,6 @@ public class SearchableItemDocument extends ESDocument {
 	@JsonView({View.AlleleVariantSequenceConverterForES.class})
 	Set<String> variantType;
 	Set<String> whereExpressed;
-
-	@Override
-	@JsonIgnore
-	public String getType() {
-		return Constants.SEARCHABLE_ITEM;
-	}
 
 	public void setNameKeyWithSpecies(String nameKey, String species) {
 		this.nameKey = nameKey;

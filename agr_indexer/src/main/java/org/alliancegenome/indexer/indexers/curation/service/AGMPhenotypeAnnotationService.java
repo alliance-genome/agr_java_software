@@ -9,17 +9,18 @@ import java.util.concurrent.TimeUnit;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.model.entities.AGMPhenotypeAnnotation;
 import org.alliancegenome.curation_api.response.SearchResponse;
-import org.alliancegenome.curation_api.util.ProcessDisplayHelper;
+import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.indexers.curation.interfaces.AGMPhenotypeAnnotationInterface;
 
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import si.mazi.rescu.RestProxyFactory;
 
-@Log4j2
+@Slf4j
 public class AGMPhenotypeAnnotationService extends BaseDiseaseAnnotationService {
 
 	private final AGMPhenotypeAnnotationInterface agmApi = RestProxyFactory.createProxy(AGMPhenotypeAnnotationInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
+	
 	private final String cacheFileName = "agm_phenotype_annotation.json.gz";
 
 	public List<AGMPhenotypeAnnotation> getFiltered(int threadCount, int bufferSize) {
@@ -34,7 +35,10 @@ public class AGMPhenotypeAnnotationService extends BaseDiseaseAnnotationService 
 		LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
 		LinkedBlockingDeque<AGMPhenotypeAnnotation> fullList = new LinkedBlockingDeque<>();
 
-		SearchResponse<AGMPhenotypeAnnotation> response = agmApi.findForPublic(0, 0, null);
+		HashMap<String, Object> params = new HashMap<>();
+		params.put("internal", false);
+		params.put("obsolete", false);
+		SearchResponse<AGMPhenotypeAnnotation> response = agmApi.findForPublic(0, 0, params);
 
 		int totalPages = (int) (response.getTotalResults() / bufferSize);
 

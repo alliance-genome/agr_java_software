@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.util.StatsCollector;
-import org.alliancegenome.es.index.ESDocument;
+import org.alliancegenome.curation_api.model.document.es.ESDocument;
 import org.alliancegenome.es.util.EsClientFactory;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.config.IndexerConfig;

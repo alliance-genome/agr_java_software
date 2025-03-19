@@ -49,8 +49,7 @@ public class Mapping extends Builder {
 		//new FieldBuilder(builder, "stage", "text").keyword().build();
 		//new FieldBuilder(builder, "systematicName", "text").analyzer("symbols").build();
 		//new FieldBuilder(builder, "taxonId", "keyword").build();
-		
-		
+
 		// Allele Only Fields
 		new FieldBuilder(builder, "alterationType", "text").keyword().build(); // Allele
 		new FieldBuilder(builder, "allele.category", "text").keyword().build(); // Allele
@@ -122,6 +121,7 @@ public class Mapping extends Builder {
 
 		new FieldBuilder(builder, "branch", "text").keyword().build(); // go
 		new FieldBuilder(builder, "category", "keyword").symbol().autocomplete().keyword().build(); // ALL document must have
+		
 		new FieldBuilder(builder, "crossReferences", "text").keyword().classicText().build(); // allele, gene, dataset, disease
 
 
@@ -312,6 +312,7 @@ public class Mapping extends Builder {
 					buildProperty("synonyms", "text", "generic_synonym", "autocomplete_search", null);
 				}
 				if (sort) {
+					//buildProperty("sort", "keyword", null, null, "lowercase");
 					buildProperty("sort", "keyword", null, null, "smart_alpha_sort");
 				}
 				if (htmlSmoosh) {

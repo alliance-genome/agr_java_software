@@ -1,6 +1,11 @@
 package org.alliancegenome.api.service;
 
-import jakarta.enterprise.context.RequestScoped;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.alliancegenome.api.entity.AllelePhenotypeAnnotationDocument;
 import org.alliancegenome.api.entity.GenePhenotypeAnnotationDocument;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
@@ -9,7 +14,7 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
-import java.util.*;
+import jakarta.enterprise.context.RequestScoped;
 
 
 @RequestScoped
@@ -22,7 +27,7 @@ public class PhenotypeESService extends ESService {
 		boolean debug) {
 
 		// unfiltered query
-		BoolQueryBuilder query = getBaseQuery(List.of(geneId), null, false, GenePhenotypeAnnotationDocument.GENE_PHENOTYPE_ANNOTATION, false);
+		BoolQueryBuilder query = getBaseQuery(List.of(geneId), null, false, "gene_phenotype_annotation", false);
 
 		JsonResultResponse<GenePhenotypeAnnotationDocument> ret = new JsonResultResponse<>();
 
@@ -63,7 +68,7 @@ public class PhenotypeESService extends ESService {
 		boolean debug) {
 
 		// unfiltered query
-		BoolQueryBuilder query = getBaseQuery(List.of(alleleId), null, false, AllelePhenotypeAnnotationDocument.ALLELE_PHENOTYPE_ANNOTATION, false);
+		BoolQueryBuilder query = getBaseQuery(List.of(alleleId), null, false, "allele_phenotype_annotation", false);
 
 		JsonResultResponse<AllelePhenotypeAnnotationDocument> ret = new JsonResultResponse<>();
 

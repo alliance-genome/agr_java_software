@@ -9,14 +9,12 @@ import java.util.concurrent.TimeUnit;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.model.entities.GenePhenotypeAnnotation;
 import org.alliancegenome.curation_api.response.SearchResponse;
-import org.alliancegenome.curation_api.util.ProcessDisplayHelper;
+import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.indexers.curation.interfaces.GenePhenotypeAnnotationInterface;
 
-import lombok.extern.log4j.Log4j2;
 import si.mazi.rescu.RestProxyFactory;
 
-@Log4j2
 public class GenePhenotypeAnnotationService extends BaseDiseaseAnnotationService {
 
 	private final GenePhenotypeAnnotationInterface geneApi = RestProxyFactory.createProxy(GenePhenotypeAnnotationInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
@@ -35,7 +33,10 @@ public class GenePhenotypeAnnotationService extends BaseDiseaseAnnotationService
 		LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
 		LinkedBlockingDeque<GenePhenotypeAnnotation> fullList = new LinkedBlockingDeque<>();
 
-		SearchResponse<GenePhenotypeAnnotation> response = geneApi.findForPublic(0, 0, null);
+		HashMap<String, Object> params = new HashMap<>();
+		params.put("internal", false);
+		params.put("obsolete", false);
+		SearchResponse<GenePhenotypeAnnotation> response = geneApi.findForPublic(0, 0, params);
 		
 		int totalPages = (int) (response.getTotalResults() / bufferSize);
 

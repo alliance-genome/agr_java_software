@@ -10,10 +10,11 @@ import org.alliancegenome.indexer.indexers.curation.DiseaseAnnotationCurationInd
 import org.alliancegenome.indexer.indexers.curation.GeneExpressionAnnotationIndexer;
 import org.alliancegenome.indexer.indexers.curation.GeneGeneticInteractionCurationIndexer;
 import org.alliancegenome.indexer.indexers.curation.GeneMolecularInteractionCurationIndexer;
+import org.alliancegenome.indexer.indexers.curation.GeneSearchResultCurationIndexer;
+import org.alliancegenome.indexer.indexers.curation.GeneToGeneOrthologyIndexer;
 import org.alliancegenome.indexer.indexers.curation.GeneToGeneParalogyIndexer;
 import org.alliancegenome.indexer.indexers.curation.PhenotypeAnnotationCurationIndexer;
 import org.alliancegenome.indexer.indexers.curation.ReleaseInfoIndexer;
-import org.alliancegenome.indexer.indexers.curation.GeneToGeneOrthologyIndexer;
 
 public enum IndexerConfig {
 	
@@ -33,7 +34,8 @@ public enum IndexerConfig {
 	ParalogyIndexer("paralogy", GeneToGeneParalogyIndexer.class, 4, 5000, 5000, 8, 1),
 	PhenotypeAnnotationIndexer("phenotypeAnnotation", PhenotypeAnnotationCurationIndexer.class, 4, 1500, 1500, 2, 1),
 	ReleaseInfoIndexer("release", ReleaseInfoIndexer.class, 1, 1, 1, 1, 1),
-	GeneToGeneOrthologyIndexer("geneToGeneOrthology", GeneToGeneOrthologyIndexer.class, 4, 1500, 1500, 8, 1)
+	GeneToGeneOrthologyIndexer("geneToGeneOrthology", GeneToGeneOrthologyIndexer.class, 4, 500, 500, 8, 1),
+	GeneSearchResultCurationIndexer("geneSearchResult", GeneSearchResultCurationIndexer.class, 4, 250, 1000, 4, 1),
 	;
 
 

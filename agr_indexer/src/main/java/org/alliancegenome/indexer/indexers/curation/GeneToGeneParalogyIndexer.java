@@ -38,7 +38,7 @@ public class GeneToGeneParalogyIndexer extends Indexer {
 				//log.info("page: " + i + " limit: " + indexerConfig.getBufferSize());
 				queue.add(String.valueOf(i));
 			}
-			
+
 			initiateThreading(queue);
 		} catch (InterruptedException e) {
 			e.printStackTrace();

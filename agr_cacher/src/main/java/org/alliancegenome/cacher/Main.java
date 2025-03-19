@@ -17,8 +17,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class Main {
 
-	private Main() { }
-	
+	private Main() {
+	}
+
 	public static void main(String[] args) {
 		VariantConfigHelper.init();
 		ConfigHelper.init();
