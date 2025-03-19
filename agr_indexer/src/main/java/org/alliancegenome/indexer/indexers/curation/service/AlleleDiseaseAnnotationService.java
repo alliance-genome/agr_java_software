@@ -60,7 +60,9 @@ public class AlleleDiseaseAnnotationService extends BaseDiseaseAnnotationService
 					}
 				}
 			}
-
+			if (page == 0) {
+				display.startProcess("Pulling Allele DA's from curation");
+			}
 			display.progressProcess(response.getReturnedRecords().longValue());
 
 			pages = (int) (response.getTotalResults() / batchSize);
