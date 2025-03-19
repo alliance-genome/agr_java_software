@@ -45,14 +45,13 @@
 				<scope>import</scope>
 			</dependency>
 
-
 			<dependency>
 				<groupId>org.alliancegenome</groupId>
 				<artifactId>agr_curation_api</artifactId>
 				<version>${curation.version}</version>
 				<exclusions>
 					<exclusion>
-						<groupId>*</groupId>
+						<groupId>io.quarkus</groupId>
 						<artifactId>*</artifactId>
 					</exclusion>
 				</exclusions>
