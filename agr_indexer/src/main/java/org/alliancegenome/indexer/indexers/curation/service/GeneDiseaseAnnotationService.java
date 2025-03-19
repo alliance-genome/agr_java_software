@@ -74,9 +74,6 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 				}
 			}
 
-			if (page == 0) {
-				display.startProcess("Pulling Gene DA's from curation", response.getTotalResults());
-			}
 			display.progressProcess(response.getReturnedRecords().longValue());
 			pages = (int) (response.getTotalResults() / batchSize);
 			page++;

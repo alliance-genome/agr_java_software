@@ -63,9 +63,6 @@ public class AGMDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 				}
 			}
 
-			if (page == 0) {
-				display.startProcess("Pulling AGM DA's from curation", response.getTotalResults());
-			}
 			display.progressProcess(response.getReturnedRecords().longValue());
 
 			pages = (int) (response.getTotalResults() / batchSize);
