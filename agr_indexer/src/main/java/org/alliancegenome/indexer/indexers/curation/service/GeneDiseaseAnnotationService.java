@@ -64,8 +64,8 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 		
 		SearchResponse<GeneDiseaseAnnotation> totalResponse = geneApi.findForPublic(0, 0, params);
 		display.startProcess("Pulling Gene DA's from curation", totalResponse.getTotalResults());
-		
-		for(int page = 0; page < (int)(totalResponse.getTotalResults() / batchSize); page++) {
+
+		for (int page = 0; page < (int) (totalResponse.getTotalResults() / batchSize); page++) {
 			SearchResponse<GeneDiseaseAnnotation> response = geneApi.findForPublic(page, batchSize, params);
 			for (GeneDiseaseAnnotation da : response.getResults()) {
 				if (isValidNeoEntity(getAllNeoGeneIDs(), da.getDiseaseAnnotationSubject().getIdentifier()) && hasNoObsoletedOrInternalEntities(da)) {
@@ -85,17 +85,17 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 		ProcessDisplayHelper display = new ProcessDisplayHelper(10000);
 
 		String orthoCacheFileName = "gene_disease_via_orthology_annotation.json.gz";
-		
+
 		HashMap<Gene, List<DiseaseAnnotation>> newDAMap = readFromCache(orthoCacheFileName, HashMap.class);
-		
+
 		if (newDAMap == null) {
 			newDAMap = new HashMap<>();
 		}
-		
+
 		if (newDAMap != null && newDAMap.size() > 0) {
 			return newDAMap;
 		}
-		
+
 		HashMap<String, Object> params = new HashMap<>();
 		params.put("internal", false);
 		params.put("obsolete", false);
@@ -126,8 +126,8 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 					continue;
 				}
 				// create orthologous DAs for each focus DA
-				
-				for (DiseaseAnnotation focusDiseaseAnnotation: focusDiseaseAnnotations) {
+
+				for (DiseaseAnnotation focusDiseaseAnnotation : focusDiseaseAnnotations) {
 
 					DiseaseAnnotation gda = null;
 					if (focusDiseaseAnnotation instanceof AGMDiseaseAnnotation agmda) {
@@ -160,7 +160,7 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 					gda.setDiseaseAnnotationObject(focusDiseaseAnnotation.getDiseaseAnnotationObject());
 					gda.setEvidenceCodes(List.of(ecoTermIEA));
 					gda.setDiseaseQualifiers(focusDiseaseAnnotation.getDiseaseQualifiers());
-					
+
 					List<DiseaseAnnotation> geneAnnotations = newDAMap.computeIfAbsent(orthologousGene, k -> new ArrayList<>());
 					geneAnnotations.add(gda);
 				}
@@ -189,9 +189,9 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 			}));
 		});
 		log.info("Number of orthologous genes generating new DAs: " + newDAMap.size());
-		
+
 		writeToCache(orthoCacheFileName, newDAMap);
-		
+
 		return newDAMap;
 	}
 }
