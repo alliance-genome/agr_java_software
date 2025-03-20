@@ -6,22 +6,23 @@ import org.alliancegenome.neo4j.entity.node.HTPDataset;
 
 public class HTPDatasetTranslator extends EntityDocumentTranslator<HTPDataset, SearchableItemDocument> {
 
-    @Override
-    protected SearchableItemDocument entityToDocument(HTPDataset entity, int translationDepth) {
+	@Override
+	protected SearchableItemDocument entityToDocument(HTPDataset entity, int translationDepth) {
 
-        SearchableItemDocument document = new SearchableItemDocument();
+		SearchableItemDocument document = new SearchableItemDocument();
 
-        document.setCategory("dataset");
-        document.setPrimaryKey(entity.getPrimaryKey());
-        document.setName(entity.getTitle());
-        document.setNameKey(entity.getTitle());
-        document.setSummary(entity.getSummary());
-        document.setHref(entity.getCrossRefCompleteUrl());
-        document.setDataProvider(entity.getDataProvider());
+		document.setCategory("dataset");
+		document.setSearchable(true);
+		document.setPrimaryKey(entity.getPrimaryKey());
+		document.setName(entity.getTitle());
+		document.setNameKey(entity.getTitle());
+		document.setSummary(entity.getSummary());
+		document.setHref(entity.getCrossRefCompleteUrl());
+		document.setDataProvider(entity.getDataProvider());
 
-        return document;
+		return document;
 
-    }
+	}
 
 
 }

@@ -50,8 +50,8 @@ public class SearchableItemDocument extends ESDocument {
 	Double popularity;
 	@JsonView({View.AlleleVariantSequenceConverterForES.class})
 	String primaryKey;
-	//@JsonView({View.AlleleVariantSequenceConverterForES.class})
-	boolean searchable = true;
+	@JsonView({View.AlleleVariantSequenceConverterForES.class})
+	boolean searchable = false;
 	String soTermId;
 	@JsonView({View.AlleleVariantSequenceConverterForES.class})
 	String soTermName;

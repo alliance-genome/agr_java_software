@@ -7,21 +7,21 @@ import org.alliancegenome.neo4j.entity.node.Variant;
 public class VariantTranslator extends EntityDocumentTranslator<Variant, SearchableItemDocument> {
 
 
-    @Override
-    protected SearchableItemDocument entityToDocument(Variant entity, int translationDepth) {
-        SearchableItemDocument document = new SearchableItemDocument();
+	@Override
+	protected SearchableItemDocument entityToDocument(Variant entity, int translationDepth) {
+		SearchableItemDocument document = new SearchableItemDocument();
 
-        document.setCategory("allele");
+		document.setCategory("allele");
+		document.setSearchable(true);
+		document.setPrimaryKey(entity.getPrimaryKey());
+		document.setName(entity.getName());
+		document.setNameKey(entity.getHgvsNomenclature());
 
-        document.setPrimaryKey(entity.getPrimaryKey());
-        document.setName(entity.getName());
-        document.setNameKey(entity.getHgvsNomenclature());
+		//todo: populating species through allele or gene seems awkward, maybe we need a
+		//		direct relationship?
 
-        //todo: populating species through allele or gene seems awkward, maybe we need a
-        //      direct relationship?
+		return document;
 
-        return document;
-
-    }
+	}
 
 }

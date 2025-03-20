@@ -18,6 +18,7 @@ public class AlleleTranslator extends EntityDocumentListTranslator<Allele, Allel
 		AlleleVariantSequence document = new AlleleVariantSequence();
 
 		document.setCategory("allele");
+		document.setSearchable(true);
 		document.setAlterationType("allele");
 		document.setGlobalId(entity.getGlobalId());
 		document.setLocalId(entity.getLocalId());
