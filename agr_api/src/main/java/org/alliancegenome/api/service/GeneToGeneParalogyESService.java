@@ -34,7 +34,7 @@ public class GeneToGeneParalogyESService {
 
 		return searchDAO.performQuery(
 			bool, aggBuilders, null, List.of("*"),
-			pagination.getLimit(), pagination.getOffset(), hlb, sorts, true);
+			pagination.getLimit(), pagination.getOffset(), hlb, sorts, false);
 
 	}
 
