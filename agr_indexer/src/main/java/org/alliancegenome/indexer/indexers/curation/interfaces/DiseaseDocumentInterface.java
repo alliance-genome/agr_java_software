@@ -19,7 +19,7 @@ import jakarta.ws.rs.core.MediaType;
 @Path("/disease/document")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public interface DiseaseSummaryInterface {
+public interface DiseaseDocumentInterface {
 	@POST
 	@Path("/summary")
 	@JsonView({ View.DiseaseSummaryDocument.class })
