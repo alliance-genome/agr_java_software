@@ -21,7 +21,7 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, Searchab
 		SearchableItemDocument document = new SearchableItemDocument();
 
 		document.setCategory("disease");
-
+		document.setSearchable(true);
 		document.setPrimaryKey(doTerm.getPrimaryKey());
 		document.setName(doTerm.getName());
 		document.setNameKey(doTerm.getName());

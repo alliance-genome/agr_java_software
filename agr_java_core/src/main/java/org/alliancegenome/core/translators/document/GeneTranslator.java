@@ -16,7 +16,7 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, SearchableIte
 		SearchableItemDocument document = new SearchableItemDocument();
 
 		document.setCategory("gene");
-
+		document.setSearchable(true);
 		document.setDescription(entity.getDescription());
 
 		document.setAutomatedGeneSynopsis(entity.getAutomatedGeneSynopsis());

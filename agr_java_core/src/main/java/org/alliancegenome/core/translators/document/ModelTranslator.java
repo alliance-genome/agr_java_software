@@ -14,7 +14,7 @@ public class ModelTranslator extends EntityDocumentTranslator<AffectedGenomicMod
 		SearchableItemDocument document = new SearchableItemDocument();
 
 		document.setCategory("model");
-
+		document.setSearchable(true);
 		document.setPrimaryKey(entity.getPrimaryKey());
 		document.setName(entity.getName());
 		document.setNameKey(entity.getNameTextWithSpecies());
