@@ -29,6 +29,9 @@
 		<checkstyle.version>10.17.0</checkstyle.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
+		<quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
+		<quarkus.platform.version>${quarkus.version}</quarkus.platform.version>
 		<curation.version>v0.37.5</curation.version>
 		<!-- <curation.version>0.0.0-SNAPSHOT</curation.version> -->
 	</properties>
