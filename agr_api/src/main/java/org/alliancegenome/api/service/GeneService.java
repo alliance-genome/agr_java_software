@@ -231,6 +231,7 @@ public class GeneService {
 			String fieldNameAgg = field + "_agg";
 			TermsAggregationBuilder aggregationBuilder = AggregationBuilders.terms(fieldNameAgg);
 			aggregationBuilder.bucketCardinality();
+			aggregationBuilder.size(100);
 			aggregationBuilder.field(field);
 			aggBuilders.add(aggregationBuilder);
 		});
@@ -244,6 +245,7 @@ public class GeneService {
 			String fieldNameAgg = field + "_agg";
 			List<String> values = ((ParsedStringTerms) searchResponseHistogram.getAggregations().get(fieldNameAgg)).getBuckets().stream()
 				.map(MultiBucketsAggregation.Bucket::getKeyAsString).sorted().collect(Collectors.toList());
+			
 			distinctFieldValueMap.put(colName, values);
 		});
 		return distinctFieldValueMap;
