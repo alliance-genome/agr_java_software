@@ -116,7 +116,7 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
 		}
 		StringBuilder builder = new StringBuilder();
 		if (variantType != null && variantType.getPrimaryKey() != null && (variantType.isInsertion() || variantType.isDeletion())) {
-			builder.append(getGenomicReferenceSequence());
+			builder.append(getPaddedChange(getGenomicReferenceSequence()));
 			builder.append(">");
 			builder.append(getPaddedChange(getGenomicVariantSequence()));
 			// if no genomic sequence is available add 'N+'
@@ -134,7 +134,10 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
 
 	private String getPaddedChange(String change) {
 		if (getPaddingLeft().length() == 0) {
-			return change;
+			if (getPaddingRight().length() == 0) {
+				return change;
+			}
+			return change + getPaddingRight().charAt(0);
 		}
 		return getPaddingLeft().charAt(getPaddingLeft().length() - 1) + change;
 	}
