@@ -231,6 +231,7 @@ public class GeneService {
 			String fieldNameAgg = field + "_agg";
 			TermsAggregationBuilder aggregationBuilder = AggregationBuilders.terms(fieldNameAgg);
 			aggregationBuilder.bucketCardinality();
+			aggregationBuilder.size(100);
 			aggregationBuilder.field(field);
 			aggBuilders.add(aggregationBuilder);
 		});
