@@ -68,16 +68,17 @@ public class DiseaseESService extends ESService {
 		BoolQueryBuilder bool = boolQuery();
 		bool.must(new MatchQueryBuilder("doTerm.curie", diseaseId));
 		bool.filter(new TermQueryBuilder("category", "disease_summary"));
-		DiseaseSummaryDocument diseaseSummary = new DiseaseSummaryDocument();
 		Pagination pagination = new Pagination();
 		SearchResponse searchResponse = getSearchResponse(bool, pagination, null, false);
 		try {
-			diseaseSummary = mapper.readValue(searchResponse.getHits().getHits()[0].getSourceAsString(), DiseaseSummaryDocument.class);
+			if (searchResponse.getHits().getTotalHits().value >= 1) {
+				return mapper.readValue(searchResponse.getHits().getHits()[0].getSourceAsString(), DiseaseSummaryDocument.class);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
-		return diseaseSummary;
+		return null;
 	}
 
 	private Map<String, Object> getSupplementalData(String focusTaxonId, boolean useSpeciesAggregation, boolean debug, BoolQueryBuilder unfilteredQuery) {
