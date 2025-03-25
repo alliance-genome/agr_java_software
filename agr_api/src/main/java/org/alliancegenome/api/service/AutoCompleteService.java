@@ -53,6 +53,8 @@ public class AutoCompleteService {
 
 		if (StringUtils.isNotEmpty(category)) {
 			bool.filter(termQuery("category", category));
+		} else {
+			bool.filter(termQuery("searchable", true));
 		}
 
 		return bool;

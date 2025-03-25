@@ -6,6 +6,7 @@ import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.multiMatchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
+import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -250,6 +251,8 @@ public class SearchService {
 				}
 			}));
 
+		} else {
+			bool.filter(termQuery("searchable", true));
 		}
 
 		return bool;
