@@ -4,3 +4,5 @@ target
 .project
 /bin/
 data
+/.apt_generated/
+/.apt_generated_tests/
