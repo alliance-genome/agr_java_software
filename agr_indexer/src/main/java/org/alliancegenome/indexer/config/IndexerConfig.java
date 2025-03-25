@@ -8,10 +8,8 @@ import org.alliancegenome.indexer.indexers.GoIndexer;
 import org.alliancegenome.indexer.indexers.ModelIndexer;
 import org.alliancegenome.indexer.indexers.curation.DiseaseAnnotationCurationIndexer;
 import org.alliancegenome.indexer.indexers.curation.DiseaseSummaryCurationIndexer;
-import org.alliancegenome.indexer.indexers.curation.GeneExpressionAnnotationIndexer;
 import org.alliancegenome.indexer.indexers.curation.GeneGeneticInteractionCurationIndexer;
 import org.alliancegenome.indexer.indexers.curation.GeneMolecularInteractionCurationIndexer;
-import org.alliancegenome.indexer.indexers.curation.GeneSearchResultCurationIndexer;
 import org.alliancegenome.indexer.indexers.curation.GeneToGeneOrthologyIndexer;
 import org.alliancegenome.indexer.indexers.curation.GeneToGeneParalogyIndexer;
 import org.alliancegenome.indexer.indexers.curation.PhenotypeAnnotationCurationIndexer;
@@ -29,7 +27,6 @@ public enum IndexerConfig {
 	
 	// Curation Indexers
 	DiseaseAnnotationIndexer("diseaseAnnotation", DiseaseAnnotationCurationIndexer.class, 1, 1500, 1500, 2, 1),
-	GeneExpressionAnnotationIndexer("geneExpressionAnnotation", GeneExpressionAnnotationIndexer.class, 4, 1500, 1500, 2, 1),
 	GeneGeneticInteractionIndexers("geneGeneticInteraction", GeneGeneticInteractionCurationIndexer.class, 4, 1500, 1500, 2, 1),
 	GeneMolecularInteractionIndexers("geneMolecularInteraction", GeneMolecularInteractionCurationIndexer.class, 4, 1500, 1500, 2, 1),
 	ParalogyIndexer("paralogy", GeneToGeneParalogyIndexer.class, 4, 5000, 5000, 8, 1),
@@ -37,7 +34,10 @@ public enum IndexerConfig {
 	ReleaseInfoIndexer("release", ReleaseInfoIndexer.class, 1, 1, 1, 1, 1),
 	DiseaseSummaryIndexer("diseaseSummary", DiseaseSummaryCurationIndexer.class, 4, 1500, 1500, 4, 1),
 	GeneToGeneOrthologyIndexer("geneToGeneOrthology", GeneToGeneOrthologyIndexer.class, 4, 500, 500, 8, 1),
-	GeneSearchResultCurationIndexer("geneSearchResult", GeneSearchResultCurationIndexer.class, 4, 250, 1000, 4, 1),
+	//GeneExpressionAnnotationIndexer("geneExpressionAnnotation", GeneExpressionAnnotationIndexer.class, 4, 1500, 1500, 2, 1),
+	//GeneSearchResultCurationIndexer("geneSearchResult", GeneSearchResultCurationIndexer.class, 4, 250, 1000, 4, 1),
+	
+	
 	;
 
 
