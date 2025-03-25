@@ -6,7 +6,6 @@ import org.alliancegenome.neo4j.entity.node.Variant;
 
 public class VariantTranslator extends EntityDocumentTranslator<Variant, SearchableItemDocument> {
 
-
 	@Override
 	protected SearchableItemDocument entityToDocument(Variant entity, int translationDepth) {
 		SearchableItemDocument document = new SearchableItemDocument();
@@ -17,8 +16,9 @@ public class VariantTranslator extends EntityDocumentTranslator<Variant, Searcha
 		document.setName(entity.getName());
 		document.setNameKey(entity.getHgvsNomenclature());
 
-		//todo: populating species through allele or gene seems awkward, maybe we need a
-		//		direct relationship?
+		// TODO: populating species through allele or gene seems awkward, maybe we need
+		// a
+		// direct relationship?
 
 		return document;
 

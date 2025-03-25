@@ -25,6 +25,8 @@ public class AlleleVariantSequence extends SearchableItemDocument {
 	private Variant variant;
 	@JsonView({View.Default.class})
 	private TranscriptLevelConsequence consequence;
+	@JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
+	private Boolean searchable = true;
 
 	// Used only for deserialization purposes
 	public AlleleVariantSequence() {
