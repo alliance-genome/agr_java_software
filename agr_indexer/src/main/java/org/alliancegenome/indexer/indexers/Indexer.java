@@ -59,7 +59,7 @@ public abstract class Indexer extends Thread {
 	protected Map<String, Double> popularityScore;
 	
 	@Getter
-	private Duration duration;
+	private Duration duration = Duration.ZERO;
 
 	protected BulkProcessor bulkProcessor;
 
