@@ -52,8 +52,8 @@ public class AlleleIndexer extends Indexer {
 		ArrayList<Allele> list = new ArrayList<>();
 		AlleleTranslator alleleTranslator = new AlleleTranslator();
 		ProcessDisplayHelper ph = new ProcessDisplayHelper(10000);
+		ph.startProcess("Allele Indexer", list.size());
 		while (true) {
-			ph.startProcess("Allele Indexer", list.size());
 			try {
 				if (list.size() >= indexerConfig.getBufferSize()) {
 					Iterable<AlleleVariantSequence> avsDocs = alleleTranslator.translateEntities(list);

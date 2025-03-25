@@ -2,6 +2,7 @@ package org.alliancegenome.indexer;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.alliancegenome.core.config.ConfigHelper;
@@ -9,19 +10,21 @@ import org.alliancegenome.es.util.IndexManager;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
+import org.apache.commons.lang3.time.DurationFormatUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class Main {
 
-	private Main() { }
-	
+	private Main() {
+	}
+
 	public static void main(String[] args) {
 		ConfigHelper.init();
 
 		ProcessDisplayHelper ph = new ProcessDisplayHelper();
-		
+
 		ph.startProcess("Indexer Main: ");
 
 		IndexManager im = new IndexManager();
@@ -67,7 +70,7 @@ public class Main {
 		}
 
 		log.debug("Waiting for Indexers to finish");
-		for (Indexer i: indexers.values()) {
+		for (Indexer i : indexers.values()) {
 			try {
 				if (i.isAlive()) {
 					i.join();
@@ -77,6 +80,11 @@ public class Main {
 				log.error(e.getMessage());
 				System.exit(-1);
 			}
+		}
+
+		for (Entry<String, Indexer> entry : indexers.entrySet()) {
+			String elapsed = DurationFormatUtils.formatDuration(entry.getValue().getDuration().toMillis(), "HH:MM:SS", true);
+			log.info("Indexer: " + entry.getKey() + " Elapsed time: " + elapsed);
 		}
 
 		im.finishIndex();

@@ -25,11 +25,11 @@ import org.alliancegenome.core.api.service.DiseaseService;
 import org.alliancegenome.core.exceptions.RestErrorException;
 import org.alliancegenome.core.exceptions.RestErrorMessage;
 import org.alliancegenome.core.util.FileHelper;
+import org.alliancegenome.curation_api.model.document.es.DiseaseSummaryDocument;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -61,13 +61,13 @@ public class DiseaseController implements DiseaseRESTInterface {
 	private final DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();
 
 	@Override
-	public DOTerm getDisease(String id) {
-		DOTerm doTerm = diseaseService.getById(id);
-		if (doTerm == null) {
+	public DiseaseSummaryDocument getDisease(String id) {
+		DiseaseSummaryDocument diseaseSummary = diseaseESService.getById(id);
+		if (diseaseSummary == null) {
 			RestErrorMessage error = new RestErrorMessage("No disease term found with ID: " + id);
 			throw new RestErrorException(error);
 		} else {
-			return doTerm;
+			return diseaseSummary;
 		}
 	}
 

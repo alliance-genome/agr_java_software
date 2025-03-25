@@ -6,6 +6,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -38,6 +40,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -54,6 +57,9 @@ public abstract class Indexer extends Thread {
 	private StatsCollector stats = new StatsCollector();
 
 	protected Map<String, Double> popularityScore;
+	
+	@Getter
+	private Duration duration = Duration.ZERO;
 
 	protected BulkProcessor bulkProcessor;
 
@@ -123,6 +129,7 @@ public abstract class Indexer extends Thread {
 
 	public void runIndex() {
 		try {
+			Instant start = Instant.now();
 			display.startProcess(getClass().getSimpleName());
 			index();
 			log.info("Waiting for bulkProcessor to finish");
@@ -130,6 +137,8 @@ public abstract class Indexer extends Thread {
 			bulkProcessor.awaitClose(30L, TimeUnit.DAYS);
 			display.finishProcess();
 			stats.printOutput();
+			Instant end = Instant.now();
+			duration = Duration.between(start, end);
 		} catch (Exception e) {
 			e.printStackTrace();
 			log.error(e.getMessage());
@@ -141,6 +150,7 @@ public abstract class Indexer extends Thread {
 	public void run() {
 		super.run();
 		try {
+			Instant start = Instant.now();
 			display.startProcess(getClass().getSimpleName());
 			index();
 			log.info("Waiting for bulkProcessor to finish");
@@ -148,6 +158,8 @@ public abstract class Indexer extends Thread {
 			bulkProcessor.awaitClose(30L, TimeUnit.DAYS);
 			display.finishProcess();
 			stats.printOutput();
+			Instant end = Instant.now();
+			duration = Duration.between(start, end);
 		} catch (Exception e) {
 			e.printStackTrace();
 			log.error(e.getMessage());
