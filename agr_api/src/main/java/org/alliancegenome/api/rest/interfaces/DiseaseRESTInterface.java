@@ -6,8 +6,8 @@ import org.alliancegenome.api.entity.AGMDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
+import org.alliancegenome.curation_api.model.document.es.DiseaseSummaryDocument;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
-import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.lang3.ObjectUtils.Null;
 import org.eclipse.microprofile.openapi.annotations.Operation;
@@ -41,12 +41,11 @@ public interface DiseaseRESTInterface {
 
 	@GET
 	@Path("/{id}")
-	@JsonView(value = { View.DiseaseAPI.class })
 	@Operation(summary = "Retrieve a Disease object for a given id")
 	@APIResponses(value = { @APIResponse(responseCode = "404", description = "Missing Disease object", content = @Content(mediaType = "text/plain")),
 		@APIResponse(responseCode = "200", description = "Disease object.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
 
-	DOTerm getDisease(@Parameter(in = ParameterIn.PATH, name = "id", description = "Search for a Disease by ID", required = true, schema = @Schema(type = SchemaType.STRING)) @PathParam("id") String id);
+	DiseaseSummaryDocument getDisease(@Parameter(in = ParameterIn.PATH, name = "id", description = "Search for a Disease by ID", required = true, schema = @Schema(type = SchemaType.STRING)) @PathParam("id") String id);
 
 	@GET
 	@Path("/{id}/associations")

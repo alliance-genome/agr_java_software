@@ -4,6 +4,7 @@ import jakarta.enterprise.context.RequestScoped;
 import org.alliancegenome.api.entity.*;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.api.service.DiseaseRibbonService;
+import org.alliancegenome.curation_api.model.document.es.DiseaseSummaryDocument;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.SimpleTerm;
@@ -60,6 +61,23 @@ public class DiseaseESService extends ESService {
 			}).toList();
 		ret.setResults(list);
 		return ret;
+	}
+
+	public DiseaseSummaryDocument getById(String diseaseId) {
+
+		BoolQueryBuilder bool = boolQuery();
+		bool.must(new MatchQueryBuilder("doTerm.curie", diseaseId));
+		bool.filter(new TermQueryBuilder("category", "disease_summary"));
+		DiseaseSummaryDocument diseaseSummary = new DiseaseSummaryDocument();
+		Pagination pagination = new Pagination();
+		SearchResponse searchResponse = getSearchResponse(bool, pagination, null, false);
+		try {
+			diseaseSummary = mapper.readValue(searchResponse.getHits().getHits()[0].getSourceAsString(), DiseaseSummaryDocument.class);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return diseaseSummary;
 	}
 
 	private Map<String, Object> getSupplementalData(String focusTaxonId, boolean useSpeciesAggregation, boolean debug, BoolQueryBuilder unfilteredQuery) {
