@@ -24,5 +24,4 @@ public class HTPDatasetTranslator extends EntityDocumentTranslator<HTPDataset, S
 
 	}
 
-
 }
