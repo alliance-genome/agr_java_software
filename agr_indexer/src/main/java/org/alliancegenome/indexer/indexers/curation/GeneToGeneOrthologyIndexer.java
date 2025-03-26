@@ -3,15 +3,13 @@ package org.alliancegenome.indexer.indexers.curation;
 import java.util.HashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 
-import org.alliancegenome.api.entity.GeneToGeneOrthologyDocument;
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.curation_api.interfaces.document.GeneToGeneOrthologyDocumentInterface;
-import org.alliancegenome.curation_api.model.document.es.GeneSearchResultDocument;
+import org.alliancegenome.curation_api.model.document.es.GeneToGeneOrthologyDocument;
+import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
-import org.alliancegenome.indexer.indexers.curation.service.GeneToGeneOrthologyService;
 import org.apache.commons.collections4.CollectionUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,7 +26,6 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 		super(config);
 	}
 	
-	
 	@Override
 	public void index() {
 		HashMap<String, Object> params = new HashMap<>();
@@ -36,7 +33,7 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 		params.put("obsolete", false);
 		
 		try {
-			SearchResponse<GeneSearchResultDocument> resp = orthologyApi.orthologyApi(0, 0, params);
+			SearchResponse<GeneToGeneOrthologyDocument> resp = orthologyApi.findDocument(0, 0, params);
 			log.info("GeneToGeneOrthology count: " + resp.getTotalResults());
 			int totalPages = (int) (resp.getTotalResults() / indexerConfig.getBufferSize());
 			
@@ -51,7 +48,6 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 
 	}
 
-	
 	@Override
 	protected void startSingleThread(LinkedBlockingDeque<String> queue) {
 		HashMap<String, Object> params = new HashMap<>();
@@ -72,7 +68,7 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 				// log.info(queue.size() + " pages to process " +
 				// Thread.currentThread().getName() + " starting page: " + page);
 
-				SearchResponse<GeneSearchResultDocument> response = orthologyApi.findSearchResult(Integer.valueOf(page), indexerConfig.getBufferSize(), params);
+				SearchResponse<GeneToGeneOrthologyDocument> response = orthologyApi.findDocument(Integer.valueOf(page), indexerConfig.getBufferSize(), params);
 				// log.info("Search Response: " + response);
 				if (response == null || CollectionUtils.isEmpty(response.getResults())) {
 					return;
