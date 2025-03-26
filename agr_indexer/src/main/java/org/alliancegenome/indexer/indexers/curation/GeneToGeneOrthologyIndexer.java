@@ -1,14 +1,8 @@
 package org.alliancegenome.indexer.indexers.curation;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import org.alliancegenome.api.entity.GeneToGeneOrthologyDocument;
-import org.alliancegenome.curation_api.model.entities.Gene;
-import org.alliancegenome.curation_api.model.entities.orthology.GeneToGeneOrthologyGenerated;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.config.IndexerConfig;
@@ -34,7 +28,7 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 		try {
 			log.info("Getting orthologs");
 
-			SearchResponse<GeneToGeneOrthologyGenerated> orthologyResponse = service.getGeneToGeneOrthology(0, 0);
+			SearchResponse<GeneToGeneOrthologyDocument> orthologyResponse = service.getGeneToGeneOrthology(0, 0);
 
 			log.info("GeneToGeneOrthology count: " + orthologyResponse.getTotalResults());
 
@@ -53,11 +47,7 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 
 	}
 
-	@Override
-	protected ObjectMapper customizeObjectMapper(ObjectMapper objectMapper) {
-		return RestConfig.config.getJacksonObjectMapperFactory().createObjectMapper();
-	}
-
+	
 	@Override
 	protected void startSingleThread(LinkedBlockingDeque<String> queue) {
 		while (true) {
@@ -66,10 +56,15 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 					return;
 				}
 				String page = queue.takeFirst();
-				SearchResponse<GeneToGeneOrthologyGenerated> resp = service.getGeneToGeneOrthology(Integer.valueOf(page), indexerConfig.getBufferSize());
-				List<GeneToGeneOrthologyDocument> docs = createGeneToGeneOrthologyDocuments(resp.getResults());
 
-				indexDocuments(docs);
+				SearchResponse<GeneToGeneOrthologyDocument> resp = service.getGeneToGeneOrthology(Integer.valueOf(page), indexerConfig.getBufferSize());
+
+				if (resp == null || CollectionUtils.isEmpty(resp.getResults())) {
+					return;
+				}
+
+				indexDocuments(resp.getResults());
+				
 			} catch (Exception e) {
 				log.error("Error while indexing...", e);
 				System.exit(-1);
@@ -77,58 +72,9 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 			}
 		}
 	}
-
-	private List<GeneToGeneOrthologyDocument> createGeneToGeneOrthologyDocuments(List<GeneToGeneOrthologyGenerated> g2gOrthoList) {
-		List<GeneToGeneOrthologyDocument> documents = new ArrayList<>();
-		for (GeneToGeneOrthologyGenerated g2gOrtho : g2gOrthoList) {
-			GeneToGeneOrthologyDocument document = new GeneToGeneOrthologyDocument();
-
-			document.setGeneToGeneOrthologyGenerated(g2gOrtho);
-			createStringencyFilter(g2gOrtho, document);
-			createGeneAnnotations(g2gOrtho, document);
-			removeAnnotationLists(document);
-
-			documents.add(document);
-		}
-		return documents;
+	
+	@Override
+	protected ObjectMapper customizeObjectMapper(ObjectMapper objectMapper) {
+		return RestConfig.config.getJacksonObjectMapperFactory().createObjectMapper();
 	}
-
-	private void createStringencyFilter(GeneToGeneOrthologyGenerated g2gOrtho, GeneToGeneOrthologyDocument document) {
-		if (Boolean.TRUE.equals(g2gOrtho.getStrictFilter())) {
-			document.setStringencyFilter("stringent");
-		} else if (Boolean.TRUE.equals(g2gOrtho.getModerateFilter())) {
-			document.setStringencyFilter("moderate");
-		}
-	}
-
-	private void createGeneAnnotations(GeneToGeneOrthologyGenerated g2gOrtho, GeneToGeneOrthologyDocument document) {
-		List<Map<String, Object>> geneAnnotationsList = new ArrayList<>();
-		putGeneInfo(geneAnnotationsList, g2gOrtho.getSubjectGene());
-		putGeneInfo(geneAnnotationsList, g2gOrtho.getObjectGene());
-		document.setGeneAnnotations(geneAnnotationsList);
-	}
-
-	private void putGeneInfo(List<Map<String, Object>> list, Gene gene) {
-		Map<String, Object> data = new HashMap<>();
-		data.put("geneIdentifier", gene.getIdentifier());
-		data.put("hasExpressionAnnotations", hasExpressionAnnotations(gene));
-		data.put("hasDiseaseAnnotations", hasDiseaseAnnotations(gene));
-		list.add(data);
-	}
-
-	private boolean hasDiseaseAnnotations(Gene gene) {
-		return CollectionUtils.isNotEmpty(gene.getGeneDiseaseAnnotations());
-	}
-
-	private boolean hasExpressionAnnotations(Gene gene) {
-		return CollectionUtils.isNotEmpty(gene.getGeneExpressionAnnotations());
-	}
-
-	private void removeAnnotationLists(GeneToGeneOrthologyDocument document) {
-		document.getGeneToGeneOrthologyGenerated().getSubjectGene().setGeneDiseaseAnnotations(null);
-		document.getGeneToGeneOrthologyGenerated().getSubjectGene().setGeneExpressionAnnotations(null);
-		document.getGeneToGeneOrthologyGenerated().getObjectGene().setGeneDiseaseAnnotations(null);
-		document.getGeneToGeneOrthologyGenerated().getObjectGene().setGeneExpressionAnnotations(null);
-	}
-
 }

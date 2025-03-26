@@ -2,6 +2,7 @@ package org.alliancegenome.indexer.indexers.curation.interfaces;
 
 import java.util.HashMap;
 
+import org.alliancegenome.api.entity.GeneToGeneOrthologyDocument;
 import org.alliancegenome.curation_api.model.entities.orthology.GeneToGeneOrthologyGenerated;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.curation_api.view.View;
@@ -23,14 +24,14 @@ public interface GeneToGeneOrthologyGeneratedInterface {
 	@POST
 	@Path("/findForPublic")
 	@JsonView({ View.ForPublic.class })
-	SearchResponse<GeneToGeneOrthologyGenerated> findForPublic(
+	SearchResponse<GeneToGeneOrthologyDocument> findForPublic(
 		@DefaultValue("0") @QueryParam("page") Integer page,
 		@DefaultValue("10") @QueryParam("limit") Integer limit,
 		HashMap<String, Object> params);
 
 	@POST
 	@Path("/findForPublic")
-	SearchResponse<GeneToGeneOrthologyGenerated> findForPublic(
+	SearchResponse<GeneToGeneOrthologyDocument> findForPublic(
 		@DefaultValue("0") @QueryParam("page") Integer page,
 		@DefaultValue("10") @QueryParam("limit") Integer limit,
 		@DefaultValue("ForPublic") @QueryParam("view") String view,
