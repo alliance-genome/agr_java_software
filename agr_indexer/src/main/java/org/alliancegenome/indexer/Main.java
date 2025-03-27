@@ -83,7 +83,7 @@ public class Main {
 		}
 
 		for (Entry<String, Indexer> entry : indexers.entrySet()) {
-			String elapsed = DurationFormatUtils.formatDuration(entry.getValue().getDuration().toMillis(), "HH:MM:SS", true);
+			String elapsed = DurationFormatUtils.formatDuration(entry.getValue().getDuration().toMillis(), "HH:mm:ss", true);
 			log.info("Indexer: " + entry.getKey() + " Elapsed time: " + elapsed);
 		}
 
