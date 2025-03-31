@@ -20,7 +20,7 @@ public abstract class Settings extends Builder {
 					.startObject("char_filter")
 						.startObject("zero_pad_numbers")
 							.field("type", "pattern_replace")
-							.field("pattern", "(?<!\\d)(\\d+)(?!\\d)")
+							.field("pattern", "(\\d+)")
 					        .field("replacement", "0000000$1")
 						.endObject()
 					.endObject()
