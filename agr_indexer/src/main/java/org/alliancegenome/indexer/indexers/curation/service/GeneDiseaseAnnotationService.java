@@ -52,7 +52,7 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 		SearchResponse<GeneDiseaseAnnotation> totalResponse = geneApi.findForPublic(0, 0, params);
 		display.startProcess("Pulling Gene DA's from curation", totalResponse.getTotalResults());
 
-		int maxPage =(int) (totalResponse.getTotalResults() / batchSize);
+		int maxPage = (int) (totalResponse.getTotalResults() / batchSize);
 		for (int page = 0; page <= maxPage; page++) {
 			SearchResponse<GeneDiseaseAnnotation> response = geneApi.findForPublic(page, batchSize, params);
 			for (GeneDiseaseAnnotation da : response.getResults()) {
