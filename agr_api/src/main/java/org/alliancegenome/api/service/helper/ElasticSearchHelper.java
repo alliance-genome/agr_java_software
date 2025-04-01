@@ -35,7 +35,7 @@ public class ElasticSearchHelper {
 			//Log.info("Or Filter: " + filterName + " " + filterValue);
 			BoolQueryBuilder orClause = boolQuery();
 			String[] elements = filterValue.split("\\|");
-			Arrays.stream(elements).forEach(element -> orClause.should(QueryBuilders.termQuery(filterName, escapeValue(element))));
+			Arrays.stream(elements).forEach(element -> orClause.should(QueryBuilders.termQuery(filterName, element)));
 			bool.must(orClause);
 		} else {
 			//Log.info("Other Filter: " + filterName + " " + filterValue);
