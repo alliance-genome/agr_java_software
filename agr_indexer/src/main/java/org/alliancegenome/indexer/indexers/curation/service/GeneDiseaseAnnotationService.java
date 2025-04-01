@@ -1,24 +1,8 @@
 package org.alliancegenome.indexer.indexers.curation.service;
 
-import static java.util.stream.Collectors.groupingBy;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
+import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.DiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.Gene;
-import org.alliancegenome.curation_api.model.entities.GeneDiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.Organization;
-import org.alliancegenome.curation_api.model.entities.Reference;
-import org.alliancegenome.curation_api.model.entities.VocabularyTerm;
+import org.alliancegenome.curation_api.model.entities.*;
 import org.alliancegenome.curation_api.model.entities.ontology.ECOTerm;
 import org.alliancegenome.curation_api.model.entities.orthology.GeneToGeneOrthologyGenerated;
 import org.alliancegenome.curation_api.response.SearchResponse;
@@ -28,9 +12,12 @@ import org.alliancegenome.indexer.indexers.curation.interfaces.GeneDiseaseAnnota
 import org.alliancegenome.indexer.indexers.curation.interfaces.GeneToGeneOrthologyGeneratedInterface;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.Pair;
-
-import lombok.extern.log4j.Log4j2;
 import si.mazi.rescu.RestProxyFactory;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.groupingBy;
 
 @Log4j2
 public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
@@ -60,12 +47,13 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 		HashMap<String, Object> params = new HashMap<>();
 		params.put("internal", false);
 		params.put("obsolete", false);
-		//params.put("diseaseAnnotationSubject.primaryExternalId", "RGD:69258");
-		
+		//params.put("diseaseAnnotationSubject.primaryExternalId", "HGNC:11998");
+
 		SearchResponse<GeneDiseaseAnnotation> totalResponse = geneApi.findForPublic(0, 0, params);
 		display.startProcess("Pulling Gene DA's from curation", totalResponse.getTotalResults());
 
-		for (int page = 0; page < (int) (totalResponse.getTotalResults() / batchSize); page++) {
+		int maxPage =(int) (totalResponse.getTotalResults() / batchSize);
+		for (int page = 0; page <= maxPage; page++) {
 			SearchResponse<GeneDiseaseAnnotation> response = geneApi.findForPublic(page, batchSize, params);
 			for (GeneDiseaseAnnotation da : response.getResults()) {
 				if (isValidNeoEntity(getAllNeoGeneIDs(), da.getDiseaseAnnotationSubject().getIdentifier()) && hasNoObsoletedOrInternalEntities(da)) {
@@ -107,7 +95,7 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 		// hard code MGI:6194238 with corresponding AGRKB ID
 		Reference allianceReference = referenceService.getReference("AGRKB:101000000828456");
 
-		
+
 		display.startProcess("Creating Gene DA's via orthology", geneMap.size());
 		// loop over all Markers of validated DiseaseAnnotation records
 		Set<String> geneIDs = geneMap.keySet();
