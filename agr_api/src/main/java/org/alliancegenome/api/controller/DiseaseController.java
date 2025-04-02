@@ -480,7 +480,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 		pagination.addFilterOption("pubmedPubModIDs", filterReference);
 		pagination.addFilterOption("subject.geneSymbol.displayText", filterGene);
 		pagination.addFilterOption("primaryAnnotations.with.geneSymbol.displayText", basedOnGeneSymbol);
-		pagination.addFilterOption("primaryAnnotations.dataProvider.homepageResourceDescriptorPage.resourceDescriptor.name OR primaryAnnotations.secondaryDataProvider.homepageResourceDescriptorPage.resourceDescriptor.name", filterSource);
+		pagination.addFilterOption("primaryAnnotations.dataProvider.abbreviation OR primaryAnnotations.secondaryDataProvider.abbreviation", filterSource);
 
 		// TODO: remove when SC data is fixed:
 		if (filterSpecies != null) {
