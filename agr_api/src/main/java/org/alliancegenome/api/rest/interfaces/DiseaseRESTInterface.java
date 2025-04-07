@@ -16,6 +16,7 @@ import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
+import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
@@ -26,6 +27,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
@@ -230,12 +232,12 @@ public interface DiseaseRESTInterface {
 	@Operation(description = "Retrieve all DiseaseAnnotation records for a given disease id disregarding sorting / filtering parameters", hidden = true)
 	String getDiseaseAnnotationsDownload(@PathParam("id") String id);
 
-	@GET
+	@POST
 	@Path("")
 	@Operation(summary = "Retrieve all disease annotations of a given set of genes")
 	@APIResponses(value = { @APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
 	JsonResultResponse<GeneDiseaseAnnotationDocument> getDiseaseAnnotationsRibbonDetails(@Parameter(in = ParameterIn.QUERY, name = "focusTaxonId", description = "Focus Taxon ID", required = true) @QueryParam("focusTaxonId") String focusTaxonId,
-		@Parameter(in = ParameterIn.QUERY, name = "geneID", description = "Gene by ID", required = true) @QueryParam("geneID") List<String> geneIDs, @Parameter(in = ParameterIn.QUERY, name = "termID", description = "Term ID by which rollup should happen") @QueryParam("termID") String termID,
+		@Parameter(in = ParameterIn.QUERY, name = "geneID", description = "Gene by ID", required = true) @RequestBody List<String> geneIDs, @Parameter(in = ParameterIn.QUERY, name = "termID", description = "Term ID by which rollup should happen") @QueryParam("termID") String termID,
 		@Parameter(in = ParameterIn.QUERY, name = "filterOptions", description = "All filter key-value pairs", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filterOptions") String filterOptions,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.species", description = "Species by taxon ID", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.species") String filterSpecies,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.subject.symbol", description = "Gene symbol", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.subject.symbol") String filterGene,

@@ -13,6 +13,7 @@ import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
+import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
@@ -23,6 +24,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
@@ -36,12 +38,12 @@ import jakarta.ws.rs.core.Response;
 @Consumes(MediaType.APPLICATION_JSON)
 public interface ExpressionRESTInterface {
 
-	@GET
+	@POST
 	@Path("")
 	@JsonView(value = { View.Expression.class })
 	@Operation(summary = "Retrieve all expression records of a given set of geneMap")
 	@APIResponses(value = { @APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
-	JsonResultResponse<ExpressionDetail> getExpressionAnnotations(@Parameter(in = ParameterIn.QUERY, name = "geneID", description = "Gene by ID", required = true) @QueryParam("geneID") List<String> geneIDs,
+	JsonResultResponse<ExpressionDetail> getExpressionAnnotations(@Parameter(in = ParameterIn.QUERY, name = "geneID", description = "Gene by ID", required = true) @RequestBody List<String> geneIDs,
 		@Parameter(in = ParameterIn.QUERY, name = "termID", description = "Term ID by which rollup should happen", schema = @Schema(type = SchemaType.STRING)) @QueryParam("termID") String termID,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.species", description = "Species by taxon ID", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.species") String filterSpecies,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.gene", description = "Gene symbol", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.gene") String filterGene,
@@ -70,11 +72,11 @@ public interface ExpressionRESTInterface {
 		@Parameter(in = ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("20") @QueryParam("limit") Integer limit,
 		@Parameter(in = ParameterIn.QUERY, name = "page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("1") @QueryParam("page") Integer page) throws JsonProcessingException;
 
-	@GET
+	@POST
 	@Path("/ribbon-summary")
 	@JsonView(value = { View.Expression.class })
 	@Operation(summary = "Retrieve summary of expression for given list of genes")
 	@APIResponses(value = { @APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
-	RibbonSummary getExpressionSummary(@Parameter(in = ParameterIn.QUERY, name = "geneID", description = "list of genes for which expression data is requested", required = true) @QueryParam("geneID") List<String> geneIDs);
+	RibbonSummary getExpressionSummary(@Parameter(in = ParameterIn.QUERY, name = "geneID", description = "list of genes for which expression data is requested", required = true) @RequestBody List<String> geneIDs);
 
 }
