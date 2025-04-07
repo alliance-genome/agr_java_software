@@ -645,11 +645,11 @@ public interface GeneRESTInterface {
 		@PathParam("id") String id,
 
 		@Parameter(in = ParameterIn.QUERY, name = "includeNegation", description = "include negated annotations", schema = @Schema(type = SchemaType.STRING))
-		@DefaultValue("false") 
+		@DefaultValue("false")
 		@QueryParam("includeNegation") Boolean includeNegation,
 
 		@Parameter(in = ParameterIn.QUERY, name = "debug", description = "debug the query", schema = @Schema(type = SchemaType.STRING))
-		@DefaultValue("false") 
+		@DefaultValue("false")
 		@QueryParam("debug") Boolean debug,
 
 		@Parameter(in = ParameterIn.QUERY, name = "geneID", description = "additional orthologous genes", required = true)

@@ -45,47 +45,47 @@ public interface ExpressionRESTInterface {
 	@APIResponses(value = { @APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
 	JsonResultResponse<ExpressionDetail> getExpressionAnnotations(
 
-		@Parameter(in = ParameterIn.QUERY, name = "termID", description = "Term ID by which rollup should happen", schema = @Schema(type = SchemaType.STRING)) 
+		@Parameter(in = ParameterIn.QUERY, name = "termID", description = "Term ID by which rollup should happen", schema = @Schema(type = SchemaType.STRING))
 		@QueryParam("termID") String termID,
 
-		@Parameter(in = ParameterIn.QUERY, name = "filter.species", description = "Species by taxon ID", schema = @Schema(type = SchemaType.STRING)) 
+		@Parameter(in = ParameterIn.QUERY, name = "filter.species", description = "Species by taxon ID", schema = @Schema(type = SchemaType.STRING))
 		@QueryParam("filter.species") String filterSpecies,
 
-		@Parameter(in = ParameterIn.QUERY, name = "filter.gene", description = "Gene symbol", schema = @Schema(type = SchemaType.STRING)) 
+		@Parameter(in = ParameterIn.QUERY, name = "filter.gene", description = "Gene symbol", schema = @Schema(type = SchemaType.STRING))
 		@QueryParam("filter.gene") String filterGene,
 
-		@Parameter(in = ParameterIn.QUERY, name = "filter.stage", description = "Stage name", schema = @Schema(type = SchemaType.STRING)) 
+		@Parameter(in = ParameterIn.QUERY, name = "filter.stage", description = "Stage name", schema = @Schema(type = SchemaType.STRING))
 		@QueryParam("filter.stage") String filterStage,
 
 		@Parameter(in = ParameterIn.QUERY, name = "filter.assay", description = "Assay name", schema = @Schema(type = SchemaType.STRING)) 
 		@QueryParam("filter.assay") String filterAssay,
 
-		@Parameter(in = ParameterIn.QUERY, name = "filter.reference", description = "Reference", schema = @Schema(type = SchemaType.STRING)) 
+		@Parameter(in = ParameterIn.QUERY, name = "filter.reference", description = "Reference", schema = @Schema(type = SchemaType.STRING))
 		@QueryParam("filter.reference") String filterReference,
 
-		@Parameter(in = ParameterIn.QUERY, name = "filter.term", description = "Ontology term name", schema = @Schema(type = SchemaType.STRING)) 
+		@Parameter(in = ParameterIn.QUERY, name = "filter.term", description = "Ontology term name", schema = @Schema(type = SchemaType.STRING))
 		@QueryParam("filter.term") String filterTerm,
 
-		@Parameter(in = ParameterIn.QUERY, name = "filter.source", description = "Source", schema = @Schema(type = SchemaType.STRING)) 
+		@Parameter(in = ParameterIn.QUERY, name = "filter.source", description = "Source", schema = @Schema(type = SchemaType.STRING))
 		@QueryParam("filter.source") String filterSource,
 
-		@Parameter(in = ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER)) 
-		@DefaultValue("20") 
+		@Parameter(in = ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
+		@DefaultValue("20")
 		@QueryParam("limit") Integer limit,
 
-		@Parameter(in = ParameterIn.QUERY, name = "page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER)) 
-		@DefaultValue("1") 
+		@Parameter(in = ParameterIn.QUERY, name = "page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER))
+		@DefaultValue("1")
 		@QueryParam("page") Integer page,
 
 		@Parameter(in = ParameterIn.QUERY, name = "sortBy", description = "Sort by field name", schema = @Schema(type = SchemaType.STRING)) // allowableValues = "Default,Species,Location,Assay,Stage,Gene")
-		@DefaultValue("geneName") 
-		@QueryParam("sortBy") String sortBy, 
+		@DefaultValue("geneName")
+		@QueryParam("sortBy") String sortBy,
 
 		@Parameter(in = ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING)) // ,allowableValues = "true,false")
-		@DefaultValue("true") 
+		@DefaultValue("true")
 		@QueryParam("asc") String asc,
 
-		@Parameter(in = ParameterIn.QUERY, name = "geneID", description = "Gene by ID", required = true) 
+		@Parameter(in = ParameterIn.QUERY, name = "geneID", description = "Gene by ID", required = true)
 		@RequestBody List<String> geneIDs
 
 	) throws JsonProcessingException;
@@ -110,7 +110,7 @@ public interface ExpressionRESTInterface {
 	@Operation(summary = "Retrieve summary of expression for given list of genes")
 	@APIResponses(value = { @APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
 	RibbonSummary getExpressionSummary(
-		@Parameter(in = ParameterIn.QUERY, name = "geneID", description = "list of genes for which expression data is requested", required = true) 
+		@Parameter(in = ParameterIn.QUERY, name = "geneID", description = "list of genes for which expression data is requested", required = true)
 		@RequestBody List<String> geneIDs
 	);
 
