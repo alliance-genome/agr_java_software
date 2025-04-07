@@ -643,12 +643,17 @@ public interface GeneRESTInterface {
 	DiseaseRibbonSummary getDiseaseRibbonSummary(
 		@Parameter(in = ParameterIn.PATH, name = "id", description = "Gene by ID, e.g. 'RGD:2129' or 'ZFIN:ZDB-GENE-990415-72 fgf8a'", required = true, schema = @Schema(type = SchemaType.STRING))
 		@PathParam("id") String id,
-		@Parameter(in = ParameterIn.QUERY, name = "geneID", description = "additional orthologous genes", required = true)
-		@RequestBody List<String> geneIDs,
+
 		@Parameter(in = ParameterIn.QUERY, name = "includeNegation", description = "include negated annotations", schema = @Schema(type = SchemaType.STRING))
-		@DefaultValue("false") @QueryParam("includeNegation") Boolean includeNegation,
+		@DefaultValue("false") 
+		@QueryParam("includeNegation") Boolean includeNegation,
+
 		@Parameter(in = ParameterIn.QUERY, name = "debug", description = "debug the query", schema = @Schema(type = SchemaType.STRING))
-		@DefaultValue("false") @QueryParam("debug") Boolean debug
+		@DefaultValue("false") 
+		@QueryParam("debug") Boolean debug,
+
+		@Parameter(in = ParameterIn.QUERY, name = "geneID", description = "additional orthologous genes", required = true)
+		@RequestBody List<String> geneIDs
 	) throws JsonProcessingException;
 
 	@GET
