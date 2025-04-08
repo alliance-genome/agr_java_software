@@ -1,13 +1,15 @@
 package org.alliancegenome.api.controller;
 
-import jakarta.enterprise.context.RequestScoped;
-import jakarta.inject.Inject;
-import jakarta.ws.rs.core.Response;
-import lombok.extern.slf4j.Slf4j;
+import java.time.LocalDateTime;
+
 import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.AllelePhenotypeAnnotationDocument;
 import org.alliancegenome.api.rest.interfaces.AlleleRESTInterface;
-import org.alliancegenome.api.service.*;
+import org.alliancegenome.api.service.AlleleService;
+import org.alliancegenome.api.service.DiseaseESService;
+import org.alliancegenome.api.service.EntityType;
+import org.alliancegenome.api.service.PhenotypeESService;
+import org.alliancegenome.api.service.VariantService;
 import org.alliancegenome.api.service.helper.APIServiceHelper;
 import org.alliancegenome.api.translators.tdf.DiseaseAnnotationToTdfTranslator;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
@@ -20,7 +22,10 @@ import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Variant;
 
-import java.time.LocalDateTime;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.core.Response;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RequestScoped

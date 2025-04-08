@@ -1,13 +1,16 @@
 package org.alliancegenome.api.service;
 
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+
 import org.alliancegenome.api.entity.ReleaseInfoDocument;
 import org.alliancegenome.curation_api.model.input.Pagination;
-import org.elasticsearch.action.search.SearchResponse;
 import org.alliancegenome.es.index.site.dao.SearchDAO;
 import org.alliancegenome.neo4j.entity.ReleaseSummary;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
@@ -15,8 +18,6 @@ import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
