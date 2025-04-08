@@ -714,7 +714,7 @@ public class GeneController implements GeneRESTInterface {
 
 	@Override
 	// the List passed in here is unmodifiable
-	public DiseaseRibbonSummary getDiseaseRibbonSummary(String id, List<String> geneIDs, Boolean includeNegation, Boolean debug) {
+	public DiseaseRibbonSummary getDiseaseRibbonSummary(String id, Boolean includeNegation, Boolean debug, List<String> geneIDs) {
 		List<String> ids = new ArrayList<>();
 		if (geneIDs != null) {
 			ids.addAll(geneIDs);

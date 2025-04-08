@@ -45,7 +45,7 @@ public class ExpressionController implements ExpressionRESTInterface {
 	private static final ExpressionToTdfTranslator expressionTranslator = new ExpressionToTdfTranslator();
 
 	@Override
-	public JsonResultResponse<ExpressionDetail> getExpressionAnnotations(List<String> geneIDs,
+	public JsonResultResponse<ExpressionDetail> getExpressionAnnotations(
 																		String termID,
 																		String filterSpecies,
 																		String filterGene,
@@ -57,7 +57,8 @@ public class ExpressionController implements ExpressionRESTInterface {
 																		Integer limit,
 																		Integer page,
 																		String sortBy,
-																		String asc) {
+																		String asc,
+																		List<String> geneIDs) {
 
 		LocalDateTime startDate = LocalDateTime.now();
 		try {

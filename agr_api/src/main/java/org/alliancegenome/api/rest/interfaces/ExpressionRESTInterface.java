@@ -57,7 +57,7 @@ public interface ExpressionRESTInterface {
 		@Parameter(in = ParameterIn.QUERY, name = "filter.stage", description = "Stage name", schema = @Schema(type = SchemaType.STRING))
 		@QueryParam("filter.stage") String filterStage,
 
-		@Parameter(in = ParameterIn.QUERY, name = "filter.assay", description = "Assay name", schema = @Schema(type = SchemaType.STRING)) 
+		@Parameter(in = ParameterIn.QUERY, name = "filter.assay", description = "Assay name", schema = @Schema(type = SchemaType.STRING))
 		@QueryParam("filter.assay") String filterAssay,
 
 		@Parameter(in = ParameterIn.QUERY, name = "filter.reference", description = "Reference", schema = @Schema(type = SchemaType.STRING))
