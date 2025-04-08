@@ -1,9 +1,17 @@
 package org.alliancegenome.api.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.quarkus.logging.Log;
-import jakarta.enterprise.context.RequestScoped;
-import jakarta.inject.Inject;
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
+import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.api.service.helper.GeneDiseaseSearchHelper;
 import org.alliancegenome.es.index.site.dao.SearchDAO;
@@ -25,10 +33,11 @@ import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilde
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import static org.elasticsearch.index.query.QueryBuilders.*;
+import io.quarkus.logging.Log;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
 
 
 @RequestScoped

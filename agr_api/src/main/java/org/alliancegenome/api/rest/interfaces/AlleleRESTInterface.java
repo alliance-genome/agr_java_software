@@ -3,8 +3,6 @@ package org.alliancegenome.api.rest.interfaces;
 import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.AllelePhenotypeAnnotationDocument;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
-import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Variant;
 import org.alliancegenome.neo4j.view.View;
@@ -86,12 +84,12 @@ public interface AlleleRESTInterface {
 	@APIResponses(value = { @APIResponse(responseCode = "404", description = "Missing phenotypes", content = @Content(mediaType = "text/plain")),
 		@APIResponse(responseCode = "200", description = "Phenotypes for a given Allele.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
 	JsonResultResponse<AllelePhenotypeAnnotationDocument> getPhenotypePerAllele(@Parameter(in = ParameterIn.PATH, name = "id", description = "Search for Phenotypes for a given Allele by ID", required = true, schema = @Schema(type = SchemaType.STRING)) @PathParam("id") String id,
-																				@Parameter(in = ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("20") @QueryParam("limit") Integer limit,
-																				@Parameter(in = ParameterIn.QUERY, name = "page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("1") @QueryParam("page") Integer page,
-																				@Parameter(in = ParameterIn.QUERY, name = "filter.termName", description = "termName annotation") @QueryParam("filter.termName") String phenotype,
-																				@Parameter(in = ParameterIn.QUERY, name = "filter.dataProvider", description = "Source", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.dataProvider") String source,
-																				@Parameter(in = ParameterIn.QUERY, name = "filter.reference", description = "Reference number: PUBMED or a Pub ID from the MOD") @QueryParam("filter.reference") String reference,
-																				@Parameter(in = ParameterIn.QUERY, name = "sortBy", description = "Field name by which to sort", schema = @Schema(type = SchemaType.STRING)) @DefaultValue("symbol") @QueryParam("sortBy") String sortBy
+		@Parameter(in = ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("20") @QueryParam("limit") Integer limit,
+		@Parameter(in = ParameterIn.QUERY, name = "page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("1") @QueryParam("page") Integer page,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.termName", description = "termName annotation") @QueryParam("filter.termName") String phenotype,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.dataProvider", description = "Source", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.dataProvider") String source,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.reference", description = "Reference number: PUBMED or a Pub ID from the MOD") @QueryParam("filter.reference") String reference,
+		@Parameter(in = ParameterIn.QUERY, name = "sortBy", description = "Field name by which to sort", schema = @Schema(type = SchemaType.STRING)) @DefaultValue("symbol") @QueryParam("sortBy") String sortBy
 
 	);
 
@@ -110,8 +108,7 @@ public interface AlleleRESTInterface {
 	@Operation(summary = "Retrieve all diseases of a given allele")
 	@APIResponses(value = { @APIResponse(responseCode = "404", description = "Missing diseases", content = @Content(mediaType = "text/plain")),
 		@APIResponse(responseCode = "200", description = "Diseases for a given Allele.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
-	JsonResultResponse<AlleleDiseaseAnnotationDocument> getDiseasePerAllele(@PathParam("id") String id,
-		@Parameter(in = ParameterIn.QUERY, name = "filterOptions", description = "All filter key-value pairs", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filterOptions") String filterOptions,
+	JsonResultResponse<AlleleDiseaseAnnotationDocument> getDiseasePerAllele(@PathParam("id") String id, @Parameter(in = ParameterIn.QUERY, name = "filterOptions", description = "All filter key-value pairs", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filterOptions") String filterOptions,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.reference", description = "Reference", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.reference") String filterReference,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.object.curie", description = "Ontology term name", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.disease") String diseaseTerm,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.dataProvider", description = "Source", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.dataProvider") String filterSource,

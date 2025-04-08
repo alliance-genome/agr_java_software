@@ -8,15 +8,11 @@ import java.util.Optional;
 
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.CacheService;
-import org.alliancegenome.cache.repository.helper.PaginationResult;
-import org.alliancegenome.cache.repository.helper.PhenotypeAnnotationFiltering;
 import org.alliancegenome.cache.repository.helper.PhenotypeAnnotationSorting;
 import org.alliancegenome.cache.repository.helper.SortingField;
-import org.alliancegenome.core.api.service.FilterService;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
-import org.apache.commons.collections.CollectionUtils;
 
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
@@ -24,8 +20,7 @@ import jakarta.inject.Inject;
 @RequestScoped
 public class PhenotypeCacheRepository {
 
-	@Inject
-	CacheService cacheService;
+	@Inject CacheService cacheService;
 
 	private List<PhenotypeAnnotation> getSortedAndPaginatedDiseaseAnnotations(Pagination pagination, List<PhenotypeAnnotation> fullDiseaseAnnotationList) {
 		// sorting

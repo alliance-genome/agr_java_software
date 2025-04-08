@@ -5,7 +5,14 @@ import static org.junit.Assert.assertEquals;
 import java.util.List;
 
 import org.alliancegenome.cache.CacheAlliance;
-import org.alliancegenome.cacher.cachers.*;
+import org.alliancegenome.cacher.cachers.DiseaseCacher;
+import org.alliancegenome.cacher.cachers.EcoCodeCacher;
+import org.alliancegenome.cacher.cachers.ExpressionCacher;
+import org.alliancegenome.cacher.cachers.GeneOrthologCacher;
+import org.alliancegenome.cacher.cachers.GeneParalogCacher;
+import org.alliancegenome.cacher.cachers.GenePhenotypeCacher;
+import org.alliancegenome.cacher.cachers.InteractionCacher;
+import org.alliancegenome.cacher.cachers.ModelCacher;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;

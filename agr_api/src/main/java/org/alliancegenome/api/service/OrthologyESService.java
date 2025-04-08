@@ -1,11 +1,11 @@
 package org.alliancegenome.api.service;
 
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 
 import org.alliancegenome.api.entity.GeneToGeneOrthologyDocument;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
