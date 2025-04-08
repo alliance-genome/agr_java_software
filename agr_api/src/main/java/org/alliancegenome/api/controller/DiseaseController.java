@@ -448,8 +448,8 @@ public class DiseaseController implements DiseaseRESTInterface {
 	}
 
 	@Override
-	public JsonResultResponse<GeneDiseaseAnnotationDocument> getDiseaseAnnotationsRibbonDetails(String focusTaxonId,
-																								List<String> geneIDs,
+	public JsonResultResponse<GeneDiseaseAnnotationDocument> getDiseaseAnnotationsRibbonDetails(
+																								String focusTaxonId,
 																								String termID,
 																								String filterOptions,
 																								String filterSpecies,
@@ -468,7 +468,8 @@ public class DiseaseController implements DiseaseRESTInterface {
 																								Integer limit,
 																								Integer page,
 																								String sortBy,
-																								String asc) {
+																								String asc,
+																								List<String> geneIDs) {
 
 		LocalDateTime startDate = LocalDateTime.now();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
@@ -521,7 +522,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 		LocalDateTime startDate = LocalDateTime.now();
 		Response.ResponseBuilder responseBuilder;
 		try {
-			JsonResultResponse<GeneDiseaseAnnotationDocument> response = getDiseaseAnnotationsRibbonDetails(focusTaxonId, geneIDs, termID, null, filterSpecies, filterGene, filterReference, diseaseTerm, filterSource, geneticEntity, geneticEntityType, associationType, diseaseQualifier, evidenceCode, basedOnGeneSymbol, includeNegation, debug, 150000, 1, sortBy, asc);
+			JsonResultResponse<GeneDiseaseAnnotationDocument> response = getDiseaseAnnotationsRibbonDetails(focusTaxonId, termID, null, filterSpecies, filterGene, filterReference, diseaseTerm, filterSource, geneticEntity, geneticEntityType, associationType, diseaseQualifier, evidenceCode, basedOnGeneSymbol, includeNegation, debug, 150000, 1, sortBy, asc, geneIDs);
 			response.setHttpServletRequest(null);
 			response.calculateRequestDuration(startDate);
 			// translate all records
