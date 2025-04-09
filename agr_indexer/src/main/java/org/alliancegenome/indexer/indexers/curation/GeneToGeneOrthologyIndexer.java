@@ -2,7 +2,6 @@ package org.alliancegenome.indexer.indexers.curation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -14,7 +13,7 @@ import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
-import org.alliancegenome.neo4j.repository.GeneRepository;
+import org.alliancegenome.indexer.indexers.curation.service.BaseService;
 import org.apache.commons.collections4.CollectionUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -35,9 +34,8 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 	
 	@Override
 	public void index() {
-		GeneRepository geneRepository = new GeneRepository();
-		allNeoGeneIDs = new HashSet<>(geneRepository.getAllGeneKeys());
-		geneRepository.close();
+		BaseService baseService = new BaseService();
+		allNeoGeneIDs = baseService.getAllNeoGeneIDs();
 
 		HashMap<String, Object> params = new HashMap<>();
 		params.put("internal", false);
@@ -97,10 +95,10 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 		return RestConfig.config.getJacksonObjectMapperFactory().createObjectMapper();
 	}
 
-	private List<GeneToGeneOrthologyDocument> filterValidResults(List<GeneToGeneOrthologyDocument> docs){
+	private List<GeneToGeneOrthologyDocument> filterValidResults(List<GeneToGeneOrthologyDocument> docs) {
 		List<GeneToGeneOrthologyDocument> result = new ArrayList<>();
 		for (GeneToGeneOrthologyDocument doc : docs) {
-			String curie = doc.getGeneToGeneOrthologyGenerated().getObjectGene().getIdentifier(); 
+			String curie = doc.getGeneToGeneOrthologyGenerated().getObjectGene().getIdentifier();
 			if (allNeoGeneIDs.contains(curie)) {
 				result.add(doc);
 			}
