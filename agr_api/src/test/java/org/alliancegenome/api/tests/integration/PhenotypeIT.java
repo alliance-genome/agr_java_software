@@ -20,6 +20,7 @@ import org.alliancegenome.core.api.service.DiseaseService;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.api.translators.tdf.PhenotypeAnnotationToTdfTranslator;
 import org.alliancegenome.curation_api.model.entities.PhenotypeAnnotation;
+import org.alliancegenome.curation_api.model.entities.base.CurieObject;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.EntitySummary;
@@ -155,10 +156,8 @@ public class PhenotypeIT {
 				.filter(phenotypeAnnotation -> phenotypeAnnotation.getPhenotypeStatement().equals("cartilage development disrupted, abnormal"))
 				.collect(Collectors.toList());
 		assertNotNull(pa);
-/*
-		String pmids = pa.get(0).getReferences().stream().map(Reference::getReferenceID).collect(Collectors.joining(","));
+		String pmids = pa.get(0).getReferences().stream().map(CurieObject::getCurie).collect(Collectors.joining(","));
 		assertEquals("Pmid list", "PMID:12397114,PMID:18950725,PMID:9007254", pmids);
-*/
 	}
 
 	@Test
