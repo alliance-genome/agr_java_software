@@ -21,7 +21,7 @@ public class BaseService {
 	private static HashSet<String> allNeoGeneIDs;
 	private static HashSet<String> allNeoModelIDs;
 
-	protected HashSet<String> getAllNeoAlleleIDs() {
+	public HashSet<String> getAllNeoAlleleIDs() {
 		if (allNeoAlleleIDs == null) {
 			String alleleIdsFileName = "allele_ids.gz";
 			List<String> alleleList = readFromCache(alleleIdsFileName, List.class);
@@ -38,7 +38,7 @@ public class BaseService {
 		return allNeoAlleleIDs;
 	}
 
-	protected HashSet<String> getAllNeoGeneIDs() {
+	public HashSet<String> getAllNeoGeneIDs() {
 
 		if (allNeoGeneIDs == null) {
 			String geneIdsFileName = "gene_ids.gz";
@@ -57,7 +57,7 @@ public class BaseService {
 		return allNeoGeneIDs;
 	}
 
-	protected HashSet<String> getAllNeoModelIDs() {
+	public HashSet<String> getAllNeoModelIDs() {
 		if (allNeoModelIDs == null) {
 			String modelIdsFileName = "model_ids.gz";
 			List<String> modelList = readFromCache(modelIdsFileName, List.class);
