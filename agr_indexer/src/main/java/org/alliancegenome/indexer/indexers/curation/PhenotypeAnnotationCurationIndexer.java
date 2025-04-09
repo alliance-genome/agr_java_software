@@ -126,7 +126,7 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 	private void populateBasePhenotypeAnnotationDocument(BiologicalEntity biologicalEntity, PhenotypeAnnotation da, PhenotypeAnnotationDocument dad) {
 		dad.addReference(da.getEvidenceItem());
 		if (da.getEvidenceItem() instanceof Reference) {
-			dad.addPubMedPubModID(getPubmedPubModID(((Reference) da.getEvidenceItem())));
+			dad.addPubMedPubModID(getPubmedPubModID((Reference) da.getEvidenceItem()));
 		} else if (da.getEvidenceItem() instanceof ExternalDatabaseReference externalReference) {
 			dad.addPubMedPubModID(externalReference.getCurie());
 		}

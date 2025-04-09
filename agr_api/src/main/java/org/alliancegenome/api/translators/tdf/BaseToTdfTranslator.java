@@ -7,12 +7,15 @@ import org.jetbrains.annotations.Nullable;
 
 public class BaseToTdfTranslator {
 
+	protected BaseToTdfTranslator() {
+	}
+
 	@Nullable
 	protected static String getReferenceString(InformationContentEntity evidenceItem) {
 		String ret = null;
-		if(evidenceItem instanceof Reference reference){
+		if (evidenceItem instanceof Reference reference) {
 			ret = reference.getReferenceID();
-		} else if (evidenceItem instanceof ExternalDatabaseReference externalReference){
+		} else if (evidenceItem instanceof ExternalDatabaseReference externalReference) {
 			ret = externalReference.getCurie();
 		}
 		return ret;
