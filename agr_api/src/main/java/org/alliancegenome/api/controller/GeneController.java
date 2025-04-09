@@ -37,7 +37,7 @@ import org.alliancegenome.core.exceptions.RestErrorMessage;
 import org.alliancegenome.core.translators.tdf.AlleleToTdfTranslator;
 import org.alliancegenome.core.translators.tdf.GeneGeneticInteractionToTdfTranslator;
 import org.alliancegenome.core.translators.tdf.GeneMolecularInteractionToTdfTranslator;
-import org.alliancegenome.core.translators.tdf.PhenotypeAnnotationToTdfTranslator;
+import org.alliancegenome.api.translators.tdf.PhenotypeAnnotationToTdfTranslator;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;

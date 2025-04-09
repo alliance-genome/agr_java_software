@@ -1,19 +1,18 @@
 package org.alliancegenome.indexer.indexers.curation.service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.TimeUnit;
-
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.model.entities.GenePhenotypeAnnotation;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.indexers.curation.interfaces.GenePhenotypeAnnotationInterface;
-
 import si.mazi.rescu.RestProxyFactory;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
 
 public class GenePhenotypeAnnotationService extends BaseDiseaseAnnotationService {
 
@@ -36,8 +35,9 @@ public class GenePhenotypeAnnotationService extends BaseDiseaseAnnotationService
 		HashMap<String, Object> params = new HashMap<>();
 		params.put("internal", false);
 		params.put("obsolete", false);
-		SearchResponse<GenePhenotypeAnnotation> response = geneApi.findForPublic(0, 0, params);
-		
+		//params.put("phenotypeAnnotationSubject.primaryExternalId", "HGNC:10848");
+		SearchResponse<GenePhenotypeAnnotation> response = geneApi.findForPublic(0, 0, "PhenotypeAnnotationView", params);
+
 		int totalPages = (int) (response.getTotalResults() / bufferSize);
 
 		display.startProcess("Pulling Gene PA's from curation", response.getTotalResults());
@@ -95,7 +95,7 @@ public class GenePhenotypeAnnotationService extends BaseDiseaseAnnotationService
 			HashMap<String, Object> params = new HashMap<>();
 			params.put("internal", false);
 			params.put("obsolete", false);
-			// params.put("phenotypeAnnotationSubject.primaryExternalId", "SGD:S000001240");
+			///params.put("phenotypeAnnotationSubject.primaryExternalId", "HGNC:10848");
 
 			while (true) {
 				if (queue.isEmpty()) {
@@ -105,7 +105,7 @@ public class GenePhenotypeAnnotationService extends BaseDiseaseAnnotationService
 				try {
 					int page = Integer.parseInt(queue.takeFirst());
 
-					SearchResponse<GenePhenotypeAnnotation> response = geneApi.findForPublic(page, bufferSize, params);
+					SearchResponse<GenePhenotypeAnnotation> response = geneApi.findForPublic(page, bufferSize, "PhenotypeAnnotationView", params);
 					for (GenePhenotypeAnnotation pa : response.getResults()) {
 						if (isValidNeoEntity(getAllNeoGeneIDs(), pa.getPhenotypeAnnotationSubject().getIdentifier())) {
 							fullList.offer(pa);

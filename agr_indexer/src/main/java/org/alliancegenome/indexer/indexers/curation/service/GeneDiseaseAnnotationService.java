@@ -157,7 +157,7 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 					Organization dataProvider = orgService.getOrganization("Alliance");
 					gda.setDataProvider(dataProvider);
 					gda.setWith(List.of(geneGeneOrthology.getSubjectGene()));
-					gda.setSingleReference(allianceReference);
+					gda.setEvidenceItem(allianceReference);
 					gda.setDiseaseAnnotationObject(focusDiseaseAnnotation.getDiseaseAnnotationObject());
 					gda.setEvidenceCodes(List.of(ecoTermIEA));
 					gda.setDiseaseQualifiers(focusDiseaseAnnotation.getDiseaseQualifiers());

@@ -1,17 +1,16 @@
-package org.alliancegenome.core.translators.tdf;
+package org.alliancegenome.api.translators.tdf;
+
+import org.alliancegenome.api.entity.PhenotypeAnnotationDocument;
+import org.alliancegenome.core.translators.tdf.DownloadHeader;
+import org.alliancegenome.core.translators.tdf.PhenotypeDownloadRow;
+import org.alliancegenome.curation_api.model.entities.*;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.alliancegenome.api.entity.PhenotypeAnnotationDocument;
-import org.alliancegenome.curation_api.model.entities.AGMPhenotypeAnnotation;
-import org.alliancegenome.curation_api.model.entities.AllelePhenotypeAnnotation;
-import org.alliancegenome.curation_api.model.entities.GenePhenotypeAnnotation;
-import org.alliancegenome.curation_api.model.entities.PhenotypeAnnotation;
-import org.apache.commons.collections.CollectionUtils;
-
-public class PhenotypeAnnotationToTdfTranslator {
+public class PhenotypeAnnotationToTdfTranslator extends BaseToTdfTranslator {
 
 	public String getAllRows(List<? extends PhenotypeAnnotationDocument> annotations) {
 		// convert collection of PhenotypeAnnotation records to PhenotypeDownloadRow records
@@ -61,8 +60,7 @@ public class PhenotypeAnnotationToTdfTranslator {
 	private PhenotypeDownloadRow getBaseDownloadRow(PhenotypeAnnotation annotation) {
 		PhenotypeDownloadRow row = new PhenotypeDownloadRow();
 		row.setPhenotype(annotation.getPhenotypeAnnotationObject());
-
-		row.setReference(annotation.getSingleReference().getReferenceID());
+		row.setReference(getReferenceString(annotation.getEvidenceItem()));
 		if (annotation.getDataProviderString() != null) {
 			row.setSource(annotation.getDataProviderString());
 		} else {

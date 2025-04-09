@@ -1,7 +1,6 @@
 package org.alliancegenome.api.tests.integration;
 
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -19,15 +18,14 @@ import org.alliancegenome.api.service.GeneService;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.api.service.DiseaseService;
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.core.translators.tdf.PhenotypeAnnotationToTdfTranslator;
+import org.alliancegenome.api.translators.tdf.PhenotypeAnnotationToTdfTranslator;
 import org.alliancegenome.curation_api.model.entities.PhenotypeAnnotation;
-import org.alliancegenome.curation_api.model.entities.Reference;
+import org.alliancegenome.curation_api.model.entities.base.CurieObject;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.EntitySummary;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.GeneticEntity;
-import org.alliancegenome.neo4j.entity.node.Publication;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.alliancegenome.neo4j.view.OrthologyModule;
 import org.junit.Before;
@@ -158,7 +156,7 @@ public class PhenotypeIT {
 				.filter(phenotypeAnnotation -> phenotypeAnnotation.getPhenotypeStatement().equals("cartilage development disrupted, abnormal"))
 				.collect(Collectors.toList());
 		assertNotNull(pa);
-		String pmids = pa.get(0).getReferences().stream().map(Reference::getReferenceID).collect(Collectors.joining(","));
+		String pmids = pa.get(0).getReferences().stream().map(CurieObject::getCurie).collect(Collectors.joining(","));
 		assertEquals("Pmid list", "PMID:12397114,PMID:18950725,PMID:9007254", pmids);
 	}
 

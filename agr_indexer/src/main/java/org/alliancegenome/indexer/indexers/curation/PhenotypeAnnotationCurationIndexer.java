@@ -1,27 +1,11 @@
 package org.alliancegenome.indexer.indexers.curation;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Optional;
-import java.util.concurrent.LinkedBlockingDeque;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.alliancegenome.api.entity.AllelePhenotypeAnnotationDocument;
 import org.alliancegenome.api.entity.GenePhenotypeAnnotationDocument;
 import org.alliancegenome.api.entity.PhenotypeAnnotationDocument;
-import org.alliancegenome.curation_api.model.entities.AGMPhenotypeAnnotation;
-import org.alliancegenome.curation_api.model.entities.AffectedGenomicModel;
-import org.alliancegenome.curation_api.model.entities.Allele;
-import org.alliancegenome.curation_api.model.entities.AllelePhenotypeAnnotation;
-import org.alliancegenome.curation_api.model.entities.BiologicalEntity;
-import org.alliancegenome.curation_api.model.entities.CrossReference;
-import org.alliancegenome.curation_api.model.entities.Gene;
-import org.alliancegenome.curation_api.model.entities.GenePhenotypeAnnotation;
-import org.alliancegenome.curation_api.model.entities.PhenotypeAnnotation;
-import org.alliancegenome.curation_api.model.entities.Reference;
-import org.alliancegenome.curation_api.model.entities.VocabularyTerm;
+import org.alliancegenome.curation_api.model.entities.*;
 import org.alliancegenome.curation_api.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.config.IndexerConfig;
@@ -33,9 +17,9 @@ import org.alliancegenome.indexer.indexers.curation.service.VocabularyTermServic
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import lombok.extern.slf4j.Slf4j;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.LinkedBlockingDeque;
 
 
 @Slf4j
@@ -45,7 +29,7 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 	private AllelePhenotypeAnnotationService alleleService;
 	private AGMPhenotypeAnnotationService agmService;
 	private VocabularyTermService vocabTermService;
-	
+
 	private Map<String, Pair<Gene, ArrayList<PhenotypeAnnotation>>> geneMap = new HashMap<>();
 	private Map<String, Pair<Allele, ArrayList<PhenotypeAnnotation>>> alleleMap = new HashMap<>();
 	private Map<String, Pair<AffectedGenomicModel, ArrayList<PhenotypeAnnotation>>> agmMap = new HashMap<>();
@@ -71,7 +55,7 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 		alleleService = new AllelePhenotypeAnnotationService();
 		agmService = new AGMPhenotypeAnnotationService();
 		vocabTermService = new VocabularyTermService();
-		
+
 		indexGenes();
 		indexAlleles();
 		indexAGMs();
@@ -140,8 +124,12 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 	}
 
 	private void populateBasePhenotypeAnnotationDocument(BiologicalEntity biologicalEntity, PhenotypeAnnotation da, PhenotypeAnnotationDocument dad) {
-		dad.addReference(da.getSingleReference());
-		dad.addPubMedPubModID(getPubmedPubModID(da.getSingleReference()));
+		dad.addReference(da.getEvidenceItem());
+		if (da.getEvidenceItem() instanceof Reference) {
+			dad.addPubMedPubModID(getPubmedPubModID((Reference) da.getEvidenceItem()));
+		} else if (da.getEvidenceItem() instanceof ExternalDatabaseReference externalReference) {
+			dad.addPubMedPubModID(externalReference.getCurie());
+		}
 		dad.addPrimaryAnnotation(da);
 	}
 

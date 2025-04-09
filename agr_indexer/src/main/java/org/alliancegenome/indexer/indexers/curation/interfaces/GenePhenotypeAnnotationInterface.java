@@ -26,5 +26,6 @@ public interface GenePhenotypeAnnotationInterface {
 	SearchResponse<GenePhenotypeAnnotation> findForPublic(
 		@DefaultValue("0") @QueryParam("page") Integer page,
 		@DefaultValue("10") @QueryParam("limit") Integer limit,
+		@QueryParam("view") String view,
 		HashMap<String, Object> params);
 }

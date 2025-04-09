@@ -182,10 +182,10 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 							Set<Gene> basedOnGenes = diseaseAnnotations1.stream().map(DiseaseAnnotation::getWith).flatMap(Collection::stream).collect(Collectors.toSet());
 							List<String> ids = basedOnGenes.stream().map(SubmittedObject::getIdentifier).toList();
 							gdad.setBasedOnGenes(new ArrayList<>(basedOnGenes));
-
-							gdad.addReference(diseaseAnnotation.getSingleReference());
-							gdad.addPubMedPubModID(getPubmedPubModID(diseaseAnnotation.getSingleReference()));
-							gdad.addPubModID(getPubModID(diseaseAnnotation.getSingleReference()));
+							Reference evidenceItem = (Reference) diseaseAnnotation.getEvidenceItem();
+							gdad.addReference(evidenceItem);
+							gdad.addPubMedPubModID(getPubmedPubModID(evidenceItem));
+							gdad.addPubModID(getPubModID(evidenceItem));
 
 							HashMap<String, Integer> order = SpeciesType.getSpeciesOrderByTaxonID(gene.getTaxon().getCurie());
 							gdad.setSpeciesOrder(order);
@@ -267,7 +267,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		target.setRelation(source.getRelation());
 		target.setDiseaseAnnotationObject(source.getDiseaseAnnotationObject());
 		target.setDiseaseQualifiers(source.getDiseaseQualifiers());
-		target.setSingleReference(source.getSingleReference());
+		target.setEvidenceItem(source.getEvidenceItem());
 		target.setEvidenceCodes(source.getEvidenceCodes());
 	}
 
@@ -388,9 +388,10 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 	private void populateBaseDiseaseAnnotationDocument(BiologicalEntity biologicalEntity, DiseaseAnnotation da, DiseaseAnnotationDocument dad) {
 		dad.setParentSlimIDs(closureMap.get(da.getDiseaseAnnotationObject().getCurie()));
 		// gdad.setDataProvider(da.getDataProvider());
-		dad.addReference(da.getSingleReference());
-		dad.addPubMedPubModID(getPubmedPubModID(da.getSingleReference()));
-		dad.addPubModID(getPubModID(da.getSingleReference()));
+		Reference evidenceItem = (Reference) da.getEvidenceItem();
+		dad.addReference(evidenceItem);
+		dad.addPubMedPubModID(getPubmedPubModID(evidenceItem));
+		dad.addPubModID(getPubModID(evidenceItem));
 		dad.addPrimaryAnnotation(da);
 		dad.setPhylogeneticSortingIndex(getPhylogeneticSortOrder(biologicalEntity.getTaxon().getCurie()));
 		dad.addEvidenceCodes(da.getEvidenceCodes());
