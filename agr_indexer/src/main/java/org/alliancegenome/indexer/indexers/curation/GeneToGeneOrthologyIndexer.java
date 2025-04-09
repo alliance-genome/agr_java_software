@@ -1,6 +1,10 @@
 package org.alliancegenome.indexer.indexers.curation;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import org.alliancegenome.core.config.ConfigHelper;
@@ -10,6 +14,7 @@ import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
+import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.apache.commons.collections4.CollectionUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,12 +27,18 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 
 	private final GeneToGeneOrthologyDocumentInterface orthologyApi = RestProxyFactory.createProxy(GeneToGeneOrthologyDocumentInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 
+	private Set<String> allNeoGeneIDs;
+
 	public GeneToGeneOrthologyIndexer(IndexerConfig config) {
 		super(config);
 	}
 	
 	@Override
 	public void index() {
+		GeneRepository geneRepository = new GeneRepository();
+		allNeoGeneIDs = new HashSet<>(geneRepository.getAllGeneKeys());
+		geneRepository.close();
+
 		HashMap<String, Object> params = new HashMap<>();
 		params.put("internal", false);
 		params.put("obsolete", false);
@@ -53,10 +64,6 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 		HashMap<String, Object> params = new HashMap<>();
 		params.put("internal", false);
 		params.put("obsolete", false);
-		// params.put("primaryExternalId", "Xenbase:XB-GENE-17345583"); //
-		// params.put("primaryExternalId", "RGD:621017");
-		// params.put("primaryExternalId", "WB:WBGene00003883"); // alleles
-		// params.put("primaryExternalId", "ZFIN:ZDB-GENE-110114-3");
 
 		while (true) {
 			try {
@@ -70,11 +77,13 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 
 				SearchResponse<GeneToGeneOrthologyDocument> response = orthologyApi.findDocument(Integer.valueOf(page), indexerConfig.getBufferSize(), params);
 				// log.info("Search Response: " + response);
-				if (response == null || CollectionUtils.isEmpty(response.getResults())) {
+				List<GeneToGeneOrthologyDocument> results = response.getResults();
+				if (response == null || CollectionUtils.isEmpty(results)) {
 					return;
 				}
 
-				indexDocuments(response.getResults());
+				List<GeneToGeneOrthologyDocument> filteredResults = filterValidResults(response.getResults());
+				indexDocuments(filteredResults);
 			} catch (Exception e) {
 				log.error("Error while indexing...", e);
 				System.exit(-1);
@@ -86,5 +95,16 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 	@Override
 	protected ObjectMapper customizeObjectMapper(ObjectMapper objectMapper) {
 		return RestConfig.config.getJacksonObjectMapperFactory().createObjectMapper();
+	}
+
+	private List<GeneToGeneOrthologyDocument> filterValidResults(List<GeneToGeneOrthologyDocument> docs){
+		List<GeneToGeneOrthologyDocument> result = new ArrayList<>();
+		for (GeneToGeneOrthologyDocument doc : docs) {
+			String curie = doc.getGeneToGeneOrthologyGenerated().getObjectGene().getIdentifier(); 
+			if (allNeoGeneIDs.contains(curie)) {
+				result.add(doc);
+			}
+		}
+		return result;
 	}
 }
