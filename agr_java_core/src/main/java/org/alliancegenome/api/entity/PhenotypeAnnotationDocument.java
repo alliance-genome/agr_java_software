@@ -7,11 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.alliancegenome.curation_api.model.document.es.ESDocument;
-import org.alliancegenome.curation_api.model.entities.BiologicalEntity;
-import org.alliancegenome.curation_api.model.entities.ConditionRelation;
-import org.alliancegenome.curation_api.model.entities.PhenotypeAnnotation;
-import org.alliancegenome.curation_api.model.entities.Reference;
-import org.alliancegenome.curation_api.model.entities.VocabularyTerm;
+import org.alliancegenome.curation_api.model.entities.*;
 import org.alliancegenome.curation_api.model.entities.ontology.ECOTerm;
 
 import lombok.Data;
@@ -26,7 +22,7 @@ public class PhenotypeAnnotationDocument extends ESDocument {
 	private String phenotypeStatement;
 	private List<ECOTerm> evidenceCodes;
 	private Reference singleReference;
-	private Set<Reference> references;
+	private Set<InformationContentEntity> references;
 
 	private String generatedRelationString;
 	private Set<String> diseaseQualifiers;
@@ -46,7 +42,7 @@ public class PhenotypeAnnotationDocument extends ESDocument {
 		primaryAnnotations = new ArrayList<>();
 	}
 
-	public void addReference(Reference singleReference) {
+	public void addReference(InformationContentEntity singleReference) {
 		if (references == null) {
 			references = new HashSet<>();
 		}

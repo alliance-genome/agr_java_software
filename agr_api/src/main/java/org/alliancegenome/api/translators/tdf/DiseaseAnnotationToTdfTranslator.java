@@ -1,15 +1,5 @@
 package org.alliancegenome.api.translators.tdf;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.StringJoiner;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
 import org.alliancegenome.api.entity.AGMDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.DiseaseAnnotationDocument;
@@ -17,23 +7,20 @@ import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.core.helpers.DiseaseAnnotationHelper;
 import org.alliancegenome.core.translators.tdf.DiseaseDownloadRow;
 import org.alliancegenome.core.translators.tdf.DownloadHeader;
-import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.BiologicalEntity;
-import org.alliancegenome.curation_api.model.entities.ConditionRelation;
-import org.alliancegenome.curation_api.model.entities.GeneDiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.Organization;
+import org.alliancegenome.curation_api.model.entities.*;
 import org.alliancegenome.curation_api.model.entities.base.SubmittedObject;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.CrossReference;
-import org.alliancegenome.neo4j.entity.node.ECOTerm;
 import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.GeneticEntity;
-import org.alliancegenome.neo4j.entity.node.PublicationJoin;
+import org.alliancegenome.neo4j.entity.node.*;
 import org.apache.commons.collections.CollectionUtils;
 
-public class DiseaseAnnotationToTdfTranslator {
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+public class DiseaseAnnotationToTdfTranslator extends BaseToTdfTranslator {
 
 	public String getAllRowsForGeneDiseaseAnnotations(List<GeneDiseaseAnnotationDocument> diseaseAnnotations) {
 
@@ -272,7 +259,7 @@ public class DiseaseAnnotationToTdfTranslator {
 		if (annotation.getConditionModifierAggregated() != null) {
 			row.setConditionModifier(annotation.getConditionModifierAggregated());
 		}
-		row.setReference(primaryAnnotation.getSingleReference().getReferenceID());
+		row.setReference(getReferenceString(primaryAnnotation.getEvidenceItem()));
 		row.setSource(primaryAnnotation.getDataProviderString());
 		List<String> urlExceptionHandler = List.of("MGI", "SGD", "OMIM");
 		Organization organization = primaryAnnotation.getDataProvider();
