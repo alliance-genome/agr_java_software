@@ -3,7 +3,7 @@ package org.alliancegenome.indexer.indexers.curation.interfaces;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
-import org.alliancegenome.curation_api.model.entities.GenePhenotypeAnnotation;
+import org.alliancegenome.curation_api.model.document.es.AffectedGenomicModelDocument;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.curation_api.view.View;
 
@@ -15,8 +15,8 @@ import java.util.HashMap;
 public interface GeneModelInterface {
 	@POST
 	@Path("/gene-documents")
-	@JsonView({ View.ForPublic.class })
-	SearchResponse<ModelDocument> findForPublic(
+	@JsonView({View.ForPublic.class})
+	SearchResponse<AffectedGenomicModelDocument> findForPublic(
 		@DefaultValue("0") @QueryParam("page") Integer page,
 		@DefaultValue("10") @QueryParam("limit") Integer limit,
 		HashMap<String, Object> params);
