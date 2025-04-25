@@ -20,56 +20,60 @@ import si.mazi.rescu.RestProxyFactory;
 @Slf4j
 public class GOSearchResultCurationIndexer extends Indexer {
 
-    private final GODocumentInterface goApi = RestProxyFactory.createProxy(GODocumentInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
+	private final GODocumentInterface goApi = RestProxyFactory.createProxy(GODocumentInterface.class,
+			ConfigHelper.getCurationApiUrl(), RestConfig.config);
 
-    private HashMap<String, Object> params = new HashMap<String, Object>() {{
-        put("internal", false);
-        put("obsolete", false);
-    }};
+	private HashMap<String, Object> params = new HashMap<String, Object>() {
+		{
+			put("internal", false);
+			put("obsolete", false);
+		}
+	};
 
-    public GOSearchResultCurationIndexer(IndexerConfig indexerConfig) {
-        super(indexerConfig);
-    }
+	public GOSearchResultCurationIndexer(IndexerConfig indexerConfig) {
+		super(indexerConfig);
+	}
 
-    @Override 
-    protected void index() {
-        try {
-            SearchResponse<GOSearchResultDocument> response = goApi.findSearchResult(0, 0, params);
-            int totalPages = (int) (response.getTotalResults() / indexerConfig.getBufferSize());
-            LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
-            for (int i = 0; i <= totalPages; i++) {
-                queue.add(String.valueOf(i));
-            }
-            initiateThreading(queue);
-        } catch (Exception e) {
+	@Override
+	protected void index() {
+		try {
+			SearchResponse<GOSearchResultDocument> response = goApi.findSearchResult(0, 0, params);
+			int totalPages = (int) (response.getTotalResults() / indexerConfig.getBufferSize());
+			LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
+			for (int i = 0; i <= totalPages; i++) {
+				queue.add(String.valueOf(i));
+			}
+			initiateThreading(queue);
+		} catch (Exception e) {
 			e.printStackTrace();
-        }
-    }
+		}
+	}
 
-    @Override
-    protected void startSingleThread(LinkedBlockingDeque<String> queue) {
-        while (true) {
-            try {
-                if (queue.isEmpty()) {
-                    return;
-                }
-                String page = queue.takeFirst();
-                SearchResponse<GOSearchResultDocument> response = goApi.findSearchResult(Integer.valueOf(page), indexerConfig.getBufferSize(), params);
-                if (response == null || CollectionUtils.isEmpty(response.getResults())) {
-                    return;
-                }
-                
-                indexDocuments(response.getResults());
-            } catch (Exception e) {
-                log.error("Error while indexing...", e);
-                System.exit(-1);
-                return;
-            }
-        }
-    }
+	@Override
+	protected void startSingleThread(LinkedBlockingDeque<String> queue) {
+		while (true) {
+			try {
+				if (queue.isEmpty()) {
+					return;
+				}
+				String page = queue.takeFirst();
+				SearchResponse<GOSearchResultDocument> response = goApi.findSearchResult(Integer.valueOf(page),
+						indexerConfig.getBufferSize(), params);
+				if (response == null || CollectionUtils.isEmpty(response.getResults())) {
+					return;
+				}
 
-    @Override
-    protected ObjectMapper customizeObjectMapper(ObjectMapper objectMapper) {
-        return RestConfig.config.getJacksonObjectMapperFactory().createObjectMapper();
-    }
+				indexDocuments(response.getResults());
+			} catch (Exception e) {
+				log.error("Error while indexing...", e);
+				System.exit(-1);
+				return;
+			}
+		}
+	}
+
+	@Override
+	protected ObjectMapper customizeObjectMapper(ObjectMapper objectMapper) {
+		return RestConfig.config.getJacksonObjectMapperFactory().createObjectMapper();
+	}
 }
