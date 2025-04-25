@@ -12,6 +12,7 @@ import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
+import org.apache.commons.collections.CollectionUtils;
 
 import lombok.extern.slf4j.Slf4j;
 import si.mazi.rescu.RestProxyFactory;
@@ -30,22 +31,41 @@ public class GOSearchResultCurationIndexer extends Indexer {
         super(indexerConfig);
     }
 
-    @Override
+    @Override 
     protected void index() {
         try {
-            Thread.sleep(3000); // Give ES a moment to initialize
-            SearchResponse<GOSearchResultDocument> response = goApi.findSearchResult(0, 1000, params);
-            log.info("Indexing {} GO terms", response.getResults().size());
-            indexDocuments(response.getResults());
+            SearchResponse<GOSearchResultDocument> response = goApi.findSearchResult(0, 0, params);
+            int totalPages = (int) (response.getTotalResults() / indexerConfig.getBufferSize());
+            LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
+            for (int i = 0; i <= totalPages; i++) {
+                queue.add(String.valueOf(i));
+            }
+            initiateThreading(queue);
         } catch (Exception e) {
-            log.error("Error while indexing GO terms", e);
-            throw new RuntimeException(e);
+			e.printStackTrace();
         }
     }
 
     @Override
     protected void startSingleThread(LinkedBlockingDeque<String> queue) {
-        // Not needed for basic indexing
+        while (true) {
+            try {
+                if (queue.isEmpty()) {
+                    return;
+                }
+                String page = queue.takeFirst();
+                SearchResponse<GOSearchResultDocument> response = goApi.findSearchResult(Integer.valueOf(page), indexerConfig.getBufferSize(), params);
+                if (response == null || CollectionUtils.isEmpty(response.getResults())) {
+                    return;
+                }
+                
+                indexDocuments(response.getResults());
+            } catch (Exception e) {
+                log.error("Error while indexing...", e);
+                System.exit(-1);
+                return;
+            }
+        }
     }
 
     @Override
