@@ -8,6 +8,7 @@ import org.alliancegenome.indexer.indexers.GoIndexer;
 import org.alliancegenome.indexer.indexers.ModelIndexer;
 import org.alliancegenome.indexer.indexers.curation.DiseaseAnnotationCurationIndexer;
 import org.alliancegenome.indexer.indexers.curation.DiseaseSummaryCurationIndexer;
+import org.alliancegenome.indexer.indexers.curation.GOSearchResultCurationIndexer;
 import org.alliancegenome.indexer.indexers.curation.GeneGeneticInteractionCurationIndexer;
 import org.alliancegenome.indexer.indexers.curation.GeneMolecularInteractionCurationIndexer;
 import org.alliancegenome.indexer.indexers.curation.GeneToGeneOrthologyIndexer;
@@ -34,6 +35,7 @@ public enum IndexerConfig {
 	ReleaseInfoIndexer("release", ReleaseInfoIndexer.class, 1, 1, 1, 1, 1),
 	DiseaseSummaryIndexer("diseaseSummary", DiseaseSummaryCurationIndexer.class, 4, 1500, 1500, 4, 1),
 	GeneToGeneOrthologyIndexer("geneToGeneOrthology", GeneToGeneOrthologyIndexer.class, 4, 1500, 1500, 8, 1),
+	GOSearchResultCurationIndexer("goSearchResult", GOSearchResultCurationIndexer.class, 4, 1500, 1500, 8, 1),
 	//GeneExpressionAnnotationIndexer("geneExpressionAnnotation", GeneExpressionAnnotationIndexer.class, 4, 1500, 1500, 2, 1),
 	//GeneSearchResultCurationIndexer("geneSearchResult", GeneSearchResultCurationIndexer.class, 4, 250, 1000, 4, 1),
 	
