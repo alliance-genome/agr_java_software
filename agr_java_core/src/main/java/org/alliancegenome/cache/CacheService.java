@@ -19,14 +19,16 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 
-import io.quarkus.logging.Log;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RequestScoped
 public class CacheService {
 
-	@Inject RemoteCacheManager manager;
+	@Inject
+	RemoteCacheManager manager;
 
 	public static ObjectMapper mapper = new ObjectMapper();
 
@@ -72,7 +74,7 @@ public class CacheService {
 		try {
 			list = new ArrayList<>(mapper.readValue(json, javaType));
 		} catch (IOException e) {
-			Log.error("Error during deserialization ", e);
+			log.error("Error during deserialization ", e);
 			throw new RuntimeException(e);
 		}
 
@@ -88,7 +90,7 @@ public class CacheService {
 		try {
 			return mapper.readerWithView(View.Cacher.class).forType(CacheStatus.class).readValue(json);
 		} catch (IOException e) {
-			Log.error("Error during deserialization ", e);
+			log.error("Error during deserialization ", e);
 			throw new RuntimeException(e);
 		}
 	}
@@ -103,7 +105,7 @@ public class CacheService {
 		try {
 			return mapper.readValue(json, clazz);
 		} catch (IOException e) {
-			Log.error("Error during deserialization ", e);
+			log.error("Error during deserialization ", e);
 			throw new RuntimeException(e);
 		}
 	}
@@ -119,7 +121,7 @@ public class CacheService {
 			value = mapper.writerWithView(classView).writeValueAsString(items);
 			cache.put(primaryKey, value);
 		} catch (JsonProcessingException e) {
-			Log.error("error while saving entry into cache", e);
+			log.error("error while saving entry into cache", e);
 			throw new RuntimeException(e);
 		}
 	}
@@ -131,14 +133,14 @@ public class CacheService {
 			value = mapper.writerWithView(classView).writeValueAsString(object);
 			cache.put(primaryKey, value);
 		} catch (JsonProcessingException e) {
-			Log.error("error while saving entry into cache", e);
+			log.error("error while saving entry into cache", e);
 			throw new RuntimeException(e);
 		} catch (Exception e) {
-			Log.info(primaryKey);
-			Log.info(value.length() + "");
-			Log.info(classView + "");
-			Log.info(cacheAlliance + "");
-			Log.error(e + "");
+			log.info(primaryKey);
+			log.info(value.length() + "");
+			log.info(classView + "");
+			log.info(cacheAlliance + "");
+			log.error(e + "");
 			throw new RuntimeException(e);
 		}
 	}
