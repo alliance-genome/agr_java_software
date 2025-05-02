@@ -44,8 +44,8 @@ public class BaseDiseaseAnnotationService extends BaseService {
 			if (agmda.getInferredAllele() != null) {
 				entitiesToBeValidated.add(agmda.getInferredAllele());
 			}
-			if (agmda.getAssertedAllele() != null) {
-				entitiesToBeValidated.add(agmda.getAssertedAllele());
+			if (agmda.getAssertedAlleles() != null) {
+				entitiesToBeValidated.addAll(agmda.getAssertedAlleles());
 			}
 		}
 		if (CollectionUtils.isNotEmpty(da.getWith())) {
@@ -76,11 +76,7 @@ public class BaseDiseaseAnnotationService extends BaseService {
 			return false;
 		}
 		Allele inferredAllele = da.getInferredAllele();
-		List<Allele> assertedAlleles = null;
-		if (da.getAssertedAllele() != null) {
-			assertedAlleles = List.of(da.getAssertedAllele());
-		}
-		if (!hasValidInferredAssertedEntities(allAllelIDs, inferredAllele, assertedAlleles)) {
+		if (!hasValidInferredAssertedEntities(allAllelIDs, inferredAllele, da.getAssertedAlleles())) {
 			return false;
 		}
 		return hasValidGeneticModifiers(da, allGeneIDs, allAllelIDs, allModelIDs);

@@ -1,5 +1,15 @@
 package org.alliancegenome.api.translators.tdf;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.StringJoiner;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 import org.alliancegenome.api.entity.AGMDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.DiseaseAnnotationDocument;
@@ -7,18 +17,21 @@ import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.core.helpers.DiseaseAnnotationHelper;
 import org.alliancegenome.core.translators.tdf.DiseaseDownloadRow;
 import org.alliancegenome.core.translators.tdf.DownloadHeader;
-import org.alliancegenome.curation_api.model.entities.*;
+import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.BiologicalEntity;
+import org.alliancegenome.curation_api.model.entities.ConditionRelation;
+import org.alliancegenome.curation_api.model.entities.GeneDiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.Organization;
 import org.alliancegenome.curation_api.model.entities.base.SubmittedObject;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.CrossReference;
+import org.alliancegenome.neo4j.entity.node.ECOTerm;
 import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.neo4j.entity.node.GeneticEntity;
+import org.alliancegenome.neo4j.entity.node.PublicationJoin;
 import org.apache.commons.collections.CollectionUtils;
-
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class DiseaseAnnotationToTdfTranslator extends BaseToTdfTranslator {
 
@@ -192,7 +205,7 @@ public class DiseaseAnnotationToTdfTranslator extends BaseToTdfTranslator {
 			subjectTaxonCurie = subject.getTaxon().getCurie();
 			subjectTaxonName = subject.getTaxon().getName();
 			subjectID = subject.getIdentifier();
-			subjectSymbol = subject.getName();
+			subjectSymbol = subject.getAgmFullName().getDisplayText();
 			row.setEntityType(subject.getSubtype().getName());
 		} else {
 			subjectID = null;
@@ -204,7 +217,7 @@ public class DiseaseAnnotationToTdfTranslator extends BaseToTdfTranslator {
 		// needs better generics or have subject attribute on the parent class (DiseaseAnnotation)
 		if (primaryAnnotation instanceof AGMDiseaseAnnotation pAnnotation) {
 			row.setGeneticEntityID(pAnnotation.getDiseaseAnnotationSubject().getIdentifier());
-			row.setGeneticEntityName(pAnnotation.getDiseaseAnnotationSubject().getName());
+			row.setGeneticEntityName(pAnnotation.getDiseaseAnnotationSubject().getAgmFullName().getFormatText());
 			row.setGeneticEntityType(pAnnotation.getDiseaseAnnotationSubject().getSubtype().getName());
 			List<org.alliancegenome.curation_api.model.entities.Gene> assertedGenes = pAnnotation.getAssertedGenes();
 			if (CollectionUtils.isNotEmpty(assertedGenes)) {
@@ -225,7 +238,7 @@ public class DiseaseAnnotationToTdfTranslator extends BaseToTdfTranslator {
 				row.setGeneticEntityName(pAnnotation.getDiseaseAnnotationSubject().getGeneSymbol().getDisplayText());
 				if (pAnnotation.getSgdStrainBackground() != null) {
 					row.setStrainBackgroundID(pAnnotation.getSgdStrainBackground().getIdentifier());
-					row.setStrainBackgroundName(pAnnotation.getSgdStrainBackground().getName());
+					row.setStrainBackgroundName(pAnnotation.getSgdStrainBackground().getAgmFullName().getDisplayText());
 				}
 				row.setGeneticEntityType("gene");
 			}

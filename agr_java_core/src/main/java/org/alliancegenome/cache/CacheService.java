@@ -116,11 +116,13 @@ public class CacheService {
 
 	public void putCacheEntry(String primaryKey, List<?> items, Class<?> classView, CacheAlliance cacheAlliance) {
 		RemoteCache<String, String> cache = getCacheSpace(cacheAlliance);
-		String value;
+		String value = null;
 		try {
 			value = mapper.writerWithView(classView).writeValueAsString(items);
 			cache.put(primaryKey, value);
-		} catch (JsonProcessingException e) {
+		} catch (Exception e) {
+			log.error("Error while trying to cache: " + primaryKey);
+			log.error("Data: " + value);
 			log.error("error while saving entry into cache", e);
 			throw new RuntimeException(e);
 		}

@@ -45,7 +45,7 @@ public enum CacheAlliance {
 
 	CACHING_STATS(CacheStatus.class, (638702 * 100) + 2302255), // min: 124 max: 2302255 mean: 638702
 	ECO_MAP(ECOTerm.class, 17 * 100000), // min: 3 max: 250 mean: 17
-	CLOSURE_MAP(String.class, 127 * 10000), // min: 12 max: 388 mean: 127
+	//CLOSURE_MAP(String.class, 127 * 10000), // min: 12 max: 388 mean: 127
 
 	SPECIES_ORTHOLOGY(HomologView.class, 1_000_000_000),
 	SPECIES_SPECIES_ORTHOLOGY(HomologView.class, 1_000_000_000),

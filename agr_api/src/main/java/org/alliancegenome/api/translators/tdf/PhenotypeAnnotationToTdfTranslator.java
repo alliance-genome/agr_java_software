@@ -1,14 +1,17 @@
 package org.alliancegenome.api.translators.tdf;
 
-import org.alliancegenome.api.entity.PhenotypeAnnotationDocument;
-import org.alliancegenome.core.translators.tdf.DownloadHeader;
-import org.alliancegenome.core.translators.tdf.PhenotypeDownloadRow;
-import org.alliancegenome.curation_api.model.entities.*;
-import org.apache.commons.collections.CollectionUtils;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.alliancegenome.api.entity.PhenotypeAnnotationDocument;
+import org.alliancegenome.core.translators.tdf.DownloadHeader;
+import org.alliancegenome.core.translators.tdf.PhenotypeDownloadRow;
+import org.alliancegenome.curation_api.model.entities.AGMPhenotypeAnnotation;
+import org.alliancegenome.curation_api.model.entities.AllelePhenotypeAnnotation;
+import org.alliancegenome.curation_api.model.entities.GenePhenotypeAnnotation;
+import org.alliancegenome.curation_api.model.entities.PhenotypeAnnotation;
+import org.apache.commons.collections.CollectionUtils;
 
 public class PhenotypeAnnotationToTdfTranslator extends BaseToTdfTranslator {
 
@@ -41,7 +44,7 @@ public class PhenotypeAnnotationToTdfTranslator extends BaseToTdfTranslator {
 		row.setPhenotype(annotation.getPhenotypeAnnotationObject());
 		if (annotation instanceof AGMPhenotypeAnnotation annot) {
 			row.setGeneticEntityID(annot.getPhenotypeAnnotationSubject().getPrimaryExternalId());
-			row.setGeneticEntityName(annot.getPhenotypeAnnotationSubject().getName());
+			row.setGeneticEntityName(annot.getPhenotypeAnnotationSubject().getAgmFullName().getDisplayText());
 			row.setGeneticEntityType(annot.getPhenotypeAnnotationSubject().getSubtype().getName());
 		}
 		if (annotation instanceof AllelePhenotypeAnnotation annot) {

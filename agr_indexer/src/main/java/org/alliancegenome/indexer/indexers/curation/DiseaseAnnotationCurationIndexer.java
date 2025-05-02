@@ -578,8 +578,10 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 
 			Allele inferredAllele = da.getInferredAllele();
 			extractAlleleDiseaseAnnotations(da, inferredAllele);
-			if (da.getAssertedAllele() != null) {
-				extractAlleleDiseaseAnnotations(da, da.getAssertedAllele());
+			if (da.getAssertedAlleles() != null) {
+				for(Allele allele: da.getAssertedAlleles()) {
+					extractAlleleDiseaseAnnotations(da, allele);
+				}
 			}
 		}
 	}

@@ -2,6 +2,10 @@ package org.alliancegenome.cacher.cachers;
 
 import static java.util.stream.Collectors.groupingBy;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,16 +39,27 @@ public class InteractionCacher extends Cacher {
 	@Override
 	protected void cache() {
 
-		LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>(interactionRepository.getAllInteractionJoinKeys());
-
+		//LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>(interactionRepository.getAllInteractionJoinKeys());
+		LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
+		
+		Path path = Paths.get("/Users/olinblodgett/Desktop/id_list");
+		try {
+			List<String> lines = Files.readAllLines(path);
+			queue.addAll(lines);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		startProcess("interactionRepository.getAllInteractions", queue.size());
 
 		ConcurrentLinkedQueue<InteractionGeneJoin> allInteractionAnnotations = new ConcurrentLinkedQueue<InteractionGeneJoin>();
+		
 
 		try {
-
-			ExecutorService executor = Executors.newFixedThreadPool(10);
-			for (int i = 0; i < 10; i++) {
+			int threadCount = 10;
+			ExecutorService executor = Executors.newFixedThreadPool(threadCount);
+			for (int i = 0; i < threadCount; i++) {
 				InteractionGatherer gatherer = new InteractionGatherer(queue, allInteractionAnnotations);
 				executor.execute(gatherer);
 			}
