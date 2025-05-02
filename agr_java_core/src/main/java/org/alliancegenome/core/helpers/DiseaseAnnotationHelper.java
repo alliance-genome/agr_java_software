@@ -18,7 +18,7 @@ public class DiseaseAnnotationHelper {
 			return allele.getAlleleSymbol().getFormatText();
 		}
 		if (entity instanceof org.alliancegenome.curation_api.model.entities.AffectedGenomicModel model) {
-			return model.getAgmFullName().getFormatText();
+			return model.getName();
 		}
 		return null;
 	}

@@ -38,6 +38,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
 
+
 @Slf4j
 public class PhenotypeAnnotationCurationIndexer extends Indexer {
 
@@ -129,7 +130,7 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 		if (CollectionUtils.isEmpty(crossReferences)) {
 			return null;
 		}
-		String[] prefixes = { "PMID", "MGI", "RGD", "ZFIN", "FB", "WB", "MGI" };
+		String[] prefixes = {"PMID", "MGI", "RGD", "ZFIN", "FB", "WB", "MGI"};
 		for (String prefix : prefixes) {
 			Optional<CrossReference> opt = crossReferences.stream().filter(reference -> reference.getReferencedCurie().startsWith(prefix + ":")).findFirst();
 			if (opt.isPresent()) {
@@ -216,10 +217,8 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 			}
 			Allele inferredAllele = da.getInferredAllele();
 			extractAlleleDiseaseAnnotations(da, inferredAllele);
-			if (da.getAssertedAlleles() != null) {
-				for (Allele allele : da.getAssertedAlleles()) {
-					extractAlleleDiseaseAnnotations(da, allele);
-				}
+			if (da.getAssertedAllele() != null) {
+				extractAlleleDiseaseAnnotations(da, da.getAssertedAllele());
 			}
 		}
 	}
@@ -267,5 +266,6 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 		ph.finishProcess();
 		return ret;
 	}
+
 
 }
