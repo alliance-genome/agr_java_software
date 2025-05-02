@@ -142,9 +142,9 @@ public class DiseaseCacheRepository {
 		return list;
 	}
 
-	public List<String> getChildren(String id) {
-		return cacheService.getCacheEntries(id, CacheAlliance.CLOSURE_MAP);
-	}
+	//public List<String> getChildren(String id) {
+	//	return cacheService.getCacheEntries(id, CacheAlliance.CLOSURE_MAP);
+	//}
 
 	public boolean hasDiseaseAnnotations(String geneID) {
 		return CollectionUtils.isNotEmpty(cacheService.getCacheEntries(geneID, CacheAlliance.DISEASE_ANNOTATION_GENE_LEVEL_GENE_DISEASE));
