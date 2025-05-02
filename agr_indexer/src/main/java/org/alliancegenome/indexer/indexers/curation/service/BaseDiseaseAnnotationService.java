@@ -76,8 +76,10 @@ public class BaseDiseaseAnnotationService extends BaseService {
 			return false;
 		}
 		Allele inferredAllele = da.getInferredAllele();
-		if (!hasValidInferredAssertedEntities(allAllelIDs, inferredAllele, List.of(da.getAssertedAllele()))) {
-			return false;
+		if (inferredAllele != null) {
+			if (!hasValidInferredAssertedEntities(allAllelIDs, inferredAllele, List.of(da.getAssertedAllele()))) {
+				return false;
+			}
 		}
 		return hasValidGeneticModifiers(da, allGeneIDs, allAllelIDs, allModelIDs);
 	}
