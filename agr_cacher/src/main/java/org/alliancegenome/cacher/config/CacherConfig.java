@@ -1,7 +1,5 @@
 package org.alliancegenome.cacher.config;
 
-import org.alliancegenome.cacher.cachers.ClosureCacher;
-import org.alliancegenome.cacher.cachers.DiseaseCacher;
 import org.alliancegenome.cacher.cachers.EcoCodeCacher;
 import org.alliancegenome.cacher.cachers.ExpressionCacher;
 import org.alliancegenome.cacher.cachers.ModelCacher;
@@ -15,11 +13,11 @@ public enum CacherConfig {
 	//InteractionCacher(InteractionCacher.class),
 	//GeneOrthologCacher(GeneOrthologCacher.class),
 	//GeneParalogCacher(GeneParalogCacher.class),
+	//ClosureCacher(ClosureCacher.class),
+	//DiseaseCacher(DiseaseCacher.class),
 	
-	DiseaseCacher(DiseaseCacher.class),
 	ExpressionCacher(ExpressionCacher.class),
 	ModelCacher(ModelCacher.class),
-	ClosureCacher(ClosureCacher.class),
 	EcoCodeCacher(EcoCodeCacher.class),
 	SiteMapCacher(SiteMapCacher.class),
 	;
