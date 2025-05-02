@@ -6,7 +6,6 @@ import java.util.Objects;
 import java.util.Set;
 
 import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.Allele;
 import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.BiologicalEntity;
 import org.alliancegenome.curation_api.model.entities.DiseaseAnnotation;
@@ -75,11 +74,11 @@ public class BaseDiseaseAnnotationService extends BaseService {
 		if (!hasValidInferredAssertedEntities(allGeneIDs, inferredGene, assertedGenes)) {
 			return false;
 		}
-		Allele inferredAllele = da.getInferredAllele();
-		if (inferredAllele != null) {
-			if (!hasValidInferredAssertedEntities(allAllelIDs, inferredAllele, List.of(da.getAssertedAllele()))) {
-				return false;
-			}
+		if (!hasValidInferredAssertedEntities(allAllelIDs, da.getInferredAllele(), null)) {
+			return false;
+		}
+		if (!hasValidInferredAssertedEntities(allAllelIDs, da.getAssertedAllele(), null)) {
+			return false;
 		}
 		return hasValidGeneticModifiers(da, allGeneIDs, allAllelIDs, allModelIDs);
 	}
