@@ -76,7 +76,7 @@ public class BaseDiseaseAnnotationService extends BaseService {
 			return false;
 		}
 		Allele inferredAllele = da.getInferredAllele();
-		if(inferredAllele != null) {
+		if (inferredAllele != null) {
 			if (!hasValidInferredAssertedEntities(allAllelIDs, inferredAllele, List.of(da.getAssertedAllele()))) {
 				return false;
 			}
