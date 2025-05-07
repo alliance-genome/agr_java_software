@@ -205,7 +205,7 @@ public class DiseaseAnnotationToTdfTranslator extends BaseToTdfTranslator {
 			subjectTaxonCurie = subject.getTaxon().getCurie();
 			subjectTaxonName = subject.getTaxon().getName();
 			subjectID = subject.getIdentifier();
-			subjectSymbol = subject.getName();
+			subjectSymbol = subject.getAgmFullName().getDisplayText();
 			row.setEntityType(subject.getSubtype().getName());
 		} else {
 			subjectID = null;
@@ -217,7 +217,7 @@ public class DiseaseAnnotationToTdfTranslator extends BaseToTdfTranslator {
 		// needs better generics or have subject attribute on the parent class (DiseaseAnnotation)
 		if (primaryAnnotation instanceof AGMDiseaseAnnotation pAnnotation) {
 			row.setGeneticEntityID(pAnnotation.getDiseaseAnnotationSubject().getIdentifier());
-			row.setGeneticEntityName(pAnnotation.getDiseaseAnnotationSubject().getName());
+			row.setGeneticEntityName(pAnnotation.getDiseaseAnnotationSubject().getAgmFullName().getDisplayText());
 			row.setGeneticEntityType(pAnnotation.getDiseaseAnnotationSubject().getSubtype().getName());
 			List<org.alliancegenome.curation_api.model.entities.Gene> assertedGenes = pAnnotation.getAssertedGenes();
 			if (CollectionUtils.isNotEmpty(assertedGenes)) {
@@ -238,7 +238,7 @@ public class DiseaseAnnotationToTdfTranslator extends BaseToTdfTranslator {
 				row.setGeneticEntityName(pAnnotation.getDiseaseAnnotationSubject().getGeneSymbol().getDisplayText());
 				if (pAnnotation.getSgdStrainBackground() != null) {
 					row.setStrainBackgroundID(pAnnotation.getSgdStrainBackground().getIdentifier());
-					row.setStrainBackgroundName(pAnnotation.getSgdStrainBackground().getName());
+					row.setStrainBackgroundName(pAnnotation.getSgdStrainBackground().getAgmFullName().getDisplayText());
 				}
 				row.setGeneticEntityType("gene");
 			}

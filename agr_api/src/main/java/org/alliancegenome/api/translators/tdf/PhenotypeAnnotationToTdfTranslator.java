@@ -44,7 +44,7 @@ public class PhenotypeAnnotationToTdfTranslator extends BaseToTdfTranslator {
 		row.setPhenotype(annotation.getPhenotypeAnnotationObject());
 		if (annotation instanceof AGMPhenotypeAnnotation annot) {
 			row.setGeneticEntityID(annot.getPhenotypeAnnotationSubject().getPrimaryExternalId());
-			row.setGeneticEntityName(annot.getPhenotypeAnnotationSubject().getName());
+			row.setGeneticEntityName(annot.getPhenotypeAnnotationSubject().getAgmFullName().getDisplayText());
 			row.setGeneticEntityType(annot.getPhenotypeAnnotationSubject().getSubtype().getName());
 		}
 		if (annotation instanceof AllelePhenotypeAnnotation annot) {
