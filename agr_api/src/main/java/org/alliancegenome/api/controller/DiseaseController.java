@@ -512,12 +512,12 @@ public class DiseaseController implements DiseaseRESTInterface {
 
 	@Override
 	public Response getDiseaseAnnotationsRibbonDetailsDownload(
-		String focusTaxonId, List<String> geneIDs, String termID,
+		String focusTaxonId, String termID,
 		String filterSpecies, String filterGene, String filterReference,
 		String diseaseTerm, String filterSource, String geneticEntity,
 		String geneticEntityType, String associationType, String diseaseQualifier,
 		String evidenceCode, String basedOnGeneSymbol, Boolean includeNegation,
-		Boolean debug, String sortBy, String asc) {
+		Boolean debug, String sortBy, String asc, List<String> geneIDs) {
 
 		LocalDateTime startDate = LocalDateTime.now();
 		Response.ResponseBuilder responseBuilder;
