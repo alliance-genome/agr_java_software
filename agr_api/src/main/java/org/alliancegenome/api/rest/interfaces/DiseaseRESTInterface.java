@@ -306,12 +306,12 @@ public interface DiseaseRESTInterface {
 		@RequestBody List<String> geneIDs
 	) throws JsonProcessingException;
 
-	@GET
+	@POST
 	@Path("/download")
 	@JsonView(value = { View.DiseaseAnnotation.class })
 	@Operation(summary = "Download all disease annotations of a given set of genes")
 	Response getDiseaseAnnotationsRibbonDetailsDownload(@Parameter(in = ParameterIn.QUERY, name = "focusTaxonId", description = "Focus Taxon ID", required = true) @QueryParam("focusTaxonId") String focusTaxonId,
-		@Parameter(in = ParameterIn.QUERY, name = "geneID", description = "Gene by ID", required = true) @QueryParam("geneID") List<String> geneIDs, @Parameter(in = ParameterIn.QUERY, name = "termID", description = "Term ID by which rollup should happen") @QueryParam("termID") String termID,
+		@Parameter(in = ParameterIn.QUERY, name = "geneID", description = "Gene by ID", required = true) @RequestBody List<String> geneIDs, @Parameter(in = ParameterIn.QUERY, name = "termID", description = "Term ID by which rollup should happen") @QueryParam("termID") String termID,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.species", description = "Species by taxon ID", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.species") String filterSpecies,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.subject.symbol", description = "Gene symbol", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.subject.symbol") String filterGene,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.reference", description = "Reference", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.reference") String filterReference,
