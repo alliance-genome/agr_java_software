@@ -8,7 +8,6 @@ import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.curation.interfaces.GeneModelInterface;
-import org.alliancegenome.indexer.indexers.curation.service.ModelService;
 import si.mazi.rescu.RestProxyFactory;
 
 import java.util.ArrayList;
