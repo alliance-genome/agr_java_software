@@ -95,7 +95,7 @@ public class ProcessDisplayHelper {
 
 			double percent = 0;
 			if (totalSize > 0) {
-				percent = ((double) sizeCounter.get() / (double) totalSize);
+				percent = ((double) sizeCounter.get() / totalSize);
 			}
 			long processedAmount = sizeCounter.get() - lastSizeCounter;
 			StringBuffer sb = new StringBuffer(this.message);

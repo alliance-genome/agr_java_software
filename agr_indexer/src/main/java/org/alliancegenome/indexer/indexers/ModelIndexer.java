@@ -1,37 +1,22 @@
 package org.alliancegenome.indexer.indexers;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 
-import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.translators.document.ModelTranslator;
-import org.alliancegenome.curation_api.model.document.es.AffectedGenomicModelDocument;
-import org.alliancegenome.curation_api.model.document.es.DiseaseSummaryDocument;
-import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.es.index.site.cache.ModelDocumentCache;
 import org.alliancegenome.es.index.site.document.SearchableItemDocument;
-import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.config.IndexerConfig;
-import org.alliancegenome.indexer.indexers.curation.interfaces.GeneModelInterface;
 import org.alliancegenome.neo4j.entity.node.AffectedGenomicModel;
 import org.alliancegenome.neo4j.repository.indexer.ModelIndexerRepository;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
-import si.mazi.rescu.RestProxyFactory;
 
 @Slf4j
 public class ModelIndexer extends Indexer {
 
 	private ModelDocumentCache cache;
 	private ModelIndexerRepository repo;
-	private final GeneModelInterface modelApi = RestProxyFactory.createProxy(GeneModelInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
-
-	private HashMap<String, Object> params = new HashMap<>() {{
-		put("internal", false);
-		put("obsolete", false);
-	}};
 
 	public ModelIndexer(IndexerConfig config) {
 		super(config);
@@ -40,13 +25,13 @@ public class ModelIndexer extends Indexer {
 	@Override
 	protected void index() {
 		try {
-			SearchResponse<AffectedGenomicModelDocument> diseaseSummaryResponse = modelApi.findForPublic(0, 0, params);
-			int totalPages = (int) (diseaseSummaryResponse.getTotalResults() / indexerConfig.getBufferSize());
-			LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
-			for (int i = 0; i <= totalPages; i++) {
-				queue.add(String.valueOf(i));
-			}
+			repo = new ModelIndexerRepository();
+			cache = repo.getModelDocumentCache();
+
+			LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>(cache.getModelMap().keySet());
+
 			initiateThreading(queue);
+			repo.close();
 		} catch (Exception e) {
 			log.error("Error while indexing...", e);
 			System.exit(-1);
@@ -55,21 +40,35 @@ public class ModelIndexer extends Indexer {
 
 	@Override
 	protected void startSingleThread(LinkedBlockingDeque<String> queue) {
+		ArrayList<AffectedGenomicModel> list = new ArrayList<>();
+		ModelTranslator translator = new ModelTranslator();
+
 		while (true) {
 			try {
+				if (list.size() >= indexerConfig.getBufferSize()) {
+					Iterable<SearchableItemDocument> documents = translator.translateEntities(list);
+					cache.addCachedFields(documents);
+					indexDocuments(documents);
+					list.clear();
+				}
 				if (queue.isEmpty()) {
+					if (list.size() > 0) {
+						Iterable<SearchableItemDocument> documents = translator.translateEntities(list);
+						cache.addCachedFields(documents);
+						indexDocuments(documents);
+						repo.clearCache();
+						list.clear();
+					}
 					return;
 				}
-				String page = queue.takeFirst();
-				SearchResponse<AffectedGenomicModelDocument> response = modelApi.findForPublic(Integer.valueOf(page), indexerConfig.getBufferSize(), params);
-				if (response == null) {
-					return;
+
+				String key = queue.takeFirst();
+				AffectedGenomicModel model = cache.getModelMap().get(key);
+				if (model != null) {
+					list.add(model);
+				} else {
+					log.debug("No AffectedGenomicModel found for " + key);
 				}
-				// not every affected genomic model has a document associated to a gene
-				if (CollectionUtils.isEmpty(response.getResults())) {
-					continue;
-				}
-				indexDocuments(response.getResults());
 			} catch (Exception e) {
 				log.error("Error while indexing...", e);
 				System.exit(-1);

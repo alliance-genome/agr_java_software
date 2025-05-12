@@ -11,7 +11,7 @@ public enum IndexerConfig {
 	DiseaseIndexer("disease", DiseaseIndexer.class, 4, 680, 680, 8, 1),
 	AlleleIndexer("allele", AlleleIndexer.class, 4, 1517, 1517, 8, 1),
 	GoIndexer("go", GoIndexer.class, 4, 914, 914, 8, 1),
-	ModelIndexer("model", ModelIndexer.class, 4, 1500, 1426, 8, 1),
+	ModelIndexer("model", ModelIndexer.class, 4, 1500, 1426, 4, 1),
 
 	// Curation Indexers
 	DiseaseAnnotationIndexer("diseaseAnnotation", DiseaseAnnotationCurationIndexer.class, 1, 1500, 1500, 2, 1),
@@ -21,6 +21,7 @@ public enum IndexerConfig {
 	PhenotypeAnnotationIndexer("phenotypeAnnotation", PhenotypeAnnotationCurationIndexer.class, 4, 1500, 1500, 2, 1),
 	ReleaseInfoIndexer("release", ReleaseInfoIndexer.class, 1, 1, 1, 1, 1),
 	DiseaseSummaryIndexer("diseaseSummary", DiseaseSummaryCurationIndexer.class, 4, 1500, 1500, 4, 1),
+	AffectedGenomicModelIndexer("affectedGenomicModels", AffectedGenomicModelIndexer.class, 4, 1500, 1500, 8, 1),
 	GeneToGeneOrthologyIndexer("geneToGeneOrthology", GeneToGeneOrthologyIndexer.class, 4, 1500, 1500, 8, 1),
 	GOSearchResultCurationIndexer("goSearchResult", GOSearchResultCurationIndexer.class, 4, 1500, 1500, 8, 1),
 	//GeneExpressionAnnotationIndexer("geneExpressionAnnotation", GeneExpressionAnnotationIndexer.class, 4, 1500, 1500, 2, 1),

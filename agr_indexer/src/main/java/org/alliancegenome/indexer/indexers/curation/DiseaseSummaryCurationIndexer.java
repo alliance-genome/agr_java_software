@@ -22,7 +22,7 @@ public class DiseaseSummaryCurationIndexer extends Indexer {
 
 	private final DiseaseDocumentInterface diseaseApi = RestProxyFactory.createProxy(DiseaseDocumentInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 	
-	private HashMap<String, Object> params = new HashMap<String, Object>() {{
+	private HashMap<String, Object> params = new HashMap<>() {{
 		put("internal", false);
 		put("obsolete", false);
 	}};
