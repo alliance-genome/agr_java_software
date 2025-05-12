@@ -2,6 +2,7 @@ package org.alliancegenome.indexer.indexers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.curation_api.interfaces.document.ModelDocumentInterface;
 import org.alliancegenome.curation_api.model.document.es.AffectedGenomicModelDocument;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
@@ -19,7 +20,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 @Slf4j
 public class AffectedGenomicModelIndexer extends Indexer {
 
-	private final GeneModelInterface modelApi = RestProxyFactory.createProxy(GeneModelInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
+	private final ModelDocumentInterface modelApi = RestProxyFactory.createProxy(ModelDocumentInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 
 	private final HashMap<String, Object> params = new HashMap<>() {{
 		put("internal", false);
@@ -33,7 +34,7 @@ public class AffectedGenomicModelIndexer extends Indexer {
 	@Override
 	protected void index() {
 		try {
-			SearchResponse<AffectedGenomicModelDocument> diseaseSummaryResponse = modelApi.findForPublic(0, 0, params);
+			SearchResponse<AffectedGenomicModelDocument> diseaseSummaryResponse = modelApi.findDocuments(0, 0, params);
 			int totalPages = (int) (diseaseSummaryResponse.getTotalResults() / indexerConfig.getBufferSize());
 			LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
 			for (int i = 0; i <= totalPages; i++) {
@@ -54,7 +55,7 @@ public class AffectedGenomicModelIndexer extends Indexer {
 					return;
 				}
 				String page = queue.takeFirst();
-				SearchResponse<AffectedGenomicModelDocument> response = modelApi.findForPublic(Integer.valueOf(page), indexerConfig.getBufferSize(), params);
+				SearchResponse<AffectedGenomicModelDocument> response = modelApi.findDocuments(Integer.valueOf(page), indexerConfig.getBufferSize(), params);
 				if (response == null) {
 					return;
 				}
