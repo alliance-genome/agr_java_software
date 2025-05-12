@@ -5,16 +5,12 @@ import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.interfaces.document.ModelDocumentInterface;
 import org.alliancegenome.curation_api.model.document.es.AffectedGenomicModelDocument;
 import org.alliancegenome.curation_api.response.SearchResponse;
-import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.config.IndexerConfig;
-import org.alliancegenome.indexer.indexers.curation.interfaces.GeneModelInterface;
 import org.apache.commons.collections.CollectionUtils;
 import si.mazi.rescu.RestProxyFactory;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 
 @Slf4j
