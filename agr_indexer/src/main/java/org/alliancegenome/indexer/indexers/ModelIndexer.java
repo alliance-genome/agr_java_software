@@ -28,7 +28,7 @@ public class ModelIndexer extends Indexer {
 	private ModelIndexerRepository repo;
 	private final GeneModelInterface modelApi = RestProxyFactory.createProxy(GeneModelInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 
-	private HashMap<String, Object> params = new HashMap<String, Object>() {{
+	private HashMap<String, Object> params = new HashMap<>() {{
 		put("internal", false);
 		put("obsolete", false);
 	}};
