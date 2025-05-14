@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 public class GeneExpressionAnnotationIndexer extends Indexer {
 
 	GeneExpressionAnnotationService geneExpressionAnnotationService;
-  	GeneExpressionExperimentService geneExpressionExperimentService;
+	GeneExpressionExperimentService geneExpressionExperimentService;
 	GeneExpressionAnnotationUniqueIdHelper geneExpressionAnnotationUniqueIdHelper;
 
 	public GeneExpressionAnnotationIndexer(IndexerConfig indexerConfig) {
