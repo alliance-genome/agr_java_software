@@ -12,7 +12,7 @@ import si.mazi.rescu.RestProxyFactory;
 
 public class GeneExpressionAnnotationService {
 
-	private GeneExpressionAnnotationInterface geneExpressionAnnotationClient = RestProxyFactory.createProxy(GeneExpressionAnnotationInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
+	private final GeneExpressionAnnotationInterface geneExpressionAnnotationClient = RestProxyFactory.createProxy(GeneExpressionAnnotationInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 
 	public SearchResponse<GeneExpressionAnnotation> getGeneExpressionAnnotations(Integer page, Integer limit) {
 		HashMap<String, Object> params = new HashMap<>();
