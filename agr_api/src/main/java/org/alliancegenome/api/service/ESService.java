@@ -92,6 +92,21 @@ public class ESService {
 		return bool;
 	}
 
+	BoolQueryBuilder getBaseModelQuery(List<String> entityIDs, boolean excludeNegated, String recordType) {
+		BoolQueryBuilder bool = boolQuery();
+		BoolQueryBuilder bool2 = boolQuery();
+		bool.must(bool2);
+
+		bool.filter(termQuery("category", recordType));
+
+		if (CollectionUtils.isNotEmpty(entityIDs)) {
+			for (String geneId : entityIDs) {
+				bool2.should(new MatchQueryBuilder("gene.primaryExternalId.keyword", geneId));
+			}
+		}
+		return bool;
+	}
+
 	void addTableFilter(Pagination pagination, BoolQueryBuilder bool) {
 		HashMap<String, String> filterOptionMap = pagination.getFilterOptionMap();
 		if (MapUtils.isNotEmpty(filterOptionMap)) {
