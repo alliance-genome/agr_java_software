@@ -1,7 +1,6 @@
 package org.alliancegenome.api.service;
 
 import jakarta.enterprise.context.RequestScoped;
-import org.alliancegenome.api.entity.AllelePhenotypeAnnotationDocument;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.curation_api.model.document.es.AffectedGenomicModelDocument;
 import org.alliancegenome.es.model.query.Pagination;
