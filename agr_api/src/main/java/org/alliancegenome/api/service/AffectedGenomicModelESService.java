@@ -55,45 +55,4 @@ public class AffectedGenomicModelESService extends ESService {
 		return ret;
 	}
 
-	public JsonResultResponse<AllelePhenotypeAnnotationDocument> getAllelePhenotypeAnnotations(
-		String alleleId,
-		Pagination pagination,
-		boolean debug) {
-
-		// unfiltered query
-		BoolQueryBuilder query = getBaseQuery(List.of(alleleId), null, false, "allele_phenotype_annotation", false);
-
-		JsonResultResponse<AllelePhenotypeAnnotationDocument> ret = new JsonResultResponse<>();
-
-		// add table filter
-		addTableFilter(pagination, query);
-		// Sorting sets for different names of the sorting selection box
-		Map<String, List<String>> sortingSetMap = new HashMap<>();
-		sortingSetMap.put("default", List.of("phenotypeStatement.sort"));
-		LinkedHashMap<String, SortOrder> sortingMap = new LinkedHashMap<>();
-
-		List<String> sortFields = sortingSetMap.get(pagination.getSortBy());
-		if (sortFields == null) {
-			sortFields = sortingSetMap.get("default");
-		}
-		sortFields.forEach(sortField -> sortingMap.put(sortField, SortOrder.ASC));
-
-		SearchResponse searchResponse = getSearchResponse(query, pagination, sortingMap, debug);
-		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
-
-		List<AllelePhenotypeAnnotationDocument> list = Arrays.stream(searchResponse.getHits().getHits())
-			.map(searchHit -> {
-				try {
-					AllelePhenotypeAnnotationDocument object = mapper.readValue(searchHit.getSourceAsString(), AllelePhenotypeAnnotationDocument.class);
-					object.setUniqueId(searchHit.getId());
-					return object;
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				return null;
-			}).toList();
-		ret.setResults(list);
-		return ret;
-	}
-
 }
