@@ -17,14 +17,7 @@ import org.alliancegenome.api.entity.GenePhenotypeAnnotationDocument;
 import org.alliancegenome.api.entity.GeneToGeneOrthologyDocument;
 import org.alliancegenome.api.entity.GeneToGeneParalogyDocument;
 import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
-import org.alliancegenome.api.service.AlleleService;
-import org.alliancegenome.api.service.DiseaseESService;
-import org.alliancegenome.api.service.EntityType;
-import org.alliancegenome.api.service.ExpressionService;
-import org.alliancegenome.api.service.GeneService;
-import org.alliancegenome.api.service.GeneToGeneParalogyESService;
-import org.alliancegenome.api.service.OrthologyESService;
-import org.alliancegenome.api.service.PhenotypeESService;
+import org.alliancegenome.api.service.*;
 import org.alliancegenome.api.service.helper.APIServiceHelper;
 import org.alliancegenome.api.translators.tdf.DiseaseAnnotationToTdfTranslator;
 import org.alliancegenome.cache.repository.ExpressionCacheRepository;
@@ -38,6 +31,7 @@ import org.alliancegenome.core.translators.tdf.AlleleToTdfTranslator;
 import org.alliancegenome.core.translators.tdf.GeneGeneticInteractionToTdfTranslator;
 import org.alliancegenome.core.translators.tdf.GeneMolecularInteractionToTdfTranslator;
 import org.alliancegenome.api.translators.tdf.PhenotypeAnnotationToTdfTranslator;
+import org.alliancegenome.curation_api.model.document.es.AffectedGenomicModelDocument;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
@@ -95,6 +89,8 @@ public class GeneController implements GeneRESTInterface {
 	GeneToGeneParalogyESService geneToGeneParalogyESService;
 	@Inject
 	PhenotypeESService phenotypeESService;
+	@Inject
+	AffectedGenomicModelESService agmESService;
 
 	private static final PhenotypeAnnotationToTdfTranslator translator = new PhenotypeAnnotationToTdfTranslator();
 	private static final AlleleToTdfTranslator alleleTranslator = new AlleleToTdfTranslator();
@@ -568,7 +564,7 @@ public class GeneController implements GeneRESTInterface {
 
 
 	@Override
-	public JsonResultResponse<PrimaryAnnotatedEntity> getPrimaryAnnotatedEntityForModel(String id,
+	public JsonResultResponse<AffectedGenomicModelDocument> getPrimaryAnnotatedEntityForModel(String id,
 																						Integer limit,
 																						Integer page,
 																						String sortBy,
@@ -580,18 +576,18 @@ public class GeneController implements GeneRESTInterface {
 																						String asc) {
 		long startTime = System.currentTimeMillis();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
-		pagination.addFieldFilter(FieldFilter.SPECIES, species);
-		pagination.addFieldFilter(FieldFilter.DISEASE, disease);
-		pagination.addFieldFilter(FieldFilter.PHENOTYPE, phenotype);
-		pagination.addFieldFilter(FieldFilter.SOURCE, source);
-		pagination.addFieldFilter(FieldFilter.MODEL_NAME, modelName);
 		if (pagination.hasErrors()) {
 			RestErrorMessage message = new RestErrorMessage();
 			message.setErrors(pagination.getErrors());
 			throw new RestErrorException(message);
 		}
+		pagination.addFilterOption("model.agmFullName.displayText", modelName);
+		pagination.addFilterOption("diseaseTerms.name", disease);
+		pagination.addFilterOption("associatedPhenotype", phenotype);
+		pagination.addFilterOption("dataProvider", source);
+
 		try {
-			JsonResultResponse<PrimaryAnnotatedEntity> response = diseaseService.getDiseaseAnnotationsWithGeneAndAGM(id, pagination);
+			JsonResultResponse<AffectedGenomicModelDocument> response = agmESService.getGeneModels(id, pagination, false);
 			response.setHttpServletRequest(null);
 			response.calculateRequestDuration(startTime);
 			return response;
