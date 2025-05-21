@@ -8,13 +8,12 @@ import static org.alliancegenome.core.config.Constants.VARIANT_CONFIG_DOWNLOAD;
 import static org.alliancegenome.core.config.Constants.VARIANT_CONFIG_GATHERSTATS;
 import static org.alliancegenome.core.config.Constants.VARIANT_CONFIG_INDEXING;
 import static org.alliancegenome.core.config.Constants.VARIANT_DISPLAY_INTERVAL;
+import static org.alliancegenome.core.config.Constants.VARIANT_DOWNLOAD_SET_FILE;
 import static org.alliancegenome.core.config.Constants.VARIANT_FILE_DOWNLOAD_FILTER_THREADS;
 import static org.alliancegenome.core.config.Constants.VARIANT_FILE_DOWNLOAD_PATH;
 import static org.alliancegenome.core.config.Constants.VARIANT_FILE_DOWNLOAD_THREADS;
-import static org.alliancegenome.core.config.Constants.VARIANT_HUMAN_DOWNLOAD_SET_FILE;
 import static org.alliancegenome.core.config.Constants.VARIANT_INDEXER_BULK_PROCESSOR_THREADS;
 import static org.alliancegenome.core.config.Constants.VARIANT_INDEXER_SHARDS;
-import static org.alliancegenome.core.config.Constants.VARIANT_MOD_DOWNLOAD_SET_FILE;
 import static org.alliancegenome.core.config.Constants.VARIANT_PRODUCER_THREADS;
 import static org.alliancegenome.core.config.Constants.VARIANT_SOURCE_DOCUMENT_CREATOR_OBJECT_QUEUE_BUCKET_SIZE;
 import static org.alliancegenome.core.config.Constants.VARIANT_SOURCE_DOCUMENT_CREATOR_OBJECT_QUEUE_SIZE;
@@ -58,9 +57,8 @@ public class VariantConfigHelper {
 		 */
 
 
-		defaults.put(VARIANT_HUMAN_DOWNLOAD_SET_FILE, "HumanFileSet.yaml");
-		defaults.put(VARIANT_MOD_DOWNLOAD_SET_FILE, "ModFileSet.yaml");
-		
+		defaults.put(VARIANT_DOWNLOAD_SET_FILE, "VariantFileSet.yaml");
+
 		defaults.put(VARIANT_CACHER_CONFIG_FILE, "variantDownloadFiles.yaml");
 
 		defaults.put(VARIANTS_TO_INDEX, "");
@@ -154,18 +152,11 @@ public class VariantConfigHelper {
 		return ret;
 	}
 
-	public static String getVariantHumanDownloadSetFile() {
+	public static String getVariantDownloadSetFile() {
 		if (!init) {
 			init();
 		}
-		return config.get(VARIANT_HUMAN_DOWNLOAD_SET_FILE);
-	}
-	
-	public static String getVariantModDownloadSetFile() {
-		if (!init) {
-			init();
-		}
-		return config.get(VARIANT_MOD_DOWNLOAD_SET_FILE);
+		return config.get(VARIANT_DOWNLOAD_SET_FILE);
 	}
 	
 	public static String getVariantToIndex() {
@@ -173,20 +164,6 @@ public class VariantConfigHelper {
 			init();
 		}
 		return config.get(VARIANTS_TO_INDEX);
-	}
-
-	public static String getDownloadSetFile() {
-		if (!init) {
-			init();
-		}
-		if (getVariantToIndex().equals("HUMAN")) {
-			return getVariantHumanDownloadSetFile();
-		}
-		if (getVariantToIndex().equals("MOD")) {
-			return getVariantModDownloadSetFile();
-		}
-		log.warn("need to set VARIANTS_TO_INDEX = \"HUMAN\" or \"MOD\" to choose between which variants to index");
-		return null;
 	}
 	
 	public static String getVariantCacherConfigFile() {

@@ -28,9 +28,7 @@ public class Main {
 		boolean indexing = VariantConfigHelper.isIndexing();
 
 		try {
-			// need to set VARIANTS_TO_INDEX = "HUMAN" or "MOD" to choose between which
-			// variants to index
-			DownloadFileSet downloadSet = mapper.readValue(Main.class.getClassLoader().getResourceAsStream(VariantConfigHelper.getDownloadSetFile()), DownloadFileSet.class);
+			DownloadFileSet downloadSet = mapper.readValue(Main.class.getClassLoader().getResourceAsStream(VariantConfigHelper.getVariantDownloadSetFile()), DownloadFileSet.class);
 			downloadSet.setDownloadPath(VariantConfigHelper.getVariantFileDownloadPath());
 
 			if (downloading) {
@@ -41,8 +39,6 @@ public class Main {
 
 			if (creating) {
 				IndexManager im = new IndexManager(new VariantIndexSettings(true, VariantConfigHelper.getIndexerShards()), new VariantMapping(true));
-				// IndexManager im = new IndexManager(new VariantIndexSettings(true,
-				// VariantConfigHelper.getIndexerShards()));
 
 				if (indexing) {
 					SourceDocumentCreation.indexName = im.startSiteIndex();

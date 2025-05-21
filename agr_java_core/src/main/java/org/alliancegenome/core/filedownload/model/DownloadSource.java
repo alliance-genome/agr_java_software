@@ -11,6 +11,7 @@ import lombok.ToString;
 
 @Getter @Setter @ToString
 public class DownloadSource {
+	private Boolean active;
 	private String source;
 	private String species;
 	private String taxonId;
