@@ -12,6 +12,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import org.alliancegenome.api.entity.AGMDiseaseAnnotationDocument;
@@ -69,6 +70,8 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 	private Map<String, Pair<AffectedGenomicModel, ArrayList<DiseaseAnnotation>>> agmMap = new HashMap<>();
 
 	private Map<Gene, List<DiseaseAnnotation>> geneViaOrthologyMap = new HashMap<>();
+	
+	private AtomicInteger uniqueAnnotationCounter = new AtomicInteger(1);
 
 	public DiseaseAnnotationCurationIndexer(IndexerConfig indexerConfig) {
 		super(indexerConfig);
@@ -159,6 +162,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 						stringListMap.forEach((basedOnGenesList, diseaseAnnotations1) -> {
 							DiseaseAnnotation diseaseAnnotation = diseaseAnnotations1.get(0);
 							GeneDiseaseAnnotationDocument gdad = new GeneDiseaseAnnotationDocument();
+							gdad.setCount(uniqueAnnotationCounter.getAndIncrement());
 							gdad.setViaOrthologyAnnotation(true);
 							gdad.setSubject(gene);
 							gdad.setRelation(associationType);
@@ -386,6 +390,10 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 	}
 
 	private void populateBaseDiseaseAnnotationDocument(BiologicalEntity biologicalEntity, DiseaseAnnotation da, DiseaseAnnotationDocument dad) {
+		if (dad.getCount() == null) {
+			dad.setCount(uniqueAnnotationCounter.getAndIncrement());
+		}
+		
 		dad.setParentSlimIDs(closureMap.get(da.getDiseaseAnnotationObject().getCurie()));
 		// gdad.setDataProvider(da.getDataProvider());
 		Reference evidenceItem = (Reference) da.getEvidenceItem();

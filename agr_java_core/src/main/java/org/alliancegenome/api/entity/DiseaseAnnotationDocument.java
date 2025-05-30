@@ -30,6 +30,7 @@ import lombok.EqualsAndHashCode;
 public class DiseaseAnnotationDocument extends SearchableItemDocument {
 
 	private String uniqueId;
+	private Integer count;
 	private VocabularyTerm relation;
 	private DOTerm object;
 	private List<ECOTerm> evidenceCodes;
