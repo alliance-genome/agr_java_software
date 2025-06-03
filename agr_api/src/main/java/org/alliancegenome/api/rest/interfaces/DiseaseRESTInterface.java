@@ -232,6 +232,23 @@ public interface DiseaseRESTInterface {
 	@Operation(description = "Retrieve all DiseaseAnnotation records for a given disease id disregarding sorting / filtering parameters", hidden = true)
 	String getDiseaseAnnotationsDownload(@PathParam("id") String id);
 
+
+	@GET
+	@Path("/{id}/primaryannotations")
+	@Operation(summary = "Retrieve all primary annotations for a given disease annotation id")
+	@APIResponses(value = { @APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
+	JsonResultResponse<org.alliancegenome.curation_api.model.entities.DiseaseAnnotation> getDiseasePrimaryAnnotations(
+		@PathParam("id") String id,
+
+		@Parameter(in = ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER)) 
+		@DefaultValue("10") 
+		@QueryParam("limit") Integer limit,
+
+		@Parameter(in = ParameterIn.QUERY, name = "page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER)) 
+		@DefaultValue("1") 
+		@QueryParam("page") Integer page
+	);
+
 	@POST
 	@Path("")
 	@Operation(summary = "Retrieve all disease annotations of a given set of genes")

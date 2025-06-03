@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 
 import org.alliancegenome.api.entity.AGMDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
+import org.alliancegenome.api.entity.DiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.DiseaseEntitySubgroupSlim;
 import org.alliancegenome.api.entity.DiseaseRibbonEntity;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
@@ -24,6 +25,8 @@ import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.api.service.DiseaseRibbonService;
 import org.alliancegenome.curation_api.model.document.es.DiseaseSummaryDocument;
+import org.alliancegenome.curation_api.model.entities.DiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.Reference;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.SimpleTerm;
@@ -66,6 +69,7 @@ public class DiseaseESService extends ESService {
 				try {
 					GeneDiseaseAnnotationDocument object = mapper.readValue(searchHit.getSourceAsString(), GeneDiseaseAnnotationDocument.class);
 					object.setUniqueId(searchHit.getId());
+					object.setPrimaryAnnotations(null);
 					return object;
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -388,6 +392,78 @@ public class DiseaseESService extends ESService {
 			}
 		}
 		ret.setResults(list);
+		return ret;
+	}
+
+	public JsonResultResponse<DiseaseAnnotation> getDiseasePrimaryAnnotations(String id, Pagination pagination, String category) {
+		JsonResultResponse<DiseaseAnnotation> ret = new JsonResultResponse<>();
+		
+		// Create query to find the disease annotation document by count id
+		BoolQueryBuilder bool = boolQuery();
+		bool.must(new TermQueryBuilder("count", id));
+		bool.filter(new TermQueryBuilder("category", category));
+		
+		//not paginating the query here, just getting the document
+		Pagination tempPagination = new Pagination();
+		tempPagination.setLimit(1);
+		SearchResponse response = getSearchResponse(bool, tempPagination, null, false);
+		
+		if (response.getHits().getTotalHits().value == 0) {
+			ret.setTotal(0);
+			ret.setResults(new ArrayList<>());
+			return ret;
+		}
+		
+		try {
+			SearchHit hit = response.getHits().getHits()[0];
+			DiseaseAnnotationDocument document = mapper.readValue(hit.getSourceAsString(), DiseaseAnnotationDocument.class);
+			document.setUniqueId(hit.getId());
+			
+			List<DiseaseAnnotation> primaryAnnotations = document.getPrimaryAnnotations();
+			if (primaryAnnotations == null) {
+				primaryAnnotations = new ArrayList<>();
+			}
+
+			// Sort primary annotations by evidenceItem.referenceID
+			if (!primaryAnnotations.isEmpty()) {
+				primaryAnnotations.sort((a, b) -> {
+					Reference refA = (Reference) a.getEvidenceItem(); 
+					String refAId = null;
+					if(refA != null) {
+						refAId = refA.getReferenceID();
+					}
+
+					Reference refB = (Reference) a.getEvidenceItem(); 
+					String refBId = null;
+
+					if(refB != null) {
+						refBId = refB.getReferenceID();
+					}
+
+					return refAId.compareToIgnoreCase(refBId);
+				});
+			}
+
+			// Apply pagination to primary annotations list
+			int start = pagination.getStart();
+			int limit = pagination.getLimit();
+			int total = primaryAnnotations.size();
+			
+			List<DiseaseAnnotation> paginatedResults = new ArrayList<>();
+			if (start < total) {
+				int end = Math.min(start + limit, total);
+				paginatedResults = primaryAnnotations.subList(start, end);
+			}
+			
+			ret.setTotal(total);
+			ret.setResults(paginatedResults);
+			
+		} catch (Exception e) {
+			// Log error and return empty result
+			ret.setTotal(0);
+			ret.setResults(new ArrayList<>());
+		}
+		
 		return ret;
 	}
 }
