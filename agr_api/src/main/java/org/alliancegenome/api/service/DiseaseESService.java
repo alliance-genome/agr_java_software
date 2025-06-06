@@ -70,6 +70,34 @@ public class DiseaseESService extends ESService {
 				try {
 					GeneDiseaseAnnotationDocument object = mapper.readValue(searchHit.getSourceAsString(), GeneDiseaseAnnotationDocument.class);
 					object.setUniqueId(searchHit.getId());
+					return object;
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				return null;
+			}).toList();
+		ret.setResults(list);
+		return ret;
+	}
+
+	public JsonResultResponse<GeneDiseaseAnnotationDocument> getRibbonDiseaseAnnotationsWithoutPrimaryAnnotations(String focusTaxonId, List<String> geneIDs, String termID, Pagination pagination, boolean excludeNegated, boolean debug) {
+
+		// unfiltered query
+		BoolQueryBuilder query = getBaseQuery(geneIDs, termID, excludeNegated, "gene_disease_annotation", true);
+
+		JsonResultResponse<GeneDiseaseAnnotationDocument> ret = new JsonResultResponse<>();
+		ret.setSupplementalData(getSupplementalData(focusTaxonId, true, debug, query));
+
+		// add table filter
+		addTableFilter(pagination, query);
+		SearchResponse searchResponse = getSearchResponse(query, pagination, getAnnotationSorts(focusTaxonId, debug), false);
+		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
+
+		List<GeneDiseaseAnnotationDocument> list = Arrays.stream(searchResponse.getHits().getHits())
+			.map(searchHit -> {
+				try {
+					GeneDiseaseAnnotationDocument object = mapper.readValue(searchHit.getSourceAsString(), GeneDiseaseAnnotationDocument.class);
+					object.setUniqueId(searchHit.getId());
 					object.setPrimaryAnnotations(null);
 					return object;
 				} catch (Exception e) {
@@ -399,7 +427,7 @@ public class DiseaseESService extends ESService {
 		JsonResultResponse<DiseaseAnnotation> ret = new JsonResultResponse<>();
 		
 		BoolQueryBuilder bool = boolQuery();
-		bool.must(new TermQueryBuilder("count", id));
+		bool.must(new TermQueryBuilder("countId", id));
 		bool.filter(new TermQueryBuilder("category", category));
 		
 		// Not paginating the query here, just getting the document

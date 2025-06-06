@@ -162,7 +162,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 						stringListMap.forEach((basedOnGenesList, diseaseAnnotations1) -> {
 							DiseaseAnnotation diseaseAnnotation = diseaseAnnotations1.get(0);
 							GeneDiseaseAnnotationDocument gdad = new GeneDiseaseAnnotationDocument();
-							gdad.setCount(uniqueAnnotationCounter.getAndIncrement());
+							gdad.setCountId(uniqueAnnotationCounter.getAndIncrement());
 							gdad.setViaOrthologyAnnotation(true);
 							gdad.setSubject(gene);
 							gdad.setRelation(associationType);
@@ -390,8 +390,8 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 	}
 
 	private void populateBaseDiseaseAnnotationDocument(BiologicalEntity biologicalEntity, DiseaseAnnotation da, DiseaseAnnotationDocument dad) {
-		if (dad.getCount() == null) {
-			dad.setCount(uniqueAnnotationCounter.getAndIncrement());
+		if (dad.getCountId() == null) {
+			dad.setCountId(uniqueAnnotationCounter.getAndIncrement());
 		}
 		
 		dad.setParentSlimIDs(closureMap.get(da.getDiseaseAnnotationObject().getCurie()));
