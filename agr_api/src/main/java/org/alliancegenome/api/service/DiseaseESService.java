@@ -22,11 +22,11 @@ import org.alliancegenome.api.entity.DiseaseEntitySubgroupSlim;
 import org.alliancegenome.api.entity.DiseaseRibbonEntity;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
+import org.alliancegenome.api.service.helper.APIServiceHelper;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.api.service.DiseaseRibbonService;
 import org.alliancegenome.curation_api.model.document.es.DiseaseSummaryDocument;
 import org.alliancegenome.curation_api.model.entities.DiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.Reference;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.SimpleTerm;
@@ -40,6 +40,7 @@ import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.SortOrder;
 
+import io.quarkus.logging.Log;
 import jakarta.enterprise.context.RequestScoped;
 
 
@@ -394,16 +395,14 @@ public class DiseaseESService extends ESService {
 		ret.setResults(list);
 		return ret;
 	}
-
 	public JsonResultResponse<DiseaseAnnotation> getDiseasePrimaryAnnotations(String id, Pagination pagination, String category) {
 		JsonResultResponse<DiseaseAnnotation> ret = new JsonResultResponse<>();
 		
-		// Create query to find the disease annotation document by count id
 		BoolQueryBuilder bool = boolQuery();
 		bool.must(new TermQueryBuilder("count", id));
 		bool.filter(new TermQueryBuilder("category", category));
 		
-		//not paginating the query here, just getting the document
+		// Not paginating the query here, just getting the document
 		Pagination tempPagination = new Pagination();
 		tempPagination.setLimit(1);
 		SearchResponse response = getSearchResponse(bool, tempPagination, null, false);
@@ -424,35 +423,18 @@ public class DiseaseESService extends ESService {
 				primaryAnnotations = new ArrayList<>();
 			}
 
-			// Sort primary annotations by evidenceItem.referenceID
-			if (!primaryAnnotations.isEmpty()) {
-				primaryAnnotations.sort((a, b) -> {
-					Reference refA = (Reference) a.getEvidenceItem(); 
-					String refAId = null;
-					if(refA != null) {
-						refAId = refA.getReferenceID();
-					}
-
-					Reference refB = (Reference) a.getEvidenceItem(); 
-					String refBId = null;
-
-					if(refB != null) {
-						refBId = refB.getReferenceID();
-					}
-
-					return refAId.compareToIgnoreCase(refBId);
-				});
-			}
-
-			// Apply pagination to primary annotations list
+			// Sort the annotations for consistent ordering and pagination
+			List<DiseaseAnnotation> sortedAnnotations = APIServiceHelper.naturalSortByAnnotationSubject(primaryAnnotations);
+			
+			// Apply pagination to the sorted results
 			int start = pagination.getStart();
 			int limit = pagination.getLimit();
-			int total = primaryAnnotations.size();
+			int total = sortedAnnotations.size();
 			
 			List<DiseaseAnnotation> paginatedResults = new ArrayList<>();
 			if (start < total) {
 				int end = Math.min(start + limit, total);
-				paginatedResults = primaryAnnotations.subList(start, end);
+				paginatedResults = sortedAnnotations.subList(start, end);
 			}
 			
 			ret.setTotal(total);
