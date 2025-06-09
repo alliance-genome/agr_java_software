@@ -470,44 +470,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 																								String sortBy,
 																								String asc,
 																								List<String> geneIDs) {
-
-		LocalDateTime startDate = LocalDateTime.now();
-		Pagination pagination = new Pagination(page, limit, sortBy, asc);
-		pagination.addFilterOptions(filterOptions);
-		pagination.addFilterOption("object.name", diseaseTerm);
-		pagination.addFilterOption("evidenceCodes.abbreviation", evidenceCode);
-		pagination.addFilterOption("generatedRelationString.keyword", associationType);
-		pagination.addFilterOption("diseaseQualifiers.keyword", diseaseQualifier);
-		pagination.addFilterOption("pubmedPubModIDs", filterReference);
-		pagination.addFilterOption("subject.geneSymbol.displayText", filterGene);
-		pagination.addFilterOption("primaryAnnotations.with.geneSymbol.displayText", basedOnGeneSymbol);
-		pagination.addFilterOption("primaryAnnotations.dataProvider.abbreviation OR primaryAnnotations.secondaryDataProvider.abbreviation", filterSource);
-
-		// TODO: remove when SC data is fixed:
-		if (filterSpecies != null) {
-			if (filterSpecies.equals("Saccharomyces cerevisiae")) {
-				pagination.addFilterOption("subject.taxon.name.keyword", "Saccharomyces cerevisiae S288C");
-			} else {
-				pagination.addFilterOption("subject.taxon.name.keyword", filterSpecies);
-			}
-		}
-
-		if (pagination.hasErrors()) {
-			RestErrorMessage message = new RestErrorMessage();
-			message.setErrors(pagination.getErrors());
-			throw new RestErrorException(message);
-		}
-		try {
-			JsonResultResponse<GeneDiseaseAnnotationDocument> response = diseaseESService.getRibbonDiseaseAnnotations(focusTaxonId, geneIDs, termID, pagination, !includeNegation, debug);
-			response.setHttpServletRequest(null);
-			response.calculateRequestDuration(startDate);
-			return response;
-		} catch (Exception e) {
-			Log.error("Error while retrieving disease annotations", e);
-			RestErrorMessage error = new RestErrorMessage();
-			error.addErrorMessage(e.getMessage());
-			throw new RestErrorException(error);
-		}
+		return getDiseaseAnnotationsRibbonDetails(focusTaxonId, termID, filterOptions, filterSpecies, filterGene, filterReference, diseaseTerm, filterSource, geneticEntity, geneticEntityType, associationType, diseaseQualifier, evidenceCode, basedOnGeneSymbol, includeNegation, debug, limit, page, sortBy, asc, geneIDs, true);
 	}
 
 	@Override
@@ -533,6 +496,32 @@ public class DiseaseController implements DiseaseRESTInterface {
 																								String sortBy,
 																								String asc,
 																								List<String> geneIDs) {
+		return getDiseaseAnnotationsRibbonDetails(focusTaxonId, termID, filterOptions, filterSpecies, filterGene, filterReference, diseaseTerm, filterSource, geneticEntity, geneticEntityType, associationType, diseaseQualifier, evidenceCode, basedOnGeneSymbol, includeNegation, debug, limit, page, sortBy, asc, geneIDs, false);
+	}
+
+	private JsonResultResponse<GeneDiseaseAnnotationDocument> getDiseaseAnnotationsRibbonDetails(
+																								String focusTaxonId,
+																								String termID,
+																								String filterOptions,
+																								String filterSpecies,
+																								String filterGene,
+																								String filterReference,
+																								String diseaseTerm,
+																								String filterSource,
+																								String geneticEntity,
+																								String geneticEntityType,
+																								String associationType,
+																								String diseaseQualifier,
+																								String evidenceCode,
+																								String basedOnGeneSymbol,
+																								Boolean includeNegation,
+																								Boolean debug,
+																								Integer limit,
+																								Integer page,
+																								String sortBy,
+																								String asc,
+																								List<String> geneIDs,
+																								boolean includePrimaryAnnotations) {
 
 		LocalDateTime startDate = LocalDateTime.now();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
@@ -561,7 +550,12 @@ public class DiseaseController implements DiseaseRESTInterface {
 			throw new RestErrorException(message);
 		}
 		try {
-			JsonResultResponse<GeneDiseaseAnnotationDocument> response = diseaseESService.getRibbonDiseaseAnnotationsWithoutPrimaryAnnotations(focusTaxonId, geneIDs, termID, pagination, !includeNegation, debug);
+			JsonResultResponse<GeneDiseaseAnnotationDocument> response;
+			if (includePrimaryAnnotations) {
+				response = diseaseESService.getRibbonDiseaseAnnotations(focusTaxonId, geneIDs, termID, pagination, !includeNegation, debug);
+			} else {
+				response = diseaseESService.getRibbonDiseaseAnnotationsWithoutPrimaryAnnotations(focusTaxonId, geneIDs, termID, pagination, !includeNegation, debug);
+			}
 			response.setHttpServletRequest(null);
 			response.calculateRequestDuration(startDate);
 			return response;
