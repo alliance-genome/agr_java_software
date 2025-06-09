@@ -1,25 +1,17 @@
 package org.alliancegenome.api.controller;
 
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.core.*;
+import lombok.extern.slf4j.Slf4j;
 import org.alliancegenome.api.dto.ExpressionSummary;
-import org.alliancegenome.api.entity.AlleleVariantSequence;
-import org.alliancegenome.api.entity.DiseaseRibbonSummary;
-import org.alliancegenome.api.entity.GeneGeneticInteractionDocument;
-import org.alliancegenome.api.entity.GeneMolecularInteractionDocument;
-import org.alliancegenome.api.entity.GenePhenotypeAnnotationDocument;
-import org.alliancegenome.api.entity.GeneToGeneOrthologyDocument;
-import org.alliancegenome.api.entity.GeneToGeneParalogyDocument;
+import org.alliancegenome.api.entity.*;
 import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
 import org.alliancegenome.api.service.*;
 import org.alliancegenome.api.service.helper.APIServiceHelper;
 import org.alliancegenome.api.translators.tdf.DiseaseAnnotationToTdfTranslator;
+import org.alliancegenome.api.translators.tdf.PhenotypeAnnotationToTdfTranslator;
 import org.alliancegenome.cache.repository.ExpressionCacheRepository;
 import org.alliancegenome.cache.repository.OrthologyCacheRepository;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
@@ -30,14 +22,12 @@ import org.alliancegenome.core.exceptions.RestErrorMessage;
 import org.alliancegenome.core.translators.tdf.AlleleToTdfTranslator;
 import org.alliancegenome.core.translators.tdf.GeneGeneticInteractionToTdfTranslator;
 import org.alliancegenome.core.translators.tdf.GeneMolecularInteractionToTdfTranslator;
-import org.alliancegenome.api.translators.tdf.PhenotypeAnnotationToTdfTranslator;
 import org.alliancegenome.curation_api.model.document.es.AffectedGenomicModelDocument;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.DiseaseSummary;
 import org.alliancegenome.neo4j.entity.EntitySummary;
-import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.view.HomologView;
@@ -45,14 +35,8 @@ import org.alliancegenome.neo4j.view.OrthologyFilter;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import jakarta.enterprise.context.RequestScoped;
-import jakarta.inject.Inject;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.MultivaluedMap;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.UriInfo;
-import lombok.extern.slf4j.Slf4j;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequestScoped
@@ -295,19 +279,19 @@ public class GeneController implements GeneRESTInterface {
 
 	@Override
 	public JsonResultResponse<GeneGeneticInteractionDocument> getGeneticInteractions(String id, Integer limit, Integer page, String sortBy, String asc,
-																String interactorGeneSymbol,
-																String interactorSpecies,
-																String source,
-																String reference,
-																String role,
-																String geneticPerturbation,
-																String interactorRole,
-																String interactorGeneticPerturbation,
-																String phenotypes,
-																String interactionType,
-																@Context UriInfo info) {
+																					 String interactorGeneSymbol,
+																					 String interactorSpecies,
+																					 String source,
+																					 String reference,
+																					 String role,
+																					 String geneticPerturbation,
+																					 String interactorRole,
+																					 String interactorGeneticPerturbation,
+																					 String phenotypes,
+																					 String interactionType,
+																					 @Context UriInfo info) {
 		long startTime = System.currentTimeMillis();
-		
+
 		if (StringUtils.isEmpty(sortBy)) {
 			sortBy = "geneGeneticInteraction.geneGeneAssociationObject.geneSymbol.displayText.sort";
 		}
@@ -350,16 +334,16 @@ public class GeneController implements GeneRESTInterface {
 
 	@Override
 	public Response getGeneticInteractionsDownload(String id, String sortBy, String asc,
-											String interactorGeneSymbol,
-											String interactorSpecies,
-											String source,
-											String reference,
-											String role,
-											String geneticPerturbation,
-											String interactorRole,
-											String interactorGeneticPerturbation,
-											String phenotypes,
-											String interactionType
+												   String interactorGeneSymbol,
+												   String interactorSpecies,
+												   String source,
+												   String reference,
+												   String role,
+												   String geneticPerturbation,
+												   String interactorRole,
+												   String interactorGeneticPerturbation,
+												   String phenotypes,
+												   String interactionType
 	) {
 		if (StringUtils.isEmpty(sortBy)) {
 			sortBy = "geneGeneticInteraction.geneGeneAssociationObject.geneSymbol.displayText.sort";
@@ -381,7 +365,7 @@ public class GeneController implements GeneRESTInterface {
 				pagination.addFilterOption("geneGeneticInteraction.geneGeneAssociationObject.taxon.name.keyword", interactorSpecies);
 			}
 		}
-		
+
 		JsonResultResponse<GeneGeneticInteractionDocument> interactions = geneService.getGeneticInteractions(id, pagination);
 
 		Response.ResponseBuilder responseBuilder = Response.ok(geneticInteractionTranslator.getAllRows(interactions.getResults()));
@@ -392,14 +376,14 @@ public class GeneController implements GeneRESTInterface {
 
 	@Override
 	public JsonResultResponse<GeneMolecularInteractionDocument> getMolecularInteractions(String id, Integer limit, Integer page, String sortBy, String asc,
-																String moleculeType,
-																String interactorGeneSymbol,
-																String interactorSpecies,
-																String interactorMoleculeType,
-																String detectionMethod,
-																String source,
-																String reference,
-																@Context UriInfo info) {
+																						 String moleculeType,
+																						 String interactorGeneSymbol,
+																						 String interactorSpecies,
+																						 String interactorMoleculeType,
+																						 String detectionMethod,
+																						 String source,
+																						 String reference,
+																						 @Context UriInfo info) {
 		long startTime = System.currentTimeMillis();
 		if (StringUtils.isEmpty(sortBy)) {
 			sortBy = "geneMolecularInteraction.geneGeneAssociationObject.geneSymbol.displayText.sort";
@@ -440,13 +424,13 @@ public class GeneController implements GeneRESTInterface {
 
 	@Override
 	public Response getMolecularInteractionsDownload(String id, String sortBy, String asc,
-			String moleculeType,
-			String interactorGeneSymbol,
-			String interactorSpecies,
-			String interactorMoleculeType,
-			String detectionMethod,
-			String source,
-			String reference
+													 String moleculeType,
+													 String interactorGeneSymbol,
+													 String interactorSpecies,
+													 String interactorMoleculeType,
+													 String detectionMethod,
+													 String source,
+													 String reference
 	) {
 		if (StringUtils.isEmpty(sortBy)) {
 			sortBy = "geneMolecularInteraction.geneGeneAssociationObject.geneSymbol.displayText.sort";
@@ -565,15 +549,16 @@ public class GeneController implements GeneRESTInterface {
 
 	@Override
 	public JsonResultResponse<AffectedGenomicModelDocument> getPrimaryAnnotatedEntityForModel(String id,
-																						Integer limit,
-																						Integer page,
-																						String sortBy,
-																						String modelName,
-																						String species,
-																						String disease,
-																						String phenotype,
-																						String source,
-																						String asc) {
+																							  Integer limit,
+																							  Integer page,
+																							  String sortBy,
+																							  String modelName,
+																							  String species,
+																							  String experimentalCondition,
+																							  String disease,
+																							  String phenotype,
+																							  String source,
+																							  String asc) {
 		long startTime = System.currentTimeMillis();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
 		if (pagination.hasErrors()) {
@@ -581,8 +566,9 @@ public class GeneController implements GeneRESTInterface {
 			message.setErrors(pagination.getErrors());
 			throw new RestErrorException(message);
 		}
-		pagination.addFilterOption("model.agmFullName.displayText", modelName);
+		pagination.addFilterOption("model.agmFullName.formatText", modelName);
 		pagination.addFilterOption("diseaseTerms.name", disease);
+		pagination.addFilterOption("conditionRelations.conditions.conditionSummary", experimentalCondition);
 		pagination.addFilterOption("associatedPhenotype", phenotype);
 		pagination.addFilterOption("dataProvider", source);
 
@@ -645,13 +631,13 @@ public class GeneController implements GeneRESTInterface {
 
 	@Override
 	public JsonResultResponse<GeneToGeneOrthologyDocument> getGeneOrthology(String id,
-															List<String> geneIDs,
-															String geneLister,
-															String stringencyFilter,
-															String taxonID,
-															String method,
-															Integer limit,
-															Integer page) {
+																			List<String> geneIDs,
+																			String geneLister,
+																			String stringencyFilter,
+																			String taxonID,
+																			String method,
+																			Integer limit,
+																			Integer page) {
 
 		List<String> geneList = new ArrayList<>();
 		if (id != null) {
