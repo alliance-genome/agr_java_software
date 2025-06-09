@@ -40,7 +40,6 @@ import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.SortOrder;
 
-import io.quarkus.logging.Log;
 import jakarta.enterprise.context.RequestScoped;
 
 

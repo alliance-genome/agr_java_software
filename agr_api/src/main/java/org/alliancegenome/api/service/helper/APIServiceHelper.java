@@ -126,12 +126,14 @@ public class APIServiceHelper {
 				// If both parts are numeric, compare as numbers
 				if (isNumeric(aChunk) && isNumeric(bChunk)) {
 					int diff = Integer.parseInt(aChunk) - Integer.parseInt(bChunk);
-					if (diff != 0) return diff;
-				}
-				// Otherwise compare as strings
-				else {
+					if (diff != 0) {
+						return diff;
+					}
+				} else {
 					int diff = aChunk.compareToIgnoreCase(bChunk);
-					if (diff != 0) return diff;
+					if (diff != 0) {
+						return diff;
+					}
 				}
 			}
 			

@@ -619,7 +619,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 	}
 
 	@Override
-	public JsonResultResponse<org.alliancegenome.curation_api.model.entities.DiseaseAnnotation> getDiseasePrimaryAnnotations(String id, Integer limit, Integer page){
+	public JsonResultResponse<org.alliancegenome.curation_api.model.entities.DiseaseAnnotation> getDiseasePrimaryAnnotations(String id, Integer limit, Integer page) {
 		LocalDateTime startDate = LocalDateTime.now();
 		Pagination pagination = new Pagination(page, limit, null, null);
 
@@ -630,7 +630,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 		}
 
 		try {
-			JsonResultResponse<org.alliancegenome.curation_api.model.entities.DiseaseAnnotation> response = 
+			JsonResultResponse<org.alliancegenome.curation_api.model.entities.DiseaseAnnotation> response =
 				diseaseESService.getDiseasePrimaryAnnotations(id, pagination, "gene_disease_annotation");
 
 			response.setHttpServletRequest(null);

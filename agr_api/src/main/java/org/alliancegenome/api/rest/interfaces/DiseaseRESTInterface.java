@@ -240,12 +240,12 @@ public interface DiseaseRESTInterface {
 	JsonResultResponse<org.alliancegenome.curation_api.model.entities.DiseaseAnnotation> getDiseasePrimaryAnnotations(
 		@PathParam("id") String id,
 
-		@Parameter(in = ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER)) 
-		@DefaultValue("10") 
+		@Parameter(in = ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
+		@DefaultValue("10")
 		@QueryParam("limit") Integer limit,
 
-		@Parameter(in = ParameterIn.QUERY, name = "page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER)) 
-		@DefaultValue("1") 
+		@Parameter(in = ParameterIn.QUERY, name = "page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER))
+		@DefaultValue("1")
 		@QueryParam("page") Integer page
 	);
 
