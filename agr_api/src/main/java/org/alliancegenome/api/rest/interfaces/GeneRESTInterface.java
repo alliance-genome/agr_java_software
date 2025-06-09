@@ -380,6 +380,8 @@ public interface GeneRESTInterface {
 		@QueryParam("filter.modelName") String modelName,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.species", description = "filter by species", schema = @Schema(type = SchemaType.STRING))
 		@QueryParam("filter.species") String species,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.experimentalCondition", description = "filter by experimental condition", schema = @Schema(type = SchemaType.STRING))
+		@QueryParam("filter.experimentalCondition") String experimentalCondition,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.disease", description = "filter by disease", schema = @Schema(type = SchemaType.STRING))
 		@QueryParam("filter.disease") String disease,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.phenotype", description = "filter by phenotype", schema = @Schema(type = SchemaType.STRING))

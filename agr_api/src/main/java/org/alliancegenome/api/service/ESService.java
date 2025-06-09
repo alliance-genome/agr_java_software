@@ -51,6 +51,15 @@ public class ESService {
 			pagination.getLimit(), pagination.getOffset(), hlb, focusTaxonId, debug);
 	}
 
+	protected SearchResponse getSearchResponse(BoolQueryBuilder bool, Pagination pagination, LinkedHashMap<String, SortOrder> focusTaxonId, Map<String, Boolean> missingFieldLast, boolean debug) {
+		List<AggregationBuilder> aggBuilders = new ArrayList<>();
+		HighlightBuilder hlb = new HighlightBuilder();
+
+		return searchDAO.performQuery(
+			bool, aggBuilders, null, geneDiseaseSearchHelper.getResponseFields(),
+			pagination.getLimit(), pagination.getOffset(), hlb, focusTaxonId, missingFieldLast, debug);
+	}
+
 	BoolQueryBuilder getBaseQuery(List<String> entityIDs, String termID, boolean excludeNegated, String recordType, boolean excludeViaOrthologyRecords) {
 		BoolQueryBuilder bool = boolQuery();
 		BoolQueryBuilder bool2 = boolQuery();
