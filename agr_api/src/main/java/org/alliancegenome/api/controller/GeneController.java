@@ -279,17 +279,17 @@ public class GeneController implements GeneRESTInterface {
 
 	@Override
 	public JsonResultResponse<GeneGeneticInteractionDocument> getGeneticInteractions(String id, Integer limit, Integer page, String sortBy, String asc,
-																					String interactorGeneSymbol,
-																					String interactorSpecies,
-																					String source,
-																					String reference,
-																					String role,
-																					String geneticPerturbation,
-																					String interactorRole,
-																					String interactorGeneticPerturbation,
-																					String phenotypes,
-																					String interactionType,
-																					@Context UriInfo info) {
+																					 String interactorGeneSymbol,
+																					 String interactorSpecies,
+																					 String source,
+																					 String reference,
+																					 String role,
+																					 String geneticPerturbation,
+																					 String interactorRole,
+																					 String interactorGeneticPerturbation,
+																					 String phenotypes,
+																					 String interactionType,
+																					 @Context UriInfo info) {
 		long startTime = System.currentTimeMillis();
 
 		if (StringUtils.isEmpty(sortBy)) {
@@ -376,14 +376,14 @@ public class GeneController implements GeneRESTInterface {
 
 	@Override
 	public JsonResultResponse<GeneMolecularInteractionDocument> getMolecularInteractions(String id, Integer limit, Integer page, String sortBy, String asc,
-																						String moleculeType,
-																						String interactorGeneSymbol,
-																						String interactorSpecies,
-																						String interactorMoleculeType,
-																						String detectionMethod,
-																						String source,
-																						String reference,
-																						@Context UriInfo info) {
+																						 String moleculeType,
+																						 String interactorGeneSymbol,
+																						 String interactorSpecies,
+																						 String interactorMoleculeType,
+																						 String detectionMethod,
+																						 String source,
+																						 String reference,
+																						 @Context UriInfo info) {
 		long startTime = System.currentTimeMillis();
 		if (StringUtils.isEmpty(sortBy)) {
 			sortBy = "geneMolecularInteraction.geneGeneAssociationObject.geneSymbol.displayText.sort";
