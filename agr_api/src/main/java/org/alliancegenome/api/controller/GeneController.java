@@ -289,7 +289,7 @@ public class GeneController implements GeneRESTInterface {
 																					String interactorGeneticPerturbation,
 																					String phenotypes,
 																					String interactionType,
-																					¬@Context UriInfo info) {
+																					@Context UriInfo info) {
 		long startTime = System.currentTimeMillis();
 
 		if (StringUtils.isEmpty(sortBy)) {
