@@ -16,17 +16,14 @@ import org.alliancegenome.es.util.EsClientFactory;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.view.View;
-import org.elasticsearch.action.DocWriteRequest;
-import org.elasticsearch.action.bulk.BackoffPolicy;
+import org.apache.commons.math3.distribution.NormalDistribution;
+import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.common.unit.ByteSizeUnit;
-import org.elasticsearch.common.unit.ByteSizeValue;
-import org.elasticsearch.core.TimeValue;
 import org.elasticsearch.xcontent.XContentType;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -82,8 +79,6 @@ public class SourceDocumentCreation extends Thread {
 	private ProcessDisplayHelper ph4 = new ProcessDisplayHelper(VariantConfigHelper.getDisplayInterval());
 	private ProcessDisplayHelper ph5 = new ProcessDisplayHelper(VariantConfigHelper.getDisplayInterval());
 
-	private int[][] configSettings = VariantConfigHelper.getBulkProcessorSettingsArray();
-
 	AlleleVariantSequenceConverter converter = new AlleleVariantSequenceConverter();
 
 	private StatsCollector statsCollector = new StatsCollector();
@@ -106,14 +101,13 @@ public class SourceDocumentCreation extends Thread {
 	@Override
 	public void run() {
 
-		jsonQueue1 = new LinkedBlockingDeque<>(configSettings[0][3]); // Max 10K * 10K = 100M
-		jsonQueue2 = new LinkedBlockingDeque<>(configSettings[1][3]); // Max 75K * 1333 = 100M
-		jsonQueue3 = new LinkedBlockingDeque<>(configSettings[2][3]); // Max 100K * 1000 = 100M
-		jsonQueue4 = new LinkedBlockingDeque<>(configSettings[3][3]); // Max 200K * 500 = 100M if documents are larger then we might need to split
-																		// this down more
+		jsonQueue1 = new LinkedBlockingDeque<>(1000);
+		jsonQueue2 = new LinkedBlockingDeque<>(1000);
+		jsonQueue3 = new LinkedBlockingDeque<>(1000);
+		jsonQueue4 = new LinkedBlockingDeque<>(1000);
 
 		if (indexing) {
-			log.info(messageHeader + "Creating Bulk Processor 0 - 10K");
+			log.info(messageHeader + "Creating Bulk Processor -1 Standard Div");
 			builder1 = BulkProcessor.builder((request, bulkListener) -> client1.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), new BulkProcessor.Listener() {
 				@Override
 				public void beforeBulk(long executionId, BulkRequest request) {
@@ -126,15 +120,12 @@ public class SourceDocumentCreation extends Thread {
 				@Override
 				public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
 					log.error(messageHeader + "BulkProcessor1 Request Failure: " + failure.getMessage());
-					for (DocWriteRequest<?> req : request.requests()) {
-						IndexRequest idxreq = (IndexRequest) req;
-						bulkProcessor1.add(idxreq);
-					}
-					log.error(messageHeader + "Finished Adding requests to Queue:");
+					failure.printStackTrace();
+					System.exit(-1);
 				}
 			});
 
-			log.info(messageHeader + "Creating Bulk Processor 10K - 75K");
+			log.info(messageHeader + "Creating Bulk Processor -Standard Div");
 			builder2 = BulkProcessor.builder((request, bulkListener) -> client2.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), new BulkProcessor.Listener() {
 				@Override
 				public void beforeBulk(long executionId, BulkRequest request) {
@@ -147,15 +138,12 @@ public class SourceDocumentCreation extends Thread {
 				@Override
 				public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
 					log.error(messageHeader + "BulkProcessor2 Request Failure: " + failure.getMessage());
-					for (DocWriteRequest<?> req : request.requests()) {
-						IndexRequest idxreq = (IndexRequest) req;
-						bulkProcessor2.add(idxreq);
-					}
-					log.error(messageHeader + "Finished Adding requests to Queue:");
+					failure.printStackTrace();
+					System.exit(-1);
 				}
 			});
 
-			log.info(messageHeader + "Creating Bulk Processor 75K - 100K");
+			log.info(messageHeader + "Creating Bulk Processor Standard Div");
 			builder3 = BulkProcessor.builder((request, bulkListener) -> client3.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), new BulkProcessor.Listener() {
 				@Override
 				public void beforeBulk(long executionId, BulkRequest request) {
@@ -168,15 +156,12 @@ public class SourceDocumentCreation extends Thread {
 				@Override
 				public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
 					log.error(messageHeader + "BulkProcessor3 Request Failure: " + failure.getMessage());
-					for (DocWriteRequest<?> req : request.requests()) {
-						IndexRequest idxreq = (IndexRequest) req;
-						bulkProcessor3.add(idxreq);
-					}
-					log.error(messageHeader + "Finished Adding requests to Queue:");
+					failure.printStackTrace();
+					System.exit(-1);
 				}
 			});
 
-			log.info(messageHeader + "Creating Bulk Processor 100K - 200K");
+			log.info(messageHeader + "Creating Bulk Processor +1 Standard Div");
 			builder4 = BulkProcessor.builder((request, bulkListener) -> client4.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), new BulkProcessor.Listener() {
 				@Override
 				public void beforeBulk(long executionId, BulkRequest request) {
@@ -189,41 +174,15 @@ public class SourceDocumentCreation extends Thread {
 				@Override
 				public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
 					log.error(messageHeader + "BulkProcessor4 Request Failure: " + failure.getMessage());
-					for (DocWriteRequest<?> req : request.requests()) {
-						IndexRequest idxreq = (IndexRequest) req;
-						bulkProcessor4.add(idxreq);
-					}
-					log.error(messageHeader + "Finished Adding requests to Queue:");
+					failure.printStackTrace();
+					System.exit(-1);
 				}
 			});
 
-			builder1.setBulkActions(configSettings[0][0]); // 1000
-			builder1.setConcurrentRequests(configSettings[0][1]); // 10
-			builder1.setBulkSize(new ByteSizeValue(configSettings[0][2], ByteSizeUnit.MB)); // 10
-			builder1.setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(1L), 60));
 			bulkProcessor1 = builder1.build();
-			log.info(messageHeader + "BP1: BA: " + configSettings[0][0] + " CR: " + configSettings[0][1] + " BS: " + configSettings[0][2]);
-
-			builder2.setBulkActions(configSettings[1][0]); // 133
-			builder2.setConcurrentRequests(configSettings[1][1]); // 10
-			builder2.setBulkSize(new ByteSizeValue(configSettings[1][2], ByteSizeUnit.MB)); // 10
-			builder2.setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(1L), 60));
 			bulkProcessor2 = builder2.build();
-			log.info(messageHeader + "BP2: BA: " + configSettings[1][0] + " CR: " + configSettings[1][1] + " BS: " + configSettings[1][2]);
-
-			builder3.setBulkActions(configSettings[2][0]); // 100
-			builder3.setConcurrentRequests(configSettings[2][1]); // 10
-			builder3.setBulkSize(new ByteSizeValue(configSettings[2][2], ByteSizeUnit.MB)); // 10
-			builder3.setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(1L), 60));
 			bulkProcessor3 = builder3.build();
-			log.info(messageHeader + "BP3: BA: " + configSettings[2][0] + " CR: " + configSettings[2][1] + " BS: " + configSettings[2][2]);
-
-			builder4.setBulkActions(configSettings[3][0]); // 50
-			builder4.setConcurrentRequests(configSettings[3][1]); // 10
-			builder4.setBulkSize(new ByteSizeValue(configSettings[3][2], ByteSizeUnit.MB)); // 10
-			builder4.setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(1L), 60));
 			bulkProcessor4 = builder4.build();
-			log.info(messageHeader + "BP4: BA: " + configSettings[3][0] + " CR: " + configSettings[3][1] + " BS: " + configSettings[3][2]);
 
 		}
 
@@ -252,11 +211,11 @@ public class SourceDocumentCreation extends Thread {
 		}
 
 		ArrayList<VCFJsonBulkIndexer> indexers = new ArrayList<>();
-		
+
 		if (!indexing) {
 			indexName = "no_index";
 		}
-		
+
 		ph3.startProcess(messageHeader + "VCFJsonIndexer BulkProcessor");
 		ph4.startProcess(messageHeader + "VCFJsonIndexer Buckets");
 		for (int i = 0; i < VariantConfigHelper.getIndexerBulkProcessorThreads(); i++) {
@@ -319,23 +278,8 @@ public class SourceDocumentCreation extends Thread {
 
 			log.info(messageHeader + "Waiting for bulk processors to finish");
 
-			log.info(messageHeader + "JSon Queue Empty shuting down bulk indexers");
-			for (VCFJsonBulkIndexer indexer : indexers) {
-				indexer.interrupt();
-				indexer.join();
-			}
-			log.info(messageHeader + "Bulk Indexers shutdown");
-			ph3.finishProcess();
-			ph4.finishProcess();
-
-			log.info(messageHeader + "Threads finished: ");
-
-			//log.info("Shutdown Neo Repo: ");
-			//repo.clearCache();
-			
-			if (gatherStats) {
-				statsCollector.printOutput(speciesType.getModName());
-			}
+			// log.info("Shutdown Neo Repo: ");
+			// repo.clearCache();
 
 			if (gatherStats) {
 				statsCollector.printOutput(speciesType.getModName());
@@ -357,6 +301,17 @@ public class SourceDocumentCreation extends Thread {
 				client3.close();
 				client4.close();
 			}
+
+			log.info(messageHeader + "JSon Queue Empty shuting down bulk indexers");
+			for (VCFJsonBulkIndexer indexer : indexers) {
+				indexer.interrupt();
+				indexer.join();
+			}
+			log.info(messageHeader + "Bulk Indexers shutdown");
+			ph3.finishProcess();
+			ph4.finishProcess();
+
+			log.info(messageHeader + "Threads finished: ");
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -460,6 +415,11 @@ public class SourceDocumentCreation extends Thread {
 
 		private final ObjectMapper mapper = new ObjectMapper();
 
+		private SummaryStatistics stats = new SummaryStatistics();
+		private NormalDistribution dist = new NormalDistribution();
+
+		private Double norm = dist.inverseCumulativeProbability(.75);
+
 		@Override
 		public void run() {
 			mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
@@ -477,17 +437,25 @@ public class SourceDocumentCreation extends Thread {
 						for (AlleleVariantSequence doc : docList) {
 							try {
 								String jsonDoc = mapper.writerWithView(View.AlleleVariantSequenceConverterForES.class).writeValueAsString(doc);
-								if (jsonDoc.length() < configSettings[0][4]) {
+
+								stats.addValue(jsonDoc.length());
+
+								double z = (jsonDoc.length() - stats.getMean()) / stats.getStandardDeviation();
+
+								if (z < -norm) {
 									docs1.add(jsonDoc);
-								} else if (jsonDoc.length() < configSettings[1][4]) {
+								} else if (z > norm) {
+									docs4.add(jsonDoc);
+								} else if (z < 0) {
 									docs2.add(jsonDoc);
-								} else if (jsonDoc.length() < configSettings[2][4]) {
+								} else if (z > 0) {
 									docs3.add(jsonDoc);
 								} else {
-									docs4.add(jsonDoc);
+									// Should never hit this condition
 								}
-								ph5.progressProcess("jsonQueue1(" + jqs[0][0] + "," + jqs[0][1] + "): " + jsonQueue1.size() + " jsonQueue2(" + jqs[1][0] + "," + jqs[1][1] + "): " + jsonQueue2.size() + " jsonQueue3(" + jqs[2][0] + "," + jqs[2][1] + "): " + jsonQueue3.size() + " jsonQueue4("
-									+ jqs[3][0] + "," + jqs[3][1] + "): " + jsonQueue4.size());
+
+								ph5.progressProcess("M: " + stats.getMean() + " SD: " + stats.getStandardDeviation() + " jsonQueue1(" + jqs[0][0] + "," + jqs[0][1] + "): " + jsonQueue1.size() + " jsonQueue2(" + jqs[1][0] + "," + jqs[1][1] + "): " + jsonQueue2.size() + " jsonQueue3(" + jqs[2][0]
+									+ "," + jqs[2][1] + "): " + jsonQueue3.size() + " jsonQueue4(" + jqs[3][0] + "," + jqs[3][1] + "): " + jsonQueue4.size());
 							} catch (Exception e) {
 								e.printStackTrace();
 							}
