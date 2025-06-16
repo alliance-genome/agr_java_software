@@ -211,102 +211,106 @@ public class APIServiceHelper {
 
 
 	// Constants for MOD prefix exceptions
-    private static final List<String> MOD_PREFIX_EXCEPTIONS = Arrays.asList("OMIM", "SGD", "MGI");
-    
-	private static Map<String,Map<String,String>> buildProviderWithUrl(DiseaseAnnotation annotation) {
-        if (annotation == null) return null;
-        
-        Map<String,Map<String,String>>  result = new HashMap<>();
-        
-        if (annotation.getDataProvider() != null) {
-            Map<String, String> dataProviderMap = buildProviderMap(annotation.getDataProvider(), annotation.getDataProviderCrossReference());
-            result.put("dataProvider", dataProviderMap);
-        }
-        
-        if (annotation.getSecondaryDataProvider() != null) {
-            Map<String, String> secondaryProviderMap = buildProviderMap(annotation.getSecondaryDataProvider(), annotation.getSecondaryDataProviderCrossReference());
-            result.put("secondaryDataProvider", secondaryProviderMap);
-        }
+	private static final List<String> MOD_PREFIX_EXCEPTIONS = Arrays.asList("OMIM", "SGD", "MGI");
 
-        return result;
-    }
+	private static Map<String, Map<String, String>> buildProviderWithUrl(DiseaseAnnotation annotation) {
+		if (annotation == null) {
+			return null;
+		}
 
-    private static Map<String, String> buildProviderMap(Organization organization, CrossReference crossReference) {
-        Map<String, String> providerMap = new HashMap<>();
-        providerMap.put("abbreviation", organization.getAbbreviation());
-        
-        String url = buildUrlFromCrossReference(organization, crossReference);
-        if (url != null) {
-            providerMap.put("url", url);
-        }
-        
-        return providerMap;
-    }
+		Map<String, Map<String, String>> result = new HashMap<>();
 
-    private static String buildUrlFromCrossReference(Organization organization, CrossReference crossReference) {
-        if (crossReference == null || crossReference.getResourceDescriptorPage() == null) {
-            // Fall back to organization homepage if no cross reference
-            if (organization != null && organization.getHomepageResourceDescriptorPage() != null) {
-                return organization.getHomepageResourceDescriptorPage().getUrlTemplate().replace("[%s]", "");
-            }
-            return null;
-        }
-        
-        String urlTemplate = crossReference.getResourceDescriptorPage().getUrlTemplate();
-        String referencedCurie = crossReference.getReferencedCurie();
-        
-        if (urlTemplate == null || referencedCurie == null) {
-            return null;
-        }
-        
-        // Handle MOD prefix exceptions for URL building
-        String urlValue = referencedCurie;
-        if (organization != null && MOD_PREFIX_EXCEPTIONS.contains(organization.getAbbreviation())) {
-            String[] parts = referencedCurie.split(":");
-            urlValue = parts.length > 1 ? parts[1] : referencedCurie;
-        }
-        
-        return urlTemplate.replace("[%s]", urlValue);
-    }
+		if (annotation.getDataProvider() != null) {
+			Map<String, String> dataProviderMap = buildProviderMap(annotation.getDataProvider(),
+					annotation.getDataProviderCrossReference());
+			result.put("dataProvider", dataProviderMap);
+		}
+
+		if (annotation.getSecondaryDataProvider() != null) {
+			Map<String, String> secondaryProviderMap = buildProviderMap(annotation.getSecondaryDataProvider(),
+					annotation.getSecondaryDataProviderCrossReference());
+			result.put("secondaryDataProvider", secondaryProviderMap);
+		}
+
+		return result;
+	}
+
+	private static Map<String, String> buildProviderMap(Organization organization, CrossReference crossReference) {
+		Map<String, String> providerMap = new HashMap<>();
+		providerMap.put("abbreviation", organization.getAbbreviation());
+
+		String url = buildUrlFromCrossReference(organization, crossReference);
+		if (url != null) {
+			providerMap.put("url", url);
+		}
+
+		return providerMap;
+	}
+
+	private static String buildUrlFromCrossReference(Organization organization, CrossReference crossReference) {
+		if (crossReference == null || crossReference.getResourceDescriptorPage() == null) {
+			// Fall back to organization homepage if no cross reference
+			if (organization != null && organization.getHomepageResourceDescriptorPage() != null) {
+				return organization.getHomepageResourceDescriptorPage().getUrlTemplate().replace("[%s]", "");
+			}
+			return null;
+		}
+
+		String urlTemplate = crossReference.getResourceDescriptorPage().getUrlTemplate();
+		String referencedCurie = crossReference.getReferencedCurie();
+
+		if (urlTemplate == null || referencedCurie == null) {
+			return null;
+		}
+
+		// Handle MOD prefix exceptions for URL building
+		String urlValue = referencedCurie;
+		if (organization != null && MOD_PREFIX_EXCEPTIONS.contains(organization.getAbbreviation())) {
+			String[] parts = referencedCurie.split(":");
+			urlValue = parts.length > 1 ? parts[1] : referencedCurie;
+		}
+
+		return urlTemplate.replace("[%s]", urlValue);
+	}
 
 	/**
-     * Builds providers with URLs from multiple annotations
-     */
-    public static List<Map<String,Map<String,String>>> buildProvidersWithUrl(List<DiseaseAnnotation> annotations) {
-        if (annotations == null) return null;
-        
-        List<Map<String,Map<String,String>>> providerMaps = annotations.stream()
-            .map(APIServiceHelper::buildProviderWithUrl)
-            .collect(Collectors.toList());
-        
-        // Remove duplicates based on the abbreviation field in the dataProvider
-        return removeDuplicates(providerMaps, providerMap -> {
-            Map<String, String> dataProvider = providerMap.get("dataProvider");
-            return dataProvider != null ? dataProvider.get("abbreviation") : null;
-        });
-    }
+	 * Builds providers with URLs from multiple annotations
+	 */
+	public static List<Map<String, Map<String, String>>> buildProvidersWithUrl(List<DiseaseAnnotation> annotations) {
+		if (annotations == null) {
+			return null;
+		}
 
-    /**
-     * Removes duplicates from a list of objects based on a key function.
-     * The key function is used to extract a unique identifier from each object.
-     * 
-     * @param <T> the type of objects in the list
-     * @param <K> the type of the key used for deduplication
-     * @param objects the list of objects to deduplicate
-     * @param keyFunction a function that extracts the key from each object
-     * @return a new list containing unique objects based on the key function
-     */
-    public static <T, K> List<T> removeDuplicates(List<T> objects, Function<T, K> keyFunction) {
-        if (objects == null) return null;
-        
-        return objects.stream()
-            .collect(Collectors.toMap(
-                keyFunction,
-                Function.identity(),
-                (existing, replacement) -> existing
-            ))
-            .values()
-            .stream()
-            .collect(Collectors.toList());
-    }
+		List<Map<String, Map<String, String>>> providerMaps = annotations.stream()
+				.map(APIServiceHelper::buildProviderWithUrl)
+				.collect(Collectors.toList());
+
+		return removeDuplicateProviders(providerMaps);
+	}
+
+	/**
+	 * Removes duplicate provider maps based on dataProvider abbreviation.
+	 */
+	public static List<Map<String, Map<String, String>>> removeDuplicateProviders(
+			List<Map<String, Map<String, String>>> providerMaps) {
+		if (providerMaps == null) {
+			return null;
+		}
+
+		return providerMaps.stream()
+				.collect(Collectors.toMap(
+						// takes each provider map and extracts the abbreviation field to use as the key
+						// in the resulting Map
+						providerMap -> {
+							Map<String, String> dataProvider = providerMap.get("dataProvider");
+							return dataProvider != null ? dataProvider.get("abbreviation") : null;
+						},
+						// use the original object as the value in the map
+						Function.identity(),
+						// if a duplicate key is found, keep the existing value
+						(existing, replacement) -> existing))
+				.values()
+				.stream()
+				.collect(Collectors.toList());
+	}
 }
