@@ -2,9 +2,12 @@ package org.alliancegenome.api.service.helper;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -15,8 +18,10 @@ import org.alliancegenome.core.helpers.DiseaseAnnotationHelper;
 import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.BiologicalEntity;
+import org.alliancegenome.curation_api.model.entities.CrossReference;
 import org.alliancegenome.curation_api.model.entities.DiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.GeneDiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.Organization;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.entity.node.Gene;
@@ -199,4 +204,109 @@ public class APIServiceHelper {
 			return "";
 		}
 	}
+
+
+
+	//-----------------data provider logic moved from the frontend to the backend---------------------------------
+
+
+	// Constants for MOD prefix exceptions
+    private static final List<String> MOD_PREFIX_EXCEPTIONS = Arrays.asList("OMIM", "SGD", "MGI");
+    
+	private static Map<String,Map<String,String>> buildProviderWithUrl(DiseaseAnnotation annotation) {
+        if (annotation == null) return null;
+        
+        Map<String,Map<String,String>>  result = new HashMap<>();
+        
+        if (annotation.getDataProvider() != null) {
+            Map<String, String> dataProviderMap = buildProviderMap(annotation.getDataProvider(), annotation.getDataProviderCrossReference());
+            result.put("dataProvider", dataProviderMap);
+        }
+        
+        if (annotation.getSecondaryDataProvider() != null) {
+            Map<String, String> secondaryProviderMap = buildProviderMap(annotation.getSecondaryDataProvider(), annotation.getSecondaryDataProviderCrossReference());
+            result.put("secondaryDataProvider", secondaryProviderMap);
+        }
+
+        return result;
+    }
+
+    private static Map<String, String> buildProviderMap(Organization organization, CrossReference crossReference) {
+        Map<String, String> providerMap = new HashMap<>();
+        providerMap.put("abbreviation", organization.getAbbreviation());
+        
+        String url = buildUrlFromCrossReference(organization, crossReference);
+        if (url != null) {
+            providerMap.put("url", url);
+        }
+        
+        return providerMap;
+    }
+
+    private static String buildUrlFromCrossReference(Organization organization, CrossReference crossReference) {
+        if (crossReference == null || crossReference.getResourceDescriptorPage() == null) {
+            // Fall back to organization homepage if no cross reference
+            if (organization != null && organization.getHomepageResourceDescriptorPage() != null) {
+                return organization.getHomepageResourceDescriptorPage().getUrlTemplate().replace("[%s]", "");
+            }
+            return null;
+        }
+        
+        String urlTemplate = crossReference.getResourceDescriptorPage().getUrlTemplate();
+        String referencedCurie = crossReference.getReferencedCurie();
+        
+        if (urlTemplate == null || referencedCurie == null) {
+            return null;
+        }
+        
+        // Handle MOD prefix exceptions for URL building
+        String urlValue = referencedCurie;
+        if (organization != null && MOD_PREFIX_EXCEPTIONS.contains(organization.getAbbreviation())) {
+            String[] parts = referencedCurie.split(":");
+            urlValue = parts.length > 1 ? parts[1] : referencedCurie;
+        }
+        
+        return urlTemplate.replace("[%s]", urlValue);
+    }
+
+	/**
+     * Builds providers with URLs from multiple annotations
+     */
+    public static List<Map<String,Map<String,String>>> buildProvidersWithUrl(List<DiseaseAnnotation> annotations) {
+        if (annotations == null) return null;
+        
+        List<Map<String,Map<String,String>>> providerMaps = annotations.stream()
+            .map(APIServiceHelper::buildProviderWithUrl)
+            .collect(Collectors.toList());
+        
+        // Remove duplicates based on the abbreviation field in the dataProvider
+        return removeDuplicates(providerMaps, providerMap -> {
+            Map<String, String> dataProvider = providerMap.get("dataProvider");
+            return dataProvider != null ? dataProvider.get("abbreviation") : null;
+        });
+    }
+
+    /**
+     * Removes duplicates from a list of objects based on a key function.
+     * The key function is used to extract a unique identifier from each object.
+     * 
+     * @param <T> the type of objects in the list
+     * @param <K> the type of the key used for deduplication
+     * @param objects the list of objects to deduplicate
+     * @param keyFunction a function that extracts the key from each object
+     * @return a new list containing unique objects based on the key function
+     */
+    public static <T, K> List<T> removeDuplicates(List<T> objects, Function<T, K> keyFunction) {
+        if (objects == null) return null;
+        
+        return objects.stream()
+            .collect(Collectors.toMap(
+                keyFunction,
+                Function.identity(),
+                (existing, replacement) -> existing
+            ))
+            .values()
+            .stream()
+            .collect(Collectors.toList());
+    }
 }

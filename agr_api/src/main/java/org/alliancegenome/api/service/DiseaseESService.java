@@ -74,12 +74,15 @@ public class DiseaseESService extends ESService {
 		List<GeneDiseaseAnnotationDocument> list = Arrays.stream(searchResponse.getHits().getHits())
 			.map(searchHit -> {
 				try {
-					GeneDiseaseAnnotationDocument object = mapper.readValue(searchHit.getSourceAsString(), GeneDiseaseAnnotationDocument.class);
-					object.setUniqueId(searchHit.getId());
+					GeneDiseaseAnnotationDocument gdad = mapper.readValue(searchHit.getSourceAsString(), GeneDiseaseAnnotationDocument.class);
+					gdad.setUniqueId(searchHit.getId());
+					gdad.setProviders(APIServiceHelper.buildProvidersWithUrl(gdad.getPrimaryAnnotations()));
+
 					if (!includePrimaryAnnotations) {
-						object.setPrimaryAnnotations(null);
+						gdad.setPrimaryAnnotations(null);
 					}
-					return object;
+					
+					return gdad;
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
