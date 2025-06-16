@@ -278,9 +278,18 @@ public class SourceDocumentCreation extends Thread {
 
 			log.info(messageHeader + "Waiting for bulk processors to finish");
 
-			// log.info("Shutdown Neo Repo: ");
-			// repo.clearCache();
+			Thread.sleep(60000);
 
+			log.info(messageHeader + "JSon Queue Empty shuting down bulk indexers");
+			for (VCFJsonBulkIndexer indexer : indexers) {
+				indexer.interrupt();
+				indexer.join();
+			}
+			log.info(messageHeader + "Bulk Indexers shutdown");
+			ph3.finishProcess();
+			ph4.finishProcess();
+			
+			
 			if (gatherStats) {
 				statsCollector.printOutput(speciesType.getModName());
 			}
@@ -301,15 +310,6 @@ public class SourceDocumentCreation extends Thread {
 				client3.close();
 				client4.close();
 			}
-
-			log.info(messageHeader + "JSon Queue Empty shuting down bulk indexers");
-			for (VCFJsonBulkIndexer indexer : indexers) {
-				indexer.interrupt();
-				indexer.join();
-			}
-			log.info(messageHeader + "Bulk Indexers shutdown");
-			ph3.finishProcess();
-			ph4.finishProcess();
 
 			log.info(messageHeader + "Threads finished: ");
 
