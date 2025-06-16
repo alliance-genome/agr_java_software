@@ -3,6 +3,7 @@ package org.alliancegenome.indexer.variant.es.managers;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
@@ -16,7 +17,6 @@ import org.alliancegenome.es.util.EsClientFactory;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.view.View;
-import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.bulk.BulkRequest;
@@ -416,14 +416,12 @@ public class SourceDocumentCreation extends Thread {
 		private final ObjectMapper mapper = new ObjectMapper();
 
 		private SummaryStatistics stats = new SummaryStatistics();
-		private NormalDistribution dist = new NormalDistribution();
-
-		private Double norm = dist.inverseCumulativeProbability(.75);
 
 		@Override
 		public void run() {
 			mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 			mapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false);
+			Random rand = new Random();
 			while (!(Thread.currentThread().isInterrupted())) {
 				try {
 					List<AlleleVariantSequence> docList = objectQueue.take();
@@ -440,19 +438,33 @@ public class SourceDocumentCreation extends Thread {
 
 								stats.addValue(jsonDoc.length());
 
-								double z = (jsonDoc.length() - stats.getMean()) / stats.getStandardDeviation();
-
-								if (z < -norm) {
+//								double z = (jsonDoc.length() - stats.getMean()) / stats.getStandardDeviation();
+//								
+//								if (z < -norm) {
+//									docs1.add(jsonDoc);
+//								} else if (z > norm) {
+//									docs4.add(jsonDoc);
+//								} else if (z < 0) {
+//									docs2.add(jsonDoc);
+//								} else if (z > 0) {
+//									docs3.add(jsonDoc);
+//								} else {
+//									// Should never hit this condition
+//								}
+								int r = rand.nextInt(4);
+								if(r == 0) {
 									docs1.add(jsonDoc);
-								} else if (z > norm) {
-									docs4.add(jsonDoc);
-								} else if (z < 0) {
-									docs2.add(jsonDoc);
-								} else if (z > 0) {
-									docs3.add(jsonDoc);
-								} else {
-									// Should never hit this condition
 								}
+								if(r == 1) {
+									docs2.add(jsonDoc);
+								}
+								if(r == 2) {
+									docs3.add(jsonDoc);
+								}
+								if(r == 3) {
+									docs4.add(jsonDoc);
+								}
+								
 
 								ph5.progressProcess("M: " + stats.getMean() + " SD: " + stats.getStandardDeviation() + " jsonQueue1(" + jqs[0][0] + "," + jqs[0][1] + "): " + jsonQueue1.size() + " jsonQueue2(" + jqs[1][0] + "," + jqs[1][1] + "): " + jsonQueue2.size() + " jsonQueue3(" + jqs[2][0]
 									+ "," + jqs[2][1] + "): " + jsonQueue3.size() + " jsonQueue4(" + jqs[3][0] + "," + jqs[3][1] + "): " + jsonQueue4.size());
