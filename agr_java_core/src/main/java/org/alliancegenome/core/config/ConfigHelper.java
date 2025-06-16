@@ -32,6 +32,8 @@ import static org.alliancegenome.core.config.Constants.RIBBON_TERM_SPECIES_APPLI
 import static org.alliancegenome.core.config.Constants.THREADED;
 import static org.alliancegenome.core.config.Constants.VARIANT_CACHER_CONFIG_FILE;
 import static org.alliancegenome.core.config.Constants.VARIANT_DOWNLOAD_PATH;
+import static org.alliancegenome.core.config.Constants.BLUETEAM_ES_INDEX;
+import static org.alliancegenome.core.config.Constants.BLUETEAM_ES_URL;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -117,6 +119,10 @@ public class ConfigHelper {
 
 		defaults.put(ALLIANCE_RELEASE, "0.0.0");
 		defaults.put(FMS_URL, "https://fms.alliancegenome.org/api");
+		
+		//literature indexer
+		defaults.put(BLUETEAM_ES_URL, "localhost");
+		defaults.put(BLUETEAM_ES_INDEX, "public_references_index");
 
 		// This next item needs to be set in order to prevent the
 		// Caused by: java.lang.IllegalStateException: availableProcessors is already set to [16], rejecting [16]
@@ -544,5 +550,19 @@ public class ConfigHelper {
 			return "Bearer " + config.get(CURATION_API_TOKEN);
 		}
 		return null;
+	}
+	
+	public static String getBueTeamESUrl() {
+		if (!init) {
+			init();
+		}
+		return config.get(BLUETEAM_ES_URL);
+	}
+	
+	public static String getBlueTeamESIndex() {
+		if (!init) {
+			init();
+		}
+		return config.get(BLUETEAM_ES_INDEX);
 	}
 }

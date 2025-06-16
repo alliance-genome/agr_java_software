@@ -1,5 +1,7 @@
 package org.alliancegenome.core.config;
 
+import groovyjarjarantlr4.v4.parse.ANTLRParser.finallyClause_return;
+
 public class Constants {
 
 	private Constants() { }
@@ -84,4 +86,7 @@ public class Constants {
 	public static final String VARIANT_INDEXER_BULK_PROCESSOR_THREADS = "VARIANT_INDEXER_BULK_PROCESSOR_THREADS";
 	public static final String VARIANT_BULK_PROCESSOR_SETTINGS = "VARIANT_BULK_PROCESSOR_SETTINGS";
 
+	//literature Indexer
+	public static final String BLUETEAM_ES_URL="BLUETEAM_ES_URL";
+	public static final String BLUETEAM_ES_INDEX="BLUETEAM_ES_INDEX";
 }
