@@ -23,6 +23,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene> {
 	protected DecimalFormat df = new DecimalFormat("#");
 	private GeneDocumentCache cache = new GeneDocumentCache();
 	private ObjectFileStorage<Map<String, Set<String>>> objectFileStorage = new ObjectFileStorage<>();
+	private String dataDir = "data";
 	private String filePrefix = getClass().getSimpleName();
 	
 	public GeneIndexerRepository() {
@@ -136,7 +137,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene> {
 	}
 
 	private class GetGeneMapThread implements Runnable {
-		File cacheFile = new File(filePrefix + "_" + getClass().getSimpleName() + ".data");
+		File cacheFile = new File(dataDir + "/" + filePrefix + "_" + getClass().getSimpleName() + ".data");
 
 		ObjectFileStorage<Map<String, Gene>> geneObjectFileStorage = new ObjectFileStorage<>();
 
@@ -179,7 +180,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene> {
 	}
 
 	private class GetSynonymsThread implements Runnable {
-		File cacheFile = new File(filePrefix + "_" + getClass().getSimpleName() + ".data");
+		File cacheFile = new File(dataDir + "/" + filePrefix + "_" + getClass().getSimpleName() + ".data");
 
 		@Override
 		public void run() {
@@ -194,8 +195,8 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene> {
 	}
 
 	private class GetCrossReferencesThread implements Runnable {
-		File nameCacheFile = new File(filePrefix + "_" + getClass().getSimpleName() + "_names.data");
-		File idsCacheFile = new File(filePrefix + "_" + getClass().getSimpleName() + "_ids.data");
+		File nameCacheFile = new File(dataDir + "/" + filePrefix + "_" + getClass().getSimpleName() + "_names.data");
+		File idsCacheFile = new File(dataDir + "/" + filePrefix + "_" + getClass().getSimpleName() + "_ids.data");
 
 		@Override
 		public void run() {
@@ -237,7 +238,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene> {
 	}
 
 	private class GetChromosomesThread implements Runnable {
-		File cacheFile = new File(filePrefix + "_" + getClass().getSimpleName() + ".data");
+		File cacheFile = new File(dataDir + "/" + filePrefix + "_" + getClass().getSimpleName() + ".data");
 
 		@Override
 		public void run() {
@@ -250,7 +251,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene> {
 	}
 
 	private class GetSecondaryIdsThread implements Runnable {
-		File cacheFile = new File(filePrefix + "_" + getClass().getSimpleName() + ".data");
+		File cacheFile = new File(dataDir + "/" + filePrefix + "_" + getClass().getSimpleName() + ".data");
 
 		@Override
 		public void run() {
@@ -263,7 +264,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene> {
 	}
 
 	private class GetAllelesMapThread implements Runnable {
-		File cacheFile = new File(filePrefix + "_" + getClass().getSimpleName() + ".data");
+		File cacheFile = new File(dataDir + "/" + filePrefix + "_" + getClass().getSimpleName() + ".data");
 
 		@Override
 		public void run() {
@@ -276,7 +277,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene> {
 	}
 
 	private class GetSoTermNameMapThread implements Runnable {
-		File cacheFile = new File(filePrefix + "_" + getClass().getSimpleName() + ".data");
+		File cacheFile = new File(dataDir + "/" + filePrefix + "_" + getClass().getSimpleName() + ".data");
 
 		@Override
 		public void run() {
@@ -289,7 +290,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene> {
 	}
 
 	private class GetSoTermNameWithParentsMapThread implements Runnable {
-		File cacheFile = new File(filePrefix + "_" + getClass().getSimpleName() + ".data");
+		File cacheFile = new File(dataDir + "/" + filePrefix + "_" + getClass().getSimpleName() + ".data");
 
 		@Override
 		public void run() {
@@ -302,7 +303,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene> {
 	}
 
 	private class GetSoTermNameAgrSlimMapThread implements Runnable {
-		File cacheFile = new File(filePrefix + "_" + getClass().getSimpleName() + ".data");
+		File cacheFile = new File(dataDir + "/" + filePrefix + "_" + getClass().getSimpleName() + ".data");
 
 		@Override
 		public void run() {
@@ -316,7 +317,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene> {
 	}
 
 	private class GetStrictOrthologySymbolsMapThread implements Runnable {
-		File cacheFile = new File(filePrefix + "_" + getClass().getSimpleName() + ".data");
+		File cacheFile = new File(dataDir + "/" + filePrefix + "_" + getClass().getSimpleName() + ".data");
 
 		@Override
 		public void run() {
@@ -329,7 +330,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene> {
 	}
 
 	private class GetDiseasesMapThread implements Runnable {
-		File cacheFile = new File(filePrefix + "_" + getClass().getSimpleName() + ".data");
+		File cacheFile = new File(dataDir + "/" + filePrefix + "_" + getClass().getSimpleName() + ".data");
 		
 		@Override
 		public void run() {
@@ -343,7 +344,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene> {
 	}
 
 	private class GetDiseasesAgrSlimMapThread implements Runnable {
-		File cacheFile = new File(filePrefix + "_" + getClass().getSimpleName() + ".data");
+		File cacheFile = new File(dataDir + "/" + filePrefix + "_" + getClass().getSimpleName() + ".data");
 		
 		@Override
 		public void run() {
@@ -357,7 +358,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene> {
 	}
 
 	private class GetDiseasesWithParentsThread implements Runnable {
-		File cacheFile = new File(filePrefix + "_" + getClass().getSimpleName() + ".data");
+		File cacheFile = new File(dataDir + "/" + filePrefix + "_" + getClass().getSimpleName() + ".data");
 		
 		@Override
 		public void run() {
@@ -370,7 +371,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene> {
 	}
 
 	private class GetModelMapThread implements Runnable {
-		File cacheFile = new File(filePrefix + "_" + getClass().getSimpleName() + ".data");
+		File cacheFile = new File(dataDir + "/" + filePrefix + "_" + getClass().getSimpleName() + ".data");
 		
 		@Override
 		public void run() {
@@ -383,7 +384,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene> {
 	}
 
 	private class GetPhenotypeStatementMapThread implements Runnable {
-		File cacheFile = new File(filePrefix + "_" + getClass().getSimpleName() + ".data");
+		File cacheFile = new File(dataDir + "/" + filePrefix + "_" + getClass().getSimpleName() + ".data");
 		
 		@Override
 		public void run() {
@@ -396,7 +397,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene> {
 	}
 
 	private class GetWhereExpressedMapThread implements Runnable {
-		File cacheFile = new File(filePrefix + "_" + getClass().getSimpleName() + ".data");
+		File cacheFile = new File(dataDir + "/" + filePrefix + "_" + getClass().getSimpleName() + ".data");
 		
 		@Override
 		public void run() {
@@ -410,7 +411,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene> {
 	}
 
 	private class GetExpressionStagesMapThread implements Runnable {
-		File cacheFile = new File(filePrefix + "_" + getClass().getSimpleName() + ".data");
+		File cacheFile = new File(dataDir + "/" + filePrefix + "_" + getClass().getSimpleName() + ".data");
 		
 		@Override
 		public void run() {
@@ -423,7 +424,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene> {
 	}
 
 	private class GetSubcellularExpressionAgrSlimMapThread implements Runnable {
-		File cacheFile = new File(filePrefix + "_" + getClass().getSimpleName() + ".data");
+		File cacheFile = new File(dataDir + "/" + filePrefix + "_" + getClass().getSimpleName() + ".data");
 		
 		@Override
 		public void run() {
@@ -437,7 +438,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene> {
 	}
 
 	private class GetSubcellularExpressionWithParentsMapThread implements Runnable {
-		File cacheFile = new File(filePrefix + "_" + getClass().getSimpleName() + ".data");
+		File cacheFile = new File(dataDir + "/" + filePrefix + "_" + getClass().getSimpleName() + ".data");
 		
 		@Override
 		public void run() {
@@ -451,7 +452,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene> {
 	}
 
 	private class GetAnatomicalExpressionMapThread implements Runnable {
-		File cacheFile = new File(filePrefix + "_" + getClass().getSimpleName() + ".data");
+		File cacheFile = new File(dataDir + "/" + filePrefix + "_" + getClass().getSimpleName() + ".data");
 		
 		@Override
 		public void run() {
@@ -465,7 +466,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene> {
 	}
 
 	private class GetAnatomicalExpressionWithParentsMapThread implements Runnable {
-		File cacheFile = new File(filePrefix + "_" + getClass().getSimpleName() + ".data");
+		File cacheFile = new File(dataDir + "/" + filePrefix + "_" + getClass().getSimpleName() + ".data");
 		
 		@Override
 		public void run() {
