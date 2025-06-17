@@ -116,14 +116,14 @@ public class SourceDocumentCreation extends Thread {
 	@Override
 	public void run() {
 
-		jsonQueue1 = new LinkedBlockingDeque<>(1000);
-		jsonQueue2 = new LinkedBlockingDeque<>(1000);
-		jsonQueue3 = new LinkedBlockingDeque<>(1000);
-		jsonQueue4 = new LinkedBlockingDeque<>(1000);
-		jsonQueue5 = new LinkedBlockingDeque<>(1000);
-		jsonQueue6 = new LinkedBlockingDeque<>(1000);
-		jsonQueue7 = new LinkedBlockingDeque<>(1000);
-		jsonQueue8 = new LinkedBlockingDeque<>(1000);
+		jsonQueue1 = new LinkedBlockingDeque<>(100);
+		jsonQueue2 = new LinkedBlockingDeque<>(100);
+		jsonQueue3 = new LinkedBlockingDeque<>(100);
+		jsonQueue4 = new LinkedBlockingDeque<>(100);
+		jsonQueue5 = new LinkedBlockingDeque<>(100);
+		jsonQueue6 = new LinkedBlockingDeque<>(100);
+		jsonQueue7 = new LinkedBlockingDeque<>(100);
+		jsonQueue8 = new LinkedBlockingDeque<>(100);
 
 		if (indexing) {
 			builder1 = BulkProcessor.builder((request, bulkListener) -> client1.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), new BulkProcessor.Listener() {
