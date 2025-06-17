@@ -6,7 +6,7 @@ import org.alliancegenome.indexer.indexers.DatasetIndexer;
 import org.alliancegenome.indexer.indexers.DiseaseIndexer;
 import org.alliancegenome.indexer.indexers.GeneIndexer;
 import org.alliancegenome.indexer.indexers.GoIndexer;
-import org.alliancegenome.indexer.indexers.LitIndexer;
+import org.alliancegenome.indexer.indexers.LiteratureIndexer;
 import org.alliancegenome.indexer.indexers.ModelIndexer;
 import org.alliancegenome.indexer.indexers.curation.DiseaseAnnotationCurationIndexer;
 import org.alliancegenome.indexer.indexers.curation.DiseaseSummaryCurationIndexer;
@@ -28,7 +28,7 @@ public enum IndexerConfig {
 	GoIndexer("go", GoIndexer.class, 4, 914, 914, 8, 1),
 	ModelIndexer("model", ModelIndexer.class, 4, 1500, 1426, 4, 1),
 
-	LiteratureIndexer("literature", LitIndexer.class, 4, 5000, 5000, 4, 1),
+	LiteratureIndexer("literature", LiteratureIndexer.class, 4, 5000, 5000, 4, 1),
 	
 	// Curation Indexers
 	DiseaseAnnotationIndexer("diseaseAnnotation", DiseaseAnnotationCurationIndexer.class, 1, 1500, 1500, 2, 1),

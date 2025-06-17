@@ -5,7 +5,6 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -15,30 +14,27 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.alliancegenome.indexer.config.IndexerConfig;
-import org.alliancegenome.indexer.indexers.curation.LitDocument;
+import org.alliancegenome.indexer.indexers.curation.LiteratureSummaryDocument;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.indexer.indexers.curation.interfaces.LiteratureElasticSearchInterface;
 
 import si.mazi.rescu.HttpStatusIOException;
 import si.mazi.rescu.RestProxyFactory;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import groovyjarjarpicocli.CommandLine.Help.Ansi.IStyle;
 
-import com.google.gson.JsonObject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
-public class LitIndexer extends Indexer {
-	private static final Logger logger = LoggerFactory.getLogger(LitIndexer.class);
+@Slf4j
+public class LiteratureIndexer extends Indexer {
+	//private static final Logger logger = LoggerFactory.getLogger(LitIndexer.class);
 	private HashSet<String> curieSet = new HashSet<>();
 	private String indexName = ConfigHelper.getBlueTeamESIndex();
 	
-	public LitIndexer(IndexerConfig indexerConfig) {
+	public LiteratureIndexer(IndexerConfig indexerConfig) {
 		super(indexerConfig);
 		
 	}
@@ -51,17 +47,17 @@ public class LitIndexer extends Indexer {
 	protected void index() {
 		//String indexName= ConfigHelper.getBlueTeamESIndex();
 		System.out.println("indexName in index:" + indexName);
-		Map<String, Object> countObject = literatureESApi.count(indexName);		
+		Map<String, Object> countObject = literatureESApi.count(indexName);
 		try {
 		
-			int totalPages = (int)countObject.get("count") / indexerConfig.getBufferSize();			
-			LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();	
+			int totalPages = (int)countObject.get("count") / indexerConfig.getBufferSize();
+			LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
 			for (int i = 0; i <= totalPages; i++) {
 				int from = i* indexerConfig.getBufferSize();
 				queue.add(String.valueOf(from));
 			}
 			
-			System.out.println("total pages:" + totalPages);	
+			System.out.println("total pages:" + totalPages);
 			initiateThreading(queue);
 		
 		} catch (InterruptedException e) {
@@ -72,11 +68,9 @@ public class LitIndexer extends Indexer {
 	
 	@Override
 	protected void startSingleThread(LinkedBlockingDeque<String> queue) {
-	    ObjectMapper mapper = new ObjectMapper();
-	    //String indexName = ConfigHelper.getBlueTeamESIndex();
-	    System.out.println("indexName in startSingleThread:"+indexName);
-	    while (!queue.isEmpty()) {
-	        String page = null;
+		ObjectMapper mapper = new ObjectMapper();
+		while (!queue.isEmpty()) {
+			String page = null;
 	        try {
 	            page = queue.takeFirst();
 	        } catch (InterruptedException e) {
@@ -99,7 +93,7 @@ public class LitIndexer extends Indexer {
 	                Map<String, Object> hitsMap = (Map<String, Object>) object.get("hits");
 	                List<Map<String, Object>> hits = (List<Map<String, Object>>) hitsMap.get("hits");
 
-	                List<LitDocument> list = new ArrayList<>();
+	                List<LiteratureSummaryDocument> list = new ArrayList<>();
 
 	                for (Map<String, Object> map : hits) {
 	                    Map<String, Object> sourceMap = (Map<String, Object>) map.get("_source");
@@ -125,7 +119,7 @@ public class LitIndexer extends Indexer {
 	                    normalizeAndPutDate(sourceJson, "date_published_start");
 	                    normalizeAndPutDate(sourceJson, "date_published_end");
 
-	                    LitDocument doc = new LitDocument();
+	                    LiteratureSummaryDocument doc = new LiteratureSummaryDocument();
 	                    doc.setObject(sourceJson);
 	                    list.add(doc);
 	                }

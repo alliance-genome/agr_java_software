@@ -18,7 +18,6 @@ import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam;
 @ClientHeaderParam(name = "Cache-Control", value = "no-cache")
 @Path("/")
 @Produces(MediaType.APPLICATION_JSON)
-//@Consumes(MediaType.APPLICATION_JSON)
 public interface LiteratureElasticSearchInterface {
 	
 	@GET
@@ -32,29 +31,29 @@ public interface LiteratureElasticSearchInterface {
 	@Path("/{index}/_search")
 	@Consumes(MediaType.APPLICATION_JSON)
 	Map<String, Object> startScroll(
-	    @PathParam("index") String index,
-	    @QueryParam("scroll") String scrollTime,
-	    Map<String, Object> queryBody
+		@PathParam("index") String index,
+		@QueryParam("scroll") String scrollTime,
+		Map<String, Object> queryBody
 	);
 	
 	@POST
-    @Path("/_search/scroll")
+	@Path("/_search/scroll")
 	@Consumes(MediaType.APPLICATION_JSON)
-    Map<String, Object> continueScroll(Map<String, Object> scrollBody);
+	Map<String, Object> continueScroll(Map<String, Object> scrollBody);
 	
 	@DELETE
-    @Path("/_search/scroll")
+	@Path("/_search/scroll")
 	@Consumes(MediaType.APPLICATION_JSON)
-    void clearScroll(Map<String, Object> clearBody);
+	void clearScroll(Map<String, Object> clearBody);
 	
-    @POST
-    @Path("/{index}/_search")
-    @Consumes(MediaType.APPLICATION_JSON)
-    Map<String, Object> searchAfterQuery(
-        @PathParam("index") String index,
-        Map<String, Object> searchAfterBody
-    );
-    
+	@POST
+	@Path("/{index}/_search")
+	@Consumes(MediaType.APPLICATION_JSON)
+	Map<String, Object> searchAfterQuery(
+		@PathParam("index") String index,
+		Map<String, Object> searchAfterBody
+	);
+	
 	@GET
 	@Path("/{index}/_count")
 	Map<String, Object> count(@PathParam("index") String index);
