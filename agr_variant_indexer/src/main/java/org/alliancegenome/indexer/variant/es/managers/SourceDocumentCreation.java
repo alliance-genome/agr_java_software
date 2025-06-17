@@ -16,6 +16,7 @@ import org.alliancegenome.es.util.EsClientFactory;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.view.View;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
@@ -81,7 +82,7 @@ public class SourceDocumentCreation extends Thread {
 	private LinkedBlockingDeque<List<String>> jsonQueue7;
 	private LinkedBlockingDeque<List<String>> jsonQueue8;
 
-	private int[][] jqs = new int[8][2]; // Json Queue Stats
+	private long[][] jqs = new long[8][3]; // Json Queue Stats
 
 	private ProcessDisplayHelper ph1 = new ProcessDisplayHelper(VariantConfigHelper.getDisplayInterval());
 	private ProcessDisplayHelper ph2 = new ProcessDisplayHelper(VariantConfigHelper.getDisplayInterval());
@@ -530,6 +531,7 @@ public class SourceDocumentCreation extends Thread {
 		private final ObjectMapper mapper = new ObjectMapper();
 
 		//private SummaryStatistics stats = new SummaryStatistics();
+		private DescriptiveStatistics stats = new DescriptiveStatistics(100000);
 
 		@Override
 		public void run() {
@@ -553,8 +555,8 @@ public class SourceDocumentCreation extends Thread {
 							try {
 								String jsonDoc = mapper.writerWithView(View.AlleleVariantSequenceConverterForES.class).writeValueAsString(doc);
 								int len = jsonDoc.length();
-								//stats.addValue(len);
-
+								stats.addValue(len);
+								
 //								double z = (jsonDoc.length() - stats.getMean()) / stats.getStandardDeviation();
 //								
 //								if (z < -norm) {
@@ -569,35 +571,56 @@ public class SourceDocumentCreation extends Thread {
 //									// Should never hit this condition
 //								}
 								
-								ph5.progressProcess(
-									" jsonQueue1(" + jqs[0][0] + "," + jqs[0][1] + "): " + jsonQueue1.size()
-									+ " jsonQueue2(" + jqs[1][0] + "," + jqs[1][1] + "): " + jsonQueue2.size()
-									+ " jsonQueue3(" + jqs[2][0] + "," + jqs[2][1] + "): " + jsonQueue3.size()
-									+ " jsonQueue4(" + jqs[3][0] + "," + jqs[3][1] + "): " + jsonQueue4.size()
-									+ " jsonQueue5(" + jqs[4][0] + "," + jqs[4][1] + "): " + jsonQueue5.size()
-									+ " jsonQueue6(" + jqs[5][0] + "," + jqs[5][1] + "): " + jsonQueue6.size()
-									+ " jsonQueue7(" + jqs[6][0] + "," + jqs[6][1] + "): " + jsonQueue7.size()
-									+ " jsonQueue8(" + jqs[7][0] + "," + jqs[7][1] + "): " + jsonQueue8.size()
-								);
 								
+								int lowerWidth = (int)(stats.getStandardDeviation() / stats.getSkewness());
+								int upperWidth = (int)(stats.getStandardDeviation() * 1);
+								
+								int t1 = (int)(stats.getMean() - (1.5 * lowerWidth));
+								int t2 = (int)(stats.getMean() - (1 * lowerWidth));
+								int t3 = (int)(stats.getMean() - (0.5 * lowerWidth));
+								int t4 = (int)stats.getMean();
+								int t5 = (int)(stats.getMean() + (0.5 * upperWidth));
+								int t6 = (int)(stats.getMean() + (1 * upperWidth));
+								int t7 = (int)(stats.getMean() + (2 * upperWidth));
 
-								if(len < 3300) {
+								if(len < t1) {
 									docs1.add(jsonDoc);
-								} else if(len < 4100) {
+									jqs[0][2] += len;
+								} else if(len < t2) {
 									docs2.add(jsonDoc);
-								} else if(len < 4900) {
+									jqs[1][2] += len;
+								} else if(len < t3) {
 									docs3.add(jsonDoc);
-								} else if(len < 5400) {
+									jqs[2][2] += len;
+								} else if(len < t4) {
 									docs4.add(jsonDoc);
-								} else if(len < 6200) {
+									jqs[3][2] += len;
+								} else if(len < t5) {
 									docs5.add(jsonDoc);
-								} else if(len < 9000) {
+									jqs[4][2] += len;
+								} else if(len < t6) {
 									docs6.add(jsonDoc);
-								} else if(len < 15000) {
+									jqs[5][2] += len;
+								} else if(len < t7) {
 									docs7.add(jsonDoc);
+									jqs[6][2] += len;
 								} else {
 									docs8.add(jsonDoc);
+									jqs[7][2] += len;
 								}
+								
+								
+								ph5.progressProcess("\nM: " + (int)stats.getMean() + " SD: " + (int)stats.getStandardDeviation() + " SK: " + stats.getSkewness()
+								+ "\nlw: " + lowerWidth + " uw: " + upperWidth + " t1: " + t1 + " t2: " + t2 + " t3: " + t3 + " t4: " + t4 + " t5: " + t5 + " t6: " + t6 + " t7: " + t7
+								+ "\njsonQueue1(" + jqs[0][0] + "," + jqs[0][1] + "," + jqs[0][2] + "): " + jsonQueue1.size()
+								+ "\njsonQueue2(" + jqs[1][0] + "," + jqs[1][1] + "," + jqs[1][2] + "): " + jsonQueue2.size()
+								+ "\njsonQueue3(" + jqs[2][0] + "," + jqs[2][1] + "," + jqs[2][2] + "): " + jsonQueue3.size()
+								+ "\njsonQueue4(" + jqs[3][0] + "," + jqs[3][1] + "," + jqs[3][2] + "): " + jsonQueue4.size()
+								+ "\njsonQueue5(" + jqs[4][0] + "," + jqs[4][1] + "," + jqs[4][2] + "): " + jsonQueue5.size()
+								+ "\njsonQueue6(" + jqs[5][0] + "," + jqs[5][1] + "," + jqs[5][2] + "): " + jsonQueue6.size()
+								+ "\njsonQueue7(" + jqs[6][0] + "," + jqs[6][1] + "," + jqs[6][2] + "): " + jsonQueue7.size()
+								+ "\njsonQueue8(" + jqs[7][0] + "," + jqs[7][1] + "," + jqs[7][2] + "): " + jsonQueue8.size()
+							);
 
 								
 							} catch (Exception e) {
