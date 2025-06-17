@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.alliancegenome.curation_api.model.entities.BiologicalEntity;
@@ -53,6 +54,7 @@ public class DiseaseAnnotationDocument extends SearchableItemDocument {
 	private String geneticModifierAggregated;
 	private List<ConditionRelation> experimentalConditionList;
 	private String experimentalConditionsAggregated;
+	private List<Map<String, Map<String, String>>> providers;
 	// 1 true
 	// 0 false
 	@JsonIgnore
