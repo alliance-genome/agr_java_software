@@ -15,6 +15,5 @@ public class LiteratureSummaryDocument extends ESDocument {
 		searchable = true;
 	}
 
-	//private JsonObject object;
 	private Map<String, Object> literatureSummary;
 }
