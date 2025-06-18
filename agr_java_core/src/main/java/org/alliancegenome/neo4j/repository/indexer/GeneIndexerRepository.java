@@ -37,7 +37,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene> {
 				Files.createDirectories(path);
 			}
 		} catch (Exception e) {
-
+			e.printStackTrace();
 		}
 	}
 
