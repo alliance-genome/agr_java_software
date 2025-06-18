@@ -50,8 +50,7 @@ public class Constants {
 	public static final String SEARCHABLE_ITEM = "searchable_item";
 
 	// Variant Indexer Related ENV param constants
-	public static final String VARIANT_MOD_DOWNLOAD_SET_FILE = "VARIANT_MOD_DOWNLOAD_SET_FILE";
-	public static final String VARIANT_HUMAN_DOWNLOAD_SET_FILE = "VARIANT_HUMAN_DOWNLOAD_SET_FILE";
+	public static final String VARIANT_DOWNLOAD_SET_FILE = "VARIANT_DOWNLOAD_SET_FILE";
 
 	public static final String VARIANTS_TO_INDEX = "VARIANTS_TO_INDEX";
 

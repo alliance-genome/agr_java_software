@@ -1,17 +1,9 @@
 package org.alliancegenome.api.service;
 
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
-import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
-import static org.elasticsearch.index.query.QueryBuilders.termQuery;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.quarkus.logging.Log;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.api.service.helper.GeneDiseaseSearchHelper;
 import org.alliancegenome.es.index.site.dao.SearchDAO;
@@ -33,11 +25,11 @@ import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilde
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import io.quarkus.logging.Log;
-import jakarta.enterprise.context.RequestScoped;
-import jakarta.inject.Inject;
+import static org.elasticsearch.index.query.QueryBuilders.*;
 
 
 @RequestScoped
@@ -57,6 +49,15 @@ public class ESService {
 		return searchDAO.performQuery(
 			bool, aggBuilders, null, geneDiseaseSearchHelper.getResponseFields(),
 			pagination.getLimit(), pagination.getOffset(), hlb, focusTaxonId, debug);
+	}
+
+	protected SearchResponse getSearchResponse(BoolQueryBuilder bool, Pagination pagination, LinkedHashMap<String, SortOrder> focusTaxonId, Map<String, Boolean> missingFieldLast, boolean debug) {
+		List<AggregationBuilder> aggBuilders = new ArrayList<>();
+		HighlightBuilder hlb = new HighlightBuilder();
+
+		return searchDAO.performQuery(
+			bool, aggBuilders, null, geneDiseaseSearchHelper.getResponseFields(),
+			pagination.getLimit(), pagination.getOffset(), hlb, focusTaxonId, missingFieldLast, debug);
 	}
 
 	BoolQueryBuilder getBaseQuery(List<String> entityIDs, String termID, boolean excludeNegated, String recordType, boolean excludeViaOrthologyRecords) {
@@ -87,6 +88,21 @@ public class ESService {
 
 			} else {
 				bool3.should(new MatchQueryBuilder("parentSlimIDs.keyword", termID));
+			}
+		}
+		return bool;
+	}
+
+	BoolQueryBuilder getBaseModelQuery(List<String> entityIDs, boolean excludeNegated, String recordType) {
+		BoolQueryBuilder bool = boolQuery();
+		BoolQueryBuilder bool2 = boolQuery();
+		bool.must(bool2);
+
+		bool.filter(termQuery("category", recordType));
+
+		if (CollectionUtils.isNotEmpty(entityIDs)) {
+			for (String geneId : entityIDs) {
+				bool2.should(new MatchQueryBuilder("gene.primaryExternalId.keyword", geneId));
 			}
 		}
 		return bool;
@@ -134,7 +150,9 @@ public class ESService {
 	private BoolQueryBuilder getBooleanAndedQueryBuilder(String filterName, String filterValue) {
 		BoolQueryBuilder andClause = boolQuery();
 		String[] elements = escapeValue(filterValue).split(" ");
-		Arrays.stream(elements).forEach(element -> andClause.must(QueryBuilders.queryStringQuery("*" + element + "*").field(filterName)));
+		// remove empty strings
+		List<String> elementStrings = Stream.of(elements).filter(s -> !s.trim().isEmpty()).toList();
+		elementStrings.forEach(element -> andClause.must(QueryBuilders.queryStringQuery("*" + element + "*").field(filterName)));
 		return andClause;
 	}
 

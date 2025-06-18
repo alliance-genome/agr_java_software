@@ -31,9 +31,11 @@ public class SourceDocumentCreationManager extends Thread {
 			GeneDocumentCache geneCache = geneRepo.getGeneCacheCrossReferencesSynonyms();
 			geneRepo.close();
 
-			for (DownloadSource source: downloadSet.getDownloadFileSources()) {
-				SourceDocumentCreation creator = new SourceDocumentCreation(downloadSet.getDownloadPath(), source, geneCache);
-				executor.execute(creator);
+			for (DownloadSource source : downloadSet.getDownloadFileSources()) {
+				if (source.getActive()) {
+					SourceDocumentCreation creator = new SourceDocumentCreation(downloadSet.getDownloadPath(), source, geneCache);
+					executor.execute(creator);
+				}
 			}
 
 			log.info("SourceDocumentCreationManager shuting down executor: ");

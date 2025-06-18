@@ -498,7 +498,8 @@ public class DiseaseController implements DiseaseRESTInterface {
 			throw new RestErrorException(message);
 		}
 		try {
-			JsonResultResponse<GeneDiseaseAnnotationDocument> response = diseaseESService.getRibbonDiseaseAnnotations(focusTaxonId, geneIDs, termID, pagination, !includeNegation, debug);
+			JsonResultResponse<GeneDiseaseAnnotationDocument> response;
+			response = diseaseESService.getRibbonDiseaseAnnotations(focusTaxonId, geneIDs, termID, pagination, !includeNegation, debug);
 			response.setHttpServletRequest(null);
 			response.calculateRequestDuration(startDate);
 			return response;
@@ -553,6 +554,32 @@ public class DiseaseController implements DiseaseRESTInterface {
 		List<DiseaseAnnotation> modelAnnotations = new ArrayList<>();
 		Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRowsForGenesAndAlleles(geneAnnotations, alleleAnnotations, modelAnnotations));
 		return responseBuilder.build();
+	}
+
+	@Override
+	public JsonResultResponse<org.alliancegenome.curation_api.model.entities.DiseaseAnnotation> getDiseasePrimaryAnnotations(String id, Integer limit, Integer page) {
+		LocalDateTime startDate = LocalDateTime.now();
+		Pagination pagination = new Pagination(page, limit, null, null);
+
+		if (pagination.hasErrors()) {
+			RestErrorMessage message = new RestErrorMessage();
+			message.setErrors(pagination.getErrors());
+			throw new RestErrorException(message);
+		}
+
+		try {
+			JsonResultResponse<org.alliancegenome.curation_api.model.entities.DiseaseAnnotation> response =
+				diseaseESService.getDiseasePrimaryAnnotations(id, pagination, "gene_disease_annotation");
+
+			response.setHttpServletRequest(null);
+			response.calculateRequestDuration(startDate);
+			return response;
+		} catch (Exception e) {
+			Log.error("Error while retrieving disease annotations", e);
+			RestErrorMessage error = new RestErrorMessage();
+			error.addErrorMessage(e.getMessage());
+			throw new RestErrorException(error);
+		}
 	}
 
 }

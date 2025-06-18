@@ -22,17 +22,17 @@ import lombok.Setter;
 public class JsonResultResponse<T> {
 
 	public static final String DISTINCT_FIELD_VALUES = "distinctFieldValues";
-	@JsonView({ View.Default.class }) private List<T> results = new ArrayList<T>();
-	@JsonView({ View.Default.class }) private int total;
-	@JsonView({ View.Default.class }) private int returnedRecords;
-	@JsonView({ View.Default.class }) private String errorMessage = "";
-	@JsonView({ View.Default.class }) private String note = "";
-	@JsonView({ View.Default.class }) private String title = "";
-	@JsonView({ View.Default.class }) private String requestDuration;
-	@JsonView({ View.Default.class }) private Request request;
-	@JsonView({ View.Default.class }) private String apiVersion;
-	@JsonView({ View.Default.class }) private String requestDate;
-	@JsonView({ View.Default.class }) private Map<String, Object> supplementalData;
+	@JsonView({ View.Default.class, org.alliancegenome.curation_api.view.View.ModelDocumentView.class }) private List<T> results = new ArrayList<T>();
+	@JsonView({ View.Default.class, org.alliancegenome.curation_api.view.View.ModelDocumentView.class}) private int total;
+	@JsonView({ View.Default.class, org.alliancegenome.curation_api.view.View.ModelDocumentView.class}) private int returnedRecords;
+	@JsonView({ View.Default.class, org.alliancegenome.curation_api.view.View.ModelDocumentView.class}) private String errorMessage = "";
+	@JsonView({ View.Default.class, org.alliancegenome.curation_api.view.View.ModelDocumentView.class}) private String note = "";
+	@JsonView({ View.Default.class, org.alliancegenome.curation_api.view.View.ModelDocumentView.class}) private String title = "";
+	@JsonView({ View.Default.class, org.alliancegenome.curation_api.view.View.ModelDocumentView.class}) private String requestDuration;
+	@JsonView({ View.Default.class, org.alliancegenome.curation_api.view.View.ModelDocumentView.class}) private Request request;
+	@JsonView({ View.Default.class, org.alliancegenome.curation_api.view.View.ModelDocumentView.class}) private String apiVersion;
+	@JsonView({ View.Default.class, org.alliancegenome.curation_api.view.View.ModelDocumentView.class}) private String requestDate;
+	@JsonView({ View.Default.class, org.alliancegenome.curation_api.view.View.ModelDocumentView.class}) private Map<String, Object> supplementalData;
 
 	public JsonResultResponse() {
 		requestDate = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(Calendar.getInstance().getTime());

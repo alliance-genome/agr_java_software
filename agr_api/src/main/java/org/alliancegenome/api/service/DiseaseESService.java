@@ -17,13 +17,16 @@ import java.util.stream.Collectors;
 
 import org.alliancegenome.api.entity.AGMDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
+import org.alliancegenome.api.entity.DiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.DiseaseEntitySubgroupSlim;
 import org.alliancegenome.api.entity.DiseaseRibbonEntity;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
+import org.alliancegenome.api.service.helper.APIServiceHelper;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.api.service.DiseaseRibbonService;
 import org.alliancegenome.curation_api.model.document.es.DiseaseSummaryDocument;
+import org.alliancegenome.curation_api.model.entities.DiseaseAnnotation;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.SimpleTerm;
@@ -49,7 +52,6 @@ public class DiseaseESService extends ESService {
 
 	// termID may be used in the future when converting disease page to new ES stack.
 	public JsonResultResponse<GeneDiseaseAnnotationDocument> getRibbonDiseaseAnnotations(String focusTaxonId, List<String> geneIDs, String termID, Pagination pagination, boolean excludeNegated, boolean debug) {
-
 		// unfiltered query
 		BoolQueryBuilder query = getBaseQuery(geneIDs, termID, excludeNegated, "gene_disease_annotation", true);
 
@@ -64,9 +66,13 @@ public class DiseaseESService extends ESService {
 		List<GeneDiseaseAnnotationDocument> list = Arrays.stream(searchResponse.getHits().getHits())
 			.map(searchHit -> {
 				try {
-					GeneDiseaseAnnotationDocument object = mapper.readValue(searchHit.getSourceAsString(), GeneDiseaseAnnotationDocument.class);
-					object.setUniqueId(searchHit.getId());
-					return object;
+					GeneDiseaseAnnotationDocument gdad = mapper.readValue(searchHit.getSourceAsString(), GeneDiseaseAnnotationDocument.class);
+					gdad.setUniqueId(searchHit.getId());
+					gdad.setProviders(APIServiceHelper.buildProvidersWithUrl(gdad.getPrimaryAnnotations()));
+
+					gdad.setPrimaryAnnotations(null);
+					
+					return gdad;
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -388,6 +394,59 @@ public class DiseaseESService extends ESService {
 			}
 		}
 		ret.setResults(list);
+		return ret;
+	}
+	public JsonResultResponse<DiseaseAnnotation> getDiseasePrimaryAnnotations(String id, Pagination pagination, String category) {
+		JsonResultResponse<DiseaseAnnotation> ret = new JsonResultResponse<>();
+		
+		BoolQueryBuilder bool = boolQuery();
+		bool.must(new TermQueryBuilder("countId", id));
+		bool.filter(new TermQueryBuilder("category", category));
+		
+		// Not paginating the query here, just getting the document
+		Pagination tempPagination = new Pagination();
+		tempPagination.setLimit(1);
+		SearchResponse response = getSearchResponse(bool, tempPagination, null, false);
+		
+		if (response.getHits().getTotalHits().value == 0) {
+			ret.setTotal(0);
+			ret.setResults(new ArrayList<>());
+			return ret;
+		}
+		
+		try {
+			SearchHit hit = response.getHits().getHits()[0];
+			DiseaseAnnotationDocument document = mapper.readValue(hit.getSourceAsString(), DiseaseAnnotationDocument.class);
+			document.setUniqueId(hit.getId());
+			
+			List<DiseaseAnnotation> primaryAnnotations = document.getPrimaryAnnotations();
+			if (primaryAnnotations == null) {
+				primaryAnnotations = new ArrayList<>();
+			}
+
+			// Sort the annotations for consistent ordering and pagination
+			List<DiseaseAnnotation> sortedAnnotations = APIServiceHelper.naturalSortByAnnotationSubject(primaryAnnotations);
+			
+			// Apply pagination to the sorted results
+			int start = pagination.getStart();
+			int limit = pagination.getLimit();
+			int total = sortedAnnotations.size();
+			
+			List<DiseaseAnnotation> paginatedResults = new ArrayList<>();
+			if (start < total) {
+				int end = Math.min(start + limit, total);
+				paginatedResults = sortedAnnotations.subList(start, end);
+			}
+			
+			ret.setTotal(total);
+			ret.setResults(paginatedResults);
+			
+		} catch (Exception e) {
+			// Log error and return empty result
+			ret.setTotal(0);
+			ret.setResults(new ArrayList<>());
+		}
+		
 		return ret;
 	}
 }

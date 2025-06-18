@@ -1,10 +1,6 @@
 package org.alliancegenome.es.index.site.dao;
 
-import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map.Entry;
-
+import lombok.extern.slf4j.Slf4j;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.index.ESDAO;
 import org.alliancegenome.es.util.EsClientFactory;
@@ -16,9 +12,14 @@ import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.rescore.QueryRescorerBuilder;
+import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
-import lombok.extern.slf4j.Slf4j;
+import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 @Slf4j
 public class SearchDAO extends ESDAO {
@@ -51,12 +52,25 @@ public class SearchDAO extends ESDAO {
 	}
 
 	public SearchResponse performQuery(QueryBuilder query,
-			List<AggregationBuilder> aggBuilders,
-			QueryRescorerBuilder rescorerBuilder,
-			List<String> responseFields,
-			int limit, int offset,
-			HighlightBuilder highlighter,
-			LinkedHashMap<String, SortOrder> sorts, Boolean debug) {
+									   List<AggregationBuilder> aggBuilders,
+									   QueryRescorerBuilder rescorerBuilder,
+									   List<String> responseFields,
+									   int limit, int offset,
+									   HighlightBuilder highlighter,
+									   LinkedHashMap<String, SortOrder> sorts, Boolean debug) {
+		return performQuery(query, aggBuilders, rescorerBuilder, responseFields, limit, offset, highlighter, sorts, null, debug);
+	}
+
+
+	public SearchResponse performQuery(QueryBuilder query,
+									   List<AggregationBuilder> aggBuilders,
+									   QueryRescorerBuilder rescorerBuilder,
+									   List<String> responseFields,
+									   int limit, int offset,
+									   HighlightBuilder highlighter,
+									   LinkedHashMap<String, SortOrder> sorts,
+									   Map<String, Boolean> fieldSorter,
+									   Boolean debug) {
 
 
 		SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
@@ -77,14 +91,22 @@ public class SearchDAO extends ESDAO {
 		searchSourceBuilder.trackTotalHits(true);
 
 		if (sorts != null) {
-			for (Entry<String, SortOrder> entry: sorts.entrySet()) {
+			for (Entry<String, SortOrder> entry : sorts.entrySet()) {
 				searchSourceBuilder.sort(entry.getKey(), entry.getValue());
 			}
 		}
 
+		if (fieldSorter != null) {
+			fieldSorter.forEach((key, value) -> {
+				FieldSortBuilder fieldSortBuilder = new FieldSortBuilder(key);
+				fieldSortBuilder.missing(value ? "_last" : "_first");
+				searchSourceBuilder.sort(fieldSortBuilder);
+			});
+		}
+
 		searchSourceBuilder.highlighter(highlighter);
 
-		for (AggregationBuilder aggBuilder: aggBuilders) {
+		for (AggregationBuilder aggBuilder : aggBuilders) {
 			searchSourceBuilder.aggregation(aggBuilder);
 		}
 
