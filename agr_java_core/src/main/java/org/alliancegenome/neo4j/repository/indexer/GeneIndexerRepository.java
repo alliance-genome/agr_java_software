@@ -1,6 +1,9 @@
 package org.alliancegenome.neo4j.repository.indexer;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,6 +31,14 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene> {
 	
 	public GeneIndexerRepository() {
 		super(Gene.class);
+		try {
+			Path path = Paths.get(dataDir);
+			if (Files.notExists(path)) {
+	            Files.createDirectories(path);
+	        } 
+		} catch (Exception e) {
+			
+		}
 	}
 
 	public GeneDocumentCache getGeneCacheCrossReferencesSynonyms() {
