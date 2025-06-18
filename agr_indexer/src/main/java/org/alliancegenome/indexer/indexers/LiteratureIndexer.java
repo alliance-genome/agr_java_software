@@ -8,7 +8,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 import org.alliancegenome.api.entity.LiteratureSummaryDocument;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.indexer.config.IndexerConfig;
-import org.alliancegenome.indexer.indexers.curation.interfaces.LiteratureElasticSearchInterface;
+import org.alliancegenome.indexer.indexers.curation.interfaces.ElasticSearchInterface;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -18,7 +18,7 @@ import si.mazi.rescu.RestProxyFactory;
 @Slf4j
 public class LiteratureIndexer extends Indexer {
 	private String indexName = ConfigHelper.getBlueTeamESIndex();
-	private LiteratureElasticSearchInterface literatureESApi = RestProxyFactory.createProxy(LiteratureElasticSearchInterface.class, ConfigHelper.getBlueTeamESUrl());
+	private ElasticSearchInterface literatureESApi = RestProxyFactory.createProxy(ElasticSearchInterface.class, ConfigHelper.getBlueTeamESUrl());
 
 	public LiteratureIndexer(IndexerConfig indexerConfig) {
 		super(indexerConfig);

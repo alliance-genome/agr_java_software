@@ -12,7 +12,7 @@ import jakarta.ws.rs.core.MediaType;
 
 @Path("/")
 @Produces(MediaType.APPLICATION_JSON)
-public interface LiteratureElasticSearchInterface {
+public interface ElasticSearchInterface {
 
 	@GET
 	@Path("/{index}/_search")
