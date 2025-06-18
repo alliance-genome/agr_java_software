@@ -2,8 +2,9 @@ package org.alliancegenome.core.config;
 
 public class Constants {
 
-	private Constants() { }
-	
+	private Constants() {
+	}
+
 	// Config Helper Constants
 	public static final String THREADED = "THREADED";
 	public static final String DEBUG = "DEBUG";
@@ -78,9 +79,12 @@ public class Constants {
 	public static final String VARIANT_TRANSFORMER_THREADS = "VARIANT_TRANSFORMER_THREADS";
 	public static final String VARIANT_PRODUCER_THREADS = "VARIANT_PRODUCER_THREADS";
 
-	// Variant Indexer 
+	// Variant Indexer
 	public static final String VARIANT_INDEXER_SHARDS = "VARIANT_INDEXER_SHARDS";
 	public static final String VARIANT_INDEXER_BULK_PROCESSOR_THREADS = "VARIANT_INDEXER_BULK_PROCESSOR_THREADS";
 	public static final String VARIANT_BULK_PROCESSOR_SETTINGS = "VARIANT_BULK_PROCESSOR_SETTINGS";
 
+	// literature Indexer
+	public static final String BLUETEAM_ES_URL = "BLUETEAM_ES_URL";
+	public static final String BLUETEAM_ES_INDEX = "BLUETEAM_ES_INDEX";
 }

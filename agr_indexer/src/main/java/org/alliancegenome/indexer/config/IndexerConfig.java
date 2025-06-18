@@ -1,7 +1,22 @@
 package org.alliancegenome.indexer.config;
 
-import org.alliancegenome.indexer.indexers.*;
-import org.alliancegenome.indexer.indexers.curation.*;
+import org.alliancegenome.indexer.indexers.AffectedGenomicModelIndexer;
+import org.alliancegenome.indexer.indexers.AlleleIndexer;
+import org.alliancegenome.indexer.indexers.DatasetIndexer;
+import org.alliancegenome.indexer.indexers.DiseaseIndexer;
+import org.alliancegenome.indexer.indexers.GeneIndexer;
+import org.alliancegenome.indexer.indexers.GoIndexer;
+import org.alliancegenome.indexer.indexers.LiteratureIndexer;
+import org.alliancegenome.indexer.indexers.ModelIndexer;
+import org.alliancegenome.indexer.indexers.curation.DiseaseAnnotationCurationIndexer;
+import org.alliancegenome.indexer.indexers.curation.DiseaseSummaryCurationIndexer;
+import org.alliancegenome.indexer.indexers.curation.GOSearchResultCurationIndexer;
+import org.alliancegenome.indexer.indexers.curation.GeneGeneticInteractionCurationIndexer;
+import org.alliancegenome.indexer.indexers.curation.GeneMolecularInteractionCurationIndexer;
+import org.alliancegenome.indexer.indexers.curation.GeneToGeneOrthologyIndexer;
+import org.alliancegenome.indexer.indexers.curation.GeneToGeneParalogyIndexer;
+import org.alliancegenome.indexer.indexers.curation.PhenotypeAnnotationCurationIndexer;
+import org.alliancegenome.indexer.indexers.curation.ReleaseInfoIndexer;
 
 public enum IndexerConfig {
 
@@ -13,6 +28,8 @@ public enum IndexerConfig {
 	GoIndexer("go", GoIndexer.class, 4, 914, 914, 8, 1),
 	ModelIndexer("model", ModelIndexer.class, 4, 1500, 1426, 4, 1),
 
+	LiteratureIndexer("literature", LiteratureIndexer.class, 4, 5000, 5000, 1, 1),
+	
 	// Curation Indexers
 	DiseaseAnnotationIndexer("diseaseAnnotation", DiseaseAnnotationCurationIndexer.class, 1, 1500, 1500, 2, 1),
 	GeneGeneticInteractionIndexers("geneGeneticInteraction", GeneGeneticInteractionCurationIndexer.class, 4, 1500, 1500, 2, 1),

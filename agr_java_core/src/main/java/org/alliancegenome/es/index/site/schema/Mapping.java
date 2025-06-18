@@ -163,6 +163,12 @@ public class Mapping extends Builder {
 		new FieldBuilder(builder, "geneGeneticInteraction.interactorBRole.name", "text").keyword().build();
 		new FieldBuilder(builder, "geneGeneticInteraction.interactionType.name", "text").keyword().build();
 		new FieldBuilder(builder, "geneGeneticInteraction.geneGeneAssociationObject.taxon.name", "text").keyword().sort().build();
+		
+		new FieldBuilder(builder, "literatureSummary.date_arrived_in_pubmed", "text").keyword().build();
+		new FieldBuilder(builder, "literatureSummary.date_published", "text").keyword().build();
+		
+		
+		
 	}
 	
 	public static class FieldBuilder {

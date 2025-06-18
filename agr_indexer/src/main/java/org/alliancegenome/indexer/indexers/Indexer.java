@@ -81,7 +81,7 @@ public abstract class Indexer extends Thread {
 			@Override
 			public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {
 				if (response.hasFailures()) {
-					log.info("Size: " + request.requests().size() + " MB: " + request.estimatedSizeInBytes() + " Time: " + response.getTook() + " Bulk Requet Finished");
+					log.info("Size: " + request.requests().size() + " MB: " + request.estimatedSizeInBytes() + " Time: " + response.getTook() + " Bulk Request Finished");
 					log.info(response.buildFailureMessage());
 				}
 			}
