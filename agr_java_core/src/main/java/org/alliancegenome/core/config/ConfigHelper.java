@@ -6,6 +6,8 @@ import static org.alliancegenome.core.config.Constants.API_HOST;
 import static org.alliancegenome.core.config.Constants.API_PORT;
 import static org.alliancegenome.core.config.Constants.API_SECURE;
 import static org.alliancegenome.core.config.Constants.AWS_BUCKET_NAME;
+import static org.alliancegenome.core.config.Constants.BLUETEAM_ES_INDEX;
+import static org.alliancegenome.core.config.Constants.BLUETEAM_ES_URL;
 import static org.alliancegenome.core.config.Constants.CACHE_HOST;
 import static org.alliancegenome.core.config.Constants.CACHE_PORT;
 import static org.alliancegenome.core.config.Constants.CURATION_API_TOKEN;
@@ -32,8 +34,6 @@ import static org.alliancegenome.core.config.Constants.RIBBON_TERM_SPECIES_APPLI
 import static org.alliancegenome.core.config.Constants.THREADED;
 import static org.alliancegenome.core.config.Constants.VARIANT_CACHER_CONFIG_FILE;
 import static org.alliancegenome.core.config.Constants.VARIANT_DOWNLOAD_PATH;
-import static org.alliancegenome.core.config.Constants.BLUETEAM_ES_INDEX;
-import static org.alliancegenome.core.config.Constants.BLUETEAM_ES_URL;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -552,7 +552,7 @@ public class ConfigHelper {
 		return null;
 	}
 	
-	public static String getBueTeamESUrl() {
+	public static String getBlueTeamESUrl() {
 		if (!init) {
 			init();
 		}
