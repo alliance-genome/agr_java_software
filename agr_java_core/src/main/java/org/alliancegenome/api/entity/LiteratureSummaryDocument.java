@@ -1,10 +1,14 @@
-package org.alliancegenome.indexer.indexers.curation;
+package org.alliancegenome.api.entity;
+
+import java.util.Map;
 
 import org.alliancegenome.curation_api.model.document.es.ESDocument;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 public class LiteratureSummaryDocument extends ESDocument {
 	{
 		category = "literature_summary";
@@ -12,5 +16,5 @@ public class LiteratureSummaryDocument extends ESDocument {
 	}
 
 	//private JsonObject object;
-	private ObjectNode object; //for search_after/scroll
+	private Map<String, Object> literatureSummary;
 }
