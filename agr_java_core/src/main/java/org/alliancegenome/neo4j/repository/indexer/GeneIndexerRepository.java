@@ -28,16 +28,16 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene> {
 	private ObjectFileStorage<Map<String, Set<String>>> objectFileStorage = new ObjectFileStorage<>();
 	private String dataDir = "data";
 	private String filePrefix = getClass().getSimpleName();
-	
+
 	public GeneIndexerRepository() {
 		super(Gene.class);
 		try {
 			Path path = Paths.get(dataDir);
 			if (Files.notExists(path)) {
-	            Files.createDirectories(path);
-	        } 
+				Files.createDirectories(path);
+			}
 		} catch (Exception e) {
-			
+
 		}
 	}
 
@@ -162,11 +162,11 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene> {
 				if (!cacheFile.exists()) {
 
 					String query = """
-						MATCH p1=(species:Species)-[:FROM_SPECIES]-(g:Gene)
-						OPTIONAL MATCH pSoTerm=(g:Gene)-[:ANNOTATED_TO]-(soTerm:SOTerm)
-						OPTIONAL MATCH p5=(g:Gene)--(:GenomicLocation)
-						RETURN p1, pSoTerm, p5
-					""";
+							MATCH p1=(species:Species)-[:FROM_SPECIES]-(g:Gene)
+							OPTIONAL MATCH pSoTerm=(g:Gene)-[:ANNOTATED_TO]-(soTerm:SOTerm)
+							OPTIONAL MATCH p5=(g:Gene)--(:GenomicLocation)
+							RETURN p1, pSoTerm, p5
+						""";
 
 					Iterable<Gene> genes = null;
 
@@ -197,9 +197,9 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene> {
 		public void run() {
 			log.info("Building gene -> synonyms map");
 			String query = """
-				MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[:ALSO_KNOWN_AS]-(s:Synonym)
-				RETURN gene.primaryKey as id, s.name as value
-			""";
+					MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[:ALSO_KNOWN_AS]-(s:Synonym)
+					RETURN gene.primaryKey as id, s.name as value
+				""";
 			cache.setSynonyms(getCacheResults(cacheFile, query));
 			log.info("Finished Building gene -> synonyms map");
 		}
@@ -216,15 +216,15 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene> {
 			try {
 
 				String query = """
-					MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[:CROSS_REFERENCE]-(cr:CrossReference)
-					RETURN gene.primaryKey as id, cr.name as value
-				""";
+						MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[:CROSS_REFERENCE]-(cr:CrossReference)
+						RETURN gene.primaryKey as id, cr.name as value
+					""";
 				Map<String, Set<String>> names = getCacheResults(nameCacheFile, query);
 
 				query = """
-					MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[:CROSS_REFERENCE]-(cr:CrossReference)
-					RETURN gene.primaryKey as id, cr.localId as value
-				""";
+						MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[:CROSS_REFERENCE]-(cr:CrossReference)
+						RETURN gene.primaryKey as id, cr.localId as value
+					""";
 				Map<String, Set<String>> localIds = getCacheResults(idsCacheFile, query);
 
 				Map<String, Set<String>> map = new HashMap<>();
@@ -342,7 +342,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene> {
 
 	private class GetDiseasesMapThread implements Runnable {
 		File cacheFile = new File(dataDir + "/" + filePrefix + "_" + getClass().getSimpleName() + ".data");
-		
+
 		@Override
 		public void run() {
 			log.info("Building gene -> diseases map");
@@ -356,7 +356,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene> {
 
 	private class GetDiseasesAgrSlimMapThread implements Runnable {
 		File cacheFile = new File(dataDir + "/" + filePrefix + "_" + getClass().getSimpleName() + ".data");
-		
+
 		@Override
 		public void run() {
 			log.info("Building gene -> diseasesAgrSlim map");
@@ -370,7 +370,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene> {
 
 	private class GetDiseasesWithParentsThread implements Runnable {
 		File cacheFile = new File(dataDir + "/" + filePrefix + "_" + getClass().getSimpleName() + ".data");
-		
+
 		@Override
 		public void run() {
 			log.info("Building gene -> diseasesWithParents map");
@@ -383,7 +383,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene> {
 
 	private class GetModelMapThread implements Runnable {
 		File cacheFile = new File(dataDir + "/" + filePrefix + "_" + getClass().getSimpleName() + ".data");
-		
+
 		@Override
 		public void run() {
 			log.info("Building gene -> model map");
@@ -396,7 +396,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene> {
 
 	private class GetPhenotypeStatementMapThread implements Runnable {
 		File cacheFile = new File(dataDir + "/" + filePrefix + "_" + getClass().getSimpleName() + ".data");
-		
+
 		@Override
 		public void run() {
 			log.info("Building gene -> phenotypeStatement map");
@@ -409,7 +409,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene> {
 
 	private class GetWhereExpressedMapThread implements Runnable {
 		File cacheFile = new File(dataDir + "/" + filePrefix + "_" + getClass().getSimpleName() + ".data");
-		
+
 		@Override
 		public void run() {
 			log.info("Building gene -> whereExpressed map");
@@ -423,7 +423,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene> {
 
 	private class GetExpressionStagesMapThread implements Runnable {
 		File cacheFile = new File(dataDir + "/" + filePrefix + "_" + getClass().getSimpleName() + ".data");
-		
+
 		@Override
 		public void run() {
 			log.info("Building gene -> expressionStages map");
@@ -436,7 +436,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene> {
 
 	private class GetSubcellularExpressionAgrSlimMapThread implements Runnable {
 		File cacheFile = new File(dataDir + "/" + filePrefix + "_" + getClass().getSimpleName() + ".data");
-		
+
 		@Override
 		public void run() {
 			log.info("Building gene -> Subcellular Expression Ribbon map");
@@ -450,7 +450,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene> {
 
 	private class GetSubcellularExpressionWithParentsMapThread implements Runnable {
 		File cacheFile = new File(dataDir + "/" + filePrefix + "_" + getClass().getSimpleName() + ".data");
-		
+
 		@Override
 		public void run() {
 			log.info("Building gene -> Subcellular Expression w/parents map");
@@ -464,7 +464,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene> {
 
 	private class GetAnatomicalExpressionMapThread implements Runnable {
 		File cacheFile = new File(dataDir + "/" + filePrefix + "_" + getClass().getSimpleName() + ".data");
-		
+
 		@Override
 		public void run() {
 			log.info("Building gene -> Expression Anatomy Ribbon map");
@@ -478,14 +478,14 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene> {
 
 	private class GetAnatomicalExpressionWithParentsMapThread implements Runnable {
 		File cacheFile = new File(dataDir + "/" + filePrefix + "_" + getClass().getSimpleName() + ".data");
-		
+
 		@Override
 		public void run() {
 			log.info("Building gene -> Expression Anatomy w/parents map");
 			String query = """
-				MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[:EXPRESSED_IN]->(ebe:ExpressionBioEntity)-[:ANATOMICAL_STRUCTURE]-(:Ontology)-[:IS_A_PART_OF_CLOSURE]->(term:Ontology)
-				RETURN distinct gene.primaryKey as id, term.name as value
-			""";
+					MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[:EXPRESSED_IN]->(ebe:ExpressionBioEntity)-[:ANATOMICAL_STRUCTURE]-(:Ontology)-[:IS_A_PART_OF_CLOSURE]->(term:Ontology)
+					RETURN distinct gene.primaryKey as id, term.name as value
+				""";
 			cache.setAnatomicalExpressionWithParents(getCacheResults(cacheFile, query));
 			log.info("Finished Building gene -> Expression Anatomy w/parents map");
 		}
