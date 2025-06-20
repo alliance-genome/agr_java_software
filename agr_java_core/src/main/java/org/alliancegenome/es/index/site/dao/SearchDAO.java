@@ -90,18 +90,18 @@ public class SearchDAO extends ESDAO {
 		searchSourceBuilder.from(offset);
 		searchSourceBuilder.trackTotalHits(true);
 
-		if (sorts != null) {
-			for (Entry<String, SortOrder> entry : sorts.entrySet()) {
-				searchSourceBuilder.sort(entry.getKey(), entry.getValue());
-			}
-		}
-
 		if (fieldSorter != null) {
 			fieldSorter.forEach((key, value) -> {
 				FieldSortBuilder fieldSortBuilder = new FieldSortBuilder(key);
 				fieldSortBuilder.missing(value ? "_last" : "_first");
 				searchSourceBuilder.sort(fieldSortBuilder);
 			});
+		}
+
+		if (sorts != null) {
+			for (Entry<String, SortOrder> entry : sorts.entrySet()) {
+				searchSourceBuilder.sort(entry.getKey(), entry.getValue());
+			}
 		}
 
 		searchSourceBuilder.highlighter(highlighter);

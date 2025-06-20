@@ -21,6 +21,8 @@ public class AffectedGenomicModelIndexer extends Indexer {
 	private final HashMap<String, Object> params = new HashMap<>() {{
 		put("internal", false);
 		put("obsolete", false);
+		//put("primaryExternalId", "ZFIN:ZDB-FISH-181119-4");
+		//put("gene.primaryExternalId", "ZFIN:ZDB-GENE-990415-8");
 	}};
 
 	public AffectedGenomicModelIndexer(IndexerConfig config) {
