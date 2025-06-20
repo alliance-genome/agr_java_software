@@ -37,6 +37,7 @@ public class AffectedGenomicModelESService extends ESService {
 		}
 		sortFields.forEach(sortField -> sortingMap.put(sortField, SortOrder.ASC));
 		Map<String, Boolean> fieldSorter = new LinkedHashMap<>();
+		fieldSorter.put("diseaseTerms.keyword", true);
 		fieldSorter.put("associatedPhenotype.keyword", true);
 		SearchResponse searchResponse = getSearchResponse(query, pagination, sortingMap, fieldSorter, debug);
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
