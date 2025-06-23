@@ -98,7 +98,7 @@ public interface DiseaseRESTInterface {
 	@GET
 	@Path("/{id}/alleles/download")
 	@Produces(MediaType.TEXT_PLAIN)
-	@Operation(summary = "downlaod all DiseaseAnnotation records for a given disease id")
+	@Operation(summary = "download all DiseaseAnnotation records for a given disease id")
 	Response getDiseaseAnnotationsByAlleleDownload(
 
 		@Parameter(in = ParameterIn.PATH, name = "id", description = "Disease by DOID: e.g. DOID:9952", required = true, schema = @Schema(type = SchemaType.STRING)) @PathParam("id") String id,

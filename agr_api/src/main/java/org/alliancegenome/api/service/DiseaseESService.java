@@ -52,6 +52,10 @@ public class DiseaseESService extends ESService {
 
 	// termID may be used in the future when converting disease page to new ES stack.
 	public JsonResultResponse<GeneDiseaseAnnotationDocument> getRibbonDiseaseAnnotations(String focusTaxonId, List<String> geneIDs, String termID, Pagination pagination, boolean excludeNegated, boolean debug) {
+		return getRibbonDiseaseAnnotations(focusTaxonId, geneIDs, termID, pagination, excludeNegated, debug, false);
+	}
+
+	public JsonResultResponse<GeneDiseaseAnnotationDocument> getRibbonDiseaseAnnotations(String focusTaxonId, List<String> geneIDs, String termID, Pagination pagination, boolean excludeNegated, boolean debug, boolean includePrimaryAnnotations) {
 		// unfiltered query
 		BoolQueryBuilder query = getBaseQuery(geneIDs, termID, excludeNegated, "gene_disease_annotation", true);
 
@@ -70,7 +74,9 @@ public class DiseaseESService extends ESService {
 					gdad.setUniqueId(searchHit.getId());
 					gdad.setProviders(APIServiceHelper.buildProvidersWithUrl(gdad.getPrimaryAnnotations()));
 
-					gdad.setPrimaryAnnotations(null);
+					if (!includePrimaryAnnotations) {
+						gdad.setPrimaryAnnotations(null);
+					}
 					
 					return gdad;
 				} catch (Exception e) {
