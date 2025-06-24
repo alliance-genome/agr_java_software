@@ -1,21 +1,10 @@
 package org.alliancegenome.indexer.indexers;
 
-import java.io.IOException;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.text.DecimalFormat;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.util.StatsCollector;
 import org.alliancegenome.curation_api.model.document.es.ESDocument;
@@ -36,12 +25,21 @@ import org.elasticsearch.common.unit.ByteSizeValue;
 import org.elasticsearch.core.TimeValue;
 import org.elasticsearch.xcontent.XContentType;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
+import java.io.IOException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.DecimalFormat;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Slf4j
 public abstract class Indexer extends Thread {
@@ -57,7 +55,7 @@ public abstract class Indexer extends Thread {
 	private StatsCollector stats = new StatsCollector();
 
 	protected Map<String, Double> popularityScore;
-	
+
 	@Getter
 	private Duration duration = Duration.ZERO;
 
@@ -184,6 +182,11 @@ public abstract class Indexer extends Thread {
 					log.warn("Document is too large for ES skipping: " + json.length());
 					continue;
 				}
+				if (json.contains("ZFIN:ZDB-FISH-150901-10520")
+					|| json.contains("ZFIN:ZDB-FISH-150901-4211")) {
+					log.info("DEBUG_MODE_JSON: " + json);
+				}
+
 				stats.addDocument(json);
 				bulkProcessor.add(new IndexRequest(indexName).source(json, XContentType.JSON));
 				display.progressProcess();
