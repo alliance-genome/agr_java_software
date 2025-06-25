@@ -18,7 +18,7 @@ public class VariantMapping extends Mapping {
 			new FieldBuilder(builder, "alterationType", "text").keyword().build();
 			new FieldBuilder(builder, "genes", "text").keyword().build();
 			new FieldBuilder(builder, "associatedPhenotype", "text").keyword().sort().build();
-			new FieldBuilder(builder, "diseaseTerms", "text").keyword().sort().build();
+			new FieldBuilder(builder, "diseaseTerms.name", "text").keyword().sort().build();
 
 			builder.startObject("allele");
 			builder.startObject("properties");

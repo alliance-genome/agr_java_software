@@ -61,11 +61,6 @@ public class AffectedGenomicModelIndexer extends Indexer {
 				if (CollectionUtils.isEmpty(response.getResults())) {
 					continue;
 				}
-				response.getResults().stream()
-					.filter(affectedGenomicModelDocument -> affectedGenomicModelDocument.getModel().getPrimaryExternalId().equals("ZFIN:ZDB-FISH-150901-10520")
-						|| affectedGenomicModelDocument.getModel().getPrimaryExternalId().equals("ZFIN:ZDB-FISH-150901-4211"))
-					.forEach(affectedGenomicModelDocument -> log.info("DEBUG_MODE: " + affectedGenomicModelDocument.getModel()));
-
 				indexDocuments(response.getResults());
 			} catch (Exception e) {
 				log.error("Error while indexing...", e);
