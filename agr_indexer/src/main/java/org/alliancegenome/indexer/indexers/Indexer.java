@@ -182,11 +182,6 @@ public abstract class Indexer extends Thread {
 					log.warn("Document is too large for ES skipping: " + json.length());
 					continue;
 				}
-				if (json.contains("ZFIN:ZDB-FISH-150901-10520")
-					|| json.contains("ZFIN:ZDB-FISH-150901-4211")) {
-					log.info("DEBUG_MODE_JSON: " + json);
-				}
-
 				stats.addDocument(json);
 				bulkProcessor.add(new IndexRequest(indexName).source(json, XContentType.JSON));
 				display.progressProcess();
