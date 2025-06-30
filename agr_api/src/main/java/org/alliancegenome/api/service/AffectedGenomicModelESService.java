@@ -29,6 +29,8 @@ public class AffectedGenomicModelESService extends ESService {
 		// Sorting sets for different names of the sorting selection box
 		Map<String, List<String>> sortingSetMap = new HashMap<>();
 		sortingSetMap.put("default", List.of(
+			"hasDiseaseAnnotations",
+			"hasPhenotypeAnnotations",
 			"model.agmFullName.formatText.keyword",
 			"diseaseTerms.name.keyword"));
 		LinkedHashMap<String, SortOrder> sortingMap = new LinkedHashMap<>();
@@ -38,10 +40,7 @@ public class AffectedGenomicModelESService extends ESService {
 			sortFields = sortingSetMap.get("default");
 		}
 		sortFields.forEach(sortField -> sortingMap.put(sortField, SortOrder.ASC));
-		Map<String, Boolean> fieldSorter = new LinkedHashMap<>();
-		fieldSorter.put("diseaseTerms.name.keyword", true);
-		fieldSorter.put("associatedPhenotype.keyword", true);
-		SearchResponse searchResponse = getSearchResponse(query, pagination, sortingMap, fieldSorter, debug);
+		SearchResponse searchResponse = getSearchResponse(query, pagination, sortingMap, null, debug);
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
 
 		List<AffectedGenomicModelDocument> list = Arrays.stream(searchResponse.getHits().getHits())
