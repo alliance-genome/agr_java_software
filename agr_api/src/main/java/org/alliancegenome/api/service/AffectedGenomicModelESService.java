@@ -13,7 +13,9 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.script.Script;
 import org.elasticsearch.script.ScriptType;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.elasticsearch.search.sort.*;
+import org.elasticsearch.search.sort.ScriptSortBuilder;
+import org.elasticsearch.search.sort.SortBuilders;
+import org.elasticsearch.search.sort.SortOrder;
 
 import java.util.*;
 
@@ -46,20 +48,20 @@ public class AffectedGenomicModelESService extends ESService {
 		if (sortFields == null) {
 			sortFields = sortingSetMap.get("default");
 		}
-		
+
 		// Create search source builder for custom script sorting
 		SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
 		searchSourceBuilder.query(query);
 		searchSourceBuilder.from(pagination.getStart());
 		searchSourceBuilder.size(pagination.getLimit());
-		
+
 		// Handle sorting with case-insensitive script for model name field
 		for (String sortField : sortFields) {
 			if ("model.agmFullName.formatText.keyword".equals(sortField)) {
 				// Use script for case-insensitive sorting
-				Script script = new Script(ScriptType.INLINE, "painless", 
-					"if (doc['model.agmFullName.formatText.keyword'].size() > 0) { " +
-					"doc['model.agmFullName.formatText.keyword'].value.toLowerCase() } else { '' }", 
+				Script script = new Script(ScriptType.INLINE, "painless",
+					"if (doc['model.agmFullName.formatText.keyword'].size() > 0) { "
+					+"doc['model.agmFullName.formatText.keyword'].value.toLowerCase() } else { '' }",
 					Collections.emptyMap());
 				ScriptSortBuilder scriptSort = SortBuilders.scriptSort(script, ScriptSortBuilder.ScriptSortType.STRING);
 				scriptSort.order(SortOrder.ASC);
@@ -68,7 +70,7 @@ public class AffectedGenomicModelESService extends ESService {
 				searchSourceBuilder.sort(sortField, SortOrder.ASC);
 			}
 		}
-		
+
 		SearchRequest searchRequest = new SearchRequest(ConfigHelper.getEsIndex());
 		searchRequest.source(searchSourceBuilder);
 		SearchResponse searchResponse;
