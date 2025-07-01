@@ -61,7 +61,7 @@ public class AffectedGenomicModelESService extends ESService {
 				// Use script for case-insensitive sorting
 				Script script = new Script(ScriptType.INLINE, "painless",
 					"if (doc['model.agmFullName.formatText.keyword'].size() > 0) { "
-					+"doc['model.agmFullName.formatText.keyword'].value.toLowerCase() } else { '' }",
+						+ "doc['model.agmFullName.formatText.keyword'].value.toLowerCase() } else { '' }",
 					Collections.emptyMap());
 				ScriptSortBuilder scriptSort = SortBuilders.scriptSort(script, ScriptSortBuilder.ScriptSortType.STRING);
 				scriptSort.order(SortOrder.ASC);
