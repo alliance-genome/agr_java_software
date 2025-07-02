@@ -26,19 +26,12 @@ public class AffectedGenomicModelESService extends ESService {
 
 		// add table filter
 		addTableFilter(pagination, query);
-		// Sorting sets for different names of the sorting selection box
-		Map<String, List<String>> sortingSetMap = new HashMap<>();
-		sortingSetMap.put("default", List.of(
-			"hasDiseaseAnnotations.keyword",
-			"hasPhenotypeAnnotations.keyword",
-			"model.agmFullName.formatText.sort"));
-		LinkedHashMap<String, SortOrder> sortingMap = new LinkedHashMap<>();
+		LinkedHashMap<String, SortOrder> sortingMap = new LinkedHashMap<>(
+			Map.of(
+				"hasDiseaseAnnotations.keyword", SortOrder.DESC,
+				"hasPhenotypeAnnotations.keyword", SortOrder.DESC,
+				"model.agmFullName.formatText.sort", SortOrder.ASC));
 
-		List<String> sortFields = sortingSetMap.get(pagination.getSortBy());
-		if (sortFields == null) {
-			sortFields = sortingSetMap.get("default");
-		}
-		sortFields.forEach(sortField -> sortingMap.put(sortField, SortOrder.ASC));
 		SearchResponse searchResponse = getSearchResponse(query, pagination, sortingMap, null, debug);
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
 
