@@ -10,13 +10,19 @@ on:
       review_type:
         description: 'Type of review to perform'
         required: true
-        default: 'standard'
+        default: 'test'
         type: choice
         options:
+          - test
           - standard
           - security
           - performance
           - comprehensive
+      test_mode:
+        description: 'Test mode - runs basic checks only'
+        required: false
+        default: true
+        type: boolean
 
 jobs:
   claude-review:
@@ -47,6 +53,11 @@ jobs:
           
           # Direct prompt for automated reviews
           direct_prompt: |
+            ${{ inputs.test_mode == 'true' && format('
+            TEST MODE: Verify zen MCP tools are working. List available models and test basic functionality.
+            Use zen listmodels and chat tools to confirm setup.
+            ') || '' }}
+            
             ${{ github.event_name == 'pull_request' && format('
             Review this PR focusing ONLY on:
             1. Critical and blocking bugs that could cause data corruption or system failures
