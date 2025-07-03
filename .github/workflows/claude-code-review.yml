@@ -1,0 +1,120 @@
+name: Claude Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  issue_comment:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      review_type:
+        description: 'Type of review to perform'
+        required: true
+        default: 'standard'
+        type: choice
+        options:
+          - standard
+          - security
+          - performance
+          - comprehensive
+
+jobs:
+  claude-review:
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'pull_request' || 
+      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
+      github.event_name == 'workflow_dispatch'
+    
+    steps:
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          
+      - name: Setup Claude Code Review
+        uses: anthropics/claude-code-action@beta
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          github_token: ${{ steps.app-token.outputs.token }}
+          trigger_phrase: "@claude"
+          model: claude-3-5-sonnet-20241022
+          max_turns: 10
+          
+          # Custom instructions for AGR Java codebase
+          custom_instructions: |
+            You are reviewing code for the Alliance of Genome Resources Java application.
+            Key considerations:
+            - This is a bioinformatics Java application handling large genomic datasets
+            - Performance is critical for data processing operations
+            - Maintain compatibility with AGR data standards and schemas
+            - Follow existing patterns in the codebase
+            - Pay attention to memory usage and database query optimization
+            - Ensure proper error handling for data integrity
+          
+          # Direct prompt for automated reviews
+          direct_prompt: |
+            ${{ github.event_name == 'pull_request' && format('
+            Please review this pull request for the Alliance Genome Resources Java codebase.
+            
+            Focus on:
+            1. Java best practices and design patterns
+            2. AGR-specific coding standards and conventions
+            3. Potential bugs or logic errors
+            4. Performance implications for large datasets
+            5. Database query optimization
+            6. Security concerns
+            7. Test coverage requirements
+            
+            Use the zen codereview tool for comprehensive analysis.
+            Provide constructive feedback with specific suggestions for improvement.
+            ') || '' }}
+            
+            ${{ github.event_name == 'workflow_dispatch' && inputs.review_type == 'security' && 
+            'Perform a security-focused review using the zen secaudit tool. Check for SQL injection, authentication issues, and data exposure risks.' || '' }}
+            
+            ${{ github.event_name == 'workflow_dispatch' && inputs.review_type == 'performance' && 
+            'Perform a performance-focused review. Look for N+1 queries, inefficient algorithms, memory leaks, and opportunities for caching.' || '' }}
+            
+            ${{ github.event_name == 'workflow_dispatch' && inputs.review_type == 'comprehensive' && 
+            'Perform a comprehensive review using multiple zen tools including codereview, secaudit, and analyze. Provide detailed feedback on all aspects.' || '' }}
+          
+          # MCP Configuration for Zen tools
+          mcp_config: |
+            {
+              "mcpServers": {
+                "zen": {
+                  "command": "sh",
+                  "args": [
+                    "-c",
+                    "exec $(which uvx || echo uvx) --from git+https://github.com/BeehiveInnovations/zen-mcp-server.git zen-mcp-server"
+                  ],
+                  "env": {
+                    "PATH": "/usr/local/bin:/usr/bin:/bin:/opt/homebrew/bin:~/.local/bin",
+                    "GOOGLE_API_KEY": "${{ secrets.GOOGLE_API_KEY }}",
+                    "OPENAI_API_KEY": "${{ secrets.OPENAI_API_KEY }}"
+                  }
+                }
+              }
+            }
+          
+          # Allowed tools based on review type
+          allowed_tools: |
+            mcp_zen_codereview
+            mcp_zen_secaudit
+            mcp_zen_analyze
+            mcp_zen_testgen
+            mcp_zen_debug
+            mcp_zen_refactor
+            mcp_zen_chat
+            mcp_zen_consensus
+            mcp_zen_thinkdeep
+          
+          # Environment variables for Claude
+          claude_env: |
+            REVIEW_TYPE: ${{ inputs.review_type || 'standard' }}
+            REPOSITORY: agr_java_software
+            ORGANIZATION: alliance-genome
+            JAVA_VERSION: 21
