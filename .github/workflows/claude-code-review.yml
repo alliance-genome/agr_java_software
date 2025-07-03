@@ -34,6 +34,32 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Need full history for diff calculation
+        
+      - name: Calculate PR size
+        id: pr_size
+        if: github.event_name == 'pull_request'
+        run: |
+          # Get the base and head commits
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+          
+          # Calculate lines added and removed
+          DIFF_STATS=$(git diff --numstat $BASE_SHA..$HEAD_SHA)
+          TOTAL_CHANGES=$(echo "$DIFF_STATS" | awk '{added+=$1; removed+=$2} END {print added+removed}')
+          
+          echo "Total lines changed: $TOTAL_CHANGES"
+          echo "total_changes=$TOTAL_CHANGES" >> $GITHUB_OUTPUT
+          
+          # Determine if we should use zen tools (>300 lines)
+          if [ "$TOTAL_CHANGES" -gt 300 ]; then
+            echo "Large PR detected - enabling zen tools for enhanced analysis"
+            echo "use_zen_tools=true" >> $GITHUB_OUTPUT
+          else
+            echo "Small PR detected - using standard Claude review"
+            echo "use_zen_tools=false" >> $GITHUB_OUTPUT
+          fi
         
       - name: Setup Claude Code Review
         uses: anthropics/claude-code-action@beta
@@ -41,7 +67,7 @@ jobs:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           trigger_phrase: "@claude"
           model: claude-sonnet-4-20250514
-          max_turns: 10
+          max_turns: 30
           
           # Custom instructions for AGR Java codebase
           custom_instructions: |
@@ -60,13 +86,13 @@ jobs:
             1. Critical and blocking bugs that could cause data corruption or system failures
             2. Database performance issues (inefficient queries, N+1 problems, missing indexes)
             
-            Use the zen codereview tool with o3 and gemini-2.5-pro models for analysis.
+            {0}
             Keep feedback concise and actionable.
-            ') || '' }}
+            ', (steps.pr_size.outputs.use_zen_tools == 'true') && 'This is a large PR (>300 lines changed) - use the zen codereview tool with o3 and gemini-2.5-pro models for enhanced analysis.' || 'This is a small PR - perform a standard Claude review.') || '' }}
           
-          # MCP Configuration for Zen tools
+          # MCP Configuration - Zen tools only for large PRs (>300 lines)
           mcp_config: |
-            {
+            ${{ (github.event_name != 'pull_request' || steps.pr_size.outputs.use_zen_tools == 'true') && format('{
               "mcpServers": {
                 "zen": {
                   "command": "sh",
@@ -76,15 +102,16 @@ jobs:
                   ],
                   "env": {
                     "PATH": "/usr/local/bin:/usr/bin:/bin:/opt/homebrew/bin:$HOME/.local/bin",
-                    "GOOGLE_API_KEY": "${{ secrets.GOOGLE_API_KEY }}",
-                    "OPENAI_API_KEY": "${{ secrets.OPENAI_API_KEY }}"
+                    "GOOGLE_API_KEY": "{0}",
+                    "OPENAI_API_KEY": "{1}"
                   }
                 }
               }
-            }
+            }', secrets.GOOGLE_API_KEY, secrets.OPENAI_API_KEY) || '{}' }}
           
-          # Allowed tools - comprehensive list for full functionality  
-          allowed_tools: "mcp__zen__codereview,mcp__zen__secaudit,mcp__zen__analyze,mcp__zen__testgen,mcp__zen__debug,mcp__zen__refactor,mcp__zen__chat,mcp__zen__consensus,mcp__zen__thinkdeep,mcp__zen__planner,mcp__zen__precommit,mcp__zen__tracer,mcp__zen__docgen,mcp__zen__challenge,mcp__zen__listmodels,mcp__zen__version,Bash,Edit,Read,Write,Glob,Grep,LS"
+          # Allowed tools - zen tools only for large PRs (>300 lines)
+          allowed_tools: |
+            ${{ (github.event_name != 'pull_request' || steps.pr_size.outputs.use_zen_tools == 'true') && 'mcp__zen__codereview,mcp__zen__secaudit,mcp__zen__analyze,mcp__zen__testgen,mcp__zen__debug,mcp__zen__refactor,mcp__zen__chat,mcp__zen__consensus,mcp__zen__thinkdeep,mcp__zen__planner,mcp__zen__precommit,mcp__zen__tracer,mcp__zen__docgen,mcp__zen__challenge,mcp__zen__listmodels,mcp__zen__version,Bash,Edit,Read,Write,Glob,Grep,LS' || 'Bash,Edit,Read,Write,Glob,Grep,LS' }}
           
           # Environment variables for Claude
           claude_env: |
@@ -92,3 +119,5 @@ jobs:
             REPOSITORY: agr_java_software
             ORGANIZATION: alliance-genome
             JAVA_VERSION: 21
+            PR_SIZE: ${{ github.event_name == 'pull_request' && steps.pr_size.outputs.total_changes || 'N/A' }}
+            ZEN_TOOLS_ENABLED: ${{ github.event_name == 'pull_request' && steps.pr_size.outputs.use_zen_tools || 'true' }}
