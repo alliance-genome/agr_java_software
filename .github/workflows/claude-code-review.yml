@@ -89,7 +89,19 @@ jobs:
               **Review thresholds:**
               - < 25 lines: Skipped (this PR)
               - 25-300 lines: Standard Claude review  
-              - \> 300 lines: Enhanced multi-model analysis`
+              - \> 300 lines: Enhanced multi-model analysis
+              
+              ---
+              
+              💡 **Claude Code Capabilities**
+              
+              I can help with more than just reviews! Try these:
+              - **Answer Questions**: \`@claude explain how the caching system works\`
+              - **Implement Code Changes**: \`@claude add error handling to the user login method\`
+              - **Debug Issues**: \`@claude help debug why the search is slow\`
+              - **Analyze Architecture**: \`@claude review the database schema changes\`
+              
+              Just comment \`@claude\` followed by your request!`
             })
         
       - name: Setup Claude Code Review
@@ -110,6 +122,19 @@ jobs:
             2. Database performance issues (inefficient queries, N+1 problems, missing indexes)
             
             Keep reviews concise and actionable. Only flag serious issues that need immediate attention.
+            
+            IMPORTANT: Always end your review comments with developer usage instructions:
+            
+            ---
+            💡 **Claude Code Capabilities**
+            
+            I can help with more than just reviews! Try these:
+            - **Answer Questions**: `@claude explain how the caching system works`
+            - **Implement Code Changes**: `@claude add error handling to the user login method`
+            - **Debug Issues**: `@claude help debug why the search is slow`
+            - **Analyze Architecture**: `@claude review the database schema changes`
+            
+            Just comment `@claude` followed by your request on any PR or issue!
           
           # Direct prompt for automated reviews
           direct_prompt: |
@@ -120,6 +145,8 @@ jobs:
             
             {0}
             Keep feedback concise and actionable.
+            
+            IMPORTANT: Always end your review with the developer capabilities section from your custom instructions.
             ', (steps.pr_size.outputs.use_zen_tools == 'true') && 'This is a large PR (>300 lines changed) - use the zen codereview tool with o3 and gemini-2.5-pro models for enhanced analysis.' || 'This is a small PR - perform a standard Claude review.') || '' }}
           
           # MCP Configuration - Zen tools only for large PRs (>300 lines)
