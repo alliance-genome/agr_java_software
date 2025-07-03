@@ -32,6 +32,9 @@ jobs:
       github.event_name == 'workflow_dispatch'
     
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
       - name: Setup Claude Code Review
         uses: anthropics/claude-code-action@beta
         with:
@@ -64,7 +67,7 @@ jobs:
           # MCP Configuration for Zen tools
           mcp_config: |
             {
-              "mcpServers": {
+              "servers": {
                 "zen": {
                   "command": "sh",
                   "args": [
@@ -80,31 +83,8 @@ jobs:
               }
             }
           
-          # Allowed tools - comprehensive list for full functionality
-          allowed_tools: |
-            mcp__zen__codereview
-            mcp__zen__secaudit
-            mcp__zen__analyze
-            mcp__zen__testgen
-            mcp__zen__debug
-            mcp__zen__refactor
-            mcp__zen__chat
-            mcp__zen__consensus
-            mcp__zen__thinkdeep
-            mcp__zen__planner
-            mcp__zen__precommit
-            mcp__zen__tracer
-            mcp__zen__docgen
-            mcp__zen__challenge
-            mcp__zen__listmodels
-            mcp__zen__version
-            Bash
-            Edit
-            Read
-            Write
-            Glob
-            Grep
-            LS
+          # Allowed tools - comprehensive list for full functionality  
+          allowed_tools: "mcp__zen__codereview,mcp__zen__secaudit,mcp__zen__analyze,mcp__zen__testgen,mcp__zen__debug,mcp__zen__refactor,mcp__zen__chat,mcp__zen__consensus,mcp__zen__thinkdeep,mcp__zen__planner,mcp__zen__precommit,mcp__zen__tracer,mcp__zen__docgen,mcp__zen__challenge,mcp__zen__listmodels,mcp__zen__version,Bash,Edit,Read,Write,Glob,Grep,LS"
           
           # Environment variables for Claude
           claude_env: |
