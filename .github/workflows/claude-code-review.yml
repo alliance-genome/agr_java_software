@@ -134,7 +134,7 @@ jobs:
             - **Debug Issues**: `@claude help debug why the search is slow`
             - **Analyze Architecture**: `@claude review the database schema changes`
             
-            Just comment `@claude` followed by your request on any PR or issue!
+            Just comment `@claude` followed by your request!
           
           # Direct prompt for automated reviews
           direct_prompt: |
