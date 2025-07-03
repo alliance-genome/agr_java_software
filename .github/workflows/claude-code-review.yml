@@ -49,15 +49,23 @@ jobs:
           DIFF_STATS=$(git diff --numstat $BASE_SHA..$HEAD_SHA)
           TOTAL_CHANGES=$(echo "$DIFF_STATS" | awk '{added+=$1; removed+=$2} END {print added+removed}')
           
+          # Handle empty or malformed output - ensure it's a valid number
+          TOTAL_CHANGES=${TOTAL_CHANGES:-0}
+          # Validate it's numeric, default to 0 if not
+          if ! [[ "$TOTAL_CHANGES" =~ ^[0-9]+$ ]]; then
+            echo "Warning: Non-numeric diff result, defaulting to 0"
+            TOTAL_CHANGES=0
+          fi
+          
           echo "Total lines changed: $TOTAL_CHANGES"
           echo "total_changes=$TOTAL_CHANGES" >> $GITHUB_OUTPUT
           
-          # Determine review strategy based on PR size
-          if [ "$TOTAL_CHANGES" -lt 25 ]; then
+          # Determine review strategy based on PR size (safe numeric comparisons)
+          if [ "${TOTAL_CHANGES:-0}" -lt 25 ]; then
             echo "Trivial PR detected (<25 lines) - skipping Claude review"
             echo "skip_review=true" >> $GITHUB_OUTPUT
             echo "use_zen_tools=false" >> $GITHUB_OUTPUT
-          elif [ "$TOTAL_CHANGES" -gt 300 ]; then
+          elif [ "${TOTAL_CHANGES:-0}" -gt 300 ]; then
             echo "Large PR detected (>300 lines) - enabling zen tools for enhanced analysis"
             echo "skip_review=false" >> $GITHUB_OUTPUT
             echo "use_zen_tools=true" >> $GITHUB_OUTPUT
