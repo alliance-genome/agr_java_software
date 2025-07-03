@@ -21,6 +21,11 @@ on:
 jobs:
   claude-review:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: write
+      issues: write
     if: |
       github.event_name == 'pull_request' || 
       (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
