@@ -67,7 +67,7 @@ jobs:
           # MCP Configuration for Zen tools
           mcp_config: |
             {
-              "servers": {
+              "mcpServers": {
                 "zen": {
                   "command": "sh",
                   "args": [
