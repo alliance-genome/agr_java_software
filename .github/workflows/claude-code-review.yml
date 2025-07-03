@@ -49,20 +49,72 @@ jobs:
           DIFF_STATS=$(git diff --numstat $BASE_SHA..$HEAD_SHA)
           TOTAL_CHANGES=$(echo "$DIFF_STATS" | awk '{added+=$1; removed+=$2} END {print added+removed}')
           
+          # Handle empty or malformed output - ensure it's a valid number
+          TOTAL_CHANGES=${TOTAL_CHANGES:-0}
+          # Validate it's numeric, default to 0 if not
+          if ! [[ "$TOTAL_CHANGES" =~ ^[0-9]+$ ]]; then
+            echo "Warning: Non-numeric diff result, defaulting to 0"
+            TOTAL_CHANGES=0
+          fi
+          
           echo "Total lines changed: $TOTAL_CHANGES"
           echo "total_changes=$TOTAL_CHANGES" >> $GITHUB_OUTPUT
           
-          # Determine if we should use zen tools (>300 lines)
-          if [ "$TOTAL_CHANGES" -gt 300 ]; then
-            echo "Large PR detected - enabling zen tools for enhanced analysis"
+          # Determine review strategy based on PR size (safe numeric comparisons)
+          if [ "${TOTAL_CHANGES:-0}" -lt 25 ]; then
+            echo "Trivial PR detected (<25 lines) - skipping Claude review"
+            echo "skip_review=true" >> $GITHUB_OUTPUT
+            echo "use_zen_tools=false" >> $GITHUB_OUTPUT
+          elif [ "${TOTAL_CHANGES:-0}" -gt 300 ]; then
+            echo "Large PR detected (>300 lines) - enabling zen tools for enhanced analysis"
+            echo "skip_review=false" >> $GITHUB_OUTPUT
             echo "use_zen_tools=true" >> $GITHUB_OUTPUT
           else
-            echo "Small PR detected - using standard Claude review"
+            echo "Medium PR detected (25-300 lines) - using standard Claude review"
+            echo "skip_review=false" >> $GITHUB_OUTPUT
             echo "use_zen_tools=false" >> $GITHUB_OUTPUT
           fi
+
+      - name: Post skip message
+        if: github.event_name == 'pull_request' && steps.pr_size.outputs.skip_review == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `🤖 **Claude Code Review Skipped**
+              
+              This PR has only **${{ steps.pr_size.outputs.total_changes }} lines changed** (< 25 lines).
+              
+              Claude reviews are automatically skipped for trivial changes to save costs and reduce noise.
+              
+              **Need a review anyway?** Comment \`@claude\` to trigger a manual review.
+              
+              ---
+              
+              **Review thresholds:**
+              - < 25 lines: Skipped (this PR)
+              - 25-300 lines: Standard Claude review  
+              - \> 300 lines: Enhanced multi-model analysis
+              
+              ---
+              
+              💡 **Claude Code Capabilities**
+              
+              I can help with more than just reviews! Try these:
+              - **Answer Questions**: \`@claude explain how the caching system works\`
+              - **Implement Code Changes**: \`@claude add error handling to the user login method\`
+              - **Debug Issues**: \`@claude help debug why the search is slow\`
+              - **Analyze Architecture**: \`@claude review the database schema changes\`
+              
+              Just comment \`@claude\` followed by your request!`
+            })
         
       - name: Setup Claude Code Review
         uses: anthropics/claude-code-action@beta
+        if: github.event_name != 'pull_request' || steps.pr_size.outputs.skip_review != 'true'
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           trigger_phrase: "@claude"
@@ -78,6 +130,19 @@ jobs:
             2. Database performance issues (inefficient queries, N+1 problems, missing indexes)
             
             Keep reviews concise and actionable. Only flag serious issues that need immediate attention.
+            
+            IMPORTANT: Always end your review comments with developer usage instructions:
+            
+            ---
+            💡 **Claude Code Capabilities**
+            
+            I can help with more than just reviews! Try these:
+            - **Answer Questions**: `@claude explain how the caching system works`
+            - **Implement Code Changes**: `@claude add error handling to the user login method`
+            - **Debug Issues**: `@claude help debug why the search is slow`
+            - **Analyze Architecture**: `@claude review the database schema changes`
+            
+            Just comment `@claude` followed by your request!
           
           # Direct prompt for automated reviews
           direct_prompt: |
@@ -88,6 +153,8 @@ jobs:
             
             {0}
             Keep feedback concise and actionable.
+            
+            IMPORTANT: Always end your review with the developer capabilities section from your custom instructions.
             ', (steps.pr_size.outputs.use_zen_tools == 'true') && 'This is a large PR (>300 lines changed) - use the zen codereview tool with o3 and gemini-2.5-pro models for enhanced analysis.' || 'This is a small PR - perform a standard Claude review.') || '' }}
           
           # MCP Configuration - Zen tools only for large PRs (>300 lines)
@@ -121,3 +188,4 @@ jobs:
             JAVA_VERSION: 21
             PR_SIZE: ${{ github.event_name == 'pull_request' && steps.pr_size.outputs.total_changes || 'N/A' }}
             ZEN_TOOLS_ENABLED: ${{ github.event_name == 'pull_request' && steps.pr_size.outputs.use_zen_tools || 'true' }}
+            REVIEW_SKIPPED: ${{ github.event_name == 'pull_request' && steps.pr_size.outputs.skip_review || 'false' }}
