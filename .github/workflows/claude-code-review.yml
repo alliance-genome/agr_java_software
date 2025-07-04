@@ -5,187 +5,30 @@ on:
     types: [opened, synchronize, reopened]
   issue_comment:
     types: [created]
-  workflow_dispatch:
-    inputs:
-      review_type:
-        description: 'Type of review to perform'
-        required: true
-        default: 'standard'
-        type: choice
-        options:
-          - standard
-          - security
-          - performance
-          - comprehensive
 
 jobs:
   claude-review:
-    runs-on: ubuntu-latest
+    # Only run on pull requests and PR comments (not issue comments)
+    if: |
+      github.event_name == 'pull_request' || 
+      (github.event_name == 'issue_comment' && github.event.issue.pull_request)
     permissions:
-      id-token: write
       contents: read
       pull-requests: write
       issues: write
-    if: |
-      github.event_name == 'pull_request' || 
-      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
-      github.event_name == 'workflow_dispatch'
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Need full history for diff calculation
-        
-      - name: Calculate PR size
-        id: pr_size
-        if: github.event_name == 'pull_request'
-        run: |
-          # Get the base and head commits
-          BASE_SHA="${{ github.event.pull_request.base.sha }}"
-          HEAD_SHA="${{ github.event.pull_request.head.sha }}"
-          
-          # Calculate lines added and removed
-          DIFF_STATS=$(git diff --numstat $BASE_SHA..$HEAD_SHA)
-          TOTAL_CHANGES=$(echo "$DIFF_STATS" | awk '{added+=$1; removed+=$2} END {print added+removed}')
-          
-          # Handle empty or malformed output - ensure it's a valid number
-          TOTAL_CHANGES=${TOTAL_CHANGES:-0}
-          # Validate it's numeric, default to 0 if not
-          if ! [[ "$TOTAL_CHANGES" =~ ^[0-9]+$ ]]; then
-            echo "Warning: Non-numeric diff result, defaulting to 0"
-            TOTAL_CHANGES=0
-          fi
-          
-          echo "Total lines changed: $TOTAL_CHANGES"
-          echo "total_changes=$TOTAL_CHANGES" >> $GITHUB_OUTPUT
-          
-          # Determine review strategy based on PR size (safe numeric comparisons)
-          if [ "${TOTAL_CHANGES:-0}" -lt 25 ]; then
-            echo "Trivial PR detected (<25 lines) - skipping Claude review"
-            echo "skip_review=true" >> $GITHUB_OUTPUT
-            echo "use_zen_tools=false" >> $GITHUB_OUTPUT
-          elif [ "${TOTAL_CHANGES:-0}" -gt 300 ]; then
-            echo "Large PR detected (>300 lines) - enabling zen tools for enhanced analysis"
-            echo "skip_review=false" >> $GITHUB_OUTPUT
-            echo "use_zen_tools=true" >> $GITHUB_OUTPUT
-          else
-            echo "Medium PR detected (25-300 lines) - using standard Claude review"
-            echo "skip_review=false" >> $GITHUB_OUTPUT
-            echo "use_zen_tools=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Post skip message
-        if: github.event_name == 'pull_request' && steps.pr_size.outputs.skip_review == 'true'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: `🤖 **Claude Code Review Skipped**
-              
-              This PR has only **${{ steps.pr_size.outputs.total_changes }} lines changed** (< 25 lines).
-              
-              Claude reviews are automatically skipped for trivial changes to save costs and reduce noise.
-              
-              **Need a review anyway?** Comment \`@claude\` to trigger a manual review.
-              
-              ---
-              
-              **Review thresholds:**
-              - < 25 lines: Skipped (this PR)
-              - 25-300 lines: Standard Claude review  
-              - \> 300 lines: Enhanced multi-model analysis
-              
-              ---
-              
-              💡 **Claude Code Capabilities**
-              
-              I can help with more than just reviews! Try these:
-              - **Answer Questions**: \`@claude explain how the caching system works\`
-              - **Implement Code Changes**: \`@claude add error handling to the user login method\`
-              - **Debug Issues**: \`@claude help debug why the search is slow\`
-              - **Analyze Architecture**: \`@claude review the database schema changes\`
-              
-              Just comment \`@claude\` followed by your request!`
-            })
-        
-      - name: Setup Claude Code Review
-        uses: anthropics/claude-code-action@beta
-        if: github.event_name != 'pull_request' || steps.pr_size.outputs.skip_review != 'true'
-        with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          trigger_phrase: "@claude"
-          model: claude-sonnet-4-20250514
-          max_turns: 30
-          
-          # Custom instructions for AGR Java codebase
-          custom_instructions: |
-            You are reviewing code for the Alliance of Genome Resources Java application.
-            
-            FOCUS ONLY ON:
-            1. Critical and blocking bugs that could cause data corruption or system failures
-            2. Database performance issues (inefficient queries, N+1 problems, missing indexes)
-            
-            Keep reviews concise and actionable. Only flag serious issues that need immediate attention.
-            
-            IMPORTANT: Always end your review comments with developer usage instructions:
-            
-            ---
-            💡 **Claude Code Capabilities**
-            
-            I can help with more than just reviews! Try these:
-            - **Answer Questions**: `@claude explain how the caching system works`
-            - **Implement Code Changes**: `@claude add error handling to the user login method`
-            - **Debug Issues**: `@claude help debug why the search is slow`
-            - **Analyze Architecture**: `@claude review the database schema changes`
-            
-            Just comment `@claude` followed by your request!
-          
-          # Direct prompt for automated reviews
-          direct_prompt: |
-            ${{ github.event_name == 'pull_request' && format('
-            Review this PR focusing ONLY on:
-            1. Critical and blocking bugs that could cause data corruption or system failures
-            2. Database performance issues (inefficient queries, N+1 problems, missing indexes)
-            
-            {0}
-            Keep feedback concise and actionable.
-            
-            IMPORTANT: Always end your review with the developer capabilities section from your custom instructions.
-            ', (steps.pr_size.outputs.use_zen_tools == 'true') && 'This is a large PR (>300 lines changed) - use the zen codereview tool with o3 and gemini-2.5-pro models for enhanced analysis.' || 'This is a small PR - perform a standard Claude review.') || '' }}
-          
-          # MCP Configuration - Zen tools only for large PRs (>300 lines)
-          mcp_config: |
-            ${{ (github.event_name != 'pull_request' || steps.pr_size.outputs.use_zen_tools == 'true') && format('{
-              "mcpServers": {
-                "zen": {
-                  "command": "sh",
-                  "args": [
-                    "-c",
-                    "python -m pip install --user uv && export PATH=$PATH:$HOME/.local/bin && uvx --from git+https://github.com/BeehiveInnovations/zen-mcp-server.git zen-mcp-server"
-                  ],
-                  "env": {
-                    "PATH": "/usr/local/bin:/usr/bin:/bin:/opt/homebrew/bin:$HOME/.local/bin",
-                    "GOOGLE_API_KEY": "{0}",
-                    "OPENAI_API_KEY": "{1}"
-                  }
-                }
-              }
-            }', secrets.GOOGLE_API_KEY, secrets.OPENAI_API_KEY) || '{}' }}
-          
-          # Allowed tools - zen tools only for large PRs (>300 lines)
-          allowed_tools: |
-            ${{ (github.event_name != 'pull_request' || steps.pr_size.outputs.use_zen_tools == 'true') && 'mcp__zen__codereview,mcp__zen__secaudit,mcp__zen__analyze,mcp__zen__testgen,mcp__zen__debug,mcp__zen__refactor,mcp__zen__chat,mcp__zen__consensus,mcp__zen__thinkdeep,mcp__zen__planner,mcp__zen__precommit,mcp__zen__tracer,mcp__zen__docgen,mcp__zen__challenge,mcp__zen__listmodels,mcp__zen__version,Bash,Edit,Read,Write,Glob,Grep,LS' || 'Bash,Edit,Read,Write,Glob,Grep,LS' }}
-          
-          # Environment variables for Claude
-          claude_env: |
-            REVIEW_TYPE: ${{ inputs.review_type || 'standard' }}
-            REPOSITORY: agr_java_software
-            ORGANIZATION: alliance-genome
-            JAVA_VERSION: 21
-            PR_SIZE: ${{ github.event_name == 'pull_request' && steps.pr_size.outputs.total_changes || 'N/A' }}
-            ZEN_TOOLS_ENABLED: ${{ github.event_name == 'pull_request' && steps.pr_size.outputs.use_zen_tools || 'true' }}
-            REVIEW_SKIPPED: ${{ github.event_name == 'pull_request' && steps.pr_size.outputs.skip_review || 'false' }}
+      # REQUIRED: Must grant id-token permission to the reusable workflow
+      id-token: write
+    uses: alliance-genome/.github/.github/workflows/claude-code-review.yml@main
+    with:
+      model: claude-sonnet-4-20250514
+      max_turns: "60"
+      # Java backend-specific focus for Spring Boot application
+      review_focus: "critical bugs, database performance issues, and security vulnerabilities in the Java Spring Boot backend. Focus on: SQL injection, N+1 queries, missing indexes, transaction management errors, memory leaks, thread safety issues, and API security flaws"
+      trigger_phrase: "@claude"
+      use_zen_tools: true
+      pr_size_threshold: "300"
+      skip_threshold: "25"
+    secrets:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
