@@ -117,7 +117,7 @@ public class GeneService {
 		};
 		BoolQueryBuilder idQuery = boolQuery();
 		Arrays.stream(idFields).forEach(idField -> {
-			BoolQueryBuilder orClause = elasticSearchHelper.getBooleanAndedQueryBuilder(idField, geneId);
+			BoolQueryBuilder orClause = elasticSearchHelper.getBooleanAndedQueryBuilder(idField, geneId, true);
 			idQuery.should(orClause);
 		});
 
@@ -163,7 +163,7 @@ public class GeneService {
 		};
 		BoolQueryBuilder idQuery = boolQuery();
 		Arrays.stream(idFields).forEach(idField -> {
-			BoolQueryBuilder orClause = elasticSearchHelper.getBooleanAndedQueryBuilder(idField, geneId);
+			BoolQueryBuilder orClause = elasticSearchHelper.getBooleanAndedQueryBuilder(idField, geneId, true);
 			idQuery.should(orClause);
 		});
 
