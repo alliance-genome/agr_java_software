@@ -17,8 +17,8 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 public enum SpeciesType {
 	HUMAN("Homo sapiens", "HUMAN", "NCBITaxon:9606", "Hsa", "HUMAN", "Human", "9606", 1, "GRCh38"), RAT("Rattus norvegicus", "RGD", "NCBITaxon:10116", "Rno", "RGD", "Rat Genome Database", "10116", 2, "mRatBN7.2"),
-	MOUSE("Mus musculus", "MGI", "NCBITaxon:10090", "Mmu", "MGD", "Mouse Genome Database", "10090", 3, "GRCm39"), AFRCLAWFROG("Xenopus laevis", "XBXL", "NCBITaxon:8355", "Xla", "XB", "Xenbase", "8355", 4, "XL9.2"),
-	WESTCLAWFROG("Xenopus tropicalis", "XBXT", "NCBITaxon:8364", "Xtr", "XB", "Xenbase", "8364", 5, "XT9.1"), ZEBRAFISH("Danio rerio", "ZFIN", "NCBITaxon:7955", "Dre", "ZFIN", "Zebrafish Information Network", "7955", 6, "GRCz11"),
+	MOUSE("Mus musculus", "MGI", "NCBITaxon:10090", "Mmu", "MGD", "Mouse Genome Database", "10090", 3, "GRCm39"), AFRCLAWFROG("Xenopus laevis", "XBXL", "NCBITaxon:8355", "Xla", "XB", "Xenbase", "8355", 4, "XL10.1"),
+	WESTCLAWFROG("Xenopus tropicalis", "XBXT", "NCBITaxon:8364", "Xtr", "XB", "Xenbase", "8364", 5, "XT10.0"), ZEBRAFISH("Danio rerio", "ZFIN", "NCBITaxon:7955", "Dre", "ZFIN", "Zebrafish Information Network", "7955", 6, "GRCz11"),
 	FLY("Drosophila melanogaster", "FB", "NCBITaxon:7227", "Dme", "FB", "Fly Base", "7227", 7, "R6"), WORM("Caenorhabditis elegans", "WB", "NCBITaxon:6239", "Cel", "WB", "Worm Base", "6239", 8, "WBcel235"),
 	YEAST("Saccharomyces cerevisiae", "SGD", "NCBITaxon:559292", "Sce", "SGD", "Saccharomyces Genome Database", "559292", 9, "R64-2-1"), COVID("SARS-CoV-2", // Must be the same as the DB due to lookup from the database
 		"Severe acute respiratory syndrome coronavirus 2", // not sure where display Name is used?
