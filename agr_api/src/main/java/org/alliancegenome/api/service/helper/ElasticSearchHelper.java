@@ -57,14 +57,19 @@ public class ElasticSearchHelper {
 			}
 		}
 	}
+	
+	public BoolQueryBuilder getBooleanAndedQueryBuilder(String filterName, String filterValue) {
+		return getBooleanAndedQueryBuilder(filterName, filterValue, false);
+	}
 
 	/*
 	 * split filter values by white spaces and create and ANDed boolean query
 	 */
-	public BoolQueryBuilder getBooleanAndedQueryBuilder(String filterName, String filterValue) {
+	public BoolQueryBuilder getBooleanAndedQueryBuilder(String filterName, String filterValue, boolean exactMatchOnly) {
 		BoolQueryBuilder andClause = boolQuery();
 		String[] elements = escapeValue(filterValue).split(" ");
-		Arrays.stream(elements).forEach(element -> andClause.must(QueryBuilders.queryStringQuery("*" + element + "*").field(filterName)));
+		String searchStringBoundary = exactMatchOnly ? "" : "*";
+		Arrays.stream(elements).forEach(element -> andClause.must(QueryBuilders.queryStringQuery(searchStringBoundary + element + searchStringBoundary).field(filterName)));
 		return andClause;
 	}
 

@@ -105,8 +105,8 @@ public class Mapping extends Builder {
 		new FieldBuilder(builder, "whereExpressed", "text").keyword().build(); // gene, dataset
 
 		new FieldBuilder(builder, "associatedSpecies", "text").keyword().synonym().sort().build(); // go, disease
-		new FieldBuilder(builder, "associatedPhenotype", "text").keyword().sort().build(); // associated phenotypes for model objects
-		new FieldBuilder(builder, "diseaseTerms", "text").keyword().sort().build(); // associated phenotypes for model objects
+		new FieldBuilder(builder, "hasPhenotypeAnnotations", "text").keyword().sort().build(); // associated phenotypes for model objects
+		new FieldBuilder(builder, "hasDiseaseAnnotations", "text").keyword().sort().build(); // associated phenotypes for model objects
 		new FieldBuilder(builder, "model.agmFullName.displayText", "text").keyword().sort().build(); //
 		new FieldBuilder(builder, "model.agmFullName.formatText", "text").keyword().sort().build(); //
 		new FieldBuilder(builder, "definition", "text").standardText().build(); // go, disease
