@@ -1,10 +1,12 @@
 package org.alliancegenome.cacher.cachers;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
 import org.alliancegenome.cache.CacheAlliance;
+import org.alliancegenome.cache.CacheService;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.neo4j.repository.AlleleRepository;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
@@ -66,11 +68,39 @@ public class SiteMapCacher extends Cacher {
 	}
 
 	private void cacheAccession(String type, List<String> keyList, CacheAlliance cache) {
-
+		HashMap<String, String> batchMap = new HashMap<>();
+		int totalProcessed = 0;
+		int batchCount = 0;
+		
+		log.info("Starting batched bulk caching for " + type + " with " + keyList.size() + " keys");
+		
 		for (String key : keyList) {
-			cacheService.putCacheEntry(key, "https://www.alliancegenome.org/" + type + "/" + key, View.Default.class, cache);
+			String url = "https://www.alliancegenome.org/" + type + "/" + key;
+			try {
+				String jsonValue = CacheService.mapper.writeValueAsString(url);
+				batchMap.put(key, jsonValue);
+				
+				if (batchMap.size() >= batchSize) {
+					cacheService.getCacheSpace(cache).putAll(batchMap);
+					totalProcessed += batchMap.size();
+					batchCount++;
+					log.info("Completed batch {} for {}: {} urls cached. Total processed: {}", batchCount, type, batchMap.size(), totalProcessed);
+					batchMap.clear();
+				}
+			} catch (Exception e) {
+				log.error("Error serializing URL for key: " + key, e);
+				throw new RuntimeException(e);
+			}
 		}
-
+		
+		if (!batchMap.isEmpty()) {
+			cacheService.getCacheSpace(cache).putAll(batchMap);
+			totalProcessed += batchMap.size();
+			batchCount++;
+			log.info("Completed final batch {} for {}: {} urls cached. Total processed: {}", batchCount, type, batchMap.size(), totalProcessed);
+		}
+		
+		log.info("Bulk caching completed for " + type + ": " + totalProcessed + " keys in " + batchCount + " batches");
 	}
 
 	private void cacheSiteMap(Iterable<String> list, CacheAlliance cache) {
