@@ -66,10 +66,12 @@ public class SiteMapCacher extends Cacher {
 	}
 
 	private void cacheAccession(String type, List<String> keyList, CacheAlliance cache) {
-
+		startProcess("Caching " + type + " accession map", keyList.size());
 		for (String key : keyList) {
 			cacheService.putCacheEntry(key, "https://www.alliancegenome.org/" + type + "/" + key, View.Default.class, cache);
+			progressProcess();
 		}
+		finishProcess();
 
 	}
 
