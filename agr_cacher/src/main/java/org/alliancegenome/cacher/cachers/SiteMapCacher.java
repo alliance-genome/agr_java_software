@@ -40,7 +40,7 @@ public class SiteMapCacher extends Cacher {
 		cacheSiteMap(geneKeyList, CacheAlliance.SITEMAP_GENE);
 		finishProcess();
 
-		List<String> alleleKeyList = alleleRepository.getAllAlleleKeys();
+		List<String> alleleKeyList = alleleRepository.getAllAlleleIDs();
 		log.info("Allele List Size: " + alleleKeyList.size());
 		cacheSiteMap(alleleKeyList, CacheAlliance.SITEMAP_ALLELE);
 		finishProcess();

@@ -4,6 +4,7 @@ import org.alliancegenome.cache.CacheAlliance;
 import org.infinispan.client.hotrod.RemoteCache;
 import org.infinispan.client.hotrod.RemoteCacheManager;
 import org.infinispan.client.hotrod.configuration.ConfigurationBuilder;
+import org.infinispan.commons.dataconversion.MediaType;
 import org.infinispan.configuration.cache.StorageType;
 
 import lombok.extern.slf4j.Slf4j;
@@ -53,20 +54,23 @@ public class CacheConfig {
 
 		cb2
 			.memory()
-			.storage(StorageType.OFF_HEAP)
-			.maxSize(cache.getCacheSize() + "")
+				.storage(StorageType.OFF_HEAP)
+				.maxSize(cache.getCacheSize() + "")
 			.expiration()
-			.lifespan(-1)
-			.encoding()
+				.lifespan(-1)
 			.persistence()
-			.passivation(false)
-			.addSoftIndexFileStore()
-			.purgeOnStartup(false)
-			.preload(false)
-			.shared(false)
-			.dataLocation("/opt/infinispan/server/data/" + cache.getCacheName())
-			.async()
-			.enable();
+				.passivation(false)
+				.addSoftIndexFileStore()
+				.purgeOnStartup(false)
+				.preload(false)
+				.shared(false)
+				.dataLocation("/opt/infinispan/server/data/" + cache.getCacheName())
+				.async()
+				.enable();
+		
+		cb2.encoding().key().mediaType(MediaType.TEXT_PLAIN_TYPE);
+		cb2.encoding().value().mediaType(MediaType.TEXT_PLAIN_TYPE);
+		cb2.statistics().enable();
 
 		RemoteCache<String, String> remoteCache = manager.administration().getOrCreateCache(cache.getCacheName(), cb2.build());
 
