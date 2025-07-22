@@ -291,7 +291,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 		pagination.addFilterOption("generatedRelationString.keyword", associationType);
 		pagination.addFilterOption("diseaseQualifiers.keyword", diseaseQualifier);
 		pagination.addFilterOption("pubmedPubModIDs", reference);
-		pagination.addFilterOption("primaryAnnotations.dataProvider.sourceOrganization.abbreviation", source);
+		pagination.addFilterOption("primaryAnnotations.dataProvider.abbreviation", source);
 		pagination.addFilterOption("primaryAnnotations.with.geneSymbol.displayText", basedOnGeneSymbol);
 		pagination.addFilterOption("object.name", diseaseName);
 		if (StringUtils.isNotEmpty(geneID)) {
@@ -353,7 +353,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 																						String asc) {
 		long startTime = System.currentTimeMillis();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
-		pagination.addFilterOption("subject.name", modelName);
+		pagination.addFilterOption("subject.agmFullName.formatText", modelName);
 		pagination.addFilterOption("subject.taxon.name.keyword", species);
 		pagination.addFilterOption("evidenceCodes.abbreviation", evidenceCode);
 		pagination.addFilterOption("generatedRelationString.keyword", associationType);

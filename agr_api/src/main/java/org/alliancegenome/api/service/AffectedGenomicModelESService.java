@@ -3,12 +3,16 @@ package org.alliancegenome.api.service;
 import jakarta.enterprise.context.RequestScoped;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.curation_api.model.document.es.AffectedGenomicModelDocument;
+import org.alliancegenome.es.index.site.schema.Mapping;
 import org.alliancegenome.es.model.query.Pagination;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 
 @RequestScoped
@@ -28,8 +32,9 @@ public class AffectedGenomicModelESService extends ESService {
 		addTableFilter(pagination, query);
 		LinkedHashMap<String, SortOrder> sortingMap = new LinkedHashMap<>(
 			Map.of(
-				"hasDiseaseAnnotations.keyword", SortOrder.DESC,
-				"hasPhenotypeAnnotations.keyword", SortOrder.DESC,
+				getSortFieldName(Mapping.getMappedFieldNameByMethodName(AffectedGenomicModelDocument.class, "isHasDiseaseAndPhenotypeAnnotations")), SortOrder.DESC,
+				getSortFieldName(Mapping.getMappedFieldNameByMethodName(AffectedGenomicModelDocument.class, "isHasDiseaseAnnotations")), SortOrder.DESC,
+				getSortFieldName(Mapping.getMappedFieldNameByMethodName(AffectedGenomicModelDocument.class, "isHasPhenotypeAnnotations")), SortOrder.DESC,
 				"model.agmFullName.formatText.sort", SortOrder.ASC));
 
 		SearchResponse searchResponse = getSearchResponse(query, pagination, sortingMap, null, debug);
@@ -47,6 +52,10 @@ public class AffectedGenomicModelESService extends ESService {
 			}).toList();
 		ret.setResults(list);
 		return ret;
+	}
+
+	private String getSortFieldName(String fieldName) {
+		return fieldName + ".sort";
 	}
 
 }
