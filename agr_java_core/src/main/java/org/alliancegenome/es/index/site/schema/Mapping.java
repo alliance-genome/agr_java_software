@@ -141,9 +141,9 @@ public class Mapping extends Builder {
 		new FieldBuilder(builder, "whereExpressed", "text").keyword().build(); // gene, dataset
 
 		new FieldBuilder(builder, "associatedSpecies", "text").keyword().synonym().sort().build(); // go, disease
-		new FieldBuilder(builder, getMappedFieldNameByMethodName(AffectedGenomicModelDocument.class, "isHasDiseaseAndPhenotypeAnnotations"), "text").keyword().sort().build(); // associated phenotypes for model objects
-		new FieldBuilder(builder, getMappedFieldNameByMethodName(AffectedGenomicModelDocument.class, "isHasDiseaseAnnotations"), "text").keyword().sort().build(); // associated phenotypes for model objects
-		new FieldBuilder(builder, getMappedFieldNameByMethodName(AffectedGenomicModelDocument.class, "isHasPhenotypeAnnotations"), "text").keyword().sort().build(); // associated phenotypes for model objects
+		new FieldBuilder(builder, AffectedGenomicModel.HAS_DISEASE_AND_PHENOTYPE_ANNOTATIONS.getFieldName(), "text").keyword().sort().build(); // associated phenotypes for model objects
+		new FieldBuilder(builder, AffectedGenomicModel.HAS_DISEASE_ANNOTATIONS.getFieldName(), "text").keyword().sort().build(); // associated phenotypes for model objects
+		new FieldBuilder(builder, AffectedGenomicModel.HAS_PHENOTYPE_ANNOTATIONS.getFieldName(), "text").keyword().sort().build(); // associated phenotypes for model objects
 		new FieldBuilder(builder, "model.agmFullName.displayText", "text").keyword().sort().build(); //
 		new FieldBuilder(builder, "model.agmFullName.formatText", "text").keyword().sort().build(); //
 		new FieldBuilder(builder, "definition", "text").standardText().build(); // go, disease
@@ -368,4 +368,25 @@ public class Mapping extends Builder {
 		}
 	}
 
+	public enum AffectedGenomicModel {
+
+	HAS_DISEASE_ANNOTATIONS("isHasDiseaseAnnotations"),
+	HAS_PHENOTYPE_ANNOTATIONS("isHasPhenotypeAnnotations"),
+	HAS_DISEASE_AND_PHENOTYPE_ANNOTATIONS("isHasDiseaseAndPhenotypeAnnotations");
+
+		private final String name;
+
+		AffectedGenomicModel(String fieldName) {
+			this.name = fieldName;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public String getFieldName(){
+			return getMappedFieldNameByMethodName(AffectedGenomicModelDocument.class, name);
+		}
+
+	}
 }

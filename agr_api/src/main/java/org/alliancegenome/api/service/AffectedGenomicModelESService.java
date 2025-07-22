@@ -32,9 +32,9 @@ public class AffectedGenomicModelESService extends ESService {
 		addTableFilter(pagination, query);
 		LinkedHashMap<String, SortOrder> sortingMap = new LinkedHashMap<>(
 			Map.of(
-				getSortFieldName(Mapping.getMappedFieldNameByMethodName(AffectedGenomicModelDocument.class, "isHasDiseaseAndPhenotypeAnnotations")), SortOrder.DESC,
-				getSortFieldName(Mapping.getMappedFieldNameByMethodName(AffectedGenomicModelDocument.class, "isHasDiseaseAnnotations")), SortOrder.DESC,
-				getSortFieldName(Mapping.getMappedFieldNameByMethodName(AffectedGenomicModelDocument.class, "isHasPhenotypeAnnotations")), SortOrder.DESC,
+				getSortFieldName(Mapping.AffectedGenomicModel.HAS_DISEASE_AND_PHENOTYPE_ANNOTATIONS.getFieldName()), SortOrder.DESC,
+				getSortFieldName(Mapping.AffectedGenomicModel.HAS_DISEASE_ANNOTATIONS.getFieldName()), SortOrder.DESC,
+				getSortFieldName(Mapping.AffectedGenomicModel.HAS_PHENOTYPE_ANNOTATIONS.getFieldName()), SortOrder.DESC,
 				"model.agmFullName.formatText.sort", SortOrder.ASC));
 
 		SearchResponse searchResponse = getSearchResponse(query, pagination, sortingMap, null, debug);
