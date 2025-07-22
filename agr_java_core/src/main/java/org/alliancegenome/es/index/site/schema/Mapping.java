@@ -370,9 +370,9 @@ public class Mapping extends Builder {
 
 	public enum AffectedGenomicModel {
 
-	HAS_DISEASE_ANNOTATIONS("isHasDiseaseAnnotations"),
-	HAS_PHENOTYPE_ANNOTATIONS("isHasPhenotypeAnnotations"),
-	HAS_DISEASE_AND_PHENOTYPE_ANNOTATIONS("isHasDiseaseAndPhenotypeAnnotations");
+		HAS_DISEASE_ANNOTATIONS("isHasDiseaseAnnotations"),
+		HAS_PHENOTYPE_ANNOTATIONS("isHasPhenotypeAnnotations"),
+		HAS_DISEASE_AND_PHENOTYPE_ANNOTATIONS("isHasDiseaseAndPhenotypeAnnotations");
 
 		private final String name;
 
@@ -384,7 +384,7 @@ public class Mapping extends Builder {
 			return name;
 		}
 
-		public String getFieldName(){
+		public String getFieldName() {
 			return getMappedFieldNameByMethodName(AffectedGenomicModelDocument.class, name);
 		}
 
