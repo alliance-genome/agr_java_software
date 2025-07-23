@@ -368,6 +368,11 @@ public class Mapping extends Builder {
 		}
 	}
 
+	public static String addSortingKey(String fieldName) {
+		return fieldName + ".sort";
+	}
+
+
 	public enum AffectedGenomicModel {
 
 		HAS_DISEASE_ANNOTATIONS("isHasDiseaseAnnotations"),
@@ -386,6 +391,10 @@ public class Mapping extends Builder {
 
 		public String getFieldName() {
 			return getMappedFieldNameByMethodName(AffectedGenomicModelDocument.class, name);
+		}
+
+		public String getSortedFieldName() {
+			return addSortingKey(getFieldName());
 		}
 
 	}

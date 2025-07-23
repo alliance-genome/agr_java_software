@@ -32,9 +32,9 @@ public class AffectedGenomicModelESService extends ESService {
 		addTableFilter(pagination, query);
 		LinkedHashMap<String, SortOrder> sortingMap = new LinkedHashMap<>(
 			Map.of(
-				getSortFieldName(Mapping.AffectedGenomicModel.HAS_DISEASE_AND_PHENOTYPE_ANNOTATIONS.getFieldName()), SortOrder.DESC,
-				getSortFieldName(Mapping.AffectedGenomicModel.HAS_DISEASE_ANNOTATIONS.getFieldName()), SortOrder.DESC,
-				getSortFieldName(Mapping.AffectedGenomicModel.HAS_PHENOTYPE_ANNOTATIONS.getFieldName()), SortOrder.DESC,
+				Mapping.AffectedGenomicModel.HAS_DISEASE_AND_PHENOTYPE_ANNOTATIONS.getSortedFieldName(), SortOrder.DESC,
+				Mapping.AffectedGenomicModel.HAS_DISEASE_ANNOTATIONS.getSortedFieldName(), SortOrder.DESC,
+				Mapping.AffectedGenomicModel.HAS_PHENOTYPE_ANNOTATIONS.getSortedFieldName(), SortOrder.DESC,
 				"model.agmFullName.formatText.sort", SortOrder.ASC));
 
 		SearchResponse searchResponse = getSearchResponse(query, pagination, sortingMap, null, debug);
@@ -52,10 +52,6 @@ public class AffectedGenomicModelESService extends ESService {
 			}).toList();
 		ret.setResults(list);
 		return ret;
-	}
-
-	private String getSortFieldName(String fieldName) {
-		return fieldName + ".sort";
 	}
 
 }
