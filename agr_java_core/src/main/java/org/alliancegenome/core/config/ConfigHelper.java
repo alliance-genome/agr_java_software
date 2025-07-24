@@ -547,7 +547,7 @@ public class ConfigHelper {
 			init();
 		}
 		if (config.get(CURATION_API_TOKEN) != null) {
-			return "Bearer " + config.get(CURATION_API_TOKEN);
+			return "APIToken " + config.get(CURATION_API_TOKEN);
 		}
 		return null;
 	}
