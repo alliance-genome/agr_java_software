@@ -134,7 +134,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 		pagination.addFilterOption("generatedRelationString.keyword", associationType);
 		pagination.addFilterOption("diseaseQualifiers.keyword", diseaseQualifier);
 		pagination.addFilterOption("pubmedPubModIDs", reference);
-		pagination.addFilterOption("primaryAnnotations.dataProvider.sourceOrganization.abbreviation", dataProvider);
+		pagination.addFilterOption("primaryAnnotations.dataProvider.abbreviation", dataProvider);
 		pagination.addFilterOption("object.name", diseaseName);
 		if (pagination.hasErrors()) {
 			RestErrorMessage message = new RestErrorMessage();
@@ -362,7 +362,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 		pagination.addFilterOption("geneticModifierAggregated", geneticModifier);
 		pagination.addFilterOption("diseaseQualifiers.keyword", diseaseQualifier);
 		pagination.addFilterOption("pubmedPubModIDs", reference);
-		pagination.addFilterOption("primaryAnnotations.dataProvider.sourceOrganization.abbreviation", source);
+		pagination.addFilterOption("primaryAnnotations.dataProvider.abbreviation", source);
 		pagination.addFilterOption("object.name", disease);
 
 		if (pagination.hasErrors()) {
