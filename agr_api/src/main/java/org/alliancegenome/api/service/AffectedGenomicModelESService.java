@@ -12,7 +12,6 @@ import org.elasticsearch.search.sort.SortOrder;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 
 @RequestScoped
@@ -30,12 +29,11 @@ public class AffectedGenomicModelESService extends ESService {
 
 		// add table filter
 		addTableFilter(pagination, query);
-		LinkedHashMap<String, SortOrder> sortingMap = new LinkedHashMap<>(
-			Map.of(
-				Mapping.AffectedGenomicModel.HAS_DISEASE_AND_PHENOTYPE_ANNOTATIONS.getSortedFieldName(), SortOrder.DESC,
-				Mapping.AffectedGenomicModel.HAS_DISEASE_ANNOTATIONS.getSortedFieldName(), SortOrder.DESC,
-				Mapping.AffectedGenomicModel.HAS_PHENOTYPE_ANNOTATIONS.getSortedFieldName(), SortOrder.DESC,
-				"model.agmFullName.formatText.sort", SortOrder.ASC));
+		LinkedHashMap<String, SortOrder> sortingMap = new LinkedHashMap<>();
+		sortingMap.put(Mapping.AffectedGenomicModel.HAS_DISEASE_AND_PHENOTYPE_ANNOTATIONS.getSortedFieldName(), SortOrder.DESC);
+		sortingMap.put(Mapping.AffectedGenomicModel.HAS_DISEASE_ANNOTATIONS.getSortedFieldName(), SortOrder.DESC);
+		sortingMap.put(Mapping.AffectedGenomicModel.HAS_PHENOTYPE_ANNOTATIONS.getSortedFieldName(), SortOrder.DESC);
+		sortingMap.put("model.agmFullName.formatText.sort", SortOrder.ASC);
 
 		SearchResponse searchResponse = getSearchResponse(query, pagination, sortingMap, null, debug);
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
