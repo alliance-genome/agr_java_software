@@ -1,7 +1,10 @@
 package org.alliancegenome.api.rest.interfaces;
 
-import java.util.List;
-
+import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import org.alliancegenome.api.dto.RibbonSummary;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.ExpressionDetail;
@@ -18,19 +21,7 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
-import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.core.JsonProcessingException;
-
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.DefaultValue;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
+import java.util.List;
 
 @Path("/expression")
 @Tag(name = "Expression")
@@ -40,9 +31,9 @@ public interface ExpressionRESTInterface {
 
 	@POST
 	@Path("")
-	@JsonView(value = { View.Expression.class })
+	@JsonView(value = {View.Expression.class})
 	@Operation(summary = "Retrieve all expression records of a given set of geneMap")
-	@APIResponses(value = { @APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
+	@APIResponses(value = {@APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class)))})
 	JsonResultResponse<ExpressionDetail> getExpressionAnnotations(
 
 		@Parameter(in = ParameterIn.QUERY, name = "termID", description = "Term ID by which rollup should happen", schema = @Schema(type = SchemaType.STRING))
@@ -92,8 +83,19 @@ public interface ExpressionRESTInterface {
 
 	@POST
 	@Path("/download")
-	Response getExpressionAnnotationsDownload(@QueryParam("geneID") List<String> geneIDs, @QueryParam("termID") String termID, @QueryParam("filter.species") String filterSpecies, @QueryParam("filter.gene") String filterGene, @QueryParam("filter.stage") String filterStage,
-		@QueryParam("filter.assay") String filterAssay, @QueryParam("filter.reference") String filterReference, @QueryParam("filter.term") String filterTerm, @QueryParam("filter.source") String filterSource, @QueryParam("sortBy") String sortBy, @QueryParam("asc") String asc);
+	Response getExpressionAnnotationsDownload(@QueryParam("termID") String termID,
+											@QueryParam("filter.species") String filterSpecies,
+											@QueryParam("filter.gene") String filterGene,
+											@QueryParam("filter.stage") String filterStage,
+											@QueryParam("filter.assay") String filterAssay,
+											@QueryParam("filter.reference") String filterReference,
+											@QueryParam("filter.term") String filterTerm,
+											@QueryParam("filter.source") String filterSource,
+											@QueryParam("sortBy") String sortBy,
+											@QueryParam("asc") String asc,
+											@Parameter(in = ParameterIn.QUERY, name = "geneID", description = "Gene by ID", required = true)
+											@RequestBody List<String> geneIDs
+	);
 
 	@GET
 	@Path("/{taxonID}")
@@ -106,9 +108,9 @@ public interface ExpressionRESTInterface {
 
 	@POST
 	@Path("/ribbon-summary")
-	@JsonView(value = { View.Expression.class })
+	@JsonView(value = {View.Expression.class})
 	@Operation(summary = "Retrieve summary of expression for given list of genes")
-	@APIResponses(value = { @APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
+	@APIResponses(value = {@APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class)))})
 	RibbonSummary getExpressionSummary(
 		@Parameter(in = ParameterIn.QUERY, name = "geneID", description = "list of genes for which expression data is requested", required = true)
 		@RequestBody List<String> geneIDs

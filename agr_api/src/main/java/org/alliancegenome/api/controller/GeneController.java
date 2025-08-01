@@ -567,7 +567,7 @@ public class GeneController implements GeneRESTInterface {
 			throw new RestErrorException(message);
 		}
 		pagination.addFilterOption("model.agmFullName.formatText", modelName);
-		pagination.addFilterOption("diseaseTerms.name", disease);
+		pagination.addFilterOption("diseaseModels.disease.name", disease);
 		pagination.addFilterOption("conditionRelations.conditions.conditionSummary", experimentalCondition);
 		pagination.addFilterOption("associatedPhenotype", phenotype);
 		pagination.addFilterOption("dataProvider", source);
