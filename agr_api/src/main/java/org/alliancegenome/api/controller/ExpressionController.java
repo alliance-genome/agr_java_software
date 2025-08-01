@@ -163,7 +163,7 @@ public class ExpressionController implements ExpressionRESTInterface {
 													String sortBy,
 													String asc,
 													List<String> geneIDs
-													 ) {
+													) {
 
 		JsonResultResponse<ExpressionDetail> result = getExpressionDetailJsonResultResponse(
 				geneIDs,

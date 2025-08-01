@@ -84,17 +84,17 @@ public interface ExpressionRESTInterface {
 	@POST
 	@Path("/download")
 	Response getExpressionAnnotationsDownload(@QueryParam("termID") String termID,
-											  @QueryParam("filter.species") String filterSpecies,
-											  @QueryParam("filter.gene") String filterGene,
-											  @QueryParam("filter.stage") String filterStage,
-											  @QueryParam("filter.assay") String filterAssay,
-											  @QueryParam("filter.reference") String filterReference,
-											  @QueryParam("filter.term") String filterTerm,
-											  @QueryParam("filter.source") String filterSource,
-											  @QueryParam("sortBy") String sortBy,
-											  @QueryParam("asc") String asc,
-											  @Parameter(in = ParameterIn.QUERY, name = "geneID", description = "Gene by ID", required = true)
-											  @RequestBody List<String> geneIDs
+											@QueryParam("filter.species") String filterSpecies,
+											@QueryParam("filter.gene") String filterGene,
+											@QueryParam("filter.stage") String filterStage,
+											@QueryParam("filter.assay") String filterAssay,
+											@QueryParam("filter.reference") String filterReference,
+											@QueryParam("filter.term") String filterTerm,
+											@QueryParam("filter.source") String filterSource,
+											@QueryParam("sortBy") String sortBy,
+											@QueryParam("asc") String asc,
+											@Parameter(in = ParameterIn.QUERY, name = "geneID", description = "Gene by ID", required = true)
+											@RequestBody List<String> geneIDs
 	);
 
 	@GET
