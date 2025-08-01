@@ -90,7 +90,7 @@ public interface ExpressionRESTInterface {
 
 	) throws JsonProcessingException;
 
-	@GET
+	@POST
 	@Path("/download")
 	Response getExpressionAnnotationsDownload(@QueryParam("geneID") List<String> geneIDs, @QueryParam("termID") String termID, @QueryParam("filter.species") String filterSpecies, @QueryParam("filter.gene") String filterGene, @QueryParam("filter.stage") String filterStage,
 		@QueryParam("filter.assay") String filterAssay, @QueryParam("filter.reference") String filterReference, @QueryParam("filter.term") String filterTerm, @QueryParam("filter.source") String filterSource, @QueryParam("sortBy") String sortBy, @QueryParam("asc") String asc);
