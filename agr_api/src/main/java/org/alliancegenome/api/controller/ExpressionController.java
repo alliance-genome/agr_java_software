@@ -152,8 +152,7 @@ public class ExpressionController implements ExpressionRESTInterface {
 	}
 
 	@Override
-	public Response getExpressionAnnotationsDownload(List<String> geneIDs,
-													String termID,
+	public Response getExpressionAnnotationsDownload(String termID,
 													String filterSpecies,
 													String filterGene,
 													String filterStage,
@@ -162,7 +161,9 @@ public class ExpressionController implements ExpressionRESTInterface {
 													String filterTerm,
 													String filterSource,
 													String sortBy,
-													String asc) {
+													String asc,
+													List<String> geneIDs
+													 ) {
 
 		JsonResultResponse<ExpressionDetail> result = getExpressionDetailJsonResultResponse(
 				geneIDs,
