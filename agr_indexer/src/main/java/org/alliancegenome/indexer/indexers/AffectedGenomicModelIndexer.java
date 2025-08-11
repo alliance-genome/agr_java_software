@@ -10,13 +10,20 @@ import org.alliancegenome.indexer.config.IndexerConfig;
 import org.apache.commons.collections.CollectionUtils;
 import si.mazi.rescu.RestProxyFactory;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.LinkedBlockingDeque;
+
+import org.alliancegenome.indexer.indexers.curation.service.BaseService;
 
 @Slf4j
 public class AffectedGenomicModelIndexer extends Indexer {
 
 	private final ModelDocumentInterface modelApi = RestProxyFactory.createProxy(ModelDocumentInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
+	private final BaseService baseService = new BaseService();
+	private Set<String> allNeoModelIDs = baseService.getAllNeoModelIDs();
 
 	private final HashMap<String, Object> params = new HashMap<>() {{
 		put("internal", false);
@@ -32,8 +39,8 @@ public class AffectedGenomicModelIndexer extends Indexer {
 	@Override
 	protected void index() {
 		try {
-			SearchResponse<AffectedGenomicModelDocument> diseaseSummaryResponse = modelApi.findDocuments(0, 0, params);
-			int totalPages = (int) (diseaseSummaryResponse.getTotalResults() / indexerConfig.getBufferSize());
+			SearchResponse<AffectedGenomicModelDocument> agmResponse = modelApi.findDocuments(0, 0, params);
+			int totalPages = (int) (agmResponse.getTotalResults() / indexerConfig.getBufferSize());
 			LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
 			for (int i = 0; i <= totalPages; i++) {
 				queue.add(String.valueOf(i));
@@ -61,13 +68,25 @@ public class AffectedGenomicModelIndexer extends Indexer {
 				if (CollectionUtils.isEmpty(response.getResults())) {
 					continue;
 				}
-				indexDocuments(response.getResults());
+				List<AffectedGenomicModelDocument> filteredResults = filterValidResults(response.getResults());
+				indexDocuments(filteredResults);
 			} catch (Exception e) {
 				log.error("Error while indexing...", e);
 				System.exit(-1);
 				return;
 			}
 		}
+	}
+
+	private List<AffectedGenomicModelDocument> filterValidResults(List<AffectedGenomicModelDocument> docs) {
+		List<AffectedGenomicModelDocument> result = new ArrayList<>();
+		for (AffectedGenomicModelDocument doc : docs) {
+			String identifier = doc.getModel().getIdentifier();
+			if (allNeoModelIDs.contains(identifier)) {
+				result.add(doc);
+			}
+		}
+		return result;
 	}
 
 }
