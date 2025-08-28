@@ -31,6 +31,7 @@ public class SiteMapController implements SiteMapRESTInterface {
 
 	@Override
 	public SiteMapIndex getSiteMap() {
+		Log.info("Serving SiteMap.xml");
 		SearchResponse resp = siteMapService.getFullSiteMap();
 		List<SiteMap> list = new ArrayList<SiteMap>();
 		for (SearchHit searchHit : resp.getHits().getHits()) {
@@ -44,6 +45,7 @@ public class SiteMapController implements SiteMapRESTInterface {
 
 	@Override
 	public XMLURLSet getSiteMap(String siteMapId) {
+		Log.info("Serving " + siteMapId + ".xml");
 		SearchResponse resp = siteMapService.getSiteMap(siteMapId);
 		List<XMLURL> urls = new ArrayList<XMLURL>();
 
