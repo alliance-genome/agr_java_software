@@ -1,7 +1,6 @@
 package org.alliancegenome.indexer.config;
 
 import org.alliancegenome.indexer.indexers.AffectedGenomicModelIndexer;
-import org.alliancegenome.indexer.indexers.TransgenicAlleleIndexer;
 import org.alliancegenome.indexer.indexers.AlleleIndexer;
 import org.alliancegenome.indexer.indexers.DatasetIndexer;
 import org.alliancegenome.indexer.indexers.DiseaseIndexer;
@@ -9,6 +8,7 @@ import org.alliancegenome.indexer.indexers.GeneIndexer;
 import org.alliancegenome.indexer.indexers.GoIndexer;
 import org.alliancegenome.indexer.indexers.LiteratureIndexer;
 import org.alliancegenome.indexer.indexers.ModelIndexer;
+import org.alliancegenome.indexer.indexers.TransgenicAlleleIndexer;
 import org.alliancegenome.indexer.indexers.curation.DiseaseAnnotationCurationIndexer;
 import org.alliancegenome.indexer.indexers.curation.DiseaseSummaryCurationIndexer;
 import org.alliancegenome.indexer.indexers.curation.GOSearchResultCurationIndexer;
@@ -18,6 +18,7 @@ import org.alliancegenome.indexer.indexers.curation.GeneToGeneOrthologyIndexer;
 import org.alliancegenome.indexer.indexers.curation.GeneToGeneParalogyIndexer;
 import org.alliancegenome.indexer.indexers.curation.PhenotypeAnnotationCurationIndexer;
 import org.alliancegenome.indexer.indexers.curation.ReleaseInfoIndexer;
+import org.alliancegenome.indexer.indexers.curation.SiteMapAccessionCurationIndexer;
 
 public enum IndexerConfig {
 
@@ -45,6 +46,8 @@ public enum IndexerConfig {
 	GOSearchResultCurationIndexer("goSearchResult", GOSearchResultCurationIndexer.class, 4, 1500, 1500, 8, 1),
 	//GeneExpressionAnnotationIndexer("geneExpressionAnnotation", GeneExpressionAnnotationIndexer.class, 4, 1500, 1500, 2, 1),
 	//GeneSearchResultCurationIndexer("geneSearchResult", GeneSearchResultCurationIndexer.class, 4, 250, 1000, 4, 1),
+	
+	SiteMapAccessionCurationIndexer("sitemap", SiteMapAccessionCurationIndexer.class, 4, 1500, 1500, 8, 1),
 	
 	
 	;

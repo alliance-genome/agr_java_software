@@ -45,6 +45,13 @@ public class VariantESDAO extends ESDAO {
 
 	public static ObjectMapper mapper = new ObjectMapper();
 
+	private static Map<String, List<String>> sortAlleles = new HashMap<>();
+
+	{
+		sortAlleles.put("default", List.of("primaryKey.keyword"));
+		sortAlleles.put("molecularConsequence", List.of("transcriptLevelConsequences.molecularConsequence.keyword", "primaryKey.keyword"));
+		sortAlleles.put("variant", List.of("transcriptLevelConsequences.molecularConsequence.keyword", "primaryKey.keyword"));
+	}
 
 	public Integer performQueryCount(QueryBuilder query, Pagination pagination) {
 
@@ -60,14 +67,6 @@ public class VariantESDAO extends ESDAO {
 		}
 
 		return response == null ? 0 : (int) response.getCount();
-	}
-
-	private static Map<String, List<String>> sortAlleles = new HashMap<>();
-
-	static {
-		sortAlleles.put("default", List.of("primaryKey.keyword"));
-		sortAlleles.put("molecularConsequence", List.of("transcriptLevelConsequences.molecularConsequence.keyword", "primaryKey.keyword"));
-		sortAlleles.put("variant", List.of("transcriptLevelConsequences.molecularConsequence.keyword", "primaryKey.keyword"));
 	}
 
 	public JsonResultResponse<Allele> performQuery(SearchSourceBuilder searchSourceBuilder, Pagination pagination) {
@@ -89,42 +88,36 @@ public class VariantESDAO extends ESDAO {
 		if (response == null || response.getHits() == null) {
 			return null;
 		}
-		
-		SearchHit[] searchHits = response.getHits().getHits();
-		List<AlleleVariantSequence> results =
-				Arrays.stream(searchHits)
-						.map(hit -> {
-							try {
-								return mapper.readValue(hit.getSourceAsString(), AlleleVariantSequence.class);
-							} catch (IOException e) {
-								log.error("Error during deserialization ", e);
-								throw new RuntimeException(e);
-							}
-						})
-						.collect(toList());
-		List<Allele> alleles = results.stream()
-				.map(alleleVariantSequence -> {
-					Allele allele;
-					if (alleleVariantSequence.getAllele() == null) {
-						allele = new Allele(alleleVariantSequence.getPrimaryKey(), GeneticEntity.CrossReferenceType.VARIANT);
-						Variant variant = alleleVariantSequence.getVariant();
 
-						allele.setSymbol(alleleVariantSequence.getPrimaryKey());
-						Map<String, CrossReference> crossRefs = new HashMap<>();
-						CrossReference ref = new CrossReference();
-						ref.setName("");
-						crossRefs.put("primary", ref);
-						allele.setCrossReferenceMap(Map.copyOf(crossRefs));
-					} else {
-						allele = alleleVariantSequence.getAllele();
-					}
-					return allele;
-				})
-				.collect(toList());
+		SearchHit[] searchHits = response.getHits().getHits();
+		List<AlleleVariantSequence> results = Arrays.stream(searchHits).map(hit -> {
+			try {
+				return mapper.readValue(hit.getSourceAsString(), AlleleVariantSequence.class);
+			} catch (IOException e) {
+				log.error("Error during deserialization ", e);
+				throw new RuntimeException(e);
+			}
+		}).collect(toList());
+		List<Allele> alleles = results.stream().map(alleleVariantSequence -> {
+			Allele allele;
+			if (alleleVariantSequence.getAllele() == null) {
+				allele = new Allele(alleleVariantSequence.getPrimaryKey(), GeneticEntity.CrossReferenceType.VARIANT);
+				Variant variant = alleleVariantSequence.getVariant();
+
+				allele.setSymbol(alleleVariantSequence.getPrimaryKey());
+				Map<String, CrossReference> crossRefs = new HashMap<>();
+				CrossReference ref = new CrossReference();
+				ref.setName("");
+				crossRefs.put("primary", ref);
+				allele.setCrossReferenceMap(Map.copyOf(crossRefs));
+			} else {
+				allele = alleleVariantSequence.getAllele();
+			}
+			return allele;
+		}).collect(toList());
 		JsonResultResponse<Allele> resultResponse = new JsonResultResponse<>();
 		resultResponse.setResults(alleles);
 		resultResponse.setTotal(performQueryCount(searchSourceBuilder.query(), pagination));
-
 
 		return resultResponse;
 	}
@@ -151,14 +144,12 @@ public class VariantESDAO extends ESDAO {
 		}
 
 		// get Distinct values
-		// for now on the filtered result set. This needs to be done on the full, unfiltered result set.
+		// for now on the filtered result set. This needs to be done on the full,
+		// unfiltered result set.
 
 		Map<String, List<String>> distinctValueMap = new HashMap<>();
 		for (FieldFilter filter : distinctFields.keySet()) {
-			List<String> list = ((ParsedStringTerms) response.getAggregations().get(filter.getName())).getBuckets()
-					.stream()
-					.map(bucket -> (String) bucket.getKey())
-					.collect(toList());
+			List<String> list = ((ParsedStringTerms) response.getAggregations().get(filter.getName())).getBuckets().stream().map(bucket -> (String) bucket.getKey()).collect(toList());
 			distinctValueMap.put(filter.getName(), list);
 		}
 		return distinctValueMap;
@@ -187,27 +178,23 @@ public class VariantESDAO extends ESDAO {
 		}
 
 		// get Distinct values
-		// for now on the filtered result set. This needs to be done on the full, unfiltered result set.
+		// for now on the filtered result set. This needs to be done on the full,
+		// unfiltered result set.
 
 		Map<String, Map<String, Integer>> distinctValueMap = new HashMap<>();
 		for (FieldFilter filter : distinctFields.keySet()) {
-			Map<String, Integer> map = ((ParsedStringTerms) response.getAggregations().get(filter.getName())).getBuckets()
-					.stream()
-/*
-					.map(bucket -> {
-						Map<String, Integer> map = new HashMap<>();
-						map.put(bucket.getKey(), (Integer) bucket.getDocCount());
-						return map;
-					}
-*/
-					.collect(toMap(t -> (String) t.getKey(), bucket -> (int) bucket.getDocCount()));
+			Map<String, Integer> map = ((ParsedStringTerms) response.getAggregations().get(filter.getName())).getBuckets().stream()
+				/*
+				 * .map(bucket -> { Map<String, Integer> map = new HashMap<>();
+				 * map.put(bucket.getKey(), (Integer) bucket.getDocCount()); return map; }
+				 */
+				.collect(toMap(t -> (String) t.getKey(), bucket -> (int) bucket.getDocCount()));
 			distinctValueMap.put(filter.getName(), map);
 		}
 		return distinctValueMap;
 	}
 
 	public Variant getVariant(String id) {
-
 
 		BoolQueryBuilder bool = boolQuery();
 		bool.filter(new TermQueryBuilder("category", "allele"));
@@ -230,36 +217,31 @@ public class VariantESDAO extends ESDAO {
 		}
 
 		SearchHit[] searchHits = response.getHits().getHits();
-		List<AlleleVariantSequence> results =
-				Arrays.stream(searchHits)
-						.map(hit -> {
-							try {
-								return mapper.readValue(hit.getSourceAsString(), AlleleVariantSequence.class);
-							} catch (IOException e) {
-								log.error("Error during deserialization ", e);
-								throw new RuntimeException(e);
-							}
-						})
-						.collect(toList());
-		List<Allele> alleles = results.stream()
-				.map(alleleVariantSequence -> {
-					Allele allele;
-					if (alleleVariantSequence.getAllele() == null) {
-						allele = new Allele(alleleVariantSequence.getPrimaryKey(), GeneticEntity.CrossReferenceType.VARIANT);
-						Variant variant = alleleVariantSequence.getVariant();
-						allele.setVariants(List.of(variant));
-						allele.setSymbol(alleleVariantSequence.getPrimaryKey());
-						Map<String, CrossReference> crossRefs = new HashMap<>();
-						CrossReference ref = new CrossReference();
-						ref.setName("");
-						crossRefs.put("primary", ref);
-						allele.setCrossReferenceMap(Map.copyOf(crossRefs));
-					} else {
-						allele = alleleVariantSequence.getAllele();
-					}
-					return allele;
-				})
-				.collect(toList());
+		List<AlleleVariantSequence> results = Arrays.stream(searchHits).map(hit -> {
+			try {
+				return mapper.readValue(hit.getSourceAsString(), AlleleVariantSequence.class);
+			} catch (IOException e) {
+				log.error("Error during deserialization ", e);
+				throw new RuntimeException(e);
+			}
+		}).collect(toList());
+		List<Allele> alleles = results.stream().map(alleleVariantSequence -> {
+			Allele allele;
+			if (alleleVariantSequence.getAllele() == null) {
+				allele = new Allele(alleleVariantSequence.getPrimaryKey(), GeneticEntity.CrossReferenceType.VARIANT);
+				Variant variant = alleleVariantSequence.getVariant();
+				allele.setVariants(List.of(variant));
+				allele.setSymbol(alleleVariantSequence.getPrimaryKey());
+				Map<String, CrossReference> crossRefs = new HashMap<>();
+				CrossReference ref = new CrossReference();
+				ref.setName("");
+				crossRefs.put("primary", ref);
+				allele.setCrossReferenceMap(Map.copyOf(crossRefs));
+			} else {
+				allele = alleleVariantSequence.getAllele();
+			}
+			return allele;
+		}).collect(toList());
 
 		return alleles.get(0).getVariants().get(0);
 	}

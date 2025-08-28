@@ -9,6 +9,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.alliancegenome.curation_api.model.entities.base.AuditedObject;
 import org.alliancegenome.neo4j.repository.AlleleRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
+import org.alliancegenome.neo4j.repository.VariantRepository;
 import org.apache.commons.collections4.CollectionUtils;
 
 import lombok.extern.log4j.Log4j2;
@@ -20,6 +21,7 @@ public class BaseService {
 	private static HashSet<String> allNeoAlleleIDs;
 	private static HashSet<String> allNeoGeneIDs;
 	private static HashSet<String> allNeoModelIDs;
+	private static HashSet<String> allNeoVariantIDs;
 
 	public HashSet<String> getAllNeoAlleleIDs() {
 		if (allNeoAlleleIDs == null) {
@@ -72,6 +74,23 @@ public class BaseService {
 			}
 		}
 		return allNeoModelIDs;
+	}
+
+	public HashSet<String> getAllNeoVariantIDs() {
+		if (allNeoVariantIDs == null) {
+			String variantIdsFileName = "variant_ids.gz";
+			List<String> variantList = readFromCache(variantIdsFileName, List.class);
+
+			if (CollectionUtils.isNotEmpty(variantList)) {
+				allNeoVariantIDs = new HashSet<>(variantList);
+			} else {
+				VariantRepository variantRepository = new VariantRepository();
+				allNeoVariantIDs = new HashSet<>(variantRepository.getAllVariantKeys());
+				variantRepository.close();
+				writeToCache(variantIdsFileName, new ArrayList<>(allNeoVariantIDs));
+			}
+		}
+		return allNeoVariantIDs;
 	}
 
 	protected <E> E readFromCache(String fileName, Class<E> clazz) {
