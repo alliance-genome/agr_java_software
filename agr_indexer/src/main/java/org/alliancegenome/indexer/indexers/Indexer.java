@@ -147,11 +147,11 @@ public abstract class Indexer extends Thread {
 			indexDocument(doc, view);
 		}
 	}
-	
+
 	public <D extends ESDocument> void indexDocument(D doc) {
 		indexDocument(doc, null);
 	}
-	
+
 	public <D extends ESDocument> void indexDocument(D doc, Class<?> view) {
 		try {
 			String json = "";
@@ -197,16 +197,14 @@ public abstract class Indexer extends Thread {
 			t.join();
 		}
 	}
-	
+
 	protected <T> List<List<T>> partition(List<T> list, int size) {
-        List<List<T>> parts = new ArrayList<>();
-        for (int i = 0; i < list.size(); i += size) {
-            parts.add(new ArrayList<>(
-                list.subList(i, Math.min(i + size, list.size()))
-            ));
-        }
-        return parts;
-    }
+		List<List<T>> parts = new ArrayList<>();
+		for (int i = 0; i < list.size(); i += size) {
+			parts.add(new ArrayList<>(list.subList(i, Math.min(i + size, list.size()))));
+		}
+		return parts;
+	}
 
 	protected abstract void index();
 

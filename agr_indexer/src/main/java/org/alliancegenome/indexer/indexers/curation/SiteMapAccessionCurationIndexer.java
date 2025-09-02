@@ -18,7 +18,7 @@ import si.mazi.rescu.RestProxyFactory;
 public class SiteMapAccessionCurationIndexer extends Indexer {
 
 	private final AccessionDocumentInterface accessionApi = RestProxyFactory.createProxy(AccessionDocumentInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
-	
+
 	public SiteMapAccessionCurationIndexer(IndexerConfig indexerConfig) {
 		super(indexerConfig);
 	}
@@ -30,14 +30,14 @@ public class SiteMapAccessionCurationIndexer extends Indexer {
 			AccessionSummaryDocument document = accessionApi.getAccessionSummary();
 
 			Map<String, List<String>> map = document.getIdsByType();
-			
+
 			BaseService base = new BaseService();
 
 			map.get("allele").retainAll(base.getAllNeoAlleleIDs());
 
 			List<List<String>> alleleIdLists = partition(map.get("allele"), 15000);
 
-			for(int i = 0; i < alleleIdLists.size(); i++) {
+			for (int i = 0; i < alleleIdLists.size(); i++) {
 				SiteMapIdDocument doc = new SiteMapIdDocument();
 				doc.setLastMod(ConfigHelper.getAppStart());
 				String siteMapId = "allele-sitemap-" + i;
@@ -48,10 +48,10 @@ public class SiteMapAccessionCurationIndexer extends Indexer {
 			}
 
 			map.get("gene").retainAll(base.getAllNeoGeneIDs());
-			
+
 			List<List<String>> geneIdLists = partition(map.get("gene"), 15000);
-			
-			for(int i = 0; i < geneIdLists.size(); i++) {
+
+			for (int i = 0; i < geneIdLists.size(); i++) {
 				SiteMapIdDocument doc = new SiteMapIdDocument();
 				doc.setLastMod(ConfigHelper.getAppStart());
 				String siteMapId = "gene-sitemap-" + i;
@@ -60,10 +60,10 @@ public class SiteMapAccessionCurationIndexer extends Indexer {
 				doc.setSiteMapIds(geneIdLists.get(i));
 				indexDocument(doc);
 			}
-			
+
 			List<List<String>> variantIdLists = partition(map.get("variant"), 15000);
-			
-			for(int i = 0; i < variantIdLists.size(); i++) {
+
+			for (int i = 0; i < variantIdLists.size(); i++) {
 				SiteMapIdDocument doc = new SiteMapIdDocument();
 				doc.setLastMod(ConfigHelper.getAppStart());
 				String siteMapId = "variant-sitemap-" + i;
@@ -72,10 +72,10 @@ public class SiteMapAccessionCurationIndexer extends Indexer {
 				doc.setSiteMapIds(variantIdLists.get(i));
 				indexDocument(doc);
 			}
-			
+
 			List<List<String>> diseaseIdLists = partition(map.get("disease"), 15000);
-			
-			for(int i = 0; i < diseaseIdLists.size(); i++) {
+
+			for (int i = 0; i < diseaseIdLists.size(); i++) {
 				SiteMapIdDocument doc = new SiteMapIdDocument();
 				doc.setLastMod(ConfigHelper.getAppStart());
 				String siteMapId = "disease-sitemap-" + i;
@@ -88,10 +88,11 @@ public class SiteMapAccessionCurationIndexer extends Indexer {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 	}
 
 	@Override
-	protected void startSingleThread(LinkedBlockingDeque<String> queue) { }
+	protected void startSingleThread(LinkedBlockingDeque<String> queue) {
+	}
 
 }
