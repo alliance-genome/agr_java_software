@@ -6,27 +6,21 @@ import org.alliancegenome.api.service.LiteratureESService;
 import org.alliancegenome.core.exceptions.RestErrorException;
 import org.alliancegenome.core.exceptions.RestErrorMessage;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import jakarta.inject.Inject;
 
 public class LiteratureController implements LiteratureRESTInterface {
-	@Inject
-	ObjectMapper mapper;
-
 	@Inject
 	LiteratureESService literatureESService;
 	
 	@Override
 	public LiteratureSummaryDocument getLiterature(String id) {
 		// TODO Auto-generated method stub
-		LiteratureSummaryDocument diseaseSummary = literatureESService.getById(id);
-		if (diseaseSummary == null) {
+		LiteratureSummaryDocument literatureSummary = literatureESService.getById(id);
+		if (literatureSummary == null) {
 			RestErrorMessage error = new RestErrorMessage("No literature summary found with ID: " + id);
 			throw new RestErrorException(error);
 		} else {
-			return diseaseSummary;
+			return literatureSummary;
 		}
 	}
-
 }
