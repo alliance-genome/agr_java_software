@@ -14,7 +14,6 @@ public class LiteratureController implements LiteratureRESTInterface {
 	
 	@Override
 	public LiteratureSummaryDocument getLiterature(String id) {
-		// TODO Auto-generated method stub
 		LiteratureSummaryDocument literatureSummary = literatureESService.getById(id);
 		if (literatureSummary == null) {
 			RestErrorMessage error = new RestErrorMessage("No literature summary found with ID: " + id);
