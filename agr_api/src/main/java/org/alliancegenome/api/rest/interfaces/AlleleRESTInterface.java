@@ -3,7 +3,10 @@ package org.alliancegenome.api.rest.interfaces;
 import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.AllelePhenotypeAnnotationDocument;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
+import org.alliancegenome.curation_api.model.document.es.TransgenicAlleleDocument;
+import org.alliancegenome.curation_api.model.entities.TransgenicAlleleConstruct;
 import org.alliancegenome.neo4j.entity.node.Allele;
+import org.alliancegenome.neo4j.entity.node.Construct;
 import org.alliancegenome.neo4j.entity.node.Variant;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.lang3.ObjectUtils.Null;
@@ -42,6 +45,21 @@ public interface AlleleRESTInterface {
 	@APIResponses(value = { @APIResponse(responseCode = "404", description = "Missing alleles", content = @Content(mediaType = "text/plain")),
 		@APIResponse(responseCode = "200", description = "Search for alleles.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
 	Allele getAllele(@Parameter(in = ParameterIn.PATH, name = "id", description = "Search for an Allele by ID", required = true, schema = @Schema(type = SchemaType.STRING)) @PathParam("id") String id);
+
+	@GET
+	@Path("/{id}/constructs")
+	@Operation(description = "Searches for transgenic alleles", summary = "Transgenic Alleles")
+	@APIResponses(value = { @APIResponse(responseCode = "404", description = "Missing transgenic alleles", content = @Content(mediaType = "text/plain")),
+		@APIResponse(responseCode = "200", description = "Search for alleles.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
+	JsonResultResponse<TransgenicAlleleDocument> getAlleleConstructs(@Parameter(in = ParameterIn.PATH, name = "id", description = "Search for an constructs of a given Allele by ID", required = true, schema = @Schema(type = SchemaType.STRING)) @PathParam("id") String id);
+
+	@GET
+	@Path("/{alleleID}/construct/{constructID}")
+	@Operation(description = "Searches for transgenic alleles", summary = "Transgenic Alleles")
+	@APIResponses(value = { @APIResponse(responseCode = "404", description = "Missing transgenic alleles", content = @Content(mediaType = "text/plain")),
+		@APIResponse(responseCode = "200", description = "Search for alleles.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
+	TransgenicAlleleConstruct getAlleleConstruct(@Parameter(in = ParameterIn.PATH, name = "alleleID", description = "retrieve construct info for a given Allele ID", required = true, schema = @Schema(type = SchemaType.STRING)) @PathParam("alleleID") String alleleID,
+												 @Parameter(in = ParameterIn.PATH, name = "constructID", description = "retrieve construct info for a given Allele ID", required = true, schema = @Schema(type = SchemaType.STRING)) @PathParam("constructID") String constructID);
 
 	@GET
 	@Path("/{id}/variants")

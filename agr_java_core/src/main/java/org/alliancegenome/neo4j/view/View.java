@@ -88,7 +88,6 @@ public class View {
 
 	public static class VariantAPI extends API {
 	}
-
 	public static class ReleaseInfo extends API {
 	}
 
