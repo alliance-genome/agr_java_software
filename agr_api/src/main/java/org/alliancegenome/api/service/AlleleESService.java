@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-
 @RequestScoped
 public class AlleleESService extends ESService {
 
