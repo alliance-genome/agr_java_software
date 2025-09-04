@@ -4,6 +4,7 @@ import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.AllelePhenotypeAnnotationDocument;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.curation_api.model.document.es.TransgenicAlleleDocument;
+import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Variant;
 import org.alliancegenome.neo4j.view.View;
@@ -38,11 +39,10 @@ public interface AlleleRESTInterface {
 
 	@GET
 	@Path("/{id}")
-	@JsonView({ View.AlleleAPI.class })
 	@Operation(description = "Searches for an Allele", summary = "Allele Notes")
 	@APIResponses(value = { @APIResponse(responseCode = "404", description = "Missing alleles", content = @Content(mediaType = "text/plain")),
 		@APIResponse(responseCode = "200", description = "Search for alleles.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
-	Allele getAllele(@Parameter(in = ParameterIn.PATH, name = "id", description = "Search for an Allele by ID", required = true, schema = @Schema(type = SchemaType.STRING)) @PathParam("id") String id);
+	AlleleSummaryDocument getAllele(@Parameter(in = ParameterIn.PATH, name = "id", description = "Search for an Allele by ID", required = true, schema = @Schema(type = SchemaType.STRING)) @PathParam("id") String id);
 
 	@GET
 	@Path("/{id}/constructs")
