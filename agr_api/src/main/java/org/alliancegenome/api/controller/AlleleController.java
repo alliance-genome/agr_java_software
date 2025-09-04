@@ -56,30 +56,15 @@ public class AlleleController implements AlleleRESTInterface {
 	}
 
 	@Override
-	public JsonResultResponse<TransgenicAlleleDocument> getAlleleConstructs(String alleleId) {
-		if (alleleEsService.getTransgenicAlleles(alleleId) == null) {
+	public TransgenicAlleleDocument getAlleleConstructs(String alleleId) {
+		JsonResultResponse<TransgenicAlleleDocument> transgenicAlleles = alleleEsService.getTransgenicAlleles(alleleId);
+		if (transgenicAlleles == null) {
 			return null;
 		}
-		return alleleEsService.getTransgenicAlleles(alleleId);
-	}
-
-	@Override
-	public TransgenicAlleleConstruct getAlleleConstruct(String alleleID, String constructID) {
-		JsonResultResponse<TransgenicAlleleDocument> transgenicAlleles = alleleEsService.getTransgenicAlleles(alleleID);
-		if (CollectionUtils.isEmpty(transgenicAlleles.getResults())) {
+		if(CollectionUtils.isEmpty(transgenicAlleles.getResults())){
 			return null;
 		}
-		if (transgenicAlleles.getTotal() > 1) {
-			throw new RuntimeException("More than one transgenic allele found for alleleID: " + alleleID);
-		}
-		return transgenicAlleles.getResults().get(0).getTransgenicAlleleConstructs().stream()
-			.filter(doc -> {
-				if (doc.getConstruct() != null) {
-					doc.getConstruct().getId();
-				}
-				return false;
-			})
-			.toList().get(0);
+		return transgenicAlleles.getResults().get(0);
 	}
 
 	@Override
