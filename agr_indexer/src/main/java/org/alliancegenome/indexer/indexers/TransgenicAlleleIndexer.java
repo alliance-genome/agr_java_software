@@ -22,7 +22,7 @@ public class TransgenicAlleleIndexer extends Indexer {
 	private final HashMap<String, Object> params = new HashMap<>() {{
 		put("internal", false);
 		put("obsolete", false);
-		//put("primaryExternalId", "ZFIN:ZDB-FISH-181119-4");
+		//put("alleleAssociationSubject.primaryExternalId", "WB:WBTransgene00015957");
 	}};
 
 	public TransgenicAlleleIndexer(IndexerConfig config) {

@@ -1,31 +1,28 @@
 package org.alliancegenome.api.controller;
 
-import java.time.LocalDateTime;
-
-import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
-import org.alliancegenome.api.entity.AllelePhenotypeAnnotationDocument;
-import org.alliancegenome.api.rest.interfaces.AlleleRESTInterface;
-import org.alliancegenome.api.service.AlleleService;
-import org.alliancegenome.api.service.DiseaseESService;
-import org.alliancegenome.api.service.EntityType;
-import org.alliancegenome.api.service.PhenotypeESService;
-import org.alliancegenome.api.service.VariantService;
-import org.alliancegenome.api.service.helper.APIServiceHelper;
-import org.alliancegenome.api.translators.tdf.DiseaseAnnotationToTdfTranslator;
-import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.core.exceptions.RestErrorException;
-import org.alliancegenome.core.exceptions.RestErrorMessage;
-import org.alliancegenome.core.translators.tdf.AlleleToTdfTranslator;
-import org.alliancegenome.api.translators.tdf.PhenotypeAnnotationToTdfTranslator;
-import org.alliancegenome.es.model.query.FieldFilter;
-import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.Variant;
-
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
+import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
+import org.alliancegenome.api.entity.AllelePhenotypeAnnotationDocument;
+import org.alliancegenome.api.rest.interfaces.AlleleRESTInterface;
+import org.alliancegenome.api.service.*;
+import org.alliancegenome.api.service.helper.APIServiceHelper;
+import org.alliancegenome.api.translators.tdf.DiseaseAnnotationToTdfTranslator;
+import org.alliancegenome.api.translators.tdf.PhenotypeAnnotationToTdfTranslator;
+import org.alliancegenome.cache.repository.helper.JsonResultResponse;
+import org.alliancegenome.core.exceptions.RestErrorException;
+import org.alliancegenome.core.exceptions.RestErrorMessage;
+import org.alliancegenome.core.translators.tdf.AlleleToTdfTranslator;
+import org.alliancegenome.curation_api.model.document.es.TransgenicAlleleDocument;
+import org.alliancegenome.es.model.query.FieldFilter;
+import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.node.Allele;
+import org.alliancegenome.neo4j.entity.node.Variant;
+import org.apache.commons.collections4.CollectionUtils;
+
+import java.time.LocalDateTime;
 
 @Slf4j
 @RequestScoped
@@ -33,6 +30,9 @@ public class AlleleController implements AlleleRESTInterface {
 
 	@Inject
 	AlleleService alleleService;
+
+	@Inject
+	AlleleESService alleleEsService;
 
 	@Inject
 	VariantService variantService;
@@ -52,6 +52,18 @@ public class AlleleController implements AlleleRESTInterface {
 	@Override
 	public Allele getAllele(String id) {
 		return alleleService.getById(id);
+	}
+
+	@Override
+	public TransgenicAlleleDocument getAlleleConstructs(String alleleId) {
+		JsonResultResponse<TransgenicAlleleDocument> transgenicAlleles = alleleEsService.getTransgenicAlleles(alleleId);
+		if (transgenicAlleles == null) {
+			return null;
+		}
+		if (CollectionUtils.isEmpty(transgenicAlleles.getResults())) {
+			return null;
+		}
+		return transgenicAlleles.getResults().get(0);
 	}
 
 	@Override
