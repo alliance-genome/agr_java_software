@@ -13,7 +13,7 @@ public class Mapping extends Builder {
 	 * Converts a method name to a field name by stripping the "get" prefix and lowercasing the first letter.
 	 * For example, "getGeneSymbol" becomes "geneSymbol".
 	 *
-	 * @param clazz      The class containing the method.
+	 * @param clazz		 The class containing the method.
 	 * @param methodName The method name to convert.
 	 * @return The mapped field name.
 	 */

@@ -1,17 +1,19 @@
 package org.alliancegenome.indexer.indexers;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
-import org.alliancegenome.core.config.ConfigHelper;
+import java.text.DecimalFormat;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
+
 import org.alliancegenome.core.util.StatsCollector;
 import org.alliancegenome.curation_api.model.document.es.ESDocument;
 import org.alliancegenome.es.util.EsClientFactory;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.config.IndexerConfig;
-import org.apache.commons.io.FileUtils;
 import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.bulk.BackoffPolicy;
 import org.elasticsearch.action.bulk.BulkProcessor;
@@ -25,21 +27,12 @@ import org.elasticsearch.common.unit.ByteSizeValue;
 import org.elasticsearch.core.TimeValue;
 import org.elasticsearch.xcontent.XContentType;
 
-import java.io.IOException;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.text.DecimalFormat;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public abstract class Indexer extends Thread {
@@ -66,8 +59,6 @@ public abstract class Indexer extends Thread {
 
 		om.setSerializationInclusion(Include.NON_NULL);
 		om = customizeObjectMapper(om);
-
-		loadPopularityScore();
 
 		searchClient = EsClientFactory.getDefaultEsClient();
 
@@ -104,24 +95,6 @@ public abstract class Indexer extends Thread {
 		// bulkProcessor = BulkProcessor.builder((request, bulkListener) ->
 		// searchClient.bulkAsync(request, RequestOptions.DEFAULT, bulkListener),
 		// listener).build();
-
-	}
-
-	private void loadPopularityScore() {
-
-		popularityScore = new HashMap<>();
-
-		try {
-			Path popularityFile = Paths.get(ConfigHelper.getPopularityFileName());
-			if (!Files.exists(popularityFile)) {
-				FileUtils.copyURLToFile(new URL(ConfigHelper.getPopularityDownloadUrl()), popularityFile.toFile());
-			}
-			popularityScore = Files.lines(popularityFile).collect(Collectors.toMap(key -> String.valueOf(key.split("\t")[0]), val -> Double.valueOf(val.split("\t")[1])));
-		} catch (IOException e) {
-			e.printStackTrace();
-			log.error(e.getMessage());
-			System.exit(-1);
-		}
 
 	}
 
@@ -171,25 +144,33 @@ public abstract class Indexer extends Thread {
 
 	public <D extends ESDocument> void indexDocuments(Iterable<D> docs, Class<?> view) {
 		for (D doc : docs) {
-			try {
-				String json = "";
-				if (view != null) {
-					json = om.writerWithView(view).writeValueAsString(doc);
-				} else {
-					json = om.writeValueAsString(doc);
-				}
-				if (json.length() > 19_000_000) {
-					log.warn("Document is too large for ES skipping: " + json.length());
-					continue;
-				}
-				stats.addDocument(json);
-				bulkProcessor.add(new IndexRequest(indexName).source(json, XContentType.JSON));
-				display.progressProcess();
-			} catch (JsonProcessingException e) {
-				e.printStackTrace();
-				log.error(e.getMessage());
-				System.exit(-1);
+			indexDocument(doc, view);
+		}
+	}
+
+	public <D extends ESDocument> void indexDocument(D doc) {
+		indexDocument(doc, null);
+	}
+
+	public <D extends ESDocument> void indexDocument(D doc, Class<?> view) {
+		try {
+			String json = "";
+			if (view != null) {
+				json = om.writerWithView(view).writeValueAsString(doc);
+			} else {
+				json = om.writeValueAsString(doc);
 			}
+			if (json.length() > 19_000_000) {
+				log.error("Document is too large for ES skipping: " + json.length());
+				return;
+			}
+			stats.addDocument(json);
+			bulkProcessor.add(new IndexRequest(indexName).source(json, XContentType.JSON));
+			display.progressProcess();
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+			log.error(e.getMessage());
+			System.exit(-1);
 		}
 	}
 
@@ -215,6 +196,14 @@ public abstract class Indexer extends Thread {
 		for (Thread t : threads) {
 			t.join();
 		}
+	}
+
+	protected <T> List<List<T>> partition(List<T> list, int size) {
+		List<List<T>> parts = new ArrayList<>();
+		for (int i = 0; i < list.size(); i += size) {
+			parts.add(new ArrayList<>(list.subList(i, Math.min(i + size, list.size()))));
+		}
+		return parts;
 	}
 
 	protected abstract void index();
