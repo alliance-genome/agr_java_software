@@ -16,7 +16,7 @@ public enum CacherConfig {
 	//DiseaseCacher(DiseaseCacher.class),
 	
 	ExpressionCacher(ExpressionCacher.class),
-	ModelCacher(ModelCacher.class),
+	//ModelCacher(ModelCacher.class),
 	EcoCodeCacher(EcoCodeCacher.class),
 	//SiteMapCacher(SiteMapCacher.class),
 	;
