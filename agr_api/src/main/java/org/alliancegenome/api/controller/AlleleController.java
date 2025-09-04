@@ -16,7 +16,6 @@ import org.alliancegenome.core.exceptions.RestErrorException;
 import org.alliancegenome.core.exceptions.RestErrorMessage;
 import org.alliancegenome.core.translators.tdf.AlleleToTdfTranslator;
 import org.alliancegenome.curation_api.model.document.es.TransgenicAlleleDocument;
-import org.alliancegenome.curation_api.model.entities.TransgenicAlleleConstruct;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.node.Allele;
@@ -61,7 +60,7 @@ public class AlleleController implements AlleleRESTInterface {
 		if (transgenicAlleles == null) {
 			return null;
 		}
-		if(CollectionUtils.isEmpty(transgenicAlleles.getResults())){
+		if (CollectionUtils.isEmpty(transgenicAlleles.getResults())) {
 			return null;
 		}
 		return transgenicAlleles.getResults().get(0);
