@@ -1,6 +1,9 @@
 package org.alliancegenome.indexer.indexers.curation;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import org.alliancegenome.core.config.ConfigHelper;
@@ -10,6 +13,7 @@ import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
+import org.alliancegenome.indexer.indexers.curation.service.BaseService;
 import org.apache.commons.collections.CollectionUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,7 +25,8 @@ import si.mazi.rescu.RestProxyFactory;
 public class AlleleSummaryCurationIndexer extends Indexer {
 
 	private final AlleleDocumentInterface alleleApi = RestProxyFactory.createProxy(AlleleDocumentInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
-	
+	private final BaseService baseService = new BaseService();
+	private Set<String> allNeoAlleleIDs = baseService.getAllNeoAlleleIDs();
 	private HashMap<String, Object> params = new HashMap<>() {{
 		put("internal", false);
 		put("obsolete", false);
@@ -34,13 +39,18 @@ public class AlleleSummaryCurationIndexer extends Indexer {
 	@Override
 	protected void index() {
 		try {
+
 			SearchResponse<AlleleSummaryDocument> alleleSummaryResponse = alleleApi.findSummary(0, 0, params);
 			int totalPages = (int) (alleleSummaryResponse.getTotalResults() / indexerConfig.getBufferSize());
+
 			LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
+
 			for (int i = 0; i <= totalPages; i++) {
 				queue.add(String.valueOf(i));
 			}
+
 			initiateThreading(queue);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -59,7 +69,8 @@ public class AlleleSummaryCurationIndexer extends Indexer {
 					return;
 				}
 
-				indexDocuments(response.getResults());
+				List<AlleleSummaryDocument> filteredResults = filterAgainstNeo(response.getResults());
+				indexDocuments(filteredResults);
 			} catch (Exception e) {
 				log.error("Error while indexing...", e);
 				System.exit(-1);
@@ -71,6 +82,17 @@ public class AlleleSummaryCurationIndexer extends Indexer {
 	@Override
 	protected ObjectMapper customizeObjectMapper(ObjectMapper objectMapper) {
 		return RestConfig.config.getJacksonObjectMapperFactory().createObjectMapper();
+	}
+
+	private List<AlleleSummaryDocument> filterAgainstNeo(List<AlleleSummaryDocument> docs) {
+		List<AlleleSummaryDocument> result = new ArrayList<>();
+		for (AlleleSummaryDocument doc : docs) {
+			String identifier = doc.getAllele().getPrimaryExternalId();
+			if (allNeoAlleleIDs.contains(identifier)) {
+				result.add(doc);
+			}
+		}
+		return result;
 	}
 	
 }

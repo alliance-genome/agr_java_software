@@ -15,6 +15,7 @@ import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.exceptions.RestErrorException;
 import org.alliancegenome.core.exceptions.RestErrorMessage;
 import org.alliancegenome.core.translators.tdf.AlleleToTdfTranslator;
+import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
 import org.alliancegenome.curation_api.model.document.es.TransgenicAlleleDocument;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
@@ -41,6 +42,9 @@ public class AlleleController implements AlleleRESTInterface {
 	DiseaseESService diseaseESService;
 
 	@Inject
+	AlleleESService alleleESService;
+
+	@Inject
 	PhenotypeESService phenotypeESService;
 	//@Inject
 	//private HttpRequest request;
@@ -50,8 +54,14 @@ public class AlleleController implements AlleleRESTInterface {
 	private final DiseaseAnnotationToTdfTranslator diseaseToTdfTranslator = new DiseaseAnnotationToTdfTranslator();
 
 	@Override
-	public Allele getAllele(String id) {
-		return alleleService.getById(id);
+	public AlleleSummaryDocument getAllele(String id) {
+		AlleleSummaryDocument alleleSummary = alleleESService.getById(id);
+		if (alleleSummary == null) {
+			RestErrorMessage error = new RestErrorMessage("No allele found with ID: " + id);
+			throw new RestErrorException(error);
+		} else {
+			return alleleSummary;
+		}
 	}
 
 	@Override
