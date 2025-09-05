@@ -4,6 +4,7 @@ import java.text.DecimalFormat;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -47,7 +48,7 @@ public abstract class Indexer extends Thread {
 	private ProcessDisplayHelper display = new ProcessDisplayHelper();
 	private StatsCollector stats = new StatsCollector();
 
-	protected Map<String, Double> popularityScore;
+	protected Map<String, Double> popularityScore = new HashMap<>();
 
 	@Getter
 	private Duration duration = Duration.ZERO;
