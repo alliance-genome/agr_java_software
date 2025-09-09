@@ -76,6 +76,7 @@ public class AlleleController implements AlleleRESTInterface {
 		return transgenicAlleles.getResults().get(0);
 	}
 
+
 	@Override
 	public JsonResultResponse<Variant> getVariantsPerAllele(String id,
 															Integer limit,
