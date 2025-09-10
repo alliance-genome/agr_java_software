@@ -19,8 +19,8 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
-@Path("/literature")
-@Tag(name = "Literature ")
+@Path("/reference")
+@Tag(name = "Reference ")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public interface LiteratureRESTInterface {
