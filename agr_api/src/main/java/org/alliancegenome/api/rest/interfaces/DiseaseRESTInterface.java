@@ -77,7 +77,7 @@ public interface DiseaseRESTInterface {
 	@Path("/{id}/alleles_counts")
 	@Operation(summary = "Retrieve DiseaseAnnotation records for a given disease id")
 	@APIResponses(value = { @APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
-	Integer getCountsOfDiseaseAnnotationsByAllele(@Parameter(in = ParameterIn.PATH, name = "id", description = "Disease by DOID: e.g. DOID:9952", schema = @Schema(type = SchemaType.STRING)) @DefaultValue("DOID:10652") @PathParam("id") String id);	
+	Integer getCountsOfDiseaseAnnotationsByAllele(@Parameter(in = ParameterIn.PATH, name = "id", description = "Disease by DOID: e.g. DOID:9952", schema = @Schema(type = SchemaType.STRING)) @DefaultValue("DOID:10652") @PathParam("id") String id);
 	
 	@GET
 	@Path("/{id}/alleles")

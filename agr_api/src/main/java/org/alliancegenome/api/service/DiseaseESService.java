@@ -467,14 +467,14 @@ public class DiseaseESService extends ESService {
 		bool2.should(new MatchQueryBuilder("parentSlimIDs.keyword", diseaseID));
 
 		Map<String, Object> supData = getSupplementalData(null, false, false, bool);
-		List<String> assoList = (List<String>)((Map<String, Map<String, Object>>)supData.get("distinctFieldValues")).get("associationType");
+		List<String> assoList = (List<String>) ((Map<String, Map<String, Object>>) supData.get("distinctFieldValues")).get("associationType");
 		result = formatAT(assoList);
 		return result;
 	}
 
 	private String formatAT(List<String> list) {
-		if (list.size() == 0) return "";
-		if (list.size() == 1) return list.get(0);
+		if (list.size() == 0) {return "";}
+		if (list.size() == 1) {return list.get(0);}
 		
 		List<String> store = new ArrayList<>();
 		store = list.stream().filter(each -> each.indexOf("not") == -1).toList();
