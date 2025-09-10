@@ -473,8 +473,12 @@ public class DiseaseESService extends ESService {
 	}
 
 	private String formatAT(List<String> list) {
-		if (list.size() == 0) {return "";}
-		if (list.size() == 1) {return list.get(0);}
+		if (list.size() == 0) {
+			return "";
+		}
+		if (list.size() == 1) {
+			return list.get(0);
+		}
 		
 		List<String> store = new ArrayList<>();
 		store = list.stream().filter(each -> each.indexOf("not") == -1).toList();
