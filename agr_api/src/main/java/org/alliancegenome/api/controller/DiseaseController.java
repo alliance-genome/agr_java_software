@@ -134,7 +134,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 		pagination.addFilterOption("generatedRelationString.keyword", associationType);
 		pagination.addFilterOption("diseaseQualifiers.keyword", diseaseQualifier);
 		pagination.addFilterOption("pubmedPubModIDs", reference);
-		pagination.addFilterOption("primaryAnnotations.dataProvider.abbreviation", dataProvider);
+		pagination.addFilterOption("primaryAnnotations.dataProvider.sourceOrganization.abbreviation", dataProvider);
 		pagination.addFilterOption("object.name", diseaseName);
 		if (pagination.hasErrors()) {
 			RestErrorMessage message = new RestErrorMessage();
@@ -291,7 +291,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 		pagination.addFilterOption("generatedRelationString.keyword", associationType);
 		pagination.addFilterOption("diseaseQualifiers.keyword", diseaseQualifier);
 		pagination.addFilterOption("pubmedPubModIDs", reference);
-		pagination.addFilterOption("primaryAnnotations.dataProvider.abbreviation", source);
+		pagination.addFilterOption("primaryAnnotations.dataProvider.sourceOrganization.abbreviation", source);
 		pagination.addFilterOption("primaryAnnotations.with.geneSymbol.displayText", basedOnGeneSymbol);
 		pagination.addFilterOption("object.name", diseaseName);
 		if (StringUtils.isNotEmpty(geneID)) {
@@ -353,7 +353,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 																						String asc) {
 		long startTime = System.currentTimeMillis();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
-		pagination.addFilterOption("subject.agmFullName.formatText", modelName);
+		pagination.addFilterOption("subject.name", modelName);
 		pagination.addFilterOption("subject.taxon.name.keyword", species);
 		pagination.addFilterOption("evidenceCodes.abbreviation", evidenceCode);
 		pagination.addFilterOption("generatedRelationString.keyword", associationType);
@@ -362,7 +362,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 		pagination.addFilterOption("geneticModifierAggregated", geneticModifier);
 		pagination.addFilterOption("diseaseQualifiers.keyword", diseaseQualifier);
 		pagination.addFilterOption("pubmedPubModIDs", reference);
-		pagination.addFilterOption("primaryAnnotations.dataProvider.abbreviation", source);
+		pagination.addFilterOption("primaryAnnotations.dataProvider.sourceOrganization.abbreviation", source);
 		pagination.addFilterOption("object.name", disease);
 
 		if (pagination.hasErrors()) {
@@ -608,4 +608,28 @@ public class DiseaseController implements DiseaseRESTInterface {
 		}
 	}
 
+	@Override
+	public Integer getCountsOfDiseaseAnnotationsByAllele(String diseaseID) {
+		String associationType = diseaseESService.getAT(diseaseID, "allele_disease_annotation");
+		String sortBy = "diseaseAlleleDefault";
+		
+		JsonResultResponse<AlleleDiseaseAnnotationDocument> response = getDiseaseAnnotationsByAllele(diseaseID, null, null, sortBy, null, null, null, null, null, null, null, null, associationType, null, null);
+		return response.getTotal();
+	}
+
+	@Override
+	public Integer getCountsOfDiseaseAnnotationsForModel(String diseaseID) {
+		String associationType = diseaseESService.getAT(diseaseID, "agm_disease_annotation");
+		
+		JsonResultResponse<AGMDiseaseAnnotationDocument> response = getDiseaseAnnotationsForModel(diseaseID, null, null, null, null, null, null, null, null, null, null, associationType, null, null, null, null, null);
+		return response.getTotal();
+	}
+
+	@Override
+	public Integer getCountsOfDiseaseAnnotationsByGene(String diseaseID) {
+		String associationType = diseaseESService.getAT(diseaseID, "gene_disease_annotation");
+		
+		JsonResultResponse<GeneDiseaseAnnotationDocument> response = getDiseaseAnnotationsByGene(diseaseID, null, null, null, null, null, null, null, null, null, null, null, associationType, null, null);
+		return response.getTotal();
+	}
 }
