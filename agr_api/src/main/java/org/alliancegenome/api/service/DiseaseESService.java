@@ -456,14 +456,14 @@ public class DiseaseESService extends ESService {
 		return ret;
 	}
 
-	public String getAT(String diseaseID, String catagory) {
+	public String getAT(String category, String diseaseID) {
 		String result = "";
 		
 		BoolQueryBuilder bool = boolQuery();
 		BoolQueryBuilder bool2 = boolQuery();
 		bool.must(bool2);
 
-		bool.filter(new TermQueryBuilder("category", catagory));
+		bool.filter(new TermQueryBuilder("category", category));
 		bool2.should(new MatchQueryBuilder("parentSlimIDs.keyword", diseaseID));
 
 		Map<String, Object> supData = getSupplementalData(null, false, false, bool);

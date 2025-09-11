@@ -610,7 +610,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 
 	@Override
 	public Integer getCountsOfDiseaseAnnotationsByAllele(String diseaseID) {
-		String associationType = diseaseESService.getAT(diseaseID, "allele_disease_annotation");
+		String associationType = diseaseESService.getAT("allele_disease_annotation", diseaseID);
 		String sortBy = "diseaseAlleleDefault";
 		
 		JsonResultResponse<AlleleDiseaseAnnotationDocument> response = getDiseaseAnnotationsByAllele(diseaseID, null, null, sortBy, null, null, null, null, null, null, null, null, associationType, null, null);
@@ -619,7 +619,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 
 	@Override
 	public Integer getCountsOfDiseaseAnnotationsForModel(String diseaseID) {
-		String associationType = diseaseESService.getAT(diseaseID, "agm_disease_annotation");
+		String associationType = diseaseESService.getAT("agm_disease_annotation", diseaseID);
 		
 		JsonResultResponse<AGMDiseaseAnnotationDocument> response = getDiseaseAnnotationsForModel(diseaseID, null, null, null, null, null, null, null, null, null, null, associationType, null, null, null, null, null);
 		return response.getTotal();
@@ -627,7 +627,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 
 	@Override
 	public Integer getCountsOfDiseaseAnnotationsByGene(String diseaseID) {
-		String associationType = diseaseESService.getAT(diseaseID, "gene_disease_annotation");
+		String associationType = diseaseESService.getAT("gene_disease_annotation", diseaseID);
 		
 		JsonResultResponse<GeneDiseaseAnnotationDocument> response = getDiseaseAnnotationsByGene(diseaseID, null, null, null, null, null, null, null, null, null, null, null, associationType, null, null);
 		return response.getTotal();
