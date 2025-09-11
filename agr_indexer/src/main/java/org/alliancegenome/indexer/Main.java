@@ -38,10 +38,18 @@ public class Main {
 		});
 
 		HashMap<String, Indexer> indexers = new HashMap<>();
+		HashMap<String, Indexer> sequentialMap = new HashMap<>();
+		HashMap<String, Indexer> parallellMap = new HashMap<>();
+		
 		for (IndexerConfig ic : IndexerConfig.values()) {
 			try {
 				Indexer i = (Indexer) ic.getIndexClazz().getDeclaredConstructor(IndexerConfig.class).newInstance(ic);
 				indexers.put(ic.getTypeName(), i);
+				if(ic.getRunInParallel()) {
+					parallellMap.put(ic.getTypeName(), i);
+				} else {
+					sequentialMap.put(ic.getTypeName(), i);
+				}
 			} catch (Exception e) {
 				e.printStackTrace();
 				log.error(e.getMessage());
@@ -54,14 +62,23 @@ public class Main {
 			argumentSet.add(args[i]);
 			log.info("Args[" + i + "]: " + args[i]);
 		}
-
-		for (String type : indexers.keySet()) {
+		
+		for (String type : parallellMap.keySet()) {
+			if (argumentSet.size() == 0 || argumentSet.contains(type)) {
+				log.info("Running Parallel for: " + type);
+				indexers.get(type).start();
+			} else {
+				log.info("Not Starting: " + type);
+			}
+		}
+		
+		for (String type : sequentialMap.keySet()) {
 			if (argumentSet.size() == 0 || argumentSet.contains(type)) {
 				if (ConfigHelper.isThreaded()) {
-					log.info("Starting in threaded mode for: " + type);
+					log.info("Starting in parallel mode for: " + type);
 					indexers.get(type).start();
 				} else {
-					log.info("Starting indexer sequentially: " + type);
+					log.info("Starting in sequential mode for: " + type);
 					indexers.get(type).runIndex();
 				}
 			} else {

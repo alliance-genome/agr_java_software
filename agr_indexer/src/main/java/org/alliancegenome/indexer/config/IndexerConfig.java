@@ -24,32 +24,32 @@ import org.alliancegenome.indexer.indexers.curation.SiteMapAccessionCurationInde
 public enum IndexerConfig {
 
 	// Neo Indexers
-	GeneIndexer("gene", GeneIndexer.class, 4, 359, 359, 8, 1),
-	DatasetIndexer("dataset", DatasetIndexer.class, 4, 566, 566, 8, 1),
-	DiseaseIndexer("disease", DiseaseIndexer.class, 4, 680, 680, 8, 1),
-	AlleleIndexer("allele", AlleleIndexer.class, 4, 1517, 1517, 8, 1),
-	GoIndexer("go", GoIndexer.class, 4, 914, 914, 8, 1),
-	ModelIndexer("model", ModelIndexer.class, 4, 1500, 1426, 4, 1),
+	GeneIndexer("gene", GeneIndexer.class, 4, 359, 359, 8, 1, false),
+	DatasetIndexer("dataset", DatasetIndexer.class, 4, 566, 566, 8, 1, false),
+	DiseaseIndexer("disease", DiseaseIndexer.class, 4, 680, 680, 8, 1, false),
+	AlleleIndexer("allele", AlleleIndexer.class, 4, 1517, 1517, 8, 1, false),
+	GoIndexer("go", GoIndexer.class, 4, 914, 914, 8, 1, false),
+	ModelIndexer("model", ModelIndexer.class, 4, 1500, 1426, 4, 1, false),
 
-	LiteratureIndexer("literature", LiteratureIndexer.class, 4, 5000, 5000, 1, 1),
+	LiteratureIndexer("literature", LiteratureIndexer.class, 4, 5000, 5000, 1, 1, true),
 	
 	// Curation Indexers
-	DiseaseAnnotationIndexer("diseaseAnnotation", DiseaseAnnotationCurationIndexer.class, 1, 1500, 1500, 2, 1),
-	GeneGeneticInteractionIndexers("geneGeneticInteraction", GeneGeneticInteractionCurationIndexer.class, 4, 1500, 1500, 2, 1),
-	GeneMolecularInteractionIndexers("geneMolecularInteraction", GeneMolecularInteractionCurationIndexer.class, 4, 1500, 1500, 2, 1),
-	ParalogyIndexer("paralogy", GeneToGeneParalogyIndexer.class, 4, 5000, 5000, 8, 1),
-	PhenotypeAnnotationIndexer("phenotypeAnnotation", PhenotypeAnnotationCurationIndexer.class, 4, 1500, 1500, 2, 1),
-	ReleaseInfoIndexer("release", ReleaseInfoIndexer.class, 1, 1, 1, 1, 1),
-	DiseaseSummaryIndexer("diseaseSummary", DiseaseSummaryCurationIndexer.class, 4, 1500, 1500, 4, 1),
-	AlleleSummaryIndexer("alleleSummary", AlleleSummaryCurationIndexer.class, 4, 1500, 1500, 4, 1),
-	AffectedGenomicModelIndexer("affectedGenomicModels", AffectedGenomicModelIndexer.class, 4, 1500, 1500, 8, 1),
-	TransgenicAlleleIndexer("transgenicAlleles", TransgenicAlleleIndexer.class, 1, 1500, 1500, 8, 1),
-	GeneToGeneOrthologyIndexer("geneToGeneOrthology", GeneToGeneOrthologyIndexer.class, 4, 1500, 1500, 8, 1),
-	GOSearchResultCurationIndexer("goSearchResult", GOSearchResultCurationIndexer.class, 4, 1500, 1500, 8, 1),
+	DiseaseAnnotationIndexer("diseaseAnnotation", DiseaseAnnotationCurationIndexer.class, 1, 1500, 1500, 2, 1, true),
+	GeneGeneticInteractionIndexers("geneGeneticInteraction", GeneGeneticInteractionCurationIndexer.class, 4, 1500, 1500, 2, 1, true),
+	GeneMolecularInteractionIndexers("geneMolecularInteraction", GeneMolecularInteractionCurationIndexer.class, 4, 1500, 1500, 2, 1, true),
+	ParalogyIndexer("paralogy", GeneToGeneParalogyIndexer.class, 4, 5000, 5000, 8, 1, true),
+	PhenotypeAnnotationIndexer("phenotypeAnnotation", PhenotypeAnnotationCurationIndexer.class, 4, 1500, 1500, 2, 1, true),
+	ReleaseInfoIndexer("release", ReleaseInfoIndexer.class, 1, 1, 1, 1, 1, true),
+	DiseaseSummaryIndexer("diseaseSummary", DiseaseSummaryCurationIndexer.class, 4, 1500, 1500, 4, 1, true),
+	AlleleSummaryIndexer("alleleSummary", AlleleSummaryCurationIndexer.class, 4, 500, 500, 4, 1, true),
+	AffectedGenomicModelIndexer("affectedGenomicModels", AffectedGenomicModelIndexer.class, 4, 1500, 1500, 8, 1, true),
+	TransgenicAlleleIndexer("transgenicAlleles", TransgenicAlleleIndexer.class, 1, 1500, 1500, 8, 1, true),
+	GeneToGeneOrthologyIndexer("geneToGeneOrthology", GeneToGeneOrthologyIndexer.class, 4, 1500, 1500, 8, 1, true),
+	GOSearchResultCurationIndexer("goSearchResult", GOSearchResultCurationIndexer.class, 4, 1500, 1500, 8, 1, true),
 	//GeneExpressionAnnotationIndexer("geneExpressionAnnotation", GeneExpressionAnnotationIndexer.class, 4, 1500, 1500, 2, 1),
 	//GeneSearchResultCurationIndexer("geneSearchResult", GeneSearchResultCurationIndexer.class, 4, 250, 1000, 4, 1),
 	
-	SiteMapAccessionCurationIndexer("sitemap", SiteMapAccessionCurationIndexer.class, 4, 1500, 1500, 8, 1),
+	SiteMapAccessionCurationIndexer("sitemap", SiteMapAccessionCurationIndexer.class, 4, 1500, 1500, 8, 1, true),
 	
 	
 	;
@@ -62,8 +62,9 @@ public enum IndexerConfig {
 	private int bulkActions;
 	private int concurrentRequests;
 	private int bulkSize;
+	private boolean runInParallel;
 
-	IndexerConfig(String typeName, Class<?> indexClazz, int threadCount, int bufferSize, int bulkActions, int concurrentRequests, int bulkSize) {
+	IndexerConfig(String typeName, Class<?> indexClazz, int threadCount, int bufferSize, int bulkActions, int concurrentRequests, int bulkSize, boolean runInParallel) {
 		this.typeName = typeName;
 		this.indexClazz = indexClazz;
 		this.threadCount = threadCount;
@@ -71,6 +72,7 @@ public enum IndexerConfig {
 		this.bulkActions = bulkActions;
 		this.concurrentRequests = concurrentRequests;
 		this.bulkSize = bulkSize;
+		this.runInParallel = runInParallel;
 	}
 
 	public String getTypeName() {
@@ -99,6 +101,10 @@ public enum IndexerConfig {
 
 	public int getBulkSize() {
 		return bulkSize;
+	}
+	
+	public boolean getRunInParallel() {
+		return runInParallel;
 	}
 
 }
