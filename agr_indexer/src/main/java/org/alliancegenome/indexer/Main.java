@@ -40,12 +40,12 @@ public class Main {
 		HashMap<String, Indexer> indexers = new HashMap<>();
 		HashMap<String, Indexer> sequentialMap = new HashMap<>();
 		HashMap<String, Indexer> parallellMap = new HashMap<>();
-		
+
 		for (IndexerConfig ic : IndexerConfig.values()) {
 			try {
 				Indexer i = (Indexer) ic.getIndexClazz().getDeclaredConstructor(IndexerConfig.class).newInstance(ic);
 				indexers.put(ic.getTypeName(), i);
-				if(ic.getRunInParallel()) {
+				if (ic.getRunInParallel()) {
 					parallellMap.put(ic.getTypeName(), i);
 				} else {
 					sequentialMap.put(ic.getTypeName(), i);
@@ -62,7 +62,7 @@ public class Main {
 			argumentSet.add(args[i]);
 			log.info("Args[" + i + "]: " + args[i]);
 		}
-		
+
 		for (String type : parallellMap.keySet()) {
 			if (argumentSet.size() == 0 || argumentSet.contains(type)) {
 				log.info("Running Parallel for: " + type);
@@ -71,7 +71,7 @@ public class Main {
 				log.info("Not Starting: " + type);
 			}
 		}
-		
+
 		for (String type : sequentialMap.keySet()) {
 			if (argumentSet.size() == 0 || argumentSet.contains(type)) {
 				if (ConfigHelper.isThreaded()) {
