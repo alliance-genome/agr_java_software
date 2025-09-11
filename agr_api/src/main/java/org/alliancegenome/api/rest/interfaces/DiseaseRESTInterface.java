@@ -74,6 +74,12 @@ public interface DiseaseRESTInterface {
 		@DefaultValue("true") @QueryParam("asc") String asc);
 
 	@GET
+	@Path("/{id}/alleles_counts")
+	@Operation(summary = "Retrieve DiseaseAnnotation records for a given disease id")
+	@APIResponses(value = { @APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
+	Integer getCountsOfDiseaseAnnotationsByAllele(@Parameter(in = ParameterIn.PATH, name = "id", description = "Disease by DOID: e.g. DOID:9952", schema = @Schema(type = SchemaType.STRING)) @DefaultValue("DOID:10652") @PathParam("id") String id);
+	
+	@GET
 	@Path("/{id}/alleles")
 	@Operation(summary = "Retrieve all DiseaseAnnotation records for a given disease id")
 	@APIResponses(value = { @APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
@@ -118,6 +124,12 @@ public interface DiseaseRESTInterface {
 		// @ApiParam(value = "download file type")
 		@QueryParam("fileType") String downloadFileType, @Parameter(in = ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING)) @QueryParam("asc") String asc);
 
+	@GET
+	@Path("/{id}/genes_counts")
+	@Operation(summary = "Retrieve all DiseaseAnnotation records for a given disease id")
+	@APIResponses(value = { @APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
+	Integer getCountsOfDiseaseAnnotationsByGene(@Parameter(in = ParameterIn.PATH, name = "id", description = "Search for a disease by ID", required = true, schema = @Schema(type = SchemaType.STRING)) @DefaultValue("DOID:10652") @PathParam("id") String id);
+	
 	@GET
 	@Path("/{id}/genes")
 	@Operation(summary = "Retrieve all DiseaseAnnotation records for a given disease id")
@@ -180,6 +192,12 @@ public interface DiseaseRESTInterface {
 		@Parameter(in = ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))
 //,allowedValues = "true,false")
 		@DefaultValue("true") @QueryParam("asc") String asc);
+	
+	@GET
+	@Path("/{id}/models_counts")
+	@Operation(summary = "Retrieve all DiseaseAnnotation records for a given disease id")
+	@APIResponses(value = { @APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
+	Integer getCountsOfDiseaseAnnotationsForModel(@Parameter(in = ParameterIn.PATH, name = "id", description = "Search for a disease by ID", required = true, schema = @Schema(type = SchemaType.STRING)) @DefaultValue("DOID:10652") @PathParam("id") String id);
 
 	@GET
 	@Path("/{id}/models/download")
