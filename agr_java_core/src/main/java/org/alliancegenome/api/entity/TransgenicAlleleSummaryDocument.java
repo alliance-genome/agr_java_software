@@ -13,7 +13,7 @@ import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-@JsonPropertyOrder({"allele", "transgenicAlleleConstructs"})
+@JsonPropertyOrder({"category", "allele", "transgenicAlleleConstructs", "geneList"})
 @JsonView({View.TransgenicAlleleAPI.class})
 public class TransgenicAlleleSummaryDocument extends ESDocument {
 
