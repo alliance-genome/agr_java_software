@@ -39,14 +39,14 @@ public class Main {
 
 		HashMap<String, Indexer> indexers = new HashMap<>();
 		HashMap<String, Indexer> sequentialMap = new HashMap<>();
-		HashMap<String, Indexer> parallellMap = new HashMap<>();
+		HashMap<String, Indexer> parallelMap = new HashMap<>();
 
 		for (IndexerConfig ic : IndexerConfig.values()) {
 			try {
 				Indexer i = (Indexer) ic.getIndexClazz().getDeclaredConstructor(IndexerConfig.class).newInstance(ic);
 				indexers.put(ic.getTypeName(), i);
 				if (ic.getRunInParallel()) {
-					parallellMap.put(ic.getTypeName(), i);
+					parallelMap.put(ic.getTypeName(), i);
 				} else {
 					sequentialMap.put(ic.getTypeName(), i);
 				}
@@ -63,7 +63,7 @@ public class Main {
 			log.info("Args[" + i + "]: " + args[i]);
 		}
 
-		for (String type : parallellMap.keySet()) {
+		for (String type : parallelMap.keySet()) {
 			if (argumentSet.size() == 0 || argumentSet.contains(type)) {
 				log.info("Running Parallel for: " + type);
 				indexers.get(type).start();
