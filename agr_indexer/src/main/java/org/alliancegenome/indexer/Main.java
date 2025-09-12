@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.util.IndexManager;
@@ -63,14 +65,28 @@ public class Main {
 			log.info("Args[" + i + "]: " + args[i]);
 		}
 
+		
+		ExecutorService executor = Executors.newFixedThreadPool(2);
+
 		for (String type : parallelMap.keySet()) {
 			if (argumentSet.size() == 0 || argumentSet.contains(type)) {
 				log.info("Running Parallel for: " + type);
-				indexers.get(type).start();
+				executor.execute(indexers.get(type));
+				//indexers.get(type).start();
 			} else {
 				log.info("Not Starting: " + type);
 			}
 		}
+		
+		executor.shutdown();
+		while (!executor.isTerminated()) {
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		log.info("Finished Running Parallel Indexers");
 
 		for (String type : sequentialMap.keySet()) {
 			if (argumentSet.size() == 0 || argumentSet.contains(type)) {
