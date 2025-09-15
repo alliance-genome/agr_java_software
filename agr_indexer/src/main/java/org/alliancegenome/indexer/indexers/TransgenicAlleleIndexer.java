@@ -15,6 +15,7 @@ import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.config.IndexerConfig;
+import org.apache.commons.collections4.CollectionUtils;
 import org.jetbrains.annotations.NotNull;
 import si.mazi.rescu.RestProxyFactory;
 
@@ -48,24 +49,30 @@ public class TransgenicAlleleIndexer extends Indexer {
 		documents.forEach(transgenicAlleleSummaryDocument -> {
 			// obtain affected genes per document
 			transgenicAlleleSummaryDocument.getTransgenicAlleleConstructs().forEach(transgenicAlleleConstruct -> {
-				transgenicAlleleConstruct.getExpressedGenes().forEach(gene -> {
-					List<GeneTransgenicAlleleSummaryDocument> geneList = geneMap.computeIfAbsent(gene, k -> new ArrayList<>());
-					GeneTransgenicAlleleSummaryDocument document = new GeneTransgenicAlleleSummaryDocument(gene);
-					document.setAlleleDocument(transgenicAlleleSummaryDocument);
-					geneList.add(document);
-				});
-				transgenicAlleleConstruct.getNonBgiComponents().forEach(gene -> {
-					List<GeneTransgenicAlleleSummaryDocument> geneList = geneMap.computeIfAbsent(gene, k -> new ArrayList<>());
-					GeneTransgenicAlleleSummaryDocument document = new GeneTransgenicAlleleSummaryDocument(gene);
-					document.setAlleleDocument(transgenicAlleleSummaryDocument);
-					geneList.add(document);
-				});
-				transgenicAlleleConstruct.getRegulatoryGenes().forEach(gene -> {
-					List<GeneTransgenicAlleleSummaryDocument> geneList = geneMap.computeIfAbsent(gene, k -> new ArrayList<>());
-					GeneTransgenicAlleleSummaryDocument document = new GeneTransgenicAlleleSummaryDocument(gene);
-					document.setAlleleDocument(transgenicAlleleSummaryDocument);
-					geneList.add(document);
-				});
+				if (CollectionUtils.isNotEmpty(transgenicAlleleConstruct.getExpressedGenes())) {
+					transgenicAlleleConstruct.getExpressedGenes().forEach(gene -> {
+						List<GeneTransgenicAlleleSummaryDocument> geneList = geneMap.computeIfAbsent(gene, k -> new ArrayList<>());
+						GeneTransgenicAlleleSummaryDocument document = new GeneTransgenicAlleleSummaryDocument(gene);
+						document.setAlleleDocument(transgenicAlleleSummaryDocument);
+						geneList.add(document);
+					});
+				}
+				if (CollectionUtils.isNotEmpty(transgenicAlleleConstruct.getNonBgiComponents())) {
+					transgenicAlleleConstruct.getNonBgiComponents().forEach(gene -> {
+						List<GeneTransgenicAlleleSummaryDocument> geneList = geneMap.computeIfAbsent(gene, k -> new ArrayList<>());
+						GeneTransgenicAlleleSummaryDocument document = new GeneTransgenicAlleleSummaryDocument(gene);
+						document.setAlleleDocument(transgenicAlleleSummaryDocument);
+						geneList.add(document);
+					});
+				}
+				if (CollectionUtils.isNotEmpty(transgenicAlleleConstruct.getRegulatoryGenes())) {
+					transgenicAlleleConstruct.getRegulatoryGenes().forEach(gene -> {
+						List<GeneTransgenicAlleleSummaryDocument> geneList = geneMap.computeIfAbsent(gene, k -> new ArrayList<>());
+						GeneTransgenicAlleleSummaryDocument document = new GeneTransgenicAlleleSummaryDocument(gene);
+						document.setAlleleDocument(transgenicAlleleSummaryDocument);
+						geneList.add(document);
+					});
+				}
 			});
 		});
 		List<GeneTransgenicAlleleSummaryDocument> lists = geneMap.values().stream().flatMap(Collection::stream).toList();
