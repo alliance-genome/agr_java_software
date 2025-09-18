@@ -764,7 +764,7 @@ public interface GeneRESTInterface {
 				description = "Transgenic Alleles for a gene.",
 				content = @Content(mediaType = "application/json",
 					schema = @Schema(implementation = Null.class)))})
-	JsonResultResponse<Allele> getTransgenicAlleles(
+	JsonResultResponse<GeneTransgenicAlleleSummaryDocument> getTransgenicAlleles(
 		@Parameter(in = ParameterIn.PATH, name = "id", description = "Gene by ID, e.g. 'RGD:2129' or 'ZFIN:ZDB-GENE-990415-72 fgf8a'", required = true, schema = @Schema(type = SchemaType.STRING))
 		@PathParam("id") String geneID,
 		@Parameter(in = ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))

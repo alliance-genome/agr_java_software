@@ -7,6 +7,7 @@ import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 import org.alliancegenome.api.entity.AlleleVariantSequence;
+import org.alliancegenome.api.entity.GeneTransgenicAlleleSummaryDocument;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Construct;
 import org.alliancegenome.neo4j.entity.node.Publication;
@@ -140,9 +141,10 @@ public class AlleleToTdfTranslator {
 		return row;
 	}
 
-	public String getAllTransgenicAlleleRows(List<Allele> annotations) {
+	public String getAllTransgenicAlleleRows(List<GeneTransgenicAlleleSummaryDocument> annotations) {
 
-		List<TransgenicAlleleDownloadRow> list = getTransgenicAlleleDownloadRowsForGenes(annotations);
+//		List<TransgenicAlleleDownloadRow> list = getTransgenicAlleleDownloadRowsForGenes(annotations);
+		List<TransgenicAlleleDownloadRow> list = null;
 		List<DownloadHeader> headers = List.of(
 				new DownloadHeader<>("Species", TransgenicAlleleDownloadRow::getSpecies),
 				new DownloadHeader<>("Allele ID", TransgenicAlleleDownloadRow::getAlleleID),

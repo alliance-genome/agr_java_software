@@ -76,6 +76,9 @@ public class GeneController implements GeneRESTInterface {
 	@Inject
 	AffectedGenomicModelESService agmESService;
 
+	@Inject
+	TransgenicAlleleESService transgenicAlleleESService;
+
 	private static final PhenotypeAnnotationToTdfTranslator translator = new PhenotypeAnnotationToTdfTranslator();
 	private static final AlleleToTdfTranslator alleleTranslator = new AlleleToTdfTranslator();
 	private static final GeneGeneticInteractionToTdfTranslator geneticInteractionTranslator = new GeneGeneticInteractionToTdfTranslator();
@@ -804,7 +807,7 @@ public class GeneController implements GeneRESTInterface {
 	}
 
 	@Override
-	public JsonResultResponse<Allele> getTransgenicAlleles(
+	public JsonResultResponse<GeneTransgenicAlleleSummaryDocument> getTransgenicAlleles(
 		String geneID,
 		Integer limit,
 		Integer page,
@@ -822,21 +825,21 @@ public class GeneController implements GeneRESTInterface {
 			sortBy = "transgenicAllele";
 		}
 		Pagination pagination = new Pagination(page, limit, sortBy, null);
-		pagination.addFieldFilter(FieldFilter.SYMBOL, alleleSymbol);
-		pagination.addFieldFilter(FieldFilter.SPECIES, species);
-		pagination.addFieldFilter(FieldFilter.TRANSGENE_HAS_PHENOTYPE, hasPhenotype);
-		pagination.addFieldFilter(FieldFilter.TRANSGENE_HAS_DISEASE, hasDisease);
-		pagination.addFieldFilter(FieldFilter.CONSTRUCT_SYMBOL, constructSymbol);
-		pagination.addFieldFilter(FieldFilter.CONSTRUCT_TARGETED_GENE, constructTargetedGene);
-		pagination.addFieldFilter(FieldFilter.CONSTRUCT_REGULATED_GENE, constructRegulatedGene);
-		pagination.addFieldFilter(FieldFilter.CONSTRUCT_EXPRESSED_GENE, constructExpressedGene);
+		pagination.addFilterOption("alleleDocument.allele.alleleSymbol.formatText", alleleSymbol);
+		pagination.addFilterOption("alleleDocument.transgenicAlleleConstructs.construct.constructSymbol.formatText", constructSymbol);
+		pagination.addFilterOption("alleleDocument.transgenicAlleleConstructs.construct.constructSymbol.formatText", constructSymbol);
+		pagination.addFilterOption("alleleDocument.transgenicAlleleConstructs.regulatoryGenes.geneSymbol.formatText", constructRegulatedGene);
+		pagination.addFilterOption("alleleDocument.transgenicAlleleConstructs.expressedGenes.geneSymbol.formatText", constructExpressedGene);
+		pagination.addFilterOption("alleleDocument.transgenicAlleleConstructs.sequenceTargetingReagents.geneSymbol.formatText", constructTargetedGene);
+		pagination.addFilterOption("alleleDocument.transgenicAlleleConstructs.hasDiseaseAnnotations", hasDisease);
+		pagination.addFilterOption("alleleDocument.transgenicAlleleConstructs.hasPhenotypeAnnotations", hasPhenotype);
 		if (pagination.hasErrors()) {
 			RestErrorMessage message = new RestErrorMessage();
 			message.setErrors(pagination.getErrors());
 			throw new RestErrorException(message);
 		}
 		try {
-			JsonResultResponse<Allele> response = alleleService.getTransgenicAlleles(geneID, pagination);
+			JsonResultResponse<GeneTransgenicAlleleSummaryDocument> response = transgenicAlleleESService.getTransgenicAlleles(geneID, pagination, false);
 			response.setHttpServletRequest(null);
 			return response;
 		} catch (Exception e) {
@@ -860,7 +863,7 @@ public class GeneController implements GeneRESTInterface {
 														String hasPhenotype,
 														String hasDisease,
 														UriInfo ui) {
-		JsonResultResponse<Allele> alleles = getTransgenicAlleles(geneId,
+		JsonResultResponse<GeneTransgenicAlleleSummaryDocument> alleles = getTransgenicAlleles(geneId,
 			Integer.MAX_VALUE,
 			1,
 			sortBy,

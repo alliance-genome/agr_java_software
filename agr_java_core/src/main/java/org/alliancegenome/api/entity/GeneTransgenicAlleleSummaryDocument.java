@@ -14,9 +14,15 @@ import org.alliancegenome.neo4j.view.View;
 @JsonView({View.TransgenicAlleleAPI.class})
 public class GeneTransgenicAlleleSummaryDocument extends ESDocument {
 
+	{
+		category = "transgenic_allele_annotations";
+	}
+
 	public GeneTransgenicAlleleSummaryDocument(Gene gene) {
-		setCategory("transgenic_allele_annotations");
 		this.gene = gene;
+	}
+
+	public GeneTransgenicAlleleSummaryDocument() {
 	}
 
 	private Gene gene;
