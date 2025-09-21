@@ -3,7 +3,6 @@ package org.alliancegenome.indexer.indexers.curation.interfaces;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
-import org.alliancegenome.curation_api.model.entities.Allele;
 import org.alliancegenome.curation_api.model.entities.associations.AlleleConstructAssociation;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.curation_api.view.View;

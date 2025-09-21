@@ -150,8 +150,8 @@ public class AlleleSummaryCurationIndexer extends Indexer {
 	}
 
 	private void indexAlleles(Map<Allele, List<AlleleConstructAssociation>> alleleConstructMap,
-							  Map<Allele, Gene> alleleOfGeneMap,
-							  Map<String, ResourceDescriptorPage> resourceDescriptorPageMap) {
+							Map<Allele, Gene> alleleOfGeneMap,
+							Map<String, ResourceDescriptorPage> resourceDescriptorPageMap) {
 		SearchResponse<Allele> alleleCountResponse = alleleApi.findForPublic(0, 0, params);
 		ProcessDisplayHelper display = new ProcessDisplayHelper(2000);
 		display.startProcess("Pulling Allele documents from curation", alleleCountResponse.getTotalResults());
