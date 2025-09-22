@@ -170,7 +170,7 @@ public class AlleleSummaryCurationIndexer extends Indexer {
 				alleleSummaryDocument.setAlleleOfGene(alleleOfGeneMap.get(allele));
 				alleleSummaryDocument.setCrossReference(getCrossReference(allele, resourceDescriptorPageMap));
 				alleleSummaryDocument.setAlterationType(determineAlterationType(allele));
-				alleleSummaryDocument.setDescription(buildDescription(allele));
+				// alleleSummaryDocument.setDescription(buildDescription(allele));
 
 				documentMap.put(allele, alleleSummaryDocument);
 
