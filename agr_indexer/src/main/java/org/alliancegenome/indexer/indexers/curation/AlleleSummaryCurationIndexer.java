@@ -213,7 +213,7 @@ public class AlleleSummaryCurationIndexer extends Indexer {
 	}
 
 	private CrossReference getCrossReference(Allele allele,
-											 Map<String, ResourceDescriptorPage> resourceDescriptorPageMap) {
+											Map<String, ResourceDescriptorPage> resourceDescriptorPageMap) {
 
 		CrossReference alleleRefsCrossRef = new CrossReference();
 
