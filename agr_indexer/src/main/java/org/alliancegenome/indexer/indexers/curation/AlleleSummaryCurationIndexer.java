@@ -149,16 +149,15 @@ public class AlleleSummaryCurationIndexer extends Indexer {
 		return documentMap;
 	}
 
-	private void indexAlleles(Map<Allele, List<AlleleConstructAssociation>> alleleConstructMap,
-							Map<Allele, Gene> alleleOfGeneMap,
-							Map<String, ResourceDescriptorPage> resourceDescriptorPageMap) {
+	private void indexAlleles(Map<Allele, List<AlleleConstructAssociation>> alleleConstructMap, Map<Allele, Gene> alleleOfGeneMap, Map<String, ResourceDescriptorPage> resourceDescriptorPageMap) {
 		SearchResponse<Allele> alleleCountResponse = alleleApi.findForPublic(0, 0, params);
 		ProcessDisplayHelper display = new ProcessDisplayHelper(2000);
 		display.startProcess("Pulling Allele documents from curation", alleleCountResponse.getTotalResults());
-		Map<Allele, AlleleSummaryDocument> documentMap = new LinkedHashMap<>();
-		int batchSize = 10;
+		int batchSize = 1000;
 		int maxPage = (int) (alleleCountResponse.getTotalResults() / batchSize);
 		for (int page = 0; page <= maxPage; page++) {
+			List<AlleleSummaryDocument> documentList = new ArrayList<>();
+
 			SearchResponse<Allele> response = alleleApi.findForPublic(page, batchSize, params);
 			for (Allele allele : response.getResults()) {
 				if (allele == null) {
@@ -172,15 +171,15 @@ public class AlleleSummaryCurationIndexer extends Indexer {
 				alleleSummaryDocument.setAlterationType(determineAlterationType(allele));
 				// alleleSummaryDocument.setDescription(buildDescription(allele));
 
-				documentMap.put(allele, alleleSummaryDocument);
+				documentList.add(alleleSummaryDocument);
 
 				display.progressProcess(response.getReturnedRecords().longValue());
 			}
+
+			List<AlleleSummaryDocument> filteredDocs = filterAgainstNeo(documentList);
+			indexDocuments(filteredDocs);
 		}
 
-		Collection<AlleleSummaryDocument> alleleSummaryDocuments = documentMap.values();
-		List<AlleleSummaryDocument> filteredDocs = filterAgainstNeo(alleleSummaryDocuments);
-		indexDocuments(filteredDocs);
 	}
 
 	@Override
