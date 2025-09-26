@@ -72,12 +72,12 @@ public class ExpressionESService extends ESService {
 		LinkedHashMap<String, SortOrder> sortingMap = new LinkedHashMap<>();
 		LinkedHashMap<String, String> sortingSetMap = new LinkedHashMap<>();
 
-		sortingSetMap.put("species","geneExpressionAnnotation.expressionAnnotationSubject.taxon.curie.keyword");
-		sortingSetMap.put("gene","geneExpressionAnnotation.expressionAnnotationSubject.geneSymbol.displayText.keyword");
-		sortingSetMap.put("location","geneExpressionAnnotation.whereExpressedStatement.keyword");
-		sortingSetMap.put("stage","geneExpressionAnnotation.whenExpressedStageName.keyword");
-		sortingSetMap.put("assay","geneExpressionAnnotation.expressionAssayUsed.name.keyword");
-		sortingSetMap.put("default","geneExpressionAnnotation.expressionAnnotationSubject.taxon.curie.keyword");
+		sortingSetMap.put("species", "geneExpressionAnnotation.expressionAnnotationSubject.taxon.curie.keyword");
+		sortingSetMap.put("gene", "geneExpressionAnnotation.expressionAnnotationSubject.geneSymbol.displayText.keyword");
+		sortingSetMap.put("location", "geneExpressionAnnotation.whereExpressedStatement.keyword");
+		sortingSetMap.put("stage", "geneExpressionAnnotation.whenExpressedStageName.keyword");
+		sortingSetMap.put("assay", "geneExpressionAnnotation.expressionAssayUsed.name.keyword");
+		sortingSetMap.put("default", "geneExpressionAnnotation.expressionAnnotationSubject.taxon.curie.keyword");
 
 		String sortField = sortingSetMap.get(pagination.getSortBy());
 		if (sortField == null) {
