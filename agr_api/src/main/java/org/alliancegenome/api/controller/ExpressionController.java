@@ -8,6 +8,7 @@ import java.util.Objects;
 import org.alliancegenome.api.dto.RibbonSummary;
 import org.alliancegenome.api.rest.interfaces.ExpressionRESTInterface;
 import org.alliancegenome.api.service.EntityType;
+import org.alliancegenome.api.service.ExpressionESService;
 import org.alliancegenome.api.service.ExpressionService;
 import org.alliancegenome.api.service.GeneService;
 import org.alliancegenome.api.service.helper.APIServiceHelper;
@@ -16,6 +17,7 @@ import org.alliancegenome.core.ExpressionDetail;
 import org.alliancegenome.core.exceptions.RestErrorException;
 import org.alliancegenome.core.exceptions.RestErrorMessage;
 import org.alliancegenome.core.translators.tdf.ExpressionToTdfTranslator;
+import org.alliancegenome.curation_api.model.document.es.GeneExpressionDocument;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.SpeciesType;
@@ -39,13 +41,15 @@ public class ExpressionController implements ExpressionRESTInterface {
 	//private HttpRequest request;
 
 	@Inject ExpressionService expressionService;
+	@Inject ExpressionESService expressionESService;
+
 
 	@Inject GeneService geneService;
 	
 	private static final ExpressionToTdfTranslator expressionTranslator = new ExpressionToTdfTranslator();
 
 	@Override
-	public JsonResultResponse<ExpressionDetail> getExpressionAnnotations(
+	public JsonResultResponse<GeneExpressionDocument> getExpressionAnnotations(
 																		String termID,
 																		String filterSpecies,
 																		String filterGene,
@@ -62,7 +66,7 @@ public class ExpressionController implements ExpressionRESTInterface {
 
 		LocalDateTime startDate = LocalDateTime.now();
 		try {
-			JsonResultResponse<ExpressionDetail> response = getExpressionDetailJsonResultResponse(
+			JsonResultResponse<GeneExpressionDocument> response = getExpressionDetailJsonResultResponse(
 					geneIDs,
 					termID,
 					filterSpecies,
@@ -87,21 +91,18 @@ public class ExpressionController implements ExpressionRESTInterface {
 		}
 	}
 
-	private JsonResultResponse<ExpressionDetail> getExpressionDetailJsonResultResponse(List<String> geneIDs, String termID, String filterSpecies, String filterGene, String filterStage, String filterAssay, String filterReference, String filterTerm, String filterSource, Integer limit, Integer page, String sortBy, String asc) {
+	private JsonResultResponse<GeneExpressionDocument> getExpressionDetailJsonResultResponse(List<String> geneIDs, String termID, String filterSpecies, String filterGene, String filterStage, String filterAssay, String filterReference, String filterTerm, String filterSource, Integer limit, Integer page, String sortBy, String asc) {
 		long startTime = System.currentTimeMillis();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
-		BaseFilter filterMap = new BaseFilter();
-		filterMap.put(FieldFilter.FSPECIES, filterSpecies);
-		filterMap.put(FieldFilter.GENE_NAME, filterGene);
-		filterMap.put(FieldFilter.FREFERENCE, filterReference);
-		filterMap.put(FieldFilter.SOURCE, filterSource);
-		filterMap.put(FieldFilter.TERM_NAME, filterTerm);
-		filterMap.put(FieldFilter.ASSAY, filterAssay);
-		filterMap.put(FieldFilter.STAGE, filterStage);
-		filterMap.values().removeIf(Objects::isNull);
-		pagination.setFieldFilterValueMap(filterMap);
+		pagination.addFilterOption("geneExpressionAnnotation.expressionAnnotationSubject.taxon.curie.keyword", filterSpecies);
+		pagination.addFilterOption("geneExpressionAnnotation.expressionAnnotationSubject.geneSymbol.displayText", filterGene);
+		pagination.addFilterOption("geneExpressionAnnotation.whenExpressedStageName.keyword", filterStage);
+		pagination.addFilterOption("geneExpressionAnnotation.expressionAssayUsed.name.keyword", filterAssay);
+		pagination.addFilterOption("geneExpressionAnnotation.crossReferences.referencedCurie.keyword", filterReference);
+		pagination.addFilterOption("termIds", filterTerm);
+		pagination.addFilterOption("pubModID", filterSource);
 
-		JsonResultResponse<ExpressionDetail> expressions = expressionService.getExpressionDetails(geneIDs, termID, pagination);
+		JsonResultResponse<GeneExpressionDocument> expressions = expressionESService.getExpressionAnnotations(geneIDs, termID, pagination);
 		expressions.calculateRequestDuration(startTime);
 		return expressions;
 
@@ -165,7 +166,7 @@ public class ExpressionController implements ExpressionRESTInterface {
 													List<String> geneIDs
 													) {
 
-		JsonResultResponse<ExpressionDetail> result = getExpressionDetailJsonResultResponse(
+		JsonResultResponse<GeneExpressionDocument> result = getExpressionDetailJsonResultResponse(
 				geneIDs,
 				termID,
 				filterSpecies,

@@ -1,27 +1,31 @@
 package org.alliancegenome.indexer.indexers.curation;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 
-import org.alliancegenome.api.entity.GeneExpressionAnnotationDocument;
-import org.alliancegenome.curation_api.model.entities.GeneExpressionAnnotation;
+import org.alliancegenome.curation_api.interfaces.document.GeneExpressionDocumentInterface;
+import org.alliancegenome.curation_api.model.document.es.GeneExpressionDocument;
+import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
-import org.alliancegenome.indexer.indexers.curation.service.GeneExpressionAnnotationService;
 import org.apache.commons.collections.CollectionUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import lombok.extern.slf4j.Slf4j;
+import si.mazi.rescu.RestProxyFactory;
 
 @Slf4j
 public class GeneExpressionAnnotationIndexer extends Indexer {
 
-	GeneExpressionAnnotationService geneExpressionAnnotationService;
-
+	private final GeneExpressionDocumentInterface geneExpressionApi = RestProxyFactory.createProxy(GeneExpressionDocumentInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
+	
+	private HashMap<String, Object> params = new HashMap<>() {{
+		put("internal", false);
+		put("obsolete", false);
+	}};
+	
 	public GeneExpressionAnnotationIndexer(IndexerConfig indexerConfig) {
 		super(indexerConfig);
 	}
@@ -29,8 +33,7 @@ public class GeneExpressionAnnotationIndexer extends Indexer {
 	@Override
 	protected void index() {
 		try {
-			geneExpressionAnnotationService = new GeneExpressionAnnotationService();
-			SearchResponse<GeneExpressionAnnotation> response = geneExpressionAnnotationService.getGeneExpressionAnnotations(0, 0);
+			SearchResponse<GeneExpressionDocument> response = geneExpressionApi.findDocument(0, 0, params);
 			log.info("GeneExpressionAnnotation count: " + response.getTotalResults());
 			int totalPages = (int) (response.getTotalResults() / indexerConfig.getBufferSize());
 			LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
@@ -54,17 +57,12 @@ public class GeneExpressionAnnotationIndexer extends Indexer {
 
 				String page = queue.takeFirst();
 				log.debug(queue.size() + " pages to process " + Thread.currentThread().getName() + " starting page: " + page);
-				SearchResponse<GeneExpressionAnnotation> response = geneExpressionAnnotationService.getGeneExpressionAnnotations(Integer.valueOf(page), indexerConfig.getBufferSize());
+				SearchResponse<GeneExpressionDocument> response = geneExpressionApi.findDocument(Integer.valueOf(page), indexerConfig.getBufferSize(), params);
 				if (response == null || CollectionUtils.isEmpty(response.getResults())) {
 					return;
 				}
-				List<GeneExpressionAnnotationDocument> documentsToIndex = new ArrayList<>();
-				for (GeneExpressionAnnotation gea : response.getResults()) {
-					GeneExpressionAnnotationDocument geneExpressionAnnotationDocument = new GeneExpressionAnnotationDocument();
-					geneExpressionAnnotationDocument.setGeneExpressionAnnotation(gea);
-					documentsToIndex.add(geneExpressionAnnotationDocument);
-				}
-				indexDocuments(documentsToIndex);
+
+				indexDocuments(response.getResults());
 			} catch (Exception e) {
 				log.error("Error while indexing...", e);
 				System.exit(-1);
