@@ -343,7 +343,7 @@ public class GeneIT {
 				.map(annotation -> annotation.getGeneExpressionAnnotation().getExpressionAnnotationSubject().getGeneSymbol().getDisplayText())
 				.collect(Collectors.toList());
 		List<String> termList = response.getResults().stream()
-				.map(geneExpressionDocument->geneExpressionDocument.getGeneExpressionAnnotation().getWhereExpressedStatement())
+				.map(geneExpressionDocument -> geneExpressionDocument.getGeneExpressionAnnotation().getWhereExpressedStatement())
 				.collect(Collectors.toList());
 		List<String> stageList = response.getResults().stream()
 				.filter(annotation -> annotation.getGeneExpressionAnnotation().getWhenExpressedStageName() != null)
