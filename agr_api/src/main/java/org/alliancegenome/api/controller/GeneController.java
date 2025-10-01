@@ -827,7 +827,6 @@ public class GeneController implements GeneRESTInterface {
 		Pagination pagination = new Pagination(page, limit, sortBy, null);
 		pagination.addFilterOption("alleleDocument.allele.alleleSymbol.formatText", alleleSymbol);
 		pagination.addFilterOption("alleleDocument.transgenicAlleleConstructs.construct.constructSymbol.formatText", constructSymbol);
-		pagination.addFilterOption("alleleDocument.transgenicAlleleConstructs.construct.constructSymbol.formatText", constructSymbol);
 		pagination.addFilterOption("alleleDocument.transgenicAlleleConstructs.regulatoryGenes.geneSymbol.formatText", constructRegulatedGene);
 		pagination.addFilterOption("alleleDocument.transgenicAlleleConstructs.expressedGenes.geneSymbol.formatText", constructExpressedGene);
 		pagination.addFilterOption("alleleDocument.transgenicAlleleConstructs.sequenceTargetingReagents.geneSymbol.formatText", constructTargetedGene);

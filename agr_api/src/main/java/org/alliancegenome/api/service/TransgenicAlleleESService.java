@@ -3,6 +3,7 @@ package org.alliancegenome.api.service;
 import jakarta.enterprise.context.RequestScoped;
 import org.alliancegenome.api.entity.GeneTransgenicAlleleSummaryDocument;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
+import org.alliancegenome.es.index.site.schema.Mapping;
 import org.alliancegenome.es.model.query.Pagination;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -29,12 +30,7 @@ public class TransgenicAlleleESService extends ESService {
 		// add table filter
 		addTableFilter(pagination, query);
 		LinkedHashMap<String, SortOrder> sortingMap = new LinkedHashMap<>();
-/*
-		sortingMap.put(Mapping.AffectedGenomicModel.HAS_DISEASE_AND_PHENOTYPE_ANNOTATIONS.getSortedFieldName(), SortOrder.DESC);
-		sortingMap.put(Mapping.AffectedGenomicModel.HAS_DISEASE_ANNOTATIONS.getSortedFieldName(), SortOrder.DESC);
-		sortingMap.put(Mapping.AffectedGenomicModel.HAS_PHENOTYPE_ANNOTATIONS.getSortedFieldName(), SortOrder.DESC);
-		sortingMap.put("model.agmFullName.formatText.sort", SortOrder.ASC);
-*/
+//		sortingMap.put("alleleDocument.allele.formatText", SortOrder.ASC);
 
 		SearchResponse searchResponse = getSearchResponse(query, pagination, sortingMap, null, debug);
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
