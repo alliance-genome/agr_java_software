@@ -3,10 +3,13 @@ package org.alliancegenome.indexer.indexers.curation;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.curation_api.interfaces.crud.GeneExpressionAnnotationCrudInterface;
+import org.alliancegenome.curation_api.interfaces.crud.GeneDiseaseAnnotationCrudInterface;
 import org.alliancegenome.curation_api.interfaces.document.GeneToGeneOrthologyDocumentInterface;
 import org.alliancegenome.curation_api.model.document.es.GeneToGeneOrthologyDocument;
 import org.alliancegenome.curation_api.response.SearchResponse;
@@ -25,8 +28,21 @@ import si.mazi.rescu.RestProxyFactory;
 public class GeneToGeneOrthologyIndexer extends Indexer {
 
 	private final GeneToGeneOrthologyDocumentInterface orthologyApi = RestProxyFactory.createProxy(GeneToGeneOrthologyDocumentInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
+	private final GeneExpressionAnnotationCrudInterface geneExpressionApi = RestProxyFactory.createProxy(GeneExpressionAnnotationCrudInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
+	private final GeneDiseaseAnnotationCrudInterface geneDiseaseApi = RestProxyFactory.createProxy(GeneDiseaseAnnotationCrudInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 
 	private Set<String> allNeoGeneIDs;
+
+	private HashMap<String, Object> params = new HashMap<>() {
+		{
+			put("internal", false);
+			put("obsolete", false);
+		}
+
+	};
+
+	Set<String> geneExpressionSet = buildGeneExpressionSet();
+	Set<String> geneAnnotationSet = buildGeneAnnotationSet();
 
 	public GeneToGeneOrthologyIndexer(IndexerConfig config) {
 		super(config);
@@ -37,10 +53,6 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 		BaseService baseService = new BaseService();
 		allNeoGeneIDs = baseService.getAllNeoGeneIDs();
 
-		HashMap<String, Object> params = new HashMap<>();
-		params.put("internal", false);
-		params.put("obsolete", false);
-		
 		try {
 			SearchResponse<GeneToGeneOrthologyDocument> resp = orthologyApi.findDocument(0, 0, params);
 			log.info("GeneToGeneOrthology count: " + resp.getTotalResults());
@@ -59,10 +71,6 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 
 	@Override
 	protected void startSingleThread(LinkedBlockingDeque<String> queue) {
-		HashMap<String, Object> params = new HashMap<>();
-		params.put("internal", false);
-		params.put("obsolete", false);
-
 		while (true) {
 			try {
 				if (queue.isEmpty()) {
@@ -79,6 +87,16 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 				if (response == null || CollectionUtils.isEmpty(results)) {
 					return;
 				}
+				for (GeneToGeneOrthologyDocument geneToGeneOrthologyDocument : results) {
+					List<Map<String, Object>> geneAnnotations = geneToGeneOrthologyDocument.getGeneAnnotations();
+
+					for (Map<String, Object> geneAnnotation : geneAnnotations) {
+						String primaryExternalId = (String) geneAnnotation.get("geneIdentifier");
+						geneAnnotation.put("hasExpressionAnnotations", geneExpressionSet.contains(primaryExternalId));
+						geneAnnotation.put("hasDiseaseAnnotations", geneAnnotationSet.contains(primaryExternalId));
+						
+					}
+				}
 
 				List<GeneToGeneOrthologyDocument> filteredResults = filterValidResults(response.getResults());
 				indexDocuments(filteredResults);
@@ -88,6 +106,14 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 				return;
 			}
 		}
+	}
+
+	private Set<String> buildGeneExpressionSet() {
+		return geneExpressionApi.geneExpressionAnnotationMap().getEntity();
+	}
+
+	private Set<String> buildGeneAnnotationSet() {
+		return geneDiseaseApi.geneDiseaseAnnotationMap().getEntity();
 	}
 	
 	@Override
