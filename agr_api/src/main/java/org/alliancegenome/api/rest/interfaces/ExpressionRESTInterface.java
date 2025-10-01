@@ -7,7 +7,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.alliancegenome.api.dto.RibbonSummary;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.core.ExpressionDetail;
+import org.alliancegenome.curation_api.model.document.es.GeneExpressionDocument;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.lang3.ObjectUtils.Null;
 import org.eclipse.microprofile.openapi.annotations.Operation;
@@ -31,10 +31,9 @@ public interface ExpressionRESTInterface {
 
 	@POST
 	@Path("")
-	@JsonView(value = {View.Expression.class})
 	@Operation(summary = "Retrieve all expression records of a given set of geneMap")
 	@APIResponses(value = {@APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class)))})
-	JsonResultResponse<ExpressionDetail> getExpressionAnnotations(
+	JsonResultResponse<GeneExpressionDocument> getExpressionAnnotations(
 
 		@Parameter(in = ParameterIn.QUERY, name = "termID", description = "Term ID by which rollup should happen", schema = @Schema(type = SchemaType.STRING))
 		@QueryParam("termID") String termID,
@@ -69,14 +68,14 @@ public interface ExpressionRESTInterface {
 		@QueryParam("page") Integer page,
 
 		@Parameter(in = ParameterIn.QUERY, name = "sortBy", description = "Sort by field name", schema = @Schema(type = SchemaType.STRING)) // allowableValues = "Default,Species,Location,Assay,Stage,Gene")
-		@DefaultValue("geneName")
+		@DefaultValue("gene")
 		@QueryParam("sortBy") String sortBy,
 
 		@Parameter(in = ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING)) // ,allowableValues = "true,false")
 		@DefaultValue("true")
 		@QueryParam("asc") String asc,
 
-		@Parameter(in = ParameterIn.QUERY, name = "geneID", description = "Gene by ID", required = true)
+		//@Parameter(in = ParameterIn.QUERY, name = "geneID", description = "Gene by ID", required = true)
 		@RequestBody List<String> geneIDs
 
 	) throws JsonProcessingException;

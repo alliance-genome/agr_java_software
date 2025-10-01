@@ -28,6 +28,7 @@ import org.alliancegenome.api.service.GeneService;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.ExpressionDetail;
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.curation_api.model.document.es.GeneExpressionDocument;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.OrthoAlgorithm;
@@ -246,14 +247,14 @@ public class GeneIT {
 		//String[] geneIDs = {"MGI:97570", "ZFIN:ZDB-GENE-080204-52"};
 		String[] geneIDs = {"ZFIN:ZDB-GENE-080204-52"};
 		int limit = 15;
-		JsonResultResponse<ExpressionDetail> response = controller.getExpressionAnnotations(null, null, null, null, null, null, null, null, limit, 1, null, "true", asList(geneIDs));
+		JsonResultResponse<GeneExpressionDocument> response = controller.getExpressionAnnotations(null, null, null, null, null, null, null, null, limit, 1, null, "true", asList(geneIDs));
 		assertThat("matches found for gene MGI:109583'", response.getReturnedRecords(), equalTo(15));
 
 		List<String> symbolList = response.getResults().stream()
-				.map(annotation -> annotation.getGene().getSymbol())
+				.map(annotation -> annotation.getGeneExpressionAnnotation().getExpressionAnnotationSubject().getGeneSymbol().getDisplayText())
 				.collect(Collectors.toList());
 		List<String> termList = response.getResults().stream()
-				.map(ExpressionDetail::getTermName)
+				.map(annotation -> annotation.getGeneExpressionAnnotation().getWhereExpressedStatement())
 				.collect(Collectors.toList());
 /*
 		List<String> stageList = response.getResults().stream()
@@ -261,24 +262,23 @@ public class GeneIT {
 				.collect(Collectors.toList());
 */
 		List<String> assayList = response.getResults().stream()
-				.map(annotation -> annotation.getAssay().getName())
+				.map(annotation -> annotation.getGeneExpressionAnnotation().getExpressionAssayUsed().getName())
 				.collect(Collectors.toList());
 		List<String> referenceList = response.getResults().stream()
-				.map(annotation -> annotation.getPublications().stream().map(Publication::getPubId).collect(Collectors.toList()))
-				.flatMap(Collection::stream)
-				.collect(Collectors.toList());
+				.map(annotation -> annotation.getPubModID()).collect(Collectors.toList());
+
 		String terms = String.join(",", termList);
 //		  String stages = String.join(",", stageList);
 		String symbols = String.join(",", symbolList);
 		String pubs = String.join(",", referenceList);
-		assertThat("first element species", response.getResults().get(0).getGene().getSpecies().getName(), equalTo("Danio rerio"));
-		assertThat("first element symbol", response.getResults().get(0).getGene().getSymbol(), equalTo("abcb4"));
+		assertThat("first element species", response.getResults().get(0).getGeneExpressionAnnotation().getExpressionAnnotationSubject().getTaxon().getName(), equalTo("Danio rerio"));
+		assertThat("first element symbol", response.getResults().get(0).getGeneExpressionAnnotation().getExpressionAnnotationSubject().getGeneSymbol().getDisplayText(), equalTo("abcb4"));
 		assertThat("list of terms", terms, equalTo("bile canaliculus,head,head,head,head,head,head,head,head,hepatocyte intracellular canaliculus,intestinal bulb,intestine,intestine,intestine,intestine"));
 		//		assertThat("list of stages", stages, equalTo("ZFS:0000029,ZFS:0000030,ZFS:0000031,ZFS:0000032,ZFS:0000033,ZFS:0000034,ZFS:0000035,ZFS:0000036,ZFS:0000037,ZFS:0000029,ZFS:0000030,ZFS:0000031,ZFS:0000032,ZFS:0000033,ZFS:0000034"));
 
 		response = controller.getExpressionAnnotations(null, null, null, null, null, null, null, null, limit, 1, "assay", "false", asList(geneIDs));
 		assayList = response.getResults().stream()
-				.map(annotation -> annotation.getAssay().getName())
+				.map(annotation -> annotation.getGeneExpressionAnnotation().getExpressionAssayUsed().getName())
 				.collect(Collectors.toList());
 		String assays = String.join(",", assayList);
 		assertThat("matches found for gene MGI:109583'", response.getReturnedRecords(), equalTo(15));
@@ -286,7 +286,7 @@ public class GeneIT {
 
 		response = controller.getExpressionAnnotations(null, null, null, null, null, null, null, null, limit, 1, "source", "true", asList(geneIDs));
 		assayList = response.getResults().stream()
-				.map(annotation -> annotation.getAssay().getName())
+				.map(annotation -> annotation.getGeneExpressionAnnotation().getExpressionAssayUsed().getName())
 				.collect(Collectors.toList());
 		assays = String.join(",", assayList);
 		assertThat("matches found for gene MGI:109583'", response.getReturnedRecords(), equalTo(15));
@@ -299,7 +299,7 @@ public class GeneIT {
 		String[] geneIDs = {"RGD:2129"};
 		String termID = "GO:otherLocations";
 		int limit = 15;
-		JsonResultResponse<ExpressionDetail> response = controller.getExpressionAnnotations(termID, null, null, null, null, null, null, null, limit, 1, null, "true", asList(geneIDs));
+		JsonResultResponse<GeneExpressionDocument> response = controller.getExpressionAnnotations(termID, null, null, null, null, null, null, null, limit, 1, null, "true", asList(geneIDs));
 		assertThat("matches found for gene MGI:109583'", response.getResults().size(), equalTo(3));
 
 		termID = "GO:0032991";
@@ -314,7 +314,7 @@ public class GeneIT {
 		String[] geneIDs = {"ZFIN:ZDB-GENE-980526-188"};
 		String termID = "GO:0005739";
 		int limit = 15;
-		JsonResultResponse<ExpressionDetail> response = controller.getExpressionAnnotations(termID, null, null, null, null, null, null, null, limit, 1, null, "true", asList(geneIDs));
+		JsonResultResponse<GeneExpressionDocument> response = controller.getExpressionAnnotations(termID, null, null, null, null, null, null, null, limit, 1, null, "true", asList(geneIDs));
 		assertThat("matches found for gene MGI:109583'", response.getResults().size(), equalTo(1));
 
 		// sensory system
@@ -336,32 +336,30 @@ public class GeneIT {
 		ExpressionController controller = new ExpressionController();
 		String[] geneIDs = {"ZFIN:ZDB-GENE-980526-166"};
 		int limit = 6;
-		JsonResultResponse<ExpressionDetail> response = controller.getExpressionAnnotations(null, null, null, null, null, null, null, null, limit, 1, null, "true", asList(geneIDs));
+		JsonResultResponse<GeneExpressionDocument> response = controller.getExpressionAnnotations(null, null, null, null, null, null, null, null, limit, 1, null, "true", asList(geneIDs));
 		//assertThat("matches found for gene MGI:109583'", response.getReturnedRecords(), equalTo(limit));
 
 		List<String> symbolList = response.getResults().stream()
-				.map(annotation -> annotation.getGene().getSymbol())
+				.map(annotation -> annotation.getGeneExpressionAnnotation().getExpressionAnnotationSubject().getGeneSymbol().getDisplayText())
 				.collect(Collectors.toList());
 		List<String> termList = response.getResults().stream()
-				.map(ExpressionDetail::getTermName)
+				.map(geneExpressionDocument -> geneExpressionDocument.getGeneExpressionAnnotation().getWhereExpressedStatement())
 				.collect(Collectors.toList());
 		List<String> stageList = response.getResults().stream()
-				.filter(annotation -> annotation.getStage() != null)
-				.map(annotation -> annotation.getStage().getPrimaryKey())
+				.filter(annotation -> annotation.getGeneExpressionAnnotation().getWhenExpressedStageName() != null)
+				.map(annotation -> annotation.getGeneExpressionAnnotation().getWhenExpressedStageName())
 				.collect(Collectors.toList());
 		List<String> assayList = response.getResults().stream()
-				.map(annotation -> annotation.getAssay().getName())
+				.map(annotation -> annotation.getGeneExpressionAnnotation().getExpressionAssayUsed().getName())
 				.collect(Collectors.toList());
 		List<String> referenceList = response.getResults().stream()
-				.map(annotation -> annotation.getPublications().stream().map(Publication::getPubId).collect(Collectors.toList()))
-				.flatMap(Collection::stream)
-				.collect(Collectors.toList());
+				.map(annotation -> annotation.getPubModID()).collect(Collectors.toList());
 		String terms = String.join(",", termList);
 //		  String stages = String.join(",", stageList);
 		String symbols = String.join(",", symbolList);
 		String pubs = String.join(",", referenceList);
-		assertThat("first element species", response.getResults().get(0).getGene().getSpecies().getName(), equalTo("Danio rerio"));
-		assertThat("first element symbol", response.getResults().get(0).getGene().getSymbol(), equalTo("shha"));
+		assertThat("first element species", response.getResults().get(0).getGeneExpressionAnnotation().getExpressionAnnotationSubject().getTaxon().getName(), equalTo("Danio rerio"));
+		assertThat("first element symbol", response.getResults().get(0).getGeneExpressionAnnotation().getExpressionAnnotationSubject().getGeneSymbol().getDisplayText(), equalTo("shha"));
 		assertThat("list of terms", terms, equalTo("anal fin,anterior neural keel,anterior neural keel ventral region,anterior neural rod,axial chorda mesoderm,axial chorda mesoderm"));
 		//		assertThat("list of stages", stages, equalTo("ZFS:0000029,ZFS:0000030,ZFS:0000031,ZFS:0000032,ZFS:0000033,ZFS:0000034,ZFS:0000035,ZFS:0000036,ZFS:0000044"));
 	}
@@ -381,12 +379,12 @@ public class GeneIT {
 		String[] geneIDs = {"MGI:97570", "ZFIN:ZDB-GENE-080204-52"};
 		String termID = null;
 		int limit = 15;
-		JsonResultResponse<ExpressionDetail> response = controller.getExpressionAnnotations(termID, null, null, null, null, null, null, null, limit, 1, null, "true", asList(geneIDs));
+		JsonResultResponse<GeneExpressionDocument> response = controller.getExpressionAnnotations(termID, null, null, null, null, null, null, null, limit, 1, null, "true", asList(geneIDs));
 		List<String> symbolList = response.getResults().stream()
-				.map(annotation -> annotation.getGene().getSymbol())
+				.map(annotation -> annotation.getGeneExpressionAnnotation().getExpressionAnnotationSubject().getGeneSymbol().getDisplayText())
 				.collect(Collectors.toList());
 		List<String> termList = response.getResults().stream()
-				.map(ExpressionDetail::getTermName)
+				.map(annotation -> annotation.getGeneExpressionAnnotation().getWhereExpressedStatement())
 				.collect(Collectors.toList());
 	}
 
