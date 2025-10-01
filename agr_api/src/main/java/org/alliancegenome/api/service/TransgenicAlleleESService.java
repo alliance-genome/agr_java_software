@@ -3,11 +3,9 @@ package org.alliancegenome.api.service;
 import jakarta.enterprise.context.RequestScoped;
 import org.alliancegenome.api.entity.GeneTransgenicAlleleSummaryDocument;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.es.index.site.schema.Mapping;
 import org.alliancegenome.es.model.query.Pagination;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
 import java.util.Arrays;

@@ -752,7 +752,6 @@ public interface GeneRESTInterface {
 	@GET
 	@Path("/{id}/transgenic-alleles")
 	@Operation(summary = "Retrieve Transgenic Alleles for a given gene")
-	@JsonView(value = {View.TransgenicAlleleAPI.class})
 	@APIResponses(
 		value = {
 			@APIResponse(

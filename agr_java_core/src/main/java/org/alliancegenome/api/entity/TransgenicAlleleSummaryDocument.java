@@ -14,7 +14,7 @@ import java.util.List;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @JsonPropertyOrder({"category", "allele", "transgenicAlleleConstructs", "geneList"})
-@JsonView({View.TransgenicAlleleAPI.class})
+@JsonView(value = {org.alliancegenome.curation_api.view.View.TransgenicAllelesDocumentView.class})
 public class TransgenicAlleleSummaryDocument extends ESDocument {
 
 	public TransgenicAlleleSummaryDocument() {
