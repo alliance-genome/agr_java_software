@@ -3,8 +3,12 @@ package org.alliancegenome.indexer.indexers.curation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.curation_api.interfaces.document.AlleleDocumentInterface;
 import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
-import org.alliancegenome.curation_api.model.entities.*;
+import org.alliancegenome.curation_api.model.entities.Allele;
+import org.alliancegenome.curation_api.model.entities.Construct;
+import org.alliancegenome.curation_api.model.entities.Gene;
+import org.alliancegenome.curation_api.model.entities.ResourceDescriptorPage;
 import org.alliancegenome.curation_api.model.entities.associations.AlleleConstructAssociation;
 import org.alliancegenome.curation_api.model.entities.associations.AlleleGeneAssociation;
 import org.alliancegenome.curation_api.response.SearchResponse;
@@ -14,7 +18,6 @@ import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
 import org.alliancegenome.indexer.indexers.curation.interfaces.AlleleConstructAssociationInterface;
 import org.alliancegenome.indexer.indexers.curation.interfaces.AlleleGeneAssociationInterface;
-import org.alliancegenome.indexer.indexers.curation.interfaces.AlleleInterface;
 import org.alliancegenome.indexer.indexers.curation.interfaces.ResourceDescriptorPageInterface;
 import org.alliancegenome.indexer.indexers.curation.service.BaseService;
 import org.apache.commons.collections.CollectionUtils;
@@ -22,14 +25,13 @@ import si.mazi.rescu.RestProxyFactory;
 
 import java.util.*;
 import java.util.concurrent.LinkedBlockingDeque;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class AlleleSummaryCurationIndexer extends Indexer {
 
 	private final AlleleConstructAssociationInterface alleleConstructAssociationApi = RestProxyFactory
 		.createProxy(AlleleConstructAssociationInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
-	private final AlleleInterface alleleApi = RestProxyFactory.createProxy(AlleleInterface.class,
+	private final AlleleDocumentInterface alleleApi = RestProxyFactory.createProxy(AlleleDocumentInterface.class,
 		ConfigHelper.getCurationApiUrl(), RestConfig.config);
 	private final AlleleGeneAssociationInterface alleleGeneAssociationApi = RestProxyFactory
 		.createProxy(AlleleGeneAssociationInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
@@ -53,6 +55,7 @@ public class AlleleSummaryCurationIndexer extends Indexer {
 		Map<String, ResourceDescriptorPage> resourceDescriptorPageMap = buildResourceDescriptorPageMap();
 		Map<Allele, Gene> alleleOfGeneMap = buildAlleleOfGeneMap();
 		Map<Allele, List<AlleleConstructAssociation>> alleleConstructMap = buildAlleleConstructAssociationsMap();
+		// call curation endpoint to retrieve {{alleleid,"allele"},...}
 		indexAlleles(alleleConstructMap, alleleOfGeneMap, resourceDescriptorPageMap);
 	}
 
@@ -150,7 +153,7 @@ public class AlleleSummaryCurationIndexer extends Indexer {
 	}
 
 	private void indexAlleles(Map<Allele, List<AlleleConstructAssociation>> alleleConstructMap, Map<Allele, Gene> alleleOfGeneMap, Map<String, ResourceDescriptorPage> resourceDescriptorPageMap) {
-		SearchResponse<Allele> alleleCountResponse = alleleApi.findForPublic(0, 0, params);
+		SearchResponse<AlleleSummaryDocument> alleleCountResponse = alleleApi.findSummary(0, 0, params);
 		ProcessDisplayHelper display = new ProcessDisplayHelper(2000);
 		display.startProcess("Pulling Allele documents from curation", alleleCountResponse.getTotalResults());
 		int batchSize = 1000;
@@ -158,21 +161,16 @@ public class AlleleSummaryCurationIndexer extends Indexer {
 		for (int page = 0; page <= maxPage; page++) {
 			List<AlleleSummaryDocument> documentList = new ArrayList<>();
 
-			SearchResponse<Allele> response = alleleApi.findForPublic(page, batchSize, params);
-			for (Allele allele : response.getResults()) {
-				if (allele == null) {
+			SearchResponse<AlleleSummaryDocument> response = alleleApi.findSummary(page, batchSize, params);
+			for (AlleleSummaryDocument alleleSummaryDocument : response.getResults()) {
+				if (alleleSummaryDocument == null) {
 					continue;
 				}
-				AlleleSummaryDocument alleleSummaryDocument = new AlleleSummaryDocument();
-				alleleSummaryDocument.setAllele(allele);
+				Allele allele = alleleSummaryDocument.getAllele();
 				alleleSummaryDocument.setConstructSlimList(getConstructs(alleleConstructMap.get(allele)));
 				alleleSummaryDocument.setAlleleOfGene(alleleOfGeneMap.get(allele));
-				alleleSummaryDocument.setCrossReference(getCrossReference(allele, resourceDescriptorPageMap));
-				alleleSummaryDocument.setAlterationType(determineAlterationType(allele));
-				// alleleSummaryDocument.setDescription(buildDescription(allele));
-
+				//alleleSummaryDocument.setAlterationType(determineAlterationType(allele));
 				documentList.add(alleleSummaryDocument);
-
 				display.progressProcess(response.getReturnedRecords().longValue());
 			}
 
@@ -211,27 +209,6 @@ public class AlleleSummaryCurationIndexer extends Indexer {
 		return constructs;
 	}
 
-	private CrossReference getCrossReference(Allele allele,
-											Map<String, ResourceDescriptorPage> resourceDescriptorPageMap) {
-
-		CrossReference alleleRefsCrossRef = new CrossReference();
-
-		if (allele.getDataProvider() == null) {
-			return alleleRefsCrossRef;
-		}
-
-		String dataProviderAbbreviation = allele.getDataProvider().getAbbreviation();
-		ResourceDescriptorPage page = resourceDescriptorPageMap.get(dataProviderAbbreviation);
-
-		if (page != null && allele.getDataProviderCrossReference() != null) {
-			alleleRefsCrossRef.setReferencedCurie(allele.getDataProviderCrossReference().getReferencedCurie());
-			alleleRefsCrossRef.setDisplayName(allele.getDataProviderCrossReference().getDisplayName());
-			alleleRefsCrossRef.setResourceDescriptorPage(page);
-		}
-
-		return alleleRefsCrossRef;
-	}
-
 	private String determineAlterationType(Allele allele) {
 		if (allele.getAlleleVariantAssociations() == null || allele.getAlleleVariantAssociations().isEmpty()) {
 			return "allele";
@@ -240,26 +217,6 @@ public class AlleleSummaryCurationIndexer extends Indexer {
 		} else {
 			return "allele with multiple variants";
 		}
-	}
-
-	private String buildDescription(Allele allele) {
-
-		String description = "";
-
-		if (CollectionUtils.isNotEmpty(allele.getRelatedNotes())) {
-			List<String> descriptionList = allele.getRelatedNotes()
-				.stream()
-				.filter(note -> note.getNoteType().getName().equals("mutation_description"))
-				.map(note -> note.getFreeText())
-				.collect(Collectors.toList());
-
-			if (CollectionUtils.isNotEmpty(descriptionList)) {
-				description = descriptionList.get(0);
-			}
-		}
-
-		return description;
-
 	}
 
 }
