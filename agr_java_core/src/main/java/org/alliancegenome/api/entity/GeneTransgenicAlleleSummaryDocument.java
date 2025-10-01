@@ -11,12 +11,18 @@ import org.alliancegenome.neo4j.view.View;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @JsonPropertyOrder({"category", "gene", "allele", "transgenicAlleleConstructs", "geneList"})
-@JsonView({View.TransgenicAlleleAPI.class})
+@JsonView(value = {org.alliancegenome.curation_api.view.View.TransgenicAllelesDocumentView.class})
 public class GeneTransgenicAlleleSummaryDocument extends ESDocument {
 
+	{
+		category = "transgenic_allele_annotations";
+	}
+
 	public GeneTransgenicAlleleSummaryDocument(Gene gene) {
-		setCategory("transgenic_allele_annotations");
 		this.gene = gene;
+	}
+
+	public GeneTransgenicAlleleSummaryDocument() {
 	}
 
 	private Gene gene;

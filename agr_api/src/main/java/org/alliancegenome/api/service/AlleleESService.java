@@ -25,7 +25,7 @@ public class AlleleESService extends ESService {
 		bool.must(bool2);
 		// ToDo: Change this class such that the category is public
 		// TransgenicAlleleDocument.category
-		bool.filter(new TermQueryBuilder("category", "transgenic_allele_annotation"));
+		bool.filter(new TermQueryBuilder("category", "transgenic_allele_summary"));
 		bool2.should(new MatchQueryBuilder("allele.primaryExternalId.keyword", alleleId));
 
 		JsonResultResponse<TransgenicAlleleDocument> ret = new JsonResultResponse<>();
