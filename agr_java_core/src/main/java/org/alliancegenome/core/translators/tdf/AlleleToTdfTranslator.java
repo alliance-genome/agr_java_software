@@ -8,16 +8,15 @@ import java.util.stream.Collectors;
 
 import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.api.entity.GeneTransgenicAlleleSummaryDocument;
-import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.Construct;
+import org.alliancegenome.api.entity.TransgenicAlleleSummaryDocument;
+import org.alliancegenome.curation_api.model.entities.*;
 import org.alliancegenome.neo4j.entity.node.Publication;
 import org.alliancegenome.neo4j.entity.node.TranscriptLevelConsequence;
-import org.alliancegenome.neo4j.entity.node.Variant;
 import org.apache.commons.collections.CollectionUtils;
 
 public class AlleleToTdfTranslator {
 
-	public String getAllRows(List<Allele> annotations) {
+	public String getAllRows(List<org.alliancegenome.neo4j.entity.node.Allele> annotations) {
 
 		List<AlleleDownloadRow> list = getAlleleDownloadRowsForGenes(annotations);
 		List<DownloadHeader> headers = List.of(
@@ -36,8 +35,7 @@ public class AlleleToTdfTranslator {
 		return DownloadHeader.getDownloadOutput(list, headers);
 	}
 
-	public List<AlleleDownloadRow> getAlleleDownloadRowsForGenes(List<Allele> annotations) {
-
+	public List<AlleleDownloadRow> getAlleleDownloadRowsForGenes(List<org.alliancegenome.neo4j.entity.node.Allele> annotations) {
 		return annotations.stream()
 				.map(annotation -> {
 					if (CollectionUtils.isNotEmpty(annotation.getVariants())) {
@@ -70,7 +68,7 @@ public class AlleleToTdfTranslator {
 	}
 
 
-	private AlleleDownloadRow getBaseDownloadRow(Allele annotation, Variant join, Publication pub) {
+	private AlleleDownloadRow getBaseDownloadRow(org.alliancegenome.neo4j.entity.node.Allele annotation, org.alliancegenome.neo4j.entity.node.Variant join, Publication pub) {
 		AlleleDownloadRow row = new AlleleDownloadRow();
 		row.setAlleleID(annotation.getPrimaryKey());
 		row.setAlleleSymbol(annotation.getSymbol());
@@ -143,8 +141,7 @@ public class AlleleToTdfTranslator {
 
 	public String getAllTransgenicAlleleRows(List<GeneTransgenicAlleleSummaryDocument> annotations) {
 
-//		List<TransgenicAlleleDownloadRow> list = getTransgenicAlleleDownloadRowsForGenes(annotations);
-		List<TransgenicAlleleDownloadRow> list = null;
+		List<TransgenicAlleleDownloadRow> list = getTransgenicAlleleDownloadRowsForGenes(annotations);
 		List<DownloadHeader> headers = List.of(
 				new DownloadHeader<>("Species", TransgenicAlleleDownloadRow::getSpecies),
 				new DownloadHeader<>("Allele ID", TransgenicAlleleDownloadRow::getAlleleID),
@@ -164,21 +161,18 @@ public class AlleleToTdfTranslator {
 		return DownloadHeader.getDownloadOutput(list, headers);
 	}
 
-	public List<TransgenicAlleleDownloadRow> getTransgenicAlleleDownloadRowsForGenes(List<Allele> annotations) {
+	public List<TransgenicAlleleDownloadRow> getTransgenicAlleleDownloadRowsForGenes(List<GeneTransgenicAlleleSummaryDocument> annotations) {
 
 		return annotations.stream()
 				.map(annotation -> {
-					if (CollectionUtils.isNotEmpty(annotation.getConstructs())) {
-						return annotation.getConstructs().stream()
-								.map(join -> {
-									return annotation.getConstructs().stream()
-											.map(var -> getBaseDownloadAlleleTransgenicRow(annotation, var, null))
-											.collect(Collectors.toList());
-
-								}).flatMap(Collection::stream)
-								.collect(Collectors.toList());
+					List<TransgenicAlleleConstruct> transgenicAlleleConstructs = annotation.getAlleleDocument().getTransgenicAlleleConstructs();
+					if (CollectionUtils.isNotEmpty(transgenicAlleleConstructs)) {
+						return transgenicAlleleConstructs.stream()
+								.map(transgenicAlleleConstruct ->
+									getBaseDownloadAlleleTransgenicRow(annotation.getAlleleDocument(), transgenicAlleleConstruct, null))
+								.toList();
 					} else {
-						return List.of(getBaseDownloadAlleleTransgenicRow(annotation, null, null));
+						return List.of(getBaseDownloadAlleleTransgenicRow(annotation.getAlleleDocument(), null, null));
 					}
 				})
 				.flatMap(Collection::stream)
@@ -187,41 +181,43 @@ public class AlleleToTdfTranslator {
 
 	}
 
-	private TransgenicAlleleDownloadRow getBaseDownloadAlleleTransgenicRow(Allele annotation, Construct join, Publication pub) {
+	private TransgenicAlleleDownloadRow getBaseDownloadAlleleTransgenicRow(TransgenicAlleleSummaryDocument transgenicAlleleSummaryDocument, TransgenicAlleleConstruct transgenicAlleleConstruct, Reference pub) {
 		TransgenicAlleleDownloadRow row = new TransgenicAlleleDownloadRow();
-		row.setSpecies(annotation.getSpecies().getName());
-		row.setAlleleID(annotation.getPrimaryKey());
-		row.setAlleleSymbol(annotation.getSymbol());
-		row.setTgConstructID(join.getPrimaryKey());
-		row.setTransgenicConstruct(join.getName());
+		Allele allele = transgenicAlleleSummaryDocument.getAllele();
+
+		row.setSpecies(allele.getTaxon().getName());
+		row.setAlleleID(allele.getPrimaryExternalId());
+		row.setAlleleSymbol(allele.getAlleleSymbol().getFormatText());
+		row.setTgConstructID(transgenicAlleleConstruct.getConstruct().getPrimaryExternalId());
+		row.setTransgenicConstruct(transgenicAlleleConstruct.getConstruct().getConstructSymbol().getFormatText());
 		String expressedGene = "";
 		String expGeneID = "";
 		String targetGene = "";
 		String tgtGeneID = "";
 		String regGene = "";
 		String regGeneID = "";
-		if (join != null) {
-			if (CollectionUtils.isNotEmpty(join.getExpressedGenes())) {
+		if (transgenicAlleleConstruct != null) {
+			if (CollectionUtils.isNotEmpty(transgenicAlleleConstruct.getExpressedGenes())) {
 				StringJoiner expGeneJoiner = new StringJoiner(",");
 				StringJoiner expGeneIDJoiner = new StringJoiner(",");
-				join.getExpressedGenes().forEach(expressedGeneSymbol -> expGeneJoiner.add(expressedGeneSymbol.getSymbol()));
-				join.getExpressedGenes().forEach(expressedGeneID -> expGeneIDJoiner.add(expressedGeneID.getPrimaryKey()));
+				transgenicAlleleConstruct.getExpressedGenes().forEach(expressedGeneSymbol -> expGeneJoiner.add(expressedGeneSymbol.getGeneSymbol().getFormatText()));
+				transgenicAlleleConstruct.getExpressedGenes().forEach(expressedGeneID -> expGeneIDJoiner.add(expressedGeneID.getPrimaryExternalId()));
 				expressedGene = expGeneJoiner.toString();
 				expGeneID = expGeneIDJoiner.toString();
 			}
-			if (CollectionUtils.isNotEmpty(join.getTargetGenes())) {
+			if (CollectionUtils.isNotEmpty(transgenicAlleleConstruct.getSequenceTargetingReagents())) {
 				StringJoiner tgtGeneJoiner = new StringJoiner(",");
 				StringJoiner tgtGeneIDJoiner = new StringJoiner(",");
-				join.getTargetGenes().forEach(targetGeneSymbol -> tgtGeneJoiner.add(targetGeneSymbol.getSymbol()));
-				join.getTargetGenes().forEach(targetGeneID -> tgtGeneIDJoiner.add(targetGeneID.getPrimaryKey()));
+				transgenicAlleleConstruct.getSequenceTargetingReagents().forEach(targetGeneSymbol -> tgtGeneJoiner.add(targetGeneSymbol.getName()));
+				transgenicAlleleConstruct.getSequenceTargetingReagents().forEach(targetGeneID -> tgtGeneIDJoiner.add(targetGeneID.getPrimaryExternalId()));
 				targetGene = tgtGeneJoiner.toString();
 				tgtGeneID = tgtGeneIDJoiner.toString();
 			}
-			if (CollectionUtils.isNotEmpty(join.getRegulatedByGenes())) {
+			if (CollectionUtils.isNotEmpty(transgenicAlleleConstruct.getRegulatoryGenes())) {
 				StringJoiner regGeneJoiner = new StringJoiner(",");
 				StringJoiner regGeneIDJoiner = new StringJoiner(",");
-				join.getRegulatedByGenes().forEach(regGeneSymbol -> regGeneJoiner.add(regGeneSymbol.getSymbol()));
-				join.getRegulatedByGenes().forEach(regulatoryGeneID -> regGeneIDJoiner.add(regulatoryGeneID.getPrimaryKey()));
+				transgenicAlleleConstruct.getRegulatoryGenes().forEach(regGeneSymbol -> regGeneJoiner.add(regGeneSymbol.getGeneSymbol().getFormatText()));
+				transgenicAlleleConstruct.getRegulatoryGenes().forEach(regulatoryGeneID -> regGeneIDJoiner.add(regulatoryGeneID.getPrimaryExternalId()));
 				regGene = regGeneJoiner.toString();
 				regGeneID = regGeneIDJoiner.toString();
 			}
@@ -232,14 +228,16 @@ public class AlleleToTdfTranslator {
 			row.setRegulatoryRegionID(regGeneID);
 			row.setRegulatoryRegion(regGene);
 		}
-		row.setHasPhenotype(annotation.hasPhenotype().toString());
-		row.setHasDisease(annotation.hasDisease().toString());
+/*
+		row.setHasPhenotype(transgenicAlleleSummaryDocument.getHasPhenotypeAnnotations());
+		row.setHasDisease(transgenicAlleleSummaryDocument.getHasDiseaseAnnotations().toString());
+*/
 
 		return row;
 	}
 
 
-	public String getAllVariantsRows(List<Variant> variants) {
+	public String getAllVariantsRows(List<org.alliancegenome.neo4j.entity.node.Variant> variants) {
 
 		List<VariantDownloadRow> list = getVariantDownloadRowsForAlleles(variants);
 		List<DownloadHeader> headers = List.of(
@@ -262,7 +260,7 @@ public class AlleleToTdfTranslator {
 	}
 
 
-	public List<VariantDownloadRow> getVariantDownloadRowsForAlleles(List<Variant> annotations) {
+	public List<VariantDownloadRow> getVariantDownloadRowsForAlleles(List<org.alliancegenome.neo4j.entity.node.Variant> annotations) {
 
 		return annotations.stream()
 				.map(this::getBaseDownloadVariantRow)
@@ -270,7 +268,7 @@ public class AlleleToTdfTranslator {
 	}
 	
 
-	private VariantDownloadRow getBaseDownloadVariantRow(final Variant annotation) {
+	private VariantDownloadRow getBaseDownloadVariantRow(final org.alliancegenome.neo4j.entity.node.Variant annotation) {
 		VariantDownloadRow row = new VariantDownloadRow();
 		row.setSymbol(annotation.getHgvsNomenclature());
 		row.setVariantType(annotation.getVariantType().getName());
@@ -294,17 +292,17 @@ public class AlleleToTdfTranslator {
 
 		if (CollectionUtils.isNotEmpty(annotation.getHgvsG())) {
 			StringJoiner hgvsgJoiner = new StringJoiner(",");
-			annotation.getHgvsG().forEach(hgvsg -> hgvsgJoiner.add(hgvsg));
+			annotation.getHgvsG().forEach(hgvsgJoiner::add);
 			hgvsGs = hgvsgJoiner.toString();
 		}
 		if (CollectionUtils.isNotEmpty(annotation.getHgvsC())) {
 			StringJoiner hgvscJoiner = new StringJoiner(",");
-			annotation.getHgvsC().forEach(hgvsc -> hgvscJoiner.add(hgvsc));
+			annotation.getHgvsC().forEach(hgvscJoiner::add);
 			hgvsCs = hgvscJoiner.toString();
 		}
 		if (CollectionUtils.isNotEmpty(annotation.getHgvsP())) {
 			StringJoiner hgvspJoiner = new StringJoiner(",");
-			annotation.getHgvsP().forEach(hgvsp -> hgvspJoiner.add(hgvsp));
+			annotation.getHgvsP().forEach(hgvspJoiner::add);
 			hgvsPs = hgvspJoiner.toString();
 		}
 		if (CollectionUtils.isNotEmpty(annotation.getCrossReferences())) {
