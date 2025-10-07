@@ -1,50 +1,36 @@
 package org.alliancegenome.indexer.indexers.curation;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.LinkedBlockingDeque;
+
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.interfaces.document.AlleleDocumentInterface;
 import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
-import org.alliancegenome.curation_api.model.entities.Allele;
-import org.alliancegenome.curation_api.model.entities.Construct;
-import org.alliancegenome.curation_api.model.entities.Gene;
-import org.alliancegenome.curation_api.model.entities.ResourceDescriptorPage;
-import org.alliancegenome.curation_api.model.entities.associations.AlleleConstructAssociation;
-import org.alliancegenome.curation_api.model.entities.associations.AlleleGeneAssociation;
 import org.alliancegenome.curation_api.response.SearchResponse;
-import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
-import org.alliancegenome.indexer.indexers.curation.interfaces.AlleleConstructAssociationInterface;
-import org.alliancegenome.indexer.indexers.curation.interfaces.AlleleGeneAssociationInterface;
-import org.alliancegenome.indexer.indexers.curation.interfaces.ResourceDescriptorPageInterface;
 import org.alliancegenome.indexer.indexers.curation.service.BaseService;
 import org.apache.commons.collections.CollectionUtils;
-import si.mazi.rescu.RestProxyFactory;
 
-import java.util.*;
-import java.util.concurrent.LinkedBlockingDeque;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.extern.slf4j.Slf4j;
+import si.mazi.rescu.RestProxyFactory;
 
 @Slf4j
 public class AlleleSummaryCurationIndexer extends Indexer {
 
-	private final AlleleConstructAssociationInterface alleleConstructAssociationApi = RestProxyFactory
-		.createProxy(AlleleConstructAssociationInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
-	private final AlleleDocumentInterface alleleApi = RestProxyFactory.createProxy(AlleleDocumentInterface.class,
-		ConfigHelper.getCurationApiUrl(), RestConfig.config);
-	private final AlleleGeneAssociationInterface alleleGeneAssociationApi = RestProxyFactory
-		.createProxy(AlleleGeneAssociationInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
-	private final ResourceDescriptorPageInterface resourceDescriptorPageApi = RestProxyFactory
-		.createProxy(ResourceDescriptorPageInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
+	private final AlleleDocumentInterface alleleApi = RestProxyFactory.createProxy(AlleleDocumentInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 	private final BaseService baseService = new BaseService();
 	private Set<String> allNeoAlleleIDs = baseService.getAllNeoAlleleIDs();
-	private HashMap<String, Object> params = new HashMap<>() {
-		{
-			put("internal", false);
-			put("obsolete", false);
-		}
-	};
+	private HashMap<String, Object> params = new HashMap<>() {{
+		put("internal", false);
+		put("obsolete", false);
+	}};
 
 	public AlleleSummaryCurationIndexer(IndexerConfig indexerConfig) {
 		super(indexerConfig);
@@ -52,132 +38,45 @@ public class AlleleSummaryCurationIndexer extends Indexer {
 
 	@Override
 	protected void index() {
-		Map<String, ResourceDescriptorPage> resourceDescriptorPageMap = buildResourceDescriptorPageMap();
-		Map<Allele, Gene> alleleOfGeneMap = buildAlleleOfGeneMap();
-		Map<Allele, List<AlleleConstructAssociation>> alleleConstructMap = buildAlleleConstructAssociationsMap();
-		// call curation endpoint to retrieve {{alleleid,"allele"},...}
-		indexAlleles(alleleConstructMap, alleleOfGeneMap, resourceDescriptorPageMap);
+		try {
+
+			SearchResponse<AlleleSummaryDocument> alleleSummaryResponse = alleleApi.findSummary(0, 0, params);
+			int totalPages = (int) (alleleSummaryResponse.getTotalResults() / indexerConfig.getBufferSize());
+
+			LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
+
+			for (int i = 0; i <= totalPages; i++) {
+				queue.add(String.valueOf(i));
+			}
+
+			initiateThreading(queue);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
 	protected void startSingleThread(LinkedBlockingDeque<String> queue) {
-	}
-
-	private Map<Allele, List<AlleleConstructAssociation>> buildAlleleConstructAssociationsMap() {
-		SearchResponse<AlleleConstructAssociation> alleleConstructCountResponse = alleleConstructAssociationApi
-			.findForPublic(0, 0, params);
-		ProcessDisplayHelper display = new ProcessDisplayHelper(2000);
-		display.startProcess("Pulling allele construct associations from curation",
-			alleleConstructCountResponse.getTotalResults());
-		Map<Allele, List<AlleleConstructAssociation>> documentMap = new LinkedHashMap<>();
-		int batchSize = 1000;
-		int maxPage = (int) (alleleConstructCountResponse.getTotalResults() / batchSize);
-		for (int page = 0; page <= maxPage; page++) {
-			SearchResponse<AlleleConstructAssociation> response = alleleConstructAssociationApi.findForPublic(page,
-				batchSize, params);
-			for (AlleleConstructAssociation alleleConstructAssociation : response.getResults()) {
-				if (alleleConstructAssociation == null) {
-					continue;
+		while (true) {
+			try {
+				if (queue.isEmpty()) {
+					return;
 				}
-				Allele allele = alleleConstructAssociation.getAlleleAssociationSubject();
-				List<AlleleConstructAssociation> list = documentMap.computeIfAbsent(allele, k -> new ArrayList<>());
-				list.add(alleleConstructAssociation);
-			}
-			display.progressProcess(response.getReturnedRecords().longValue());
-		}
-		return documentMap;
-	}
-
-	private Map<Allele, Gene> buildAlleleOfGeneMap() {
-		HashMap<String, Object> agaParams = new HashMap<>() {
-			{
-				put("internal", false);
-				put("obsolete", false);
-				put("relation.name", "is_allele_of");
-			}
-		};
-
-		SearchResponse<AlleleGeneAssociation> alleleGeneCountResponse = alleleGeneAssociationApi.findForPublic(0, 0,
-			agaParams);
-		ProcessDisplayHelper display = new ProcessDisplayHelper(2000);
-		display.startProcess("Pulling allele gene associations from curation", alleleGeneCountResponse.getTotalResults());
-		Map<Allele, Gene> documentMap = new LinkedHashMap<>();
-		int batchSize = 1000;
-		int maxPage = (int) (alleleGeneCountResponse.getTotalResults() / batchSize);
-		for (int page = 0; page <= maxPage; page++) {
-			SearchResponse<AlleleGeneAssociation> response = alleleGeneAssociationApi.findForPublic(page, batchSize,
-				agaParams);
-			for (AlleleGeneAssociation alleleGeneAssociation : response.getResults()) {
-				if (alleleGeneAssociation == null) {
-					continue;
-				}
-				Allele allele = alleleGeneAssociation.getAlleleAssociationSubject();
-				Gene gene = alleleGeneAssociation.getAlleleGeneAssociationObject();
-
-				documentMap.put(allele, gene);
-			}
-			display.progressProcess(response.getReturnedRecords().longValue());
-		}
-		return documentMap;
-	}
-
-	private Map<String, ResourceDescriptorPage> buildResourceDescriptorPageMap() {
-		HashMap<String, Object> rdpParams = new HashMap<>() {
-			{
-				put("internal", false);
-				put("obsolete", false);
-				put("name", "allele/references");
-			}
-		};
-		SearchResponse<ResourceDescriptorPage> resourceDescriptorPageCountResponse = resourceDescriptorPageApi
-			.findForPublic(0, 0, rdpParams);
-		ProcessDisplayHelper display = new ProcessDisplayHelper(2000);
-		display.startProcess("Pulling resource descriptor pages from curation",
-			resourceDescriptorPageCountResponse.getTotalResults());
-		Map<String, ResourceDescriptorPage> documentMap = new LinkedHashMap<>();
-		int batchSize = 1000;
-		int maxPage = (int) (resourceDescriptorPageCountResponse.getTotalResults() / batchSize);
-		for (int page = 0; page <= maxPage; page++) {
-			SearchResponse<ResourceDescriptorPage> response = resourceDescriptorPageApi.findForPublic(page, batchSize,
-				rdpParams);
-			for (ResourceDescriptorPage resourceDescriptorPage : response.getResults()) {
-				if (resourceDescriptorPage == null) {
-					continue;
+				String page = queue.takeFirst();
+				SearchResponse<AlleleSummaryDocument> response = alleleApi.findSummary(Integer.valueOf(page), indexerConfig.getBufferSize(), params);
+				if (response == null || CollectionUtils.isEmpty(response.getResults())) {
+					return;
 				}
 
-				documentMap.put(resourceDescriptorPage.getResourceDescriptor().getPrefix(), resourceDescriptorPage);
+				List<AlleleSummaryDocument> filteredResults = filterAgainstNeo(response.getResults());
+				indexDocuments(filteredResults);
+			} catch (Exception e) {
+				log.error("Error while indexing...", e);
+				System.exit(-1);
+				return;
 			}
-			display.progressProcess(response.getReturnedRecords().longValue());
 		}
-		return documentMap;
-	}
-
-	private void indexAlleles(Map<Allele, List<AlleleConstructAssociation>> alleleConstructMap, Map<Allele, Gene> alleleOfGeneMap, Map<String, ResourceDescriptorPage> resourceDescriptorPageMap) {
-		SearchResponse<AlleleSummaryDocument> alleleCountResponse = alleleApi.findSummary(0, 0, params);
-		ProcessDisplayHelper display = new ProcessDisplayHelper(2000);
-		display.startProcess("Pulling Allele documents from curation", alleleCountResponse.getTotalResults());
-		int batchSize = 1000;
-		int maxPage = (int) (alleleCountResponse.getTotalResults() / batchSize);
-		for (int page = 0; page <= maxPage; page++) {
-			List<AlleleSummaryDocument> documentList = new ArrayList<>();
-
-			SearchResponse<AlleleSummaryDocument> response = alleleApi.findSummary(page, batchSize, params);
-			for (AlleleSummaryDocument alleleSummaryDocument : response.getResults()) {
-				if (alleleSummaryDocument == null) {
-					continue;
-				}
-				Allele allele = alleleSummaryDocument.getAllele();
-				alleleSummaryDocument.setConstructSlimList(getConstructs(alleleConstructMap.get(allele)));
-				alleleSummaryDocument.setAlleleOfGene(alleleOfGeneMap.get(allele));
-				//alleleSummaryDocument.setAlterationType(determineAlterationType(allele));
-				documentList.add(alleleSummaryDocument);
-				display.progressProcess(response.getReturnedRecords().longValue());
-			}
-
-			List<AlleleSummaryDocument> filteredDocs = filterAgainstNeo(documentList);
-			indexDocuments(filteredDocs);
-		}
-
 	}
 
 	@Override
@@ -185,7 +84,7 @@ public class AlleleSummaryCurationIndexer extends Indexer {
 		return RestConfig.config.getJacksonObjectMapperFactory().createObjectMapper();
 	}
 
-	private List<AlleleSummaryDocument> filterAgainstNeo(Collection<AlleleSummaryDocument> docs) {
+	private List<AlleleSummaryDocument> filterAgainstNeo(List<AlleleSummaryDocument> docs) {
 		List<AlleleSummaryDocument> result = new ArrayList<>();
 		for (AlleleSummaryDocument doc : docs) {
 			String identifier = doc.getAllele().getPrimaryExternalId();
@@ -195,28 +94,5 @@ public class AlleleSummaryCurationIndexer extends Indexer {
 		}
 		return result;
 	}
-
-	private List<Construct> getConstructs(List<AlleleConstructAssociation> associations) {
-		List<Construct> constructs = new ArrayList<>();
-		if (CollectionUtils.isNotEmpty(associations)) {
-			for (AlleleConstructAssociation association : associations) {
-				Construct construct = association.getAlleleConstructAssociationObject();
-				if (construct != null) {
-					constructs.add(construct);
-				}
-			}
-		}
-		return constructs;
-	}
-
-	private String determineAlterationType(Allele allele) {
-		if (allele.getAlleleVariantAssociations() == null || allele.getAlleleVariantAssociations().isEmpty()) {
-			return "allele";
-		} else if (allele.getAlleleVariantAssociations().size() == 1) {
-			return "allele with one variant";
-		} else {
-			return "allele with multiple variants";
-		}
-	}
-
+	
 }
