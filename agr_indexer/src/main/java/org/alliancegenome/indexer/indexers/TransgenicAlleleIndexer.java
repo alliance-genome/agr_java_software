@@ -110,6 +110,7 @@ public class TransgenicAlleleIndexer extends Indexer {
 			}
 			display.progressProcess(response.getReturnedRecords().longValue());
 		}
+		display.finishProcess();
 		Collection<TransgenicAlleleSummaryDocument> values = documentMap.values();
 		indexDocuments(new ArrayList<>(new HashSet<>(values)));
 		return new ArrayList<>(values);
