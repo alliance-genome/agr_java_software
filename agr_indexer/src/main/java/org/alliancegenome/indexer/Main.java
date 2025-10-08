@@ -48,9 +48,7 @@ public class Main {
 				Indexer i = (Indexer) ic.getIndexClazz().getDeclaredConstructor(IndexerConfig.class).newInstance(ic);
 				indexers.put(ic.getTypeName(), i);
 				if (ic.getRunInParallel()) {
-/// TODO: stopped using parallel as it caused slowdown
-// parallelMap.put(ic.getTypeName(), i);
-					sequentialMap.put(ic.getTypeName(), i);
+					parallelMap.put(ic.getTypeName(), i);
 				} else {
 					sequentialMap.put(ic.getTypeName(), i);
 				}
@@ -67,7 +65,7 @@ public class Main {
 			log.info("Args[" + i + "]: " + args[i]);
 		}
 
-		ExecutorService curationExecutor = Executors.newFixedThreadPool(2);
+		ExecutorService curationExecutor = Executors.newFixedThreadPool(1);
 		ExecutorService neo4jExecutor = Executors.newFixedThreadPool(1);
 
 		for (String type : parallelMap.keySet()) {
