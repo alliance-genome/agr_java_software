@@ -48,7 +48,9 @@ public class Main {
 				Indexer i = (Indexer) ic.getIndexClazz().getDeclaredConstructor(IndexerConfig.class).newInstance(ic);
 				indexers.put(ic.getTypeName(), i);
 				if (ic.getRunInParallel()) {
-					parallelMap.put(ic.getTypeName(), i);
+/// TODO: stopped using parallel as it caused slowdown
+// parallelMap.put(ic.getTypeName(), i);
+					sequentialMap.put(ic.getTypeName(), i);
 				} else {
 					sequentialMap.put(ic.getTypeName(), i);
 				}
