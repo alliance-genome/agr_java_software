@@ -65,7 +65,7 @@ public class Main {
 			log.info("Args[" + i + "]: " + args[i]);
 		}
 
-		ExecutorService curationExecutor = Executors.newFixedThreadPool(2);
+		ExecutorService curationExecutor = Executors.newFixedThreadPool(1);
 		ExecutorService neo4jExecutor = Executors.newFixedThreadPool(1);
 
 		for (String type : parallelMap.keySet()) {
