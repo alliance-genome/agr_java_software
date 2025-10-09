@@ -23,8 +23,8 @@ public class TransgenicAlleleSummaryDocument extends ESDocument {
 
 	private Allele allele;
 	public List<TransgenicAlleleConstruct> transgenicAlleleConstructs;
-	private Boolean hasDiseaseAnnotations;
-	private Boolean hasPhenotypeAnnotations;
+	private boolean hasDiseaseAnnotations;
+	private boolean hasPhenotypeAnnotations;
 
 
 }

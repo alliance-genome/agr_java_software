@@ -29,7 +29,7 @@ public class TransgenicAlleleESService extends ESService {
 		// add table filter
 		addTableFilter(pagination, query);
 		LinkedHashMap<String, SortOrder> sortingMap = new LinkedHashMap<>();
-//		sortingMap.put("alleleDocument.allele.formatText", SortOrder.ASC);
+		sortingMap.put("alleleDocument.allele.alleleSymbol.formatText.sort", SortOrder.ASC);
 
 		SearchResponse searchResponse = getSearchResponse(query, pagination, sortingMap, null, debug);
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);

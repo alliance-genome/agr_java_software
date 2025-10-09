@@ -863,7 +863,7 @@ public class GeneController implements GeneRESTInterface {
 														String hasDisease,
 														UriInfo ui) {
 		JsonResultResponse<GeneTransgenicAlleleSummaryDocument> alleles = getTransgenicAlleles(geneId,
-			Integer.MAX_VALUE,
+			20_000,
 			1,
 			sortBy,
 			alleleSymbol,

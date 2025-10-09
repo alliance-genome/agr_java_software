@@ -30,7 +30,7 @@ public class TransgenicAlleleIndexer extends Indexer {
 	private final HashMap<String, Object> params = new HashMap<>() {{
 		put("internal", false);
 		put("obsolete", false);
-		//put("alleleAssociationSubject.primaryExternalId", "WB:WBTransgene00015957");
+		//put("alleleAssociationSubject.primaryExternalId", "WB:WBGene00000936");
 	}};
 
 	public TransgenicAlleleIndexer(IndexerConfig config) {
@@ -80,12 +80,12 @@ public class TransgenicAlleleIndexer extends Indexer {
 	}
 
 	private List<TransgenicAlleleSummaryDocument> indexTransgenicAlleleSummary() {
-		SearchResponse<TransgenicAlleleDTO> diseaseSummaryResponse = transgenicAlleleApi.findDocuments(0, 0, params);
+		SearchResponse<TransgenicAlleleDTO> searchResponse = transgenicAlleleApi.findDocuments(0, 0, params);
 		ProcessDisplayHelper display = new ProcessDisplayHelper(2000);
-		display.startProcess("Pulling Transgenic Alleles from curation", diseaseSummaryResponse.getTotalResults());
+		display.startProcess("Pulling Transgenic Alleles from curation", searchResponse.getTotalResults());
 		Map<Allele, TransgenicAlleleSummaryDocument> documentMap = new LinkedHashMap<>();
-		int batchSize = 500;
-		int maxPage = (int) (diseaseSummaryResponse.getTotalResults() / batchSize);
+		int batchSize = indexerConfig.getBufferSize();
+		int maxPage = (int) (searchResponse.getTotalResults() / batchSize);
 		for (int page = 0; page <= maxPage; page++) {
 			SearchResponse<TransgenicAlleleDTO> response = transgenicAlleleApi.findDocuments(page, batchSize, params);
 			for (TransgenicAlleleDTO da : response.getResults()) {
@@ -106,6 +106,8 @@ public class TransgenicAlleleIndexer extends Indexer {
 				construct.setConstruct(da.getConstruct());
 				construct.setExpressedGenes(getExpressedGenes(da.getConstruct()));
 				construct.setRegulatoryGenes(getRegulatoryGenes(da.getConstruct()));
+				document.setHasDiseaseAnnotations(da.getHasDiseaseAnnotations());
+				document.setHasPhenotypeAnnotations(da.getHasPhenotypeAnnotations());
 				constructList.add(construct);
 			}
 			display.progressProcess(response.getReturnedRecords().longValue());
