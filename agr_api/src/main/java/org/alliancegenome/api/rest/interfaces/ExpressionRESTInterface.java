@@ -53,8 +53,8 @@ public interface ExpressionRESTInterface {
 		@Parameter(in = ParameterIn.QUERY, name = "filter.reference", description = "Reference", schema = @Schema(type = SchemaType.STRING))
 		@QueryParam("filter.reference") String filterReference,
 
-		@Parameter(in = ParameterIn.QUERY, name = "filter.term", description = "Ontology term name", schema = @Schema(type = SchemaType.STRING))
-		@QueryParam("filter.term") String filterTerm,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.location", description = "Location", schema = @Schema(type = SchemaType.STRING))
+		@QueryParam("filter.location") String filterLocation,
 
 		@Parameter(in = ParameterIn.QUERY, name = "filter.source", description = "Source", schema = @Schema(type = SchemaType.STRING))
 		@QueryParam("filter.source") String filterSource,
