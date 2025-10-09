@@ -34,7 +34,7 @@ public class ExpressionESService extends ESService {
 
 		if (termID != null) {
 			BoolQueryBuilder termQuery = boolQuery();
-			termQuery.should(QueryBuilders.termQuery("termIds", termID));
+			termQuery.should(QueryBuilders.termQuery("termIds.keyword", termID));
 			boolQuery.must(termQuery);
 		}
 
@@ -91,7 +91,7 @@ public class ExpressionESService extends ESService {
 	private Map<String, Object> getSupplementalData(BoolQueryBuilder unfilteredQuery) {
 
 		Map<String, String> aggregationFields = new HashMap<>();
-		aggregationFields.put("geneExpressionAnnotation.expressionAnnotationSubject.taxon.curie.keyword", "species");
+		aggregationFields.put("geneExpressionAnnotation.expressionAnnotationSubject.taxon.name.keyword", "species");
 		aggregationFields.put("geneExpressionAnnotation.whereExpressedStatement.keyword", "location");
 		aggregationFields.put("geneExpressionAnnotation.whenExpressedStageName.keyword", "stage");
 		aggregationFields.put("geneExpressionAnnotation.expressionAssayUsed.name.keyword", "assay");

@@ -91,16 +91,16 @@ public class ExpressionController implements ExpressionRESTInterface {
 		}
 	}
 
-	private JsonResultResponse<GeneExpressionDocument> getExpressionDetailJsonResultResponse(List<String> geneIDs, String termID, String filterSpecies, String filterGene, String filterStage, String filterAssay, String filterReference, String filterTerm, String filterSource, Integer limit, Integer page, String sortBy, String asc) {
+	private JsonResultResponse<GeneExpressionDocument> getExpressionDetailJsonResultResponse(List<String> geneIDs, String termID, String filterSpecies, String filterGene, String filterStage, String filterAssay, String filterReference, String filterLocation, String filterSource, Integer limit, Integer page, String sortBy, String asc) {
 		long startTime = System.currentTimeMillis();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
-		pagination.addFilterOption("geneExpressionAnnotation.expressionAnnotationSubject.taxon.curie.keyword", filterSpecies);
+		pagination.addFilterOption("geneExpressionAnnotation.expressionAnnotationSubject.taxon.name", filterSpecies);
 		pagination.addFilterOption("geneExpressionAnnotation.expressionAnnotationSubject.geneSymbol.displayText", filterGene);
-		pagination.addFilterOption("geneExpressionAnnotation.whenExpressedStageName.keyword", filterStage);
-		pagination.addFilterOption("geneExpressionAnnotation.expressionAssayUsed.name.keyword", filterAssay);
-		pagination.addFilterOption("geneExpressionAnnotation.crossReferences.referencedCurie.keyword", filterReference);
-		pagination.addFilterOption("termIds", filterTerm);
-		pagination.addFilterOption("pubModID", filterSource);
+		pagination.addFilterOption("geneExpressionAnnotation.whereExpressedStatement", filterLocation);
+		pagination.addFilterOption("geneExpressionAnnotation.whenExpressedStageName", filterStage);
+		pagination.addFilterOption("geneExpressionAnnotation.expressionAssayUsed.name", filterAssay);
+		pagination.addFilterOption("geneExpressionAnnotation.crossReferences.referencedCurie", filterSource);
+		pagination.addFilterOption("referenceId", filterReference);
 
 		JsonResultResponse<GeneExpressionDocument> expressions = expressionESService.getExpressionAnnotations(geneIDs, termID, pagination);
 		expressions.calculateRequestDuration(startTime);
