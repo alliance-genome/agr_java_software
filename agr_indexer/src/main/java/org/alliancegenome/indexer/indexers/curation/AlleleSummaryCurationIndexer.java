@@ -1,8 +1,6 @@
 package org.alliancegenome.indexer.indexers.curation;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingDeque;
 
@@ -69,8 +67,7 @@ public class AlleleSummaryCurationIndexer extends Indexer {
 					return;
 				}
 
-				List<AlleleSummaryDocument> filteredResults = filterAgainstNeo(response.getResults());
-				indexDocuments(filteredResults);
+				indexDocuments(response.getResults());
 			} catch (Exception e) {
 				log.error("Error while indexing...", e);
 				System.exit(-1);
@@ -82,17 +79,6 @@ public class AlleleSummaryCurationIndexer extends Indexer {
 	@Override
 	protected ObjectMapper customizeObjectMapper(ObjectMapper objectMapper) {
 		return RestConfig.config.getJacksonObjectMapperFactory().createObjectMapper();
-	}
-
-	private List<AlleleSummaryDocument> filterAgainstNeo(List<AlleleSummaryDocument> docs) {
-		List<AlleleSummaryDocument> result = new ArrayList<>();
-		for (AlleleSummaryDocument doc : docs) {
-			String identifier = doc.getAllele().getPrimaryExternalId();
-			if (allNeoAlleleIDs.contains(identifier)) {
-				result.add(doc);
-			}
-		}
-		return result;
 	}
 	
 }
