@@ -3,7 +3,6 @@ package org.alliancegenome.core.translators.tdf;
 import java.util.List;
 import java.util.StringJoiner;
 
-import org.alliancegenome.core.ExpressionDetail;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.model.document.es.GeneExpressionDocument;
 
@@ -44,9 +43,9 @@ public class ExpressionToTdfTranslator {
 			joiner.add(crossRefs);
 			// add list of publications
 			String publications = "";
-			if (expressionDetail.getPubModID() != null) {
+			if (expressionDetail.getReferenceId() != null) {
 				StringJoiner pubJoiner = new StringJoiner(",");
-				pubJoiner.add(expressionDetail.getPubModID());
+				pubJoiner.add(expressionDetail.getReferenceId());
 				publications = pubJoiner.toString();
 			}
 			joiner.add(publications);
