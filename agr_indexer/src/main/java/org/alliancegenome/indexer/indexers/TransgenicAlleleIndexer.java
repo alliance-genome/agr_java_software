@@ -11,6 +11,8 @@ import org.alliancegenome.curation_api.model.entities.Allele;
 import org.alliancegenome.curation_api.model.entities.Construct;
 import org.alliancegenome.curation_api.model.entities.Gene;
 import org.alliancegenome.curation_api.model.entities.TransgenicAlleleConstruct;
+import org.alliancegenome.curation_api.model.entities.slotAnnotations.ConstructComponentSlotAnnotation;
+import org.alliancegenome.curation_api.model.entities.slotAnnotations.GeneSymbolSlotAnnotation;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.RestConfig;
@@ -45,13 +47,13 @@ public class TransgenicAlleleIndexer extends Indexer {
 	}
 
 	private void indexTransgenicAlleleAnnotations(List<TransgenicAlleleSummaryDocument> documents) {
-		Map<Gene, List<GeneTransgenicAlleleSummaryDocument>> geneMap = new LinkedHashMap<>();
+		Map<Gene, Set<GeneTransgenicAlleleSummaryDocument>> geneMap = new LinkedHashMap<>();
 		documents.forEach(transgenicAlleleSummaryDocument -> {
 			// obtain affected genes per document
 			transgenicAlleleSummaryDocument.getTransgenicAlleleConstructs().forEach(transgenicAlleleConstruct -> {
 				if (CollectionUtils.isNotEmpty(transgenicAlleleConstruct.getExpressedGenes())) {
 					transgenicAlleleConstruct.getExpressedGenes().forEach(gene -> {
-						List<GeneTransgenicAlleleSummaryDocument> geneList = geneMap.computeIfAbsent(gene, k -> new ArrayList<>());
+						Set<GeneTransgenicAlleleSummaryDocument> geneList = geneMap.computeIfAbsent(gene, k -> new HashSet<>());
 						GeneTransgenicAlleleSummaryDocument document = new GeneTransgenicAlleleSummaryDocument(gene);
 						document.setAlleleDocument(transgenicAlleleSummaryDocument);
 						geneList.add(document);
@@ -59,7 +61,7 @@ public class TransgenicAlleleIndexer extends Indexer {
 				}
 				if (CollectionUtils.isNotEmpty(transgenicAlleleConstruct.getNonBgiComponents())) {
 					transgenicAlleleConstruct.getNonBgiComponents().forEach(gene -> {
-						List<GeneTransgenicAlleleSummaryDocument> geneList = geneMap.computeIfAbsent(gene, k -> new ArrayList<>());
+						Set<GeneTransgenicAlleleSummaryDocument> geneList = geneMap.computeIfAbsent(gene, k -> new HashSet<>());
 						GeneTransgenicAlleleSummaryDocument document = new GeneTransgenicAlleleSummaryDocument(gene);
 						document.setAlleleDocument(transgenicAlleleSummaryDocument);
 						geneList.add(document);
@@ -67,7 +69,7 @@ public class TransgenicAlleleIndexer extends Indexer {
 				}
 				if (CollectionUtils.isNotEmpty(transgenicAlleleConstruct.getRegulatoryGenes())) {
 					transgenicAlleleConstruct.getRegulatoryGenes().forEach(gene -> {
-						List<GeneTransgenicAlleleSummaryDocument> geneList = geneMap.computeIfAbsent(gene, k -> new ArrayList<>());
+						Set<GeneTransgenicAlleleSummaryDocument> geneList = geneMap.computeIfAbsent(gene, k -> new HashSet<>());
 						GeneTransgenicAlleleSummaryDocument document = new GeneTransgenicAlleleSummaryDocument(gene);
 						document.setAlleleDocument(transgenicAlleleSummaryDocument);
 						geneList.add(document);
@@ -106,6 +108,7 @@ public class TransgenicAlleleIndexer extends Indexer {
 				construct.setConstruct(da.getConstruct());
 				construct.setExpressedGenes(getExpressedGenes(da.getConstruct()));
 				construct.setRegulatoryGenes(getRegulatoryGenes(da.getConstruct()));
+				construct.setTargetedGenes(getTargetedGenes(da.getConstruct()));
 				document.setHasDiseaseAnnotations(da.getHasDiseaseAnnotations());
 				document.setHasPhenotypeAnnotations(da.getHasPhenotypeAnnotations());
 				constructList.add(construct);
@@ -118,8 +121,24 @@ public class TransgenicAlleleIndexer extends Indexer {
 		return new ArrayList<>(values);
 	}
 
+	private List<Gene> getNonBgiComponents(List<Construct> constructs) {
+		List<ConstructComponentSlotAnnotation> annotations = constructs.stream().flatMap(construct -> construct.getConstructComponents().stream()).toList();
+		return annotations.stream().map(annotation -> {
+			Gene nonBgiGene = new Gene();
+			GeneSymbolSlotAnnotation symbol = new GeneSymbolSlotAnnotation();
+			symbol.setDisplayText(annotation.getComponentSymbol());
+			symbol.setFormatText(annotation.getComponentSymbol());
+			nonBgiGene.setGeneSymbol(symbol);
+			return nonBgiGene;
+		}).toList();
+	}
+
 	private List<Gene> getRegulatoryGenes(Construct construct) {
 		return getGenes(construct, "is_regulated_by");
+	}
+
+	private List<Gene> getTargetedGenes(Construct construct) {
+		return getGenes(construct, "targets");
 	}
 
 	@NotNull
