@@ -142,7 +142,8 @@ public class AlleleToTdfTranslator {
 	public String getAllTransgenicAlleleRows(List<GeneTransgenicAlleleSummaryDocument> annotations) {
 
 		List<TransgenicAlleleDownloadRow> list = getTransgenicAlleleDownloadRowsForGenes(annotations);
-		List<DownloadHeader> headers = List.of(
+		List<DownloadHeader> headers;
+		headers = List.of(
 				new DownloadHeader<>("Species", TransgenicAlleleDownloadRow::getSpecies),
 				new DownloadHeader<>("Allele ID", TransgenicAlleleDownloadRow::getAlleleID),
 				new DownloadHeader<>("Allele Symbol", TransgenicAlleleDownloadRow::getAlleleSymbol),
@@ -228,10 +229,8 @@ public class AlleleToTdfTranslator {
 			row.setRegulatoryRegionID(regGeneID);
 			row.setRegulatoryRegion(regGene);
 		}
-/*
-		row.setHasPhenotype(transgenicAlleleSummaryDocument.getHasPhenotypeAnnotations());
+		row.setHasPhenotype(transgenicAlleleSummaryDocument.getHasPhenotypeAnnotations().toString());
 		row.setHasDisease(transgenicAlleleSummaryDocument.getHasDiseaseAnnotations().toString());
-*/
 
 		return row;
 	}
