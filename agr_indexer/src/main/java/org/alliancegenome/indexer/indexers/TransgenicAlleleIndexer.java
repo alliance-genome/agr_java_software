@@ -32,7 +32,7 @@ public class TransgenicAlleleIndexer extends Indexer {
 	private final HashMap<String, Object> params = new HashMap<>() {{
 		put("internal", false);
 		put("obsolete", false);
-		//put("alleleAssociationSubject.primaryExternalId", "WB:WBGene00000936");
+		//put("alleleAssociationSubject.primaryExternalId", "FB:FBti0231167");
 	}};
 
 	public TransgenicAlleleIndexer(IndexerConfig config) {
@@ -52,33 +52,28 @@ public class TransgenicAlleleIndexer extends Indexer {
 			// obtain affected genes per document
 			transgenicAlleleSummaryDocument.getTransgenicAlleleConstructs().forEach(transgenicAlleleConstruct -> {
 				if (CollectionUtils.isNotEmpty(transgenicAlleleConstruct.getExpressedGenes())) {
-					transgenicAlleleConstruct.getExpressedGenes().forEach(gene -> {
-						Set<GeneTransgenicAlleleSummaryDocument> geneList = geneMap.computeIfAbsent(gene, k -> new HashSet<>());
-						GeneTransgenicAlleleSummaryDocument document = new GeneTransgenicAlleleSummaryDocument(gene);
-						document.setAlleleDocument(transgenicAlleleSummaryDocument);
-						geneList.add(document);
-					});
-				}
-				if (CollectionUtils.isNotEmpty(transgenicAlleleConstruct.getNonBgiComponents())) {
-					transgenicAlleleConstruct.getNonBgiComponents().forEach(gene -> {
-						Set<GeneTransgenicAlleleSummaryDocument> geneList = geneMap.computeIfAbsent(gene, k -> new HashSet<>());
-						GeneTransgenicAlleleSummaryDocument document = new GeneTransgenicAlleleSummaryDocument(gene);
-						document.setAlleleDocument(transgenicAlleleSummaryDocument);
-						geneList.add(document);
-					});
+					addGenesToMap(transgenicAlleleConstruct.getExpressedGenes(), geneMap, transgenicAlleleSummaryDocument);
 				}
 				if (CollectionUtils.isNotEmpty(transgenicAlleleConstruct.getRegulatoryGenes())) {
-					transgenicAlleleConstruct.getRegulatoryGenes().forEach(gene -> {
-						Set<GeneTransgenicAlleleSummaryDocument> geneList = geneMap.computeIfAbsent(gene, k -> new HashSet<>());
-						GeneTransgenicAlleleSummaryDocument document = new GeneTransgenicAlleleSummaryDocument(gene);
-						document.setAlleleDocument(transgenicAlleleSummaryDocument);
-						geneList.add(document);
-					});
+					addGenesToMap(transgenicAlleleConstruct.getRegulatoryGenes(), geneMap, transgenicAlleleSummaryDocument);
+				}
+				if (CollectionUtils.isNotEmpty(transgenicAlleleConstruct.getTargetedGenes())) {
+					addGenesToMap(transgenicAlleleConstruct.getTargetedGenes(), geneMap, transgenicAlleleSummaryDocument);
 				}
 			});
 		});
 		List<GeneTransgenicAlleleSummaryDocument> lists = geneMap.values().stream().flatMap(Collection::stream).toList();
 		indexDocuments(lists);
+	}
+
+	private void addGenesToMap(List<Gene> genes, Map<Gene, Set<GeneTransgenicAlleleSummaryDocument>> geneMap, TransgenicAlleleSummaryDocument transgenicAlleleSummaryDocument) {
+		genes.forEach(gene -> {
+			Set<GeneTransgenicAlleleSummaryDocument> geneList = geneMap.computeIfAbsent(gene, k -> new HashSet<>());
+			GeneTransgenicAlleleSummaryDocument document = new GeneTransgenicAlleleSummaryDocument(gene);
+			document.setAlleleDocument(transgenicAlleleSummaryDocument);
+			geneList.add(document);
+		});
+
 	}
 
 	private List<TransgenicAlleleSummaryDocument> indexTransgenicAlleleSummary() {
@@ -121,16 +116,13 @@ public class TransgenicAlleleIndexer extends Indexer {
 		return new ArrayList<>(values);
 	}
 
-	private List<Gene> getNonBgiComponents(List<Construct> constructs) {
-		List<ConstructComponentSlotAnnotation> annotations = constructs.stream().flatMap(construct -> construct.getConstructComponents().stream()).toList();
-		return annotations.stream().map(annotation -> {
-			Gene nonBgiGene = new Gene();
-			GeneSymbolSlotAnnotation symbol = new GeneSymbolSlotAnnotation();
-			symbol.setDisplayText(annotation.getComponentSymbol());
-			symbol.setFormatText(annotation.getComponentSymbol());
-			nonBgiGene.setGeneSymbol(symbol);
-			return nonBgiGene;
-		}).toList();
+	private Gene getNonBgiComponent(ConstructComponentSlotAnnotation annotation) {
+		Gene nonBgiGene = new Gene();
+		GeneSymbolSlotAnnotation symbol = new GeneSymbolSlotAnnotation();
+		symbol.setDisplayText(annotation.getComponentSymbol());
+		symbol.setFormatText(annotation.getComponentSymbol());
+		nonBgiGene.setGeneSymbol(symbol);
+		return nonBgiGene;
 	}
 
 	private List<Gene> getRegulatoryGenes(Construct construct) {
@@ -142,13 +134,18 @@ public class TransgenicAlleleIndexer extends Indexer {
 	}
 
 	@NotNull
-	private static List<Gene> getGenes(Construct construct, String relationName) {
+	private List<Gene> getGenes(Construct construct, String relationName) {
 		List<Gene> expressedGenes = new ArrayList<>();
 		construct.getConstructGenomicEntityAssociations().forEach(constructGenomicEntityAssociation -> {
 			if (constructGenomicEntityAssociation.getConstructGenomicEntityAssociationObject() instanceof Gene gene) {
 				if (constructGenomicEntityAssociation.getRelation().getName().equals(relationName)) {
 					expressedGenes.add(gene);
 				}
+			}
+		});
+		construct.getConstructComponents().forEach(constructComponent -> {
+			if (constructComponent.getRelation().getName().equals(relationName)) {
+				expressedGenes.add(getNonBgiComponent(constructComponent));
 			}
 		});
 		return expressedGenes;
