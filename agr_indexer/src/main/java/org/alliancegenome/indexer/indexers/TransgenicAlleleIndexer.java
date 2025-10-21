@@ -32,7 +32,7 @@ public class TransgenicAlleleIndexer extends Indexer {
 	private final HashMap<String, Object> params = new HashMap<>() {{
 		put("internal", false);
 		put("obsolete", false);
-		put("alleleAssociationSubject.primaryExternalId", "FB:FBti0231167");
+		//put("alleleAssociationSubject.primaryExternalId", "FB:FBti0231167");
 	}};
 
 	public TransgenicAlleleIndexer(IndexerConfig config) {
