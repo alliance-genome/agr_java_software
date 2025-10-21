@@ -353,7 +353,7 @@ public interface GeneRESTInterface {
 
 	@GET
 	@Path("/{id}/models")
-	@JsonView(value = {org.alliancegenome.curation_api.view.View.ModelDocumentView.class})
+	@JsonView(value = {org.alliancegenome.curation_api.view.View.ModelDocument.class})
 	@Operation(summary = "Retrieve all DiseaseAnnotation records for a given disease id")
 	@APIResponses(
 		value = {
