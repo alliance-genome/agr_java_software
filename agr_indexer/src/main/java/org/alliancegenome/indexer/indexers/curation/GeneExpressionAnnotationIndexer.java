@@ -5,11 +5,13 @@ import java.util.concurrent.LinkedBlockingDeque;
 
 import org.alliancegenome.curation_api.interfaces.document.GeneExpressionDocumentInterface;
 import org.alliancegenome.curation_api.model.document.es.GeneExpressionDocument;
+import org.alliancegenome.curation_api.model.entities.Gene;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
+import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.apache.commons.collections.CollectionUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -61,6 +63,16 @@ public class GeneExpressionAnnotationIndexer extends Indexer {
 				if (response == null || CollectionUtils.isEmpty(response.getResults())) {
 					return;
 				}
+				for (GeneExpressionDocument ged : response.getResults()) {
+					Gene gene = ged.getGeneExpressionAnnotation().getExpressionAnnotationSubject();
+					if (gene != null) {
+						HashMap<String, Integer> order = SpeciesType.getSpeciesOrderByTaxonID(gene.getTaxon().getCurie());
+						ged.setSpeciesOrder(order);
+						int phylogeneticSortOrder = DiseaseAnnotationCurationIndexer.getPhylogeneticSortOrder(gene.getTaxon().getCurie());
+						ged.setPhylogeneticSortingIndex(phylogeneticSortOrder);
+					}
+				}
+
 
 				indexDocuments(response.getResults());
 			} catch (Exception e) {

@@ -275,7 +275,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		target.setEvidenceCodes(source.getEvidenceCodes());
 	}
 
-	private static int getPhylogeneticSortOrder(String taxonID) {
+	protected static int getPhylogeneticSortOrder(String taxonID) {
 		int phylogeneticSortOrder = 0;
 		SpeciesType speciesType = SpeciesType.getTypeByID(taxonID);
 		if (speciesType != null) {

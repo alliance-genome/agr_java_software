@@ -38,6 +38,9 @@ public interface ExpressionRESTInterface {
 		@Parameter(in = ParameterIn.QUERY, name = "termID", description = "Term ID by which rollup should happen", schema = @Schema(type = SchemaType.STRING))
 		@QueryParam("termID") String termID,
 
+		@Parameter(in = ParameterIn.QUERY, name = "focusTaxonId", description = "taxon ID by which rollup should happen", schema = @Schema(type = SchemaType.STRING))
+		@QueryParam("focusTaxonId") String focusTaxonId,
+
 		@Parameter(in = ParameterIn.QUERY, name = "filter.species", description = "Species by taxon ID", schema = @Schema(type = SchemaType.STRING))
 		@QueryParam("filter.species") String filterSpecies,
 
@@ -68,7 +71,7 @@ public interface ExpressionRESTInterface {
 		@QueryParam("page") Integer page,
 
 		@Parameter(in = ParameterIn.QUERY, name = "sortBy", description = "Sort by field name", schema = @Schema(type = SchemaType.STRING)) // allowableValues = "Default,Species,Location,Assay,Stage,Gene")
-		@DefaultValue("gene")
+		@DefaultValue("default")
 		@QueryParam("sortBy") String sortBy,
 
 		@Parameter(in = ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING)) // ,allowableValues = "true,false")
@@ -84,6 +87,7 @@ public interface ExpressionRESTInterface {
 	@Path("/download")
 	@Produces(MediaType.TEXT_PLAIN)
 	Response getExpressionAnnotationsDownload(@QueryParam("termID") String termID,
+											@QueryParam("focusTaxonId") String focusTaxonId,
 											@QueryParam("filter.species") String filterSpecies,
 											@QueryParam("filter.gene") String filterGene,
 											@QueryParam("filter.stage") String filterStage,
