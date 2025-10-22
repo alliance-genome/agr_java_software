@@ -51,6 +51,7 @@ public class ExpressionController implements ExpressionRESTInterface {
 	@Override
 	public JsonResultResponse<GeneExpressionDocument> getExpressionAnnotations(
 																		String termID,
+																		String focusTaxonId,
 																		String filterSpecies,
 																		String filterGene,
 																		String filterStage,
@@ -69,6 +70,7 @@ public class ExpressionController implements ExpressionRESTInterface {
 			JsonResultResponse<GeneExpressionDocument> response = getExpressionDetailJsonResultResponse(
 					geneIDs,
 					termID,
+					focusTaxonId,
 					filterSpecies,
 					filterGene,
 					filterStage,
@@ -91,7 +93,7 @@ public class ExpressionController implements ExpressionRESTInterface {
 		}
 	}
 
-	private JsonResultResponse<GeneExpressionDocument> getExpressionDetailJsonResultResponse(List<String> geneIDs, String termID, String filterSpecies, String filterGene, String filterStage, String filterAssay, String filterReference, String filterLocation, String filterSource, Integer limit, Integer page, String sortBy, String asc) {
+	private JsonResultResponse<GeneExpressionDocument> getExpressionDetailJsonResultResponse(List<String> geneIDs, String termID, String focusTaxonId, String filterSpecies, String filterGene, String filterStage, String filterAssay, String filterReference, String filterLocation, String filterSource, Integer limit, Integer page, String sortBy, String asc) {
 		long startTime = System.currentTimeMillis();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
 		pagination.addFilterOption("geneExpressionAnnotation.expressionAnnotationSubject.taxon.name", filterSpecies);
@@ -102,7 +104,7 @@ public class ExpressionController implements ExpressionRESTInterface {
 		pagination.addFilterOption("geneExpressionAnnotation.crossReferences.referencedCurie", filterSource);
 		pagination.addFilterOption("referenceId", filterReference);
 
-		JsonResultResponse<GeneExpressionDocument> expressions = expressionESService.getExpressionAnnotations(geneIDs, termID, pagination);
+		JsonResultResponse<GeneExpressionDocument> expressions = expressionESService.getExpressionAnnotations(geneIDs, termID, focusTaxonId, pagination);
 		expressions.calculateRequestDuration(startTime);
 		return expressions;
 
@@ -154,6 +156,7 @@ public class ExpressionController implements ExpressionRESTInterface {
 
 	@Override
 	public Response getExpressionAnnotationsDownload(String termID,
+													String focusTaxonId,
 													String filterSpecies,
 													String filterGene,
 													String filterStage,
@@ -169,6 +172,7 @@ public class ExpressionController implements ExpressionRESTInterface {
 		JsonResultResponse<GeneExpressionDocument> result = getExpressionDetailJsonResultResponse(
 				geneIDs,
 				termID,
+				focusTaxonId,
 				filterSpecies,
 				filterGene,
 				filterStage,
