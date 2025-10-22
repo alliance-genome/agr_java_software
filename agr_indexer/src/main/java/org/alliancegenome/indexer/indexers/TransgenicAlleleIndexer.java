@@ -143,11 +143,13 @@ public class TransgenicAlleleIndexer extends Indexer {
 				}
 			}
 		});
-		construct.getConstructComponents().forEach(constructComponent -> {
-			if (constructComponent.getRelation().getName().equals(relationName)) {
-				expressedGenes.add(getNonBgiComponent(constructComponent));
-			}
-		});
+		if(CollectionUtils.isNotEmpty(construct.getConstructComponents())) {
+			construct.getConstructComponents().forEach(constructComponent -> {
+				if (constructComponent.getRelation().getName().equals(relationName)) {
+					expressedGenes.add(getNonBgiComponent(constructComponent));
+				}
+			});
+		}
 		return expressedGenes;
 	}
 

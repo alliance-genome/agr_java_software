@@ -1,9 +1,7 @@
 package org.alliancegenome.indexer.indexers.curation;
 
-import java.util.HashMap;
-import java.util.Set;
-import java.util.concurrent.LinkedBlockingDeque;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.interfaces.document.AlleleDocumentInterface;
 import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
@@ -13,11 +11,11 @@ import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
 import org.alliancegenome.indexer.indexers.curation.service.BaseService;
 import org.apache.commons.collections.CollectionUtils;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import lombok.extern.slf4j.Slf4j;
 import si.mazi.rescu.RestProxyFactory;
+
+import java.util.HashMap;
+import java.util.Set;
+import java.util.concurrent.LinkedBlockingDeque;
 
 @Slf4j
 public class AlleleSummaryCurationIndexer extends Indexer {
@@ -36,37 +34,14 @@ public class AlleleSummaryCurationIndexer extends Indexer {
 
 	@Override
 	protected void index() {
-		try {
-
-			SearchResponse<AlleleSummaryDocument> alleleSummaryResponse = alleleApi.findSummary(0, 0, params);
-			int totalPages = (int) (alleleSummaryResponse.getTotalResults() / indexerConfig.getBufferSize());
-
-			LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
-
-			for (int i = 0; i <= totalPages; i++) {
-				queue.add(String.valueOf(i));
-			}
-
-			initiateThreading(queue);
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	@Override
-	protected void startSingleThread(LinkedBlockingDeque<String> queue) {
+		long cursor = 0;
 		while (true) {
 			try {
-				if (queue.isEmpty()) {
-					return;
-				}
-				String page = queue.takeFirst();
-				SearchResponse<AlleleSummaryDocument> response = alleleApi.findSummary(Integer.valueOf(page), indexerConfig.getBufferSize(), params);
+				SearchResponse<AlleleSummaryDocument> response = alleleApi.findSummaryWithCursor(0, indexerConfig.getBufferSize(), cursor, params);
 				if (response == null || CollectionUtils.isEmpty(response.getResults())) {
 					return;
 				}
-
+				cursor = response.getNextCursor();
 				indexDocuments(response.getResults());
 			} catch (Exception e) {
 				log.error("Error while indexing...", e);
@@ -77,8 +52,13 @@ public class AlleleSummaryCurationIndexer extends Indexer {
 	}
 
 	@Override
+	protected void startSingleThread(LinkedBlockingDeque<String> queue) {
+
+	}
+
+	@Override
 	protected ObjectMapper customizeObjectMapper(ObjectMapper objectMapper) {
 		return RestConfig.config.getJacksonObjectMapperFactory().createObjectMapper();
 	}
-	
+
 }
