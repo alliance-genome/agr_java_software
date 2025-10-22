@@ -26,13 +26,11 @@ import org.alliancegenome.api.dto.ExpressionSummaryGroupTerm;
 import org.alliancegenome.api.entity.GeneToGeneOrthologyDocument;
 import org.alliancegenome.api.service.GeneService;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.core.ExpressionDetail;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.model.document.es.GeneExpressionDocument;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.OrthoAlgorithm;
-import org.alliancegenome.neo4j.entity.node.Publication;
 import org.alliancegenome.neo4j.repository.AlleleRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.view.HomologView;
@@ -247,7 +245,7 @@ public class GeneIT {
 		//String[] geneIDs = {"MGI:97570", "ZFIN:ZDB-GENE-080204-52"};
 		String[] geneIDs = {"ZFIN:ZDB-GENE-080204-52"};
 		int limit = 15;
-		JsonResultResponse<GeneExpressionDocument> response = controller.getExpressionAnnotations(null, null, null, null, null, null, null, null, limit, 1, null, "true", asList(geneIDs));
+		JsonResultResponse<GeneExpressionDocument> response = controller.getExpressionAnnotations(null, null, null, null, null, null, null, null, null, limit, 1, null, "true", asList(geneIDs));
 		assertThat("matches found for gene MGI:109583'", response.getReturnedRecords(), equalTo(15));
 
 		List<String> symbolList = response.getResults().stream()
@@ -276,7 +274,7 @@ public class GeneIT {
 		assertThat("list of terms", terms, equalTo("bile canaliculus,head,head,head,head,head,head,head,head,hepatocyte intracellular canaliculus,intestinal bulb,intestine,intestine,intestine,intestine"));
 		//		assertThat("list of stages", stages, equalTo("ZFS:0000029,ZFS:0000030,ZFS:0000031,ZFS:0000032,ZFS:0000033,ZFS:0000034,ZFS:0000035,ZFS:0000036,ZFS:0000037,ZFS:0000029,ZFS:0000030,ZFS:0000031,ZFS:0000032,ZFS:0000033,ZFS:0000034"));
 
-		response = controller.getExpressionAnnotations(null, null, null, null, null, null, null, null, limit, 1, "assay", "false", asList(geneIDs));
+		response = controller.getExpressionAnnotations(null, null, null, null, null, null, null, null, null, limit, 1, "assay", "false", asList(geneIDs));
 		assayList = response.getResults().stream()
 				.map(annotation -> annotation.getGeneExpressionAnnotation().getExpressionAssayUsed().getName())
 				.collect(Collectors.toList());
@@ -284,7 +282,7 @@ public class GeneIT {
 		assertThat("matches found for gene MGI:109583'", response.getReturnedRecords(), equalTo(15));
 
 
-		response = controller.getExpressionAnnotations(null, null, null, null, null, null, null, null, limit, 1, "source", "true", asList(geneIDs));
+		response = controller.getExpressionAnnotations(null, null, null, null, null, null, null, null, null, limit, 1, "source", "true", asList(geneIDs));
 		assayList = response.getResults().stream()
 				.map(annotation -> annotation.getGeneExpressionAnnotation().getExpressionAssayUsed().getName())
 				.collect(Collectors.toList());
@@ -299,11 +297,11 @@ public class GeneIT {
 		String[] geneIDs = {"RGD:2129"};
 		String termID = "GO:otherLocations";
 		int limit = 15;
-		JsonResultResponse<GeneExpressionDocument> response = controller.getExpressionAnnotations(termID, null, null, null, null, null, null, null, limit, 1, null, "true", asList(geneIDs));
+		JsonResultResponse<GeneExpressionDocument> response = controller.getExpressionAnnotations(termID, null, null, null, null, null, null, null, null, limit, 1, null, "true", asList(geneIDs));
 		assertThat("matches found for gene MGI:109583'", response.getResults().size(), equalTo(3));
 
 		termID = "GO:0032991";
-		response = controller.getExpressionAnnotations(termID, null, null, null, null, null, null, null, limit, 1, null, "true", asList(geneIDs));
+		response = controller.getExpressionAnnotations(termID, null, null, null, null, null, null, null, null, limit, 1, null, "true", asList(geneIDs));
 		assertThat("matches found for gene MGI:109583'", response.getResults().size(), equalTo(3));
 	}
 
@@ -314,19 +312,19 @@ public class GeneIT {
 		String[] geneIDs = {"ZFIN:ZDB-GENE-980526-188"};
 		String termID = "GO:0005739";
 		int limit = 15;
-		JsonResultResponse<GeneExpressionDocument> response = controller.getExpressionAnnotations(termID, null, null, null, null, null, null, null, limit, 1, null, "true", asList(geneIDs));
+		JsonResultResponse<GeneExpressionDocument> response = controller.getExpressionAnnotations(termID, null, null, null, null, null, null, null, null, limit, 1, null, "true", asList(geneIDs));
 		assertThat("matches found for gene MGI:109583'", response.getResults().size(), equalTo(1));
 
 		// sensory system
 		termID = "UBERON:0001032";
 		limit = 15;
-		response = controller.getExpressionAnnotations(termID, null, null, null, null, null, null, null, limit, 1, null, "true", asList(geneIDs));
+		response = controller.getExpressionAnnotations(termID, null, null, null, null, null, null, null, null, limit, 1, null, "true", asList(geneIDs));
 		assertThat("matches found for gene MGI:109583'", response.getResults().size(), greaterThan(2));
 
 		// Adult stage
 		termID = "UBERON:0000113";
 		limit = 15;
-		response = controller.getExpressionAnnotations(termID, null, null, null, null, null, null, null, limit, 1, null, "true", asList(geneIDs));
+		response = controller.getExpressionAnnotations(termID, null, null, null, null, null, null, null, null, limit, 1, null, "true", asList(geneIDs));
 		assertThat("matches found for gene MGI:109583'", response.getResults().size(), greaterThan(2));
 	}
 
@@ -336,7 +334,7 @@ public class GeneIT {
 		ExpressionController controller = new ExpressionController();
 		String[] geneIDs = {"ZFIN:ZDB-GENE-980526-166"};
 		int limit = 6;
-		JsonResultResponse<GeneExpressionDocument> response = controller.getExpressionAnnotations(null, null, null, null, null, null, null, null, limit, 1, null, "true", asList(geneIDs));
+		JsonResultResponse<GeneExpressionDocument> response = controller.getExpressionAnnotations(null, null, null, null, null, null, null, null, null, limit, 1, null, "true", asList(geneIDs));
 		//assertThat("matches found for gene MGI:109583'", response.getReturnedRecords(), equalTo(limit));
 
 		List<String> symbolList = response.getResults().stream()
@@ -379,7 +377,7 @@ public class GeneIT {
 		String[] geneIDs = {"MGI:97570", "ZFIN:ZDB-GENE-080204-52"};
 		String termID = null;
 		int limit = 15;
-		JsonResultResponse<GeneExpressionDocument> response = controller.getExpressionAnnotations(termID, null, null, null, null, null, null, null, limit, 1, null, "true", asList(geneIDs));
+		JsonResultResponse<GeneExpressionDocument> response = controller.getExpressionAnnotations(termID, null, null, null, null, null, null, null, null, limit, 1, null, "true", asList(geneIDs));
 		List<String> symbolList = response.getResults().stream()
 				.map(annotation -> annotation.getGeneExpressionAnnotation().getExpressionAnnotationSubject().getGeneSymbol().getDisplayText())
 				.collect(Collectors.toList());
