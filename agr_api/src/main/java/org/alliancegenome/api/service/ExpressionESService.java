@@ -75,11 +75,11 @@ public class ExpressionESService extends ESService {
 
 		SpeciesType type = SpeciesType.getTypeByID(focusTaxonId);
 
-		sortingSetMap.put("species", "geneExpressionAnnotation.expressionAnnotationSubject.taxon.curie.keyword");
-		sortingSetMap.put("gene", "geneExpressionAnnotation.expressionAnnotationSubject.geneSymbol.displayText.keyword");
-		sortingSetMap.put("location", "geneExpressionAnnotation.whereExpressedStatement.keyword");
-		sortingSetMap.put("stage", "geneExpressionAnnotation.whenExpressedStageName.keyword");
-		sortingSetMap.put("assay", "geneExpressionAnnotation.expressionAssayUsed.name.keyword");
+		sortingSetMap.put("species", "geneExpressionAnnotation.expressionAnnotationSubject.taxon.name.keyword");
+		sortingSetMap.put("gene", "geneExpressionAnnotation.expressionAnnotationSubject.geneSymbol.displayText.sort");
+		sortingSetMap.put("location", "geneExpressionAnnotation.whereExpressedStatement.sort");
+		sortingSetMap.put("stage", "geneExpressionAnnotation.whenExpressedStageName.sort");
+		sortingSetMap.put("assay", "geneExpressionAnnotation.expressionAssayUsed.name.sort");
 		sortingSetMap.put("default", "speciesOrder." + type.getTaxonIDPart());
 
 		String sortField = sortingSetMap.get(pagination.getSortBy());
