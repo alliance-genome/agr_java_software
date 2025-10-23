@@ -9,20 +9,17 @@ import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
-import org.alliancegenome.indexer.indexers.curation.service.BaseService;
 import org.apache.commons.collections.CollectionUtils;
 import si.mazi.rescu.RestProxyFactory;
 
 import java.util.HashMap;
-import java.util.Set;
 import java.util.concurrent.LinkedBlockingDeque;
 
 @Slf4j
 public class AlleleSummaryCurationIndexer extends Indexer {
 
 	private final AlleleDocumentInterface alleleApi = RestProxyFactory.createProxy(AlleleDocumentInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
-	private final BaseService baseService = new BaseService();
-	private Set<String> allNeoAlleleIDs = baseService.getAllNeoAlleleIDs();
+
 	private HashMap<String, Object> params = new HashMap<>() {{
 		put("internal", false);
 		put("obsolete", false);

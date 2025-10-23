@@ -18,7 +18,6 @@ import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.apache.commons.collections4.CollectionUtils;
-import org.jetbrains.annotations.NotNull;
 import si.mazi.rescu.RestProxyFactory;
 
 import java.util.*;
@@ -32,7 +31,6 @@ public class TransgenicAlleleIndexer extends Indexer {
 	private final HashMap<String, Object> params = new HashMap<>() {{
 		put("internal", false);
 		put("obsolete", false);
-		//put("alleleAssociationSubject.primaryExternalId", "FB:FBti0231167");
 	}};
 
 	public TransgenicAlleleIndexer(IndexerConfig config) {
@@ -78,7 +76,7 @@ public class TransgenicAlleleIndexer extends Indexer {
 
 	private List<TransgenicAlleleSummaryDocument> indexTransgenicAlleleSummary() {
 		SearchResponse<TransgenicAlleleDTO> searchResponse = transgenicAlleleApi.findDocuments(0, 0, params);
-		ProcessDisplayHelper display = new ProcessDisplayHelper(2000);
+		ProcessDisplayHelper display = new ProcessDisplayHelper();
 		display.startProcess("Pulling Transgenic Alleles from curation", searchResponse.getTotalResults());
 		Map<Allele, TransgenicAlleleSummaryDocument> documentMap = new LinkedHashMap<>();
 		int batchSize = indexerConfig.getBufferSize();
@@ -133,9 +131,11 @@ public class TransgenicAlleleIndexer extends Indexer {
 		return getGenes(construct, "targets");
 	}
 
-	@NotNull
 	private List<Gene> getGenes(Construct construct, String relationName) {
 		List<Gene> expressedGenes = new ArrayList<>();
+		if (CollectionUtils.isEmpty(construct.getConstructGenomicEntityAssociations())) {
+			return null;
+		}
 		construct.getConstructGenomicEntityAssociations().forEach(constructGenomicEntityAssociation -> {
 			if (constructGenomicEntityAssociation.getConstructGenomicEntityAssociationObject() instanceof Gene gene) {
 				if (constructGenomicEntityAssociation.getRelation().getName().equals(relationName)) {
