@@ -18,7 +18,6 @@ import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.apache.commons.collections4.CollectionUtils;
-import org.jetbrains.annotations.NotNull;
 import si.mazi.rescu.RestProxyFactory;
 
 import java.util.*;
@@ -134,7 +133,7 @@ public class TransgenicAlleleIndexer extends Indexer {
 
 	private List<Gene> getGenes(Construct construct, String relationName) {
 		List<Gene> expressedGenes = new ArrayList<>();
-		if(CollectionUtils.isEmpty(construct.getConstructGenomicEntityAssociations())){
+		if (CollectionUtils.isEmpty(construct.getConstructGenomicEntityAssociations())) {
 			return null;
 		}
 		construct.getConstructGenomicEntityAssociations().forEach(constructGenomicEntityAssociation -> {
