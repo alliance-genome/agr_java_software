@@ -198,6 +198,10 @@ public class Mapping extends Builder {
 		new FieldBuilder(builder, "literatureSummary.date_arrived_in_pubmed", "text").keyword().build();
 		new FieldBuilder(builder, "literatureSummary.date_published", "text").keyword().build();
 
+		new FieldBuilder(builder, "geneExpressionAnnotation.expressionAnnotationSubject.geneSymbol.displayText", "text").keyword().sort().build();
+		new FieldBuilder(builder, "geneExpressionAnnotation.whereExpressedStatement", "text").keyword().sort().build();
+		new FieldBuilder(builder, "geneExpressionAnnotation.whenExpressedStageName", "text").keyword().sort().build();
+		new FieldBuilder(builder, "geneExpressionAnnotation.expressionAssayUsed.name", "text").keyword().sort().build();
 
 	}
 
