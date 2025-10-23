@@ -76,7 +76,7 @@ public class TransgenicAlleleIndexer extends Indexer {
 
 	private List<TransgenicAlleleSummaryDocument> indexTransgenicAlleleSummary() {
 		SearchResponse<TransgenicAlleleDTO> searchResponse = transgenicAlleleApi.findDocuments(0, 0, params);
-		ProcessDisplayHelper display = new ProcessDisplayHelper(20000);
+		ProcessDisplayHelper display = new ProcessDisplayHelper();
 		display.startProcess("Pulling Transgenic Alleles from curation", searchResponse.getTotalResults());
 		Map<Allele, TransgenicAlleleSummaryDocument> documentMap = new LinkedHashMap<>();
 		int batchSize = indexerConfig.getBufferSize();
