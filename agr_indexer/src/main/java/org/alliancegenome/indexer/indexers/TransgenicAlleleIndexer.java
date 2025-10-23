@@ -32,7 +32,6 @@ public class TransgenicAlleleIndexer extends Indexer {
 	private final HashMap<String, Object> params = new HashMap<>() {{
 		put("internal", false);
 		put("obsolete", false);
-		//put("alleleAssociationSubject.primaryExternalId", "FB:FBti0231167");
 	}};
 
 	public TransgenicAlleleIndexer(IndexerConfig config) {
@@ -133,9 +132,11 @@ public class TransgenicAlleleIndexer extends Indexer {
 		return getGenes(construct, "targets");
 	}
 
-	@NotNull
 	private List<Gene> getGenes(Construct construct, String relationName) {
 		List<Gene> expressedGenes = new ArrayList<>();
+		if(CollectionUtils.isEmpty(construct.getConstructGenomicEntityAssociations())){
+			return null;
+		}
 		construct.getConstructGenomicEntityAssociations().forEach(constructGenomicEntityAssociation -> {
 			if (constructGenomicEntityAssociation.getConstructGenomicEntityAssociationObject() instanceof Gene gene) {
 				if (constructGenomicEntityAssociation.getRelation().getName().equals(relationName)) {
