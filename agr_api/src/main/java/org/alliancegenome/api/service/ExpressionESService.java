@@ -83,10 +83,14 @@ public class ExpressionESService extends ESService {
 		sortingSetMap.put("default", "speciesOrder." + type.getTaxonIDPart());
 
 		String sortField = sortingSetMap.get(pagination.getSortBy());
-		if (sortField == null) {
-			sortField = sortingSetMap.get("default");
+
+		if (sortField == null || pagination.getSortBy().equals("default")) {
+			sortingMap.put(sortingSetMap.get("default"), SortOrder.ASC);
+			sortingMap.put(sortingSetMap.get("location"), SortOrder.ASC);
+			sortingMap.put(sortingSetMap.get("stage"), SortOrder.ASC);
+		} else {
+			sortingMap.put(sortField, SortOrder.ASC);
 		}
-		sortingMap.put(sortField, SortOrder.ASC);
 		
 		return sortingMap;
 	}
