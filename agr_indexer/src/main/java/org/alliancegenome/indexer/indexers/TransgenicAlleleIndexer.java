@@ -133,16 +133,15 @@ public class TransgenicAlleleIndexer extends Indexer {
 
 	private List<Gene> getGenes(Construct construct, String relationName) {
 		List<Gene> expressedGenes = new ArrayList<>();
-		if (CollectionUtils.isEmpty(construct.getConstructGenomicEntityAssociations())) {
-			return null;
-		}
-		construct.getConstructGenomicEntityAssociations().forEach(constructGenomicEntityAssociation -> {
-			if (constructGenomicEntityAssociation.getConstructGenomicEntityAssociationObject() instanceof Gene gene) {
-				if (constructGenomicEntityAssociation.getRelation().getName().equals(relationName)) {
-					expressedGenes.add(gene);
+		if (CollectionUtils.isNotEmpty(construct.getConstructGenomicEntityAssociations())) {
+			construct.getConstructGenomicEntityAssociations().forEach(constructGenomicEntityAssociation -> {
+				if (constructGenomicEntityAssociation.getConstructGenomicEntityAssociationObject() instanceof Gene gene) {
+					if (constructGenomicEntityAssociation.getRelation().getName().equals(relationName)) {
+						expressedGenes.add(gene);
+					}
 				}
-			}
-		});
+			});
+		}
 		if (CollectionUtils.isNotEmpty(construct.getConstructComponents())) {
 			construct.getConstructComponents().forEach(constructComponent -> {
 				if (constructComponent.getRelation().getName().equals(relationName)) {
