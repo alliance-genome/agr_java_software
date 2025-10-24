@@ -238,7 +238,9 @@ public class DiseaseAnnotationToTdfTranslator extends BaseToTdfTranslator {
 				row.setGeneticEntityName(pAnnotation.getDiseaseAnnotationSubject().getGeneSymbol().getDisplayText());
 				if (pAnnotation.getSgdStrainBackground() != null) {
 					row.setStrainBackgroundID(pAnnotation.getSgdStrainBackground().getIdentifier());
-					row.setStrainBackgroundName(pAnnotation.getSgdStrainBackground().getAgmFullName().getDisplayText());
+					if(pAnnotation.getSgdStrainBackground().getAgmFullName() != null){
+						row.setStrainBackgroundName(pAnnotation.getSgdStrainBackground().getAgmFullName().getDisplayText());
+					}
 				}
 				row.setGeneticEntityType("gene");
 			}
