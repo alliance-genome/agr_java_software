@@ -55,7 +55,7 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 
 		try {
 			SearchResponse<GeneToGeneOrthologyDocument> resp = orthologyApi.findDocument(0, 0, params);
-			log.info("GeneToGeneOrthology count: " + resp.getTotalResults());
+			log.info("GeneToGeneOrthology count: " + String.format("%,d", resp.getTotalResults()));
 			int totalPages = (int) (resp.getTotalResults() / indexerConfig.getBufferSize());
 			
 			LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();

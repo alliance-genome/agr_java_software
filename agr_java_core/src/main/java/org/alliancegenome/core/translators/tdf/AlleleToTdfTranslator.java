@@ -202,15 +202,17 @@ public class AlleleToTdfTranslator {
 				StringJoiner expGeneJoiner = new StringJoiner(",");
 				StringJoiner expGeneIDJoiner = new StringJoiner(",");
 				transgenicAlleleConstruct.getExpressedGenes().forEach(expressedGeneSymbol -> expGeneJoiner.add(expressedGeneSymbol.getGeneSymbol().getFormatText()));
-				transgenicAlleleConstruct.getExpressedGenes().forEach(expressedGeneID -> expGeneIDJoiner.add(expressedGeneID.getPrimaryExternalId()));
+				transgenicAlleleConstruct.getExpressedGenes().stream().filter(gene -> gene.getPrimaryExternalId() != null)
+					.forEach(expressedGeneID -> expGeneIDJoiner.add(expressedGeneID.getPrimaryExternalId()));
 				expressedGene = expGeneJoiner.toString();
 				expGeneID = expGeneIDJoiner.toString();
 			}
-			if (CollectionUtils.isNotEmpty(transgenicAlleleConstruct.getSequenceTargetingReagents())) {
+			if (CollectionUtils.isNotEmpty(transgenicAlleleConstruct.getTargetedGenes())) {
 				StringJoiner tgtGeneJoiner = new StringJoiner(",");
 				StringJoiner tgtGeneIDJoiner = new StringJoiner(",");
-				transgenicAlleleConstruct.getSequenceTargetingReagents().forEach(targetGeneSymbol -> tgtGeneJoiner.add(targetGeneSymbol.getName()));
-				transgenicAlleleConstruct.getSequenceTargetingReagents().forEach(targetGeneID -> tgtGeneIDJoiner.add(targetGeneID.getPrimaryExternalId()));
+				transgenicAlleleConstruct.getTargetedGenes().forEach(targetGeneSymbol -> tgtGeneJoiner.add(targetGeneSymbol.getGeneSymbol().getFormatText()));
+				transgenicAlleleConstruct.getTargetedGenes().stream().filter(gene -> gene.getPrimaryExternalId() != null)
+					.forEach(targetGeneID -> tgtGeneIDJoiner.add(targetGeneID.getPrimaryExternalId()));
 				targetGene = tgtGeneJoiner.toString();
 				tgtGeneID = tgtGeneIDJoiner.toString();
 			}
@@ -218,7 +220,8 @@ public class AlleleToTdfTranslator {
 				StringJoiner regGeneJoiner = new StringJoiner(",");
 				StringJoiner regGeneIDJoiner = new StringJoiner(",");
 				transgenicAlleleConstruct.getRegulatoryGenes().forEach(regGeneSymbol -> regGeneJoiner.add(regGeneSymbol.getGeneSymbol().getFormatText()));
-				transgenicAlleleConstruct.getRegulatoryGenes().forEach(regulatoryGeneID -> regGeneIDJoiner.add(regulatoryGeneID.getPrimaryExternalId()));
+				transgenicAlleleConstruct.getRegulatoryGenes().stream().filter(gene -> gene.getPrimaryExternalId() != null)
+					.forEach(regulatoryGeneID -> regGeneIDJoiner.add(regulatoryGeneID.getPrimaryExternalId()));
 				regGene = regGeneJoiner.toString();
 				regGeneID = regGeneIDJoiner.toString();
 			}
