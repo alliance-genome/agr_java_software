@@ -149,15 +149,15 @@ public class ESService {
 
 	private boolean isBooleanField(String filterName) {
 		// List of known boolean fields that should use term queries instead of wildcard queries
-		return filterName.equals("alleleDocument.hasPhenotypeAnnotations") ||
-			   filterName.equals("alleleDocument.hasDiseaseAnnotations") ||
-			   filterName.equals("alleleDocument.hasVariants") ||
-			   filterName.equals("alleleDocument.hasConstruct") ||
-			   filterName.equals("primaryAnnotations.negated") ||
-			   filterName.endsWith(".negated") ||
-			   filterName.contains("hasPhenotype") ||
-			   filterName.contains("hasVariant") ||
-			   filterName.contains("hasConstruct");
+		return filterName.equals("alleleDocument.hasPhenotypeAnnotations")
+			||	filterName.equals("alleleDocument.hasDiseaseAnnotations")
+			|| filterName.equals("alleleDocument.hasVariants")
+			|| filterName.equals("alleleDocument.hasConstruct")
+			|| filterName.equals("primaryAnnotations.negated")
+			|| filterName.endsWith(".negated")
+			|| filterName.contains("hasPhenotype")
+			|| filterName.contains("hasVariant")
+			||filterName.contains("hasConstruct");
 	}
 
 	/*
