@@ -126,6 +126,9 @@ public class ESService {
 			//Log.info("Other Filter: " + filterName + " " + filterValue);
 			if (filterName.endsWith("keyword")) {
 				bool.must(QueryBuilders.termQuery(filterName, filterValue));
+			} else if (isBooleanField(filterName)) {
+				// Handle boolean fields with term queries instead of wildcard queries
+				bool.must(QueryBuilders.termQuery(filterName, Boolean.parseBoolean(filterValue)));
 			} else {
 				if (filterName.contains("OR")) {
 					BoolQueryBuilder outerAndClause = boolQuery();
@@ -142,6 +145,19 @@ public class ESService {
 			}
 		}
 		//Log.info(bool);
+	}
+
+	private boolean isBooleanField(String filterName) {
+		// List of known boolean fields that should use term queries instead of wildcard queries
+		return filterName.equals("alleleDocument.hasPhenotypeAnnotations")
+			|| filterName.equals("alleleDocument.hasDiseaseAnnotations")
+			|| filterName.equals("alleleDocument.hasVariants")
+			|| filterName.equals("alleleDocument.hasConstruct")
+			|| filterName.equals("primaryAnnotations.negated")
+			|| filterName.endsWith(".negated")
+			|| filterName.contains("hasPhenotype")
+			|| filterName.contains("hasVariant")
+			|| filterName.contains("hasConstruct");
 	}
 
 	/*
