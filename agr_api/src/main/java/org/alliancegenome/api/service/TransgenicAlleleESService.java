@@ -29,7 +29,6 @@ public class TransgenicAlleleESService extends ESService {
 		// add table filter
 		addTableFilter(pagination, query);
 		LinkedHashMap<String, SortOrder> sortingMap = new LinkedHashMap<>();
-		// Use lowercase keyword field for case-insensitive sorting
 		sortingMap.put("alleleDocument.allele.alleleSymbol.formatText.sort", SortOrder.ASC);
 
 		SearchResponse searchResponse = getSearchResponse(query, pagination, sortingMap, null, debug);
