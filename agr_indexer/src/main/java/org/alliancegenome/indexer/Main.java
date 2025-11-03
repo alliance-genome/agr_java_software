@@ -66,16 +66,7 @@ public class Main {
 		}
 
 		ExecutorService curationExecutor = Executors.newFixedThreadPool(1);
-
-		for (String type : sequentialMap.keySet()) {
-			if (argumentSet.size() == 0 || argumentSet.contains(type)) {
-				log.info("Running Sequential for Neo4j: " + type);
-				curationExecutor.execute(indexers.get(type));
-				//indexers.get(type).start();
-			} else {
-				log.info("Not Starting: " + type);
-			}
-		}
+		ExecutorService neo4jExecutor = Executors.newFixedThreadPool(1);
 
 		for (String type : parallelMap.keySet()) {
 			if (argumentSet.size() == 0 || argumentSet.contains(type)) {
@@ -87,6 +78,16 @@ public class Main {
 			}
 		}
 		
+		for (String type : sequentialMap.keySet()) {
+			if (argumentSet.size() == 0 || argumentSet.contains(type)) {
+				log.info("Running Sequential for Neo4j: " + type);
+				neo4jExecutor.execute(indexers.get(type));
+				//indexers.get(type).start();
+			} else {
+				log.info("Not Starting: " + type);
+			}
+		}
+
 		curationExecutor.shutdown();
 		while (!curationExecutor.isTerminated()) {
 			try {
@@ -96,6 +97,16 @@ public class Main {
 			}
 		}
 		log.info("Finished Running Curation Indexers");
+		neo4jExecutor.shutdown();
+		while (!neo4jExecutor.isTerminated()) {
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		log.info("Finished Running Neo4j Indexers");
+
 		log.debug("Waiting for Indexers to finish");
 		for (Indexer i : indexers.values()) {
 			try {
