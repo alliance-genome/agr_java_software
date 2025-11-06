@@ -99,7 +99,7 @@ public class DiseaseESService extends ESService {
 		}
 		aggregationFields.put("generatedRelationString.keyword", "associationType");
 		aggregationFields.put("diseaseQualifiers.keyword", "diseaseQualifiers");
-		return getSupplementalData(focusTaxonId, useSpeciesAggregation, debug, unfilteredQuery, aggregationFields);
+		return getSupplementalData(focusTaxonId, useSpeciesAggregation,debug, unfilteredQuery, aggregationFields);
 	}
 
 	public JsonResultResponse<AlleleDiseaseAnnotationDocument> getDiseaseAnnotations(String alleleID, Pagination pagination, boolean excludeNegated, boolean debug) {
