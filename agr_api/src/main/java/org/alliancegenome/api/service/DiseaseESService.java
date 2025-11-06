@@ -114,10 +114,7 @@ public class DiseaseESService extends ESService {
 		}
 		aggregationFields.put("generatedRelationString.keyword", "associationType");
 		aggregationFields.put("diseaseQualifiers.keyword", "diseaseQualifiers");
-		Map<String, List<String>> distinctFieldValueMap = getAggregations(unfilteredQuery, aggregationFields, focusTaxonId, useSpeciesAggregation, debug);
-		Map<String, Object> supplementalData = new LinkedHashMap<>();
-		supplementalData.put(DISTINCT_FIELD_VALUES, distinctFieldValueMap);
-		return supplementalData;
+		return getSupplementalData(focusTaxonId, useSpeciesAggregation,debug, unfilteredQuery, aggregationFields);
 	}
 
 	public JsonResultResponse<AlleleDiseaseAnnotationDocument> getDiseaseAnnotations(String alleleID, Pagination pagination, boolean excludeNegated, boolean debug) {
