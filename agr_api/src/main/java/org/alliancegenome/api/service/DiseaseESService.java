@@ -1,27 +1,7 @@
 package org.alliancegenome.api.service;
 
-import static java.util.stream.Collectors.toList;
-import static org.alliancegenome.cache.repository.helper.JsonResultResponse.DISTINCT_FIELD_VALUES;
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
-import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.alliancegenome.api.entity.AGMDiseaseAnnotationDocument;
-import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
-import org.alliancegenome.api.entity.DiseaseAnnotationDocument;
-import org.alliancegenome.api.entity.DiseaseEntitySubgroupSlim;
-import org.alliancegenome.api.entity.DiseaseRibbonEntity;
-import org.alliancegenome.api.entity.DiseaseRibbonSummary;
-import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
+import jakarta.enterprise.context.RequestScoped;
+import org.alliancegenome.api.entity.*;
 import org.alliancegenome.api.service.helper.APIServiceHelper;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.api.service.DiseaseRibbonService;
@@ -40,7 +20,12 @@ import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.SortOrder;
 
-import jakarta.enterprise.context.RequestScoped;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 
 
 @RequestScoped
@@ -77,7 +62,7 @@ public class DiseaseESService extends ESService {
 					if (!includePrimaryAnnotations) {
 						gdad.setPrimaryAnnotations(null);
 					}
-					
+
 					return gdad;
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -114,7 +99,7 @@ public class DiseaseESService extends ESService {
 		}
 		aggregationFields.put("generatedRelationString.keyword", "associationType");
 		aggregationFields.put("diseaseQualifiers.keyword", "diseaseQualifiers");
-		return getSupplementalData(focusTaxonId, useSpeciesAggregation,debug, unfilteredQuery, aggregationFields);
+		return getSupplementalData(focusTaxonId, useSpeciesAggregation, debug, unfilteredQuery, aggregationFields);
 	}
 
 	public JsonResultResponse<AlleleDiseaseAnnotationDocument> getDiseaseAnnotations(String alleleID, Pagination pagination, boolean excludeNegated, boolean debug) {
@@ -399,29 +384,30 @@ public class DiseaseESService extends ESService {
 		ret.setResults(list);
 		return ret;
 	}
+
 	public JsonResultResponse<DiseaseAnnotation> getDiseasePrimaryAnnotations(String id, Pagination pagination, String category) {
 		JsonResultResponse<DiseaseAnnotation> ret = new JsonResultResponse<>();
-		
+
 		BoolQueryBuilder bool = boolQuery();
 		bool.must(new TermQueryBuilder("countId", id));
 		bool.filter(new TermQueryBuilder("category", category));
-		
+
 		// Not paginating the query here, just getting the document
 		Pagination tempPagination = new Pagination();
 		tempPagination.setLimit(1);
 		SearchResponse response = getSearchResponse(bool, tempPagination, null, false);
-		
+
 		if (response.getHits().getTotalHits().value == 0) {
 			ret.setTotal(0);
 			ret.setResults(new ArrayList<>());
 			return ret;
 		}
-		
+
 		try {
 			SearchHit hit = response.getHits().getHits()[0];
 			DiseaseAnnotationDocument document = mapper.readValue(hit.getSourceAsString(), DiseaseAnnotationDocument.class);
 			document.setUniqueId(hit.getId());
-			
+
 			List<DiseaseAnnotation> primaryAnnotations = document.getPrimaryAnnotations();
 			if (primaryAnnotations == null) {
 				primaryAnnotations = new ArrayList<>();
@@ -429,33 +415,33 @@ public class DiseaseESService extends ESService {
 
 			// Sort the annotations for consistent ordering and pagination
 			List<DiseaseAnnotation> sortedAnnotations = APIServiceHelper.naturalSortByAnnotationSubject(primaryAnnotations);
-			
+
 			// Apply pagination to the sorted results
 			int start = pagination.getStart();
 			int limit = pagination.getLimit();
 			int total = sortedAnnotations.size();
-			
+
 			List<DiseaseAnnotation> paginatedResults = new ArrayList<>();
 			if (start < total) {
 				int end = Math.min(start + limit, total);
 				paginatedResults = sortedAnnotations.subList(start, end);
 			}
-			
+
 			ret.setTotal(total);
 			ret.setResults(paginatedResults);
-			
+
 		} catch (Exception e) {
 			// Log error and return empty result
 			ret.setTotal(0);
 			ret.setResults(new ArrayList<>());
 		}
-		
+
 		return ret;
 	}
 
 	public String getAT(String category, String diseaseID) {
 		String result = "";
-		
+
 		BoolQueryBuilder bool = boolQuery();
 		BoolQueryBuilder bool2 = boolQuery();
 		bool.must(bool2);
@@ -476,7 +462,7 @@ public class DiseaseESService extends ESService {
 		if (list.size() == 1) {
 			return list.get(0);
 		}
-		
+
 		List<String> store = new ArrayList<>();
 		store = list.stream().filter(each -> each.indexOf("not") == -1).toList();
 		return String.join("|", store);

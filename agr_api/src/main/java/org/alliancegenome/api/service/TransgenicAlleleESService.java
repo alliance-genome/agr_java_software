@@ -7,7 +7,6 @@ import org.alliancegenome.es.model.query.Pagination;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.search.sort.SortOrder;
-import org.semanticweb.elk.util.collections.FList;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
