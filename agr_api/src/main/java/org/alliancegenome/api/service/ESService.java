@@ -29,6 +29,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.alliancegenome.cache.repository.helper.JsonResultResponse.DISTINCT_FIELD_VALUES;
 import static org.elasticsearch.index.query.QueryBuilders.*;
 
 
@@ -201,6 +202,14 @@ public class ESService {
 		});
 		return distinctFieldValueMap;
 	}
+
+	protected Map<String, Object> getSupplementalData(String focusTaxonId, boolean useSpeciesAggregation, boolean debug, BoolQueryBuilder unfilteredQuery, Map<String, String> aggregationFields) {
+		Map<String, List<String>> distinctFieldValueMap = getAggregations(unfilteredQuery, aggregationFields, focusTaxonId, useSpeciesAggregation, debug);
+		Map<String, Object> supplementalData = new LinkedHashMap<>();
+		supplementalData.put(DISTINCT_FIELD_VALUES, distinctFieldValueMap);
+		return supplementalData;
+	}
+
 
 	protected LinkedHashMap<String, SortOrder> getAnnotationSorts(String focusTaxonId, boolean debug) {
 		SpeciesType type = SpeciesType.getTypeByID(focusTaxonId);

@@ -11,6 +11,7 @@ import org.elasticsearch.search.sort.SortOrder;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 
 @RequestScoped
@@ -25,6 +26,8 @@ public class TransgenicAlleleESService extends ESService {
 		BoolQueryBuilder query = getBaseModelQuery(List.of(geneId), false, "transgenic_allele_annotations");
 
 		JsonResultResponse<GeneTransgenicAlleleSummaryDocument> ret = new JsonResultResponse<>();
+		Map<String, String> aggregationFields = Map.of("alleleDocument.allele.taxon.name.keyword", "species");
+		ret.setSupplementalData(getSupplementalData(geneId, true, debug, query, aggregationFields));
 
 		// add table filter
 		addTableFilter(pagination, query);

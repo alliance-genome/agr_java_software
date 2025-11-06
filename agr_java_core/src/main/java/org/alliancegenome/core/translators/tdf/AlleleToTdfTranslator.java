@@ -193,7 +193,7 @@ public class AlleleToTdfTranslator {
 		row.setAlleleSymbol(allele.getAlleleSymbol().getFormatText());
 		row.setTgConstructID(transgenicAlleleConstruct.getConstruct().getPrimaryExternalId());
 		// do not print construct name if placeholder = true
-		if (!transgenicAlleleConstruct.getConstruct().getPlaceholder()) {
+		if (transgenicAlleleConstruct.getConstruct().getPlaceholder() == null || !transgenicAlleleConstruct.getConstruct().getPlaceholder()) {
 			row.setTransgenicConstruct(transgenicAlleleConstruct.getConstruct().getConstructSymbol().getFormatText());
 		}
 		String expressedGene = "";
