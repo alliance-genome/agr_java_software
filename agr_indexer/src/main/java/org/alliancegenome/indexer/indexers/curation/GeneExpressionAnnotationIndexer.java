@@ -18,6 +18,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import si.mazi.rescu.RestProxyFactory;
 
+import static org.alliancegenome.neo4j.entity.SpeciesType.getPhylogeneticSortOrder;
+
 @Slf4j
 public class GeneExpressionAnnotationIndexer extends Indexer {
 
@@ -68,7 +70,7 @@ public class GeneExpressionAnnotationIndexer extends Indexer {
 					if (gene != null) {
 						HashMap<String, Integer> order = SpeciesType.getSpeciesOrderByTaxonID(gene.getTaxon().getCurie());
 						ged.setSpeciesOrder(order);
-						int phylogeneticSortOrder = DiseaseAnnotationCurationIndexer.getPhylogeneticSortOrder(gene.getTaxon().getCurie());
+						int phylogeneticSortOrder = getPhylogeneticSortOrder(gene.getTaxon().getCurie());
 						ged.setPhylogeneticSortingIndex(phylogeneticSortOrder);
 					}
 				}

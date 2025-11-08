@@ -1,6 +1,7 @@
 package org.alliancegenome.indexer.indexers.curation;
 
 import static java.util.stream.Collectors.groupingBy;
+import static org.alliancegenome.neo4j.entity.SpeciesType.getPhylogeneticSortOrder;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -273,15 +274,6 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		target.setDiseaseQualifiers(source.getDiseaseQualifiers());
 		target.setEvidenceItem(source.getEvidenceItem());
 		target.setEvidenceCodes(source.getEvidenceCodes());
-	}
-
-	protected static int getPhylogeneticSortOrder(String taxonID) {
-		int phylogeneticSortOrder = 0;
-		SpeciesType speciesType = SpeciesType.getTypeByID(taxonID);
-		if (speciesType != null) {
-			phylogeneticSortOrder = speciesType.getOrderID();
-		}
-		return phylogeneticSortOrder;
 	}
 
 	private String getPubmedPubModID(Reference singleReference) {

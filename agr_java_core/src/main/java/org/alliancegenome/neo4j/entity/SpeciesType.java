@@ -175,4 +175,13 @@ public enum SpeciesType {
 		return map;
 	}
 
+	public static int getPhylogeneticSortOrder(String taxonID) {
+		int phylogeneticSortOrder = 0;
+		SpeciesType speciesType = SpeciesType.getTypeByID(taxonID);
+		if (speciesType != null) {
+			phylogeneticSortOrder = speciesType.getOrderID();
+		}
+		return phylogeneticSortOrder;
+	}
+
 }

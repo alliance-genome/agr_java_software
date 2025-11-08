@@ -23,6 +23,8 @@ import si.mazi.rescu.RestProxyFactory;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingDeque;
 
+import static org.alliancegenome.neo4j.entity.SpeciesType.getPhylogeneticSortOrder;
+
 @Slf4j
 public class TransgenicAlleleIndexer extends Indexer {
 
@@ -90,6 +92,7 @@ public class TransgenicAlleleIndexer extends Indexer {
 				TransgenicAlleleSummaryDocument document = documentMap.computeIfAbsent(da.getAllele(), allele -> {
 					TransgenicAlleleSummaryDocument doc = new TransgenicAlleleSummaryDocument();
 					doc.setAllele(allele);
+					doc.setPhylogeneticSortingIndex(getPhylogeneticSortOrder(allele.getTaxon().getCurie()));
 					return doc;
 				});
 				List<TransgenicAlleleConstruct> constructList = document.getTransgenicAlleleConstructs();
