@@ -25,7 +25,7 @@ public class TransgenicAlleleSummaryDocument extends ESDocument {
 	public List<TransgenicAlleleConstruct> transgenicAlleleConstructs;
 	private Boolean hasDiseaseAnnotations;
 	private Boolean hasPhenotypeAnnotations;
-	int phylogeneticSortingIndex;
+	private int phylogeneticSortingIndex;
 
 
 
