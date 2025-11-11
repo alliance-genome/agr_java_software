@@ -92,7 +92,7 @@ public class TransgenicAlleleIndexer extends Indexer {
 				TransgenicAlleleSummaryDocument document = documentMap.computeIfAbsent(da.getAllele(), allele -> {
 					TransgenicAlleleSummaryDocument doc = new TransgenicAlleleSummaryDocument();
 					doc.setAllele(allele);
-					doc.setPhylogeneticSortingIndex(getPhylogeneticSortOrder(allele.getTaxon().getCurie()));
+					doc.setPhylogeneticSortingIndex(allele.getTaxon().getPhylogeneticSortOrder());
 					return doc;
 				});
 				List<TransgenicAlleleConstruct> constructList = document.getTransgenicAlleleConstructs();
