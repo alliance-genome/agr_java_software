@@ -193,8 +193,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 
 							HashMap<String, Integer> order = SpeciesType.getSpeciesOrderByTaxonID(gene.getTaxon().getCurie());
 							gdad.setSpeciesOrder(order);
-							int phylogeneticSortOrder = getPhylogeneticSortOrder(gene.getTaxon().getCurie());
-							gdad.setPhylogeneticSortingIndex(phylogeneticSortOrder);
+							gdad.setPhylogeneticSortingIndex(gene.getTaxon().getPhylogeneticSortOrder());
 							gdad.addPrimaryAnnotation(diseaseAnnotation);
 							returnList.add(gdad);
 						});
@@ -273,15 +272,6 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		target.setDiseaseQualifiers(source.getDiseaseQualifiers());
 		target.setEvidenceItem(source.getEvidenceItem());
 		target.setEvidenceCodes(source.getEvidenceCodes());
-	}
-
-	protected static int getPhylogeneticSortOrder(String taxonID) {
-		int phylogeneticSortOrder = 0;
-		SpeciesType speciesType = SpeciesType.getTypeByID(taxonID);
-		if (speciesType != null) {
-			phylogeneticSortOrder = speciesType.getOrderID();
-		}
-		return phylogeneticSortOrder;
 	}
 
 	private String getPubmedPubModID(Reference singleReference) {
@@ -401,7 +391,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		dad.addPubMedPubModID(getPubmedPubModID(evidenceItem));
 		dad.addPubModID(getPubModID(evidenceItem));
 		dad.addPrimaryAnnotation(da);
-		dad.setPhylogeneticSortingIndex(getPhylogeneticSortOrder(biologicalEntity.getTaxon().getCurie()));
+		dad.setPhylogeneticSortingIndex(biologicalEntity.getTaxon().getPhylogeneticSortOrder());
 		dad.addEvidenceCodes(da.getEvidenceCodes());
 		if (CollectionUtils.isNotEmpty(da.getDiseaseQualifiers())) {
 			Set<String> diseaseQualifiers = da.getDiseaseQualifiers().stream().map(VocabularyTerm::getName).collect(Collectors.toSet());

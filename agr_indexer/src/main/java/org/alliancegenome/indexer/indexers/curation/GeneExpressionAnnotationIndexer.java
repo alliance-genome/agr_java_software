@@ -68,8 +68,7 @@ public class GeneExpressionAnnotationIndexer extends Indexer {
 					if (gene != null) {
 						HashMap<String, Integer> order = SpeciesType.getSpeciesOrderByTaxonID(gene.getTaxon().getCurie());
 						ged.setSpeciesOrder(order);
-						int phylogeneticSortOrder = DiseaseAnnotationCurationIndexer.getPhylogeneticSortOrder(gene.getTaxon().getCurie());
-						ged.setPhylogeneticSortingIndex(phylogeneticSortOrder);
+						ged.setPhylogeneticSortingIndex(gene.getTaxon().getPhylogeneticSortOrder());
 					}
 				}
 

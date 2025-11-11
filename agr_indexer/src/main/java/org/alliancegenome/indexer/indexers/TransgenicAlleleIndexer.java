@@ -90,6 +90,7 @@ public class TransgenicAlleleIndexer extends Indexer {
 				TransgenicAlleleSummaryDocument document = documentMap.computeIfAbsent(da.getAllele(), allele -> {
 					TransgenicAlleleSummaryDocument doc = new TransgenicAlleleSummaryDocument();
 					doc.setAllele(allele);
+					doc.setPhylogeneticSortingIndex(allele.getTaxon().getPhylogeneticSortOrder());
 					return doc;
 				});
 				List<TransgenicAlleleConstruct> constructList = document.getTransgenicAlleleConstructs();
@@ -104,6 +105,7 @@ public class TransgenicAlleleIndexer extends Indexer {
 				construct.setTargetedGenes(getTargetedGenes(da.getConstruct()));
 				document.setHasDiseaseAnnotations(da.getHasDiseaseAnnotations());
 				document.setHasPhenotypeAnnotations(da.getHasPhenotypeAnnotations());
+				document.setPhylogeneticSortingIndex(da.getAllele().getTaxon().getPhylogeneticSortOrder());
 				constructList.add(construct);
 			}
 			display.progressProcess(response.getReturnedRecords().longValue());
