@@ -1,7 +1,6 @@
 package org.alliancegenome.indexer.indexers.curation;
 
 import static java.util.stream.Collectors.groupingBy;
-import static org.alliancegenome.neo4j.entity.SpeciesType.getPhylogeneticSortOrder;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -194,8 +193,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 
 							HashMap<String, Integer> order = SpeciesType.getSpeciesOrderByTaxonID(gene.getTaxon().getCurie());
 							gdad.setSpeciesOrder(order);
-							int phylogeneticSortOrder = getPhylogeneticSortOrder(gene.getTaxon().getCurie());
-							gdad.setPhylogeneticSortingIndex(phylogeneticSortOrder);
+							gdad.setPhylogeneticSortingIndex(gene.getTaxon().getPhylogeneticSortOrder());
 							gdad.addPrimaryAnnotation(diseaseAnnotation);
 							returnList.add(gdad);
 						});
@@ -393,7 +391,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		dad.addPubMedPubModID(getPubmedPubModID(evidenceItem));
 		dad.addPubModID(getPubModID(evidenceItem));
 		dad.addPrimaryAnnotation(da);
-		dad.setPhylogeneticSortingIndex(getPhylogeneticSortOrder(biologicalEntity.getTaxon().getCurie()));
+		dad.setPhylogeneticSortingIndex(biologicalEntity.getTaxon().getPhylogeneticSortOrder());
 		dad.addEvidenceCodes(da.getEvidenceCodes());
 		if (CollectionUtils.isNotEmpty(da.getDiseaseQualifiers())) {
 			Set<String> diseaseQualifiers = da.getDiseaseQualifiers().stream().map(VocabularyTerm::getName).collect(Collectors.toSet());
