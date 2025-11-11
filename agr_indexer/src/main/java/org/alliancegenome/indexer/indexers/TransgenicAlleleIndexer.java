@@ -18,6 +18,7 @@ import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import si.mazi.rescu.RestProxyFactory;
 
 import java.util.*;
@@ -98,11 +99,21 @@ public class TransgenicAlleleIndexer extends Indexer {
 					constructList = new ArrayList<>();
 					document.setTransgenicAlleleConstructs(constructList);
 				}
+				Construct constructObj = da.getConstruct();
+
 				TransgenicAlleleConstruct construct = new TransgenicAlleleConstruct();
-				construct.setConstruct(da.getConstruct());
-				construct.setExpressedGenes(getExpressedGenes(da.getConstruct()));
-				construct.setRegulatoryGenes(getRegulatoryGenes(da.getConstruct()));
-				construct.setTargetedGenes(getTargetedGenes(da.getConstruct()));
+				// MGI special handling
+				String primaryExternalId = constructObj.getPrimaryExternalId();
+				if (constructObj.getPlaceholder() && da.getAllele().getDataProvider().getAbbreviation().equals("MGI") && ObjectUtils.isEmpty(primaryExternalId)) {
+					String modInternalId = constructObj.getModInternalId();
+					if (modInternalId != null) {
+						constructObj.setPrimaryExternalId(modInternalId);
+					}
+				}
+				construct.setConstruct(constructObj);
+				construct.setExpressedGenes(getExpressedGenes(constructObj));
+				construct.setRegulatoryGenes(getRegulatoryGenes(constructObj));
+				construct.setTargetedGenes(getTargetedGenes(constructObj));
 				document.setHasDiseaseAnnotations(da.getHasDiseaseAnnotations());
 				document.setHasPhenotypeAnnotations(da.getHasPhenotypeAnnotations());
 				document.setPhylogeneticSortingIndex(da.getAllele().getTaxon().getPhylogeneticSortOrder());
