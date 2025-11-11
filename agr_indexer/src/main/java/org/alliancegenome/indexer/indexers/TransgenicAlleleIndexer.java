@@ -106,7 +106,7 @@ public class TransgenicAlleleIndexer extends Indexer {
 				String primaryExternalId = constructObj.getPrimaryExternalId();
 				if (constructObj.getPlaceholder() && da.getAllele().getDataProvider().getAbbreviation().equals("MGI") && ObjectUtils.isEmpty(primaryExternalId)) {
 					String modInternalId = constructObj.getModInternalId();
-					if(modInternalId != null) {
+					if (modInternalId != null) {
 						constructObj.setPrimaryExternalId(modInternalId);
 					}
 				}
