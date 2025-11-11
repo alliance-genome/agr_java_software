@@ -107,6 +107,7 @@ public class TransgenicAlleleIndexer extends Indexer {
 				construct.setTargetedGenes(getTargetedGenes(da.getConstruct()));
 				document.setHasDiseaseAnnotations(da.getHasDiseaseAnnotations());
 				document.setHasPhenotypeAnnotations(da.getHasPhenotypeAnnotations());
+				document.setPhylogeneticSortingIndex(da.getAllele().getTaxon().getPhylogeneticSortOrder());
 				constructList.add(construct);
 			}
 			display.progressProcess(response.getReturnedRecords().longValue());
