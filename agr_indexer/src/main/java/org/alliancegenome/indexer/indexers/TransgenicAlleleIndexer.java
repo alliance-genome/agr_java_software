@@ -23,8 +23,6 @@ import si.mazi.rescu.RestProxyFactory;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingDeque;
 
-import static org.alliancegenome.neo4j.entity.SpeciesType.getPhylogeneticSortOrder;
-
 @Slf4j
 public class TransgenicAlleleIndexer extends Indexer {
 
