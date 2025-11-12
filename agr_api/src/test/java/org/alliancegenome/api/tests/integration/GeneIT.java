@@ -262,13 +262,10 @@ public class GeneIT {
 		List<String> assayList = response.getResults().stream()
 				.map(annotation -> annotation.getGeneExpressionAnnotation().getExpressionAssayUsed().getName())
 				.collect(Collectors.toList());
-		List<String> referenceList = response.getResults().stream()
-				.map(annotation -> annotation.getPubModID()).collect(Collectors.toList());
 
 		String terms = String.join(",", termList);
 //		  String stages = String.join(",", stageList);
 		String symbols = String.join(",", symbolList);
-		String pubs = String.join(",", referenceList);
 		assertThat("first element species", response.getResults().get(0).getGeneExpressionAnnotation().getExpressionAnnotationSubject().getTaxon().getName(), equalTo("Danio rerio"));
 		assertThat("first element symbol", response.getResults().get(0).getGeneExpressionAnnotation().getExpressionAnnotationSubject().getGeneSymbol().getDisplayText(), equalTo("abcb4"));
 		assertThat("list of terms", terms, equalTo("bile canaliculus,head,head,head,head,head,head,head,head,hepatocyte intracellular canaliculus,intestinal bulb,intestine,intestine,intestine,intestine"));
@@ -350,12 +347,10 @@ public class GeneIT {
 		List<String> assayList = response.getResults().stream()
 				.map(annotation -> annotation.getGeneExpressionAnnotation().getExpressionAssayUsed().getName())
 				.collect(Collectors.toList());
-		List<String> referenceList = response.getResults().stream()
-				.map(annotation -> annotation.getPubModID()).collect(Collectors.toList());
+
 		String terms = String.join(",", termList);
 //		  String stages = String.join(",", stageList);
 		String symbols = String.join(",", symbolList);
-		String pubs = String.join(",", referenceList);
 		assertThat("first element species", response.getResults().get(0).getGeneExpressionAnnotation().getExpressionAnnotationSubject().getTaxon().getName(), equalTo("Danio rerio"));
 		assertThat("first element symbol", response.getResults().get(0).getGeneExpressionAnnotation().getExpressionAnnotationSubject().getGeneSymbol().getDisplayText(), equalTo("shha"));
 		assertThat("list of terms", terms, equalTo("anal fin,anterior neural keel,anterior neural keel ventral region,anterior neural rod,axial chorda mesoderm,axial chorda mesoderm"));
