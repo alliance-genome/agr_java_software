@@ -45,7 +45,7 @@ public class ExpressionToTdfTranslator {
 			String publications = "";
 			if (expressionDetail.getReferenceId() != null) {
 				StringJoiner pubJoiner = new StringJoiner(",");
-				pubJoiner.add(expressionDetail.getReferenceId());
+				expressionDetail.getReferenceId().forEach(reference -> pubJoiner.add(reference));
 				publications = pubJoiner.toString();
 			}
 			joiner.add(publications);
