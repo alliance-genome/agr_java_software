@@ -1,6 +1,5 @@
 package org.alliancegenome.core.translators.tdf;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.StringJoiner;
 
@@ -32,7 +31,7 @@ public class ExpressionToTdfTranslator {
 			int pubSize = CollectionUtils.isNotEmpty(expressionDetail.getReferenceId()) ? expressionDetail.getReferenceId().size() : 0;
 
 			int numOfAnnotations = Math.max(crossRefSize, pubSize);
-			for (int i=0;i<numOfAnnotations;i++) {
+			for (int i = 0; i < numOfAnnotations; i++) {
 				StringJoiner joiner = new StringJoiner("\t");
 				if (isMultipleGenes) {
 					joiner.add(expressionDetail.getGeneExpressionAnnotation().getExpressionAnnotationSubject().getTaxon().getName());
@@ -44,13 +43,13 @@ public class ExpressionToTdfTranslator {
 				joiner.add(expressionDetail.getGeneExpressionAnnotation().getExpressionAssayUsed().getName());
 
 				String crossRefs = "";
-				if (CollectionUtils.isNotEmpty(expressionDetail.getGeneExpressionAnnotation().getCrossReferences()) && i<crossRefSize) {
+				if (CollectionUtils.isNotEmpty(expressionDetail.getGeneExpressionAnnotation().getCrossReferences()) && i < crossRefSize) {
 					crossRefs = expressionDetail.getGeneExpressionAnnotation().getCrossReferences().get(i).getDisplayName();
 				}
 				joiner.add(crossRefs);
 
 				String publications = "";
-				if (CollectionUtils.isNotEmpty(expressionDetail.getReferenceId()) && i<pubSize) {
+				if (CollectionUtils.isNotEmpty(expressionDetail.getReferenceId()) && i < pubSize) {
 					publications = expressionDetail.getReferenceId().get(i);
 				}
 				joiner.add(publications);
