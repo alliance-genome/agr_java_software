@@ -147,6 +147,7 @@ public class Mapping extends Builder {
 		new FieldBuilder(builder, "model.agmFullName.displayText", "text").keyword().sort().build(); //
 		new FieldBuilder(builder, "model.agmFullName.formatText", "text").keyword().sort().build(); //
 		new FieldBuilder(builder, "alleleDocument.allele.alleleSymbol.formatText", "text").keyword().sort().build(); //
+		new FieldBuilder(builder, "alleleDocument.phylogeneticSortingIndex", "long").keyword().sort().build(); //
 		new FieldBuilder(builder, "definition", "text").standardText().build(); // go, disease
 
 		new FieldBuilder(builder, "models", "text").keyword().autocomplete().build(); // gene, disease
