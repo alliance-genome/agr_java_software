@@ -1,14 +1,6 @@
 package org.alliancegenome.indexer.config;
 
-import org.alliancegenome.indexer.indexers.AffectedGenomicModelIndexer;
-import org.alliancegenome.indexer.indexers.AlleleIndexer;
-import org.alliancegenome.indexer.indexers.DatasetIndexer;
-import org.alliancegenome.indexer.indexers.DiseaseIndexer;
-import org.alliancegenome.indexer.indexers.GeneIndexer;
-import org.alliancegenome.indexer.indexers.GoIndexer;
-import org.alliancegenome.indexer.indexers.LiteratureIndexer;
-import org.alliancegenome.indexer.indexers.ModelIndexer;
-import org.alliancegenome.indexer.indexers.TransgenicAlleleIndexer;
+import org.alliancegenome.indexer.indexers.*;
 import org.alliancegenome.indexer.indexers.curation.AlleleSummaryCurationIndexer;
 import org.alliancegenome.indexer.indexers.curation.DiseaseAnnotationCurationIndexer;
 import org.alliancegenome.indexer.indexers.curation.DiseaseSummaryCurationIndexer;
@@ -35,6 +27,7 @@ public enum IndexerConfig {
 	LiteratureIndexer("literature", LiteratureIndexer.class, 4, 5000, 5000, 1, 1, true),
 	
 	// Curation Indexers
+	VariantSummaryIndexer("variantSummary", org.alliancegenome.indexer.indexers.VariantSummaryIndexer.class, 1, 3000, 1500, 8, 1, true),
 	DiseaseAnnotationIndexer("diseaseAnnotation", DiseaseAnnotationCurationIndexer.class, 1, 1500, 1500, 2, 1, true),
 	GeneGeneticInteractionIndexers("geneGeneticInteraction", GeneGeneticInteractionCurationIndexer.class, 4, 1500, 1500, 2, 1, true),
 	GeneMolecularInteractionIndexers("geneMolecularInteraction", GeneMolecularInteractionCurationIndexer.class, 4, 1500, 1500, 2, 1, true),
