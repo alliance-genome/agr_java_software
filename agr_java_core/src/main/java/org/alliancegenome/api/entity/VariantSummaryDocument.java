@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.alliancegenome.curation_api.model.document.es.ESDocument;
+import org.alliancegenome.curation_api.model.entities.Allele;
 import org.alliancegenome.curation_api.model.entities.associations.CuratedVariantGenomicLocationAssociation;
 
 @Data
@@ -22,6 +23,7 @@ public class VariantSummaryDocument extends ESDocument {
 	}
 
 	public CuratedVariantGenomicLocationAssociation variant;
+	public Allele allele;
 
 
 }

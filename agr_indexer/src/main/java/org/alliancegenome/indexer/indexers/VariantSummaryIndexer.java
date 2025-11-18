@@ -36,7 +36,7 @@ public class VariantSummaryIndexer extends Indexer {
 	protected void index() {
 		SearchResponse<VariantSummaryDTO> searchResponse = transgenicAlleleApi.findDocuments(0, 0, params);
 		ProcessDisplayHelper display = new ProcessDisplayHelper();
-		display.startProcess("Pulling Transgenic Alleles from curation", searchResponse.getTotalResults());
+		display.startProcess("Pulling Variants from curation", searchResponse.getTotalResults());
 		List<VariantSummaryDocument> list = new ArrayList<>();
 		int batchSize = indexerConfig.getBufferSize();
 		int maxPage = (int) (searchResponse.getTotalResults() / batchSize);
@@ -48,6 +48,7 @@ public class VariantSummaryIndexer extends Indexer {
 				}
 				VariantSummaryDocument document = new VariantSummaryDocument();
 				document.setVariant(da.getVariant());
+				document.setAllele(da.getAllele());
 				list.add(document);
 			}
 			display.progressProcess(response.getReturnedRecords().longValue());
