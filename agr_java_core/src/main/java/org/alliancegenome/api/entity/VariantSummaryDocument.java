@@ -18,10 +18,6 @@ public class VariantSummaryDocument extends ESDocument {
 		category = "variant_summary";
 	}
 
-	public VariantSummaryDocument() {
-
-	}
-
 	public CuratedVariantGenomicLocationAssociation variant;
 	public Allele allele;
 
