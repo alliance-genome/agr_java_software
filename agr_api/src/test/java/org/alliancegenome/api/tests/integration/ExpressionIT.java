@@ -133,7 +133,7 @@ public class ExpressionIT extends AbstractIT {
 		BaseFilter filter = new BaseFilter();
 		// filter.addFieldFilter(FieldFilter.SOURCE, "9913");
 		pagination.setFieldFilterValueMap(filter);
-		JsonResultResponse<GeneExpressionDocument> summary = expressionESService.getExpressionAnnotations(List.of("ZFIN:ZDB-GENE-030131-845"), "UBERON:0001062", "NCBITaxon:7955",pagination);
+		JsonResultResponse<GeneExpressionDocument> summary = expressionESService.getExpressionAnnotations(List.of("ZFIN:ZDB-GENE-030131-845"), "UBERON:0001062", "NCBITaxon:7955", pagination);
 		assertNotNull(summary);
 	}
 
