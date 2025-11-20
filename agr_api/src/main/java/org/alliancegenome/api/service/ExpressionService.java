@@ -5,7 +5,6 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -15,17 +14,13 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.alliancegenome.api.dto.EntitySubgroupSlim;
 import org.alliancegenome.api.dto.ExpressionSummary;
 import org.alliancegenome.api.dto.ExpressionSummaryGroup;
 import org.alliancegenome.api.dto.ExpressionSummaryGroupTerm;
-import org.alliancegenome.api.dto.RibbonEntity;
-import org.alliancegenome.api.dto.RibbonSummary;
 import org.alliancegenome.cache.repository.ExpressionCacheRepository;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.cache.repository.helper.PaginationResult;
 import org.alliancegenome.core.ExpressionDetail;
-import org.alliancegenome.core.util.FileHelper;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
@@ -33,14 +28,9 @@ import org.alliancegenome.neo4j.entity.node.ExpressionBioEntity;
 import org.alliancegenome.neo4j.entity.node.GOTerm;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.MMOTerm;
-import org.alliancegenome.neo4j.entity.node.Species;
 import org.alliancegenome.neo4j.entity.node.Stage;
 import org.alliancegenome.neo4j.entity.node.UBERONTerm;
 import org.alliancegenome.neo4j.repository.GeneRepository;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections4.MultiValuedMap;
-import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
-
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 
@@ -50,8 +40,6 @@ public class ExpressionService {
 	private static GeneRepository geneRepository = new GeneRepository();
 	
 	@Inject ExpressionCacheRepository expressionCacheRepository;
-
-	@Inject ExpressionRibbonService service;
 
 	public static final String CELLULAR_COMPONENT = "Subcellular";
 
@@ -214,142 +202,6 @@ public class ExpressionService {
 		// add all annotations per goCcGroup
 		summary.setTotalAnnotations(sumGo + sumAO + sumStage);
 		return summary;
-	}
-
-	public RibbonSummary getExpressionRibbonSummary(List<String> geneIDs) {
-		if (geneIDs == null) {
-			return null;
-		}
-		RibbonSummary ribbonSummary = service.getRibbonSectionInfo();
-		geneIDs.forEach(geneID -> ribbonSummary.addRibbonEntity(getExpressionRibbonSummary(geneID)));
-		return ribbonSummary;
-	}
-
-
-	private RibbonEntity getExpressionRibbonSummary(String geneID) {
-
-		List<ExpressionDetail> expressionList = expressionCacheRepository.getExpressionDetails(geneID);
-
-		Gene gene = geneRepository.getShallowGene(geneID);
-		RibbonEntity entity = new RibbonEntity();
-		entity.setId(geneID);
-		entity.setLabel(gene.getSymbol());
-		entity.setTaxonID(gene.getTaxonId());
-		entity.setTaxonName(gene.getSpecies().getName());
-
-		// mark / add the 'not available' terms
-		// Note: Stages are still handled separately than ao / go because they are modelled differently in the database.
-		List<String> nonStageTerms = new ArrayList<>();
-		service.getRibbonSections().getDiseaseRibbonSections().get(0).getSlims()
-				.forEach(slim -> nonStageTerms.add(slim.getId()));
-		service.getRibbonSections().getDiseaseRibbonSections().get(2).getSlims()
-				.forEach(slim -> nonStageTerms.add(slim.getId()));
-		List<String> stageTerms = new ArrayList<>();
-		service.getRibbonSections().getDiseaseRibbonSections().get(1).getSlims()
-				.forEach(slim -> stageTerms.add(slim.getId()));
-		nonStageTerms.stream()
-				.filter(id -> !entity.getSlims().keySet().contains(id))
-				.forEach(id -> {
-					EntitySubgroupSlim slim = getEntitySubgroupSlim(id, null, gene.getSpecies());
-					entity.addEntitySlim(slim);
-				});
-		stageTerms.stream()
-				.filter(id -> !entity.getSlims().keySet().contains(id))
-				.forEach(id -> {
-					EntitySubgroupSlim slim = getEntitySubgroupStageSlim(id, null, gene.getSpecies());
-					entity.addEntitySlim(slim);
-				});
-
-		if (CollectionUtils.isEmpty(expressionList)) {
-			return entity;
-		}
-
-		// create histograms for each of the three ontologies
-		List<ExpressionDetail> uberonAnnotations = new ArrayList<>();
-		MultiValuedMap<String, ExpressionDetail> aoUberonMap = new ArrayListValuedHashMap<>();
-
-		List<ExpressionDetail> goAnnotations = new ArrayList<>();
-		MultiValuedMap<String, ExpressionDetail> goTermMap = new ArrayListValuedHashMap<>();
-
-		List<ExpressionDetail> stageAnnotations = new ArrayList<>();
-		MultiValuedMap<String, ExpressionDetail> stageTermMap = new ArrayListValuedHashMap<>();
-
-		expressionList.forEach(detail -> {
-			if (CollectionUtils.isNotEmpty(detail.getUberonTermIDs())) {
-				uberonAnnotations.add(detail);
-				detail.getUberonTermIDs().forEach(uberonTerm -> aoUberonMap.put(uberonTerm, detail));
-			}
-
-			if (CollectionUtils.isNotEmpty(detail.getGoTermIDs())) {
-				goAnnotations.add(detail);
-				detail.getGoTermIDs().forEach(goTermId -> goTermMap.put(goTermId, detail));
-			}
-
-			String stageTermID = detail.getStageTermID();
-			if (stageTermID != null) {
-				stageAnnotations.add(detail);
-				stageTermMap.put(stageTermID, detail);
-			}
-		});
-
-		// add the AO root term
-		EntitySubgroupSlim slimRoot = getEntitySubgroupSlim(ExpressionCacheRepository.UBERON_ANATOMY_ROOT, uberonAnnotations, gene.getSpecies());
-		entity.addEntitySlim(slimRoot);
-		aoUberonMap.keySet().forEach(uberonTermID -> {
-			EntitySubgroupSlim slim = getEntitySubgroupSlim(uberonTermID, aoUberonMap.get(uberonTermID), gene.getSpecies());
-			entity.addEntitySlim(slim);
-		});
-
-		// add the Stage root term
-		EntitySubgroupSlim slimRootStage = getEntitySubgroupStageSlim(ExpressionCacheRepository.UBERON_STAGE_ROOT, stageAnnotations, gene.getSpecies());
-		entity.addEntitySlim(slimRootStage);
-		stageTermMap.keySet().forEach(uberonTermID -> {
-			EntitySubgroupSlim slim = getEntitySubgroupStageSlim(uberonTermID, stageTermMap.get(uberonTermID), gene.getSpecies());
-			entity.addEntitySlim(slim);
-		});
-
-		// add the GO root term
-		EntitySubgroupSlim slimRootGO = getEntitySubgroupSlim(ExpressionCacheRepository.GO_CC_ROOT, goAnnotations, gene.getSpecies());
-		entity.addEntitySlim(slimRootGO);
-		goTermMap.keySet().forEach(goTermID -> {
-			EntitySubgroupSlim slim = getEntitySubgroupSlim(goTermID, goTermMap.get(goTermID), gene.getSpecies());
-			entity.addEntitySlim(slim);
-		});
-
-		entity.setNumberOfClasses(getDistinctClassSize(expressionList));
-		entity.setNumberOfAnnotations(expressionList.size());
-
-		return entity;
-	}
-
-	private EntitySubgroupSlim getEntitySubgroupSlim(String primaryKey, Collection<ExpressionDetail> aoAnnotations, Species species) {
-		EntitySubgroupSlim slim = new EntitySubgroupSlim();
-		slim.setId(primaryKey);
-		if (aoAnnotations != null) {
-			slim.setNumberOfAnnotations(aoAnnotations.size());
-			slim.setNumberOfClasses(getDistinctClassSize(aoAnnotations));
-		}
-		slim.setAvailable(FileHelper.getRibbonTermSpeciesApplicability(primaryKey, species.getType().getDisplayName()));
-		return slim;
-	}
-
-	private int getDistinctClassSize(Collection<ExpressionDetail> aoAnnotations) {
-		return aoAnnotations.stream().collect(groupingBy(ExpressionDetail::getTermName)).size();
-	}
-
-	private EntitySubgroupSlim getEntitySubgroupStageSlim(String primaryKey, Collection<ExpressionDetail> stageAnnotations, Species species) {
-		EntitySubgroupSlim slim = new EntitySubgroupSlim();
-		slim.setId(primaryKey);
-		if (stageAnnotations != null) {
-			slim.setNumberOfAnnotations(stageAnnotations.size());
-			slim.setNumberOfClasses(getDistinctStageClassSize(stageAnnotations));
-		}
-		slim.setAvailable(FileHelper.getRibbonTermSpeciesApplicability(primaryKey, species.getType().getDisplayName()));
-		return slim;
-	}
-
-	private int getDistinctStageClassSize(Collection<ExpressionDetail> stageAnnotations) {
-		return stageAnnotations.stream().map(detail -> detail.getStage().getPrimaryKey()).collect(toSet()).size();
 	}
 
 	private ExpressionSummaryGroup populateGroupInfo(String groupName, Map<String, Long> histogram, Map<String, Long> rawHistogram, Map<String, String> entityList) {

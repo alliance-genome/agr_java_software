@@ -9,6 +9,7 @@ import org.alliancegenome.api.dto.RibbonSummary;
 import org.alliancegenome.api.rest.interfaces.ExpressionRESTInterface;
 import org.alliancegenome.api.service.EntityType;
 import org.alliancegenome.api.service.ExpressionESService;
+import org.alliancegenome.api.service.ExpressionRibbonESService;
 import org.alliancegenome.api.service.ExpressionService;
 import org.alliancegenome.api.service.GeneService;
 import org.alliancegenome.api.service.helper.APIServiceHelper;
@@ -42,7 +43,7 @@ public class ExpressionController implements ExpressionRESTInterface {
 
 	@Inject ExpressionService expressionService;
 	@Inject ExpressionESService expressionESService;
-
+	@Inject ExpressionRibbonESService expressionRibbonESService;
 
 	@Inject GeneService geneService;
 	
@@ -145,7 +146,7 @@ public class ExpressionController implements ExpressionRESTInterface {
 		}
 
 		try {
-			return expressionService.getExpressionRibbonSummary(ids);
+			return expressionRibbonESService.getExpressionRibbonSummary(ids);
 		} catch (Exception e) {
 			Log.error("error", e);
 			RestErrorMessage error = new RestErrorMessage();

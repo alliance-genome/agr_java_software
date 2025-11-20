@@ -80,7 +80,8 @@ public class ExpressionESService extends ESService {
 		sortingSetMap.put("location", "geneExpressionAnnotation.whereExpressedStatement.sort");
 		sortingSetMap.put("stage", "geneExpressionAnnotation.whenExpressedStageName.sort");
 		sortingSetMap.put("assay", "geneExpressionAnnotation.expressionAssayUsed.name.sort");
-		sortingSetMap.put("default", "speciesOrder." + type.getTaxonIDPart());
+		sortingSetMap.put("default", "geneExpressionAnnotation.expressionAssayUsed.name.sort");
+		//sortingSetMap.put("default", "speciesOrder." + type.getTaxonIDPart());
 
 		String sortField = sortingSetMap.get(pagination.getSortBy());
 
