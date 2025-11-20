@@ -26,7 +26,6 @@ import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
-import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.TermQueryBuilder;
@@ -38,7 +37,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
-import lombok.EqualsAndHashCode.Include;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -48,8 +46,6 @@ public class ExpressionRibbonESService extends ESService {
 	@Inject ExpressionESService expressionService;
 
 	public static final String UNDEFINED = "undefined";
-	private static DiseaseRepository diseaseRepository = new DiseaseRepository();
-	private static GeneRepository geneRepository = new GeneRepository();
 
 	private static RibbonSummary ribbonSummary;
 
@@ -307,7 +303,7 @@ public class ExpressionRibbonESService extends ESService {
 					} else {
 						SectionSlim slim = getSectionSlim(term.getCurie(), term.getName(), term.getDefinition());
 						section.addDiseaseSlim(slim);
-					 }
+					}
 				});
 			}
 		});
