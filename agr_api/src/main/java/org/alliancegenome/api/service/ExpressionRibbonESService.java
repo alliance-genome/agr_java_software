@@ -97,7 +97,6 @@ public class ExpressionRibbonESService extends ESService {
 		SearchResponse searchResponse = getSearchResponse(boolQuery, pagination, sorts, true);
 		if (searchResponse.getHits().getHits().length > 0) {
 			try {
-				System.out.println("Found GeneExpressionRibbonSummaryDocument");
 				return mapper.readValue(searchResponse.getHits().getHits()[0].getSourceAsString(), GeneExpressionRibbonSummaryDocument.class);
 			} catch (Exception e) {
 				e.printStackTrace();
