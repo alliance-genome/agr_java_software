@@ -13,11 +13,13 @@ import java.util.stream.Collectors;
 
 import org.alliancegenome.api.dto.EntitySubgroupSlim;
 import org.alliancegenome.api.dto.RibbonSummary;
-import org.alliancegenome.api.service.ExpressionService;
+import org.alliancegenome.api.service.ExpressionESService;
+import org.alliancegenome.api.service.ExpressionRibbonESService;
 import org.alliancegenome.cache.repository.ExpressionCacheRepository;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.cache.repository.helper.PaginationResult;
 import org.alliancegenome.core.ExpressionDetail;
+import org.alliancegenome.curation_api.model.document.es.GeneExpressionDocument;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.node.GOTerm;
@@ -31,7 +33,9 @@ public class ExpressionIT extends AbstractIT {
 
 	@Inject private ExpressionCacheRepository repository;
 
-	@Inject private ExpressionService expressionService;
+	@Inject private ExpressionRibbonESService expressionService;
+
+	@Inject private ExpressionESService expressionESService;
 
 	@Test
 	public void checkAllExpressions() {
@@ -118,7 +122,7 @@ public class ExpressionIT extends AbstractIT {
 		BaseFilter filter = new BaseFilter();
 		filter.addFieldFilter(FieldFilter.SOURCE, "9913");
 		pagination.setFieldFilterValueMap(filter);
-		JsonResultResponse<ExpressionDetail> summary = expressionService.getExpressionDetails(List.of("WB:WBGene00000898"), null, pagination);
+		JsonResultResponse<GeneExpressionDocument> summary = expressionESService.getExpressionAnnotations(List.of("WB:WBGene00000898"), null, "NCBITaxon:6239", pagination);
 		assertNotNull(summary);
 
 	}
@@ -129,7 +133,7 @@ public class ExpressionIT extends AbstractIT {
 		BaseFilter filter = new BaseFilter();
 		// filter.addFieldFilter(FieldFilter.SOURCE, "9913");
 		pagination.setFieldFilterValueMap(filter);
-		JsonResultResponse<ExpressionDetail> summary = expressionService.getExpressionDetails(List.of("ZFIN:ZDB-GENE-030131-845"), "UBERON:0001062", pagination);
+		JsonResultResponse<GeneExpressionDocument> summary = expressionESService.getExpressionAnnotations(List.of("ZFIN:ZDB-GENE-030131-845"), "UBERON:0001062", "NCBITaxon:7955", pagination);
 		assertNotNull(summary);
 	}
 
@@ -140,7 +144,7 @@ public class ExpressionIT extends AbstractIT {
 		// filter.addFieldFilter(FieldFilter.SOURCE, "9913");
 		pagination.setFieldFilterValueMap(filter);
 		pagination.addFieldFilter(FieldFilter.FREFERENCE, "foot");
-		JsonResultResponse<ExpressionDetail> summary = expressionService.getExpressionDetails(List.of("RGD:2129"), null, pagination);
+		JsonResultResponse<GeneExpressionDocument> summary = expressionESService.getExpressionAnnotations(List.of("RGD:2129"), null, "NCBITaxon:10116", pagination);
 		assertNotNull(summary);
 		assertEquals(summary.getTotal(), 0);
 		assertNotNull(summary.retrieveDistinctFieldValues());

@@ -112,7 +112,6 @@ public interface ExpressionRESTInterface {
 
 	@POST
 	@Path("/ribbon-summary")
-	@JsonView(value = {View.Expression.class})
 	@Operation(summary = "Retrieve summary of expression for given list of genes")
 	@APIResponses(value = {@APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class)))})
 	RibbonSummary getExpressionSummary(
