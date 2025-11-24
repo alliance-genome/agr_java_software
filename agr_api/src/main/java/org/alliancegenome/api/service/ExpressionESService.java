@@ -15,6 +15,7 @@ import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -73,14 +74,17 @@ public class ExpressionESService extends ESService {
 		LinkedHashMap<String, SortOrder> sortingMap = new LinkedHashMap<>();
 		LinkedHashMap<String, String> sortingSetMap = new LinkedHashMap<>();
 
-		SpeciesType type = SpeciesType.getTypeByID(focusTaxonId);
-
 		sortingSetMap.put("species", "geneExpressionAnnotation.expressionAnnotationSubject.taxon.name.keyword");
 		sortingSetMap.put("gene", "geneExpressionAnnotation.expressionAnnotationSubject.geneSymbol.displayText.sort");
 		sortingSetMap.put("location", "geneExpressionAnnotation.whereExpressedStatement.sort");
 		sortingSetMap.put("stage", "geneExpressionAnnotation.whenExpressedStageName.sort");
 		sortingSetMap.put("assay", "geneExpressionAnnotation.expressionAssayUsed.name.sort");
-		sortingSetMap.put("default", "speciesOrder." + type.getTaxonIDPart());
+		if (StringUtils.isNotEmpty(focusTaxonId)) {
+			SpeciesType type = SpeciesType.getTypeByID(focusTaxonId);
+			sortingSetMap.put("default", "speciesOrder." + type.getTaxonIDPart());
+		} else {
+			sortingSetMap.put("default", "geneExpressionAnnotation.expressionAnnotationSubject.geneSymbol.displayText.sort");
+		}
 
 		String sortField = sortingSetMap.get(pagination.getSortBy());
 
