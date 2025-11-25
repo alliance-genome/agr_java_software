@@ -1,9 +1,5 @@
 package org.alliancegenome.indexer.indexers.curation.service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.Gene;
@@ -11,8 +7,11 @@ import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.indexers.curation.interfaces.AGMDiseaseAnnotationInterface;
-
 import si.mazi.rescu.RestProxyFactory;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class AGMDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 
@@ -46,20 +45,18 @@ public class AGMDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 		for (int page = 0; page < (int) (totalResponse.getTotalResults() / batchSize); page++) {
 			SearchResponse<AGMDiseaseAnnotation> response = agmApi.findForPublic(page, batchSize, params);
 			for (AGMDiseaseAnnotation da : response.getResults()) {
-				if (isValidNeoEntity(getAllNeoModelIDs(), da.getDiseaseAnnotationSubject().getIdentifier()) && hasNoObsoletedOrInternalEntities(da)) {
-					if (hasValidEntities(da, getAllNeoGeneIDs(), getAllNeoAlleleIDs(), getAllNeoModelIDs())) {
-						if (da.getInferredGene() != null && da.getInferredGene().getConstructGenomicEntityAssociations() != null) {
-							da.getInferredGene().getConstructGenomicEntityAssociations().clear();
-						}
-						if (da.getAssertedGenes() != null) {
-							for (Gene g : da.getAssertedGenes()) {
-								if (g.getConstructGenomicEntityAssociations() != null) {
-									g.getConstructGenomicEntityAssociations().clear();
-								}
+				if (hasNoObsoletedOrInternalEntities(da)) {
+					if (da.getInferredGene() != null && da.getInferredGene().getConstructGenomicEntityAssociations() != null) {
+						da.getInferredGene().getConstructGenomicEntityAssociations().clear();
+					}
+					if (da.getAssertedGenes() != null) {
+						for (Gene g : da.getAssertedGenes()) {
+							if (g.getConstructGenomicEntityAssociations() != null) {
+								g.getConstructGenomicEntityAssociations().clear();
 							}
 						}
-						ret.add(da);
 					}
+					ret.add(da);
 				}
 			}
 			display.progressProcess(response.getReturnedRecords().longValue());

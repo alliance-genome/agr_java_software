@@ -1,37 +1,13 @@
 package org.alliancegenome.indexer.indexers.curation;
 
-import static java.util.stream.Collectors.groupingBy;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.alliancegenome.api.entity.AGMDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.DiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.core.helpers.DiseaseAnnotationHelper;
-import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.AffectedGenomicModel;
-import org.alliancegenome.curation_api.model.entities.Allele;
-import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.BiologicalEntity;
-import org.alliancegenome.curation_api.model.entities.ConditionRelation;
-import org.alliancegenome.curation_api.model.entities.DiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.ExperimentalCondition;
-import org.alliancegenome.curation_api.model.entities.Gene;
-import org.alliancegenome.curation_api.model.entities.GeneDiseaseAnnotation;
-import org.alliancegenome.curation_api.model.entities.Reference;
-import org.alliancegenome.curation_api.model.entities.VocabularyTerm;
+import org.alliancegenome.curation_api.model.entities.*;
 import org.alliancegenome.curation_api.model.entities.base.SubmittedObject;
 import org.alliancegenome.curation_api.model.entities.ontology.DOTerm;
 import org.alliancegenome.curation_api.model.entities.ontology.ECOTerm;
@@ -49,9 +25,13 @@ import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
-import lombok.extern.slf4j.Slf4j;
+import static java.util.stream.Collectors.groupingBy;
 
 @Slf4j
 public class DiseaseAnnotationCurationIndexer extends Indexer {
@@ -60,7 +40,6 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 	private AlleleDiseaseAnnotationService alleleService;
 	private AGMDiseaseAnnotationService agmService;
 	private VocabularyTermService vocabTermService;
-	private DiseaseRepository diseaseRepository;
 
 	private Map<String, Set<String>> closureMap;
 	private Map<String, Pair<Gene, ArrayList<DiseaseAnnotation>>> geneMap = new HashMap<>();
@@ -70,7 +49,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 	private Map<String, Pair<AffectedGenomicModel, ArrayList<DiseaseAnnotation>>> agmMap = new HashMap<>();
 
 	private Map<Gene, List<DiseaseAnnotation>> geneViaOrthologyMap = new HashMap<>();
-	
+
 	private AtomicInteger uniqueAnnotationCounter = new AtomicInteger(1);
 
 	public DiseaseAnnotationCurationIndexer(IndexerConfig indexerConfig) {
@@ -93,8 +72,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		alleleService = new AlleleDiseaseAnnotationService();
 		agmService = new AGMDiseaseAnnotationService();
 		vocabTermService = new VocabularyTermService();
-		diseaseRepository = new DiseaseRepository();
-		
+		DiseaseRepository diseaseRepository = new DiseaseRepository();
 		closureMap = diseaseRepository.getDOClosureChildMapping();
 
 		indexGenes();
@@ -383,7 +361,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		if (dad.getCountId() == null) {
 			dad.setCountId(uniqueAnnotationCounter.getAndIncrement());
 		}
-		
+
 		dad.setParentSlimIDs(closureMap.get(da.getDiseaseAnnotationObject().getCurie()));
 		// gdad.setDataProvider(da.getDataProvider());
 		Reference evidenceItem = (Reference) da.getEvidenceItem();

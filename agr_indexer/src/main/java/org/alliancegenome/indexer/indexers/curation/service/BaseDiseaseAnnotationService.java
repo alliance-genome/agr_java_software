@@ -68,43 +68,7 @@ public class BaseDiseaseAnnotationService extends BaseService {
 		return hasNoExcludedEntities(entitiesToBeValidated);
 	}
 
-	protected boolean hasValidEntities(AGMDiseaseAnnotation da, Set<String> allGeneIDs, Set<String> allAllelIDs, Set<String> allModelIDs) {
-		Gene inferredGene = da.getInferredGene();
-		List<Gene> assertedGenes = da.getAssertedGenes();
-		if (!hasValidInferredAssertedEntities(allGeneIDs, inferredGene, assertedGenes)) {
-			return false;
-		}
-		if (!hasValidInferredAssertedEntities(allAllelIDs, da.getInferredAllele(), null)) {
-			return false;
-		}
-		if (!hasValidInferredAssertedEntities(allAllelIDs, null, da.getAssertedAlleles())) {
-			return false;
-		}
-		return hasValidGeneticModifiers(da, allGeneIDs, allAllelIDs, allModelIDs);
-	}
-
-	protected boolean hasValidEntities(AlleleDiseaseAnnotation da, Set<String> allGeneIDs, Set<String> allAllelIDs, Set<String> allModelIDs) {
-		Gene inferredGene = da.getInferredGene();
-		List<Gene> assertedGenes = da.getAssertedGenes();
-		if (!hasValidInferredAssertedEntities(allGeneIDs, inferredGene, assertedGenes)) {
-			return false;
-		}
-		return hasValidGeneticModifiers(da, allGeneIDs, allAllelIDs, allModelIDs);
-	}
-
-	private static boolean hasValidInferredAssertedEntities(Set<String> allEntityIDs, GenomicEntity inferredEntity, List<? extends GenomicEntity> assertedEntity) {
-		if (inferredEntity != null && !allEntityIDs.contains(inferredEntity.getIdentifier())) {
-			return false;
-		}
-		if (CollectionUtils.isNotEmpty(assertedEntity)) {
-			if (assertedEntity.stream().anyMatch(entity -> !allEntityIDs.contains(entity.getIdentifier()))) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	protected static boolean hasValidGeneticModifiers(DiseaseAnnotation da, Set<String> allGeneIDs, Set<String> allAllelIDs, Set<String> allModelIDs) {
+	protected static boolean hasValidGeneticModifiers(DiseaseAnnotation da) {
 		List<BiologicalEntity> geneticModifiers = new ArrayList<>();
 		if (CollectionUtils.isNotEmpty(da.getDiseaseGeneticModifierAlleles())) {
 			geneticModifiers.addAll(da.getDiseaseGeneticModifierAlleles().stream().filter(Objects::nonNull).toList());
@@ -114,11 +78,6 @@ public class BaseDiseaseAnnotationService extends BaseService {
 		}
 		if (CollectionUtils.isNotEmpty(da.getDiseaseGeneticModifierAgms())) {
 			geneticModifiers.addAll(da.getDiseaseGeneticModifierAgms().stream().filter(Objects::nonNull).toList());
-		}
-		if (CollectionUtils.isNotEmpty(geneticModifiers)) {
-			if (geneticModifiers.stream().anyMatch(entity -> !allGeneIDs.contains(entity.getIdentifier()) && !allAllelIDs.contains(entity.getIdentifier()) && !allModelIDs.contains(entity.getIdentifier()))) {
-				return false;
-			}
 		}
 		return true;
 	}
