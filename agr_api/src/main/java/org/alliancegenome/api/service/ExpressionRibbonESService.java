@@ -19,6 +19,7 @@ import org.alliancegenome.core.util.FileHelper;
 import org.alliancegenome.curation_api.model.document.es.GeneExpressionDocument;
 import org.alliancegenome.curation_api.model.document.es.GeneExpressionRibbonSummaryDocument;
 import org.alliancegenome.curation_api.model.entities.Gene;
+import org.alliancegenome.curation_api.model.entities.GeneExpressionAnnotation;
 import org.alliancegenome.curation_api.model.entities.ontology.GOTerm;
 import org.alliancegenome.es.model.query.Pagination;
 import org.apache.commons.collections4.CollectionUtils;
@@ -121,12 +122,12 @@ public class ExpressionRibbonESService extends ESService {
 		JsonResultResponse<GeneExpressionDocument> expressionAnnotations = expressionService.getExpressionAnnotations(List.of(geneID), null, null, pagination);
 
 		String dataProvider;
-		Gene gene;
+		Gene gene = null;
 		if (CollectionUtils.isNotEmpty(expressionAnnotations.getResults())) {
-			gene = expressionAnnotations.getResults().get(0).getGeneExpressionAnnotation().getExpressionAnnotationSubject();
-			dataProvider = expressionAnnotations.getResults().get(0).getGeneExpressionAnnotation().getDataProvider().getAbbreviation();
+			GeneExpressionAnnotation annotation = expressionAnnotations.getResults().get(0).getGeneExpressionAnnotation();
+			gene = annotation.getExpressionAnnotationSubject();
+			dataProvider = annotation.getDataProvider().getAbbreviation();
 		} else {
-			gene = new Gene();
 			dataProvider = null;
 		}
 
@@ -282,39 +283,40 @@ public class ExpressionRibbonESService extends ESService {
 				section.addDiseaseSlim(allSlimElement);
 				tempRibbonSummary.addRibbonSection(section);
 
-				List<GOTerm> goSlimList = slimTerms.getGoSlimTerms();
-				if (id.equals(ExpressionCacheRepository.GO_CC_ROOT)) {
-					goSlimList.forEach(term -> {
-						if (term.getCurie().equals(ExpressionCacheRepository.GO_CC_ROOT)) {
-							section.setDescription(term.getDefinition());
-							allSlimElement.setDescription(term.getDefinition());
-						} else {
-							SectionSlim slim = getSectionSlim(term.getCurie(), term.getName(), term.getDefinition());
-							section.addDiseaseSlim(slim);
-						}
-					});
-				}
-				if (id.equals(ExpressionCacheRepository.UBERON_ANATOMY_ROOT)) {
-					slimTerms.getAnatomicalStructureSlimTerms().forEach(term -> {
-						if (term.getCurie().equals(ExpressionCacheRepository.UBERON_ANATOMY_ROOT)) {
-							section.setDescription(term.getDefinition());
-							allSlimElement.setDescription(term.getDefinition());
-						} else {
-							SectionSlim slim = getSectionSlim(term.getCurie(), term.getName(), term.getDefinition());
-							section.addDiseaseSlim(slim);
-						}
-					});
-				}
-				if (id.equals(ExpressionCacheRepository.UBERON_STAGE_ROOT)) {
-					slimTerms.getStageSlimTerms().forEach(term -> {
-						if (term.getCurie().equals(ExpressionCacheRepository.UBERON_STAGE_ROOT)) {
-							section.setDescription(term.getDefinition());
-							allSlimElement.setDescription(term.getDefinition());
-						} else {
-							SectionSlim slim = getSectionSlim(term.getCurie(), term.getName(), term.getDefinition());
-							section.addDiseaseSlim(slim);
-						}
-					});
+				switch(id) {
+					case ExpressionCacheRepository.GO_CC_ROOT:
+						slimTerms.getGoSlimTerms().forEach(term -> {
+							if (term.getCurie().equals(ExpressionCacheRepository.GO_CC_ROOT)) {
+								section.setDescription(term.getDefinition());
+								allSlimElement.setDescription(term.getDefinition());
+							} else {
+								SectionSlim slim = getSectionSlim(term.getCurie(), term.getName(), term.getDefinition());
+								section.addDiseaseSlim(slim);
+							}
+						});
+						break;
+					case ExpressionCacheRepository.UBERON_ANATOMY_ROOT:
+						slimTerms.getAnatomicalStructureSlimTerms().forEach(term -> {
+							if (term.getCurie().equals(ExpressionCacheRepository.UBERON_ANATOMY_ROOT)) {
+								section.setDescription(term.getDefinition());
+								allSlimElement.setDescription(term.getDefinition());
+							} else {
+								SectionSlim slim = getSectionSlim(term.getCurie(), term.getName(), term.getDefinition());
+								section.addDiseaseSlim(slim);
+							}
+						});
+						break;
+					case ExpressionCacheRepository.UBERON_STAGE_ROOT:
+						slimTerms.getStageSlimTerms().forEach(term -> {
+							if (term.getCurie().equals(ExpressionCacheRepository.UBERON_STAGE_ROOT)) {
+								section.setDescription(term.getDefinition());
+								allSlimElement.setDescription(term.getDefinition());
+							} else {
+								SectionSlim slim = getSectionSlim(term.getCurie(), term.getName(), term.getDefinition());
+								section.addDiseaseSlim(slim);
+							}
+						});
+						break;
 				}
 			});
 
