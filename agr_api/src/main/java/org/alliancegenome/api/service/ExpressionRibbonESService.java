@@ -19,6 +19,7 @@ import org.alliancegenome.core.util.FileHelper;
 import org.alliancegenome.curation_api.model.document.es.GeneExpressionDocument;
 import org.alliancegenome.curation_api.model.document.es.GeneExpressionRibbonSummaryDocument;
 import org.alliancegenome.curation_api.model.entities.Gene;
+import org.alliancegenome.curation_api.model.entities.GeneExpressionAnnotation;
 import org.alliancegenome.curation_api.model.entities.ontology.GOTerm;
 import org.alliancegenome.es.model.query.Pagination;
 import org.apache.commons.collections4.CollectionUtils;
@@ -45,7 +46,7 @@ public class ExpressionRibbonESService extends ESService {
 
 	public static final String UNDEFINED = "undefined";
 
-	private static RibbonSummary ribbonSummary;
+	private static volatile RibbonSummary ribbonSummary;
 
 	public RibbonSummary getRibbonSectionInfo() {
 		// get a deep clone of a template object
@@ -120,8 +121,16 @@ public class ExpressionRibbonESService extends ESService {
 		Pagination pagination = new Pagination(1, 250000, null, null);
 		JsonResultResponse<GeneExpressionDocument> expressionAnnotations = expressionService.getExpressionAnnotations(List.of(geneID), null, null, pagination);
 
-		Gene gene = expressionAnnotations.getResults().get(0).getGeneExpressionAnnotation().getExpressionAnnotationSubject();
-		String dataProvider = expressionAnnotations.getResults().get(0).getGeneExpressionAnnotation().getDataProvider().getAbbreviation();
+		String dataProvider;
+		Gene gene = null;
+		if (CollectionUtils.isNotEmpty(expressionAnnotations.getResults())) {
+			GeneExpressionAnnotation annotation = expressionAnnotations.getResults().get(0).getGeneExpressionAnnotation();
+			gene = annotation.getExpressionAnnotationSubject();
+			dataProvider = annotation.getDataProvider().getAbbreviation();
+		} else {
+			dataProvider = null;
+		}
+
 		RibbonEntity entity = new RibbonEntity();
 		entity.setId(geneID);
 		entity.setLabel(gene.getGeneSymbol().getDisplayText());
@@ -253,59 +262,67 @@ public class ExpressionRibbonESService extends ESService {
 			return ribbonSummary;
 		}
 
-		ribbonSummary = new RibbonSummary();
-
-		GeneExpressionRibbonSummaryDocument slimTerms = getGeneExpressionRibbonSlimTerms();
-
-		slimParentTermIdMap.forEach((id, names) -> {
-			RibbonSection section = new RibbonSection();
-			section.setLabel(names.get(0));
-			section.setId(id);
-			
-			SectionSlim allSlimElement = new SectionSlim();
-			allSlimElement.setId(id);
-			allSlimElement.setLabel(names.get(1));
-			allSlimElement.setTypeAll();
-			section.addDiseaseSlim(allSlimElement);
-			ribbonSummary.addRibbonSection(section);
-
-			List<GOTerm> goSlimList = slimTerms.getGoSlimTerms();
-			if (id.equals(ExpressionCacheRepository.GO_CC_ROOT)) {
-				goSlimList.forEach(term -> {
-					if (term.getCurie().equals(ExpressionCacheRepository.GO_CC_ROOT)) {
-						section.setDescription(term.getDefinition());
-						allSlimElement.setDescription(term.getDefinition());
-					} else {
-						SectionSlim slim = getSectionSlim(term.getCurie(), term.getName(), term.getDefinition());
-						section.addDiseaseSlim(slim);
-					}
-				});
+		synchronized (ExpressionRibbonESService.class) {
+			if (ribbonSummary != null) {
+				return ribbonSummary;
 			}
-			if (id.equals(ExpressionCacheRepository.UBERON_ANATOMY_ROOT)) {
-				slimTerms.getAnatomicalStructureSlimTerms().forEach(term -> {
-					if (term.getCurie().equals(ExpressionCacheRepository.UBERON_ANATOMY_ROOT)) {
-						section.setDescription(term.getDefinition());
-						allSlimElement.setDescription(term.getDefinition());
-					} else {
-						SectionSlim slim = getSectionSlim(term.getCurie(), term.getName(), term.getDefinition());
-						section.addDiseaseSlim(slim);
-					}
-				});
-			}
-			if (id.equals(ExpressionCacheRepository.UBERON_STAGE_ROOT)) {
-				slimTerms.getStageSlimTerms().forEach(term -> {
-					if (term.getCurie().equals(ExpressionCacheRepository.UBERON_STAGE_ROOT)) {
-						section.setDescription(term.getDefinition());
-						allSlimElement.setDescription(term.getDefinition());
-					} else {
-						SectionSlim slim = getSectionSlim(term.getCurie(), term.getName(), term.getDefinition());
-						section.addDiseaseSlim(slim);
-					}
-				});
-			}
-		});
 
-		return ribbonSummary;
+			RibbonSummary tempRibbonSummary = new RibbonSummary();
+
+			GeneExpressionRibbonSummaryDocument slimTerms = getGeneExpressionRibbonSlimTerms();
+
+			slimParentTermIdMap.forEach((id, names) -> {
+				RibbonSection section = new RibbonSection();
+				section.setLabel(names.get(0));
+				section.setId(id);
+
+				SectionSlim allSlimElement = new SectionSlim();
+				allSlimElement.setId(id);
+				allSlimElement.setLabel(names.get(1));
+				allSlimElement.setTypeAll();
+				section.addDiseaseSlim(allSlimElement);
+				tempRibbonSummary.addRibbonSection(section);
+
+				switch (id) {
+					case ExpressionCacheRepository.GO_CC_ROOT:
+						slimTerms.getGoSlimTerms().forEach(term -> {
+							if (term.getCurie().equals(ExpressionCacheRepository.GO_CC_ROOT)) {
+								section.setDescription(term.getDefinition());
+								allSlimElement.setDescription(term.getDefinition());
+							} else {
+								SectionSlim slim = getSectionSlim(term.getCurie(), term.getName(), term.getDefinition());
+								section.addDiseaseSlim(slim);
+							}
+						});
+						break;
+					case ExpressionCacheRepository.UBERON_ANATOMY_ROOT:
+						slimTerms.getAnatomicalStructureSlimTerms().forEach(term -> {
+							if (term.getCurie().equals(ExpressionCacheRepository.UBERON_ANATOMY_ROOT)) {
+								section.setDescription(term.getDefinition());
+								allSlimElement.setDescription(term.getDefinition());
+							} else {
+								SectionSlim slim = getSectionSlim(term.getCurie(), term.getName(), term.getDefinition());
+								section.addDiseaseSlim(slim);
+							}
+						});
+						break;
+					case ExpressionCacheRepository.UBERON_STAGE_ROOT:
+						slimTerms.getStageSlimTerms().forEach(term -> {
+							if (term.getCurie().equals(ExpressionCacheRepository.UBERON_STAGE_ROOT)) {
+								section.setDescription(term.getDefinition());
+								allSlimElement.setDescription(term.getDefinition());
+							} else {
+								SectionSlim slim = getSectionSlim(term.getCurie(), term.getName(), term.getDefinition());
+								section.addDiseaseSlim(slim);
+							}
+						});
+						break;
+				}
+			});
+
+			ribbonSummary = tempRibbonSummary;
+			return ribbonSummary;
+		}
 	}
 
 	private SectionSlim getSectionSlim(String primaryKey, String name, String def) {
