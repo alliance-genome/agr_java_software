@@ -283,7 +283,7 @@ public class ExpressionRibbonESService extends ESService {
 				section.addDiseaseSlim(allSlimElement);
 				tempRibbonSummary.addRibbonSection(section);
 
-				switch(id) {
+				switch (id) {
 					case ExpressionCacheRepository.GO_CC_ROOT:
 						slimTerms.getGoSlimTerms().forEach(term -> {
 							if (term.getCurie().equals(ExpressionCacheRepository.GO_CC_ROOT)) {
