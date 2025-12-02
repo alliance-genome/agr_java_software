@@ -50,7 +50,7 @@ public class ExpressionESService extends ESService {
 		addTableFilter(pagination, boolQuery);
 		
 		LinkedHashMap<String, SortOrder> sortOrders = getExpressionSortOrders(pagination, focusTaxonId);
-		SearchResponse searchResponse = getSearchResponse(boolQuery, pagination, sortOrders, true);
+		SearchResponse searchResponse = getSearchResponse(boolQuery, pagination, sortOrders, false);
 
 
 		List<GeneExpressionDocument> list = new ArrayList<>();
