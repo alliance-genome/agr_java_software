@@ -117,7 +117,7 @@ public class ExpressionRibbonESService extends ESService {
 		SearchResponse searchResponse = getSearchResponse(boolQuery, pagination, sorts, false);
 		if (searchResponse.getHits().getHits().length > 0) {
 			try {
-				Map<String, Object> map = mapper.readValue(searchResponse.getHits().getHits()[0].getSourceAsString(), new TypeReference<Map<String, Object>>() {});
+				Map<String, Object> map = mapper.readValue(searchResponse.getHits().getHits()[0].getSourceAsString(), new TypeReference<Map<String, Object>>() { });
 				return map;
 			} catch (Exception e) {
 				e.printStackTrace();
