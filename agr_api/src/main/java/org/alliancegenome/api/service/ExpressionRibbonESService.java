@@ -110,6 +110,7 @@ public class ExpressionRibbonESService extends ESService {
 
 	public Map<String, Object> getGene(String geneID) {
 		BoolQueryBuilder boolQuery = boolQuery();
+		//Need to change category = gene to new category when the search functionlity is converted into ES
 		boolQuery.filter(new TermQueryBuilder("category", "gene"));
 		boolQuery.filter(new TermQueryBuilder("primaryKey", geneID));
 		LinkedHashMap<String, SortOrder> sorts = new LinkedHashMap<>();

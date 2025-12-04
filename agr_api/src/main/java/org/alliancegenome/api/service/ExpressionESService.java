@@ -86,14 +86,43 @@ public class ExpressionESService extends ESService {
 			sortingSetMap.put("default", "geneExpressionAnnotation.expressionAnnotationSubject.geneSymbol.displayText.sort");
 		}
 
-		String sortField = sortingSetMap.get(pagination.getSortBy());
+		String sortField = pagination.getSortBy() != null ? pagination.getSortBy() : "default";
 
-		if (sortField == null || pagination.getSortBy().equals("default")) {
-			sortingMap.put(sortingSetMap.get("default"), SortOrder.ASC);
-			sortingMap.put(sortingSetMap.get("location"), SortOrder.ASC);
-			sortingMap.put(sortingSetMap.get("stage"), SortOrder.ASC);
-		} else {
-			sortingMap.put(sortField, SortOrder.ASC);
+		switch (sortField) {
+			case "default" :
+				sortingMap.put(sortingSetMap.get("default"), SortOrder.ASC);
+				sortingMap.put(sortingSetMap.get("location"), SortOrder.ASC);
+				sortingMap.put(sortingSetMap.get("stage"), SortOrder.ASC);
+				break;
+			case "species" :
+				sortingMap.put(sortingSetMap.get("species"), SortOrder.ASC);
+				sortingMap.put(sortingSetMap.get("default"), SortOrder.ASC);
+				sortingMap.put(sortingSetMap.get("gene"), SortOrder.ASC);
+				sortingMap.put(sortingSetMap.get("location"), SortOrder.ASC);
+				sortingMap.put(sortingSetMap.get("stage"), SortOrder.ASC);
+				sortingMap.put(sortingSetMap.get("assay"), SortOrder.ASC);
+				break;
+			case "location" :
+				sortingMap.put(sortingSetMap.get("location"), SortOrder.ASC);
+				sortingMap.put(sortingSetMap.get("stage"), SortOrder.ASC);
+				sortingMap.put(sortingSetMap.get("assay"), SortOrder.ASC);
+				break;
+			case "assay" :
+				sortingMap.put(sortingSetMap.get("assay"), SortOrder.ASC);
+				sortingMap.put(sortingSetMap.get("location"), SortOrder.ASC);
+				sortingMap.put(sortingSetMap.get("stage"), SortOrder.ASC);
+				break;
+			case "stage" :
+				sortingMap.put(sortingSetMap.get("stage"), SortOrder.ASC);
+				sortingMap.put(sortingSetMap.get("location"), SortOrder.ASC);
+				sortingMap.put(sortingSetMap.get("assay"), SortOrder.ASC);
+				break;
+			case "gene" :
+				sortingMap.put(sortingSetMap.get("gene"), SortOrder.ASC);
+				sortingMap.put(sortingSetMap.get("location"), SortOrder.ASC);
+				sortingMap.put(sortingSetMap.get("stage"), SortOrder.ASC);
+				sortingMap.put(sortingSetMap.get("assay"), SortOrder.ASC);
+				break;
 		}
 		
 		return sortingMap;
