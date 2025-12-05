@@ -93,6 +93,7 @@ public class ExpressionESService extends ESService {
 				sortingMap.put(sortingSetMap.get("default"), SortOrder.ASC);
 				sortingMap.put(sortingSetMap.get("location"), SortOrder.ASC);
 				sortingMap.put(sortingSetMap.get("stage"), SortOrder.ASC);
+				sortingMap.put(sortingSetMap.get("assay"), SortOrder.ASC);
 				break;
 			case "species" :
 				sortingMap.put(sortingSetMap.get("species"), SortOrder.ASC);
