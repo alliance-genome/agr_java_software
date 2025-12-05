@@ -160,12 +160,25 @@ public class GeneExpressionAnnotationIndexer extends Indexer {
 				List<CrossReference> allCrossReferences = new ArrayList<>();
 				List<String> allReferenceIds = new ArrayList<>();
 
+				// logic behind this consolidation is to have 1:1 mapping for reference and crossReference for consolidated annotations, which is useful while deconsolidating later for download endpoint
 				for (GeneExpressionDocument doc : group) {
-					if (CollectionUtils.isNotEmpty(doc.getGeneExpressionAnnotation().getCrossReferences())) {
-						allCrossReferences.addAll(doc.getGeneExpressionAnnotation().getCrossReferences());
-					}
-					if (CollectionUtils.isNotEmpty(doc.getReferenceId())) {
-						allReferenceIds.addAll(doc.getReferenceId());
+					int annotationSize = Math.max(
+						CollectionUtils.isNotEmpty(doc.getGeneExpressionAnnotation().getCrossReferences()) ? doc.getGeneExpressionAnnotation().getCrossReferences().size() : 0,
+						CollectionUtils.isNotEmpty(doc.getReferenceId()) ? doc.getReferenceId().size() : 0
+					);
+					for (int i = 0; i < annotationSize; i++) {
+						if (CollectionUtils.isNotEmpty(doc.getGeneExpressionAnnotation().getCrossReferences()) && i < doc.getGeneExpressionAnnotation().getCrossReferences().size()) {
+							allCrossReferences.add(doc.getGeneExpressionAnnotation().getCrossReferences().get(i));
+						} else {
+							CrossReference emptyRef = new CrossReference();
+							emptyRef.setDisplayName("");
+							emptyRef.setReferencedCurie("");
+							allCrossReferences.add(emptyRef);
+						}
+						if (CollectionUtils.isNotEmpty(doc.getReferenceId())) {
+							// Incoming geneexpression annotation always has only one referenceId
+							allReferenceIds.add(doc.getReferenceId().get(0));
+						}
 					}
 				}
 
