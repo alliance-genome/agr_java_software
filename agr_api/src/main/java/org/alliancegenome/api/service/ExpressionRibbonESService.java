@@ -20,8 +20,8 @@ import org.alliancegenome.curation_api.model.document.es.GeneExpressionDocument;
 import org.alliancegenome.curation_api.model.document.es.GeneExpressionRibbonSummaryDocument;
 import org.alliancegenome.curation_api.model.entities.Gene;
 import org.alliancegenome.curation_api.model.entities.GeneExpressionAnnotation;
-import org.alliancegenome.curation_api.model.entities.ontology.GOTerm;
 import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
@@ -31,9 +31,10 @@ import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 
-
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.quarkus.logging.Log;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
@@ -95,7 +96,7 @@ public class ExpressionRibbonESService extends ESService {
 		LinkedHashMap<String, SortOrder> sorts = new LinkedHashMap<>();
 		Pagination pagination = new Pagination();
 		
-		SearchResponse searchResponse = getSearchResponse(boolQuery, pagination, sorts, true);
+		SearchResponse searchResponse = getSearchResponse(boolQuery, pagination, sorts, false);
 		if (searchResponse.getHits().getHits().length > 0) {
 			try {
 				return mapper.readValue(searchResponse.getHits().getHits()[0].getSourceAsString(), GeneExpressionRibbonSummaryDocument.class);
@@ -106,6 +107,27 @@ public class ExpressionRibbonESService extends ESService {
 		return null;
 	}
 
+
+	public Map<String, Object> getGene(String geneID) {
+		BoolQueryBuilder boolQuery = boolQuery();
+		//Need to change category = gene to new category when the search functionlity is converted into ES
+		boolQuery.filter(new TermQueryBuilder("category", "gene"));
+		boolQuery.filter(new TermQueryBuilder("primaryKey", geneID));
+		LinkedHashMap<String, SortOrder> sorts = new LinkedHashMap<>();
+		Pagination pagination = new Pagination();
+		SearchResponse searchResponse = getSearchResponse(boolQuery, pagination, sorts, false);
+		if (searchResponse.getHits().getHits().length > 0) {
+			try {
+				Map<String, Object> map = mapper.readValue(searchResponse.getHits().getHits()[0].getSourceAsString(), new TypeReference<Map<String, Object>>() { });
+				return map;
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return null;
+	}
+
+	
 	public RibbonSummary getExpressionRibbonSummary(List<String> geneIDs) {
 		if (geneIDs == null) {
 			return null;
@@ -122,20 +144,28 @@ public class ExpressionRibbonESService extends ESService {
 		JsonResultResponse<GeneExpressionDocument> expressionAnnotations = expressionService.getExpressionAnnotations(List.of(geneID), null, null, pagination);
 
 		String dataProvider;
-		Gene gene = null;
-		if (CollectionUtils.isNotEmpty(expressionAnnotations.getResults())) {
-			GeneExpressionAnnotation annotation = expressionAnnotations.getResults().get(0).getGeneExpressionAnnotation();
-			gene = annotation.getExpressionAnnotationSubject();
-			dataProvider = annotation.getDataProvider().getAbbreviation();
-		} else {
-			dataProvider = null;
-		}
-
 		RibbonEntity entity = new RibbonEntity();
 		entity.setId(geneID);
-		entity.setLabel(gene.getGeneSymbol().getDisplayText());
-		entity.setTaxonID(gene.getTaxon().getCurie());
-		entity.setTaxonName(gene.getTaxon().getName());
+		if (CollectionUtils.isNotEmpty(expressionAnnotations.getResults())) {
+			GeneExpressionAnnotation annotation = expressionAnnotations.getResults().get(0).getGeneExpressionAnnotation();
+			Gene gene = annotation.getExpressionAnnotationSubject();
+			dataProvider = annotation.getDataProvider().getAbbreviation();
+			entity.setLabel(gene.getGeneSymbol().getDisplayText());
+			entity.setTaxonID(gene.getTaxon().getCurie());
+			entity.setTaxonName(gene.getTaxon().getName());
+		} else {
+			Map<String, Object> geneDoc = getGene(geneID);
+			SpeciesType type = SpeciesType.getTypeByNameField(geneDoc.get("species").toString());
+			if (type != null) {
+				dataProvider = type.getDisplayName();
+				entity.setLabel(geneDoc.get("symbol").toString());
+				entity.setTaxonID(type.getTaxonID());
+				entity.setTaxonName(type.getName());
+			} else {
+				dataProvider = null;
+				Log.error("Could not find species for geneID: " + geneID);
+			}
+		}
 
 		// mark / add the 'not available' terms
 		// Note: Stages are still handled separately than ao / go because they are modelled differently in the database.
