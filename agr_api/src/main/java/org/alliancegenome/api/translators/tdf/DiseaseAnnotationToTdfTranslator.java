@@ -213,6 +213,16 @@ public class DiseaseAnnotationToTdfTranslator extends BaseToTdfTranslator {
 				row.setAssertedGeneName(assertedGenes.stream().filter(gene -> !gene.getIdentifier().equals(subjectID))
 					.map(gene -> gene.getGeneSymbol().getDisplayText()).collect(Collectors.joining("|")));
 			}
+			List<org.alliancegenome.curation_api.model.entities.Allele> assertedAlleles = pAnnotation.getAssertedAlleles();
+			// Only include if the output main annotation is of type allele
+			if (CollectionUtils.isNotEmpty(assertedAlleles) && annotation instanceof AlleleDiseaseAnnotationDocument alleleAnnot) {
+				String primaryExternalId = alleleAnnot.getSubject().getPrimaryExternalId();
+				// exclude the allele of the annotation.getSubject() object
+				row.setAssertedAlleleID(assertedAlleles.stream().filter(allele -> !allele.getIdentifier().equals(primaryExternalId))
+					.map(SubmittedObject::getIdentifier).collect(Collectors.joining("|")));
+				row.setAssertedAlleleName(assertedAlleles.stream().filter(allele -> !allele.getIdentifier().equals(primaryExternalId))
+					.map(allele -> allele.getAlleleSymbol().getDisplayText()).collect(Collectors.joining("|")));
+			}
 
 		}
 		if (annotation.getGeneratedRelationString().contains("via_orthology")) {
@@ -695,6 +705,8 @@ public class DiseaseAnnotationToTdfTranslator extends BaseToTdfTranslator {
 			new DownloadHeader<>("Allele ID", DiseaseDownloadRow::getMainEntityID),
 			new DownloadHeader<>("Allele Symbol", DiseaseDownloadRow::getMainEntitySymbol),
 			new DownloadHeader<>("Allele Association", DiseaseDownloadRow::getAssociation),
+			new DownloadHeader<>("Additional Implicated Allele IDs", DiseaseDownloadRow::getAssertedAlleleID),
+			new DownloadHeader<>("Additional Implicated Allele Symbols", DiseaseDownloadRow::getAssertedAlleleName),
 			new DownloadHeader<>("Genetic Entity ID", DiseaseDownloadRow::getGeneticEntityID),
 			new DownloadHeader<>("Genetic Entity Name", DiseaseDownloadRow::getGeneticEntityName),
 			new DownloadHeader<>("Genetic Entity Type", DiseaseDownloadRow::getGeneticEntityType),
