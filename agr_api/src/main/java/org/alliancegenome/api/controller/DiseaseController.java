@@ -353,7 +353,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 																						String asc) {
 		long startTime = System.currentTimeMillis();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
-		pagination.addFilterOption("subject.name", modelName);
+		pagination.addFilterOption("subject.agmFullName.formatText", modelName);
 		pagination.addFilterOption("subject.taxon.name.keyword", species);
 		pagination.addFilterOption("evidenceCodes.abbreviation", evidenceCode);
 		pagination.addFilterOption("generatedRelationString.keyword", associationType);
