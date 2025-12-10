@@ -254,7 +254,8 @@ public class AlleleController implements AlleleRESTInterface {
 			sortBy,
 			asc);
 		Response.ResponseBuilder responseBuilder = Response.ok(diseaseToTdfTranslator.getAllRowsForAlleleDiseaseAnnotations(response.getResults()));
-		APIServiceHelper.setDownloadHeader(alleleID, EntityType.ALLELE, EntityType.DISEASE, responseBuilder);
+		String alleleSymbol = getAllele(alleleID).getAllele().getAlleleSymbol().getFormatText();
+		APIServiceHelper.setDownloadHeaderByName(alleleID, alleleSymbol, EntityType.ALLELE, EntityType.DISEASE, responseBuilder);
 		return responseBuilder.build();
 	}
 

@@ -70,6 +70,12 @@ public class APIServiceHelper {
 		responseBuilder.type(MediaType.TEXT_PLAIN_TYPE);
 	}
 
+	public static void setDownloadHeaderByName(String entityID, String entityName, EntityType type, EntityType collectionType, Response.ResponseBuilder responseBuilder) {
+		String fileName = APIServiceHelper.getFileName(entityName, entityID, collectionType, null);
+		responseBuilder.header("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
+		responseBuilder.type(MediaType.TEXT_PLAIN_TYPE);
+	}
+
 	/**
 	 * Retrieve the name / symbol of an entity given by an ID
 	 *
