@@ -170,7 +170,8 @@ public class AlleleController implements AlleleRESTInterface {
 				reference,
 				sortBy);
 		Response.ResponseBuilder responseBuilder = Response.ok(phenotypeTranslator.getAllRows(response.getResults()));
-		APIServiceHelper.setDownloadHeader(id, EntityType.ALLELE, EntityType.PHENOTYPE, responseBuilder);
+		String alleleSymbol = getAllele(id).getAllele().getAlleleSymbol().getFormatText();
+		APIServiceHelper.setDownloadHeaderByName(id, alleleSymbol, EntityType.ALLELE, EntityType.PHENOTYPE, responseBuilder);
 		return responseBuilder.build();
 	}
 
