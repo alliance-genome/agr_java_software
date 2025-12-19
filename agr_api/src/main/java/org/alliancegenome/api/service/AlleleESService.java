@@ -1,6 +1,7 @@
 package org.alliancegenome.api.service;
 
 import jakarta.enterprise.context.RequestScoped;
+import org.alliancegenome.api.entity.VariantSummaryDocument;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.curation_api.model.document.es.TransgenicAlleleDocument;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
@@ -64,5 +65,27 @@ public class AlleleESService extends ESService {
 
 		return null;
 
+	}
+
+	public JsonResultResponse<VariantSummaryDocument> getVariantSummary(String alleleId, Pagination pagination) {
+
+		BoolQueryBuilder bool = boolQuery();
+		bool.must(new MatchQueryBuilder("allele.primaryExternalId", alleleId));
+		bool.filter(new TermQueryBuilder("category", "variant_summary"));
+		SearchResponse searchResponse = getSearchResponse(bool, pagination, null, false);
+		List<VariantSummaryDocument> list = new ArrayList<>();
+		Arrays.stream(searchResponse.getHits().getHits())
+			.forEach(searchHit -> {
+				try {
+					VariantSummaryDocument object = mapper.readValue(searchHit.getSourceAsString(), VariantSummaryDocument.class);
+					list.add(object);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			});
+		JsonResultResponse<VariantSummaryDocument> ret = new JsonResultResponse<>();
+		ret.setResults(list);
+		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
+		return ret;
 	}
 }
