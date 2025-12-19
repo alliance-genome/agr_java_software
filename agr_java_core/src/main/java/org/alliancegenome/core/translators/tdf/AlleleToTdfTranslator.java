@@ -3,9 +3,12 @@ package org.alliancegenome.core.translators.tdf;
 import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.api.entity.GeneTransgenicAlleleSummaryDocument;
 import org.alliancegenome.api.entity.TransgenicAlleleSummaryDocument;
+import org.alliancegenome.api.entity.VariantSummaryDocument;
 import org.alliancegenome.curation_api.model.entities.Allele;
 import org.alliancegenome.curation_api.model.entities.Reference;
 import org.alliancegenome.curation_api.model.entities.TransgenicAlleleConstruct;
+import org.alliancegenome.curation_api.model.entities.Variant;
+import org.alliancegenome.curation_api.model.entities.associations.CuratedVariantGenomicLocationAssociation;
 import org.alliancegenome.neo4j.entity.node.Publication;
 import org.alliancegenome.neo4j.entity.node.TranscriptLevelConsequence;
 import org.apache.commons.collections.CollectionUtils;
@@ -244,7 +247,7 @@ public class AlleleToTdfTranslator {
 	}
 
 
-	public String getAllVariantsRows(List<org.alliancegenome.neo4j.entity.node.Variant> variants) {
+	public String getAllVariantsRows(List<VariantSummaryDocument> variants) {
 
 		List<VariantDownloadRow> list = getVariantDownloadRowsForAlleles(variants);
 		List<DownloadHeader> headers = List.of(
@@ -267,7 +270,7 @@ public class AlleleToTdfTranslator {
 	}
 
 
-	public List<VariantDownloadRow> getVariantDownloadRowsForAlleles(List<org.alliancegenome.neo4j.entity.node.Variant> annotations) {
+	public List<VariantDownloadRow> getVariantDownloadRowsForAlleles(List<VariantSummaryDocument> annotations) {
 
 		return annotations.stream()
 			.map(this::getBaseDownloadVariantRow)
@@ -275,14 +278,16 @@ public class AlleleToTdfTranslator {
 	}
 
 
-	private VariantDownloadRow getBaseDownloadVariantRow(final org.alliancegenome.neo4j.entity.node.Variant annotation) {
+	private VariantDownloadRow getBaseDownloadVariantRow(VariantSummaryDocument annotation) {
 		VariantDownloadRow row = new VariantDownloadRow();
-		row.setSymbol(annotation.getHgvsNomenclature());
-		row.setVariantType(annotation.getVariantType().getName());
-		row.setChrPosition(annotation.getLocation().getChromosomeAndPosition());
-		row.setChange(annotation.getNucleotideChange());
-		row.setConsequence(annotation.getConsequence());
-		row.setOverlaps(annotation.getGene().getSymbol());
+		CuratedVariantGenomicLocationAssociation variant = annotation.getVariant();
+		row.setSymbol(variant.getHgvs());
+		row.setVariantType(variant.getVariantAssociationSubject().getVariantType().getName());
+		row.setChrPosition(variant.getVariantGenomicLocationAssociationObject().getName());
+		String consequence= variant.getPredictedVariantConsequences().get(0).getVepConsequences().get(0).getName();
+		row.setConsequence(consequence);
+//		row.setChange(annotation.getNucleotideChange());
+//		row.setOverlaps(annotation.getGene().getSymbol());
 		String hgvsGs = "";
 		String hgvsPs = "";
 		String hgvsCs = "";
@@ -291,6 +296,7 @@ public class AlleleToTdfTranslator {
 		String notesDescs = "";
 		String pubs = "";
 
+/*
 		if (CollectionUtils.isNotEmpty(annotation.getSynonyms())) {
 			StringJoiner synonymJoiner = new StringJoiner(",");
 			annotation.getSynonyms().forEach(synonym -> synonymJoiner.add(synonym.getName()));
@@ -327,6 +333,7 @@ public class AlleleToTdfTranslator {
 			annotation.getPublications().forEach(pub -> pubJoiner.add(pub.getPubId()));
 			pubs = pubJoiner.toString();
 		}
+*/
 
 		row.setVariantSynonyms(synonyms);
 		row.setHgvsG(hgvsGs);

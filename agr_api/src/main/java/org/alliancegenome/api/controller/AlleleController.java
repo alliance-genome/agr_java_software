@@ -109,8 +109,8 @@ public class AlleleController implements AlleleRESTInterface {
 
 	@Override
 	public Response getVariantsPerAlleleDownload(String id, String sortBy, String variantType, String consequence) {
-		JsonResultResponse<Variant> response = getVariantsPerAllele(id,
-			Integer.MAX_VALUE,
+		JsonResultResponse<VariantSummaryDocument> response = getVariantsPerAllele(id,
+			100000,
 			1,
 			sortBy,
 			variantType,
