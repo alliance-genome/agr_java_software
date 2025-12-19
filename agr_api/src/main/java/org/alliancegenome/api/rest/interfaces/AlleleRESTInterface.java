@@ -6,6 +6,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.AllelePhenotypeAnnotationDocument;
+import org.alliancegenome.api.entity.VariantSummaryDocument;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
 import org.alliancegenome.curation_api.model.document.es.TransgenicAlleleDocument;
@@ -126,7 +127,6 @@ public interface AlleleRESTInterface {
 	@JsonView(value = {View.DiseaseAnnotationSummary.class})
 	@Produces(MediaType.TEXT_PLAIN)
 	Response getDiseasePerAlleleDownload(@PathParam("id") String id, @Parameter(in = ParameterIn.QUERY, name = "filterOptions", description = "All filter key-value pairs", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filterOptions") String filterOptions,
-<<<<<<< Updated upstream
 										@Parameter(in = ParameterIn.QUERY, name = "filter.reference", description = "Reference", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.reference") String filterReference,
 										@Parameter(in = ParameterIn.QUERY, name = "filter.object.curie", description = "Ontology term name", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.disease") String diseaseTerm,
 										@Parameter(in = ParameterIn.QUERY, name = "filter.dataProvider", description = "Source", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.dataProvider") String filterSource,
@@ -139,19 +139,5 @@ public interface AlleleRESTInterface {
 										@Parameter(in = ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("20") @QueryParam("limit") Integer limit,
 										@Parameter(in = ParameterIn.QUERY, name = "page", description = "Page number") @DefaultValue("1") @QueryParam("page") Integer page, @Parameter(in = ParameterIn.QUERY, name = "sortBy", description = "Sort by field name") @QueryParam("sortBy") String sortBy,
 										@Parameter(in = ParameterIn.QUERY, name = "asc", description = "ascending or descending", schema = @Schema(type = SchemaType.STRING)) @DefaultValue("true") @QueryParam("asc") String asc);
-=======
-										 @Parameter(in = ParameterIn.QUERY, name = "filter.reference", description = "Reference", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.reference") String filterReference,
-										 @Parameter(in = ParameterIn.QUERY, name = "filter.object.curie", description = "Ontology term name", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.disease") String diseaseTerm,
-										 @Parameter(in = ParameterIn.QUERY, name = "filter.dataProvider", description = "Source", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.dataProvider") String filterSource,
-										 @Parameter(in = ParameterIn.QUERY, name = "filter.geneticEntity", description = "geneticEntity", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.geneticEntity") String geneticEntity,
-										 @Parameter(in = ParameterIn.QUERY, name = "filter.geneticEntityType", description = "geneticEntityType", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.geneticEntityType") String geneticEntityType,
-										 @Parameter(in = ParameterIn.QUERY, name = "filter.relation.name", description = "associationType", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.associationType") String associationType,
-										 @Parameter(in = ParameterIn.QUERY, name = "filter.diseaseQualifier", description = "diseaseQualifier", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.diseaseQualifier") String diseaseQualifier,
-										 @Parameter(in = ParameterIn.QUERY, name = "filter.evidenceCode", description = "evidenceCode", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.evidenceCode") String evidenceCode,
-										 @Parameter(in = ParameterIn.QUERY, name = "debug", description = "debug query", schema = @Schema(type = SchemaType.STRING)) @DefaultValue("false") @QueryParam("debug") Boolean debug,
-										 @Parameter(in = ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("20") @QueryParam("limit") Integer limit,
-										 @Parameter(in = ParameterIn.QUERY, name = "page", description = "Page number") @DefaultValue("1") @QueryParam("page") Integer page, @Parameter(in = ParameterIn.QUERY, name = "sortBy", description = "Sort by field name") @QueryParam("sortBy") String sortBy,
-										 @Parameter(in = ParameterIn.QUERY, name = "asc", description = "ascending or descending", schema = @Schema(type = SchemaType.STRING)) @DefaultValue("true") @QueryParam("asc") String asc);
->>>>>>> Stashed changes
 
 }

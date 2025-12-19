@@ -6,6 +6,7 @@ import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.AllelePhenotypeAnnotationDocument;
+import org.alliancegenome.api.entity.VariantSummaryDocument;
 import org.alliancegenome.api.rest.interfaces.AlleleRESTInterface;
 import org.alliancegenome.api.service.*;
 import org.alliancegenome.api.service.helper.APIServiceHelper;
@@ -78,12 +79,12 @@ public class AlleleController implements AlleleRESTInterface {
 
 
 	@Override
-	public JsonResultResponse<Variant> getVariantsPerAllele(String id,
-															Integer limit,
-															Integer page,
-															String sortBy,
-															String variantType,
-															String molecularConsequence) {
+	public JsonResultResponse<VariantSummaryDocument> getVariantsPerAllele(String id,
+																		   Integer limit,
+																		   Integer page,
+																		   String sortBy,
+																		   String variantType,
+																		   String molecularConsequence) {
 		long startTime = System.currentTimeMillis();
 		Pagination pagination = new Pagination(page, limit, sortBy, null);
 		pagination.addFieldFilter(FieldFilter.VARIANT_TYPE, variantType);
@@ -95,7 +96,7 @@ public class AlleleController implements AlleleRESTInterface {
 		}
 
 		try {
-			JsonResultResponse<Variant> alleles = variantService.getVariants(id, pagination);
+			JsonResultResponse<VariantSummaryDocument> alleles = alleleEsService.getVariantSummary(id, pagination);
 			alleles.setHttpServletRequest(null);
 			alleles.calculateRequestDuration(startTime);
 			return alleles;
