@@ -60,10 +60,11 @@ public interface AlleleRESTInterface {
 	@Operation(summary = "Retrieve all variants of a given allele in a download")
 	@JsonView(value = {View.VariantAPI.class})
 	@Produces(MediaType.TEXT_PLAIN)
-	Response getVariantsPerAlleleDownload(@Parameter(in = ParameterIn.PATH, name = "id", description = "Search for Variants for a given Allele by ID", required = true, schema = @Schema(type = SchemaType.STRING)) @PathParam("id") String id,
-										  @Parameter(in = ParameterIn.QUERY, name = "sortBy", description = "Field name by which to sort", schema = @Schema(type = SchemaType.STRING)) @QueryParam("sortBy") String sortBy,
-										  @Parameter(in = ParameterIn.QUERY, name = "filter.variantType", description = "Variant types", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.variantType") String variantType,
-										  @Parameter(in = ParameterIn.QUERY, name = "filter.variantConsequence", description = "Consequence", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.variantConsequence") String consequence);
+	Response getVariantsPerAlleleDownload(
+		@Parameter(in = ParameterIn.PATH, name = "id", description = "Search for Variants for a given Allele by ID", required = true, schema = @Schema(type = SchemaType.STRING)) @PathParam("id") String id,
+		@Parameter(in = ParameterIn.QUERY, name = "sortBy", description = "Field name by which to sort", schema = @Schema(type = SchemaType.STRING)) @QueryParam("sortBy") String sortBy,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.variantType", description = "Variant types", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.variantType") String variantType,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.variantConsequence", description = "Consequence", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.variantConsequence") String consequence);
 
 	@GET
 	@Path("/species/{species}")
@@ -82,13 +83,14 @@ public interface AlleleRESTInterface {
 	@Operation(summary = "Retrieve all phenotypes of a given allele")
 	@APIResponses(value = {@APIResponse(responseCode = "404", description = "Missing phenotypes", content = @Content(mediaType = "text/plain")),
 		@APIResponse(responseCode = "200", description = "Phenotypes for a given Allele.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class)))})
-	JsonResultResponse<AllelePhenotypeAnnotationDocument> getPhenotypePerAllele(@Parameter(in = ParameterIn.PATH, name = "id", description = "Search for Phenotypes for a given Allele by ID", required = true, schema = @Schema(type = SchemaType.STRING)) @PathParam("id") String id,
-																				@Parameter(in = ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("20") @QueryParam("limit") Integer limit,
-																				@Parameter(in = ParameterIn.QUERY, name = "page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("1") @QueryParam("page") Integer page,
-																				@Parameter(in = ParameterIn.QUERY, name = "filter.termName", description = "termName annotation") @QueryParam("filter.termName") String phenotype,
-																				@Parameter(in = ParameterIn.QUERY, name = "filter.dataProvider", description = "Source", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.dataProvider") String source,
-																				@Parameter(in = ParameterIn.QUERY, name = "filter.reference", description = "Reference number: PUBMED or a Pub ID from the MOD") @QueryParam("filter.reference") String reference,
-																				@Parameter(in = ParameterIn.QUERY, name = "sortBy", description = "Field name by which to sort", schema = @Schema(type = SchemaType.STRING)) @DefaultValue("symbol") @QueryParam("sortBy") String sortBy
+	JsonResultResponse<AllelePhenotypeAnnotationDocument> getPhenotypePerAllele(
+		@Parameter(in = ParameterIn.PATH, name = "id", description = "Search for Phenotypes for a given Allele by ID", required = true, schema = @Schema(type = SchemaType.STRING)) @PathParam("id") String id,
+		@Parameter(in = ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("20") @QueryParam("limit") Integer limit,
+		@Parameter(in = ParameterIn.QUERY, name = "page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("1") @QueryParam("page") Integer page,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.termName", description = "termName annotation") @QueryParam("filter.termName") String phenotype,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.dataProvider", description = "Source", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.dataProvider") String source,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.reference", description = "Reference number: PUBMED or a Pub ID from the MOD") @QueryParam("filter.reference") String reference,
+		@Parameter(in = ParameterIn.QUERY, name = "sortBy", description = "Field name by which to sort", schema = @Schema(type = SchemaType.STRING)) @DefaultValue("symbol") @QueryParam("sortBy") String sortBy
 
 	);
 
@@ -97,10 +99,11 @@ public interface AlleleRESTInterface {
 	@Operation(summary = "Retrieve all phenotypes of a given allele in a download")
 	@JsonView(value = {View.PhenotypeAPI.class})
 	@Produces(MediaType.TEXT_PLAIN)
-	Response getPhenotypesPerAlleleDownload(@Parameter(in = ParameterIn.PATH, name = "id", description = "Search for Phenotypes for a given Allele by ID", required = true, schema = @Schema(type = SchemaType.STRING)) @PathParam("id") String id,
-											@Parameter(in = ParameterIn.QUERY, name = "filter.termName", description = "termName annotation") @QueryParam("filter.termName") String phenotype, @Parameter(in = ParameterIn.QUERY, name = "filter.source", description = "Source") @QueryParam("filter.source") String source,
-											@Parameter(in = ParameterIn.QUERY, name = "filter.reference", description = "Reference number: PUBMED or a Pub ID from the MOD") @QueryParam("filter.reference") String reference,
-											@Parameter(in = ParameterIn.QUERY, name = "sortBy", description = "Field name by which to sort", schema = @Schema(type = SchemaType.STRING)) @DefaultValue("symbol") @QueryParam("sortBy") String sortBy);
+	Response getPhenotypesPerAlleleDownload(
+		@Parameter(in = ParameterIn.PATH, name = "id", description = "Search for Phenotypes for a given Allele by ID", required = true, schema = @Schema(type = SchemaType.STRING)) @PathParam("id") String id,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.termName", description = "termName annotation") @QueryParam("filter.termName") String phenotype, @Parameter(in = ParameterIn.QUERY, name = "filter.source", description = "Source") @QueryParam("filter.source") String source,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.reference", description = "Reference number: PUBMED or a Pub ID from the MOD") @QueryParam("filter.reference") String reference,
+		@Parameter(in = ParameterIn.QUERY, name = "sortBy", description = "Field name by which to sort", schema = @Schema(type = SchemaType.STRING)) @DefaultValue("symbol") @QueryParam("sortBy") String sortBy);
 
 	@GET
 	@Path("/{id}/diseases")
