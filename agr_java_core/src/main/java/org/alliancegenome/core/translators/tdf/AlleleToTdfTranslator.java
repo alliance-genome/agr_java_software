@@ -5,9 +5,9 @@ import org.alliancegenome.api.entity.GeneTransgenicAlleleSummaryDocument;
 import org.alliancegenome.api.entity.TransgenicAlleleSummaryDocument;
 import org.alliancegenome.api.entity.VariantSummaryDocument;
 import org.alliancegenome.curation_api.model.entities.Allele;
+import org.alliancegenome.curation_api.model.entities.Note;
 import org.alliancegenome.curation_api.model.entities.Reference;
 import org.alliancegenome.curation_api.model.entities.TransgenicAlleleConstruct;
-import org.alliancegenome.curation_api.model.entities.Variant;
 import org.alliancegenome.curation_api.model.entities.associations.CuratedVariantGenomicLocationAssociation;
 import org.alliancegenome.neo4j.entity.node.Publication;
 import org.alliancegenome.neo4j.entity.node.TranscriptLevelConsequence;
@@ -284,7 +284,7 @@ public class AlleleToTdfTranslator {
 		row.setSymbol(variant.getHgvs());
 		row.setVariantType(variant.getVariantAssociationSubject().getVariantType().getName());
 		row.setChrPosition(variant.getVariantGenomicLocationAssociationObject().getName());
-		String consequence= variant.getPredictedVariantConsequences().get(0).getVepConsequences().get(0).getName();
+		String consequence = variant.getPredictedVariantConsequences().get(0).getVepConsequences().get(0).getName();
 		row.setConsequence(consequence);
 //		row.setChange(annotation.getNucleotideChange());
 //		row.setOverlaps(annotation.getGene().getSymbol());
@@ -302,38 +302,35 @@ public class AlleleToTdfTranslator {
 			annotation.getSynonyms().forEach(synonym -> synonymJoiner.add(synonym.getName()));
 			synonyms = synonymJoiner.toString();
 		}
-
 		if (CollectionUtils.isNotEmpty(annotation.getHgvsG())) {
 			StringJoiner hgvsgJoiner = new StringJoiner(",");
 			annotation.getHgvsG().forEach(hgvsgJoiner::add);
 			hgvsGs = hgvsgJoiner.toString();
 		}
-		if (CollectionUtils.isNotEmpty(annotation.getHgvsC())) {
-			StringJoiner hgvscJoiner = new StringJoiner(",");
-			annotation.getHgvsC().forEach(hgvscJoiner::add);
-			hgvsCs = hgvscJoiner.toString();
+*/
+		hgvsGs = variant.getHgvs();
+
+		if (CollectionUtils.isNotEmpty(variant.getHgvsC())) {
+			hgvsCs = getCommaDelimetedString(variant.getHgvsC());
 		}
-		if (CollectionUtils.isNotEmpty(annotation.getHgvsP())) {
-			StringJoiner hgvspJoiner = new StringJoiner(",");
-			annotation.getHgvsP().forEach(hgvspJoiner::add);
-			hgvsPs = hgvspJoiner.toString();
+		if (CollectionUtils.isNotEmpty(variant.getHgvsP())) {
+			hgvsPs = getCommaDelimetedString(variant.getHgvsP());
 		}
+/*
 		if (CollectionUtils.isNotEmpty(annotation.getCrossReferences())) {
 			StringJoiner crossRefJoiner = new StringJoiner(",");
 			annotation.getCrossReferences().forEach(crossRef -> crossRefJoiner.add(crossRef.getDisplayName()));
 			crossRefs = crossRefJoiner.toString();
 		}
-		if (CollectionUtils.isNotEmpty(annotation.getNotes())) {
-			StringJoiner noteJoiner = new StringJoiner(",");
-			annotation.getNotes().forEach(noteDesc -> noteJoiner.add(noteDesc.getNote()));
-			notesDescs = noteJoiner.toString();
-		}
-		if (CollectionUtils.isNotEmpty(annotation.getPublications())) {
-			StringJoiner pubJoiner = new StringJoiner(",");
-			annotation.getPublications().forEach(pub -> pubJoiner.add(pub.getPubId()));
-			pubs = pubJoiner.toString();
-		}
 */
+		List<Note> relatedNotes = variant.getVariantAssociationSubject().getRelatedNotes();
+		if (CollectionUtils.isNotEmpty(relatedNotes)) {
+			notesDescs = getCommaDelimetedString(relatedNotes.stream().map(Note::getFreeText).toList());
+		}
+		List<Reference> references = variant.getVariantAssociationSubject().getReferences();
+		if (CollectionUtils.isNotEmpty(references)) {
+			pubs = getCommaDelimetedString(references.stream().map(Reference::getReferenceID).toList());
+		}
 
 		row.setVariantSynonyms(synonyms);
 		row.setHgvsG(hgvsGs);
@@ -344,6 +341,14 @@ public class AlleleToTdfTranslator {
 		row.setReference(pubs);
 
 		return row;
+	}
+
+	private static String getCommaDelimetedString(List<String> names) {
+		String hgvsCs;
+		StringJoiner hgvscJoiner = new StringJoiner(",");
+		names.forEach(hgvscJoiner::add);
+		hgvsCs = hgvscJoiner.toString();
+		return hgvsCs;
 	}
 
 	public String getAllAlleleVariantDetailRows(List<AlleleVariantSequence> annotations) {

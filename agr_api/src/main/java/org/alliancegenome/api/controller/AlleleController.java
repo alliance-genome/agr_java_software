@@ -80,11 +80,11 @@ public class AlleleController implements AlleleRESTInterface {
 
 	@Override
 	public JsonResultResponse<VariantSummaryDocument> getVariantsPerAllele(String id,
-																		   Integer limit,
-																		   Integer page,
-																		   String sortBy,
-																		   String variantType,
-																		   String molecularConsequence) {
+																		 Integer limit,
+																		 Integer page,
+																		 String sortBy,
+																		 String variantType,
+																		 String molecularConsequence) {
 		long startTime = System.currentTimeMillis();
 		Pagination pagination = new Pagination(page, limit, sortBy, null);
 		pagination.addFieldFilter(FieldFilter.VARIANT_TYPE, variantType);
