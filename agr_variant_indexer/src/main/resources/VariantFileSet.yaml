@@ -2,44 +2,8 @@ downloadPath: ""
 s3RootUrl: "https://download.alliancegenome.org/variants"
 
 downloadFileSources:
-  - source: WB
-    active: true
-    species: CELEGANS
-    taxonId: "NCBITaxon:6239"
-    chromosomeList: [I, II, III, IV, V, X, MtDNA]
-
-  - source: RGD
-    active: true
-    species: RAT
-    taxonId: "NCBITaxon:10116"
-    chromosomeList: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, X, Y]
-
   - source: FB
     active: true
     species: FLY
     taxonId: "NCBITaxon:7227"
-    chromosomeList: [2L, 2R, 3L, 3R, 4, X]
-
-  - source: MGI
-    active: true
-    species: MOUSE
-    taxonId: "NCBITaxon:10090"
-    chromosomeList: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, X, Y, MT]
-
-  - source: SGD
-    active: true
-    species: YEAST
-    taxonId: "NCBITaxon:559292"
-    chromosomeList: [chrI, chrII, chrIII, chrIV, chrV, chrVI, chrVII, chrVIII, chrIX, chrX, chrXI, chrXII, chrXIII, chrXIV, chrXV, chrXVI]
-
-  - source: ZFIN
-    active: true
-    species: ZEBRAFISH
-    taxonId: "NCBITaxon:7955"
-    chromosomeList: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]
-
-  - source: HUMAN
-    active: true
-    species: HUMAN
-    taxonId: NCBITaxon:9606
-    chromosomeList: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, MT, X, Y]
+    chromosomeList: [X]

@@ -58,6 +58,7 @@ public class Constants {
 	public static final String VARIANT_CONFIG_DOWNLOAD = "VARIANT_CONFIG_DOWNLOAD";
 	public static final String VARIANT_CONFIG_CREATING = "VARIANT_CONFIG_CREATING";
 	public static final String VARIANT_CONFIG_INDEXING = "VARIANT_CONFIG_INDEXING";
+	public static final String VARIANT_CONFIG_INDEX_CURATION_DOCUMENTS = "VARIANT_CONFIG_INDEX_CURATION_DOCUMENTS";
 	public static final String VARIANT_CONFIG_GATHERSTATS = "VARIANT_CONFIG_GATHERSTATS";
 	public static final String FMS_URL = "FMS_URL";
 	public static final String ALLIANCE_RELEASE = "ALLIANCE_RELEASE";
