@@ -1,6 +1,8 @@
 package org.alliancegenome.indexer.indexers;
 
-import lombok.extern.slf4j.Slf4j;
+import java.util.HashMap;
+import java.util.concurrent.LinkedBlockingDeque;
+
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.interfaces.document.ModelDocumentInterface;
 import org.alliancegenome.curation_api.model.document.es.AffectedGenomicModelDocument;
@@ -8,10 +10,9 @@ import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.apache.commons.collections.CollectionUtils;
-import si.mazi.rescu.RestProxyFactory;
 
-import java.util.HashMap;
-import java.util.concurrent.LinkedBlockingDeque;
+import lombok.extern.slf4j.Slf4j;
+import si.mazi.rescu.RestProxyFactory;
 
 
 @Slf4j

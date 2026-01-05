@@ -2,7 +2,6 @@ package org.alliancegenome.cacher.config;
 
 import org.alliancegenome.cacher.cachers.EcoCodeCacher;
 import org.alliancegenome.cacher.cachers.ExpressionCacher;
-import org.alliancegenome.cacher.cachers.ModelCacher;
 
 public enum CacherConfig {
 

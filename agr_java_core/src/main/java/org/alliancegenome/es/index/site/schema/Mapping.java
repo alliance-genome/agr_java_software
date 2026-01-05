@@ -1,11 +1,12 @@
 package org.alliancegenome.es.index.site.schema;
 
-import lombok.SneakyThrows;
+import java.io.IOException;
+
 import org.alliancegenome.curation_api.model.document.es.AffectedGenomicModelDocument;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.xcontent.XContentBuilder;
 
-import java.io.IOException;
+import lombok.SneakyThrows;
 
 public class Mapping extends Builder {
 

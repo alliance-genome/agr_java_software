@@ -1,7 +1,15 @@
 package org.alliancegenome.indexer.indexers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.LinkedBlockingDeque;
+
 import org.alliancegenome.api.entity.GeneTransgenicAlleleSummaryDocument;
 import org.alliancegenome.api.entity.TransgenicAlleleSummaryDocument;
 import org.alliancegenome.core.config.ConfigHelper;
@@ -19,10 +27,11 @@ import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
-import si.mazi.rescu.RestProxyFactory;
 
-import java.util.*;
-import java.util.concurrent.LinkedBlockingDeque;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.extern.slf4j.Slf4j;
+import si.mazi.rescu.RestProxyFactory;
 
 @Slf4j
 public class TransgenicAlleleIndexer extends Indexer {

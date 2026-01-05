@@ -1,14 +1,10 @@
 package org.alliancegenome.api.rest.interfaces;
 
-import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
+import java.util.List;
+
 import org.alliancegenome.api.dto.RibbonSummary;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.curation_api.model.document.es.GeneExpressionDocument;
-import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.lang3.ObjectUtils.Null;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.ParameterIn;
@@ -21,7 +17,18 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
-import java.util.List;
+import com.fasterxml.jackson.core.JsonProcessingException;
+
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DefaultValue;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 @Path("/expression")
 @Tag(name = "Expression")

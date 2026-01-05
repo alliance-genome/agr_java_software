@@ -1,21 +1,22 @@
 package org.alliancegenome.api.service;
 
-import jakarta.enterprise.context.RequestScoped;
-import org.alliancegenome.api.entity.VariantSummaryDocument;
-import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.curation_api.model.document.es.TransgenicAlleleDocument;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import org.alliancegenome.api.entity.VariantSummaryDocument;
+import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
+import org.alliancegenome.curation_api.model.document.es.TransgenicAlleleDocument;
 import org.alliancegenome.es.model.query.Pagination;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.TermQueryBuilder;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import jakarta.enterprise.context.RequestScoped;
 
 @RequestScoped
 public class AlleleESService extends ESService {

@@ -1,6 +1,11 @@
 package org.alliancegenome.es.index.site.dao;
 
-import lombok.extern.slf4j.Slf4j;
+import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.index.ESDAO;
 import org.alliancegenome.es.util.EsClientFactory;
@@ -15,11 +20,7 @@ import org.elasticsearch.search.rescore.QueryRescorerBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
-import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class SearchDAO extends ESDAO {

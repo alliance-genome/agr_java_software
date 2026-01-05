@@ -31,6 +31,7 @@ import org.alliancegenome.neo4j.entity.node.MMOTerm;
 import org.alliancegenome.neo4j.entity.node.Stage;
 import org.alliancegenome.neo4j.entity.node.UBERONTerm;
 import org.alliancegenome.neo4j.repository.GeneRepository;
+
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 

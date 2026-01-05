@@ -1,5 +1,11 @@
 package org.alliancegenome.core.translators.tdf;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.StringJoiner;
+import java.util.stream.Collectors;
+
 import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.api.entity.GeneTransgenicAlleleSummaryDocument;
 import org.alliancegenome.api.entity.TransgenicAlleleSummaryDocument;
@@ -12,12 +18,6 @@ import org.alliancegenome.curation_api.model.entities.associations.CuratedVarian
 import org.alliancegenome.neo4j.entity.node.Publication;
 import org.alliancegenome.neo4j.entity.node.TranscriptLevelConsequence;
 import org.apache.commons.collections.CollectionUtils;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-import java.util.StringJoiner;
-import java.util.stream.Collectors;
 
 public class AlleleToTdfTranslator {
 

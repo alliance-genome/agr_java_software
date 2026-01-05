@@ -1,6 +1,15 @@
 package org.alliancegenome.indexer.config;
 
-import org.alliancegenome.indexer.indexers.*;
+import org.alliancegenome.indexer.indexers.AffectedGenomicModelIndexer;
+import org.alliancegenome.indexer.indexers.AlleleIndexer;
+import org.alliancegenome.indexer.indexers.DatasetIndexer;
+import org.alliancegenome.indexer.indexers.DiseaseIndexer;
+import org.alliancegenome.indexer.indexers.GeneIndexer;
+import org.alliancegenome.indexer.indexers.GoIndexer;
+import org.alliancegenome.indexer.indexers.LiteratureIndexer;
+import org.alliancegenome.indexer.indexers.ModelIndexer;
+import org.alliancegenome.indexer.indexers.TransgenicAlleleIndexer;
+import org.alliancegenome.indexer.indexers.VariantSummaryIndexer;
 import org.alliancegenome.indexer.indexers.curation.AlleleSummaryCurationIndexer;
 import org.alliancegenome.indexer.indexers.curation.DiseaseAnnotationCurationIndexer;
 import org.alliancegenome.indexer.indexers.curation.DiseaseSummaryCurationIndexer;

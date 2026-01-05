@@ -1,14 +1,33 @@
 package org.alliancegenome.api.controller;
 
 
-import jakarta.enterprise.context.RequestScoped;
-import jakarta.inject.Inject;
-import jakarta.ws.rs.core.*;
-import lombok.extern.slf4j.Slf4j;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.alliancegenome.api.dto.ExpressionSummary;
-import org.alliancegenome.api.entity.*;
+import org.alliancegenome.api.entity.AlleleVariantSequence;
+import org.alliancegenome.api.entity.DiseaseRibbonSummary;
+import org.alliancegenome.api.entity.GeneGeneticInteractionDocument;
+import org.alliancegenome.api.entity.GeneMolecularInteractionDocument;
+import org.alliancegenome.api.entity.GenePhenotypeAnnotationDocument;
+import org.alliancegenome.api.entity.GeneToGeneOrthologyDocument;
+import org.alliancegenome.api.entity.GeneToGeneParalogyDocument;
+import org.alliancegenome.api.entity.GeneTransgenicAlleleSummaryDocument;
 import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
-import org.alliancegenome.api.service.*;
+import org.alliancegenome.api.service.AffectedGenomicModelESService;
+import org.alliancegenome.api.service.AlleleService;
+import org.alliancegenome.api.service.DiseaseESService;
+import org.alliancegenome.api.service.EntityType;
+import org.alliancegenome.api.service.ExpressionService;
+import org.alliancegenome.api.service.GeneService;
+import org.alliancegenome.api.service.GeneToGeneParalogyESService;
+import org.alliancegenome.api.service.OrthologyESService;
+import org.alliancegenome.api.service.PhenotypeESService;
+import org.alliancegenome.api.service.TransgenicAlleleESService;
 import org.alliancegenome.api.service.helper.APIServiceHelper;
 import org.alliancegenome.api.translators.tdf.DiseaseAnnotationToTdfTranslator;
 import org.alliancegenome.api.translators.tdf.PhenotypeAnnotationToTdfTranslator;
@@ -35,8 +54,14 @@ import org.alliancegenome.neo4j.view.OrthologyFilter;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriInfo;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RequestScoped

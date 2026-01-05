@@ -1,7 +1,8 @@
 package org.alliancegenome.indexer.indexers.curation;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
+import java.util.HashMap;
+import java.util.concurrent.LinkedBlockingDeque;
+
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.interfaces.document.AlleleDocumentInterface;
 import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
@@ -10,10 +11,11 @@ import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
 import org.apache.commons.collections.CollectionUtils;
-import si.mazi.rescu.RestProxyFactory;
 
-import java.util.HashMap;
-import java.util.concurrent.LinkedBlockingDeque;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.extern.slf4j.Slf4j;
+import si.mazi.rescu.RestProxyFactory;
 
 @Slf4j
 public class AlleleSummaryCurationIndexer extends Indexer {
