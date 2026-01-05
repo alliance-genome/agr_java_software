@@ -1,17 +1,16 @@
 package org.alliancegenome.api.service;
 
+import static org.alliancegenome.cache.repository.helper.JsonResultResponse.DISTINCT_FIELD_VALUES;
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
-import static org.alliancegenome.cache.repository.helper.JsonResultResponse.DISTINCT_FIELD_VALUES;
-
-
-import org.alliancegenome.curation_api.model.document.es.GeneExpressionDocument;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
+import org.alliancegenome.curation_api.model.document.es.GeneExpressionDocument;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.apache.commons.collections4.CollectionUtils;

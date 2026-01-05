@@ -1,6 +1,9 @@
 package org.alliancegenome.api.service;
 
-import jakarta.enterprise.context.RequestScoped;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.curation_api.model.document.es.AffectedGenomicModelDocument;
 import org.alliancegenome.es.index.site.schema.Mapping;
@@ -9,9 +12,7 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.List;
+import jakarta.enterprise.context.RequestScoped;
 
 
 @RequestScoped

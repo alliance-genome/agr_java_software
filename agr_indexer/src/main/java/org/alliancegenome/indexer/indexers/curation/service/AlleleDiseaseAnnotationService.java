@@ -1,5 +1,9 @@
 package org.alliancegenome.indexer.indexers.curation.service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.Gene;
@@ -7,11 +11,8 @@ import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.indexers.curation.interfaces.AlleleDiseaseAnnotationInterface;
-import si.mazi.rescu.RestProxyFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import si.mazi.rescu.RestProxyFactory;
 
 public class AlleleDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 

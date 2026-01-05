@@ -1,13 +1,14 @@
 package org.alliancegenome.es.util;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.logging.log4j.Logger;
-
 import java.text.DecimalFormat;
 import java.util.Date;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+
+import org.apache.logging.log4j.Logger;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class ProcessDisplayHelper {

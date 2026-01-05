@@ -1,13 +1,20 @@
 package org.alliancegenome.indexer.indexers.curation.interfaces;
 
-import com.fasterxml.jackson.annotation.JsonView;
-import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.MediaType;
+import java.util.HashMap;
+
 import org.alliancegenome.curation_api.model.entities.Allele;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.curation_api.view.View;
 
-import java.util.HashMap;
+import com.fasterxml.jackson.annotation.JsonView;
+
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DefaultValue;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.MediaType;
 
 @Path("/allele")
 @Produces(MediaType.APPLICATION_JSON)

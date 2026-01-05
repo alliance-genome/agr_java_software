@@ -1,16 +1,20 @@
 package org.alliancegenome.api.rest.interfaces;
 
-import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.UriInfo;
+import java.io.IOException;
+import java.util.List;
+
 import org.alliancegenome.api.dto.ExpressionSummary;
-import org.alliancegenome.api.entity.*;
+import org.alliancegenome.api.entity.AlleleVariantSequence;
+import org.alliancegenome.api.entity.DiseaseRibbonSummary;
+import org.alliancegenome.api.entity.GeneGeneticInteractionDocument;
+import org.alliancegenome.api.entity.GeneMolecularInteractionDocument;
+import org.alliancegenome.api.entity.GenePhenotypeAnnotationDocument;
+import org.alliancegenome.api.entity.GeneToGeneOrthologyDocument;
+import org.alliancegenome.api.entity.GeneToGeneParalogyDocument;
+import org.alliancegenome.api.entity.GeneTransgenicAlleleSummaryDocument;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.curation_api.model.document.es.AffectedGenomicModelDocument;
+import org.alliancegenome.curation_api.view.View.ModelDocument;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.DiseaseSummary;
 import org.alliancegenome.neo4j.entity.EntitySummary;
@@ -34,8 +38,21 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
-import java.io.IOException;
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.core.JsonProcessingException;
+
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DefaultValue;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriInfo;
 
 @Path("/gene")
 @Tag(name = "Genes")
@@ -353,7 +370,7 @@ public interface GeneRESTInterface {
 
 	@GET
 	@Path("/{id}/models")
-	@JsonView(value = {org.alliancegenome.curation_api.view.View.ModelDocument.class})
+	@JsonView(value = {ModelDocument.class})
 	@Operation(summary = "Retrieve all DiseaseAnnotation records for a given disease id")
 	@APIResponses(
 		value = {

@@ -15,10 +15,10 @@ import java.util.stream.Collectors;
 
 import org.alliancegenome.api.entity.GenePhenotypeAnnotationDocument;
 import org.alliancegenome.api.service.GeneService;
+import org.alliancegenome.api.translators.tdf.PhenotypeAnnotationToTdfTranslator;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.api.service.DiseaseService;
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.api.translators.tdf.PhenotypeAnnotationToTdfTranslator;
 import org.alliancegenome.curation_api.model.entities.PhenotypeAnnotation;
 import org.alliancegenome.curation_api.model.entities.base.CurieObject;
 import org.alliancegenome.es.model.query.FieldFilter;

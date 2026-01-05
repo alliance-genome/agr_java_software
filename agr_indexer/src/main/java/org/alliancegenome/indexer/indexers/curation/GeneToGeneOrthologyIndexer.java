@@ -8,8 +8,8 @@ import java.util.Set;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.curation_api.interfaces.crud.GeneExpressionAnnotationCrudInterface;
 import org.alliancegenome.curation_api.interfaces.crud.GeneDiseaseAnnotationCrudInterface;
+import org.alliancegenome.curation_api.interfaces.crud.GeneExpressionAnnotationCrudInterface;
 import org.alliancegenome.curation_api.interfaces.document.GeneToGeneOrthologyDocumentInterface;
 import org.alliancegenome.curation_api.model.document.es.GeneToGeneOrthologyDocument;
 import org.alliancegenome.curation_api.response.SearchResponse;
