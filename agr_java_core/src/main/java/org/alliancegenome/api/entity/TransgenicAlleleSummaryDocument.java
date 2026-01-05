@@ -1,20 +1,22 @@
 package org.alliancegenome.api.entity;
 
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.annotation.JsonView;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import java.util.List;
+
 import org.alliancegenome.curation_api.model.document.es.ESDocument;
 import org.alliancegenome.curation_api.model.entities.Allele;
 import org.alliancegenome.curation_api.model.entities.TransgenicAlleleConstruct;
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.curation_api.view.View;
 
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonView;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-@JsonPropertyOrder({"category", "allele", "transgenicAlleleConstructs", "geneList"})
-@JsonView(value = {org.alliancegenome.curation_api.view.View.TransgenicAllelesDocument.class})
+@JsonPropertyOrder({ "category", "allele", "transgenicAlleleConstructs", "geneList" })
+@JsonView(value = { View.TransgenicAllelesDocument.class })
 public class TransgenicAlleleSummaryDocument extends ESDocument {
 
 	public TransgenicAlleleSummaryDocument() {
@@ -26,7 +28,5 @@ public class TransgenicAlleleSummaryDocument extends ESDocument {
 	private Boolean hasDiseaseAnnotations;
 	private Boolean hasPhenotypeAnnotations;
 	private int phylogeneticSortingIndex;
-
-
 
 }

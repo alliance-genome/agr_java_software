@@ -1,17 +1,20 @@
 package org.alliancegenome.api.entity;
 
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.annotation.JsonView;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 import org.alliancegenome.curation_api.model.document.es.ESDocument;
 import org.alliancegenome.curation_api.model.entities.Allele;
 import org.alliancegenome.curation_api.model.entities.associations.CuratedVariantGenomicLocationAssociation;
+import org.alliancegenome.curation_api.view.View;
+
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonView;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-@JsonPropertyOrder({"category", "variant"})
-@JsonView(value = {org.alliancegenome.curation_api.view.View.TransgenicAllelesDocument.class})
+@JsonPropertyOrder({ "category", "variant" })
+@JsonView(value = { View.TransgenicAllelesDocument.class })
 public class VariantSummaryDocument extends ESDocument {
 
 	{
@@ -20,6 +23,5 @@ public class VariantSummaryDocument extends ESDocument {
 
 	public CuratedVariantGenomicLocationAssociation variant;
 	public Allele allele;
-
 
 }
