@@ -1,7 +1,8 @@
 package org.alliancegenome.es.index.site.dao;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.api.entity.VariantSummaryDocument;
@@ -39,12 +40,13 @@ import static java.util.stream.Collectors.toMap;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 
 @Slf4j
+@ApplicationScoped
 public class VariantESDAO extends ESDAO {
 
 	public static final String SITE_INDEX = ConfigHelper.getEsIndex();
 
-	public static ObjectMapper mapper = new ObjectMapper()
-		.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+	@Inject
+	ObjectMapper mapper;
 
 	private static Map<String, List<String>> sortAlleles = new HashMap<>();
 

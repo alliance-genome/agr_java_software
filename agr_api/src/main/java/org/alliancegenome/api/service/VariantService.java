@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import jakarta.inject.Inject;
 import org.alliancegenome.api.entity.VariantSummaryDocument;
 import org.alliancegenome.cache.repository.helper.AlleleFiltering;
 import org.alliancegenome.cache.repository.helper.AlleleSorting;
@@ -26,7 +27,8 @@ import jakarta.enterprise.context.RequestScoped;
 public class VariantService {
 
 	private static VariantRepository variantRepo = new VariantRepository();
-	private static VariantESDAO variantDAO = new VariantESDAO();
+	@Inject
+	private VariantESDAO variantDAO;
 
 	public JsonResultResponse<Transcript> getTranscriptsByVariant(String variantID, Pagination pagination) {
 		// TODO: Fix this
@@ -108,11 +110,6 @@ public class VariantService {
 
 	public VariantSummaryDocument getVariantById(String id) {
 		VariantSummaryDocument variant = variantDAO.getVariant(id);
-/*
-		if (variant != null && variant.getSymbol() == null) {
-			variant.setSymbol(variant.getPrimaryKey());
-		}
-*/
 		return variant;
 	}
 }

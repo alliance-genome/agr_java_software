@@ -4,6 +4,7 @@ import htsjdk.variant.variantcontext.VariantContext;
 import org.alliancegenome.api.entity.VariantSummaryDocument;
 import org.alliancegenome.curation_api.model.entities.*;
 import org.alliancegenome.curation_api.model.entities.associations.CuratedVariantGenomicLocationAssociation;
+import org.alliancegenome.curation_api.model.entities.associations.TranscriptGeneAssociation;
 import org.alliancegenome.curation_api.model.entities.ontology.NCBITaxonTerm;
 import org.alliancegenome.curation_api.model.entities.ontology.SOTerm;
 import org.alliancegenome.curation_api.model.entities.slotAnnotations.GeneSymbolSlotAnnotation;
@@ -62,7 +63,13 @@ public class AlleleVariantSequenceCurationConverter {
 				continue;
 			}
 
-			// Get HGVS nomenclature from first consequence
+			Set<String> hgvsGList = new HashSet<>();
+			for (String s : ctx.getAttributeAsStringList("CSQ", "")) {
+				String[] infos = s.split("\\|", -1);
+				hgvsGList.add(infos[29]);
+			}
+
+				// Get HGVS nomenclature from first consequence
 			String hgvsNomenclature = null;
 			if (!consequences.isEmpty()) {
 				PredictedVariantConsequence firstConsequence = consequences.get(0);
@@ -80,10 +87,15 @@ public class AlleleVariantSequenceCurationConverter {
 			// Create location association
 			CuratedVariantGenomicLocationAssociation variantLocation = new CuratedVariantGenomicLocationAssociation();
 			variantLocation.setVariantAssociationSubject(variant);
-
+			variantLocation.setReferenceSequence(ctx.getReference().getBaseString());
+			variantLocation.setVariantSequence(vcfAllele.getBaseString());
+			variantLocation.getNucleotideChange();
 			// Set location info
 			AssemblyComponent chromosome = new AssemblyComponent();
 			chromosome.setName(ctx.getContig());
+			GenomeAssembly assembly = new GenomeAssembly();
+			assembly.setPrimaryExternalId(speciesType.getAssembly());
+			chromosome.setGenomeAssembly(assembly);
 			variantLocation.setVariantGenomicLocationAssociationObject(chromosome);
 			variantLocation.setStart(ctx.getStart());
 			variantLocation.setEnd(ctx.getEnd());
@@ -118,6 +130,7 @@ public class AlleleVariantSequenceCurationConverter {
 			}
 			variant.setCurie(primaryKey);
 			variant.setModInternalId(primaryKey);
+			variantLocation.setHgvs(primaryKey);
 
 			// Create curation API Allele entity
 			Allele allele = new Allele();
@@ -295,7 +308,10 @@ public class AlleleVariantSequenceCurationConverter {
 						geneSymbol.setDisplayText(infos[geneSymbolIdx]);
 						gene.setGeneSymbol(geneSymbol);
 					}
-
+					TranscriptGeneAssociation association = new TranscriptGeneAssociation();
+					association.setTranscriptAssociationSubject(transcript);
+					association.setTranscriptGeneAssociationObject(gene);
+					transcript.setTranscriptGeneAssociations(List.of(association));
 					// Note: Can't directly attach gene to transcript without proper association objects
 					// The gene info will be stored separately for searchability
 				}
