@@ -69,10 +69,10 @@ public class AlleleVariantSequenceCurationConverter {
 				hgvsGList.add(infos[29]);
 			}
 
-				// Get HGVS nomenclature from first consequence
+			// Get HGVS nomenclature from first consequence
 			String hgvsNomenclature = null;
 			if (!consequences.isEmpty()) {
-				PredictedVariantConsequence firstConsequence = consequences.get(0);
+				PredictedVariantConsequence firstConsequence = consequences.getFirst();
 				hgvsNomenclature = firstConsequence.getHgvsProteinNomenclature();
 				if (StringUtils.isEmpty(hgvsNomenclature)) {
 					hgvsNomenclature = firstConsequence.getHgvsCodingNomenclature();
@@ -167,7 +167,7 @@ public class AlleleVariantSequenceCurationConverter {
 					// Get gene info from first transcript
 					if (firstTranscript && transcript != null && transcript.getTranscriptGeneAssociations() != null
 						&& !transcript.getTranscriptGeneAssociations().isEmpty()) {
-						Gene gene = transcript.getTranscriptGeneAssociations().get(0).getTranscriptGeneAssociationObject();
+						Gene gene = transcript.getTranscriptGeneAssociations().getFirst().getTranscriptGeneAssociationObject();
 						if (gene != null) {
 							GeneSymbolSlotAnnotation geneSymbolSlot = gene.getGeneSymbol();
 							String geneSymbol = geneSymbolSlot != null ? geneSymbolSlot.getDisplayText() : null;
@@ -198,7 +198,7 @@ public class AlleleVariantSequenceCurationConverter {
 
 			// Create the document for each consequence (full flattening)
 			VariantSummaryDocument doc = new VariantSummaryDocument();
-
+			doc.setSubCategory("HTP_variant");
 			doc.setAllele(allele);
 //				doc.setVariant(variant);
 			doc.setVariant(variantLocation);
@@ -250,6 +250,14 @@ public class AlleleVariantSequenceCurationConverter {
 		int impactIdx = findHeaderIndex(header, "IMPACT");
 		int polyphenIdx = findHeaderIndex(header, "PolyPhen");
 		int siftIdx = findHeaderIndex(header, "SIFT");
+		int intron = findHeaderIndex(header, "INTRON");
+		int exon = findHeaderIndex(header, "EXON");
+		int biotype = findHeaderIndex(header, "BIOTYPE");
+		int aminoAcidsIdx = findHeaderIndex(header, "Amino_acids");
+		int codonsIdx = findHeaderIndex(header, "Codons");
+		int cdnaPosIdx = findHeaderIndex(header, "cDNA_position");
+		int cdsPosIdx = findHeaderIndex(header, "CDS_position");
+		int proteinPosIdx = findHeaderIndex(header, "Protein_position");
 
 		for (String s : ctx.getAttributeAsStringList("CSQ", "")) {
 			if (s.isEmpty()) {
@@ -291,11 +299,13 @@ public class AlleleVariantSequenceCurationConverter {
 			}
 
 			// Set transcript info
-			if (featureIdx >= 0 && StringUtils.isNotEmpty(infos[featureIdx])) {
+			if (StringUtils.isNotEmpty(infos[featureIdx])) {
 				Transcript transcript = new Transcript();
 				transcript.setCurie(infos[featureIdx]);
 				transcript.setName(infos[featureIdx]);
-
+				SOTerm type = new SOTerm();
+				type.setName(biotype >= 0 ? infos[biotype] : "unknown");
+				transcript.setTranscriptType(type);
 				// Set gene info on transcript if available
 				if (geneIdx >= 0 && StringUtils.isNotEmpty(infos[geneIdx])) {
 					Gene gene = new Gene();
@@ -326,6 +336,55 @@ public class AlleleVariantSequenceCurationConverter {
 			if (hgvsPIdx >= 0 && StringUtils.isNotEmpty(infos[hgvsPIdx])) {
 				consequence.setHgvsProteinNomenclature(infos[hgvsPIdx]);
 			}
+			if (intron >= 0 && StringUtils.isNotEmpty(infos[intron])) {
+				consequence.setIntrons(infos[intron]);
+			}
+			if (exon >= 0 && StringUtils.isNotEmpty(infos[exon])) {
+				consequence.setExons(infos[exon]);
+			}
+
+			// Set amino acids (format: "R/H" = reference/variant)
+			if (aminoAcidsIdx >= 0 && StringUtils.isNotEmpty(infos[aminoAcidsIdx])) {
+				String[] aminoAcids = infos[aminoAcidsIdx].split("/");
+				if (aminoAcids.length >= 1) {
+					consequence.setAminoAcidReference(aminoAcids[0]);
+				}
+				if (aminoAcids.length >= 2) {
+					consequence.setAminoAcidVariant(aminoAcids[1]);
+				}
+			}
+
+			// Set codons (format: "cGc/cAc" = reference/variant)
+			if (codonsIdx >= 0 && StringUtils.isNotEmpty(infos[codonsIdx])) {
+				String[] codons = infos[codonsIdx].split("/");
+				if (codons.length >= 1) {
+					consequence.setCodonReference(codons[0]);
+				}
+				if (codons.length >= 2) {
+					consequence.setCodonVariant(codons[1]);
+				}
+			}
+
+			// Set calculated cDNA position (format: "123" or "123-125")
+			if (cdnaPosIdx >= 0 && StringUtils.isNotEmpty(infos[cdnaPosIdx])) {
+				parseAndSetPosition(infos[cdnaPosIdx],
+					consequence::setCalculatedCdnaStart,
+					consequence::setCalculatedCdnaEnd);
+			}
+
+			// Set calculated CDS position (format: "123" or "123-125")
+			if (cdsPosIdx >= 0 && StringUtils.isNotEmpty(infos[cdsPosIdx])) {
+				parseAndSetPosition(infos[cdsPosIdx],
+					consequence::setCalculatedCdsStart,
+					consequence::setCalculatedCdsEnd);
+			}
+
+			// Set calculated protein position (format: "123" or "123-125")
+			if (proteinPosIdx >= 0 && StringUtils.isNotEmpty(infos[proteinPosIdx])) {
+				parseAndSetPosition(infos[proteinPosIdx],
+					consequence::setCalculatedProteinStart,
+					consequence::setCalculatedProteinEnd);
+			}
 
 			// Set impact
 			if (impactIdx >= 0 && StringUtils.isNotEmpty(infos[impactIdx])) {
@@ -350,7 +409,7 @@ public class AlleleVariantSequenceCurationConverter {
 
 			consequences.add(consequence);
 		}
-
+		
 		return consequences;
 	}
 
@@ -368,5 +427,31 @@ public class AlleleVariantSequenceCurationConverter {
 
 	private boolean alleleIsValid(String allele) {
 		return VALID_ALLELES.matcher(allele).matches();
+	}
+
+	/**
+	 * Parse VEP position field (format: "123" or "123-125") and set start/end values
+	 */
+	private void parseAndSetPosition(String position,
+									 java.util.function.Consumer<Integer> startSetter,
+									 java.util.function.Consumer<Integer> endSetter) {
+		try {
+			if (position.contains("-")) {
+				String[] parts = position.split("-");
+				if (parts.length >= 1 && !parts[0].isEmpty()) {
+					startSetter.accept(Integer.parseInt(parts[0]));
+				}
+				if (parts.length >= 2 && !parts[1].isEmpty()) {
+					endSetter.accept(Integer.parseInt(parts[1]));
+				}
+			} else {
+				// Single position - set both start and end to same value
+				int pos = Integer.parseInt(position);
+				startSetter.accept(pos);
+				endSetter.accept(pos);
+			}
+		} catch (NumberFormatException e) {
+			// Ignore invalid position values (e.g., "?" or "-")
+		}
 	}
 }

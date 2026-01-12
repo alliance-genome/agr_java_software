@@ -14,13 +14,18 @@ import org.alliancegenome.neo4j.view.View;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-@JsonPropertyOrder({"category", "variant"})
+@JsonPropertyOrder({
+	"category", "subCategory", "variant", "allele", "primaryKey", "nameKey", "name",
+	"variantName", "alterationType", "species", "chromosome", "variantType",
+	"molecularConsequence", "genes", "geneIds", "geneSynonyms", "geneCrossReferences"
+})
 @JsonView(value = {View.VariantAPI.class})
 public class VariantSummaryDocument extends ESDocument {
 
 	{
 		category = "variant_summary";
 	}
+	protected String subCategory;
 
 	@JsonView(value = {View.VariantAPI.class})
 	private CuratedVariantGenomicLocationAssociation variant;
