@@ -1,11 +1,13 @@
 package org.alliancegenome.indexer.variant.es.managers;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.TimeUnit;
-
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import htsjdk.samtools.util.CloseableIterator;
+import htsjdk.variant.variantcontext.VariantContext;
+import htsjdk.variant.vcf.VCFFileReader;
+import htsjdk.variant.vcf.VCFInfoHeaderLine;
+import lombok.extern.slf4j.Slf4j;
 import org.alliancegenome.api.entity.VariantSummaryDocument;
 import org.alliancegenome.core.filedownload.model.DownloadSource;
 import org.alliancegenome.core.util.StatsCollector;
@@ -15,7 +17,6 @@ import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.es.util.EsClientFactory;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.bulk.BulkRequest;
@@ -25,15 +26,11 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.xcontent.XContentType;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import htsjdk.samtools.util.CloseableIterator;
-import htsjdk.variant.variantcontext.VariantContext;
-import htsjdk.variant.vcf.VCFFileReader;
-import htsjdk.variant.vcf.VCFInfoHeaderLine;
-import lombok.extern.slf4j.Slf4j;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Indexes VCF files into Elasticsearch using curation API entity classes.
@@ -372,7 +369,7 @@ public class SourceDocumentCreationCuration extends Thread {
 			log.info(messageHeader + "Waiting for jsonQueue to empty");
 			while (
 				!jsonQueue1.isEmpty() || !jsonQueue2.isEmpty() || !jsonQueue3.isEmpty() || !jsonQueue4.isEmpty() ||
-				!jsonQueue5.isEmpty() || !jsonQueue6.isEmpty() || !jsonQueue7.isEmpty() || !jsonQueue8.isEmpty()
+					!jsonQueue5.isEmpty() || !jsonQueue6.isEmpty() || !jsonQueue7.isEmpty() || !jsonQueue8.isEmpty()
 			) {
 				Thread.sleep(1000);
 			}
@@ -556,38 +553,38 @@ public class SourceDocumentCreationCuration extends Thread {
 								double skew = stats.getSkewness();
 								double sd = stats.getStandardDeviation();
 
-								int lowerWidth = (int)(sd / skew);
-								int upperWidth = (int)sd;
+								int lowerWidth = (int) (sd / skew);
+								int upperWidth = (int) sd;
 
 								double mean = stats.getMean();
 
-								int t1 = (int)(mean - (1.5 * lowerWidth));
-								int t2 = (int)(mean - (1 * lowerWidth));
-								int t3 = (int)(mean - (0.5 * lowerWidth));
-								int t4 = (int)mean;
-								int t5 = (int)(mean + (0.5 * upperWidth));
-								int t6 = (int)(mean + (1 * upperWidth));
-								int t7 = (int)(mean + (2 * upperWidth));
+								int t1 = (int) (mean - (1.5 * lowerWidth));
+								int t2 = (int) (mean - (1 * lowerWidth));
+								int t3 = (int) (mean - (0.5 * lowerWidth));
+								int t4 = (int) mean;
+								int t5 = (int) (mean + (0.5 * upperWidth));
+								int t6 = (int) (mean + (1 * upperWidth));
+								int t7 = (int) (mean + (2 * upperWidth));
 
-								if(len < t1) {
+								if (len < t1) {
 									docs1.add(jsonDoc);
 									jqs[0][2] += len;
-								} else if(len < t2) {
+								} else if (len < t2) {
 									docs2.add(jsonDoc);
 									jqs[1][2] += len;
-								} else if(len < t3) {
+								} else if (len < t3) {
 									docs3.add(jsonDoc);
 									jqs[2][2] += len;
-								} else if(len < t4) {
+								} else if (len < t4) {
 									docs4.add(jsonDoc);
 									jqs[3][2] += len;
-								} else if(len < t5) {
+								} else if (len < t5) {
 									docs5.add(jsonDoc);
 									jqs[4][2] += len;
-								} else if(len < t6) {
+								} else if (len < t6) {
 									docs6.add(jsonDoc);
 									jqs[5][2] += len;
-								} else if(len < t7) {
+								} else if (len < t7) {
 									docs7.add(jsonDoc);
 									jqs[6][2] += len;
 								} else {
@@ -595,7 +592,7 @@ public class SourceDocumentCreationCuration extends Thread {
 									jqs[7][2] += len;
 								}
 
-								ph5.progressProcess("M: " + (int)mean + " SD: " + (int)sd + " SK: " + skew
+								ph5.progressProcess("M: " + (int) mean + " SD: " + (int) sd + " SK: " + skew
 									+ " jsonQueue1(" + jqs[0][0] + "," + jqs[0][1] + "," + jqs[0][2] + "): " + jsonQueue1.size()
 									+ " jsonQueue2(" + jqs[1][0] + "," + jqs[1][1] + "," + jqs[1][2] + "): " + jsonQueue2.size()
 									+ " jsonQueue3(" + jqs[2][0] + "," + jqs[2][1] + "," + jqs[2][2] + "): " + jsonQueue3.size()
