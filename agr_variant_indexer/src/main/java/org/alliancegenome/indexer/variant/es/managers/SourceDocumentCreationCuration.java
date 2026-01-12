@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
-import org.alliancegenome.api.entity.AlleleVariantSequenceCuration;
+import org.alliancegenome.api.entity.VariantSummaryDocument;
 import org.alliancegenome.core.filedownload.model.DownloadSource;
 import org.alliancegenome.core.util.StatsCollector;
 import org.alliancegenome.core.variant.config.VariantConfigHelper;
@@ -71,7 +71,7 @@ public class SourceDocumentCreationCuration extends Thread {
 	private boolean gatherStats = VariantConfigHelper.isGatherStats();
 
 	private LinkedBlockingDeque<List<VariantContext>> vcQueue = new LinkedBlockingDeque<>(VariantConfigHelper.getSourceDocumentCreatorVCQueueSize());
-	private LinkedBlockingDeque<List<AlleleVariantSequenceCuration>> objectQueue = new LinkedBlockingDeque<>(VariantConfigHelper.getSourceDocumentCreatorObjectQueueSize());
+	private LinkedBlockingDeque<List<VariantSummaryDocument>> objectQueue = new LinkedBlockingDeque<>(VariantConfigHelper.getSourceDocumentCreatorObjectQueueSize());
 
 	private AlleleVariantSequenceCurationConverter converter;
 
@@ -485,16 +485,16 @@ public class SourceDocumentCreationCuration extends Thread {
 
 		@Override
 		public void run() {
-			List<AlleleVariantSequenceCuration> workBucket = new ArrayList<>();
+			List<VariantSummaryDocument> workBucket = new ArrayList<>();
 			while (!(Thread.currentThread().isInterrupted())) {
 				try {
 					List<VariantContext> ctxList = vcQueue.take();
 
 					for (VariantContext ctx : ctxList) {
 						try {
-							List<AlleleVariantSequenceCuration> docList = converter.convertContextToDocument(ctx, header, speciesType, geneCache);
+							List<VariantSummaryDocument> docList = converter.convertContextToDocument(ctx, header, speciesType, geneCache);
 
-							for (AlleleVariantSequenceCuration doc : docList) {
+							for (VariantSummaryDocument doc : docList) {
 								workBucket.add(doc);
 								ph2.progressProcess("objectQueue: " + objectQueue.size());
 							}
@@ -534,7 +534,7 @@ public class SourceDocumentCreationCuration extends Thread {
 			mapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false);
 			while (!(Thread.currentThread().isInterrupted())) {
 				try {
-					List<AlleleVariantSequenceCuration> docList = objectQueue.take();
+					List<VariantSummaryDocument> docList = objectQueue.take();
 
 					List<String> docs1 = new ArrayList<>();
 					List<String> docs2 = new ArrayList<>();
@@ -546,10 +546,10 @@ public class SourceDocumentCreationCuration extends Thread {
 					List<String> docs8 = new ArrayList<>();
 
 					if (docList.size() > 0) {
-						for (AlleleVariantSequenceCuration doc : docList) {
+						for (VariantSummaryDocument doc : docList) {
 							try {
 								// Use the curation-specific view for serialization
-								String jsonDoc = mapper.writerWithView(View.AlleleVariantSequenceCurationForES.class).writeValueAsString(doc);
+								String jsonDoc = mapper.writeValueAsString(doc);
 								int len = jsonDoc.length();
 								stats.addValue(len);
 

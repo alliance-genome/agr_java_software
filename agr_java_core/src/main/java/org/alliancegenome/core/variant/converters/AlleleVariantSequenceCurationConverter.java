@@ -1,20 +1,8 @@
 package org.alliancegenome.core.variant.converters;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.regex.Pattern;
-
-import org.alliancegenome.api.entity.AlleleVariantSequenceCuration;
-import org.alliancegenome.curation_api.model.entities.Allele;
-import org.alliancegenome.curation_api.model.entities.AssemblyComponent;
-import org.alliancegenome.curation_api.model.entities.Gene;
-import org.alliancegenome.curation_api.model.entities.PredictedVariantConsequence;
-import org.alliancegenome.curation_api.model.entities.Transcript;
-import org.alliancegenome.curation_api.model.entities.Variant;
-import org.alliancegenome.curation_api.model.entities.VocabularyTerm;
+import htsjdk.variant.variantcontext.VariantContext;
+import org.alliancegenome.api.entity.VariantSummaryDocument;
+import org.alliancegenome.curation_api.model.entities.*;
 import org.alliancegenome.curation_api.model.entities.associations.CuratedVariantGenomicLocationAssociation;
 import org.alliancegenome.curation_api.model.entities.ontology.NCBITaxonTerm;
 import org.alliancegenome.curation_api.model.entities.ontology.SOTerm;
@@ -23,7 +11,8 @@ import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.apache.commons.lang3.StringUtils;
 
-import htsjdk.variant.variantcontext.VariantContext;
+import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * Converts VCF VariantContext to AlleleVariantSequenceCuration documents
@@ -34,13 +23,13 @@ public class AlleleVariantSequenceCurationConverter {
 	private static final Pattern VALID_ALLELES = Pattern.compile("[ACGTN\\-]+");
 	private NCBITaxonTerm taxon;
 
-	public List<AlleleVariantSequenceCuration> convertContextToDocument(
-			VariantContext ctx,
-			String[] header,
-			SpeciesType speciesType,
-			GeneDocumentCache geneCache) throws Exception {
+	public List<VariantSummaryDocument> convertContextToDocument(
+		VariantContext ctx,
+		String[] header,
+		SpeciesType speciesType,
+		GeneDocumentCache geneCache) throws Exception {
 
-		List<AlleleVariantSequenceCuration> returnDocuments = new ArrayList<>();
+		List<VariantSummaryDocument> returnDocuments = new ArrayList<>();
 
 		// Initialize taxon if not already done
 		if (taxon == null) {
@@ -103,10 +92,10 @@ public class AlleleVariantSequenceCurationConverter {
 			StringBuilder variantName = new StringBuilder();
 			if (StringUtils.isNotEmpty(hgvsNomenclature)) {
 				variantName.append('(')
-						.append(speciesType.getAssembly())
-						.append(')')
-						.append(ctx.getContig())
-						.append(':');
+					.append(speciesType.getAssembly())
+					.append(')')
+					.append(ctx.getContig())
+					.append(':');
 				if (hgvsNomenclature.contains(":")) {
 					variantName.append(hgvsNomenclature.split(":")[1]);
 				} else {
@@ -164,7 +153,7 @@ public class AlleleVariantSequenceCurationConverter {
 
 					// Get gene info from first transcript
 					if (firstTranscript && transcript != null && transcript.getTranscriptGeneAssociations() != null
-							&& !transcript.getTranscriptGeneAssociations().isEmpty()) {
+						&& !transcript.getTranscriptGeneAssociations().isEmpty()) {
 						Gene gene = transcript.getTranscriptGeneAssociations().get(0).getTranscriptGeneAssociationObject();
 						if (gene != null) {
 							GeneSymbolSlotAnnotation geneSymbolSlot = gene.getGeneSymbol();
@@ -195,33 +184,29 @@ public class AlleleVariantSequenceCurationConverter {
 			variantLocation.setPredictedVariantConsequences(consequences);
 
 			// Create the document for each consequence (full flattening)
-			for (PredictedVariantConsequence consequence : consequences) {
-				AlleleVariantSequenceCuration doc = new AlleleVariantSequenceCuration();
+			VariantSummaryDocument doc = new VariantSummaryDocument();
 
-				// Set entity references
-				doc.setAllele(allele);
-				doc.setVariant(variant);
-				doc.setVariantLocation(variantLocation);
-				doc.setConsequence(consequence);
+			doc.setAllele(allele);
+//				doc.setVariant(variant);
+			doc.setVariant(variantLocation);
+//				doc.setConsequence(consequence);
 
-				// Set searchable fields on the document
-				doc.setPrimaryKey(primaryKey);
-				doc.setNameKey(primaryKey);
-				doc.setName(primaryKey);
-				doc.setVariantName(variantDisplayName);
-				doc.setAlterationType("variant");
-				doc.setCategory("allele_curation"); // Different category to distinguish from original
-				doc.setSpecies(speciesType.getName());
-				doc.setChromosome(ctx.getContig());
-				doc.setVariantType(Collections.singleton(variantType.getName()));
-				doc.setMolecularConsequence(molecularConsequenceNames);
-				doc.setGenes(genes);
-				doc.setGeneIds(geneIds);
-				doc.setGeneSynonyms(geneSynonymSet);
-				doc.setGeneCrossReferences(geneCrossReferencesSet);
+			// Set searchable fields on the document
+			doc.setPrimaryKey(primaryKey);
+			doc.setNameKey(primaryKey);
+			doc.setName(primaryKey);
+			doc.setVariantName(variantDisplayName);
+			doc.setAlterationType("variant");
+			doc.setSpecies(speciesType.getName());
+			doc.setChromosome(ctx.getContig());
+			doc.setVariantType(Collections.singleton(variantType.getName()));
+			doc.setMolecularConsequence(molecularConsequenceNames);
+			doc.setGenes(genes);
+			doc.setGeneIds(geneIds);
+			doc.setGeneSynonyms(geneSynonymSet);
+			doc.setGeneCrossReferences(geneCrossReferencesSet);
 
-				returnDocuments.add(doc);
-			}
+			returnDocuments.add(doc);
 		}
 
 		return returnDocuments;
@@ -231,11 +216,11 @@ public class AlleleVariantSequenceCurationConverter {
 	 * Parse VEP CSQ annotations from VCF and create PredictedVariantConsequence objects
 	 */
 	private List<PredictedVariantConsequence> getConsequences(
-			VariantContext ctx,
-			String varNuc,
-			String[] header,
-			GeneDocumentCache geneCache,
-			SpeciesType speciesType) throws Exception {
+		VariantContext ctx,
+		String varNuc,
+		String[] header,
+		GeneDocumentCache geneCache,
+		SpeciesType speciesType) throws Exception {
 
 		List<PredictedVariantConsequence> consequences = new ArrayList<>();
 		HashSet<String> alreadyAdded = new HashSet<>();

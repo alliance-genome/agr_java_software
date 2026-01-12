@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.alliancegenome.api.entity.VariantSummaryDocument;
 import org.alliancegenome.cache.repository.helper.AlleleFiltering;
 import org.alliancegenome.cache.repository.helper.AlleleSorting;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
@@ -28,7 +29,9 @@ public class VariantService {
 	private static VariantESDAO variantDAO = new VariantESDAO();
 
 	public JsonResultResponse<Transcript> getTranscriptsByVariant(String variantID, Pagination pagination) {
-		Variant variant = getVariantById(variantID);
+		// TODO: Fix this
+		//Variant variant = getVariantById(variantID);
+		Variant variant = null;
 
 		JsonResultResponse<Transcript> response = new JsonResultResponse<>();
 		if (variant == null || variant.getTranscriptLevelConsequence() == null) {
@@ -103,15 +106,13 @@ public class VariantService {
 		return response;
 	}
 
-	public Variant getVariantById(String id) {
-		Variant variant = variantRepo.getVariant(id);
-		// if not found in Neo then try in ES
-		if (variant == null) {
-			variant = variantDAO.getVariant(id);
-		}
+	public VariantSummaryDocument getVariantById(String id) {
+		VariantSummaryDocument variant = variantDAO.getVariant(id);
+/*
 		if (variant != null && variant.getSymbol() == null) {
 			variant.setSymbol(variant.getPrimaryKey());
 		}
+*/
 		return variant;
 	}
 }

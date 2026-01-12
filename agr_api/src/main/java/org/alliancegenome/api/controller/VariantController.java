@@ -2,6 +2,7 @@ package org.alliancegenome.api.controller;
 
 import java.util.List;
 
+import org.alliancegenome.api.entity.VariantSummaryDocument;
 import org.alliancegenome.api.rest.interfaces.VariantRESTInterface;
 import org.alliancegenome.api.service.VariantService;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
@@ -27,8 +28,8 @@ public class VariantController implements VariantRESTInterface {
 	//private HttpRequest request;
 
 	@Override
-	public Variant getVariant(String id) {
-		Variant variant = variantService.getVariantById(id);
+	public VariantSummaryDocument getVariant(String id) {
+		VariantSummaryDocument variant = variantService.getVariantById(id);
 		if (variant == null) {
 			RestErrorMessage message = new RestErrorMessage();
 			message.setErrors(List.of("Cannot find variant with ID: " + id));

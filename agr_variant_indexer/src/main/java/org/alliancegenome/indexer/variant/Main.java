@@ -8,6 +8,7 @@ import org.alliancegenome.es.index.site.schema.VariantMapping;
 import org.alliancegenome.es.index.site.schema.settings.VariantIndexSettings;
 import org.alliancegenome.es.util.IndexManager;
 import org.alliancegenome.indexer.variant.es.managers.SourceDocumentCreation;
+import org.alliancegenome.indexer.variant.es.managers.SourceDocumentCreationCuration;
 import org.alliancegenome.indexer.variant.es.managers.SourceDocumentCreationManager;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,17 +32,21 @@ public class Main {
 			DownloadFileSet downloadSet = mapper.readValue(Main.class.getClassLoader().getResourceAsStream(VariantConfigHelper.getVariantDownloadSetFile()), DownloadFileSet.class);
 			downloadSet.setDownloadPath(VariantConfigHelper.getVariantFileDownloadPath());
 
+/*
 			if (downloading) {
 				FileDownloadManager fdm = new FileDownloadManager(downloadSet);
 				fdm.start();
 				fdm.join();
 			}
+*/
 
 			if (creating) {
 				IndexManager im = new IndexManager(new VariantIndexSettings(true, VariantConfigHelper.getIndexerShards()), new VariantMapping(true));
 
 				if (indexing) {
-					SourceDocumentCreation.indexName = im.startSiteIndex();
+					String newIndexName = im.startSiteIndex();
+					SourceDocumentCreation.indexName = newIndexName;
+					SourceDocumentCreationCuration.indexName = newIndexName;
 				}
 
 				SourceDocumentCreationManager vdm = new SourceDocumentCreationManager(downloadSet);

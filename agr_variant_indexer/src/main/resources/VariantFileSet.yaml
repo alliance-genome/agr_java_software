@@ -2,8 +2,9 @@ downloadPath: ""
 s3RootUrl: "https://download.alliancegenome.org/variants"
 
 downloadFileSources:
-  - source: FB
+
+  - source: HUMAN
     active: true
-    species: FLY
-    taxonId: "NCBITaxon:7227"
-    chromosomeList: [X]
+    species: HUMAN
+    taxonId: NCBITaxon:9606
+    chromosomeList: [10]
