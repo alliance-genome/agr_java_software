@@ -336,12 +336,14 @@ public class AlleleVariantSequenceCurationConverter {
 			if (hgvsPIdx >= 0 && StringUtils.isNotEmpty(infos[hgvsPIdx])) {
 				consequence.setHgvsProteinNomenclature(infos[hgvsPIdx]);
 			}
+/*
 			if (intron >= 0 && StringUtils.isNotEmpty(infos[intron])) {
 				consequence.setIntrons(infos[intron]);
 			}
 			if (exon >= 0 && StringUtils.isNotEmpty(infos[exon])) {
 				consequence.setExons(infos[exon]);
 			}
+*/
 
 			// Set amino acids (format: "R/H" = reference/variant)
 			if (aminoAcidsIdx >= 0 && StringUtils.isNotEmpty(infos[aminoAcidsIdx])) {
