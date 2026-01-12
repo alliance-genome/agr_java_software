@@ -44,8 +44,8 @@ public class AlleleVariantSequenceCuration {
 	}
 
 	public AlleleVariantSequenceCuration(Allele allele, Variant variant,
-										 CuratedVariantGenomicLocationAssociation variantLocation,
-										 PredictedVariantConsequence consequence) {
+										CuratedVariantGenomicLocationAssociation variantLocation,
+										PredictedVariantConsequence consequence) {
 		this.allele = allele;
 		this.variant = variant;
 		this.variantLocation = variantLocation;
