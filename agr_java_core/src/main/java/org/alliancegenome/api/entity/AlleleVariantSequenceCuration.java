@@ -1,16 +1,13 @@
 package org.alliancegenome.api.entity;
 
+import com.fasterxml.jackson.annotation.JsonView;
+import lombok.Getter;
+import lombok.Setter;
 import org.alliancegenome.curation_api.model.entities.Allele;
 import org.alliancegenome.curation_api.model.entities.PredictedVariantConsequence;
 import org.alliancegenome.curation_api.model.entities.Variant;
 import org.alliancegenome.curation_api.model.entities.associations.CuratedVariantGenomicLocationAssociation;
-import org.alliancegenome.es.index.site.document.SearchableItemDocument;
 import org.alliancegenome.neo4j.view.View;
-
-import com.fasterxml.jackson.annotation.JsonView;
-
-import lombok.Getter;
-import lombok.Setter;
 
 /**
  * A flattened version of curation API entities for presentational purposes.
@@ -19,7 +16,7 @@ import lombok.Setter;
  */
 @Setter
 @Getter
-public class AlleleVariantSequenceCuration extends SearchableItemDocument {
+public class AlleleVariantSequenceCuration {
 
 	@JsonView({View.Default.class, View.AlleleVariantSequenceCurationForES.class})
 	private Allele allele;
@@ -47,8 +44,8 @@ public class AlleleVariantSequenceCuration extends SearchableItemDocument {
 	}
 
 	public AlleleVariantSequenceCuration(Allele allele, Variant variant,
-			CuratedVariantGenomicLocationAssociation variantLocation,
-			PredictedVariantConsequence consequence) {
+										 CuratedVariantGenomicLocationAssociation variantLocation,
+										 PredictedVariantConsequence consequence) {
 		this.allele = allele;
 		this.variant = variant;
 		this.variantLocation = variantLocation;
