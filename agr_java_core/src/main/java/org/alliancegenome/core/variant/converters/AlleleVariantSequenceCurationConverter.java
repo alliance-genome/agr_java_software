@@ -66,8 +66,9 @@ public class AlleleVariantSequenceCurationConverter {
 			Set<String> hgvsGList = new HashSet<>();
 			for (String s : ctx.getAttributeAsStringList("CSQ", "")) {
 				String[] infos = s.split("\\|", -1);
-				if (infos.length >= 30)
+				if (infos.length >= 30) {
 					hgvsGList.add(infos[29]);
+				}
 			}
 
 			// Get HGVS nomenclature from first consequence
@@ -435,8 +436,8 @@ public class AlleleVariantSequenceCurationConverter {
 	 * Parse VEP position field (format: "123" or "123-125") and set start/end values
 	 */
 	private void parseAndSetPosition(String position,
-									 java.util.function.Consumer<Integer> startSetter,
-									 java.util.function.Consumer<Integer> endSetter) {
+									java.util.function.Consumer<Integer> startSetter,
+									java.util.function.Consumer<Integer> endSetter) {
 		try {
 			if (position.contains("-")) {
 				String[] parts = position.split("-");
