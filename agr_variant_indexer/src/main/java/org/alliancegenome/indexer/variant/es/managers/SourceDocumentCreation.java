@@ -15,7 +15,6 @@ import org.alliancegenome.core.util.StatsCollector;
 import org.alliancegenome.core.variant.config.VariantConfigHelper;
 import org.alliancegenome.core.variant.converters.AlleleVariantSequenceConverter;
 import org.alliancegenome.core.variant.converters.AlleleVariantSequenceCurationConverter;
-import org.alliancegenome.es.index.ESDocument;
 import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.es.util.EsClientFactory;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
