@@ -33,13 +33,14 @@ public class SourceDocumentCreationManager extends Thread {
 
 			for (DownloadSource source : downloadSet.getDownloadFileSources()) {
 				if (source.getActive()) {
-					// Run original AlleleVariantSequence indexer
 					SourceDocumentCreation creator = new SourceDocumentCreation(downloadSet.getDownloadPath(), source, geneCache);
 					executor.execute(creator);
 
+/*
 					// Run curation API-based AlleleVariantSequenceCuration indexer in parallel
 					SourceDocumentCreationCuration curationCreator = new SourceDocumentCreationCuration(downloadSet.getDownloadPath(), source, geneCache);
 					executor.execute(curationCreator);
+*/
 				}
 			}
 

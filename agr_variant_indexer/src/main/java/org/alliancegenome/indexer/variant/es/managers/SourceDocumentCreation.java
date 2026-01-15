@@ -1,16 +1,21 @@
 package org.alliancegenome.indexer.variant.es.managers;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.TimeUnit;
-
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import htsjdk.samtools.util.CloseableIterator;
+import htsjdk.variant.variantcontext.VariantContext;
+import htsjdk.variant.vcf.VCFFileReader;
+import htsjdk.variant.vcf.VCFInfoHeaderLine;
+import lombok.extern.slf4j.Slf4j;
 import org.alliancegenome.api.entity.AlleleVariantSequence;
+import org.alliancegenome.api.entity.VariantSummaryDocument;
 import org.alliancegenome.core.filedownload.model.DownloadSource;
 import org.alliancegenome.core.util.StatsCollector;
 import org.alliancegenome.core.variant.config.VariantConfigHelper;
 import org.alliancegenome.core.variant.converters.AlleleVariantSequenceConverter;
+import org.alliancegenome.core.variant.converters.AlleleVariantSequenceCurationConverter;
+import org.alliancegenome.es.index.ESDocument;
 import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.es.util.EsClientFactory;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
@@ -25,15 +30,11 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.xcontent.XContentType;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import htsjdk.samtools.util.CloseableIterator;
-import htsjdk.variant.variantcontext.VariantContext;
-import htsjdk.variant.vcf.VCFFileReader;
-import htsjdk.variant.vcf.VCFInfoHeaderLine;
-import lombok.extern.slf4j.Slf4j;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class SourceDocumentCreation extends Thread {
@@ -62,14 +63,14 @@ public class SourceDocumentCreation extends Thread {
 	private BulkProcessor bulkProcessor6;
 	private BulkProcessor bulkProcessor7;
 	private BulkProcessor bulkProcessor8;
-	
+
 	// public AlleleRepository repo = new AlleleRepository();
 
 	private boolean indexing = VariantConfigHelper.isIndexing();
 	private boolean gatherStats = VariantConfigHelper.isGatherStats();
 
 	private LinkedBlockingDeque<List<VariantContext>> vcQueue = new LinkedBlockingDeque<List<VariantContext>>(VariantConfigHelper.getSourceDocumentCreatorVCQueueSize());
-	private LinkedBlockingDeque<List<AlleleVariantSequence>> objectQueue = new LinkedBlockingDeque<List<AlleleVariantSequence>>(VariantConfigHelper.getSourceDocumentCreatorObjectQueueSize());
+	private LinkedBlockingDeque<List<Object>> objectQueue = new LinkedBlockingDeque<>(VariantConfigHelper.getSourceDocumentCreatorObjectQueueSize());
 
 	private AlleleVariantSequenceConverter aVSConverter;
 
@@ -90,7 +91,7 @@ public class SourceDocumentCreation extends Thread {
 	private ProcessDisplayHelper ph4 = new ProcessDisplayHelper(VariantConfigHelper.getDisplayInterval());
 	private ProcessDisplayHelper ph5 = new ProcessDisplayHelper(VariantConfigHelper.getDisplayInterval());
 
-	AlleleVariantSequenceConverter converter = new AlleleVariantSequenceConverter();
+	private AlleleVariantSequenceCurationConverter converter;
 
 	private StatsCollector statsCollector = new StatsCollector();
 	private String messageHeader = "";
@@ -110,6 +111,7 @@ public class SourceDocumentCreation extends Thread {
 		this.geneCache = geneCache;
 		speciesType = SpeciesType.getTypeByID(source.getTaxonId());
 		aVSConverter = new AlleleVariantSequenceConverter();
+		converter = new AlleleVariantSequenceCurationConverter();
 		messageHeader = speciesType.getModName() + " ";
 	}
 
@@ -193,7 +195,7 @@ public class SourceDocumentCreation extends Thread {
 					System.exit(-1);
 				}
 			});
-			
+
 			builder5 = BulkProcessor.builder((request, bulkListener) -> client5.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), new BulkProcessor.Listener() {
 				@Override
 				public void beforeBulk(long executionId, BulkRequest request) {
@@ -210,7 +212,7 @@ public class SourceDocumentCreation extends Thread {
 					System.exit(-1);
 				}
 			});
-			
+
 			builder6 = BulkProcessor.builder((request, bulkListener) -> client6.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), new BulkProcessor.Listener() {
 				@Override
 				public void beforeBulk(long executionId, BulkRequest request) {
@@ -227,7 +229,7 @@ public class SourceDocumentCreation extends Thread {
 					System.exit(-1);
 				}
 			});
-			
+
 			builder7 = BulkProcessor.builder((request, bulkListener) -> client7.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), new BulkProcessor.Listener() {
 				@Override
 				public void beforeBulk(long executionId, BulkRequest request) {
@@ -244,7 +246,7 @@ public class SourceDocumentCreation extends Thread {
 					System.exit(-1);
 				}
 			});
-			
+
 			builder8 = BulkProcessor.builder((request, bulkListener) -> client8.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), new BulkProcessor.Listener() {
 				@Override
 				public void beforeBulk(long executionId, BulkRequest request) {
@@ -373,7 +375,7 @@ public class SourceDocumentCreation extends Thread {
 			log.info(messageHeader + "Waiting for jsonQueue to empty");
 			while (
 				!jsonQueue1.isEmpty() || !jsonQueue2.isEmpty() || !jsonQueue3.isEmpty() || !jsonQueue4.isEmpty() ||
-				!jsonQueue5.isEmpty() || !jsonQueue6.isEmpty() || !jsonQueue7.isEmpty() || !jsonQueue8.isEmpty()
+					!jsonQueue5.isEmpty() || !jsonQueue6.isEmpty() || !jsonQueue7.isEmpty() || !jsonQueue8.isEmpty()
 			) {
 				Thread.sleep(1000);
 			}
@@ -390,8 +392,8 @@ public class SourceDocumentCreation extends Thread {
 			log.info(messageHeader + "Bulk Indexers shutdown");
 			ph3.finishProcess();
 			ph4.finishProcess();
-			
-			
+
+
 			if (gatherStats) {
 				statsCollector.printOutput(speciesType.getModName());
 			}
@@ -423,7 +425,7 @@ public class SourceDocumentCreation extends Thread {
 				client6.close();
 				client7.close();
 				client8.close();
-				
+
 			}
 
 			log.info(messageHeader + "Threads finished: ");
@@ -488,7 +490,7 @@ public class SourceDocumentCreation extends Thread {
 
 		@Override
 		public void run() {
-			List<AlleleVariantSequence> workBucket = new ArrayList<>();
+			List<Object> workBucket = new ArrayList<>();
 			while (!(Thread.currentThread().isInterrupted())) {
 				try {
 					List<VariantContext> ctxList = vcQueue.take();
@@ -496,9 +498,13 @@ public class SourceDocumentCreation extends Thread {
 					for (VariantContext ctx : ctxList) {
 						try {
 							List<AlleleVariantSequence> avsList = aVSConverter.convertContextToAlleleVariantSequence(ctx, header, speciesType, geneCache);
-
-							for (AlleleVariantSequence sequence : avsList) {
-								workBucket.add(sequence);
+							List<VariantSummaryDocument> variantSummaryDocuments = converter.convertContextToDocument(ctx, header, speciesType, geneCache);
+							for (AlleleVariantSequence avs : avsList) {
+								workBucket.add(avs);
+								ph2.progressProcess("objectQueue: " + objectQueue.size());
+							}
+							for (VariantSummaryDocument variantSummaryDocument : variantSummaryDocuments) {
+								workBucket.add(variantSummaryDocument);
 								ph2.progressProcess("objectQueue: " + objectQueue.size());
 							}
 						} catch (Exception e) {
@@ -529,6 +535,7 @@ public class SourceDocumentCreation extends Thread {
 	private class JSONProducer extends Thread {
 
 		private final ObjectMapper mapper = new ObjectMapper();
+		private final ObjectMapper variantSummaryMapper = new ObjectMapper();
 
 		//private SummaryStatistics stats = new SummaryStatistics();
 		private DescriptiveStatistics stats = new DescriptiveStatistics(100000);
@@ -537,9 +544,11 @@ public class SourceDocumentCreation extends Thread {
 		public void run() {
 			mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 			mapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false);
+			// Separate mapper for VariantSummaryDocument - no JsonView restriction
+			variantSummaryMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 			while (!(Thread.currentThread().isInterrupted())) {
 				try {
-					List<AlleleVariantSequence> docList = objectQueue.take();
+					List<Object> docList = objectQueue.take();
 
 					List<String> docs1 = new ArrayList<>();
 					List<String> docs2 = new ArrayList<>();
@@ -551,12 +560,17 @@ public class SourceDocumentCreation extends Thread {
 					List<String> docs8 = new ArrayList<>();
 
 					if (docList.size() > 0) {
-						for (AlleleVariantSequence doc : docList) {
+						for (Object doc : docList) {
 							try {
-								String jsonDoc = mapper.writerWithView(View.AlleleVariantSequenceConverterForES.class).writeValueAsString(doc);
+								String jsonDoc;
+								if (doc instanceof VariantSummaryDocument) {
+									jsonDoc = variantSummaryMapper.writeValueAsString(doc);
+								} else {
+									jsonDoc = mapper.writerWithView(View.AlleleVariantSequenceConverterForES.class).writeValueAsString(doc);
+								}
 								int len = jsonDoc.length();
 								stats.addValue(len);
-								
+
 //								double z = (jsonDoc.length() - stats.getMean()) / stats.getStandardDeviation();
 //								
 //								if (z < -norm) {
@@ -570,50 +584,50 @@ public class SourceDocumentCreation extends Thread {
 //								} else {
 //									// Should never hit this condition
 //								}
-								
+
 								double skew = stats.getSkewness();
 								double sd = stats.getStandardDeviation();
-								
-								int lowerWidth = (int)(sd / skew);
-								int upperWidth = (int)sd;
-								
-								double mean = stats.getMean();
-								
-								int t1 = (int)(mean - (1.5 * lowerWidth));
-								int t2 = (int)(mean - (1 * lowerWidth));
-								int t3 = (int)(mean - (0.5 * lowerWidth));
-								int t4 = (int)mean;
-								int t5 = (int)(mean + (0.5 * upperWidth));
-								int t6 = (int)(mean + (1 * upperWidth));
-								int t7 = (int)(mean + (2 * upperWidth));
 
-								if(len < t1) {
+								int lowerWidth = (int) (sd / skew);
+								int upperWidth = (int) sd;
+
+								double mean = stats.getMean();
+
+								int t1 = (int) (mean - (1.5 * lowerWidth));
+								int t2 = (int) (mean - (1 * lowerWidth));
+								int t3 = (int) (mean - (0.5 * lowerWidth));
+								int t4 = (int) mean;
+								int t5 = (int) (mean + (0.5 * upperWidth));
+								int t6 = (int) (mean + (1 * upperWidth));
+								int t7 = (int) (mean + (2 * upperWidth));
+
+								if (len < t1) {
 									docs1.add(jsonDoc);
 									jqs[0][2] += len;
-								} else if(len < t2) {
+								} else if (len < t2) {
 									docs2.add(jsonDoc);
 									jqs[1][2] += len;
-								} else if(len < t3) {
+								} else if (len < t3) {
 									docs3.add(jsonDoc);
 									jqs[2][2] += len;
-								} else if(len < t4) {
+								} else if (len < t4) {
 									docs4.add(jsonDoc);
 									jqs[3][2] += len;
-								} else if(len < t5) {
+								} else if (len < t5) {
 									docs5.add(jsonDoc);
 									jqs[4][2] += len;
-								} else if(len < t6) {
+								} else if (len < t6) {
 									docs6.add(jsonDoc);
 									jqs[5][2] += len;
-								} else if(len < t7) {
+								} else if (len < t7) {
 									docs7.add(jsonDoc);
 									jqs[6][2] += len;
 								} else {
 									docs8.add(jsonDoc);
 									jqs[7][2] += len;
 								}
-								
-								ph5.progressProcess("M: " + (int)mean + " SD: " + (int)sd + " SK: " + skew
+
+								ph5.progressProcess("M: " + (int) mean + " SD: " + (int) sd + " SK: " + skew
 									//+ " lw: " + lowerWidth + " uw: " + upperWidth + " t1: " + t1 + " t2: " + t2 + " t3: " + t3 + " t4: " + t4 + " t5: " + t5 + " t6: " + t6 + " t7: " + t7
 									+ " jsonQueue1(" + jqs[0][0] + "," + jqs[0][1] + "," + jqs[0][2] + "): " + jsonQueue1.size()
 									+ " jsonQueue2(" + jqs[1][0] + "," + jqs[1][1] + "," + jqs[1][2] + "): " + jsonQueue2.size()
@@ -624,7 +638,7 @@ public class SourceDocumentCreation extends Thread {
 									+ " jsonQueue7(" + jqs[6][0] + "," + jqs[6][1] + "," + jqs[6][2] + "): " + jsonQueue7.size()
 									+ " jsonQueue8(" + jqs[7][0] + "," + jqs[7][1] + "," + jqs[7][2] + "): " + jsonQueue8.size()
 								);
-								
+
 							} catch (Exception e) {
 								e.printStackTrace();
 							}
@@ -671,8 +685,8 @@ public class SourceDocumentCreation extends Thread {
 								jqs[7][0]++;
 								jqs[7][1] += docs8.size();
 							}
-							
-							
+
+
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						}

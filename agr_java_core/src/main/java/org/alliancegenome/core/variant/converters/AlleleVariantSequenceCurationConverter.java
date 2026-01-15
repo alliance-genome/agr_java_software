@@ -24,6 +24,54 @@ public class AlleleVariantSequenceCurationConverter {
 	private static final Pattern VALID_ALLELES = Pattern.compile("[ACGTN\\-]+");
 	private NCBITaxonTerm taxon;
 
+	// Header index positions (initialized once per header)
+	private String[] cachedHeader;
+	private int alleleIdx = -1;
+	private int consequenceIdx = -1;
+	private int geneIdx = -1;
+	private int geneSymbolIdx = -1;
+	private int featureIdx = -1;
+	private int featureTypeIdx = -1;
+	private int hgvsCIdx = -1;
+	private int hgvsPIdx = -1;
+	private int impactIdx = -1;
+	private int polyphenIdx = -1;
+	private int siftIdx = -1;
+	private int intronIdx = -1;
+	private int exonIdx = -1;
+	private int biotypeIdx = -1;
+	private int aminoAcidsIdx = -1;
+	private int codonsIdx = -1;
+	private int cdnaPosIdx = -1;
+	private int cdsPosIdx = -1;
+	private int proteinPosIdx = -1;
+
+	private void initializeHeaderIndices(String[] header) {
+		if (cachedHeader == header) {
+			return;
+		}
+		cachedHeader = header;
+		alleleIdx = findHeaderIndex(header, "Allele");
+		consequenceIdx = findHeaderIndex(header, "Consequence");
+		geneIdx = findHeaderIndex(header, "Gene");
+		geneSymbolIdx = findHeaderIndex(header, "SYMBOL");
+		featureIdx = findHeaderIndex(header, "Feature");
+		featureTypeIdx = findHeaderIndex(header, "Feature_type");
+		hgvsCIdx = findHeaderIndex(header, "HGVSc");
+		hgvsPIdx = findHeaderIndex(header, "HGVSp");
+		impactIdx = findHeaderIndex(header, "IMPACT");
+		polyphenIdx = findHeaderIndex(header, "PolyPhen");
+		siftIdx = findHeaderIndex(header, "SIFT");
+		intronIdx = findHeaderIndex(header, "INTRON");
+		exonIdx = findHeaderIndex(header, "EXON");
+		biotypeIdx = findHeaderIndex(header, "BIOTYPE");
+		aminoAcidsIdx = findHeaderIndex(header, "Amino_acids");
+		codonsIdx = findHeaderIndex(header, "Codons");
+		cdnaPosIdx = findHeaderIndex(header, "cDNA_position");
+		cdsPosIdx = findHeaderIndex(header, "CDS_position");
+		proteinPosIdx = findHeaderIndex(header, "Protein_position");
+	}
+
 	public List<VariantSummaryDocument> convertContextToDocument(
 		VariantContext ctx,
 		String[] header,
@@ -234,31 +282,13 @@ public class AlleleVariantSequenceCurationConverter {
 		String varNuc,
 		String[] header,
 		GeneDocumentCache geneCache,
-		SpeciesType speciesType) throws Exception {
+		SpeciesType speciesType) {
 
 		List<PredictedVariantConsequence> consequences = new ArrayList<>();
 		HashSet<String> alreadyAdded = new HashSet<>();
 
-		// Find indices in header for fields we need
-		int alleleIdx = findHeaderIndex(header, "Allele");
-		int consequenceIdx = findHeaderIndex(header, "Consequence");
-		int geneIdx = findHeaderIndex(header, "Gene");
-		int geneSymbolIdx = findHeaderIndex(header, "SYMBOL");
-		int featureIdx = findHeaderIndex(header, "Feature");
-		int featureTypeIdx = findHeaderIndex(header, "Feature_type");
-		int hgvsCIdx = findHeaderIndex(header, "HGVSc");
-		int hgvsPIdx = findHeaderIndex(header, "HGVSp");
-		int impactIdx = findHeaderIndex(header, "IMPACT");
-		int polyphenIdx = findHeaderIndex(header, "PolyPhen");
-		int siftIdx = findHeaderIndex(header, "SIFT");
-		int intron = findHeaderIndex(header, "INTRON");
-		int exon = findHeaderIndex(header, "EXON");
-		int biotype = findHeaderIndex(header, "BIOTYPE");
-		int aminoAcidsIdx = findHeaderIndex(header, "Amino_acids");
-		int codonsIdx = findHeaderIndex(header, "Codons");
-		int cdnaPosIdx = findHeaderIndex(header, "cDNA_position");
-		int cdsPosIdx = findHeaderIndex(header, "CDS_position");
-		int proteinPosIdx = findHeaderIndex(header, "Protein_position");
+		// Initialize header indices (only done once per header)
+		initializeHeaderIndices(header);
 
 		for (String s : ctx.getAttributeAsStringList("CSQ", "")) {
 			if (s.isEmpty()) {
@@ -305,7 +335,7 @@ public class AlleleVariantSequenceCurationConverter {
 				transcript.setCurie(infos[featureIdx]);
 				transcript.setName(infos[featureIdx]);
 				SOTerm type = new SOTerm();
-				type.setName(biotype >= 0 ? infos[biotype] : "unknown");
+				type.setName(biotypeIdx >= 0 ? infos[biotypeIdx] : "unknown");
 				transcript.setTranscriptType(type);
 				// Set gene info on transcript if available
 				if (geneIdx >= 0 && StringUtils.isNotEmpty(infos[geneIdx])) {
