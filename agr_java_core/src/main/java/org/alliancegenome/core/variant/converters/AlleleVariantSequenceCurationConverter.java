@@ -1,8 +1,21 @@
 package org.alliancegenome.core.variant.converters;
 
-import htsjdk.variant.variantcontext.VariantContext;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
+
 import org.alliancegenome.api.entity.VariantSummaryDocument;
-import org.alliancegenome.curation_api.model.entities.*;
+import org.alliancegenome.curation_api.model.entities.Allele;
+import org.alliancegenome.curation_api.model.entities.AssemblyComponent;
+import org.alliancegenome.curation_api.model.entities.Gene;
+import org.alliancegenome.curation_api.model.entities.GenomeAssembly;
+import org.alliancegenome.curation_api.model.entities.PredictedVariantConsequence;
+import org.alliancegenome.curation_api.model.entities.Transcript;
+import org.alliancegenome.curation_api.model.entities.Variant;
+import org.alliancegenome.curation_api.model.entities.VocabularyTerm;
 import org.alliancegenome.curation_api.model.entities.associations.CuratedVariantGenomicLocationAssociation;
 import org.alliancegenome.curation_api.model.entities.associations.TranscriptGeneAssociation;
 import org.alliancegenome.curation_api.model.entities.ontology.NCBITaxonTerm;
@@ -12,8 +25,7 @@ import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
-import java.util.regex.Pattern;
+import htsjdk.variant.variantcontext.VariantContext;
 
 /**
  * Converts VCF VariantContext to AlleleVariantSequenceCuration documents
@@ -25,7 +37,7 @@ public class AlleleVariantSequenceCurationConverter {
 	private NCBITaxonTerm taxon;
 
 	// Header index positions (initialized once per header)
-	private String[] cachedHeader;
+	private String[] header;
 	private int alleleIdx = -1;
 	private int consequenceIdx = -1;
 	private int geneIdx = -1;
@@ -46,11 +58,13 @@ public class AlleleVariantSequenceCurationConverter {
 	private int cdsPosIdx = -1;
 	private int proteinPosIdx = -1;
 
-	private void initializeHeaderIndices(String[] header) {
-		if (cachedHeader == header) {
-			return;
-		}
-		cachedHeader = header;
+	public AlleleVariantSequenceCurationConverter(String[] header) {
+		this.header = header;
+		initializeHeaderIndices();
+	}
+
+	private void initializeHeaderIndices() {
+
 		alleleIdx = findHeaderIndex(header, "Allele");
 		consequenceIdx = findHeaderIndex(header, "Consequence");
 		geneIdx = findHeaderIndex(header, "Gene");
@@ -74,7 +88,6 @@ public class AlleleVariantSequenceCurationConverter {
 
 	public List<VariantSummaryDocument> convertContextToDocument(
 		VariantContext ctx,
-		String[] header,
 		SpeciesType speciesType,
 		GeneDocumentCache geneCache) throws Exception {
 
@@ -106,7 +119,7 @@ public class AlleleVariantSequenceCurationConverter {
 			}
 
 			// Parse VEP consequences from CSQ field
-			List<PredictedVariantConsequence> consequences = getConsequences(ctx, vcfAllele.getBaseString(), header, geneCache, speciesType);
+			List<PredictedVariantConsequence> consequences = getConsequences(ctx, vcfAllele.getBaseString(), geneCache, speciesType);
 			if (consequences.isEmpty()) {
 				continue;
 			}
@@ -280,15 +293,11 @@ public class AlleleVariantSequenceCurationConverter {
 	private List<PredictedVariantConsequence> getConsequences(
 		VariantContext ctx,
 		String varNuc,
-		String[] header,
 		GeneDocumentCache geneCache,
 		SpeciesType speciesType) {
 
 		List<PredictedVariantConsequence> consequences = new ArrayList<>();
 		HashSet<String> alreadyAdded = new HashSet<>();
-
-		// Initialize header indices (only done once per header)
-		initializeHeaderIndices(header);
 
 		for (String s : ctx.getAttributeAsStringList("CSQ", "")) {
 			if (s.isEmpty()) {
