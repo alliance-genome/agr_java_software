@@ -74,8 +74,6 @@ public class SourceDocumentCreation extends Thread {
 	private LinkedBlockingDeque<List<VariantContext>> vcQueue = new LinkedBlockingDeque<List<VariantContext>>(VariantConfigHelper.getSourceDocumentCreatorVCQueueSize());
 	private LinkedBlockingDeque<List<ESDocument>> objectQueue = new LinkedBlockingDeque<>(VariantConfigHelper.getSourceDocumentCreatorObjectQueueSize());
 
-	private AlleleVariantSequenceConverter aVSConverter;
-
 	private LinkedBlockingDeque<List<String>> jsonQueue1;
 	private LinkedBlockingDeque<List<String>> jsonQueue2;
 	private LinkedBlockingDeque<List<String>> jsonQueue3;
@@ -93,6 +91,7 @@ public class SourceDocumentCreation extends Thread {
 	private ProcessDisplayHelper ph4 = new ProcessDisplayHelper(VariantConfigHelper.getDisplayInterval());
 	private ProcessDisplayHelper ph5 = new ProcessDisplayHelper(VariantConfigHelper.getDisplayInterval());
 
+	private AlleleVariantSequenceConverter aVSConverter;
 	private AlleleVariantSequenceCurationConverter converter;
 
 	private StatsCollector statsCollector = new StatsCollector();
@@ -113,7 +112,6 @@ public class SourceDocumentCreation extends Thread {
 		this.geneCache = geneCache;
 		speciesType = SpeciesType.getTypeByID(source.getTaxonId());
 		aVSConverter = new AlleleVariantSequenceConverter();
-		converter = new AlleleVariantSequenceCurationConverter();
 		messageHeader = speciesType.getModName() + " ";
 	}
 
@@ -457,6 +455,8 @@ public class SourceDocumentCreation extends Thread {
 				log.info(messageHeader + "Setting VCF File Header: " + filePath);
 				VCFInfoHeaderLine fileHeader = reader.getFileHeader().getInfoHeaderLine("CSQ");
 				header = fileHeader.getDescription().split("Format: ")[1].split("\\|");
+				// All files for a Mod have the same header so we only need one of them
+				converter = new AlleleVariantSequenceCurationConverter(header);
 				try {
 					TimeUnit.MILLISECONDS.sleep(20);
 				} catch (InterruptedException e) {
@@ -500,7 +500,7 @@ public class SourceDocumentCreation extends Thread {
 					for (VariantContext ctx : ctxList) {
 						try {
 							List<AlleleVariantSequence> avsList = aVSConverter.convertContextToAlleleVariantSequence(ctx, header, speciesType, geneCache);
-							List<VariantSummaryDocument> variantSummaryDocuments = converter.convertContextToDocument(ctx, header, speciesType, geneCache);
+							List<VariantSummaryDocument> variantSummaryDocuments = converter.convertContextToDocument(ctx, speciesType, geneCache);
 							for (AlleleVariantSequence avs : avsList) {
 								workBucket.add(avs);
 								ph2.progressProcess("objectQueue: " + objectQueue.size());
