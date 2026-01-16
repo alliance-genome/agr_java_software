@@ -567,7 +567,7 @@ public class SourceDocumentCreation extends Thread {
 								String jsonDoc = null;
 								if (doc instanceof VariantSummaryDocument vsd) {
 									jsonDoc = variantSummaryMapper.writeValueAsString(vsd);
-								} else if(doc instanceof AlleleVariantSequence avs) {
+								} else if (doc instanceof AlleleVariantSequence avs) {
 									jsonDoc = mapper.writerWithView(View.AlleleVariantSequenceConverterForES.class).writeValueAsString(avs);
 								} else {
 									// This should never happen
