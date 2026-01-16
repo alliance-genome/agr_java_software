@@ -1,14 +1,15 @@
 package org.alliancegenome.indexer.variant.es.managers;
 
-import lombok.extern.slf4j.Slf4j;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import org.alliancegenome.core.filedownload.model.DownloadFileSet;
 import org.alliancegenome.core.filedownload.model.DownloadSource;
 import org.alliancegenome.core.variant.config.VariantConfigHelper;
 import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.neo4j.repository.indexer.GeneIndexerRepository;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class SourceDocumentCreationManager extends Thread {
@@ -28,19 +29,12 @@ public class SourceDocumentCreationManager extends Thread {
 
 			GeneIndexerRepository geneRepo = new GeneIndexerRepository();
 			GeneDocumentCache geneCache = geneRepo.getGeneCacheCrossReferencesSynonyms();
-			//GeneDocumentCache geneCache = new GeneDocumentCache();
 			geneRepo.close();
 
 			for (DownloadSource source : downloadSet.getDownloadFileSources()) {
 				if (source.getActive()) {
 					SourceDocumentCreation creator = new SourceDocumentCreation(downloadSet.getDownloadPath(), source, geneCache);
 					executor.execute(creator);
-
-/*
-					// Run curation API-based AlleleVariantSequenceCuration indexer in parallel
-					SourceDocumentCreationCuration curationCreator = new SourceDocumentCreationCuration(downloadSet.getDownloadPath(), source, geneCache);
-					executor.execute(curationCreator);
-*/
 				}
 			}
 
