@@ -15,8 +15,9 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 public class Main {
 
-	private Main() { }
-	
+	private Main() {
+	}
+
 	public static void main(String[] args) {
 
 		ConfigHelper.init();
@@ -41,7 +42,8 @@ public class Main {
 				IndexManager im = new IndexManager(new VariantIndexSettings(true, VariantConfigHelper.getIndexerShards()), new VariantMapping(true));
 
 				if (indexing) {
-					SourceDocumentCreation.indexName = im.startSiteIndex();
+					String newIndexName = im.startSiteIndex();
+					SourceDocumentCreation.indexName = newIndexName;
 				}
 
 				SourceDocumentCreationManager vdm = new SourceDocumentCreationManager(downloadSet);

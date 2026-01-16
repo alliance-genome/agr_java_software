@@ -6,6 +6,7 @@ import static org.alliancegenome.core.config.Constants.VARIANT_CACHER_CONFIG_FIL
 import static org.alliancegenome.core.config.Constants.VARIANT_CONFIG_CREATING;
 import static org.alliancegenome.core.config.Constants.VARIANT_CONFIG_DOWNLOAD;
 import static org.alliancegenome.core.config.Constants.VARIANT_CONFIG_GATHERSTATS;
+import static org.alliancegenome.core.config.Constants.VARIANT_CONFIG_INDEX_CURATION_DOCUMENTS;
 import static org.alliancegenome.core.config.Constants.VARIANT_CONFIG_INDEXING;
 import static org.alliancegenome.core.config.Constants.VARIANT_DISPLAY_INTERVAL;
 import static org.alliancegenome.core.config.Constants.VARIANT_DOWNLOAD_SET_FILE;
@@ -66,6 +67,7 @@ public class VariantConfigHelper {
 		defaults.put(VARIANT_CONFIG_DOWNLOAD, "true");
 		defaults.put(VARIANT_CONFIG_CREATING, "true");
 		defaults.put(VARIANT_CONFIG_INDEXING, "true");
+		defaults.put(VARIANT_CONFIG_INDEX_CURATION_DOCUMENTS, "false");
 		defaults.put(VARIANT_CONFIG_GATHERSTATS, "false");
 		
 		defaults.put(VARIANT_FILE_DOWNLOAD_THREADS, "10");
@@ -364,5 +366,12 @@ public class VariantConfigHelper {
 		} catch (NumberFormatException e) {
 			return 4;
 		}
+	}
+
+	public static Boolean isIndexCurationDocuments() {
+		if (!init) {
+			init();
+		}
+		return Boolean.parseBoolean(config.get(VARIANT_CONFIG_INDEX_CURATION_DOCUMENTS));
 	}
 }

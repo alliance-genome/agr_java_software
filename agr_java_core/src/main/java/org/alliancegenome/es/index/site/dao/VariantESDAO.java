@@ -1,16 +1,11 @@
 package org.alliancegenome.es.index.site.dao;
 
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import lombok.extern.slf4j.Slf4j;
 import org.alliancegenome.api.entity.AlleleVariantSequence;
+import org.alliancegenome.api.entity.VariantSummaryDocument;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.index.ESDAO;
@@ -34,16 +29,24 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import lombok.extern.slf4j.Slf4j;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 
 @Slf4j
+@ApplicationScoped
 public class VariantESDAO extends ESDAO {
 
 	public static final String SITE_INDEX = ConfigHelper.getEsIndex();
 
-	public static ObjectMapper mapper = new ObjectMapper();
+	@Inject
+	ObjectMapper mapper;
 
 	private static Map<String, List<String>> sortAlleles = new HashMap<>();
 
@@ -194,11 +197,11 @@ public class VariantESDAO extends ESDAO {
 		return distinctValueMap;
 	}
 
-	public Variant getVariant(String id) {
+	public VariantSummaryDocument getVariant(String id) {
 
 		BoolQueryBuilder bool = boolQuery();
-		bool.filter(new TermQueryBuilder("category", "allele"));
-		bool.must(new TermQueryBuilder("allele.variants.id.keyword", id));
+		bool.filter(new TermQueryBuilder("category", "variant_summary"));
+		bool.must(new TermQueryBuilder("variant.hgvs.keyword", id));
 
 		SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
 		searchSourceBuilder.query(bool);
@@ -212,37 +215,23 @@ public class VariantESDAO extends ESDAO {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		if (response == null || response.getHits() == null) {
+		if (response == null || response.getHits() == null || response.getHits().getHits().length == 0) {
 			return null;
 		}
 
 		SearchHit[] searchHits = response.getHits().getHits();
-		List<AlleleVariantSequence> results = Arrays.stream(searchHits).map(hit -> {
-			try {
-				return mapper.readValue(hit.getSourceAsString(), AlleleVariantSequence.class);
-			} catch (IOException e) {
-				log.error("Error during deserialization ", e);
-				throw new RuntimeException(e);
-			}
-		}).collect(toList());
-		List<Allele> alleles = results.stream().map(alleleVariantSequence -> {
-			Allele allele;
-			if (alleleVariantSequence.getAllele() == null) {
-				allele = new Allele(alleleVariantSequence.getPrimaryKey(), GeneticEntity.CrossReferenceType.VARIANT);
-				Variant variant = alleleVariantSequence.getVariant();
-				allele.setVariants(List.of(variant));
-				allele.setSymbol(alleleVariantSequence.getPrimaryKey());
-				Map<String, CrossReference> crossRefs = new HashMap<>();
-				CrossReference ref = new CrossReference();
-				ref.setName("");
-				crossRefs.put("primary", ref);
-				allele.setCrossReferenceMap(Map.copyOf(crossRefs));
-			} else {
-				allele = alleleVariantSequence.getAllele();
-			}
-			return allele;
-		}).collect(toList());
 
-		return alleles.get(0).getVariants().get(0);
+		// Try to deserialize as VariantSummaryDocument (new curation API format)
+		for (SearchHit hit : searchHits) {
+			try {
+				VariantSummaryDocument summaryDoc = mapper.readValue(hit.getSourceAsString(), VariantSummaryDocument.class);
+				if (summaryDoc != null && summaryDoc.getVariant() != null) {
+					return summaryDoc;
+				}
+			} catch (IOException e) {
+				log.debug("Failed to deserialize as VariantSummaryDocument, trying AlleleVariantSequence: " + e.getMessage());
+			}
+		}
+		return null;
 	}
 }

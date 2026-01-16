@@ -1,5 +1,6 @@
 package org.alliancegenome.api.rest.interfaces;
 
+import org.alliancegenome.api.entity.VariantSummaryDocument;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Transcript;
@@ -35,11 +36,10 @@ public interface VariantRESTInterface {
 
 	@GET
 	@Path("/{id}")
-	@JsonView({ View.VariantAPI.class })
-	@Operation(description = "Searches for an Allele", summary = "Allele Notes")
+	@Operation(description = "Searches for a Variant", summary = "Variant by ID")
 	@APIResponses(value = { @APIResponse(responseCode = "404", description = "Missing variant", content = @Content(mediaType = "text/plain")),
 		@APIResponse(responseCode = "200", description = "Search for Variant.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
-	Variant getVariant(@Parameter(in = ParameterIn.PATH, name = "id", description = "Search for a Variant by ID", required = true, schema = @Schema(type = SchemaType.STRING)) @PathParam("id") String id);
+	VariantSummaryDocument getVariant(@Parameter(in = ParameterIn.PATH, name = "id", description = "Search for a Variant by ID", required = true, schema = @Schema(type = SchemaType.STRING)) @PathParam("id") String id);
 
 	@GET
 	@Path("/{id}/transcripts")

@@ -49,6 +49,7 @@ public class VariantSummaryIndexer extends Indexer {
 					continue;
 				}
 				VariantSummaryDocument document = new VariantSummaryDocument();
+				document.setSubCategory("LTP_variant");
 				document.setVariant(da.getVariant());
 				document.setAllele(da.getAllele());
 				list.add(document);
