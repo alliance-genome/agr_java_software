@@ -14,11 +14,11 @@ import org.alliancegenome.core.variant.config.VariantConfigHelper;
 import org.alliancegenome.core.variant.converters.AlleleVariantSequenceConverter;
 import org.alliancegenome.core.variant.converters.AlleleVariantSequenceCurationConverter;
 import org.alliancegenome.curation_api.model.document.es.ESDocument;
+import org.alliancegenome.curation_api.view.CurationView;
 import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.es.util.EsClientFactory;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.neo4j.view.PublicView;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.bulk.BulkRequest;
@@ -111,7 +111,6 @@ public class SourceDocumentCreation extends Thread {
 		this.source = source;
 		this.geneCache = geneCache;
 		speciesType = SpeciesType.getTypeByID(source.getTaxonId());
-		aVSConverter = new AlleleVariantSequenceConverter();
 		messageHeader = speciesType.getModName() + " ";
 	}
 
@@ -456,7 +455,8 @@ public class SourceDocumentCreation extends Thread {
 				VCFInfoHeaderLine fileHeader = reader.getFileHeader().getInfoHeaderLine("CSQ");
 				header = fileHeader.getDescription().split("Format: ")[1].split("\\|");
 				// All files for a Mod have the same header so we only need one of them
-				converter = new AlleleVariantSequenceCurationConverter(header);
+				converter = new AlleleVariantSequenceCurationConverter(header, geneCache);
+				aVSConverter = new AlleleVariantSequenceConverter(header, geneCache);
 				try {
 					TimeUnit.MILLISECONDS.sleep(20);
 				} catch (InterruptedException e) {
@@ -499,8 +499,8 @@ public class SourceDocumentCreation extends Thread {
 
 					for (VariantContext ctx : ctxList) {
 						try {
-							List<AlleleVariantSequence> avsList = aVSConverter.convertContextToAlleleVariantSequence(ctx, header, speciesType, geneCache);
-							List<VariantSummaryDocument> variantSummaryDocuments = converter.convertContextToDocument(ctx, speciesType, geneCache);
+							List<AlleleVariantSequence> avsList = aVSConverter.convertContextToAlleleVariantSequence(ctx, speciesType);
+							List<VariantSummaryDocument> variantSummaryDocuments = converter.convertContextToDocument(ctx, speciesType);
 							for (AlleleVariantSequence avs : avsList) {
 								workBucket.add(avs);
 								ph2.progressProcess("objectQueue: " + objectQueue.size());
@@ -537,7 +537,6 @@ public class SourceDocumentCreation extends Thread {
 	private class JSONProducer extends Thread {
 
 		private final ObjectMapper mapper = new ObjectMapper();
-		private final ObjectMapper variantSummaryMapper = new ObjectMapper();
 
 		//private SummaryStatistics stats = new SummaryStatistics();
 		private DescriptiveStatistics stats = new DescriptiveStatistics(100000);
@@ -546,8 +545,6 @@ public class SourceDocumentCreation extends Thread {
 		public void run() {
 			mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 			mapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false);
-			// Separate mapper for VariantSummaryDocument - no JsonView restriction
-			variantSummaryMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 			while (!(Thread.currentThread().isInterrupted())) {
 				try {
 					List<ESDocument> docList = objectQueue.take();
@@ -566,9 +563,10 @@ public class SourceDocumentCreation extends Thread {
 							try {
 								String jsonDoc = null;
 								if (doc instanceof VariantSummaryDocument vsd) {
-									jsonDoc = variantSummaryMapper.writeValueAsString(vsd);
+									jsonDoc = mapper.writerWithView(CurationView.VariantIndexerView.class).writeValueAsString(vsd);
 								} else if (doc instanceof AlleleVariantSequence avs) {
-									jsonDoc = mapper.writerWithView(PublicView.AlleleVariantSequenceConverterForES.class).writeValueAsString(avs);
+									jsonDoc = mapper.writerWithView(CurationView.VariantIndexerView.class).writeValueAsString(avs);
+
 								} else {
 									// This should never happen
 								}
@@ -584,12 +582,12 @@ public class SourceDocumentCreation extends Thread {
 								double mean = stats.getMean();
 
 								int t1 = (int) (mean - (1.5 * lowerWidth));
-								int t2 = (int) (mean - (1 * lowerWidth));
+								int t2 = (int) (mean - (1.0 * lowerWidth));
 								int t3 = (int) (mean - (0.5 * lowerWidth));
 								int t4 = (int) mean;
 								int t5 = (int) (mean + (0.5 * upperWidth));
-								int t6 = (int) (mean + (1 * upperWidth));
-								int t7 = (int) (mean + (2 * upperWidth));
+								int t6 = (int) (mean + (1.0 * upperWidth));
+								int t7 = (int) (mean + (2.0 * upperWidth));
 
 								if (len < t1) {
 									docs1.add(jsonDoc);

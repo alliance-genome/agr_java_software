@@ -1,13 +1,16 @@
 package org.alliancegenome.api.entity;
 
-import com.fasterxml.jackson.annotation.JsonView;
-import lombok.Getter;
-import lombok.Setter;
 import org.alliancegenome.curation_api.model.entities.Allele;
 import org.alliancegenome.curation_api.model.entities.PredictedVariantConsequence;
 import org.alliancegenome.curation_api.model.entities.Variant;
 import org.alliancegenome.curation_api.model.entities.associations.CuratedVariantGenomicLocationAssociation;
+import org.alliancegenome.curation_api.view.CurationView;
 import org.alliancegenome.neo4j.view.PublicView;
+
+import com.fasterxml.jackson.annotation.JsonView;
+
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * A flattened version of curation API entities for presentational purposes.
@@ -18,19 +21,19 @@ import org.alliancegenome.neo4j.view.PublicView;
 @Getter
 public class AlleleVariantSequenceCuration {
 
-	@JsonView({PublicView.Default.class, PublicView.AlleleVariantSequenceCurationForES.class})
+	@JsonView({PublicView.Default.class, CurationView.VariantIndexerView.class})
 	private Allele allele;
 
-	@JsonView({PublicView.Default.class, PublicView.AlleleVariantSequenceCurationForES.class})
+	@JsonView({PublicView.Default.class, CurationView.VariantIndexerView.class})
 	private Variant variant;
 
-	@JsonView({PublicView.Default.class, PublicView.AlleleVariantSequenceCurationForES.class})
+	@JsonView({PublicView.Default.class, CurationView.VariantIndexerView.class})
 	private CuratedVariantGenomicLocationAssociation variantLocation;
 
 	@JsonView({PublicView.Default.class})
 	private PredictedVariantConsequence consequence;
 
-	@JsonView({PublicView.Default.class, PublicView.AlleleVariantSequenceCurationForES.class})
+	@JsonView({PublicView.Default.class, CurationView.VariantIndexerView.class})
 	private Boolean searchable = true;
 
 	// Used only for deserialization purposes
@@ -43,9 +46,7 @@ public class AlleleVariantSequenceCuration {
 		this.consequence = consequence;
 	}
 
-	public AlleleVariantSequenceCuration(Allele allele, Variant variant,
-										CuratedVariantGenomicLocationAssociation variantLocation,
-										PredictedVariantConsequence consequence) {
+	public AlleleVariantSequenceCuration(Allele allele, Variant variant, CuratedVariantGenomicLocationAssociation variantLocation, PredictedVariantConsequence consequence) {
 		this.allele = allele;
 		this.variant = variant;
 		this.variantLocation = variantLocation;

@@ -310,12 +310,12 @@ public class AlleleToTdfTranslator {
 */
 		hgvsGs = variant.getHgvs();
 
-		if (CollectionUtils.isNotEmpty(variant.getHgvsC())) {
-			hgvsCs = getCommaDelimetedString(variant.getHgvsC());
-		}
-		if (CollectionUtils.isNotEmpty(variant.getHgvsP())) {
-			hgvsPs = getCommaDelimetedString(variant.getHgvsP());
-		}
+		//if (CollectionUtils.isNotEmpty(variant.getHgvsC())) {
+		//	hgvsCs = getCommaDelimetedString(variant.getHgvsC());
+		//}
+		//if (CollectionUtils.isNotEmpty(variant.getHgvsP())) {
+		//	hgvsPs = getCommaDelimetedString(variant.getHgvsP());
+		//}
 /*
 		if (CollectionUtils.isNotEmpty(annotation.getCrossReferences())) {
 			StringJoiner crossRefJoiner = new StringJoiner(",");

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.alliancegenome.api.entity.PresentationEntity;
+import org.alliancegenome.curation_api.view.CurationView;
 import org.alliancegenome.neo4j.view.PublicView;
 import org.apache.commons.collections.CollectionUtils;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
@@ -38,7 +39,7 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
 	private String release;
 	private String localId;
 	private String globalId;
-	@JsonView({PublicView.Default.class, PublicView.AlleleVariantSequenceConverterForES.class})
+	@JsonView({PublicView.Default.class, CurationView.VariantIndexerView.class})
 	private String symbolText;
 	private String symbolTextWithSpecies;
 	@JsonView({PublicView.AlleleAPI.class})
@@ -47,11 +48,11 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
 	public final static String ALLELE_WITH_ONE_VARIANT = "allele with one associated variant";
 	public final static String ALLELE_WITH_MULTIPLE_VARIANT = "allele with multiple associated variants";
 
-	@JsonView({PublicView.AlleleAPI.class, PublicView.TransgenicAlleleAPI.class, PublicView.GeneAlleleVariantSequenceAPI.class, PublicView.AlleleVariantSequenceConverterForES.class})
+	@JsonView({PublicView.AlleleAPI.class, PublicView.TransgenicAlleleAPI.class, PublicView.GeneAlleleVariantSequenceAPI.class, CurationView.VariantIndexerView.class})
 	@Relationship(type = "IS_ALLELE_OF")
 	private Gene gene;
 
-	@JsonView({PublicView.GeneAllelesAPI.class, PublicView.GeneAlleleVariantSequenceAPI.class, PublicView.AlleleVariantSequenceConverterForES.class})
+	@JsonView({PublicView.GeneAllelesAPI.class, PublicView.GeneAlleleVariantSequenceAPI.class, CurationView.VariantIndexerView.class})
 	@Relationship(type = "IS_IMPLICATED_IN", direction = Relationship.Direction.INCOMING)
 	private List<DOTerm> diseases;
 
@@ -90,7 +91,7 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
 	private boolean phenotype;
 	private boolean disease;
 
-	@JsonView({PublicView.API.class, PublicView.GeneAllelesAPI.class, PublicView.GeneAlleleVariantSequenceAPI.class, PublicView.AlleleVariantSequenceConverterForES.class})
+	@JsonView({PublicView.API.class, PublicView.GeneAllelesAPI.class, PublicView.GeneAlleleVariantSequenceAPI.class, CurationView.VariantIndexerView.class})
 	@JsonProperty(value = "hasPhenotype")
 	public Boolean hasPhenotype() {
 		return phenotype;
@@ -101,7 +102,7 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
 		this.phenotype = hasPhenotype;
 	}
 
-	@JsonView({PublicView.API.class, PublicView.GeneAllelesAPI.class, PublicView.GeneAlleleVariantSequenceAPI.class, PublicView.AlleleVariantSequenceConverterForES.class})
+	@JsonView({PublicView.API.class, PublicView.GeneAllelesAPI.class, PublicView.GeneAlleleVariantSequenceAPI.class, CurationView.VariantIndexerView.class})
 	public Boolean hasDisease() {
 		return disease;
 	}
@@ -146,12 +147,12 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
 		category = ALLELE_WITH_MULTIPLE_VARIANT;
 	}
 
-	@JsonView({PublicView.API.class, PublicView.GeneAllelesAPI.class, PublicView.AlleleVariantSequenceConverterForES.class})
+	@JsonView({PublicView.API.class, PublicView.GeneAllelesAPI.class, CurationView.VariantIndexerView.class})
 	public List<Variant> getVariants() {
 		return variants;
 	}
 
-	@JsonView({PublicView.API.class, PublicView.GeneAlleleVariantSequenceAPI.class, PublicView.AlleleVariantSequenceConverterForES.class})
+	@JsonView({PublicView.API.class, PublicView.GeneAlleleVariantSequenceAPI.class, CurationView.VariantIndexerView.class})
 	private String category;
 
 	public String getCategory() {

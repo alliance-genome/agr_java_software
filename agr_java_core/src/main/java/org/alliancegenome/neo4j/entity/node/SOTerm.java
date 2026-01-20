@@ -1,5 +1,7 @@
 package org.alliancegenome.neo4j.entity.node;
 
+
+import org.alliancegenome.curation_api.view.CurationView;
 import org.alliancegenome.neo4j.view.PublicView;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.neo4j.ogm.annotation.NodeEntity;
@@ -19,9 +21,9 @@ public class SOTerm extends Ontology {
 	public static final String INSERTION = "SO:0000667";
 	public static final String DELETION = "SO:0000159";
 
-	@JsonView({ PublicView.Default.class, PublicView.AlleleVariantSequenceConverterForES.class })
+	@JsonView({ PublicView.Default.class, CurationView.VariantIndexerView.class })
 	@JsonProperty(value = "id") private String primaryKey;
-	@JsonView({ PublicView.Default.class, PublicView.AlleleVariantSequenceConverterForES.class }) private String name;
+	@JsonView({ PublicView.Default.class, CurationView.VariantIndexerView.class }) private String name;
 
 	public boolean isInsertion() {
 		return primaryKey.equals(INSERTION);

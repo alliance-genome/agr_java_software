@@ -94,10 +94,4 @@ public class PublicView {
 	public static class OntologyFileMetadata extends API {
 	}
 
-	public static class AlleleVariantSequenceConverterForES {
-	} // This needs to NOT extend Default as this controls specifically what gets
-	// serialized and what doesn't.
-
-	public static class AlleleVariantSequenceCurationForES {
-	} // For curation API entity variant sequences - does NOT extend Default
 }

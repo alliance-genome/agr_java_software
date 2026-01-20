@@ -1,5 +1,6 @@
 package org.alliancegenome.neo4j.entity.relationship;
 
+import org.alliancegenome.curation_api.view.CurationView;
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
 import org.alliancegenome.neo4j.view.PublicView;
 import org.neo4j.ogm.annotation.NodeEntity;
@@ -14,13 +15,13 @@ import lombok.Setter;
 @Setter
 public class GenomeLocation extends Neo4jEntity {
 
-	@JsonView({PublicView.Default.class, PublicView.AlleleVariantSequenceConverterForES.class})
+	@JsonView({PublicView.Default.class, CurationView.VariantIndexerView.class})
 	private String chromosome;
 
-	@JsonView({PublicView.Default.class, PublicView.AlleleVariantSequenceConverterForES.class})
+	@JsonView({PublicView.Default.class, CurationView.VariantIndexerView.class})
 	private Long start;
 
-	@JsonView({PublicView.Default.class, PublicView.AlleleVariantSequenceConverterForES.class})
+	@JsonView({PublicView.Default.class, CurationView.VariantIndexerView.class})
 	private Long end;
 
 	@JsonView({PublicView.Default.class})

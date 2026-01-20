@@ -1,8 +1,24 @@
 package org.alliancegenome.core.variant.converters;
 
-import htsjdk.variant.variantcontext.VariantContext;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.regex.Pattern;
+
 import org.alliancegenome.api.entity.VariantSummaryDocument;
-import org.alliancegenome.curation_api.model.entities.*;
+import org.alliancegenome.curation_api.model.entities.Allele;
+import org.alliancegenome.curation_api.model.entities.AssemblyComponent;
+import org.alliancegenome.curation_api.model.entities.Gene;
+import org.alliancegenome.curation_api.model.entities.GenomeAssembly;
+import org.alliancegenome.curation_api.model.entities.PredictedVariantConsequence;
+import org.alliancegenome.curation_api.model.entities.Transcript;
+import org.alliancegenome.curation_api.model.entities.Variant;
+import org.alliancegenome.curation_api.model.entities.VocabularyTerm;
 import org.alliancegenome.curation_api.model.entities.associations.CuratedVariantGenomicLocationAssociation;
 import org.alliancegenome.curation_api.model.entities.associations.TranscriptGeneAssociation;
 import org.alliancegenome.curation_api.model.entities.ontology.NCBITaxonTerm;
@@ -12,8 +28,7 @@ import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
-import java.util.regex.Pattern;
+import htsjdk.variant.variantcontext.VariantContext;
 
 /**
  * Converts VCF VariantContext to AlleleVariantSequenceCuration documents
@@ -26,6 +41,8 @@ public class AlleleVariantSequenceCurationConverter {
 
 	// Header index positions (initialized once per header)
 	private String[] header;
+	private GeneDocumentCache geneCache;
+	
 	private int alleleIdx = -1;
 	private int consequenceIdx = -1;
 	private int geneIdx = -1;
@@ -47,8 +64,9 @@ public class AlleleVariantSequenceCurationConverter {
 	private int proteinPosIdx = -1;
 	private int hgvsgIdx = -1;
 
-	public AlleleVariantSequenceCurationConverter(String[] header) {
+	public AlleleVariantSequenceCurationConverter(String[] header, GeneDocumentCache geneCache) {
 		this.header = header;
+		this.geneCache = geneCache;
 		initializeHeaderIndices();
 	}
 
@@ -76,10 +94,7 @@ public class AlleleVariantSequenceCurationConverter {
 		hgvsgIdx = findHeaderIndex(header, "HGVSg");
 	}
 
-	public List<VariantSummaryDocument> convertContextToDocument(
-		VariantContext ctx,
-		SpeciesType speciesType,
-		GeneDocumentCache geneCache) throws Exception {
+	public List<VariantSummaryDocument> convertContextToDocument(VariantContext ctx, SpeciesType speciesType) throws Exception {
 
 		List<VariantSummaryDocument> returnDocuments = new ArrayList<>();
 
@@ -109,7 +124,7 @@ public class AlleleVariantSequenceCurationConverter {
 			}
 
 			// Parse VEP consequences from CSQ field
-			List<PredictedVariantConsequence> consequences = getConsequences(ctx, vcfAllele.getBaseString(), geneCache, speciesType);
+			List<PredictedVariantConsequence> consequences = getConsequences(ctx, vcfAllele.getBaseString(), speciesType);
 			if (consequences.isEmpty()) {
 				continue;
 			}
@@ -142,7 +157,7 @@ public class AlleleVariantSequenceCurationConverter {
 			variantLocation.setVariantAssociationSubject(variant);
 			variantLocation.setReferenceSequence(ctx.getReference().getBaseString());
 			variantLocation.setVariantSequence(vcfAllele.getBaseString());
-			variantLocation.getNucleotideChange();
+			//variantLocation.getNucleotideChange();
 			// Set location info
 			AssemblyComponent chromosome = new AssemblyComponent();
 			chromosome.setName(ctx.getContig());
@@ -284,11 +299,7 @@ public class AlleleVariantSequenceCurationConverter {
 	/**
 	 * Parse VEP CSQ annotations from VCF and create PredictedVariantConsequence objects
 	 */
-	private List<PredictedVariantConsequence> getConsequences(
-		VariantContext ctx,
-		String varNuc,
-		GeneDocumentCache geneCache,
-		SpeciesType speciesType) {
+	private List<PredictedVariantConsequence> getConsequences(VariantContext ctx, String varNuc, SpeciesType speciesType) {
 
 		List<PredictedVariantConsequence> consequences = new ArrayList<>();
 		HashSet<String> alreadyAdded = new HashSet<>();
@@ -468,9 +479,7 @@ public class AlleleVariantSequenceCurationConverter {
 	/**
 	 * Parse VEP position field (format: "123" or "123-125") and set start/end values
 	 */
-	private void parseAndSetPosition(String position,
-									java.util.function.Consumer<Integer> startSetter,
-									java.util.function.Consumer<Integer> endSetter) {
+	private void parseAndSetPosition(String position, Consumer<Integer> startSetter, Consumer<Integer> endSetter) {
 		try {
 			if (position.contains("-")) {
 				String[] parts = position.split("-");

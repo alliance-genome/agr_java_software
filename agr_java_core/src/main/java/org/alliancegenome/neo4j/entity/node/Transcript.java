@@ -2,6 +2,7 @@ package org.alliancegenome.neo4j.entity.node;
 
 import java.util.List;
 
+import org.alliancegenome.curation_api.view.CurationView;
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
 import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
 import org.alliancegenome.neo4j.view.PublicView;
@@ -21,10 +22,10 @@ import lombok.Setter;
 @Schema(name = "Transcript", description = "POJO that represents the Transcript")
 public class Transcript extends Neo4jEntity implements Comparable<Transcript> {
 
-	@JsonView({ PublicView.Default.class, PublicView.API.class, PublicView.AlleleVariantSequenceConverterForES.class })
+	@JsonView({ PublicView.Default.class, PublicView.API.class, CurationView.VariantIndexerView.class })
 	@JsonProperty(value = "id") protected String primaryKey;
 
-	@JsonView({ PublicView.Default.class, PublicView.API.class, PublicView.AlleleVariantSequenceConverterForES.class }) protected String name;
+	@JsonView({ PublicView.Default.class, PublicView.API.class, CurationView.VariantIndexerView.class }) protected String name;
 
 	@Override
 	public int compareTo(Transcript o) {
@@ -37,7 +38,7 @@ public class Transcript extends Neo4jEntity implements Comparable<Transcript> {
 	@JsonView({ PublicView.Default.class, PublicView.API.class })
 	@Relationship(type = "ASSOCIATION") private GenomeLocation genomeLocation;
 
-	@JsonView({ PublicView.Default.class, PublicView.API.class, PublicView.AlleleVariantSequenceConverterForES.class })
+	@JsonView({ PublicView.Default.class, PublicView.API.class, CurationView.VariantIndexerView.class })
 	@Relationship(type = "TRANSCRIPT_TYPE", direction = Relationship.Direction.INCOMING) private SOTerm type;
 
 	@JsonView({ PublicView.Default.class, PublicView.API.class })

@@ -28,8 +28,15 @@ public class AlleleVariantSequenceConverter {
 
 	private static Pattern validAlleles = Pattern.compile("[ACGTN\\-]+");
 	private Species species;
+	private String[] header;
+	private GeneDocumentCache geneCache;
 
-	public List<AlleleVariantSequence> convertContextToAlleleVariantSequence(VariantContext ctx, String[] header, SpeciesType speciesType, GeneDocumentCache geneCache) throws Exception {
+	public AlleleVariantSequenceConverter(String[] header, GeneDocumentCache geneCache) {
+		this.header = header;
+		this.geneCache = geneCache;
+	}
+
+	public List<AlleleVariantSequence> convertContextToAlleleVariantSequence(VariantContext ctx, SpeciesType speciesType) throws Exception {
 		List<AlleleVariantSequence> returnDocuments = new ArrayList<>();
 
 		//htsjdk.variant.variantcontext.Allele refNuc = ctx.getReference();
@@ -80,7 +87,7 @@ public class AlleleVariantSequenceConverter {
 				continue;
 			}
 
-			List<TranscriptLevelConsequence> htpConsequences = getConsequences(ctx, vcfAllele.getBaseString(), header, geneCache, species);
+			List<TranscriptLevelConsequence> htpConsequences = getConsequences(ctx, vcfAllele.getBaseString(), species);
 			if (htpConsequences.size() == 0) {
 				continue;
 			}
@@ -205,7 +212,7 @@ public class AlleleVariantSequenceConverter {
 		return returnDocuments;
 	}
 
-	private List<TranscriptLevelConsequence> getConsequences(VariantContext ctx, String varNuc, String[] header, GeneDocumentCache geneCache, Species species) throws Exception {
+	private List<TranscriptLevelConsequence> getConsequences(VariantContext ctx, String varNuc, Species species) throws Exception {
 		List<TranscriptLevelConsequence> features = new ArrayList<>();
 		HashSet<String> alreadyAdded = new HashSet<>();
 

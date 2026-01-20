@@ -1,5 +1,6 @@
 package org.alliancegenome.neo4j.entity.node;
 
+import org.alliancegenome.curation_api.view.CurationView;
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
 import org.alliancegenome.neo4j.view.PublicView;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
@@ -16,7 +17,7 @@ import lombok.Setter;
 @Schema(name = "CrossReference", description = "POJO that represents CrossReferences")
 public class CrossReference extends Neo4jEntity {
 
-	@JsonView({ PublicView.API.class, PublicView.Interaction.class, PublicView.Expression.class, PublicView.AlleleVariantSequenceConverterForES.class }) private String crossRefCompleteUrl;
+	@JsonView({ PublicView.API.class, PublicView.Interaction.class, PublicView.Expression.class, CurationView.VariantIndexerView.class }) private String crossRefCompleteUrl;
 
 	@JsonView({ PublicView.Interaction.class }) private String localId;
 
@@ -24,9 +25,9 @@ public class CrossReference extends Neo4jEntity {
 
 	@JsonView({ PublicView.Interaction.class }) private String prefix;
 
-	@JsonView({ PublicView.API.class, PublicView.Interaction.class, PublicView.AlleleVariantSequenceConverterForES.class }) private String name;
+	@JsonView({ PublicView.API.class, PublicView.Interaction.class, CurationView.VariantIndexerView.class }) private String name;
 
-	@JsonView({ PublicView.API.class, PublicView.Interaction.class, PublicView.AlleleVariantSequenceConverterForES.class }) private String displayName;
+	@JsonView({ PublicView.API.class, PublicView.Interaction.class, CurationView.VariantIndexerView.class }) private String displayName;
 
 	@JsonView({ PublicView.Interaction.class }) private String primaryKey;
 

@@ -97,7 +97,7 @@ public class TestReadVCFFile {
 
 	private class VCFTransform extends Thread {
 
-		AlleleVariantSequenceConverter converter = new AlleleVariantSequenceConverter();
+		AlleleVariantSequenceConverter converter = new AlleleVariantSequenceConverter(null, null);
 		private ProcessDisplayHelper ph2 = new ProcessDisplayHelper(60000);
 
 		@Override

@@ -23,7 +23,7 @@ import lombok.Setter;
 public class JsonResultResponse<T> {
 
 	public static final String DISTINCT_FIELD_VALUES = "distinctFieldValues";
-	
+
 	@JsonView({ PublicView.Default.class, CurationView.ModelDocument.class })
 	private List<T> results = new ArrayList<T>();
 	

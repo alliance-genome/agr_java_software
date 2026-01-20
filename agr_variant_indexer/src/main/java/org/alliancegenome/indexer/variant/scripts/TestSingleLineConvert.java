@@ -32,7 +32,7 @@ public class TestSingleLineConvert {
 		int count = 0;
 		SummaryStatistics ss = new SummaryStatistics();
 
-		AlleleVariantSequenceConverter converter = new AlleleVariantSequenceConverter();
+		AlleleVariantSequenceConverter converter = new AlleleVariantSequenceConverter(null, null);
 		Date start = new Date();
 		Date end = new Date();
 		double avg = 0;
@@ -43,7 +43,7 @@ public class TestSingleLineConvert {
 			try {
 				VariantContext vc = iter1.next();
 				// if(vc.getID().equals("rs55780505")) {
-				List<AlleleVariantSequence> docs = converter.convertContextToAlleleVariantSequence(vc, null, SpeciesType.HUMAN, null);
+				List<AlleleVariantSequence> docs = converter.convertContextToAlleleVariantSequence(vc, SpeciesType.HUMAN);
 
 				for (AlleleVariantSequence doc : docs) {
 					String jsonDoc = mapper.writeValueAsString(doc);
