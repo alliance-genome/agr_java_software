@@ -15,6 +15,7 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.TermQueryBuilder;
+import org.elasticsearch.search.SearchHit;
 
 import jakarta.enterprise.context.RequestScoped;
 
@@ -75,15 +76,14 @@ public class AlleleESService extends ESService {
 		bool.filter(new TermQueryBuilder("category", "variant_summary"));
 		SearchResponse searchResponse = getSearchResponse(bool, pagination, null, false);
 		List<VariantSummaryDocument> list = new ArrayList<>();
-		Arrays.stream(searchResponse.getHits().getHits())
-			.forEach(searchHit -> {
-				try {
-					VariantSummaryDocument object = mapper.readValue(searchHit.getSourceAsString(), VariantSummaryDocument.class);
-					list.add(object);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			});
+		for(SearchHit hit: searchResponse.getHits().getHits()) {
+			try {
+				VariantSummaryDocument object = mapper.readValue(hit.getSourceAsString(), VariantSummaryDocument.class);
+				list.add(object);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 		JsonResultResponse<VariantSummaryDocument> ret = new JsonResultResponse<>();
 		ret.setResults(list);
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);

@@ -2,7 +2,6 @@ package org.alliancegenome.core.variant.converters;
 
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -11,7 +10,6 @@ import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 import org.alliancegenome.api.entity.VariantSummaryDocument;
-import org.alliancegenome.curation_api.model.entities.Allele;
 import org.alliancegenome.curation_api.model.entities.AssemblyComponent;
 import org.alliancegenome.curation_api.model.entities.Gene;
 import org.alliancegenome.curation_api.model.entities.GenomeAssembly;
@@ -118,11 +116,10 @@ public class AlleleVariantSequenceCurationConverter {
 
 		// Process each alternate allele in the VCF record
 		for (htsjdk.variant.variantcontext.Allele vcfAllele : ctx.getAlternateAlleles()) {
-
 			if (!alleleIsValid(vcfAllele.getBaseString())) {
 				continue;
 			}
-
+		
 			// Parse VEP consequences from CSQ field
 			List<PredictedVariantConsequence> consequences = getConsequences(ctx, vcfAllele.getBaseString(), speciesType);
 			if (consequences.isEmpty()) {
@@ -191,6 +188,9 @@ public class AlleleVariantSequenceCurationConverter {
 				variantLocation.setHgvs(variantDisplayName);
 			}
 
+			variantLocation.setHgvs(hgvsNomenclature);
+
+
 			// Set primary key
 			String ctxId = ctx.getID();
 			String primaryKey;
@@ -205,90 +205,19 @@ public class AlleleVariantSequenceCurationConverter {
 			variant.setModInternalId(primaryKey);
 
 			// Create curation API Allele entity
-			Allele allele = new Allele();
-			allele.setCurie(primaryKey);
-			allele.setModInternalId(primaryKey);
-			allele.setTaxon(taxon);
+			//Allele allele = new Allele();
+			///allele.setCurie(primaryKey);
+			//allele.setModInternalId(primaryKey);
+			//allele.setTaxon(taxon);
+			// If we want to show 
 
-			// Collect gene info and molecular consequences
-			Set<String> molecularConsequenceNames = new HashSet<>();
-			Set<String> genes = new HashSet<>();
-			Set<String> geneIds = new HashSet<>();
-			Set<String> geneSynonymSet = new HashSet<>();
-			Set<String> geneCrossReferencesSet = new HashSet<>();
-			HashSet<String> transcriptsProcessed = new HashSet<>();
-			boolean firstTranscript = true;
-
-			for (PredictedVariantConsequence consequence : consequences) {
-				Transcript transcript = consequence.getVariantTranscript();
-				String transcriptID = transcript != null ? transcript.getCurie() : null;
-
-				if (transcriptID != null && !transcriptsProcessed.contains(transcriptID)) {
-					transcriptsProcessed.add(transcriptID);
-
-					// Get VEP consequences (now a list of SOTerms)
-					List<SOTerm> vepConsequences = consequence.getVepConsequences();
-					if (vepConsequences != null && !vepConsequences.isEmpty()) {
-						for (SOTerm soTerm : vepConsequences) {
-							if (soTerm != null && soTerm.getName() != null) {
-								molecularConsequenceNames.add(soTerm.getName());
-							}
-						}
-					}
-
-					// Get gene info from the first transcript
-					if (firstTranscript && transcript.getTranscriptGeneAssociations() != null && !transcript.getTranscriptGeneAssociations().isEmpty()) {
-						Gene gene = transcript.getTranscriptGeneAssociations().getFirst().getTranscriptGeneAssociationObject();
-						if (gene != null) {
-							GeneSymbolSlotAnnotation geneSymbolSlot = gene.getGeneSymbol();
-							String geneSymbol = geneSymbolSlot != null ? geneSymbolSlot.getDisplayText() : null;
-							if (StringUtils.isNotEmpty(geneSymbol)) {
-								genes.add(geneSymbol + " (" + speciesType.getAbbreviation() + ")");
-								geneIds.add(gene.getCurie());
-
-								// Get gene synonyms/cross-refs from cache
-								if (geneCache != null) {
-									Set<String> synonyms = geneCache.getSynonyms().get(gene.getCurie());
-									if (synonyms != null) {
-										geneSynonymSet.addAll(synonyms);
-									}
-									Set<String> crossRefs = geneCache.getCrossReferences().get(gene.getCurie());
-									if (crossRefs != null) {
-										geneCrossReferencesSet.addAll(crossRefs);
-									}
-								}
-							}
-						}
-						firstTranscript = false;
-					}
-				}
-			}
-
-			// Link consequences to the variant location
 			variantLocation.setPredictedVariantConsequences(consequences);
 
 			// Create the document for each consequence (full flattening)
 			VariantSummaryDocument doc = new VariantSummaryDocument();
 			doc.setSubCategory("HTP_variant");
-			doc.setAllele(allele);
-//				doc.setVariant(variant);
+			//doc.setAllele(allele);
 			doc.setVariant(variantLocation);
-//				doc.setConsequence(consequence);
-
-			// Set searchable fields on the document
-			doc.setPrimaryKey(primaryKey);
-			doc.setNameKey(primaryKey);
-			doc.setName(primaryKey);
-			doc.setVariantName(variantDisplayName);
-			doc.setAlterationType("variant");
-			doc.setSpecies(speciesType.getName());
-			doc.setChromosome(ctx.getContig());
-			doc.setVariantType(Collections.singleton(variantType.getName()));
-			doc.setMolecularConsequence(molecularConsequenceNames);
-			doc.setGenes(genes);
-			doc.setGeneIds(geneIds);
-			doc.setGeneSynonyms(geneSynonymSet);
-			doc.setGeneCrossReferences(geneCrossReferencesSet);
 
 			returnDocuments.add(doc);
 		}

@@ -115,12 +115,7 @@ public class AlleleController implements AlleleRESTInterface {
 
 	@Override
 	public Response getVariantsPerAlleleDownload(String id, String sortBy, String variantType, String consequence) {
-		JsonResultResponse<VariantSummaryDocument> response = getVariantsPerAllele(id,
-			100000,
-			1,
-			sortBy,
-			variantType,
-			consequence);
+		JsonResultResponse<VariantSummaryDocument> response = getVariantsPerAllele(id, 100000, 1, sortBy, variantType, consequence);
 		Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllVariantsRows(response.getResults()));
 		APIServiceHelper.setDownloadHeader(id, EntityType.ALLELE, EntityType.VARIANT, responseBuilder);
 		return responseBuilder.build();
