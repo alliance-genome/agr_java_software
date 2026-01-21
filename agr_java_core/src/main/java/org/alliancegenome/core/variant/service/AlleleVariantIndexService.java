@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.alliancegenome.api.entity.AlleleVariantSequence;
-import org.alliancegenome.cache.repository.AlleleCacheRepository;
 import org.alliancegenome.cache.repository.helper.AlleleFiltering;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.api.service.AlleleColumnFieldMapping;
@@ -55,7 +54,6 @@ import jakarta.enterprise.context.RequestScoped;
 public class AlleleVariantIndexService {
 
 	private ObjectMapper mapper = new ObjectMapper();
-	AlleleCacheRepository alleleCacheRepository = new AlleleCacheRepository();
 
 	public AlleleVariantIndexService() {
 		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -181,9 +179,8 @@ public class AlleleVariantIndexService {
 		if (pagination.getLimit() + pagination.getPage() > 150000) {
 			FilterService<Allele> filterService = new FilterService<>(new AlleleFiltering());
 			ColumnFieldMapping<Allele> mapping = new AlleleColumnFieldMapping();
-			List<Allele> filteredAlleleList = filterService.filterAnnotations(alleles, pagination.getFieldFilterValueMap());
-			response.setResults(alleleCacheRepository.getSortedAndPaginatedAlleles(filteredAlleleList, pagination));
-			response.setTotal(filteredAlleleList.size());
+			response.setResults(alleles);
+			response.setTotal(alleles.size());
 			// add distinct values
 			response.addDistinctFieldValueSupplementalData(filterService.getDistinctFieldValues(alleles, mapping.getSingleValuedFieldColumns(Table.ALLELE_GENE), mapping));
 

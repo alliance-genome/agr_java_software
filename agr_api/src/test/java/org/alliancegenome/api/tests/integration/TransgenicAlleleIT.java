@@ -20,21 +20,6 @@ public class TransgenicAlleleIT {
 	private AlleleService alleleService = new AlleleService();
 
 	@Test
-	public void checkAlleleTransgeneInSpeciesEndpoint() {
-		Pagination pagination = new Pagination(1, 10, null, null);
-		// muIs61
-		String geneID = "WB:WBTransgene00001048";
-		JsonResultResponse<Allele> response = alleleService.getAllelesBySpecies("elegans", pagination);
-		assertResponse(response, 10, 8400);
-
-		pagination.addFieldFilter(FieldFilter.SYMBOL, "muIs61");
-		response = alleleService.getAllelesBySpecies("elegans", pagination);
-		assertResponse(response, 1, 1);
-		assertEquals(response.getResults().get(0).getPrimaryKey(), "WB:WBTransgene00001048");
-	}
-
-
-	@Test
 	public void filterTransgenicAllelesBySymbol() {
 		Pagination pagination = new Pagination();
 		JsonResultResponse<Allele> response = alleleService.getTransgenicAlleles("WB:WBGene00002992", pagination);

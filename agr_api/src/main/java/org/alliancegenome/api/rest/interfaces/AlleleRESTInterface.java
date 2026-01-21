@@ -6,7 +6,6 @@ import org.alliancegenome.api.entity.VariantSummaryDocument;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
 import org.alliancegenome.curation_api.model.document.es.TransgenicAlleleDocument;
-import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.lang3.ObjectUtils.Null;
 import org.eclipse.microprofile.openapi.annotations.Operation;
@@ -73,18 +72,6 @@ public interface AlleleRESTInterface {
 		@Parameter(in = ParameterIn.QUERY, name = "sortBy", description = "Field name by which to sort", schema = @Schema(type = SchemaType.STRING)) @QueryParam("sortBy") String sortBy,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.variantType", description = "Variant types", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.variantType") String variantType,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.variantConsequence", description = "Consequence", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.variantConsequence") String consequence);
-
-	@GET
-	@Path("/species/{species}")
-	@Operation(summary = "Retrieve all alleles of a given species")
-	@JsonView(value = {View.GeneAllelesAPI.class})
-	@APIResponses(value = {@APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class)))})
-	JsonResultResponse<Allele> getAllelesPerSpecies(
-		@Parameter(in = ParameterIn.PATH, name = "species", description = "Species identifier: Could be the full ID, e.g. 'NCBITaxon:10090', or just the ID, i.e. '10090'. Alternatively, part of a species name uniquely identifying a single species, e.g. 'danio' or 'mus'.", required = true, schema = @Schema(type = SchemaType.STRING)) @PathParam("species") String species,
-		@Parameter(in = ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("20") @QueryParam("limit") Integer limit,
-		@Parameter(in = ParameterIn.QUERY, name = "page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("1") @QueryParam("page") Integer page,
-		@Parameter(in = ParameterIn.QUERY, name = "sortBy", description = "Field name by which to sort", schema = @Schema(type = SchemaType.STRING)) @DefaultValue("symbol") @QueryParam("sortBy") String sortBy, // allowedValues = "symbol,name"
-		@Parameter(in = ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING)) @DefaultValue("true") @QueryParam("asc") String asc);
 
 	@GET
 	@Path("/{id}/phenotypes")

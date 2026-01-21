@@ -33,7 +33,6 @@ import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.OrthoAlgorithm;
 import org.alliancegenome.neo4j.repository.AlleleRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
-import org.alliancegenome.neo4j.view.HomologView;
 import org.alliancegenome.neo4j.view.OrthologyModule;
 import org.apache.commons.collections.CollectionUtils;
 import org.junit.Before;
@@ -108,14 +107,6 @@ public class GeneIT {
 		GeneController controller = new GeneController();
 		JsonResultResponse<GeneToGeneOrthologyDocument> response = controller.getGeneOrthology("MGI:109583", null, null, "stringENT", null, null, 20, 1);
 		assertThat("Matches found for containsFilterValue 'stringent", response.getTotal(), greaterThan(0));
-	}
-
-	@Test
-	public void checkOrthologyForSingleSpecies() throws IOException {
-
-		OrthologyController controller = new OrthologyController();
-		JsonResultResponse<HomologView> response = controller.getSingleSpeciesOrthology("559292", "stringent", "OMA", 20, 1);
-		assertThat("Orthology records found for mouse geneMap", response.getTotal(), greaterThan(0));
 	}
 
 	@Test

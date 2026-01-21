@@ -26,7 +26,6 @@ import org.alliancegenome.core.exceptions.RestErrorException;
 import org.alliancegenome.core.exceptions.RestErrorMessage;
 import org.alliancegenome.core.util.FileHelper;
 import org.alliancegenome.curation_api.model.document.es.DiseaseSummaryDocument;
-import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.SpeciesType;
@@ -68,39 +67,6 @@ public class DiseaseController implements DiseaseRESTInterface {
 			throw new RestErrorException(error);
 		} else {
 			return diseaseSummary;
-		}
-	}
-
-	@Override
-	public JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotationsSorted(String id, Integer limit, Integer page, String sortBy, String geneName, String species, String geneticEntity, String geneticEntityType, String disease, String source, String reference, String evidenceCode, String basedOnGeneSymbol, String associationType, String asc) {
-		long startTime = System.currentTimeMillis();
-		Pagination pagination = new Pagination(page, limit, sortBy, asc);
-		pagination.addFieldFilter(FieldFilter.GENE_NAME, geneName);
-		pagination.addFieldFilter(FieldFilter.SPECIES, species);
-		pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY, geneticEntity);
-		pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY_TYPE, geneticEntityType);
-		pagination.addFieldFilter(FieldFilter.DISEASE, disease);
-		pagination.addFieldFilter(FieldFilter.SOURCE, source);
-		pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
-		pagination.addFieldFilter(FieldFilter.EVIDENCE_CODE, evidenceCode);
-		pagination.addFieldFilter(FieldFilter.BASED_ON_GENE, basedOnGeneSymbol);
-		pagination.addFieldFilter(FieldFilter.ASSOCIATION_TYPE, associationType);
-		if (pagination.hasErrors()) {
-			RestErrorMessage message = new RestErrorMessage();
-			message.setErrors(pagination.getErrors());
-			throw new RestErrorException(message);
-		}
-		try {
-			JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotationsByDisease(id, pagination);
-			response.setHttpServletRequest(null);
-			response.calculateRequestDuration(startTime);
-
-			return response;
-		} catch (Exception e) {
-			Log.error("Error while retrieving disease annotations", e);
-			RestErrorMessage error = new RestErrorMessage();
-			error.addErrorMessage(e.getMessage());
-			throw new RestErrorException(error);
 		}
 	}
 
@@ -404,47 +370,6 @@ public class DiseaseController implements DiseaseRESTInterface {
 		Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRowsForModel(response.getResults()));
 		APIServiceHelper.setDownloadHeader(id, EntityType.DISEASE, EntityType.MODEL, responseBuilder);
 		return responseBuilder.build();
-	}
-
-	@Override
-	public Response getDiseaseAnnotationsDownloadFile(String id, String sortBy, String geneName, String species, String geneticEntity, String geneticEntityType, String disease, String source, String reference, String evidenceCode, String basedOnGeneSymbol, String associationType, String asc) {
-		Pagination pagination = new Pagination(1, Integer.MAX_VALUE, sortBy, asc);
-		pagination.addFieldFilter(FieldFilter.GENE_NAME, geneName);
-		pagination.addFieldFilter(FieldFilter.SPECIES, species);
-		pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY, geneticEntity);
-		pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY_TYPE, geneticEntityType);
-		pagination.addFieldFilter(FieldFilter.DISEASE, disease);
-		pagination.addFieldFilter(FieldFilter.SOURCE, source);
-		pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
-		pagination.addFieldFilter(FieldFilter.EVIDENCE_CODE, evidenceCode);
-		pagination.addFieldFilter(FieldFilter.BASED_ON_GENE, basedOnGeneSymbol);
-		pagination.addFieldFilter(FieldFilter.ASSOCIATION_TYPE, associationType);
-		Response.ResponseBuilder responseBuilder = null;
-		if (pagination.hasErrors()) {
-			RestErrorMessage message = new RestErrorMessage();
-			message.setErrors(pagination.getErrors());
-			throw new RestErrorException(message);
-		}
-		try {
-			JsonResultResponse<DiseaseAnnotation> jsonResponse = diseaseService.getDiseaseAnnotationsByDisease(id, pagination);
-			responseBuilder = Response.ok(translator.getAllRowsForGenes(jsonResponse.getResults()));
-			responseBuilder.type(MediaType.TEXT_PLAIN_TYPE);
-			APIServiceHelper.setDownloadHeader(id, DISEASE, GENE, responseBuilder);
-		} catch (Exception e) {
-			e.printStackTrace();
-			Log.error("Error: " + e);
-			RestErrorMessage error = new RestErrorMessage();
-			error.addErrorMessage(e.getMessage());
-			throw new RestErrorException(error);
-		}
-		return responseBuilder.build();
-	}
-
-	@Override
-	public String getDiseaseAnnotationsDownload(String id) {
-		Pagination pagination = new Pagination(1, Integer.MAX_VALUE, null, null);
-		// retrieve all records
-		return translator.getAllRowsForGenes(diseaseService.getDiseaseAnnotationsByDisease(id, pagination).getResults());
 	}
 
 	@Override

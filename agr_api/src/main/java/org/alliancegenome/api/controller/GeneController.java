@@ -3,10 +3,7 @@ package org.alliancegenome.api.controller;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.alliancegenome.api.dto.ExpressionSummary;
 import org.alliancegenome.api.entity.AlleleVariantSequence;
@@ -31,8 +28,6 @@ import org.alliancegenome.api.service.TransgenicAlleleESService;
 import org.alliancegenome.api.service.helper.APIServiceHelper;
 import org.alliancegenome.api.translators.tdf.DiseaseAnnotationToTdfTranslator;
 import org.alliancegenome.api.translators.tdf.PhenotypeAnnotationToTdfTranslator;
-import org.alliancegenome.cache.repository.ExpressionCacheRepository;
-import org.alliancegenome.cache.repository.OrthologyCacheRepository;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.api.service.DiseaseService;
 import org.alliancegenome.core.api.service.InteractionColumnFieldMapping;
@@ -44,21 +39,16 @@ import org.alliancegenome.core.translators.tdf.GeneMolecularInteractionToTdfTran
 import org.alliancegenome.curation_api.model.document.es.AffectedGenomicModelDocument;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.DiseaseSummary;
 import org.alliancegenome.neo4j.entity.EntitySummary;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.view.HomologView;
-import org.alliancegenome.neo4j.view.OrthologyFilter;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 import lombok.extern.slf4j.Slf4j;
@@ -74,16 +64,10 @@ public class GeneController implements GeneRESTInterface {
 	AlleleService alleleService;
 
 	@Inject
-	ExpressionCacheRepository expressionCacheRepository;
-
-	@Inject
 	OrthologyESService orthologyESService;
 
 	@Inject
 	DiseaseService diseaseService;
-
-	@Inject
-	OrthologyCacheRepository orthologyCacheService;
 
 	//@Inject
 	//private HttpRequest request;
@@ -536,44 +520,6 @@ public class GeneController implements GeneRESTInterface {
 	}
 
 
-	@Override
-	public JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotations(String id, Integer limit, Integer page, String sortBy, String geneticEntity, String geneticEntityType, String disease, String reference, String asc) {
-		long startTime = System.currentTimeMillis();
-		try {
-			JsonResultResponse<DiseaseAnnotation> diseases = getDiseaseAnnotationDocumentJsonResultResponse(id, limit, page, sortBy, geneticEntity, geneticEntityType, disease, reference, asc);
-			diseases.setHttpServletRequest(null);
-			diseases.calculateRequestDuration(startTime);
-			return diseases;
-		} catch (Exception e) {
-			log.error("Error while retrieving disease", e);
-			RestErrorMessage error = new RestErrorMessage();
-			error.addErrorMessage(e.getMessage());
-			throw new RestErrorException(error);
-		}
-	}
-
-	@Override
-	public Response getDiseaseAnnotationsDownloadFile(
-		String id,
-		String sortBy,
-		String geneticEntity,
-		String geneticEntityType,
-		String disease,
-		String reference,
-		String asc) {
-		// retrieve all records
-		JsonResultResponse<DiseaseAnnotation> response =
-			getDiseaseAnnotationDocumentJsonResultResponse(id, Integer.MAX_VALUE, 1, sortBy,
-				geneticEntity,
-				geneticEntityType,
-				disease,
-				reference,
-				asc);
-		Response.ResponseBuilder responseBuilder = Response.ok(diseaseTranslator.getAllRowsForGenes(response.getResults()));
-		APIServiceHelper.setDownloadHeader(id, EntityType.GENE, EntityType.DISEASE, responseBuilder);
-		return responseBuilder.build();
-	}
-
 
 	@Override
 	public JsonResultResponse<AffectedGenomicModelDocument> getPrimaryAnnotatedEntityForModel(String id,
@@ -611,50 +557,6 @@ public class GeneController implements GeneRESTInterface {
 			error.addErrorMessage(e.getMessage());
 			throw new RestErrorException(error);
 		}
-	}
-
-	private JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotationDocumentJsonResultResponse(String id, Integer limit, Integer page, String sortBy, String geneticEntity, String geneticEntityType, String disease, String reference, String asc) {
-		if (sortBy.isEmpty()) {
-			sortBy = FieldFilter.DISEASE.getName();
-		}
-		Pagination pagination = new Pagination(page, limit, sortBy, asc);
-		pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY, geneticEntity);
-		pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY_TYPE, geneticEntityType);
-		pagination.addFieldFilter(FieldFilter.DISEASE, disease);
-		pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
-		JsonResultResponse<DiseaseAnnotation> diseaseAnnotations = diseaseService.getDiseaseAnnotations(id, pagination);
-
-		return diseaseAnnotations;
-	}
-
-	private JsonResultResponse<DiseaseAnnotation> getEmpiricalDiseaseAnnotation(String id,
-																				Integer limit,
-																				Integer page,
-																				String sortBy,
-																				String geneticEntity,
-																				String geneticEntityType,
-																				String disease,
-																				String associationType,
-																				String evidenceCode,
-																				String source,
-																				String reference,
-																				String asc,
-																				UriInfo ui) {
-		Pagination pagination = new Pagination(page, limit, sortBy, asc);
-		pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY, geneticEntity);
-		pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY_TYPE, geneticEntityType);
-		pagination.addFieldFilter(FieldFilter.ASSOCIATION_TYPE, associationType);
-		pagination.addFieldFilter(FieldFilter.EVIDENCE_CODE, evidenceCode);
-		pagination.addFieldFilter(FieldFilter.SOURCE, source);
-		pagination.addFieldFilter(FieldFilter.DISEASE, disease);
-		pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
-		MultivaluedMap<String, String> parameterMap = ui.getQueryParameters();
-		List<String> invalidFilterNames = parameterMap.entrySet().stream()
-			.filter(entry -> FieldFilter.hasFieldFilterPrefix(entry.getKey()) && !FieldFilter.isFieldFilterValue(entry.getKey()))
-			.map(Map.Entry::getKey)
-			.collect(Collectors.toList());
-		pagination.setInvalidFilterList(invalidFilterNames);
-		return diseaseService.getDiseaseAnnotations(id, pagination);
 	}
 
 	@Override
@@ -711,29 +613,6 @@ public class GeneController implements GeneRESTInterface {
 	}
 
 	@Override
-	public JsonResultResponse<HomologView> getGeneOrthologyWithExpression(String id, String stringencyFilter) {
-
-		long startTime = System.currentTimeMillis();
-		List<String> geneList = new ArrayList<>();
-		if (id != null) {
-			geneList.add(id);
-		}
-
-		OrthologyFilter orthologyFilter = new OrthologyFilter(stringencyFilter, null, null);
-		orthologyFilter.setStart(1);
-		JsonResultResponse<HomologView> orthologs = orthologyCacheService.getOrthologyGenes(geneList, orthologyFilter);
-		List<HomologView> filteredList = orthologs.getResults().stream()
-			.filter(orthologView -> expressionCacheRepository.hasExpression(orthologView.getHomologGene().getPrimaryKey()))
-			.sorted(Comparator.comparing(orthologView -> orthologView.getHomologGene().getSymbol().toLowerCase()))
-			.collect(Collectors.toList());
-		orthologs.setResults(filteredList);
-		orthologs.setTotal(filteredList.size());
-		orthologs.setHttpServletRequest(null);
-		orthologs.calculateRequestDuration(startTime);
-		return orthologs;
-	}
-
-	@Override
 	public ExpressionSummary getExpressionSummary(String id) {
 		return service.getExpressionSummary(id);
 	}
@@ -757,67 +636,6 @@ public class GeneController implements GeneRESTInterface {
 			error.addErrorMessage(e.getMessage());
 			throw new RestErrorException(error);
 		}
-	}
-
-	@Override
-	public JsonResultResponse<DiseaseAnnotation> getDiseaseByExperiment(String id,
-																		Integer limit,
-																		Integer page,
-																		String sortBy,
-																		String geneticEntity,
-																		String geneticEntityType,
-																		String disease,
-																		String associationType,
-																		String evidenceCode,
-																		String source,
-																		String reference,
-																		String asc,
-																		UriInfo ui) {
-		return getEmpiricalDiseaseAnnotation(id,
-			limit,
-			page,
-			sortBy,
-			geneticEntity,
-			geneticEntityType,
-			disease,
-			associationType,
-			evidenceCode,
-			source,
-			reference,
-			asc,
-			ui);
-	}
-
-	@Override
-	public Response getDiseaseByExperimentDownload(
-		String id,
-		String sortBy,
-		String geneticEntity,
-		String geneticEntityType,
-		String disease,
-		String associationType,
-		String evidenceCode,
-		String source,
-		String reference,
-		String asc,
-		UriInfo ui) {
-		JsonResultResponse<DiseaseAnnotation> response = getEmpiricalDiseaseAnnotation(id,
-			Integer.MAX_VALUE,
-			null,
-			sortBy,
-			geneticEntity,
-			geneticEntityType,
-			disease,
-			associationType,
-			evidenceCode,
-			source,
-			reference,
-			asc,
-			ui);
-		Response.ResponseBuilder responseBuilder = Response.ok(diseaseTranslator.getEmpiricalDiseaseByGene(response.getResults()));
-		responseBuilder.type(MediaType.TEXT_PLAIN_TYPE);
-		responseBuilder.header("Content-Disposition", "attachment; filename=\"DiseaseAssociationsViaEmpiricalData-" + id.replace(":", "-") + ".tsv\"");
-		return responseBuilder.build();
 	}
 
 	@Override

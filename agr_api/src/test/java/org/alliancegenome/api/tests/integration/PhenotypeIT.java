@@ -24,9 +24,7 @@ import org.alliancegenome.curation_api.model.entities.base.CurieObject;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.EntitySummary;
-import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.GeneticEntity;
-import org.alliancegenome.neo4j.view.BaseFilter;
 import org.alliancegenome.neo4j.view.OrthologyModule;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -109,39 +107,6 @@ public class PhenotypeIT {
 
 	}
 
-	@Test
-	public void checkPhenotypesByModels() {
-
-		// Tnf
-		String geneID = "MGI:104798";
-
-		Pagination pagination = new Pagination(1, 11, null, null);
-		DiseaseService diseaseService = new DiseaseService();
-		JsonResultResponse<PrimaryAnnotatedEntity> response = diseaseService.getDiseaseAnnotationsWithGeneAndAGM(geneID, pagination);
-		assertResponse(response, 11, 94);
-		assertTrue("More than one phenotype", response.getResults().get(0).getPhenotypes().size() > 1);
-		response.getResults().forEach(entity -> {
-			assertNotEquals("No AGMs with Gene type", entity.getType(), GeneticEntity.CrossReferenceType.GENE);
-			assertNotEquals("No AGMs with Allele type", entity.getType(), GeneticEntity.CrossReferenceType.ALLELE);
-		});
-	}
-
-	@Test
-	public void checkPhenotypesByModelsZfin() {
-
-		// sox9a
-		String geneID = "ZFIN:ZDB-GENE-001103-1";
-
-		Pagination pagination = new Pagination(1, 11, null, null);
-		DiseaseService diseaseService = new DiseaseService();
-		JsonResultResponse<PrimaryAnnotatedEntity> response = diseaseService.getDiseaseAnnotationsWithGeneAndAGM(geneID, pagination);
-		assertResponse(response, 11, 38);
-		assertTrue("More than one phenotype", response.getResults().get(0).getPhenotypes().size() > 1);
-		response.getResults().forEach(entity -> {
-			assertNotEquals("No AGMs with Gene type", entity.getType(), GeneticEntity.CrossReferenceType.GENE);
-			assertNotEquals("No AGMs with Allele type", entity.getType(), GeneticEntity.CrossReferenceType.ALLELE);
-		});
-	}
 
 	@Test
 	public void checkPhenotypesWithReference() {
@@ -177,34 +142,6 @@ public class PhenotypeIT {
 	}
 
 	@Test
-	public void checkPureModels() {
-
-		// Abcc6
-		String geneID = "RGD:620268";
-
-		Pagination pagination = new Pagination(1, 10, null, null);
-		DiseaseService diseaseService = new DiseaseService();
-		JsonResultResponse<PrimaryAnnotatedEntity> response = diseaseService.getDiseaseAnnotationsWithGeneAndAGM(geneID, pagination);
-		assertResponse(response, 1, 1);
-	}
-
-	@Test
-	public void checkPureModelsWithSTR() {
-
-		// Abcc6
-		String geneID = "ZFIN:ZDB-GENE-060526-68";
-
-		Pagination pagination = new Pagination(1, 10, null, null);
-		BaseFilter filter = new BaseFilter();
-		filter.addFieldFilter(FieldFilter.MODEL_NAME, "WT");
-		pagination.setFieldFilterValueMap(filter);
-		DiseaseService diseaseService = new DiseaseService();
-		JsonResultResponse<PrimaryAnnotatedEntity> response = diseaseService.getDiseaseAnnotationsWithGeneAndAGM(geneID, pagination);
-		assertResponse(response, 1, 1);
-		assertNotNull(response.getResults().get(0).getSequenceTargetingReagents().get(0).getGene().getType());
-	}
-
-	@Test
 	public void checkUrlForAllelesInPopup() {
 
 		// cua-1
@@ -224,45 +161,6 @@ public class PhenotypeIT {
 					});
 				});
 */
-	}
-
-	@Test
-	public void checkModelsForPhenotypeAndDisease() {
-
-		// Tnf
-		String geneID = "MGI:104798";
-
-		Pagination pagination = new Pagination(1, 10, null, null);
-		DiseaseService diseaseService = new DiseaseService();
-		JsonResultResponse<PrimaryAnnotatedEntity> response = diseaseService.getDiseaseAnnotationsWithGeneAndAGM(geneID, pagination);
-		assertResponse(response, 10, 90);
-	}
-
-	@Test
-	public void checkModelsForPhenotypeFiltering() {
-
-		// Tnf
-		String geneID = "MGI:105043";
-
-		Pagination pagination = new Pagination(1, 10, null, null);
-		BaseFilter filter = new BaseFilter();
-		filter.addFieldFilter(FieldFilter.PHENOTYPE, "abnormal");
-		pagination.setFieldFilterValueMap(filter);
-		DiseaseService diseaseService = new DiseaseService();
-		JsonResultResponse<PrimaryAnnotatedEntity> response = diseaseService.getDiseaseAnnotationsWithGeneAndAGM(geneID, pagination);
-		assertResponse(response, 9, 9);
-	}
-
-	@Test
-	public void checkModelsForPhenotypeWithoutDisease() {
-
-		// Arnt
-		String geneID = "MGI:88071";
-
-		Pagination pagination = new Pagination(1, 10, null, null);
-		DiseaseService diseaseService = new DiseaseService();
-		JsonResultResponse<PrimaryAnnotatedEntity> response = diseaseService.getDiseaseAnnotationsWithGeneAndAGM(geneID, pagination);
-		assertResponse(response, 8, 8);
 	}
 
 	@Test
@@ -420,20 +318,6 @@ public class PhenotypeIT {
 		assertNotNull(response.getResults().get(0).getPrimaryAnnotations());
 		// more than 4 fish are found for primary entity annotations
 		assertThat(response.getResults().get(0).getPrimaryAnnotations().size(), greaterThanOrEqualTo(4));
-	}
-
-	@Test
-	public void checkDiseasesByModels() {
-
-		// Tnf
-		String geneID = "MGI:104993";
-
-		Pagination pagination = new Pagination(1, 11, null, null);
-		DiseaseService diseaseService = new DiseaseService();
-		JsonResultResponse<PrimaryAnnotatedEntity> response = diseaseService.getDiseaseAnnotationsWithGeneAndAGM(geneID, pagination);
-		assertResponse(response, 11, 92);
-		assertTrue("More than one disease", response.getResults().get(1).getDiseaseModels().size() > 1);
-		assertTrue("More than one phenotype", response.getResults().get(0).getPhenotypes().size() > 1);
 	}
 
 	private void assertResponse(JsonResultResponse response, int resultSize, int totalSize) {

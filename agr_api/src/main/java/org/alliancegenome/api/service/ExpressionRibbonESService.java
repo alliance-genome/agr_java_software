@@ -15,7 +15,6 @@ import org.alliancegenome.api.dto.RibbonEntity;
 import org.alliancegenome.api.dto.RibbonSection;
 import org.alliancegenome.api.dto.RibbonSummary;
 import org.alliancegenome.api.entity.SectionSlim;
-import org.alliancegenome.cache.repository.ExpressionCacheRepository;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.util.FileHelper;
 import org.alliancegenome.curation_api.model.document.es.GeneExpressionDocument;
@@ -47,6 +46,9 @@ public class ExpressionRibbonESService extends ESService {
 	@Inject ExpressionESService expressionService;
 
 	public static final String UNDEFINED = "undefined";
+	public static final String UBERON_ANATOMY_ROOT = "UBERON:0001062";
+	public static final String UBERON_STAGE_ROOT = "UBERON:0000000";
+	public static final String GO_CC_ROOT = "GO:0005575";
 
 	private static volatile RibbonSummary ribbonSummary;
 
@@ -75,17 +77,17 @@ public class ExpressionRibbonESService extends ESService {
 		List<String> infection = new ArrayList<>();
 		infection.add("Expression grouped by Locations");
 		infection.add("All anatomical structures");
-		slimParentTermIdMap.put(ExpressionCacheRepository.UBERON_ANATOMY_ROOT, infection);
+		slimParentTermIdMap.put(UBERON_ANATOMY_ROOT, infection);
 
 		List<String> anatomy = new ArrayList<>();
 		anatomy.add("Expression grouped by Stages");
 		anatomy.add("All stages");
-		slimParentTermIdMap.put(ExpressionCacheRepository.UBERON_STAGE_ROOT, anatomy);
+		slimParentTermIdMap.put(UBERON_STAGE_ROOT, anatomy);
 
 		List<String> goTerms = new ArrayList<>();
 		goTerms.add("Expression grouped by GO CC terms");
 		goTerms.add("All cellular components");
-		slimParentTermIdMap.put(ExpressionCacheRepository.GO_CC_ROOT, goTerms);
+		slimParentTermIdMap.put(GO_CC_ROOT, goTerms);
 
 	}
 
@@ -233,7 +235,7 @@ public class ExpressionRibbonESService extends ESService {
 		
 
 		// add the AO root term
-		EntitySubgroupSlim slimRoot = getEntitySubgroupSlim(ExpressionCacheRepository.UBERON_ANATOMY_ROOT, uberonAnnotations, dataProvider);
+		EntitySubgroupSlim slimRoot = getEntitySubgroupSlim(UBERON_ANATOMY_ROOT, uberonAnnotations, dataProvider);
 		entity.addEntitySlim(slimRoot);
 		aoUberonMap.keySet().forEach(uberonTermID -> {
 			EntitySubgroupSlim slim = getEntitySubgroupSlim(uberonTermID, aoUberonMap.get(uberonTermID), dataProvider);
@@ -241,7 +243,7 @@ public class ExpressionRibbonESService extends ESService {
 		});
 
 		// add the Stage root term
-		EntitySubgroupSlim slimRootStage = getEntitySubgroupStageSlim(ExpressionCacheRepository.UBERON_STAGE_ROOT, stageAnnotations, dataProvider);
+		EntitySubgroupSlim slimRootStage = getEntitySubgroupStageSlim(UBERON_STAGE_ROOT, stageAnnotations, dataProvider);
 		entity.addEntitySlim(slimRootStage);
 		stageTermMap.keySet().forEach(uberonTermID -> {
 			EntitySubgroupSlim slim = getEntitySubgroupStageSlim(uberonTermID, stageTermMap.get(uberonTermID), dataProvider);
@@ -249,7 +251,7 @@ public class ExpressionRibbonESService extends ESService {
 		});
 
 		// add the GO root term
-		EntitySubgroupSlim slimRootGO = getEntitySubgroupSlim(ExpressionCacheRepository.GO_CC_ROOT, goAnnotations, dataProvider);
+		EntitySubgroupSlim slimRootGO = getEntitySubgroupSlim(GO_CC_ROOT, goAnnotations, dataProvider);
 		entity.addEntitySlim(slimRootGO);
 		goTermMap.keySet().forEach(goTermID -> {
 			EntitySubgroupSlim slim = getEntitySubgroupSlim(goTermID, goTermMap.get(goTermID), dataProvider);
@@ -319,9 +321,9 @@ public class ExpressionRibbonESService extends ESService {
 				tempRibbonSummary.addRibbonSection(section);
 
 				switch (id) {
-					case ExpressionCacheRepository.GO_CC_ROOT:
+					case GO_CC_ROOT:
 						slimTerms.getGoSlimTerms().forEach(term -> {
-							if (term.getCurie().equals(ExpressionCacheRepository.GO_CC_ROOT)) {
+							if (term.getCurie().equals(GO_CC_ROOT)) {
 								section.setDescription(term.getDefinition());
 								allSlimElement.setDescription(term.getDefinition());
 							} else {
@@ -330,9 +332,9 @@ public class ExpressionRibbonESService extends ESService {
 							}
 						});
 						break;
-					case ExpressionCacheRepository.UBERON_ANATOMY_ROOT:
+					case UBERON_ANATOMY_ROOT:
 						slimTerms.getAnatomicalStructureSlimTerms().forEach(term -> {
-							if (term.getCurie().equals(ExpressionCacheRepository.UBERON_ANATOMY_ROOT)) {
+							if (term.getCurie().equals(UBERON_ANATOMY_ROOT)) {
 								section.setDescription(term.getDefinition());
 								allSlimElement.setDescription(term.getDefinition());
 							} else {
@@ -341,9 +343,9 @@ public class ExpressionRibbonESService extends ESService {
 							}
 						});
 						break;
-					case ExpressionCacheRepository.UBERON_STAGE_ROOT:
+					case UBERON_STAGE_ROOT:
 						slimTerms.getStageSlimTerms().forEach(term -> {
-							if (term.getCurie().equals(ExpressionCacheRepository.UBERON_STAGE_ROOT)) {
+							if (term.getCurie().equals(UBERON_STAGE_ROOT)) {
 								section.setDescription(term.getDefinition());
 								allSlimElement.setDescription(term.getDefinition());
 							} else {

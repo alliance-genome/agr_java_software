@@ -17,8 +17,6 @@ import org.alliancegenome.api.entity.GeneGeneticInteractionDocument;
 import org.alliancegenome.api.entity.GeneMolecularInteractionDocument;
 import org.alliancegenome.api.entity.GenePhenotypeAnnotationDocument;
 import org.alliancegenome.api.service.helper.ElasticSearchHelper;
-import org.alliancegenome.cache.repository.AlleleCacheRepository;
-import org.alliancegenome.cache.repository.InteractionCacheRepository;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.variant.service.AlleleVariantIndexService;
 import org.alliancegenome.es.index.site.dao.SearchDAO;
@@ -57,12 +55,6 @@ public class GeneService {
 	AlleleVariantIndexService alleleVariantIndexService;
 
 	@Inject
-	AlleleCacheRepository alleleCacheRepository;
-
-	@Inject
-	InteractionCacheRepository interCacheRepo;
-
-	@Inject
 	PhenotypeESService phenotypeESService;
 	@Inject
 	ObjectMapper mapper;
@@ -99,12 +91,14 @@ public class GeneService {
 
 	public JsonResultResponse<AlleleVariantSequence> getAllelesAndVariantInfo(String geneId, Pagination pagination) {
 		List<AlleleVariantSequence> allelesNVariants = alleleVariantIndexService.getAllelesNVariants(geneId, pagination);
+		JsonResultResponse<AlleleVariantSequence> response = new JsonResultResponse<>();
 		if (CollectionUtils.isEmpty(allelesNVariants)) {
-			JsonResultResponse<AlleleVariantSequence> response = new JsonResultResponse<>();
 			response.setResults(new ArrayList<>());
-			return response;
+			
+		} else {
+			response.setResults(allelesNVariants);
 		}
-		return alleleCacheRepository.getAlleleAndVariantJsonResultResponse(pagination, allelesNVariants);
+		return response;
 	}
 
 	public JsonResultResponse<GeneGeneticInteractionDocument> getGeneticInteractions(String geneId, Pagination pagination) {

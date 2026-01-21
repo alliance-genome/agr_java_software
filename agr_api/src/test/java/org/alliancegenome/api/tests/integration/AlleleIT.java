@@ -3,7 +3,6 @@ package org.alliancegenome.api.tests.integration;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -12,26 +11,18 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.alliancegenome.api.controller.GeneController;
-import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.api.service.AlleleService;
-import org.alliancegenome.api.service.CacheStatusService;
 import org.alliancegenome.api.service.GeneService;
 import org.alliancegenome.api.service.VariantService;
-import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
-import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
-import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Construct;
@@ -63,8 +54,6 @@ public class AlleleIT {
 
 	@Inject private GeneService geneService;
 
-	@Inject private CacheStatusService cacheStatusService;
-
 	@Before
 	public void before() {
 		ConfigHelper.init();
@@ -74,16 +63,6 @@ public class AlleleIT {
 		mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
 		mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 		mapper.registerModule(new OrthologyModule());
-	}
-
-	@Test
-	@Ignore
-	public void checkAllelesBySpecies() {
-		Pagination pagination = new Pagination();
-		pagination.setLimit(100000);
-		JsonResultResponse<Allele> response = alleleService.getAllelesBySpecies("dani", pagination);
-		System.out.println(response.getTotal());
-		assertResponse(response, 40000, 40000);
 	}
 
 	@Test
@@ -114,15 +93,6 @@ public class AlleleIT {
 		assertNotNull(allele);
 		assertTrue(allele.getCrossReferenceMap().keySet().contains("primary"));
 		assertTrue(allele.getCrossReferenceMap().keySet().contains("references"));
-	}
-
-	@Test
-	// Test Sox9 from MGI for disease via experiment records
-	public void checkStatus() {
-		CacheStatus status = cacheStatusService.getCacheStatus(CacheAlliance.ALLELE_GENE, "FB:FBgn0031717");
-		assertNotNull(status);
-		Map<CacheAlliance, CacheStatus> map = cacheStatusService.getAllCachStatusRecords();
-		assertNotNull(map);
 	}
 
 	@Test
@@ -266,13 +236,6 @@ public class AlleleIT {
 	}
 
 	@Test
-	public void getAllelesPerGene() {
-		Pagination pagination = new Pagination();
-		JsonResultResponse<Allele> response = geneService.getAlleles("ZFIN:ZDB-GENE-990415-234", pagination);
-		assertThat(response.getTotal(), greaterThanOrEqualTo(1));
-	}
-
-	@Test
 	public void getVariantsWithInsertionDeletion() {
 		Pagination pagination = new Pagination();
 		JsonResultResponse<Variant> response = variantService.getVariants("ZFIN:ZDB-ALT-181010-2", pagination);
@@ -333,63 +296,6 @@ public class AlleleIT {
 		assertNotNull(c.getRegulatedByGenes());
 		assertEquals(c.getRegulatedByGenes().get(0).getSymbol(), "UASt");
 		assertEquals(c.getRegulatedByGenes().get(0).getCrossReferenceType(), GeneticEntity.CrossReferenceType.NON_BGI_CONSTRUCT_COMPONENTS);
-	}
-
-	@Test
-	public void getAllelePhenotype() {
-		// String alleleID = "ZFIN:ZDB-ALT-041001-12";
-		// String alleleID = "MGI:5442117";
-		// hu3335
-		String alleleID = "ZFIN:ZDB-ALT-980203-692";
-		JsonResultResponse<PhenotypeAnnotation> response = alleleService.getPhenotype(alleleID, new Pagination());
-		assertNotNull(response);
-		assertThat(response.getTotal(), greaterThanOrEqualTo(20));
-	}
-
-	@Test
-	public void getAllelePhenotypeNoAllelePAESelfReference() {
-		// Ptentm1.1Mwst
-		String alleleID = "MGI:4366755";
-		JsonResultResponse<PhenotypeAnnotation> response = alleleService.getPhenotype(alleleID, new Pagination());
-		assertNotNull(response);
-		assertThat(response.getTotal(), greaterThanOrEqualTo(8));
-		response.getResults().stream().filter(phenotypeAnnotation -> phenotypeAnnotation.getPrimaryAnnotatedEntities() != null).forEach(annotation -> {
-			annotation.getPrimaryAnnotatedEntities().forEach(entity -> {
-				assertNotEquals("Do not have allele direct annotations reference alleles as PAE", entity.getType(), GeneticEntity.CrossReferenceType.ALLELE);
-			});
-		});
-	}
-
-	@Test
-	public void checkPhenotypeOnMouseTransgeneAlleles() {
-
-		String alleleID = "MGI:3832950";
-		Pagination pagination = new Pagination(1, 10, null, null);
-		JsonResultResponse<PhenotypeAnnotation> response = alleleService.getPhenotype(alleleID, pagination);
-		assertTrue(response.getTotal() > 0);
-
-		assertPhenotype(response, "abnormal motor learning");
-		assertPhenotype(response, "short stride length");
-	}
-
-	private void assertPhenotype(JsonResultResponse<PhenotypeAnnotation> response, String phenotype) {
-		Optional<PhenotypeAnnotation> phenotytpeOptional = response.getResults().stream().filter(phenotypeAnnotation -> phenotypeAnnotation.getPhenotype().equals(phenotype)).findFirst();
-		assertTrue("No phenotype: " + phenotype + " found", phenotytpeOptional.isPresent());
-		List<PrimaryAnnotatedEntity> abnormalMotorLearning = phenotytpeOptional.get().getPrimaryAnnotatedEntities();
-		assertNotNull(abnormalMotorLearning);
-		assertThat("Mouse genotype not found for phenotype annotation: " + phenotype, abnormalMotorLearning.get(0).getId(), equalTo("MGI:3832988"));
-	}
-
-	@Test
-	public void getAlleleDisease() {
-		// String alleleID = "ZFIN:ZDB-ALT-041001-12";
-		// String alleleID = "MGI:5442117";
-		// hps5
-		// String alleleID = "ZFIN:ZDB-ALT-980203-692";
-		String alleleID = "MGI:1856424";
-		JsonResultResponse<DiseaseAnnotation> response = alleleService.getDisease(alleleID, new Pagination());
-		assertNotNull(response);
-		assertThat(response.getTotal(), greaterThanOrEqualTo(3));
 	}
 
 	@Test
