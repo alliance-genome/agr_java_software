@@ -15,7 +15,7 @@ import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.AffectedGenomicModel;
 import org.alliancegenome.neo4j.entity.node.Species;
 import org.alliancegenome.neo4j.repository.GeneRepository;
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 import org.apache.commons.collections.CollectionUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -93,7 +93,7 @@ public class ModelCacher extends Cacher {
 
 		log.info("Number of Genes with Models: " + String.format("%,d", geneMap.size()));
 
-		populateCacheFromMap(geneMap, View.PrimaryAnnotation.class, CacheAlliance.GENE_ASSOCIATION_MODEL_GENE);
+		populateCacheFromMap(geneMap, PublicView.PrimaryAnnotation.class, CacheAlliance.GENE_ASSOCIATION_MODEL_GENE);
 
 		CacheStatus status = new CacheStatus(CacheAlliance.GENE_ASSOCIATION_MODEL_GENE);
 		status.setNumberOfEntityIDs(geneMap.size());
@@ -105,7 +105,7 @@ public class ModelCacher extends Cacher {
 		geneMap.forEach((diseaseID, annotations) -> entityStats.put(diseaseID, annotations.size()));
 		populateStatisticsOnStatus(status, entityStats, speciesStats);
 
-		status.setJsonViewClass(View.PrimaryAnnotation.class.getSimpleName());
+		status.setJsonViewClass(PublicView.PrimaryAnnotation.class.getSimpleName());
 		status.setCollectionEntity(PrimaryAnnotatedEntity.class.getSimpleName());
 		setCacheStatus(status);
 

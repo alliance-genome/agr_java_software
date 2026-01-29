@@ -16,7 +16,7 @@ import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.view.ParalogBean;
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections4.map.MultiKeyMap;
 
@@ -75,7 +75,7 @@ public class GeneParalogCacher extends Cacher {
 			}).collect(toSet());
 			allParalogy.addAll(paralogySet);
 
-			cacheService.putCacheEntry(gene.getPrimaryKey(), new ArrayList<>(paralogySet), View.OrthologyCacher.class, CacheAlliance.GENE_PARALOGY);
+			cacheService.putCacheEntry(gene.getPrimaryKey(), new ArrayList<>(paralogySet), PublicView.OrthologyCacher.class, CacheAlliance.GENE_PARALOGY);
 			progressProcess();
 		});
 		finishProcess();

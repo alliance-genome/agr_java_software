@@ -20,7 +20,7 @@ import org.alliancegenome.neo4j.entity.node.Species;
 import org.alliancegenome.neo4j.entity.node.UBERONTerm;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -108,7 +108,7 @@ public class ExpressionCacher extends Cacher {
 
 		finishProcess();
 
-		populateCacheFromMap(geneExpressionMap, View.Expression.class, CacheAlliance.GENE_EXPRESSION);
+		populateCacheFromMap(geneExpressionMap, PublicView.Expression.class, CacheAlliance.GENE_EXPRESSION);
 
 		CacheStatus status = new CacheStatus(CacheAlliance.GENE_EXPRESSION);
 		status.setNumberOfEntities(allExpression.size());
@@ -119,7 +119,7 @@ public class ExpressionCacher extends Cacher {
 		geneExpressionMap.forEach((geneID, annotations) -> entityStats.put(geneID, annotations.size()));
 		populateStatisticsOnStatus(status, entityStats, speciesStats);
 
-		status.setJsonViewClass(View.Expression.class.getSimpleName());
+		status.setJsonViewClass(PublicView.Expression.class.getSimpleName());
 		status.setCollectionEntity(ExpressionDetail.class.getSimpleName());
 		setCacheStatus(status);
 
