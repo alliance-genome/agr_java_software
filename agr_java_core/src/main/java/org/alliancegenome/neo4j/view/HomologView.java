@@ -20,26 +20,26 @@ import lombok.Setter;
 @JsonPropertyOrder({"gene", "homologGene", "best", "bestReverse", "stringencyFilter", "predictionMethodsMatched", "predictionMethodsNotMatched", "predictionMethodsNotCalled", "methodCount", "totalMethodCount"})
 public class HomologView implements Serializable {
 
-	@JsonView(View.Homology.class)
+	@JsonView(PublicView.Homology.class)
 	private Gene gene;
-	@JsonView(View.Homology.class)
+	@JsonView(PublicView.Homology.class)
 	private Gene homologGene;
 
-	@JsonView(View.Homology.class)
+	@JsonView(PublicView.Homology.class)
 	private String best;
-	@JsonView(View.Homology.class)
+	@JsonView(PublicView.Homology.class)
 	private String bestReverse;
-	@JsonView(View.Homology.class)
+	@JsonView(PublicView.Homology.class)
 	private String stringencyFilter = "all";
 
-	@JsonView(View.Homology.class)
+	@JsonView(PublicView.Homology.class)
 	private List<String> predictionMethodsNotCalled;
-	@JsonView(View.Homology.class)
+	@JsonView(PublicView.Homology.class)
 	private List<String> predictionMethodsMatched;
-	@JsonView(View.Homology.class)
+	@JsonView(PublicView.Homology.class)
 	private List<String> predictionMethodsNotMatched;
 
-	@JsonView(View.Homology.class)
+	@JsonView(PublicView.Homology.class)
 	@JsonProperty(value = "methodCount")
 	public Integer getMethodCount() {
 		if (predictionMethodsMatched == null) {
@@ -52,7 +52,7 @@ public class HomologView implements Serializable {
 	public void setMethodCount(Integer count) {
 	}
 
-	@JsonView(View.Homology.class)
+	@JsonView(PublicView.Homology.class)
 	@JsonProperty(value = "totalMethodCount")
 	public Integer getTotalMethodCount() {
 		if (predictionMethodsMatched == null && predictionMethodsNotMatched == null) {

@@ -1,6 +1,6 @@
 package org.alliancegenome.api.dto;
 
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
@@ -10,11 +10,11 @@ import lombok.Setter;
 @Setter
 @Getter
 public class ExpressionSummaryGroupTerm {
-	@JsonView({ View.Expression.class})
+	@JsonView({ PublicView.Expression.class})
 	private String id;
-	@JsonView({ View.Expression.class})
+	@JsonView({ PublicView.Expression.class})
 	private String name;
-	@JsonView({ View.Expression.class})
+	@JsonView({ PublicView.Expression.class})
 	private int numberOfAnnotations;
 	private int numberOfClasses;
 

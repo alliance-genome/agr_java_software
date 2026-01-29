@@ -5,7 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.alliancegenome.api.entity.PresentationEntity;
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
@@ -27,11 +27,11 @@ public class Construct extends GeneticEntity implements Comparable<Construct>, P
 		this.crossReferenceType = CrossReferenceType.CONSTRUCT;
 	}
 
-	@JsonView({View.Default.class, View.API.class})
+	@JsonView({PublicView.Default.class, PublicView.API.class})
 	@JsonProperty(value = "id")
 	private String primaryKey;
 
-	@JsonView({View.Default.class, View.API.class})
+	@JsonView({PublicView.Default.class, PublicView.API.class})
 	private String nameText;
 
 	private String name;
@@ -54,7 +54,7 @@ public class Construct extends GeneticEntity implements Comparable<Construct>, P
 	@Relationship(type = "EXPRESSES", direction = Relationship.Direction.INCOMING)
 	private List<NonBGIConstructComponent> nonBGIConstructComponents;
 
-	@JsonView({View.AlleleAPI.class, View.TransgenicAlleleAPI.class})
+	@JsonView({PublicView.AlleleAPI.class, PublicView.TransgenicAlleleAPI.class})
 	@Relationship(type = "TARGETS", direction = Relationship.Direction.INCOMING)
 	private List<Gene> targetGenes = new ArrayList<>();
 
@@ -72,26 +72,26 @@ public class Construct extends GeneticEntity implements Comparable<Construct>, P
 		return primaryKey + " : " + nameText;
 	}
 
-	@JsonView({View.Default.class, View.API.class})
+	@JsonView({PublicView.Default.class, PublicView.API.class})
 	public String getName() {
 		return nameText;
 	}
 
-	@JsonView({View.AlleleAPI.class, View.TransgenicAlleleAPI.class})
+	@JsonView({PublicView.AlleleAPI.class, PublicView.TransgenicAlleleAPI.class})
 	public List<GeneticEntity> getExpressedGenes() {
 		List<GeneticEntity> entities = new ArrayList<>(expressedGenes);
 		addNonBGIConstructComponents(entities, nonBGIConstructComponents);
 		return entities;
 	}
 
-	@JsonView({View.AlleleAPI.class, View.TransgenicAlleleAPI.class})
+	@JsonView({PublicView.AlleleAPI.class, PublicView.TransgenicAlleleAPI.class})
 	public List<GeneticEntity> getRegulatedByGenes() {
 		List<GeneticEntity> entities = new ArrayList<>(regulatedByGenes);
 		addNonBGIConstructComponents(entities, nonBGIConstructComponentsRegulation);
 		return entities;
 	}
 
-	@JsonView({View.AlleleAPI.class, View.TransgenicAlleleAPI.class})
+	@JsonView({PublicView.AlleleAPI.class, PublicView.TransgenicAlleleAPI.class})
 	public List<GeneticEntity> getTargetGenes() {
 		List<GeneticEntity> entities = new ArrayList<>(targetGenes);
 		addNonBGIConstructComponents(entities, nonBGIConstructComponentsTarget);

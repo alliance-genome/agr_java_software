@@ -6,7 +6,7 @@ import java.util.List;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.neo4j.entity.node.OrthoAlgorithm;
 import org.alliancegenome.neo4j.view.HomologView;
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 import org.apache.commons.lang3.ObjectUtils.Null;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.ParameterIn;
@@ -38,7 +38,7 @@ public interface OrthologyRESTInterface {
 
 	@GET
 	@Path("/{taxonIDOne}/{taxonIDTwo}")
-	@JsonView(value = { View.Homology.class })
+	@JsonView(value = { PublicView.Homology.class })
 	@Operation(summary = "Retrieve homologous gene records for given pair of species")
 	@APIResponses(value = { @APIResponse(responseCode = "404", description = "Missing homologs", content = @Content(mediaType = "text/plain")),
 		@APIResponse(responseCode = "200", description = "homologous gene records for given pair of species.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
@@ -52,7 +52,7 @@ public interface OrthologyRESTInterface {
 
 	@GET
 	@Path("/{taxonID}")
-	@JsonView(value = { View.Homology.class })
+	@JsonView(value = { PublicView.Homology.class })
 	@Operation(summary = "Retrieve homologous gene records for a given species")
 	@APIResponses(value = { @APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
 	JsonResultResponse<HomologView> getSingleSpeciesOrthology(
@@ -64,14 +64,14 @@ public interface OrthologyRESTInterface {
 
 	@GET
 	@Path("/species")
-	@JsonView(value = { View.Homology.class })
+	@JsonView(value = { PublicView.Homology.class })
 	@APIResponses(value = { @APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
 	JsonResultResponse<HomologView> getMultiSpeciesOrthology(@QueryParam("taxonID") List<String> taxonID, @QueryParam("taxonIdList") String taxonIdList, @QueryParam("stringencyFilter") String stringencyFilter, @QueryParam("methods") String methods,
 		@DefaultValue("20") @QueryParam("rows") Integer rows, @DefaultValue("1") @QueryParam("start") Integer start) throws IOException;
 
 	@GET
 	@Path("/methods")
-	@JsonView(value = { View.OrthologyMethod.class })
+	@JsonView(value = { PublicView.OrthologyMethod.class })
 	@Operation(summary = "Retrieve all methods used for calculation of homology")
 	@APIResponses(value = { @APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
 	JsonResultResponse<OrthoAlgorithm> getAllMethodsCalculations() throws JsonProcessingException;

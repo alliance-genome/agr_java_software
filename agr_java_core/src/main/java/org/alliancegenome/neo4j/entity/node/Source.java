@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -19,8 +19,8 @@ import lombok.Setter;
 @Schema(name = "Source", description = "POJO that represents the Source")
 public class Source implements Serializable {
 
-	@JsonView(value = { View.Default.class, View.API.class }) private String name;
-	@JsonView(value = { View.Default.class, View.API.class }) private String url;
+	@JsonView(value = { PublicView.Default.class, PublicView.API.class }) private String name;
+	@JsonView(value = { PublicView.Default.class, PublicView.API.class }) private String url;
 
 	private SpeciesType speciesType;
 

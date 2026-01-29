@@ -1,6 +1,6 @@
 package org.alliancegenome.api.dto;
 
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -13,9 +13,9 @@ import lombok.Setter;
 public class EntitySubgroupSlim {
 
 	private String id;
-	@JsonView({ View.DiseaseAnnotation.class, View.Expression.class })
+	@JsonView({ PublicView.DiseaseAnnotation.class, PublicView.Expression.class })
 	@JsonProperty("nb_classes") private int numberOfClasses;
-	@JsonView({ View.DiseaseAnnotation.class, View.Expression.class })
+	@JsonView({ PublicView.DiseaseAnnotation.class, PublicView.Expression.class })
 	@JsonProperty("nb_annotations") private int numberOfAnnotations;
 
 	private Boolean available;

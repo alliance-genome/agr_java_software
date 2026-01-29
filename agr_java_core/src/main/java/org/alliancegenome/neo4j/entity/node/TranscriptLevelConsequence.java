@@ -7,7 +7,7 @@ import java.util.List;
 import org.alliancegenome.core.helpers.VariantServiceHelper;
 import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.neo4j.ogm.annotation.NodeEntity;
@@ -28,64 +28,64 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
 
 	private static HashMap<String, Transcript> transcriptCache = new HashMap<String, Transcript>();
 
-	@JsonView({ View.API.class, View.GeneAlleleVariantSequenceAPI.class, View.AlleleVariantSequenceConverterForES.class }) private List<String> molecularConsequences;
+	@JsonView({ PublicView.API.class, PublicView.GeneAlleleVariantSequenceAPI.class, PublicView.AlleleVariantSequenceConverterForES.class }) private List<String> molecularConsequences;
 
-	@JsonView({ View.Default.class, View.AlleleVariantSequenceConverterForES.class }) private String impact;
+	@JsonView({ PublicView.Default.class, PublicView.AlleleVariantSequenceConverterForES.class }) private String impact;
 
-	@JsonView({ View.API.class, View.AlleleVariantSequenceConverterForES.class }) private String aminoAcidChange;
+	@JsonView({ PublicView.API.class, PublicView.AlleleVariantSequenceConverterForES.class }) private String aminoAcidChange;
 
-	@JsonView({ View.API.class, View.AlleleVariantSequenceConverterForES.class }) private String aminoAcidVariation;
+	@JsonView({ PublicView.API.class, PublicView.AlleleVariantSequenceConverterForES.class }) private String aminoAcidVariation;
 
-	@JsonView({ View.API.class, View.AlleleVariantSequenceConverterForES.class }) private String aminoAcidReference;
+	@JsonView({ PublicView.API.class, PublicView.AlleleVariantSequenceConverterForES.class }) private String aminoAcidReference;
 
-	@JsonView({ View.API.class, View.AlleleVariantSequenceConverterForES.class }) private String codonChange;
+	@JsonView({ PublicView.API.class, PublicView.AlleleVariantSequenceConverterForES.class }) private String codonChange;
 
-	@JsonView({ View.API.class, View.AlleleVariantSequenceConverterForES.class }) private String codonReference;
+	@JsonView({ PublicView.API.class, PublicView.AlleleVariantSequenceConverterForES.class }) private String codonReference;
 
-	@JsonView({ View.API.class, View.AlleleVariantSequenceConverterForES.class }) private String codonVariation;
+	@JsonView({ PublicView.API.class, PublicView.AlleleVariantSequenceConverterForES.class }) private String codonVariation;
 
-	@JsonView({ View.API.class, View.AlleleVariantSequenceConverterForES.class }) private String cdsStartPosition;
+	@JsonView({ PublicView.API.class, PublicView.AlleleVariantSequenceConverterForES.class }) private String cdsStartPosition;
 
-	@JsonView({ View.API.class }) private String cdsEndPosition;
+	@JsonView({ PublicView.API.class }) private String cdsEndPosition;
 
-	@JsonView({ View.API.class, View.AlleleVariantSequenceConverterForES.class }) private String cdnaStartPosition;
+	@JsonView({ PublicView.API.class, PublicView.AlleleVariantSequenceConverterForES.class }) private String cdnaStartPosition;
 
-	@JsonView({ View.API.class }) private String cdnaEndPosition;
+	@JsonView({ PublicView.API.class }) private String cdnaEndPosition;
 
-	@JsonView({ View.API.class, View.AlleleVariantSequenceConverterForES.class }) private String proteinStartPosition;
+	@JsonView({ PublicView.API.class, PublicView.AlleleVariantSequenceConverterForES.class }) private String proteinStartPosition;
 
-	@JsonView({ View.API.class }) private String proteinEndPosition;
+	@JsonView({ PublicView.API.class }) private String proteinEndPosition;
 
-	@JsonView({ View.API.class, View.AlleleVariantSequenceConverterForES.class }) private String hgvsProteinNomenclature;
+	@JsonView({ PublicView.API.class, PublicView.AlleleVariantSequenceConverterForES.class }) private String hgvsProteinNomenclature;
 
-	@JsonView({ View.API.class, View.AlleleVariantSequenceConverterForES.class }) private String hgvsCodingNomenclature;
+	@JsonView({ PublicView.API.class, PublicView.AlleleVariantSequenceConverterForES.class }) private String hgvsCodingNomenclature;
 
-	@JsonView({ View.API.class, View.AlleleVariantSequenceConverterForES.class }) private String hgvsVEPGeneNomenclature;
+	@JsonView({ PublicView.API.class, PublicView.AlleleVariantSequenceConverterForES.class }) private String hgvsVEPGeneNomenclature;
 
-	@JsonView({ View.Default.class, View.AlleleVariantSequenceConverterForES.class }) private String siftPrediction;
+	@JsonView({ PublicView.Default.class, PublicView.AlleleVariantSequenceConverterForES.class }) private String siftPrediction;
 
-	@JsonView({ View.Default.class, View.AlleleVariantSequenceConverterForES.class }) private String polyphenPrediction;
+	@JsonView({ PublicView.Default.class, PublicView.AlleleVariantSequenceConverterForES.class }) private String polyphenPrediction;
 
-	@JsonView({ View.Default.class, View.AlleleVariantSequenceConverterForES.class }) private String siftScore;
+	@JsonView({ PublicView.Default.class, PublicView.AlleleVariantSequenceConverterForES.class }) private String siftScore;
 
-	@JsonView({ View.Default.class, View.AlleleVariantSequenceConverterForES.class }) private String polyphenScore;
+	@JsonView({ PublicView.Default.class, PublicView.AlleleVariantSequenceConverterForES.class }) private String polyphenScore;
 
-	@JsonView({ View.Default.class, View.AlleleVariantSequenceConverterForES.class }) private String sequenceFeatureType;
+	@JsonView({ PublicView.Default.class, PublicView.AlleleVariantSequenceConverterForES.class }) private String sequenceFeatureType;
 
 	@Relationship(type = "ASSOCIATION", direction = Relationship.Direction.INCOMING) private Variant variant;
 
 	@Relationship(type = "ASSOCIATION", direction = Relationship.Direction.INCOMING)
-	@JsonView({ View.AlleleVariantSequenceConverterForES.class, View.GeneAlleleVariantSequenceAPI.class }) private Transcript transcript;
+	@JsonView({ PublicView.AlleleVariantSequenceConverterForES.class, PublicView.GeneAlleleVariantSequenceAPI.class }) private Transcript transcript;
 
-	@JsonView({ View.Default.class, View.AlleleVariantSequenceConverterForES.class }) private String location;
+	@JsonView({ PublicView.Default.class, PublicView.AlleleVariantSequenceConverterForES.class }) private String location;
 
-	@JsonView({ View.GeneAlleleVariantSequenceAPI.class, View.AlleleVariantSequenceConverterForES.class }) private Gene associatedGene;
+	@JsonView({ PublicView.GeneAlleleVariantSequenceAPI.class, PublicView.AlleleVariantSequenceConverterForES.class }) private Gene associatedGene;
 
 	public void setLocation(String name) {
 		location = name;
 	}
 
-	@JsonView({ View.GeneAlleleVariantSequenceAPI.class, View.AlleleVariantSequenceConverterForES.class })
+	@JsonView({ PublicView.GeneAlleleVariantSequenceAPI.class, PublicView.AlleleVariantSequenceConverterForES.class })
 	public String getLocation() {
 		if (StringUtils.isNotEmpty(location)) {
 			return location;
@@ -98,7 +98,7 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
 		return location;
 	}
 
-	@JsonView({ View.GeneAlleleVariantSequenceAPI.class, View.AlleleVariantSequenceConverterForES.class })
+	@JsonView({ PublicView.GeneAlleleVariantSequenceAPI.class, PublicView.AlleleVariantSequenceConverterForES.class })
 	public String getSequenceFeatureType() {
 		if (StringUtils.isNotEmpty(sequenceFeatureType)) {
 			return sequenceFeatureType;
@@ -119,7 +119,7 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
 	public TranscriptLevelConsequence() {
 	}
 
-	@JsonView({ View.API.class, View.AlleleVariantSequenceConverterForES.class }) private String geneLevelConsequence;
+	@JsonView({ PublicView.API.class, PublicView.AlleleVariantSequenceConverterForES.class }) private String geneLevelConsequence;
 
 	public TranscriptLevelConsequence(String[] header, String[] infos, GeneDocumentCache geneCache, Species species) {
 

@@ -24,7 +24,7 @@ import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
 import org.alliancegenome.neo4j.view.BaseFilter;
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.MapperFeature;
@@ -135,7 +135,7 @@ public class ExpressionController implements ExpressionRESTInterface {
 		response.setResults(result.getResults());
 		response.setTotal(result.getTotal());
 		response.calculateRequestDuration(startDate);
-		return mapper.writerWithView(View.Expression.class).writeValueAsString(response);
+		return mapper.writerWithView(PublicView.Expression.class).writeValueAsString(response);
 	}
 
 	@Override

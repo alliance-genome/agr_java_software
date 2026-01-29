@@ -5,7 +5,7 @@ import java.util.Objects;
 
 import org.alliancegenome.api.entity.PresentationEntity;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 import com.fasterxml.jackson.annotation.JsonView;
@@ -18,9 +18,9 @@ import lombok.Setter;
 @Schema(name = "DiseaseModel", description = "POJO that represents a DiseaseModel")
 public class DiseaseModel implements Comparable<DiseaseModel>, Serializable, PresentationEntity {
 
-	@JsonView({View.PrimaryAnnotation.class, View.API.class})
+	@JsonView({PublicView.PrimaryAnnotation.class, PublicView.API.class})
 	protected DOTerm disease;
-	@JsonView({View.PrimaryAnnotation.class, View.API.class})
+	@JsonView({PublicView.PrimaryAnnotation.class, PublicView.API.class})
 	private String associationType;
 	private String modelName;
 
@@ -32,7 +32,7 @@ public class DiseaseModel implements Comparable<DiseaseModel>, Serializable, Pre
 	public DiseaseModel() {
 	}
 
-	@JsonView({View.PrimaryAnnotation.class, View.API.class})
+	@JsonView({PublicView.PrimaryAnnotation.class, PublicView.API.class})
 	public String getDiseaseModel() {
 		String response = "";
 		if (associationType.contains("NOT")) {
@@ -42,7 +42,7 @@ public class DiseaseModel implements Comparable<DiseaseModel>, Serializable, Pre
 		return response;
 	}
 
-	@JsonView({View.PrimaryAnnotation.class, View.API.class})
+	@JsonView({PublicView.PrimaryAnnotation.class, PublicView.API.class})
 	public void setDiseaseModel(String name) {
 		modelName = name;
 	}

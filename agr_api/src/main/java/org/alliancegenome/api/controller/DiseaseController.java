@@ -30,7 +30,7 @@ import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -195,7 +195,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 				APIServiceHelper.setDownloadHeader(id, EntityType.DISEASE, EntityType.ALLELE, responseBuilder);
 			} else if (downloadFileType.equalsIgnoreCase("JSON")) {
 				try {
-					String data = mapper.writerWithView(View.DiseaseAnnotationSummary.class).writeValueAsString(response);
+					String data = mapper.writerWithView(PublicView.DiseaseAnnotationSummary.class).writeValueAsString(response);
 					responseBuilder = Response.ok(data);
 					APIServiceHelper.setDownloadHeader(id, EntityType.DISEASE, EntityType.ALLELE, responseBuilder);
 				} catch (JsonProcessingException e) {
@@ -250,7 +250,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 				APIServiceHelper.setDownloadHeader(id, EntityType.DISEASE, EntityType.GENE, responseBuilder);
 			} else if (downloadFileType.equalsIgnoreCase("JSON")) {
 				try {
-					String data = mapper.writerWithView(View.DiseaseAnnotationSummary.class).writeValueAsString(response);
+					String data = mapper.writerWithView(PublicView.DiseaseAnnotationSummary.class).writeValueAsString(response);
 					responseBuilder = Response.ok(data);
 					APIServiceHelper.setDownloadHeader(id, EntityType.DISEASE, EntityType.GENE, responseBuilder);
 				} catch (JsonProcessingException e) {

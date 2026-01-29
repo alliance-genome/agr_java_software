@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 import org.alliancegenome.curation_api.model.entities.AllelePhenotypeAnnotation;
 import org.alliancegenome.curation_api.response.SearchResponse;
-import org.alliancegenome.curation_api.view.View;
+import org.alliancegenome.curation_api.view.CurationView;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
@@ -22,7 +22,7 @@ import jakarta.ws.rs.core.MediaType;
 public interface AllelePhenotypeAnnotationInterface {
 	@POST
 	@Path("/findForPublic")
-	@JsonView({ View.ForPublic.class })
+	@JsonView({ CurationView.ForPublic.class })
 	SearchResponse<AllelePhenotypeAnnotation> findForPublic(
 		@DefaultValue("0") @QueryParam("page") Integer page,
 		@DefaultValue("10") @QueryParam("limit") Integer limit,

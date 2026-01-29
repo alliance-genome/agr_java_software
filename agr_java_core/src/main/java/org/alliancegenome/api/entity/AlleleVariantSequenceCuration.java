@@ -7,7 +7,7 @@ import org.alliancegenome.curation_api.model.entities.Allele;
 import org.alliancegenome.curation_api.model.entities.PredictedVariantConsequence;
 import org.alliancegenome.curation_api.model.entities.Variant;
 import org.alliancegenome.curation_api.model.entities.associations.CuratedVariantGenomicLocationAssociation;
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 
 /**
  * A flattened version of curation API entities for presentational purposes.
@@ -18,19 +18,19 @@ import org.alliancegenome.neo4j.view.View;
 @Getter
 public class AlleleVariantSequenceCuration {
 
-	@JsonView({View.Default.class, View.AlleleVariantSequenceCurationForES.class})
+	@JsonView({PublicView.Default.class, PublicView.AlleleVariantSequenceCurationForES.class})
 	private Allele allele;
 
-	@JsonView({View.Default.class, View.AlleleVariantSequenceCurationForES.class})
+	@JsonView({PublicView.Default.class, PublicView.AlleleVariantSequenceCurationForES.class})
 	private Variant variant;
 
-	@JsonView({View.Default.class, View.AlleleVariantSequenceCurationForES.class})
+	@JsonView({PublicView.Default.class, PublicView.AlleleVariantSequenceCurationForES.class})
 	private CuratedVariantGenomicLocationAssociation variantLocation;
 
-	@JsonView({View.Default.class})
+	@JsonView({PublicView.Default.class})
 	private PredictedVariantConsequence consequence;
 
-	@JsonView({View.Default.class, View.AlleleVariantSequenceCurationForES.class})
+	@JsonView({PublicView.Default.class, PublicView.AlleleVariantSequenceCurationForES.class})
 	private Boolean searchable = true;
 
 	// Used only for deserialization purposes

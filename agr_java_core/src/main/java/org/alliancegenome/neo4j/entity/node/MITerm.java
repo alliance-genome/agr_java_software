@@ -3,7 +3,7 @@ package org.alliancegenome.neo4j.entity.node;
 import java.util.Arrays;
 import java.util.Optional;
 
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.neo4j.ogm.annotation.NodeEntity;
 
@@ -17,18 +17,18 @@ import lombok.Setter;
 @Setter
 @Schema(name = "MITerm", description = "POJO that represents the MITerm join")
 public class MITerm extends Ontology {
-	@JsonView({ View.Interaction.class }) private String primaryKey;
-	@JsonView({ View.Interaction.class }) private String label;
-	@JsonView({ View.Interaction.class }) private String definition;
-	@JsonView({ View.Interaction.class }) private String url;
+	@JsonView({ PublicView.Interaction.class }) private String primaryKey;
+	@JsonView({ PublicView.Interaction.class }) private String label;
+	@JsonView({ PublicView.Interaction.class }) private String definition;
+	@JsonView({ PublicView.Interaction.class }) private String url;
 
-	@JsonView({ View.Interaction.class })
+	@JsonView({ PublicView.Interaction.class })
 	public String getDisplayName() {
 		Optional<String> type = MiTermType.getNameByID(primaryKey);
 		return type.orElseGet(() -> label);
 	}
 
-	@JsonView({ View.Interaction.class })
+	@JsonView({ PublicView.Interaction.class })
 	public void setDisplayName(String name) {
 		// ignore
 	}

@@ -1,7 +1,7 @@
 package org.alliancegenome.neo4j.entity.node;
 
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.neo4j.ogm.annotation.NodeEntity;
 
@@ -16,13 +16,13 @@ import lombok.Setter;
 @Schema(name = "ExperimentalCondition", description = "POJO that represents ExperimentalCondition nodes")
 public class ExperimentalCondition extends Neo4jEntity {
 
-	@JsonView({View.API.class})
+	@JsonView({PublicView.API.class})
 	private String primaryKey;
 
-	@JsonView({View.API.class})
+	@JsonView({PublicView.API.class})
 	private String conditionStatement;
 
-	@JsonView({View.API.class})
+	@JsonView({PublicView.API.class})
 	private ZECOTerm term;
 
 	@Override

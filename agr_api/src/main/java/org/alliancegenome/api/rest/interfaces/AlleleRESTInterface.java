@@ -7,7 +7,7 @@ import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
 import org.alliancegenome.curation_api.model.document.es.TransgenicAlleleDocument;
 import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 import org.apache.commons.lang3.ObjectUtils.Null;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.ParameterIn;
@@ -66,7 +66,7 @@ public interface AlleleRESTInterface {
 	@GET
 	@Path("/{id}/variants/download")
 	@Operation(summary = "Retrieve all variants of a given allele in a download")
-	@JsonView(value = {View.VariantAPI.class})
+	@JsonView(value = {PublicView.VariantAPI.class})
 	@Produces(MediaType.TEXT_PLAIN)
 	Response getVariantsPerAlleleDownload(
 		@Parameter(in = ParameterIn.PATH, name = "id", description = "Search for Variants for a given Allele by ID", required = true, schema = @Schema(type = SchemaType.STRING)) @PathParam("id") String id,
@@ -77,7 +77,7 @@ public interface AlleleRESTInterface {
 	@GET
 	@Path("/species/{species}")
 	@Operation(summary = "Retrieve all alleles of a given species")
-	@JsonView(value = {View.GeneAllelesAPI.class})
+	@JsonView(value = {PublicView.GeneAllelesAPI.class})
 	@APIResponses(value = {@APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class)))})
 	JsonResultResponse<Allele> getAllelesPerSpecies(
 		@Parameter(in = ParameterIn.PATH, name = "species", description = "Species identifier: Could be the full ID, e.g. 'NCBITaxon:10090', or just the ID, i.e. '10090'. Alternatively, part of a species name uniquely identifying a single species, e.g. 'danio' or 'mus'.", required = true, schema = @Schema(type = SchemaType.STRING)) @PathParam("species") String species,
@@ -105,7 +105,7 @@ public interface AlleleRESTInterface {
 	@GET
 	@Path("/{id}/phenotypes/download")
 	@Operation(summary = "Retrieve all phenotypes of a given allele in a download")
-	@JsonView(value = {View.PhenotypeAPI.class})
+	@JsonView(value = {PublicView.PhenotypeAPI.class})
 	@Produces(MediaType.TEXT_PLAIN)
 	Response getPhenotypesPerAlleleDownload(
 		@Parameter(in = ParameterIn.PATH, name = "id", description = "Search for Phenotypes for a given Allele by ID", required = true, schema = @Schema(type = SchemaType.STRING)) @PathParam("id") String id,
@@ -136,7 +136,7 @@ public interface AlleleRESTInterface {
 	@GET
 	@Path("/{id}/diseases/download")
 	@Operation(summary = "Retrieve all diseases of a given allele in a download")
-	@JsonView(value = {View.DiseaseAnnotationSummary.class})
+	@JsonView(value = {PublicView.DiseaseAnnotationSummary.class})
 	@Produces(MediaType.TEXT_PLAIN)
 	Response getDiseasePerAlleleDownload(
 		@PathParam("id") String id, @Parameter(in = ParameterIn.QUERY, name = "filterOptions", description = "All filter key-value pairs", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filterOptions") String filterOptions,

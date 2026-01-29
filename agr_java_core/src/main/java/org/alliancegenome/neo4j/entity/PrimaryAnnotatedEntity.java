@@ -20,7 +20,7 @@ import org.alliancegenome.neo4j.entity.node.SequenceTargetingReagent;
 import org.alliancegenome.neo4j.entity.node.SimpleTerm;
 import org.alliancegenome.neo4j.entity.node.Source;
 import org.alliancegenome.neo4j.entity.node.Species;
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 import org.apache.commons.collections.CollectionUtils;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
@@ -37,33 +37,33 @@ import lombok.Setter;
 @JsonPropertyOrder({"id", "name", "displayName", "phenotypes", "url", "type", "crossReference", "source", "diseaseAssociationType", "diseaseModels", "publicationEvidenceCodes", "conditions", "conditionModifiers"})
 public class PrimaryAnnotatedEntity extends ConditionAnnotation implements Comparable<PrimaryAnnotatedEntity>, Serializable, PresentationEntity {
 
-	@JsonView({View.PrimaryAnnotation.class, View.API.class})
+	@JsonView({PublicView.PrimaryAnnotation.class, PublicView.API.class})
 	protected String id;
 	protected String entityJoinPk;
-	@JsonView({View.PrimaryAnnotation.class, View.API.class})
+	@JsonView({PublicView.PrimaryAnnotation.class, PublicView.API.class})
 	protected String name;
-	@JsonView({View.PrimaryAnnotation.class, View.API.class})
+	@JsonView({PublicView.PrimaryAnnotation.class, PublicView.API.class})
 	protected String displayName;
-	@JsonView({View.PrimaryAnnotation.class, View.API.class})
+	@JsonView({PublicView.PrimaryAnnotation.class, PublicView.API.class})
 	protected String url;
-	@JsonView({View.PrimaryAnnotation.class, View.API.class})
+	@JsonView({PublicView.PrimaryAnnotation.class, PublicView.API.class})
 	protected String type;
-	@JsonView({View.PrimaryAnnotation.class, View.API.class})
+	@JsonView({PublicView.PrimaryAnnotation.class, PublicView.API.class})
 	protected CrossReference crossReference;
-	@JsonView({View.PrimaryAnnotation.class, View.API.class})
+	@JsonView({PublicView.PrimaryAnnotation.class, PublicView.API.class})
 	private Source source;
-	@JsonView({View.PrimaryAnnotation.class, View.API.class})
+	@JsonView({PublicView.PrimaryAnnotation.class, PublicView.API.class})
 	protected String diseaseAssociationType;
 
-	@JsonView({View.PrimaryAnnotation.class, View.API.class})
+	@JsonView({PublicView.PrimaryAnnotation.class, PublicView.API.class})
 	protected List<DiseaseModel> diseaseModels;
-	@JsonView({View.PrimaryAnnotation.class, View.API.class})
+	@JsonView({PublicView.PrimaryAnnotation.class, PublicView.API.class})
 	private List<String> phenotypes;
-	@JsonView({View.PrimaryAnnotation.class, View.API.class})
+	@JsonView({PublicView.PrimaryAnnotation.class, PublicView.API.class})
 	private List<PublicationJoin> publicationEvidenceCodes;
-	@JsonView({View.PrimaryAnnotation.class, View.API.class})
+	@JsonView({PublicView.PrimaryAnnotation.class, PublicView.API.class})
 	private List<Allele> alleles;
-	@JsonView({View.PrimaryAnnotation.class, View.API.class})
+	@JsonView({PublicView.PrimaryAnnotation.class, PublicView.API.class})
 	private List<SequenceTargetingReagent> sequenceTargetingReagents;
 
 	@Convert(value = DateConverter.class)
@@ -71,7 +71,7 @@ public class PrimaryAnnotatedEntity extends ConditionAnnotation implements Compa
 
 	private List<DiseaseAnnotation> annotations;
 
-	@JsonView({View.PrimaryAnnotation.class, View.Default.class})
+	@JsonView({PublicView.PrimaryAnnotation.class, PublicView.Default.class})
 	protected Species species;
 
 	@Override

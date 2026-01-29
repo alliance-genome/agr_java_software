@@ -2,7 +2,7 @@ package org.alliancegenome.neo4j.entity.node;
 
 import java.util.Objects;
 
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 import org.neo4j.ogm.annotation.NodeEntity;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -17,7 +17,7 @@ import lombok.Setter;
 @JsonPropertyOrder({ "id", "name", "definition" })
 public class ZECOTerm extends SimpleTerm implements Comparable<ZECOTerm> {
 
-	@JsonView({ View.DiseaseAPI.class }) private String definition;
+	@JsonView({ PublicView.DiseaseAPI.class }) private String definition;
 
 	@Override
 	public boolean equals(Object o) {

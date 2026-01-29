@@ -18,7 +18,7 @@ import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.es.util.EsClientFactory;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.bulk.BulkRequest;
@@ -568,7 +568,7 @@ public class SourceDocumentCreation extends Thread {
 								if (doc instanceof VariantSummaryDocument vsd) {
 									jsonDoc = variantSummaryMapper.writeValueAsString(vsd);
 								} else if (doc instanceof AlleleVariantSequence avs) {
-									jsonDoc = mapper.writerWithView(View.AlleleVariantSequenceConverterForES.class).writeValueAsString(avs);
+									jsonDoc = mapper.writerWithView(PublicView.AlleleVariantSequenceConverterForES.class).writeValueAsString(avs);
 								} else {
 									// This should never happen
 								}

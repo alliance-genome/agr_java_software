@@ -3,7 +3,7 @@ package org.alliancegenome.neo4j.entity.node;
 import java.util.Objects;
 
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.neo4j.ogm.annotation.NodeEntity;
 
@@ -19,9 +19,9 @@ import lombok.Setter;
 @Schema(name = "Stage", description = "POJO that represents the Stage")
 public class Stage extends Neo4jEntity implements Comparable<Stage> {
 
-	@JsonView({ View.Homology.class, View.Interaction.class, View.Expression.class })
+	@JsonView({ PublicView.Homology.class, PublicView.Interaction.class, PublicView.Expression.class })
 	@JsonProperty("stageID") private String primaryKey;
-	@JsonView({ View.Expression.class }) private String name;
+	@JsonView({ PublicView.Expression.class }) private String name;
 
 	@Override
 	public String toString() {
