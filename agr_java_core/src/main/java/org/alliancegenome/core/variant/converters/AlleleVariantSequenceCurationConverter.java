@@ -118,7 +118,7 @@ public class AlleleVariantSequenceCurationConverter {
 			for (String s : ctx.getAttributeAsStringList("CSQ", "")) {
 				String[] infos = s.split("\\|", -1);
 				if (infos.length >= 30) {
-					hgvsGList.add(infos[findHeaderIndex(header, "HGVSg")]);
+					hgvsGList.add(infos[hgvsgIdx]);
 				}
 			}
 
