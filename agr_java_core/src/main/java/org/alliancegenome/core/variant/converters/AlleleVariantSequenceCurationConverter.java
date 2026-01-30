@@ -470,8 +470,8 @@ public class AlleleVariantSequenceCurationConverter {
 	 * Parse VEP position field (format: "123" or "123-125") and set start/end values
 	 */
 	private void parseAndSetPosition(String position,
-									 java.util.function.Consumer<Integer> startSetter,
-									 java.util.function.Consumer<Integer> endSetter) {
+									java.util.function.Consumer<Integer> startSetter,
+									java.util.function.Consumer<Integer> endSetter) {
 		try {
 			if (position.contains("-")) {
 				String[] parts = position.split("-");
