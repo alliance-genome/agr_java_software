@@ -57,6 +57,7 @@ public class AlleleVariantSequenceCurationConverter {
 	private int cdnaPosIdx = -1;
 	private int cdsPosIdx = -1;
 	private int proteinPosIdx = -1;
+	private int hgvsgIdx = -1;
 
 	public AlleleVariantSequenceCurationConverter(String[] header) {
 		this.header = header;
@@ -179,7 +180,12 @@ public class AlleleVariantSequenceCurationConverter {
 			}
 			// Note: Variant doesn't have setName(), so we store name info separately
 			String variantDisplayName = variantName.toString();
-			variantLocation.setHgvs(hgvsNomenclature);
+			Optional<String> firstHGVS = hgvsGList.stream().findFirst();
+			if(firstHGVS.isPresent()) {
+				variantLocation.setHgvs(firstHGVS.get());
+			} else {
+				variantLocation.setHgvs(variantDisplayName);
+			}
 
 			// Set primary key
 			String ctxId = ctx.getID();
