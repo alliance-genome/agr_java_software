@@ -16,7 +16,7 @@ import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.view.HomologView;
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections4.map.MultiKeyMap;
 
@@ -78,7 +78,7 @@ public class GeneOrthologCacher extends Cacher {
 			}).collect(toSet());
 			allOrthology.addAll(orthologySet);
 
-			cacheService.putCacheEntry(gene.getPrimaryKey(), new ArrayList<>(orthologySet), View.OrthologyCacher.class, CacheAlliance.GENE_ORTHOLOGY);
+			cacheService.putCacheEntry(gene.getPrimaryKey(), new ArrayList<>(orthologySet), PublicView.OrthologyCacher.class, CacheAlliance.GENE_ORTHOLOGY);
 			progressProcess();
 		});
 		finishProcess();
@@ -118,7 +118,7 @@ public class GeneOrthologCacher extends Cacher {
 		startProcess("Cache speciesToSpeciesMap into cache", speciesToSpeciesMap.size());
 
 		speciesToSpeciesMap.forEach((speciesSpeciesID, orthologViews) -> {
-			cacheService.putCacheEntry(speciesSpeciesID, orthologViews, View.OrthologyCacher.class, CacheAlliance.SPECIES_SPECIES_ORTHOLOGY);
+			cacheService.putCacheEntry(speciesSpeciesID, orthologViews, PublicView.OrthologyCacher.class, CacheAlliance.SPECIES_SPECIES_ORTHOLOGY);
 			progressProcess();
 		});
 		finishProcess();

@@ -17,7 +17,7 @@ import org.alliancegenome.curation_api.model.entities.VocabularyTerm;
 import org.alliancegenome.curation_api.model.entities.ontology.DOTerm;
 import org.alliancegenome.curation_api.model.entities.ontology.ECOTerm;
 import org.alliancegenome.es.index.site.document.SearchableItemDocument;
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 import org.apache.commons.collections4.CollectionUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -122,12 +122,12 @@ public class DiseaseAnnotationDocument extends SearchableItemDocument {
 		});
 	}
 
-	@JsonView({View.DiseaseAnnotationAll.class})
+	@JsonView({PublicView.DiseaseAnnotationAll.class})
 	public int getViaOrthologyOrder() {
 		return isViaOrthologyAnnotation ? 1 : 0;
 	}
 
-	@JsonView({View.DiseaseAnnotationAll.class})
+	@JsonView({PublicView.DiseaseAnnotationAll.class})
 	public void setViaOrthologyOrder(int order) {
 		isViaOrthologyAnnotation = order == 1;
 	}

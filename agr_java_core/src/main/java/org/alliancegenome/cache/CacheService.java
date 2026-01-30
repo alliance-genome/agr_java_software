@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.core.config.CacheConfig;
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 import org.infinispan.client.hotrod.RemoteCache;
 import org.infinispan.client.hotrod.RemoteCacheManager;
 
@@ -88,7 +88,7 @@ public class CacheService {
 		}
 
 		try {
-			return mapper.readerWithView(View.Cacher.class).forType(CacheStatus.class).readValue(json);
+			return mapper.readerWithView(PublicView.Cacher.class).forType(CacheStatus.class).readValue(json);
 		} catch (IOException e) {
 			log.error("Error during deserialization ", e);
 			throw new RuntimeException(e);

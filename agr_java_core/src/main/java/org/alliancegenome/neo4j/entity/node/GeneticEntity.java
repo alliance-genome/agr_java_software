@@ -9,7 +9,7 @@ import java.util.Map;
 
 import org.alliancegenome.es.util.DateConverter;
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 import org.apache.commons.collections.CollectionUtils;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.neo4j.ogm.annotation.Relationship;
@@ -28,24 +28,24 @@ public class GeneticEntity extends Neo4jEntity {
 
 	protected CrossReferenceType crossReferenceType;
 
-	@JsonView({View.Default.class, View.API.class, View.AlleleVariantSequenceConverterForES.class})
+	@JsonView({PublicView.Default.class, PublicView.API.class, PublicView.AlleleVariantSequenceConverterForES.class})
 	@JsonProperty(value = "id")
 	protected String primaryKey;
-	@JsonView({View.Default.class, View.API.class, View.AlleleVariantSequenceConverterForES.class})
+	@JsonView({PublicView.Default.class, PublicView.API.class, PublicView.AlleleVariantSequenceConverterForES.class})
 	protected String symbol;
 
 	protected String symbolWithSpecies;
 	@Convert(value = DateConverter.class)
 	private Date dateProduced;
 
-	@JsonView({View.Default.class, View.API.class, View.AlleleVariantSequenceConverterForES.class})
+	@JsonView({PublicView.Default.class, PublicView.API.class, PublicView.AlleleVariantSequenceConverterForES.class})
 	private String modCrossRefCompleteUrl = "";
 
 	// only used for JsonView
 	/// set when deserialized
 	protected Map<String, Object> crossReferencesMap;
 
-	@JsonView({View.API.class, View.PhenotypeAPI.class, View.DiseaseAnnotation.class, View.Homology.class, View.GeneAlleleVariantSequenceAPI.class, View.AlleleVariantSequenceConverterForES.class})
+	@JsonView({PublicView.API.class, PublicView.PhenotypeAPI.class, PublicView.DiseaseAnnotation.class, PublicView.Homology.class, PublicView.GeneAlleleVariantSequenceAPI.class, PublicView.AlleleVariantSequenceConverterForES.class})
 	@Relationship(type = "FROM_SPECIES")
 	protected Species species;
 
@@ -75,7 +75,7 @@ public class GeneticEntity extends Neo4jEntity {
 
 
 	// Converts the list of synonym objects to a list of strings
-	@JsonView(value = {View.API.class, View.GeneAllelesAPI.class, View.GeneAlleleVariantSequenceAPI.class, View.AlleleVariantSequenceConverterForES.class})
+	@JsonView(value = {PublicView.API.class, PublicView.GeneAllelesAPI.class, PublicView.GeneAlleleVariantSequenceAPI.class, PublicView.AlleleVariantSequenceConverterForES.class})
 	@JsonProperty(value = "synonyms")
 	public List<String> getSynonymList() {
 		if (synonyms != null && CollectionUtils.isEmpty(synonymsList)) {
@@ -96,7 +96,7 @@ public class GeneticEntity extends Neo4jEntity {
 	}
 
 	// Converts the list of secondary ids objects to a list of strings
-	@JsonView(value = {View.API.class, View.AlleleVariantSequenceConverterForES.class})
+	@JsonView(value = {PublicView.API.class, PublicView.AlleleVariantSequenceConverterForES.class})
 	@JsonProperty(value = "secondaryIds")
 	public List<String> getSecondaryIdsList() {
 		if (secondaryIds != null && CollectionUtils.isEmpty(secondaryIdsList)) {
@@ -116,7 +116,7 @@ public class GeneticEntity extends Neo4jEntity {
 		this.secondaryIdsList = secondaryIdsList;
 	}
 
-	@JsonView({View.API.class, View.AlleleVariantSequenceConverterForES.class})
+	@JsonView({PublicView.API.class, PublicView.AlleleVariantSequenceConverterForES.class})
 	public Map<String, Object> getCrossReferenceMap() {
 		if (crossReferencesMap != null) {
 			return crossReferencesMap;
@@ -171,7 +171,7 @@ public class GeneticEntity extends Neo4jEntity {
 
 
 	// ToDo: the primary URL should be an attribute on the entity node
-	@JsonView({ View.GeneAllelesAPI.class, View.AlleleAPI.class, View.Default.class, View.AlleleVariantSequenceConverterForES.class })
+	@JsonView({ PublicView.GeneAllelesAPI.class, PublicView.AlleleAPI.class, PublicView.Default.class, PublicView.AlleleVariantSequenceConverterForES.class })
 	public String getModCrossRefCompleteUrl() {
 		if (modCrossRefCompleteUrl != null) {
 			return modCrossRefCompleteUrl;
@@ -195,7 +195,7 @@ public class GeneticEntity extends Neo4jEntity {
 				.orElse(null);
 	}
 
-	@JsonView({View.API.class})
+	@JsonView({PublicView.API.class})
 	@JsonProperty(value = "type")
 	public String getType() {
 		if (crossReferenceType == null) {

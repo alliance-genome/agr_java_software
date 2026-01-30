@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
@@ -18,11 +18,11 @@ import lombok.Setter;
 @Setter
 public class UBERONTerm extends Ontology {
 
-	@JsonView(View.Expression.class) private String name;
+	@JsonView(PublicView.Expression.class) private String name;
 	private String definition;
 	private String href;
 	private String type;
-	@JsonView(View.Expression.class) private String primaryKey;
+	@JsonView(PublicView.Expression.class) private String primaryKey;
 	private String isObsolete;
 	private List<String> subset;
 

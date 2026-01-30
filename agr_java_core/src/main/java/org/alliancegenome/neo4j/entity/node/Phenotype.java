@@ -3,7 +3,7 @@ package org.alliancegenome.neo4j.entity.node;
 import java.util.List;
 
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
@@ -18,8 +18,8 @@ import lombok.Setter;
 @Setter
 @Schema(name = "Phenotype", description = "POJO that represents the Phenotype")
 public class Phenotype extends Neo4jEntity {
-	@JsonView({ View.PhenotypeAPI.class, View.Interaction.class }) private String primaryKey;
-	@JsonView({ View.AlleleAPI.class, View.Interaction.class }) private String phenotypeStatement;
+	@JsonView({ PublicView.PhenotypeAPI.class, PublicView.Interaction.class }) private String primaryKey;
+	@JsonView({ PublicView.AlleleAPI.class, PublicView.Interaction.class }) private String phenotypeStatement;
 
 	@Relationship(type = "IS_IMPLICATED_IN", direction = Relationship.Direction.INCOMING) private List<Gene> genes;
 

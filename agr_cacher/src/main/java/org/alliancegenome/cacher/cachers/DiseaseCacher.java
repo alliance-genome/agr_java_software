@@ -43,7 +43,7 @@ import org.alliancegenome.neo4j.entity.node.SequenceTargetingReagent;
 import org.alliancegenome.neo4j.entity.node.Source;
 import org.alliancegenome.neo4j.entity.node.Species;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 import org.apache.commons.collections4.CollectionUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -217,14 +217,14 @@ public class DiseaseCacher extends Cacher {
 	}
 
 	private void storeIntoCache(List<DiseaseAnnotation> diseaseAnnotations, Map<String, List<DiseaseAnnotation>> diseaseAnnotationMap, CacheAlliance cacheSpace) {
-		populateCacheFromMap(diseaseAnnotationMap, View.DiseaseCacher.class, cacheSpace);
+		populateCacheFromMap(diseaseAnnotationMap, PublicView.DiseaseCacher.class, cacheSpace);
 
 		log.debug("Calculate statistics...");
 		CacheStatus status = new CacheStatus(cacheSpace);
 		status.setNumberOfEntities(diseaseAnnotations.size());
 		status.setNumberOfEntityIDs(diseaseAnnotationMap.size());
 		status.setCollectionEntity(DiseaseAnnotation.class.getSimpleName());
-		status.setJsonViewClass(View.DiseaseAnnotationSummary.class.getSimpleName());
+		status.setJsonViewClass(PublicView.DiseaseAnnotationSummary.class.getSimpleName());
 
 		Map<String, List<DiseaseAnnotation>> speciesStats = diseaseAnnotations.stream().collect(groupingBy(annotation -> annotation.getSpecies().getName()));
 
@@ -246,12 +246,12 @@ public class DiseaseCacher extends Cacher {
 	}
 
 	public void storeIntoCachePAE(Map<String, List<PrimaryAnnotatedEntity>> primaryAnnotatedMap, CacheAlliance cacheSpace) {
-		populateCacheFromMap(primaryAnnotatedMap, View.PrimaryAnnotation.class, cacheSpace);
+		populateCacheFromMap(primaryAnnotatedMap, PublicView.PrimaryAnnotation.class, cacheSpace);
 		log.debug("Calculate statistics...");
 		CacheStatus status = new CacheStatus(cacheSpace);
 		status.setNumberOfEntityIDs(primaryAnnotatedMap.size());
 		status.setCollectionEntity(PrimaryAnnotatedEntity.class.getSimpleName());
-		status.setJsonViewClass(View.PrimaryAnnotation.class.getSimpleName());
+		status.setJsonViewClass(PublicView.PrimaryAnnotation.class.getSimpleName());
 
 		List<PrimaryAnnotatedEntity> annotatedEntities = primaryAnnotatedMap.values().stream().flatMap(Collection::stream).collect(toList());
 		status.setNumberOfEntities(annotatedEntities.size());

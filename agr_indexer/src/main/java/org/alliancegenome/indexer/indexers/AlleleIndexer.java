@@ -9,7 +9,7 @@ import org.alliancegenome.es.index.site.cache.AlleleDocumentCache;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.repository.indexer.AlleleIndexerRepository;
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 
 import com.fasterxml.jackson.databind.MapperFeature;
 
@@ -59,7 +59,7 @@ public class AlleleIndexer extends Indexer {
 					Iterable<AlleleVariantSequence> avsDocs = alleleTranslator.translateEntities(list);
 					alleleDocumentCache.addCachedFields(avsDocs);
 					alleleTranslator.updateDocuments(avsDocs);
-					indexDocuments(avsDocs, View.AlleleVariantSequenceConverterForES.class);
+					indexDocuments(avsDocs, PublicView.AlleleVariantSequenceConverterForES.class);
 					list.clear();
 				}
 				if (queue.isEmpty()) {
@@ -67,7 +67,7 @@ public class AlleleIndexer extends Indexer {
 						Iterable<AlleleVariantSequence> avsDocs = alleleTranslator.translateEntities(list);
 						alleleDocumentCache.addCachedFields(avsDocs);
 						alleleTranslator.updateDocuments(avsDocs);
-						indexDocuments(avsDocs, View.AlleleVariantSequenceConverterForES.class);
+						indexDocuments(avsDocs, PublicView.AlleleVariantSequenceConverterForES.class);
 						repo.clearCache();
 						list.clear();
 					}

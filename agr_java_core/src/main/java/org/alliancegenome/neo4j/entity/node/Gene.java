@@ -11,7 +11,7 @@ import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
 import org.alliancegenome.neo4j.entity.relationship.Orthologous;
 import org.alliancegenome.neo4j.entity.relationship.Paralogous;
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 import org.apache.commons.collections4.CollectionUtils;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.neo4j.ogm.annotation.NodeEntity;
@@ -34,26 +34,26 @@ public class Gene extends GeneticEntity implements Comparable<Gene> {
 		this.crossReferenceType = CrossReferenceType.GENE;
 	}
 
-	@JsonView({View.Homology.class, View.Expression.class})
+	@JsonView({PublicView.Homology.class, PublicView.Expression.class})
 	private String taxonId;
 
-	@JsonView({View.GeneAPI.class})
+	@JsonView({PublicView.GeneAPI.class})
 	private String geneSynopsis;
 
-	@JsonView({View.GeneAPI.class})
+	@JsonView({PublicView.GeneAPI.class})
 	private String automatedGeneSynopsis;
 
-	@JsonView({View.GeneAPI.class})
+	@JsonView({PublicView.GeneAPI.class})
 	private String geneSynopsisUrl;
 
-	@JsonView({View.GeneAPI.class, View.Expression.class})
+	@JsonView({PublicView.GeneAPI.class, PublicView.Expression.class})
 	private String dataProvider;
 
-	@JsonView(value = {View.GeneAPI.class, View.AlleleVariantSequenceConverterForES.class})
+	@JsonView(value = {PublicView.GeneAPI.class, PublicView.AlleleVariantSequenceConverterForES.class})
 	private String name;
 
 	@Convert(value = DateConverter.class)
-	@JsonView(value = {View.GeneAPI.class})
+	@JsonView(value = {PublicView.GeneAPI.class})
 	private Date dateProduced;
 
 	private String description;
@@ -64,7 +64,7 @@ public class Gene extends GeneticEntity implements Comparable<Gene> {
 	private String modGlobalId;
 	private Entity createdBy;
 
-	@JsonView(value = {View.GeneAPI.class})
+	@JsonView(value = {PublicView.GeneAPI.class})
 	private SOTerm soTerm;
 
 	@Relationship(type = "ANNOTATED_TO")
@@ -77,14 +77,14 @@ public class Gene extends GeneticEntity implements Comparable<Gene> {
 	private List<Paralogous> paraGenes;
 
 	@Relationship(type = "ASSOCIATION")
-	@JsonView({ View.GeneAPI.class, View.VariantAPI.class, View.AlleleAPI.class, View.AlleleVariantSequenceConverterForES.class })
+	@JsonView({ PublicView.GeneAPI.class, PublicView.VariantAPI.class, PublicView.AlleleAPI.class, PublicView.AlleleVariantSequenceConverterForES.class })
 	private List<GenomeLocation> genomeLocations;
 
 	@Relationship(type = "LOCATED_ON")
 	private List<Chromosome> chromsomes;
 
 	@Relationship(type = "IS_ALLELE_OF", direction = Relationship.Direction.INCOMING)
-	@JsonView(value = {View.GeneAPI.class})
+	@JsonView(value = {PublicView.GeneAPI.class})
 	private List<Allele> alleles;
 
 	@Relationship(type = "ASSOCIATION", direction = Relationship.Direction.UNDIRECTED)

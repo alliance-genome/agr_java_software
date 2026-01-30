@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.alliancegenome.neo4j.entity.node.ECOTerm;
 import org.alliancegenome.neo4j.entity.node.Publication;
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
@@ -16,9 +16,9 @@ import lombok.Setter;
 @Setter
 public class Reference implements Comparable<Reference>, Serializable {
 
-	@JsonView({View.DiseaseAnnotation.class})
+	@JsonView({PublicView.DiseaseAnnotation.class})
 	private Publication publication;
-	@JsonView({View.DiseaseAnnotation.class})
+	@JsonView({PublicView.DiseaseAnnotation.class})
 	private List<ECOTerm> evidenceCodes;
 
 	@Override

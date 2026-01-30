@@ -3,7 +3,7 @@ package org.alliancegenome.api.entity;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -15,24 +15,24 @@ import lombok.Setter;
 @Setter
 public class DiseaseRibbonEntity {
 
-	@JsonView(View.DiseaseAnnotation.class)
+	@JsonView(PublicView.DiseaseAnnotation.class)
 	private String id;
-	@JsonView(View.DiseaseAnnotation.class)
+	@JsonView(PublicView.DiseaseAnnotation.class)
 	private String label;
-	@JsonView(View.DiseaseAnnotation.class)
+	@JsonView(PublicView.DiseaseAnnotation.class)
 	@JsonProperty("taxon_id")
 	private String taxonID;
-	@JsonView(View.DiseaseAnnotation.class)
+	@JsonView(PublicView.DiseaseAnnotation.class)
 	@JsonProperty("taxon_label")
 	private String taxonName;
-	@JsonView(View.DiseaseAnnotation.class)
+	@JsonView(PublicView.DiseaseAnnotation.class)
 	@JsonProperty("nb_classes")
 	private int numberOfClasses;
-	@JsonView(View.DiseaseAnnotation.class)
+	@JsonView(PublicView.DiseaseAnnotation.class)
 	@JsonProperty("nb_annotations")
 	private int numberOfAnnotations;
 
-	@JsonView(View.DiseaseAnnotation.class)
+	@JsonView(PublicView.DiseaseAnnotation.class)
 	@JsonProperty("groups")
 	// <disease ID, DiseaseEntitySubgroupSlim
 	private Map<String, Map<String, DiseaseEntitySubgroupSlim>> slims = new LinkedHashMap<>();

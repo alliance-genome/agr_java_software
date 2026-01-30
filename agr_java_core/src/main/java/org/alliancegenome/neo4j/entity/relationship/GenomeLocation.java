@@ -1,7 +1,7 @@
 package org.alliancegenome.neo4j.entity.relationship;
 
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 import org.neo4j.ogm.annotation.NodeEntity;
 
 import com.fasterxml.jackson.annotation.JsonView;
@@ -14,19 +14,19 @@ import lombok.Setter;
 @Setter
 public class GenomeLocation extends Neo4jEntity {
 
-	@JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
+	@JsonView({PublicView.Default.class, PublicView.AlleleVariantSequenceConverterForES.class})
 	private String chromosome;
 
-	@JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
+	@JsonView({PublicView.Default.class, PublicView.AlleleVariantSequenceConverterForES.class})
 	private Long start;
 
-	@JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
+	@JsonView({PublicView.Default.class, PublicView.AlleleVariantSequenceConverterForES.class})
 	private Long end;
 
-	@JsonView({View.Default.class})
+	@JsonView({PublicView.Default.class})
 	private String assembly;
 
-	@JsonView({View.Default.class})
+	@JsonView({PublicView.Default.class})
 	private String strand;
 
 	public String getChromosomeAndPosition() {

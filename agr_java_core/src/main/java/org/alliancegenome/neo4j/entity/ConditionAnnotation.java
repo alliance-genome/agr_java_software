@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.alliancegenome.neo4j.entity.node.ExperimentalCondition;
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 import org.apache.commons.collections.MapUtils;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
@@ -21,10 +21,10 @@ import lombok.Setter;
 @Schema(name = "ConditionAnnotation", description = "POJO that represents a Condition Annotation")
 public abstract class ConditionAnnotation {
 
-	@JsonView({View.DiseaseAnnotation.class, View.PrimaryAnnotation.class, View.PhenotypeAPI.class})
+	@JsonView({PublicView.DiseaseAnnotation.class, PublicView.PrimaryAnnotation.class, PublicView.PhenotypeAPI.class})
 	private Map<String, List<ExperimentalCondition>> conditions;
 
-	@JsonView({View.DiseaseAnnotation.class, View.PrimaryAnnotation.class, View.PhenotypeAPI.class})
+	@JsonView({PublicView.DiseaseAnnotation.class, PublicView.PrimaryAnnotation.class, PublicView.PhenotypeAPI.class})
 	private Map<String, List<ExperimentalCondition>> conditionModifiers;
 
 

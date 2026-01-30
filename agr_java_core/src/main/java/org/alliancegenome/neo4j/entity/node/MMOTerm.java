@@ -2,7 +2,7 @@ package org.alliancegenome.neo4j.entity.node;
 
 import java.util.Objects;
 
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.neo4j.ogm.annotation.NodeEntity;
 
@@ -18,8 +18,8 @@ import lombok.Setter;
 public class MMOTerm extends Ontology {
 
 	private String primaryKey;
-	@JsonView(View.Expression.class) private String name;
-	@JsonView(View.Expression.class) private String displaySynonym;
+	@JsonView(PublicView.Expression.class) private String name;
+	@JsonView(PublicView.Expression.class) private String displaySynonym;
 
 	@Override
 	public String toString() {

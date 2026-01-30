@@ -11,7 +11,7 @@ import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.Publication;
 import org.alliancegenome.neo4j.entity.node.Source;
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -28,21 +28,21 @@ import lombok.Setter;
 public class PhenotypeAnnotation extends ConditionAnnotation implements Comparable<PhenotypeAnnotation>, Serializable {
 
 	private String primaryKey;
-	@JsonView({View.PhenotypeAPI.class})
+	@JsonView({PublicView.PhenotypeAPI.class})
 	private Source source;
-	@JsonView({View.PhenotypeAPI.class})
+	@JsonView({PublicView.PhenotypeAPI.class})
 	private String phenotype;
-	@JsonView({View.PhenotypeAPI.class})
+	@JsonView({PublicView.PhenotypeAPI.class})
 	private Gene gene;
-	@JsonView({View.PhenotypeAPI.class})
+	@JsonView({PublicView.PhenotypeAPI.class})
 	private Allele allele;
-	@JsonView({View.PhenotypeAPI.class})
+	@JsonView({PublicView.PhenotypeAPI.class})
 	private AffectedGenomicModel model;
-	@JsonView({View.PhenotypeAPI.class})
+	@JsonView({PublicView.PhenotypeAPI.class})
 	private List<AffectedGenomicModel> models;
-	@JsonView({View.PhenotypeAPI.class})
+	@JsonView({PublicView.PhenotypeAPI.class})
 	private List<Publication> publications;
-	@JsonView({View.PhenotypeAPI.class})
+	@JsonView({PublicView.PhenotypeAPI.class})
 	private List<PrimaryAnnotatedEntity> primaryAnnotatedEntities;
 
 

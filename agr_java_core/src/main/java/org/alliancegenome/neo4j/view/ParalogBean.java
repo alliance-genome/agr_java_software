@@ -17,28 +17,28 @@ import lombok.Data;
 @JsonPropertyOrder({"gene", "homologGene", "length", "similarity", "identity", "rank", "predictionMethodsMatched", "predictionMethodsNotMatched", "predictionMethodsNotCalled", "methodCount", "totalMethodCount"})
 public class ParalogBean implements Serializable {
 
-	@JsonView(View.Homology.class)
+	@JsonView(PublicView.Homology.class)
 	private Gene gene;
-	@JsonView(View.Homology.class)
+	@JsonView(PublicView.Homology.class)
 	private Gene homologGene;
 
-	@JsonView(View.Homology.class)
+	@JsonView(PublicView.Homology.class)
 	private String length;
-	@JsonView(View.Homology.class)
+	@JsonView(PublicView.Homology.class)
 	private String similarity;
-	@JsonView(View.Homology.class)
+	@JsonView(PublicView.Homology.class)
 	private String rank;
-	@JsonView(View.Homology.class)
+	@JsonView(PublicView.Homology.class)
 	private String identity;
 
-	@JsonView(View.Homology.class)
+	@JsonView(PublicView.Homology.class)
 	private List<String> predictionMethodsNotCalled;
-	@JsonView(View.Homology.class)
+	@JsonView(PublicView.Homology.class)
 	private List<String> predictionMethodsMatched;
-	@JsonView(View.Homology.class)
+	@JsonView(PublicView.Homology.class)
 	private List<String> predictionMethodsNotMatched;
 
-	@JsonView(View.Homology.class)
+	@JsonView(PublicView.Homology.class)
 	@JsonProperty(value = "methodCount")
 	public Integer getMethodCount() {
 		if (predictionMethodsMatched == null) {
@@ -51,7 +51,7 @@ public class ParalogBean implements Serializable {
 	public void setMethodCount(Integer count) {
 	}
 
-	@JsonView(View.Homology.class)
+	@JsonView(PublicView.Homology.class)
 	@JsonProperty(value = "totalMethodCount")
 	public Integer getTotalMethodCount() {
 		if (predictionMethodsMatched == null && predictionMethodsNotMatched == null) {

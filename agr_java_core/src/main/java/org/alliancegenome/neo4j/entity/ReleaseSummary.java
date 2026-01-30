@@ -5,7 +5,7 @@ import java.util.List;
 import org.alliancegenome.neo4j.entity.node.AllianceReleaseInfo;
 import org.alliancegenome.neo4j.entity.node.ModFileMetadata;
 import org.alliancegenome.neo4j.entity.node.OntologyFileMetadata;
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
@@ -15,11 +15,11 @@ import lombok.Setter;
 @Getter @Setter
 public class ReleaseSummary {
 	
-	@JsonView({View.API.class})
+	@JsonView({PublicView.API.class})
 	private AllianceReleaseInfo releaseInfo;
-	@JsonView({View.API.class})
+	@JsonView({PublicView.API.class})
 	private List<ModFileMetadata> metaData;
-	@JsonView({View.API.class})
+	@JsonView({PublicView.API.class})
 	private List<OntologyFileMetadata> ontologyMetaData;
 
 }

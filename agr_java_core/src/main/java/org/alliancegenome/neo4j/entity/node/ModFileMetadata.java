@@ -4,7 +4,7 @@ import java.util.Date;
 
 import org.alliancegenome.es.util.DateConverter;
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
@@ -21,14 +21,14 @@ import lombok.Setter;
 @Schema(name = "ModFileMetadata", description = "POJO that represents the ModFileMetaData")
 public class ModFileMetadata extends Neo4jEntity {
 
-	@JsonView({ View.API.class })
+	@JsonView({ PublicView.API.class })
 	@Convert(value = DateConverter.class)
 	@JsonProperty(value = "releaseDate") private Date dateProduced;
-	@JsonView({ View.API.class })
+	@JsonView({ PublicView.API.class })
 	@JsonProperty(value = "mod") private String dataSubType;
-	@JsonView({ View.API.class })
+	@JsonView({ PublicView.API.class })
 	@JsonProperty(value = "releaseVersion") private String release;
-	@JsonView({ View.API.class })
+	@JsonView({ PublicView.API.class })
 	@JsonProperty(value = "type") private String dataType;
 
 }

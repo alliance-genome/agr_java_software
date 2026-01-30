@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
@@ -15,9 +15,9 @@ import lombok.Setter;
 @Getter
 public class ExpressionSummary {
 
-	@JsonView({View.Expression.class})
+	@JsonView({PublicView.Expression.class})
 	private int totalAnnotations;
-	@JsonView({View.Expression.class})
+	@JsonView({PublicView.Expression.class})
 	private List<ExpressionSummaryGroup> groups = new ArrayList<>();
 
 	public void addGroup(ExpressionSummaryGroup group) {

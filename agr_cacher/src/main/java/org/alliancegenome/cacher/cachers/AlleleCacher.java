@@ -25,7 +25,7 @@ import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.GeneticEntity;
 import org.alliancegenome.neo4j.entity.node.Species;
 import org.alliancegenome.neo4j.repository.AlleleRepository;
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -109,7 +109,7 @@ public class AlleleCacher extends Cacher {
 		variantMap.forEach(map::putIfAbsent);
 		finishProcess();
 
-		populateCacheFromMap(map, View.GeneAllelesAPI.class, CacheAlliance.ALLELE_GENE);
+		populateCacheFromMap(map, PublicView.GeneAllelesAPI.class, CacheAlliance.ALLELE_GENE);
 
 		CacheStatus status = new CacheStatus(CacheAlliance.ALLELE_GENE);
 		status.setNumberOfEntities(allAlleles.size());
@@ -121,7 +121,7 @@ public class AlleleCacher extends Cacher {
 
 		populateStatisticsOnStatus(status, entityStats, speciesStats);
 		status.setCollectionEntity(Allele.class.getSimpleName());
-		status.setJsonViewClass(View.GeneAllelesAPI.class.getSimpleName());
+		status.setJsonViewClass(PublicView.GeneAllelesAPI.class.getSimpleName());
 		setCacheStatus(status);
 
 		// generate Allele detail records
@@ -149,10 +149,10 @@ public class AlleleCacher extends Cacher {
 
 		Map<String, List<AlleleVariantSequence>> allRecordsMap = alleleVariantSequences.stream().filter(sequence -> sequence.getAllele().getGene() != null).collect(groupingBy(sequence -> sequence.getAllele().getGene().getPrimaryKey()));
 
-		populateCacheFromMap(allRecordsMap, View.GeneAlleleVariantSequenceAPI.class, CacheAlliance.ALLELE_VARIANT_SEQUENCE_GENE);
+		populateCacheFromMap(allRecordsMap, PublicView.GeneAlleleVariantSequenceAPI.class, CacheAlliance.ALLELE_VARIANT_SEQUENCE_GENE);
 
 		Map<String, List<Allele>> speciesMap = allAlleles.stream().collect(groupingBy(allele -> allele.getSpecies().getPrimaryKey()));
-		populateCacheFromMap(speciesMap, View.GeneAlleleVariantSequenceAPI.class, CacheAlliance.ALLELE_VARIANT_SEQUENCE_GENE);
+		populateCacheFromMap(speciesMap, PublicView.GeneAlleleVariantSequenceAPI.class, CacheAlliance.ALLELE_VARIANT_SEQUENCE_GENE);
 
 		alleleRepository.clearCache();
 

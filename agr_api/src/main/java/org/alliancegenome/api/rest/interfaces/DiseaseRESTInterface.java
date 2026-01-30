@@ -8,7 +8,7 @@ import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.curation_api.model.document.es.DiseaseSummaryDocument;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 import org.apache.commons.lang3.ObjectUtils.Null;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.ParameterIn;
@@ -51,10 +51,10 @@ public interface DiseaseRESTInterface {
 
 	@GET
 	@Path("/{id}/associations")
-	@JsonView(value = { View.DiseaseAnnotationSummary.class })
+	@JsonView(value = { PublicView.DiseaseAnnotationSummary.class })
 	@Operation(summary = "Retrieve all DiseaseAnnotation associations for a given disease id", hidden = true)
 	@APIResponses(value = { @APIResponse(responseCode = "404", description = "Missing disease annotations", content = @Content(mediaType = "text/plain")),
-		@APIResponse(responseCode = "200", description = "Disease Annotations for a disease id.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = View.DiseaseAnnotationSummary.class))) })
+		@APIResponse(responseCode = "200", description = "Disease Annotations for a disease id.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = PublicView.DiseaseAnnotationSummary.class))) })
 	JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotationsSorted(@Parameter(in = ParameterIn.PATH, name = "id", description = "Search for a disease by ID", required = true, schema = @Schema(type = SchemaType.STRING)) @PathParam("id") String id,
 		@Parameter(in = ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("20") @QueryParam("limit") Integer limit,
 		@Parameter(in = ParameterIn.QUERY, name = "page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("1") @QueryParam("page") Integer page,
@@ -343,7 +343,7 @@ public interface DiseaseRESTInterface {
 
 	@POST
 	@Path("/download")
-	@JsonView(value = { View.DiseaseAnnotation.class })
+	@JsonView(value = { PublicView.DiseaseAnnotation.class })
 	@Operation(summary = "Download all disease annotations of a given set of genes")
 	Response getDiseaseAnnotationsRibbonDetailsDownload(@Parameter(in = ParameterIn.QUERY, name = "focusTaxonId", description = "Focus Taxon ID", required = true) @QueryParam("focusTaxonId") String focusTaxonId,
 		@Parameter(in = ParameterIn.QUERY, name = "termID", description = "Term ID by which rollup should happen") @QueryParam("termID") String termID,

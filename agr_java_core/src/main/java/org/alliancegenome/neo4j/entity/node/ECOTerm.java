@@ -3,7 +3,7 @@ package org.alliancegenome.neo4j.entity.node;
 import java.util.List;
 import java.util.Objects;
 
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
@@ -19,9 +19,9 @@ import lombok.Setter;
 @JsonPropertyOrder({ "id", "name", "definition" })
 public class ECOTerm extends SimpleTerm implements Comparable<ECOTerm> {
 
-	@JsonView({ View.DiseaseAPI.class }) private String definition;
+	@JsonView({ PublicView.DiseaseAPI.class }) private String definition;
 
-	@JsonView({ View.DiseaseAnnotation.class }) private String displaySynonym;
+	@JsonView({ PublicView.DiseaseAnnotation.class }) private String displaySynonym;
 
 	private String isObsolete;
 
