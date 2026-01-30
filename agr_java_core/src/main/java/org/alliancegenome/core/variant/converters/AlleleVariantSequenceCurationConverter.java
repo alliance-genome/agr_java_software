@@ -1,21 +1,8 @@
 package org.alliancegenome.core.variant.converters;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.regex.Pattern;
-
+import htsjdk.variant.variantcontext.VariantContext;
 import org.alliancegenome.api.entity.VariantSummaryDocument;
-import org.alliancegenome.curation_api.model.entities.Allele;
-import org.alliancegenome.curation_api.model.entities.AssemblyComponent;
-import org.alliancegenome.curation_api.model.entities.Gene;
-import org.alliancegenome.curation_api.model.entities.GenomeAssembly;
-import org.alliancegenome.curation_api.model.entities.PredictedVariantConsequence;
-import org.alliancegenome.curation_api.model.entities.Transcript;
-import org.alliancegenome.curation_api.model.entities.Variant;
-import org.alliancegenome.curation_api.model.entities.VocabularyTerm;
+import org.alliancegenome.curation_api.model.entities.*;
 import org.alliancegenome.curation_api.model.entities.associations.CuratedVariantGenomicLocationAssociation;
 import org.alliancegenome.curation_api.model.entities.associations.TranscriptGeneAssociation;
 import org.alliancegenome.curation_api.model.entities.ontology.NCBITaxonTerm;
@@ -25,7 +12,8 @@ import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.apache.commons.lang3.StringUtils;
 
-import htsjdk.variant.variantcontext.VariantContext;
+import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * Converts VCF VariantContext to AlleleVariantSequenceCuration documents
@@ -85,6 +73,7 @@ public class AlleleVariantSequenceCurationConverter {
 		cdnaPosIdx = findHeaderIndex(header, "cDNA_position");
 		cdsPosIdx = findHeaderIndex(header, "CDS_position");
 		proteinPosIdx = findHeaderIndex(header, "Protein_position");
+		hgvsgIdx = findHeaderIndex(header, "HGVSg");
 	}
 
 	public List<VariantSummaryDocument> convertContextToDocument(
@@ -129,7 +118,7 @@ public class AlleleVariantSequenceCurationConverter {
 			for (String s : ctx.getAttributeAsStringList("CSQ", "")) {
 				String[] infos = s.split("\\|", -1);
 				if (infos.length >= 30) {
-					hgvsGList.add(infos[29]);
+					hgvsGList.add(infos[findHeaderIndex(header, "HGVSg")]);
 				}
 			}
 
@@ -181,7 +170,7 @@ public class AlleleVariantSequenceCurationConverter {
 			// Note: Variant doesn't have setName(), so we store name info separately
 			String variantDisplayName = variantName.toString();
 			Optional<String> firstHGVS = hgvsGList.stream().findFirst();
-			if(firstHGVS.isPresent()) {
+			if (firstHGVS.isPresent()) {
 				variantLocation.setHgvs(firstHGVS.get());
 			} else {
 				variantLocation.setHgvs(variantDisplayName);
@@ -481,8 +470,8 @@ public class AlleleVariantSequenceCurationConverter {
 	 * Parse VEP position field (format: "123" or "123-125") and set start/end values
 	 */
 	private void parseAndSetPosition(String position,
-									java.util.function.Consumer<Integer> startSetter,
-									java.util.function.Consumer<Integer> endSetter) {
+									 java.util.function.Consumer<Integer> startSetter,
+									 java.util.function.Consumer<Integer> endSetter) {
 		try {
 			if (position.contains("-")) {
 				String[] parts = position.split("-");
