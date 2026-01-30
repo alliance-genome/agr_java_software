@@ -1,7 +1,7 @@
 package org.alliancegenome.neo4j.entity.node;
 
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.neo4j.ogm.annotation.NodeEntity;
 
@@ -16,7 +16,7 @@ import lombok.Setter;
 @Schema(name = "ParaAlgorithm", description = "POJO that represents the Para Algorithm")
 public class ParaAlgorithm extends Neo4jEntity implements Comparable<ParaAlgorithm> {
 
-	@JsonView({ View.OrthologyMethod.class }) private String name;
+	@JsonView({ PublicView.OrthologyMethod.class }) private String name;
 
 	@Override
 	public int compareTo(ParaAlgorithm o) {

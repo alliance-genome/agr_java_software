@@ -10,8 +10,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.alliancegenome.curation_api.view.View.ModelDocument;
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.curation_api.view.CurationView;
+import org.alliancegenome.neo4j.view.PublicView;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
@@ -23,17 +23,39 @@ import lombok.Setter;
 public class JsonResultResponse<T> {
 
 	public static final String DISTINCT_FIELD_VALUES = "distinctFieldValues";
-	@JsonView({ View.Default.class, ModelDocument.class }) private List<T> results = new ArrayList<T>();
-	@JsonView({ View.Default.class, ModelDocument.class}) private int total;
-	@JsonView({ View.Default.class, ModelDocument.class}) private int returnedRecords;
-	@JsonView({ View.Default.class, ModelDocument.class}) private String errorMessage = "";
-	@JsonView({ View.Default.class, ModelDocument.class}) private String note = "";
-	@JsonView({ View.Default.class, ModelDocument.class}) private String title = "";
-	@JsonView({ View.Default.class, ModelDocument.class}) private String requestDuration;
-	@JsonView({ View.Default.class, ModelDocument.class}) private Request request;
-	@JsonView({ View.Default.class, ModelDocument.class}) private String apiVersion;
-	@JsonView({ View.Default.class, ModelDocument.class}) private String requestDate;
-	@JsonView({ View.Default.class, ModelDocument.class}) private Map<String, Object> supplementalData;
+	
+	@JsonView({ PublicView.Default.class, CurationView.ModelDocument.class })
+	private List<T> results = new ArrayList<T>();
+	
+	@JsonView({ PublicView.Default.class, CurationView.ModelDocument.class })
+	private int total;
+	
+	@JsonView({ PublicView.Default.class, CurationView.ModelDocument.class })
+	private int returnedRecords;
+	
+	@JsonView({ PublicView.Default.class, CurationView.ModelDocument.class })
+	private String errorMessage = "";
+	
+	@JsonView({ PublicView.Default.class, CurationView.ModelDocument.class })
+	private String note = "";
+	
+	@JsonView({ PublicView.Default.class, CurationView.ModelDocument.class })
+	private String title = "";
+	
+	@JsonView({ PublicView.Default.class, CurationView.ModelDocument.class })
+	private String requestDuration;
+	
+	@JsonView({ PublicView.Default.class, CurationView.ModelDocument.class })
+	private Request request;
+	
+	@JsonView({ PublicView.Default.class, CurationView.ModelDocument.class })
+	private String apiVersion;
+	
+	@JsonView({ PublicView.Default.class, CurationView.ModelDocument.class })
+	private String requestDate;
+	
+	@JsonView({ PublicView.Default.class, CurationView.ModelDocument.class })
+	private Map<String, Object> supplementalData;
 
 	public JsonResultResponse() {
 		requestDate = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(Calendar.getInstance().getTime());

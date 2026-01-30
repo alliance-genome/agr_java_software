@@ -22,7 +22,7 @@ import org.alliancegenome.neo4j.entity.node.Publication;
 import org.alliancegenome.neo4j.entity.node.PublicationJoin;
 import org.alliancegenome.neo4j.entity.node.Source;
 import org.alliancegenome.neo4j.entity.node.Species;
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 import org.apache.commons.collections.CollectionUtils;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
@@ -42,43 +42,43 @@ public class DiseaseAnnotation extends ConditionAnnotation implements Comparable
 
 	public static final String NOT_ASSOCIATION_TYPE = "not";
 
-	@JsonView({View.DiseaseAnnotation.class})
+	@JsonView({PublicView.DiseaseAnnotation.class})
 	private String primaryKey;
-	@JsonView({View.DiseaseAnnotation.class})
+	@JsonView({PublicView.DiseaseAnnotation.class})
 	private Source source;
-	@JsonView({View.DiseaseAnnotation.class})
+	@JsonView({PublicView.DiseaseAnnotation.class})
 	private DOTerm disease;
-	@JsonView({View.DiseaseAnnotation.class})
+	@JsonView({PublicView.DiseaseAnnotation.class})
 	private Gene gene;
-	@JsonView({View.DiseaseAnnotation.class})
+	@JsonView({PublicView.DiseaseAnnotation.class})
 	private AffectedGenomicModel model;
-	@JsonView({View.DiseaseAnnotationAll.class})
+	@JsonView({PublicView.DiseaseAnnotationAll.class})
 	private Gene orthologyGene;
-	@JsonView({View.DiseaseAnnotation.class})
+	@JsonView({PublicView.DiseaseAnnotation.class})
 	@JsonProperty(value = "allele")
 	private Allele feature;
-	@JsonView({View.DiseaseAnnotation.class})
+	@JsonView({PublicView.DiseaseAnnotation.class})
 	private List<PrimaryAnnotatedEntity> primaryAnnotatedEntities;
-	@JsonView({View.DiseaseAnnotation.class})
+	@JsonView({PublicView.DiseaseAnnotation.class})
 	private List<Reference> references;
-	@JsonView({View.DiseaseAnnotation.class})
+	@JsonView({PublicView.DiseaseAnnotation.class})
 	
 	// This attribute will go away and be replaced by publicationJoin objects that keep the pub/evCodes pairs
 	private List<Publication> publications;
 	// This attribute will go away and be replaced by publicationJoin objects that keep the pub/evCodes pairs
 	private List<ECOTerm> evidenceCodes;
 	
-	@JsonView({View.DiseaseAnnotation.class})
+	@JsonView({PublicView.DiseaseAnnotation.class})
 	private String associationType;
-	@JsonView({View.DiseaseCacher.class})
+	@JsonView({PublicView.DiseaseCacher.class})
 	private int sortOrder;
-	@JsonView({View.DiseaseAnnotation.class})
+	@JsonView({PublicView.DiseaseAnnotation.class})
 	private List<Gene> orthologyGenes;
 
-	@JsonView({View.DiseaseAnnotation.class})
+	@JsonView({PublicView.DiseaseAnnotation.class})
 	private List<PublicationJoin> publicationJoins;
 	
-	@JsonView({View.DiseaseAnnotation.class})
+	@JsonView({PublicView.DiseaseAnnotation.class})
 	private List<Map<String, CrossReference>> providers;
 
 	transient boolean remove;
@@ -134,7 +134,7 @@ public class DiseaseAnnotation extends ConditionAnnotation implements Comparable
 				.collect(Collectors.toList());
 	}
 
-	@JsonView({View.DiseaseCacher.class})
+	@JsonView({PublicView.DiseaseCacher.class})
 	// lists the agr_do slim parents
 	private Set<String> parentIDs;
 
@@ -148,7 +148,7 @@ public class DiseaseAnnotation extends ConditionAnnotation implements Comparable
 		return 0;
 	}
 
-	@JsonView({View.Default.class})
+	@JsonView({PublicView.Default.class})
 	public String getGeneticEntityType() {
 		return feature != null ? "allele" : "gene";
 	}

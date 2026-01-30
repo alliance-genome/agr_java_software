@@ -22,7 +22,7 @@ import org.alliancegenome.neo4j.view.HomologView;
 import org.alliancegenome.neo4j.view.OrthologyFilter;
 import org.alliancegenome.neo4j.view.OrthologyModule;
 import org.alliancegenome.neo4j.view.ParalogBean;
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.MapperFeature;
@@ -305,11 +305,11 @@ public class OrthologyCacheRepository {
 	@Getter
 	public static class Response extends JsonResultResponse<HomologView> {
 
-		@JsonView(View.Homology.class)
+		@JsonView(PublicView.Homology.class)
 		private List<HomologView> results;
-		@JsonView(View.Homology.class)
+		@JsonView(PublicView.Homology.class)
 		private int total;
-		@JsonView(View.Homology.class)
+		@JsonView(PublicView.Homology.class)
 		private String errorMessage;
 	}
 }

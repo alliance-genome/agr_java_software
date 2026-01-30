@@ -2,7 +2,7 @@ package org.alliancegenome.api.entity;
 
 import java.io.Serializable;
 
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
@@ -13,13 +13,13 @@ import lombok.Setter;
 @Setter
 public class SectionSlim implements Serializable {
 
-	@JsonView({View.DiseaseAnnotation.class, View.Expression.class})
+	@JsonView({PublicView.DiseaseAnnotation.class, PublicView.Expression.class})
 	private String id;
-	@JsonView({View.DiseaseAnnotation.class, View.Expression.class})
+	@JsonView({PublicView.DiseaseAnnotation.class, PublicView.Expression.class})
 	private String label;
-	@JsonView({View.DiseaseAnnotation.class, View.Expression.class})
+	@JsonView({PublicView.DiseaseAnnotation.class, PublicView.Expression.class})
 	private String description;
-	@JsonView({View.DiseaseAnnotation.class, View.Expression.class})
+	@JsonView({PublicView.DiseaseAnnotation.class, PublicView.Expression.class})
 	private String type = "Term";
 
 	public void setTypeAll() {

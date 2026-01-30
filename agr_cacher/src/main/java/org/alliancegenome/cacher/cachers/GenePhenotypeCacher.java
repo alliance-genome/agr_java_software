@@ -30,7 +30,7 @@ import org.alliancegenome.neo4j.entity.node.GeneticEntity;
 import org.alliancegenome.neo4j.entity.node.PhenotypeEntityJoin;
 import org.alliancegenome.neo4j.entity.node.SequenceTargetingReagent;
 import org.alliancegenome.neo4j.repository.PhenotypeRepository;
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 import org.apache.commons.collections.CollectionUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -215,7 +215,7 @@ public class GenePhenotypeCacher extends Cacher {
 
 		startProcess("phenotypeAnnotationPureMap", phenotypeAnnotationPureMap.size());
 		phenotypeAnnotationPureMap.forEach((geneID, value) -> {
-			cacheService.putCacheEntry(geneID, value, View.PrimaryAnnotation.class, CacheAlliance.GENE_PURE_AGM_PHENOTYPE);
+			cacheService.putCacheEntry(geneID, value, PublicView.PrimaryAnnotation.class, CacheAlliance.GENE_PURE_AGM_PHENOTYPE);
 			progressProcess();
 		});
 
@@ -229,7 +229,7 @@ public class GenePhenotypeCacher extends Cacher {
 
 		startProcess(cacheSpace.name() + " into cache", phenotypeAnnotationMap.size());
 		phenotypeAnnotationMap.forEach((key, value) -> {
-			cacheService.putCacheEntry(key, value, View.PhenotypeAPI.class, cacheSpace);
+			cacheService.putCacheEntry(key, value, PublicView.PhenotypeAPI.class, cacheSpace);
 			progressProcess();
 		});
 		CacheStatus status = new CacheStatus(cacheSpace);

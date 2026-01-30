@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -20,11 +20,11 @@ public class DiseaseRibbonSummary implements Serializable {
 
 	public static final String DOID_ALL_ANNOTATIONS = "DOID:allAnnotations";
 	public static final String DOID_OTHER = "DOID:Other";
-	@JsonView(View.DiseaseAnnotation.class)
+	@JsonView(PublicView.DiseaseAnnotation.class)
 	@JsonProperty("categories")
 	private List<DiseaseRibbonSection> diseaseRibbonSections = new ArrayList<>();
 
-	@JsonView(View.DiseaseAnnotation.class)
+	@JsonView(PublicView.DiseaseAnnotation.class)
 	@JsonProperty("subjects")
 	private List<DiseaseRibbonEntity> diseaseRibbonEntities = new ArrayList<>();
 

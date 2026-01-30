@@ -1,6 +1,6 @@
 package org.alliancegenome.neo4j.entity.node;
 
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
@@ -23,10 +23,10 @@ public class SequenceTargetingReagent extends GeneticEntity implements Comparabl
 	private String release;
 	private String localId;
 	private String globalId;
-	@JsonView({ View.Default.class }) private String name;
+	@JsonView({ PublicView.Default.class }) private String name;
 
 	@Relationship(type = "TARGETS")
-	@JsonView({ View.API.class }) private Gene gene;
+	@JsonView({ PublicView.API.class }) private Gene gene;
 
 	@Override
 	public int compareTo(SequenceTargetingReagent o) {

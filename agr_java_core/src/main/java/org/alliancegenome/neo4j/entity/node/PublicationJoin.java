@@ -3,7 +3,7 @@ package org.alliancegenome.neo4j.entity.node;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 import org.apache.commons.collections.CollectionUtils;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.neo4j.ogm.annotation.NodeEntity;
@@ -21,13 +21,13 @@ import lombok.Setter;
 @Schema(name = "PublicationJoin", description = "POJO that represents the Publication Join")
 public class PublicationJoin extends Association {
 
-	@JsonView({ View.API.class }) protected String primaryKey;
+	@JsonView({ PublicView.API.class }) protected String primaryKey;
 	protected String joinType;
 
-	@JsonView({ View.API.class })
+	@JsonView({ PublicView.API.class })
 	@Relationship(type = "ASSOCIATION", direction = Relationship.Direction.INCOMING) private Publication publication;
 
-	@JsonView({ View.API.class })
+	@JsonView({ PublicView.API.class })
 	@JsonProperty(value = "evidenceCodes")
 	@Relationship(type = "ASSOCIATION") private List<ECOTerm> ecoCode;
 
@@ -37,7 +37,7 @@ public class PublicationJoin extends Association {
 	// annotation inferred on
 	@Relationship(type = "PRIMARY_GENETIC_ENTITY") private List<Allele> alleles;
 
-	@JsonView({ View.API.class }) private String dateAssigned;
+	@JsonView({ PublicView.API.class }) private String dateAssigned;
 
 	@Override
 	public String toString() {

@@ -13,7 +13,7 @@ import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.cache.repository.helper.SourceServiceHelper;
 import org.alliancegenome.es.util.DateConverter;
 import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
@@ -35,15 +35,15 @@ public class DOTerm extends SimpleTerm {
 
 	public static final String HIGH_LEVEL_TERM_LIST_SLIM = "DO_AGR_slim";
 
-	@JsonView({View.DiseaseAPI.class, View.Default.class})
+	@JsonView({PublicView.DiseaseAPI.class, PublicView.Default.class})
 	@JsonProperty(value = "url")
 	private String doUrl;
 	private String doDisplayId;
 	private String doId;
 	private String doPrefix;
-	@JsonView({View.DiseaseAPI.class})
+	@JsonView({PublicView.DiseaseAPI.class})
 	private String definition;
-	@JsonView({View.DiseaseAPI.class})
+	@JsonView({PublicView.DiseaseAPI.class})
 	@JsonProperty(value = "definitionLinks")
 	private List<String> defLinks;
 	private List<String> subset;
@@ -64,7 +64,7 @@ public class DOTerm extends SimpleTerm {
 	private String flybaseLink;
 	private String mgiLink;
 
-	@JsonView(value = {View.DiseaseAPI.class})
+	@JsonView(value = {PublicView.DiseaseAPI.class})
 	@JsonProperty(value = "sources")
 	public List<Source> getSourceList() {
 		SourceServiceHelper service = new SourceServiceHelper();
@@ -95,7 +95,7 @@ public class DOTerm extends SimpleTerm {
 	@Relationship(type = "ALSO_KNOWN_AS")
 	private List<Synonym> synonyms;
 
-	@JsonView(value = {View.DiseaseAPI.class})
+	@JsonView(value = {PublicView.DiseaseAPI.class})
 	@JsonProperty(value = "synonyms")
 	public List<String> getSynonymList() {
 		if (synonyms == null) {
@@ -111,7 +111,7 @@ public class DOTerm extends SimpleTerm {
 	@Relationship(type = "CROSS_REFERENCE")
 	private List<CrossReference> crossReferences = new ArrayList<>();
 
-	@JsonView({View.DiseaseAPI.class})
+	@JsonView({PublicView.DiseaseAPI.class})
 	@JsonProperty(value = "crossReferences")
 	public Map<String, List<CrossReference>> getCrossReferenceMap() {
 		if (crossReferences == null) {
@@ -132,13 +132,13 @@ public class DOTerm extends SimpleTerm {
 		return primaryKey + ":" + name;
 	}
 
-	@JsonView({View.DiseaseAPI.class})
+	@JsonView({PublicView.DiseaseAPI.class})
 	@JsonProperty(value = "children")
 	public List<SimpleTerm> getChildrenList() {
 		return getSimpleTerms(children);
 	}
 
-	@JsonView({View.DiseaseAPI.class})
+	@JsonView({PublicView.DiseaseAPI.class})
 	@JsonProperty(value = "parents")
 	public List<SimpleTerm> getParentList() {
 		return getSimpleTerms(parents);

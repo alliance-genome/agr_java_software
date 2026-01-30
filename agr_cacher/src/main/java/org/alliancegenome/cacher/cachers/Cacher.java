@@ -17,7 +17,7 @@ import org.alliancegenome.cache.CacheService;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.Species;
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -77,7 +77,7 @@ public abstract class Cacher extends Thread {
 	}
 
 	public void setCacheStatus(CacheStatus status) {
-		cacheService.putCacheEntry(status.getName(), status, View.CacherDetail.class, CacheAlliance.CACHING_STATS);
+		cacheService.putCacheEntry(status.getName(), status, PublicView.CacherDetail.class, CacheAlliance.CACHING_STATS);
 	}
 
 	public void setCacheStatus(int size, CacheAlliance cache) {

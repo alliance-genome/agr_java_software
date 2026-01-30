@@ -14,7 +14,7 @@ import org.alliancegenome.api.entity.GeneToGeneParalogyDocument;
 import org.alliancegenome.api.entity.GeneTransgenicAlleleSummaryDocument;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.curation_api.model.document.es.AffectedGenomicModelDocument;
-import org.alliancegenome.curation_api.view.View.ModelDocument;
+import org.alliancegenome.curation_api.view.CurationView;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.DiseaseSummary;
 import org.alliancegenome.neo4j.entity.EntitySummary;
@@ -22,10 +22,10 @@ import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.view.HomologView;
-import org.alliancegenome.neo4j.view.View;
-import org.alliancegenome.neo4j.view.View.GeneAPI;
-import org.alliancegenome.neo4j.view.View.GeneAlleleVariantSequenceAPI;
-import org.alliancegenome.neo4j.view.View.GeneAllelesAPI;
+import org.alliancegenome.neo4j.view.PublicView;
+import org.alliancegenome.neo4j.view.PublicView.GeneAPI;
+import org.alliancegenome.neo4j.view.PublicView.GeneAlleleVariantSequenceAPI;
+import org.alliancegenome.neo4j.view.PublicView.GeneAllelesAPI;
 import org.apache.commons.lang3.ObjectUtils.Null;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.ParameterIn;
@@ -310,7 +310,7 @@ public interface GeneRESTInterface {
 
 	@GET
 	@Path("/{id}/disease")
-	@JsonView(value = {View.DiseaseAnnotation.class})
+	@JsonView(value = {PublicView.DiseaseAnnotation.class})
 	@Operation(summary = "Retrieve disease annotations for a given gene")
 	@APIResponses(
 		value = {
@@ -370,7 +370,7 @@ public interface GeneRESTInterface {
 
 	@GET
 	@Path("/{id}/models")
-	@JsonView(value = {ModelDocument.class})
+	@JsonView(value = {CurationView.ModelDocument.class})
 	@Operation(summary = "Retrieve all DiseaseAnnotation records for a given disease id")
 	@APIResponses(
 		value = {
@@ -457,7 +457,7 @@ public interface GeneRESTInterface {
 
 	@GET
 	@Path("/{id}/homologs-with-expression")
-	@JsonView(value = {View.Homology.class})
+	@JsonView(value = {PublicView.Homology.class})
 	@Operation(summary = "Retrieve homologous gene records that have expression data")
 	@APIResponses(value = {@APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class)))})
 	JsonResultResponse<HomologView> getGeneOrthologyWithExpression(
@@ -481,7 +481,7 @@ public interface GeneRESTInterface {
 				description = "Gentic interactions for a gene.",
 				content = @Content(mediaType = "application/json",
 					schema = @Schema(implementation = Null.class)))})
-	@JsonView(value = {View.GeneticInteraction.class})
+	@JsonView(value = {PublicView.GeneticInteraction.class})
 	JsonResultResponse<GeneGeneticInteractionDocument> getGeneticInteractions(
 		@Parameter(in = ParameterIn.PATH, name = "id", description = " Gene ID", required = true, schema = @Schema(type = SchemaType.STRING))
 		@PathParam("id") String id,
@@ -568,7 +568,7 @@ public interface GeneRESTInterface {
 				description = "Molecular interactions for a gene.",
 				content = @Content(mediaType = "application/json",
 					schema = @Schema(implementation = Null.class)))})
-	@JsonView(value = {View.MolecularInteraction.class})
+	@JsonView(value = {PublicView.MolecularInteraction.class})
 	JsonResultResponse<GeneMolecularInteractionDocument> getMolecularInteractions(
 		@Parameter(in = ParameterIn.PATH, name = "id", description = " Gene ID", required = true, schema = @Schema(type = SchemaType.STRING))
 		@PathParam("id") String id,
@@ -631,7 +631,7 @@ public interface GeneRESTInterface {
 
 	@GET
 	@Path("/{id}/expression-summary")
-	@JsonView(value = {View.Expression.class})
+	@JsonView(value = {PublicView.Expression.class})
 	@Operation(summary = "Retrieve all expression records of a given gene")
 	@APIResponses(value = {@APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class)))})
 	ExpressionSummary getExpressionSummary(
@@ -641,7 +641,7 @@ public interface GeneRESTInterface {
 
 	@POST
 	@Path("/{id}/disease-ribbon-summary")
-	@JsonView(value = {View.DiseaseAnnotation.class})
+	@JsonView(value = {PublicView.DiseaseAnnotation.class})
 	@Operation(summary = "Retrieve all disease records of a given gene")
 	@APIResponses(value = {@APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class)))})
 	DiseaseRibbonSummary getDiseaseRibbonSummary(
@@ -674,7 +674,7 @@ public interface GeneRESTInterface {
 				description = "Disease annotations for a gene.",
 				content = @Content(mediaType = "application/json",
 					schema = @Schema(implementation = Null.class)))})
-	@JsonView(value = {View.DiseaseAnnotation.class})
+	@JsonView(value = {PublicView.DiseaseAnnotation.class})
 	JsonResultResponse<DiseaseAnnotation> getDiseaseByExperiment(
 		@Parameter(in = ParameterIn.PATH, name = "id", description = "Gene by ID, e.g. 'RGD:2129' or 'ZFIN:ZDB-GENE-990415-72 fgf8a'", required = true, schema = @Schema(type = SchemaType.STRING))
 		@PathParam("id") String id,

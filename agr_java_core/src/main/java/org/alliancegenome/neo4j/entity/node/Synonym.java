@@ -1,6 +1,6 @@
 package org.alliancegenome.neo4j.entity.node;
 
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.neo4j.ogm.annotation.NodeEntity;
 
@@ -16,7 +16,7 @@ import lombok.Setter;
 public class Synonym extends Identifier {
 
 	private String primaryKey;
-	@JsonView({ View.Default.class }) private String name;
+	@JsonView({ PublicView.Default.class }) private String name;
 
 	@Override
 	public String toString() {

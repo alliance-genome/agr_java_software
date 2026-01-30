@@ -3,7 +3,7 @@ package org.alliancegenome.api.dto;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -15,18 +15,18 @@ import lombok.Setter;
 @Setter
 public class RibbonEntity {
 
-	@JsonView({ View.DiseaseAnnotation.class, View.Expression.class }) private String id;
-	@JsonView({ View.DiseaseAnnotation.class, View.Expression.class }) private String label;
-	@JsonView({ View.DiseaseAnnotation.class, View.Expression.class })
+	@JsonView({ PublicView.DiseaseAnnotation.class, PublicView.Expression.class }) private String id;
+	@JsonView({ PublicView.DiseaseAnnotation.class, PublicView.Expression.class }) private String label;
+	@JsonView({ PublicView.DiseaseAnnotation.class, PublicView.Expression.class })
 	@JsonProperty("taxon_id") private String taxonID;
-	@JsonView({ View.DiseaseAnnotation.class, View.Expression.class })
+	@JsonView({ PublicView.DiseaseAnnotation.class, PublicView.Expression.class })
 	@JsonProperty("taxon_label") private String taxonName;
-	@JsonView({ View.DiseaseAnnotation.class, View.Expression.class })
+	@JsonView({ PublicView.DiseaseAnnotation.class, PublicView.Expression.class })
 	@JsonProperty("nb_classes") private int numberOfClasses;
-	@JsonView({ View.DiseaseAnnotation.class, View.Expression.class })
+	@JsonView({ PublicView.DiseaseAnnotation.class, PublicView.Expression.class })
 	@JsonProperty("nb_annotations") private int numberOfAnnotations;
 
-	@JsonView({ View.DiseaseAnnotation.class, View.Expression.class })
+	@JsonView({ PublicView.DiseaseAnnotation.class, PublicView.Expression.class })
 	@JsonProperty("groups")
 	// <disease ID, EntitySubgroupSlim
 	private Map<String, Map<String, Object>> slims = new LinkedHashMap<>();

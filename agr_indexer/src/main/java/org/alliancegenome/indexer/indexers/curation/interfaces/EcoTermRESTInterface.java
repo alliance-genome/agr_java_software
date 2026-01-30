@@ -2,7 +2,7 @@ package org.alliancegenome.indexer.indexers.curation.interfaces;
 
 import org.alliancegenome.curation_api.model.entities.ontology.ECOTerm;
 import org.alliancegenome.curation_api.response.ObjectResponse;
-import org.alliancegenome.curation_api.view.View;
+import org.alliancegenome.curation_api.view.CurationView;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
@@ -17,6 +17,6 @@ import jakarta.ws.rs.core.MediaType;
 public interface EcoTermRESTInterface {
 	@GET
 	@Path("/{curie}")
-	@JsonView(View.FieldsOnly.class)
+	@JsonView(CurationView.FieldsOnly.class)
 	ObjectResponse<ECOTerm> getByCurie(@PathParam("curie") String curie);
 }

@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Objects;
 
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.neo4j.ogm.annotation.NodeEntity;
@@ -24,11 +24,11 @@ import lombok.Setter;
 @Schema(name = "Publication", description = "POJO that represents the Publication")
 public class Publication extends Neo4jEntity implements Comparable<Publication>, Serializable {
 
-	@JsonView({ View.Interaction.class }) private String primaryKey;
-	@JsonView({ View.Interaction.class }) private String pubMedId;
-	@JsonView({ View.Interaction.class }) private String pubMedUrl;
-	@JsonView({ View.Interaction.class }) private String pubModId;
-	@JsonView({ View.Interaction.class }) private String pubModUrl;
+	@JsonView({ PublicView.Interaction.class }) private String primaryKey;
+	@JsonView({ PublicView.Interaction.class }) private String pubMedId;
+	@JsonView({ PublicView.Interaction.class }) private String pubMedUrl;
+	@JsonView({ PublicView.Interaction.class }) private String pubModId;
+	@JsonView({ PublicView.Interaction.class }) private String pubModUrl;
 	private String pubId;
 	private String pubUrl;
 
@@ -42,7 +42,7 @@ public class Publication extends Neo4jEntity implements Comparable<Publication>,
 		}
 	}
 
-	@JsonView({ View.API.class, View.DiseaseAnnotation.class })
+	@JsonView({ PublicView.API.class, PublicView.DiseaseAnnotation.class })
 	@JsonGetter("url")
 	private String getPubUrl() {
 		if (StringUtils.isNotEmpty(pubMedId)) {
@@ -67,7 +67,7 @@ public class Publication extends Neo4jEntity implements Comparable<Publication>,
 		return getPubId().compareTo(o.getPubId());
 	}
 
-	@JsonView({ View.API.class })
+	@JsonView({ PublicView.API.class })
 	@JsonGetter("id")
 	public String getPubId() {
 		if (StringUtils.isNotEmpty(pubMedId)) {

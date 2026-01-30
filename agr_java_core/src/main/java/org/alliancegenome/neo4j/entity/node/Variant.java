@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 import org.alliancegenome.es.util.DateConverter;
 import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
@@ -34,16 +34,16 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
 		this.crossReferenceType = CrossReferenceType.ALLELE;
 	}
 
-	@JsonView({ View.Default.class, View.API.class, View.AlleleVariantSequenceConverterForES.class })
+	@JsonView({ PublicView.Default.class, PublicView.API.class, PublicView.AlleleVariantSequenceConverterForES.class })
 	@JsonProperty(value = "displayName") private String hgvsNomenclature;
 
 	private List<String> hgvsNames;
 
-	@JsonView({ View.Default.class, View.API.class, View.AlleleVariantSequenceConverterForES.class }) private String name;
+	@JsonView({ PublicView.Default.class, PublicView.API.class, PublicView.AlleleVariantSequenceConverterForES.class }) private String name;
 
 	private String dataProvider;
-	@JsonView({ View.API.class, View.AlleleVariantSequenceConverterForES.class }) private String genomicReferenceSequence;
-	@JsonView({ View.API.class, View.AlleleVariantSequenceConverterForES.class }) private String genomicVariantSequence;
+	@JsonView({ PublicView.API.class, PublicView.AlleleVariantSequenceConverterForES.class }) private String genomicReferenceSequence;
+	@JsonView({ PublicView.API.class, PublicView.AlleleVariantSequenceConverterForES.class }) private String genomicVariantSequence;
 
 	private String paddingLeft = "";
 	private String paddingRight = "";
@@ -51,32 +51,32 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
 	@Convert(value = DateConverter.class) private Date dateProduced;
 	private String release;
 
-	@JsonView({ View.Default.class, View.API.class, View.AlleleVariantSequenceConverterForES.class })
+	@JsonView({ PublicView.Default.class, PublicView.API.class, PublicView.AlleleVariantSequenceConverterForES.class })
 	@Relationship(type = "VARIATION_TYPE") private SOTerm variantType;
 
-	@JsonView({ View.API.class, View.AlleleVariantSequenceConverterForES.class })
+	@JsonView({ PublicView.API.class, PublicView.AlleleVariantSequenceConverterForES.class })
 	@Relationship(type = "COMPUTED_GENE", direction = Relationship.Direction.INCOMING) private Gene gene;
 
-	@JsonView({ View.AlleleVariantSequenceConverterForES.class })
+	@JsonView({ PublicView.AlleleVariantSequenceConverterForES.class })
 	@Relationship(type = "ASSOCIATION") protected GeneLevelConsequence geneLevelConsequence;
 
-	@JsonView({ View.VariantAPI.class })
+	@JsonView({ PublicView.VariantAPI.class })
 	@Relationship(type = "ASSOCIATION") protected Set<Note> notes;
 
-	@JsonView({ View.API.class })
+	@JsonView({ PublicView.API.class })
 	@Relationship(type = "ASSOCIATION") protected Set<Publication> publications;
 
-	@JsonView({ View.API.class, View.AlleleVariantSequenceConverterForES.class })
+	@JsonView({ PublicView.API.class, PublicView.AlleleVariantSequenceConverterForES.class })
 	@Relationship(type = "ASSOCIATION") private GenomeLocation location;
 
-	@JsonView({ View.API.class })
+	@JsonView({ PublicView.API.class })
 	@Relationship(type = "ASSOCIATION", direction = Relationship.Direction.INCOMING)
 	protected List<Transcript> transcriptList;
 
-	@JsonView({ View.API.class, View.AlleleVariantSequenceConverterForES.class })
+	@JsonView({ PublicView.API.class, PublicView.AlleleVariantSequenceConverterForES.class })
 	@Relationship(type = "ASSOCIATION") protected List<TranscriptLevelConsequence> transcriptLevelConsequence;
 
-	@JsonView({ View.API.class, View.AlleleVariantSequenceConverterForES.class })
+	@JsonView({ PublicView.API.class, PublicView.AlleleVariantSequenceConverterForES.class })
 	@JsonProperty(value = "consequence")
 	public String getConsequence() {
 		return geneLevelConsequence != null ? geneLevelConsequence.getGeneLevelConsequence() : null;
@@ -108,7 +108,7 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
 		nucleotideChange = change;
 	}
 
-	@JsonView({ View.Default.class, View.API.class })
+	@JsonView({ PublicView.Default.class, PublicView.API.class })
 	@JsonProperty(value = "nucleotideChange")
 	public String getNucleotideChange() {
 		if (StringUtils.isNotEmpty(nucleotideChange)) {
@@ -142,7 +142,7 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
 		return getPaddingLeft().charAt(getPaddingLeft().length() - 1) + change;
 	}
 
-	@JsonView({ View.VariantAPI.class, View.AlleleVariantSequenceConverterForES.class })
+	@JsonView({ PublicView.VariantAPI.class, PublicView.AlleleVariantSequenceConverterForES.class })
 	public List<String> getHgvsG() {
 		if (hgvsNames == null) {
 			HashSet<String> names = new HashSet<>();
@@ -158,7 +158,7 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
 		return hgvsNames;
 	}
 
-	@JsonView({ View.VariantAPI.class })
+	@JsonView({ PublicView.VariantAPI.class })
 	public List<String> getHgvsC() {
 		if (CollectionUtils.isNotEmpty(transcriptLevelConsequence)) {
 			return transcriptLevelConsequence.stream().filter(Objects::nonNull).map(TranscriptLevelConsequence::getHgvsCodingNomenclature).distinct().sorted().collect(Collectors.toList());
@@ -166,7 +166,7 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
 		return null;
 	}
 
-	@JsonView({ View.VariantAPI.class })
+	@JsonView({ PublicView.VariantAPI.class })
 	public List<String> getHgvsP() {
 		if (CollectionUtils.isNotEmpty(transcriptLevelConsequence)) {
 			return transcriptLevelConsequence.stream().filter(Objects::nonNull).filter(consequence -> consequence.getHgvsProteinNomenclature() != null).map(TranscriptLevelConsequence::getHgvsProteinNomenclature).distinct().sorted().collect(Collectors.toList());

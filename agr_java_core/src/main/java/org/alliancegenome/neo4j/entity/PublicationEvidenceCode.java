@@ -14,7 +14,7 @@ import org.alliancegenome.neo4j.entity.node.ECOTerm;
 import org.alliancegenome.neo4j.entity.node.GeneticEntity;
 import org.alliancegenome.neo4j.entity.node.Publication;
 import org.alliancegenome.neo4j.entity.node.Species;
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -27,21 +27,21 @@ import lombok.Setter;
 @Setter
 public class PublicationEvidenceCode implements Comparable<PublicationEvidenceCode>, Serializable {
 
-	@JsonView({ View.Default.class, View.API.class }) protected String id;
-	@JsonView({ View.Default.class, View.API.class }) protected String name;
-	@JsonView({ View.Default.class, View.API.class }) protected String displayName;
-	@JsonView({ View.Default.class, View.API.class }) protected GeneticEntity.CrossReferenceType type;
-	@JsonView({ View.Default.class, View.API.class }) protected CrossReference crossReference;
-	@JsonView({ View.PrimaryAnnotation.class, View.DiseaseAnnotation.class }) protected List<DOTerm> diseases;
-	@JsonView({ View.DiseaseAnnotation.class }) private List<Publication> publications;
-	@JsonView({ View.DiseaseAnnotation.class })
+	@JsonView({ PublicView.Default.class, PublicView.API.class }) protected String id;
+	@JsonView({ PublicView.Default.class, PublicView.API.class }) protected String name;
+	@JsonView({ PublicView.Default.class, PublicView.API.class }) protected String displayName;
+	@JsonView({ PublicView.Default.class, PublicView.API.class }) protected GeneticEntity.CrossReferenceType type;
+	@JsonView({ PublicView.Default.class, PublicView.API.class }) protected CrossReference crossReference;
+	@JsonView({ PublicView.PrimaryAnnotation.class, PublicView.DiseaseAnnotation.class }) protected List<DOTerm> diseases;
+	@JsonView({ PublicView.DiseaseAnnotation.class }) private List<Publication> publications;
+	@JsonView({ PublicView.DiseaseAnnotation.class })
 	@JsonProperty(value = "evidenceCodes") private List<ECOTerm> ecoCodes;
 
 	@Convert(value = DateConverter.class) private Date dateProduced;
 
 	private List<DiseaseAnnotation> annotations;
 
-	@JsonView({ View.Default.class }) protected Species species;
+	@JsonView({ PublicView.Default.class }) protected Species species;
 
 	@Override
 	public int compareTo(PublicationEvidenceCode o) {

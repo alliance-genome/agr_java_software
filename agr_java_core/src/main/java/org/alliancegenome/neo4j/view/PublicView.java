@@ -1,8 +1,8 @@
 package org.alliancegenome.neo4j.view;
 
-import org.alliancegenome.curation_api.view.View.ForPublic;
+import org.alliancegenome.curation_api.view.CurationView.ForPublic;
 
-public class View {
+public class PublicView {
 
 	// Generic Views
 	public static class Default extends ForPublic {

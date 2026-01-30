@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.PublicView;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
@@ -28,9 +28,9 @@ public class AffectedGenomicModel extends GeneticEntity implements Comparable<Af
 	private String release;
 	private String localId;
 	private String globalId;
-	@JsonView({View.Default.class, View.API.class})
+	@JsonView({PublicView.Default.class, PublicView.API.class})
 	private String name;
-	@JsonView({View.Default.class, View.API.class})
+	@JsonView({PublicView.Default.class, PublicView.API.class})
 	private String nameText;
 	private String nameTextWithSpecies;
 	private String subtype;
@@ -54,13 +54,13 @@ public class AffectedGenomicModel extends GeneticEntity implements Comparable<Af
 	}
 
 	@JsonProperty(value = "type")
-	@JsonView({View.Default.class, View.API.class})
+	@JsonView({PublicView.Default.class, PublicView.API.class})
 	public String getSubtype() {
 		return subtype;
 	}
 
 	@JsonProperty(value = "type")
-	@JsonView({View.Default.class, View.API.class})
+	@JsonView({PublicView.Default.class, PublicView.API.class})
 	public void setSubtype(String subtype) {
 		this.subtype = subtype;
 	}
