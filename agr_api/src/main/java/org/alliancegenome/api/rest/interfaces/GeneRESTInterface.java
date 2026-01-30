@@ -14,18 +14,17 @@ import org.alliancegenome.api.entity.GeneToGeneParalogyDocument;
 import org.alliancegenome.api.entity.GeneTransgenicAlleleSummaryDocument;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.curation_api.model.document.es.AffectedGenomicModelDocument;
+import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
 import org.alliancegenome.curation_api.view.CurationView;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.DiseaseSummary;
 import org.alliancegenome.neo4j.entity.EntitySummary;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
-import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.view.HomologView;
 import org.alliancegenome.neo4j.view.PublicView;
 import org.alliancegenome.neo4j.view.PublicView.GeneAPI;
 import org.alliancegenome.neo4j.view.PublicView.GeneAlleleVariantSequenceAPI;
-import org.alliancegenome.neo4j.view.PublicView.GeneAllelesAPI;
 import org.apache.commons.lang3.ObjectUtils.Null;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.ParameterIn;
@@ -83,7 +82,7 @@ public interface GeneRESTInterface {
 	@GET
 	@Path("/{id}/alleles")
 	@Operation(summary = "Retrieve all alleles of a given gene")
-	@JsonView(value = {GeneAllelesAPI.class})
+	//@JsonView(value = {GeneAllelesAPI.class})
 	@APIResponses(
 		value = {
 			@APIResponse(
@@ -95,7 +94,7 @@ public interface GeneRESTInterface {
 				description = "Alleles for a gene.",
 				content = @Content(mediaType = "application/json",
 					schema = @Schema(implementation = Null.class)))})
-	JsonResultResponse<Allele> getAllelesPerGene(
+	JsonResultResponse<AlleleSummaryDocument> getAllelesPerGene(
 		//@ApiParam(name = "id", description = "Search for Alleles for a given Gene by ID")
 		@Parameter(in = ParameterIn.PATH, name = "id", description = "Search for Alleles for a given Gene by ID", required = true, schema = @Schema(type = SchemaType.STRING))
 		@PathParam("id") String id,

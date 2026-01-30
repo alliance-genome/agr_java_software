@@ -19,6 +19,7 @@ import org.alliancegenome.api.entity.GeneToGeneParalogyDocument;
 import org.alliancegenome.api.entity.GeneTransgenicAlleleSummaryDocument;
 import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
 import org.alliancegenome.api.service.AffectedGenomicModelESService;
+import org.alliancegenome.api.service.AlleleESService;
 import org.alliancegenome.api.service.AlleleService;
 import org.alliancegenome.api.service.DiseaseESService;
 import org.alliancegenome.api.service.EntityType;
@@ -42,6 +43,7 @@ import org.alliancegenome.core.translators.tdf.AlleleToTdfTranslator;
 import org.alliancegenome.core.translators.tdf.GeneGeneticInteractionToTdfTranslator;
 import org.alliancegenome.core.translators.tdf.GeneMolecularInteractionToTdfTranslator;
 import org.alliancegenome.curation_api.model.document.es.AffectedGenomicModelDocument;
+import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
@@ -69,6 +71,9 @@ public class GeneController implements GeneRESTInterface {
 
 	@Inject
 	GeneService geneService;
+
+	@Inject
+	AlleleESService alleleESService;
 
 	@Inject
 	AlleleService alleleService;
@@ -121,19 +126,65 @@ public class GeneController implements GeneRESTInterface {
 		}
 	}
 
+	// @Override
+	// public JsonResultResponse<Allele> getAllelesPerGene(String id,
+	// 													Integer limit,
+	// 													Integer page,
+	// 													String sortBy,
+	// 													String asc,
+	// 													String symbol,
+	// 													String synonym,
+	// 													String variantType,
+	// 													String molecularConsequence,
+	// 													String hasDisease,
+	// 													String hasPhenotype,
+	// 													String category) {
+	// 	long startTime = System.currentTimeMillis();
+	// 	Pagination pagination = new Pagination(page, limit, sortBy, asc);
+	// 	pagination.addFieldFilter(FieldFilter.SYMBOL, symbol);
+	// 	pagination.addFieldFilter(FieldFilter.SYNONYMS, synonym);
+	// 	pagination.addFieldFilter(FieldFilter.ALLELE_CATEGORY, category);
+	// 	pagination.addFieldFilter(FieldFilter.VARIANT_TYPE, variantType);
+	// 	pagination.addFieldFilter(FieldFilter.HAS_DISEASE, hasDisease);
+	// 	pagination.addFieldFilter(FieldFilter.HAS_PHENOTYPE, hasPhenotype);
+	// 	pagination.addFieldFilter(FieldFilter.MOLECULAR_CONSEQUENCE, molecularConsequence);
+	// 	if (pagination.hasErrors()) {
+	// 		RestErrorMessage message = new RestErrorMessage();
+	// 		message.setErrors(pagination.getErrors());
+	// 		throw new RestErrorException(message);
+	// 	}
+
+	// 	try {
+	// 		JsonResultResponse<Allele> alleles = geneService.getAlleles(id, pagination);
+	// 		alleles.setHttpServletRequest(null);
+	// 		alleles.calculateRequestDuration(startTime);
+	// 		return alleles;
+	// 	} catch (Exception e) {
+	// 		String errorMessage = "Error while retrieving allele info";
+	// 		log.error(errorMessage, e);
+	// 		RestErrorMessage error = new RestErrorMessage();
+	// 		if (e.getMessage() != null) {
+	// 			errorMessage += "\n" + e.getMessage();
+	// 		}
+	// 		error.addErrorMessage(errorMessage);
+	// 		throw new RestErrorException(error);
+	// 	}
+	// }
+	
 	@Override
-	public JsonResultResponse<Allele> getAllelesPerGene(String id,
-														Integer limit,
-														Integer page,
-														String sortBy,
-														String asc,
-														String symbol,
-														String synonym,
-														String variantType,
-														String molecularConsequence,
-														String hasDisease,
-														String hasPhenotype,
-														String category) {
+	public JsonResultResponse<AlleleSummaryDocument> getAllelesPerGene(String id,
+															Integer limit,
+															Integer page,
+															String sortBy,
+															String asc,
+															String symbol,
+															String synonym,
+															String variantType,
+															String molecularConsequence,
+															String hasDisease,
+															String hasPhenotype,
+															String category) {
+
 		long startTime = System.currentTimeMillis();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
 		pagination.addFieldFilter(FieldFilter.SYMBOL, symbol);
@@ -143,6 +194,7 @@ public class GeneController implements GeneRESTInterface {
 		pagination.addFieldFilter(FieldFilter.HAS_DISEASE, hasDisease);
 		pagination.addFieldFilter(FieldFilter.HAS_PHENOTYPE, hasPhenotype);
 		pagination.addFieldFilter(FieldFilter.MOLECULAR_CONSEQUENCE, molecularConsequence);
+
 		if (pagination.hasErrors()) {
 			RestErrorMessage message = new RestErrorMessage();
 			message.setErrors(pagination.getErrors());
@@ -150,7 +202,7 @@ public class GeneController implements GeneRESTInterface {
 		}
 
 		try {
-			JsonResultResponse<Allele> alleles = geneService.getAlleles(id, pagination);
+			JsonResultResponse<AlleleSummaryDocument> alleles = alleleESService.getAllelesByGene(id, pagination);
 			alleles.setHttpServletRequest(null);
 			alleles.calculateRequestDuration(startTime);
 			return alleles;

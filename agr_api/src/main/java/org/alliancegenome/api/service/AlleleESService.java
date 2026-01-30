@@ -89,4 +89,26 @@ public class AlleleESService extends ESService {
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
 		return ret;
 	}
+
+	public JsonResultResponse<AlleleSummaryDocument> getAllelesByGene(String geneId, Pagination pagination) {
+
+		BoolQueryBuilder bool = boolQuery();
+		bool.must(new MatchQueryBuilder("alleleOfGene.primaryExternalId", geneId));
+		bool.filter(new TermQueryBuilder("category", "allele_summary"));
+		SearchResponse searchResponse = getSearchResponse(bool, pagination, null, false);
+		List<AlleleSummaryDocument> list = new ArrayList<>();
+		Arrays.stream(searchResponse.getHits().getHits())
+			.forEach(searchHit -> {
+				try {
+					AlleleSummaryDocument object = mapper.readValue(searchHit.getSourceAsString(), AlleleSummaryDocument.class);
+					list.add(object);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			});
+		JsonResultResponse<AlleleSummaryDocument> ret = new JsonResultResponse<>();
+		ret.setResults(list);
+		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
+		return ret;
+	}
 }
