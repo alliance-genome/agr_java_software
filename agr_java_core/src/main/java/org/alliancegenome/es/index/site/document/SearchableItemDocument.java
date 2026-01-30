@@ -128,12 +128,16 @@ public class SearchableItemDocument extends ESDocument {
 	Set<String> subcellularExpressionAgrSlim;
 	Set<String> synonyms;
 	Set<String> tags;
-	@JsonView({PublicView.AlleleVariantSequenceConverterForES.class})
-	Set<String> variants;
-	@JsonView({PublicView.AlleleVariantSequenceConverterForES.class})
-	Set<String> variantSynonyms;
-	@JsonView({PublicView.AlleleVariantSequenceConverterForES.class})
-	Set<String> variantType;
+	
+	
+	//@JsonView({PublicView.AlleleVariantSequenceConverterForES.class})
+	//Set<String> variants;
+	//@JsonView({PublicView.AlleleVariantSequenceConverterForES.class})
+	//Set<String> variantSynonyms;
+	//@JsonView({PublicView.AlleleVariantSequenceConverterForES.class})
+	//Set<String> variantType;
+	
+	
 	Set<String> whereExpressed;
 
 	public void setNameKeyWithSpecies(String nameKey, String species) {

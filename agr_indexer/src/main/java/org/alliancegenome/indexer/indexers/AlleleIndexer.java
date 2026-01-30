@@ -58,7 +58,7 @@ public class AlleleIndexer extends Indexer {
 				if (list.size() >= indexerConfig.getBufferSize()) {
 					Iterable<AlleleVariantSequence> avsDocs = alleleTranslator.translateEntities(list);
 					alleleDocumentCache.addCachedFields(avsDocs);
-					alleleTranslator.updateDocuments(avsDocs);
+					//alleleTranslator.updateDocuments(avsDocs);
 					indexDocuments(avsDocs, PublicView.AlleleVariantSequenceConverterForES.class);
 					list.clear();
 				}
@@ -66,7 +66,7 @@ public class AlleleIndexer extends Indexer {
 					if (list.size() > 0) {
 						Iterable<AlleleVariantSequence> avsDocs = alleleTranslator.translateEntities(list);
 						alleleDocumentCache.addCachedFields(avsDocs);
-						alleleTranslator.updateDocuments(avsDocs);
+						//alleleTranslator.updateDocuments(avsDocs);
 						indexDocuments(avsDocs, PublicView.AlleleVariantSequenceConverterForES.class);
 						repo.clearCache();
 						list.clear();

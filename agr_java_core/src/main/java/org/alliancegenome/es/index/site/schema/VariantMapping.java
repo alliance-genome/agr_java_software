@@ -11,7 +11,8 @@ public class VariantMapping extends Mapping {
 	@Override
 	public void buildMapping() {
 		try {
-			builder.startObject().startObject("properties");
+			builder.startObject();
+			builder.startObject("properties");
 			new FieldBuilder(builder, "category", "keyword").symbol().autocomplete().keyword().build();
 			new FieldBuilder(builder, "name", "keyword").build();
 			new FieldBuilder(builder, "name_key", "keyword").build();
@@ -37,7 +38,8 @@ public class VariantMapping extends Mapping {
 			builder.endObject();
 			builder.endObject();
 			builder.endObject();
-			builder.endObject().endObject();
+			builder.endObject();
+			builder.endObject();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

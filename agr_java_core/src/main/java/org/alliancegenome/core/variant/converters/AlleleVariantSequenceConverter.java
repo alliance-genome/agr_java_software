@@ -2,7 +2,6 @@ package org.alliancegenome.core.variant.converters;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -196,7 +195,8 @@ public class AlleleVariantSequenceConverter {
 			avsDoc.setGeneIds(geneIds);
 			avsDoc.setSpecies(species.getName());
 			avsDoc.setChromosome(ctx.getContig());
-			avsDoc.setVariantType(Collections.singleton(variantType.getName()));
+			// TODO remove for HTP neo4j migration
+			//avsDoc.setVariantType(Collections.singleton(variantType.getName()));
 			avsDoc.setAllele(agrAllele);
 			returnDocuments.add(avsDoc);
 		}

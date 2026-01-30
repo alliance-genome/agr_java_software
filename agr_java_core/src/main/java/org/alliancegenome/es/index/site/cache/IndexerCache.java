@@ -86,13 +86,14 @@ public abstract class IndexerCache {
 		document.setDiseasesAgrSlim(diseasesAgrSlim.get(id));
 		document.setDiseasesWithParents(diseasesWithParents.get(id));
 
-		if (variantType.get(id) == null) {
-			Set<String> defaultValue = new HashSet<>();
-			defaultValue.add("unreported");
-			document.setVariantType(defaultValue);
-		} else {
-			document.setVariantType(variantType.get(id));
-		}
+		// TODO Remove for HTP conversion
+//		if (variantType.get(id) == null) {
+//			Set<String> defaultValue = new HashSet<>();
+//			defaultValue.add("unreported");
+//			document.setVariantType(defaultValue);
+//		} else {
+//			document.setVariantType(variantType.get(id));
+//		}
 
 		document.setExpressionStages(expressionStages.get(id));
 		document.setGenes(genes.get(id));
@@ -116,8 +117,13 @@ public abstract class IndexerCache {
 		document.setSampleIds(sampleIds.get(id));
 		document.setSex(sex.get(id));
 //		  document.setStage(stage.get(id));
-		document.setVariants(variants.get(id));
-		document.setVariantSynonyms(variantSynonyms.get(id));
+		
+		
+		// TODO Remove for HTP conversion
+		//document.setVariants(variants.get(id));
+		//document.setVariantSynonyms(variantSynonyms.get(id));
+		
+		
 		if (secondaryIds.get(id) != null) {
 			if (document.getSecondaryIds() == null) {
 				document.setSecondaryIds(new HashSet<String>());

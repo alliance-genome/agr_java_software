@@ -43,24 +43,24 @@ public class AlleleTranslator extends EntityDocumentListTranslator<Allele, Allel
 		return docs;
 	}
 
-	public void updateDocuments(Iterable<AlleleVariantSequence> alleleDocuments) {
-		for (AlleleVariantSequence document : alleleDocuments) {
-			updateDocument(document);
-		}
-	}
-
-	// This method is for updating/setting fields after fields are populated by
-	// AlleleDocumentCache
-	public void updateDocument(AlleleVariantSequence document) {
-
-		if (document.getVariants() != null && document.getVariants().size() == 1) {
-			document.setAlterationType("allele with one variant");
-		}
-
-		if (document.getVariants() != null && document.getVariants().size() > 1) {
-			document.setAlterationType("allele with multiple variants");
-		}
-
-	}
+//	public void updateDocuments(Iterable<AlleleVariantSequence> alleleDocuments) {
+//		for (AlleleVariantSequence document : alleleDocuments) {
+//			updateDocument(document);
+//		}
+//	}
+//
+//	// This method is for updating/setting fields after fields are populated by
+//	// AlleleDocumentCache
+//	private void updateDocument(AlleleVariantSequence document) {
+//
+//		if (document.getVariants() != null && document.getVariants().size() == 1) {
+//			document.setAlterationType("allele with one variant");
+//		}
+//
+//		if (document.getVariants() != null && document.getVariants().size() > 1) {
+//			document.setAlterationType("allele with multiple variants");
+//		}
+//
+//	}
 
 }

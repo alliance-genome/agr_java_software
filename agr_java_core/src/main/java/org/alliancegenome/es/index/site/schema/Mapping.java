@@ -98,9 +98,10 @@ public class Mapping extends Builder {
 		new FieldBuilder(builder, "geneCrossReferences", "text").keyword().build(); // allele
 		new FieldBuilder(builder, "molecularConsequence", "text").keyword().build(); // allele
 		new FieldBuilder(builder, "symbolText", "text").keyword().standardText().build(); // allele
-		new FieldBuilder(builder, "variants", "text").keyword().standardText().build(); // allele
-		new FieldBuilder(builder, "variantType", "text").keyword().build(); // ??
-		new FieldBuilder(builder, "variantSynonyms", "text").keyword().standardText().build(); // allele
+
+		//new FieldBuilder(builder, "variants", "text").keyword().standardText().build(); // allele
+		//new FieldBuilder(builder, "variantType", "text").keyword().build(); // ??
+		//new FieldBuilder(builder, "variantSynonyms", "text").keyword().standardText().build(); // allele
 
 		// Gene Only Fields
 		new FieldBuilder(builder, "biologicalProcessAgrSlim", "text").keyword().build(); // gene
