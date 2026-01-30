@@ -23,7 +23,6 @@ jobs:
       id-token: write
     uses: alliance-genome/.github/.github/workflows/claude-code-review.yml@main
     with:
-      model: claude-sonnet-4-5-20250929
       max_turns: "60"
       # Java backend-specific focus for Spring Boot application
       review_focus: "critical bugs, database performance issues, and security vulnerabilities in the Java Spring Boot backend. Focus on: SQL injection, N+1 queries, missing indexes, transaction management errors, memory leaks, thread safety issues, and API security flaws"
