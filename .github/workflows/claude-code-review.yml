@@ -21,9 +21,10 @@ jobs:
       issues: write
       # REQUIRED: Must grant id-token permission to the reusable workflow
       id-token: write
+      # REQUIRED: Allow reusable workflow to read CI results
+      actions: read
     uses: alliance-genome/.github/.github/workflows/claude-code-review.yml@main
     with:
-      model: claude-sonnet-4-20250514
       max_turns: "60"
       # Java backend-specific focus for Spring Boot application
       review_focus: "critical bugs, database performance issues, and security vulnerabilities in the Java Spring Boot backend. Focus on: SQL injection, N+1 queries, missing indexes, transaction management errors, memory leaks, thread safety issues, and API security flaws"
