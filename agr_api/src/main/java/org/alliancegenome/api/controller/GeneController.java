@@ -125,51 +125,6 @@ public class GeneController implements GeneRESTInterface {
 			return gene;
 		}
 	}
-
-	// @Override
-	// public JsonResultResponse<Allele> getAllelesPerGene(String id,
-	// 													Integer limit,
-	// 													Integer page,
-	// 													String sortBy,
-	// 													String asc,
-	// 													String symbol,
-	// 													String synonym,
-	// 													String variantType,
-	// 													String molecularConsequence,
-	// 													String hasDisease,
-	// 													String hasPhenotype,
-	// 													String category) {
-	// 	long startTime = System.currentTimeMillis();
-	// 	Pagination pagination = new Pagination(page, limit, sortBy, asc);
-	// 	pagination.addFieldFilter(FieldFilter.SYMBOL, symbol);
-	// 	pagination.addFieldFilter(FieldFilter.SYNONYMS, synonym);
-	// 	pagination.addFieldFilter(FieldFilter.ALLELE_CATEGORY, category);
-	// 	pagination.addFieldFilter(FieldFilter.VARIANT_TYPE, variantType);
-	// 	pagination.addFieldFilter(FieldFilter.HAS_DISEASE, hasDisease);
-	// 	pagination.addFieldFilter(FieldFilter.HAS_PHENOTYPE, hasPhenotype);
-	// 	pagination.addFieldFilter(FieldFilter.MOLECULAR_CONSEQUENCE, molecularConsequence);
-	// 	if (pagination.hasErrors()) {
-	// 		RestErrorMessage message = new RestErrorMessage();
-	// 		message.setErrors(pagination.getErrors());
-	// 		throw new RestErrorException(message);
-	// 	}
-
-	// 	try {
-	// 		JsonResultResponse<Allele> alleles = geneService.getAlleles(id, pagination);
-	// 		alleles.setHttpServletRequest(null);
-	// 		alleles.calculateRequestDuration(startTime);
-	// 		return alleles;
-	// 	} catch (Exception e) {
-	// 		String errorMessage = "Error while retrieving allele info";
-	// 		log.error(errorMessage, e);
-	// 		RestErrorMessage error = new RestErrorMessage();
-	// 		if (e.getMessage() != null) {
-	// 			errorMessage += "\n" + e.getMessage();
-	// 		}
-	// 		error.addErrorMessage(errorMessage);
-	// 		throw new RestErrorException(error);
-	// 	}
-	// }
 	
 	@Override
 	public JsonResultResponse<AlleleSummaryDocument> getAllelesPerGene(String id,
