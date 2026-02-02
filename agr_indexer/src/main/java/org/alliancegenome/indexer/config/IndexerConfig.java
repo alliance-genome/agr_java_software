@@ -1,7 +1,6 @@
 package org.alliancegenome.indexer.config;
 
 import org.alliancegenome.indexer.indexers.AffectedGenomicModelIndexer;
-import org.alliancegenome.indexer.indexers.AlleleIndexer;
 import org.alliancegenome.indexer.indexers.DatasetIndexer;
 import org.alliancegenome.indexer.indexers.DiseaseIndexer;
 import org.alliancegenome.indexer.indexers.GeneIndexer;
@@ -30,7 +29,7 @@ public enum IndexerConfig {
 	GeneIndexer("gene", GeneIndexer.class, 4, 359, 359, 8, 1, false),
 	DatasetIndexer("dataset", DatasetIndexer.class, 4, 566, 566, 8, 1, false),
 	DiseaseIndexer("disease", DiseaseIndexer.class, 4, 680, 680, 8, 1, false),
-	AlleleIndexer("allele", AlleleIndexer.class, 4, 1517, 1517, 8, 1, false),
+	//AlleleIndexer("allele", AlleleIndexer.class, 4, 1517, 1517, 8, 1, false),
 	GoIndexer("go", GoIndexer.class, 4, 914, 914, 8, 1, false),
 	ModelIndexer("model", ModelIndexer.class, 4, 1500, 1426, 4, 1, false),
 
