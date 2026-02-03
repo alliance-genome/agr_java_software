@@ -188,7 +188,6 @@ public class AlleleVariantSequenceCurationConverter {
 			}
 			variant.setCurie(primaryKey);
 			variant.setModInternalId(primaryKey);
-			variantLocation.setHgvs(primaryKey);
 
 			// Create curation API Allele entity
 			Allele allele = new Allele();
