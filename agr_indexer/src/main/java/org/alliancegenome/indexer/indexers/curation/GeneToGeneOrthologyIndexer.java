@@ -32,8 +32,8 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 	private final GeneDiseaseAnnotationCrudInterface geneDiseaseApi = RestProxyFactory.createProxy(GeneDiseaseAnnotationCrudInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 
 	private Set<String> allNeoGeneIDs;
-	private Set<String> geneExpressionSet = null;
-	private Set<String> geneAnnotationSet = null;
+	private Set<String> geneExpressionSet;
+	private Set<String> geneAnnotationSet;
 
 	private HashMap<String, Object> params = new HashMap<>() {
 		{
