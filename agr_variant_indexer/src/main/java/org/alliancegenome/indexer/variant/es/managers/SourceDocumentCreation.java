@@ -499,12 +499,11 @@ public class SourceDocumentCreation extends Thread {
 
 					for (VariantContext ctx : ctxList) {
 						try {
-//							List<AlleleVariantSequence> avsList = aVSConverter.convertContextToAlleleVariantSequence(ctx, speciesType);
-//							for (AlleleVariantSequence avs : avsList) {
-//								workBucket.add(avs);
-//								ph2.progressProcess("objectQueue: " + objectQueue.size());
-//							}
-							
+							List<AlleleVariantSequence> avsList = aVSConverter.convertContextToAlleleVariantSequence(ctx, speciesType);
+							for (AlleleVariantSequence avs : avsList) {
+								workBucket.add(avs);
+								ph2.progressProcess("objectQueue: " + objectQueue.size());
+							}
 							List<VariantSummaryDocument> variantSummaryDocuments = converter.convertContextToDocument(ctx, speciesType);
 							for (VariantSummaryDocument variantSummaryDocument : variantSummaryDocuments) {
 								workBucket.add(variantSummaryDocument);
