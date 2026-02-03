@@ -185,9 +185,6 @@ public class VariantSummaryConverter {
 				cvgla.setHgvs(variantDisplayName);
 			}
 
-			cvgla.setHgvs(hgvsNomenclature);
-
-
 			// Set primary key
 			String ctxId = ctx.getID();
 			String primaryKey;
