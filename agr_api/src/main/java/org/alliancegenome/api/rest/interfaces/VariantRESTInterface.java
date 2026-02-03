@@ -1,10 +1,9 @@
 package org.alliancegenome.api.rest.interfaces;
 
-import org.alliancegenome.api.entity.VariantSummaryDocument;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
+import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Transcript;
-import org.alliancegenome.neo4j.entity.node.Variant;
 import org.alliancegenome.neo4j.view.PublicView;
 import org.apache.commons.lang3.ObjectUtils.Null;
 import org.eclipse.microprofile.openapi.annotations.Operation;

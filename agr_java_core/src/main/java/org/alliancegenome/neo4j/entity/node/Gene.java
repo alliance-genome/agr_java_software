@@ -50,7 +50,7 @@ public class Gene extends GeneticEntity implements Comparable<Gene> {
 	@JsonView({PublicView.GeneAPI.class, PublicView.Expression.class})
 	private String dataProvider;
 
-	@JsonView(value = {PublicView.GeneAPI.class, CurationView.VariantIndexerView.class})
+	@JsonView(value = {PublicView.GeneAPI.class, CurationView.VariantDocument.class})
 	private String name;
 
 	@Convert(value = DateConverter.class)
@@ -78,7 +78,7 @@ public class Gene extends GeneticEntity implements Comparable<Gene> {
 	private List<Paralogous> paraGenes;
 
 	@Relationship(type = "ASSOCIATION")
-	@JsonView({ PublicView.GeneAPI.class, PublicView.VariantAPI.class, PublicView.AlleleAPI.class, CurationView.VariantIndexerView.class })
+	@JsonView({ PublicView.GeneAPI.class, PublicView.VariantAPI.class, PublicView.AlleleAPI.class, CurationView.VariantDocument.class })
 	private List<GenomeLocation> genomeLocations;
 
 	@Relationship(type = "LOCATED_ON")

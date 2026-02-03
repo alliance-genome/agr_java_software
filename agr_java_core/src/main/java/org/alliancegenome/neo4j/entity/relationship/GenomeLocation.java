@@ -15,13 +15,13 @@ import lombok.Setter;
 @Setter
 public class GenomeLocation extends Neo4jEntity {
 
-	@JsonView({PublicView.Default.class, CurationView.VariantIndexerView.class})
+	@JsonView({PublicView.Default.class, CurationView.VariantDocument.class})
 	private String chromosome;
 
-	@JsonView({PublicView.Default.class, CurationView.VariantIndexerView.class})
+	@JsonView({PublicView.Default.class, CurationView.VariantDocument.class})
 	private Long start;
 
-	@JsonView({PublicView.Default.class, CurationView.VariantIndexerView.class})
+	@JsonView({PublicView.Default.class, CurationView.VariantDocument.class})
 	private Long end;
 
 	@JsonView({PublicView.Default.class})

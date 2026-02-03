@@ -1,13 +1,19 @@
 package org.alliancegenome.es.index.site.dao;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import lombok.extern.slf4j.Slf4j;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.alliancegenome.api.entity.AlleleVariantSequence;
-import org.alliancegenome.api.entity.VariantSummaryDocument;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
 import org.alliancegenome.es.index.ESDAO;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
@@ -29,15 +35,11 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @ApplicationScoped

@@ -17,7 +17,7 @@ import lombok.Setter;
 @Schema(name = "CrossReference", description = "POJO that represents CrossReferences")
 public class CrossReference extends Neo4jEntity {
 
-	@JsonView({ PublicView.API.class, PublicView.Interaction.class, PublicView.Expression.class, CurationView.VariantIndexerView.class }) private String crossRefCompleteUrl;
+	@JsonView({ PublicView.API.class, PublicView.Interaction.class, PublicView.Expression.class, CurationView.VariantDocument.class }) private String crossRefCompleteUrl;
 
 	@JsonView({ PublicView.Interaction.class }) private String localId;
 
@@ -25,9 +25,9 @@ public class CrossReference extends Neo4jEntity {
 
 	@JsonView({ PublicView.Interaction.class }) private String prefix;
 
-	@JsonView({ PublicView.API.class, PublicView.Interaction.class, CurationView.VariantIndexerView.class }) private String name;
+	@JsonView({ PublicView.API.class, PublicView.Interaction.class, CurationView.VariantDocument.class }) private String name;
 
-	@JsonView({ PublicView.API.class, PublicView.Interaction.class, CurationView.VariantIndexerView.class }) private String displayName;
+	@JsonView({ PublicView.API.class, PublicView.Interaction.class, CurationView.VariantDocument.class }) private String displayName;
 
 	@JsonView({ PublicView.Interaction.class }) private String primaryKey;
 

@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 
 import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.AllelePhenotypeAnnotationDocument;
-import org.alliancegenome.api.entity.VariantSummaryDocument;
 import org.alliancegenome.api.rest.interfaces.AlleleRESTInterface;
 import org.alliancegenome.api.service.AlleleESService;
 import org.alliancegenome.api.service.AlleleService;
@@ -21,6 +20,7 @@ import org.alliancegenome.core.exceptions.RestErrorMessage;
 import org.alliancegenome.core.translators.tdf.AlleleToTdfTranslator;
 import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
 import org.alliancegenome.curation_api.model.document.es.TransgenicAlleleDocument;
+import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.node.Allele;

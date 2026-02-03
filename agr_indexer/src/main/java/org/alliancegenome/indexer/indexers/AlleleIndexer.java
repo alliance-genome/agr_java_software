@@ -59,7 +59,7 @@ public class AlleleIndexer extends Indexer {
 					Iterable<AlleleVariantSequence> avsDocs = alleleTranslator.translateEntities(list);
 					alleleDocumentCache.addCachedFields(avsDocs);
 					// alleleTranslator.updateDocuments(avsDocs);
-					indexDocuments(avsDocs, CurationView.VariantIndexerView.class);
+					indexDocuments(avsDocs, CurationView.VariantDocument.class);
 					list.clear();
 				}
 				if (queue.isEmpty()) {
@@ -67,7 +67,7 @@ public class AlleleIndexer extends Indexer {
 						Iterable<AlleleVariantSequence> avsDocs = alleleTranslator.translateEntities(list);
 						alleleDocumentCache.addCachedFields(avsDocs);
 						// alleleTranslator.updateDocuments(avsDocs);
-						indexDocuments(avsDocs, CurationView.VariantIndexerView.class);
+						indexDocuments(avsDocs, CurationView.VariantDocument.class);
 						repo.clearCache();
 						list.clear();
 					}

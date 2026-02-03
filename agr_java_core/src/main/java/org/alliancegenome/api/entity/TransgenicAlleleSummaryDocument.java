@@ -19,10 +19,10 @@ import lombok.EqualsAndHashCode;
 @JsonView(value = { CurationView.TransgenicAllelesDocument.class })
 public class TransgenicAlleleSummaryDocument extends ESDocument {
 
-	public TransgenicAlleleSummaryDocument() {
-		setCategory("transgenic_allele_summary");
+	{
+		category = "transgenic_allele_summary";
 	}
-
+	
 	private Allele allele;
 	public List<TransgenicAlleleConstruct> transgenicAlleleConstructs;
 	private Boolean hasDiseaseAnnotations;

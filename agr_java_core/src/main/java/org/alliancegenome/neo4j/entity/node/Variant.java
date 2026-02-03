@@ -35,15 +35,15 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
 		this.crossReferenceType = CrossReferenceType.ALLELE;
 	}
 
-	@JsonView({ PublicView.Default.class, PublicView.API.class, CurationView.VariantIndexerView.class })
+	@JsonView({ PublicView.Default.class, PublicView.API.class, CurationView.VariantDocument.class })
 	@JsonProperty(value = "displayName") private String hgvsNomenclature;
 
 	private List<String> hgvsNames;
 
-	@JsonView({ PublicView.Default.class, PublicView.API.class, CurationView.VariantIndexerView.class }) private String name;
+	@JsonView({ PublicView.Default.class, PublicView.API.class, CurationView.VariantDocument.class }) private String name;
 	private String dataProvider;
-	@JsonView({ PublicView.API.class, CurationView.VariantIndexerView.class }) private String genomicReferenceSequence;
-	@JsonView({ PublicView.API.class, CurationView.VariantIndexerView.class }) private String genomicVariantSequence;
+	@JsonView({ PublicView.API.class, CurationView.VariantDocument.class }) private String genomicReferenceSequence;
+	@JsonView({ PublicView.API.class, CurationView.VariantDocument.class }) private String genomicVariantSequence;
 
 	private String paddingLeft = "";
 	private String paddingRight = "";
@@ -51,13 +51,13 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
 	@Convert(value = DateConverter.class) private Date dateProduced;
 	private String release;
 
-	@JsonView({ PublicView.Default.class, PublicView.API.class, CurationView.VariantIndexerView.class })
+	@JsonView({ PublicView.Default.class, PublicView.API.class, CurationView.VariantDocument.class })
 	@Relationship(type = "VARIATION_TYPE") private SOTerm variantType;
 
-	@JsonView({ PublicView.API.class, CurationView.VariantIndexerView.class })
+	@JsonView({ PublicView.API.class, CurationView.VariantDocument.class })
 	@Relationship(type = "COMPUTED_GENE", direction = Relationship.Direction.INCOMING) private Gene gene;
 
-	@JsonView({ CurationView.VariantIndexerView.class })
+	@JsonView({ CurationView.VariantDocument.class })
 	@Relationship(type = "ASSOCIATION") protected GeneLevelConsequence geneLevelConsequence;
 
 	@JsonView({ PublicView.VariantAPI.class })
@@ -66,17 +66,17 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
 	@JsonView({ PublicView.API.class })
 	@Relationship(type = "ASSOCIATION") protected Set<Publication> publications;
 
-	@JsonView({ PublicView.API.class, CurationView.VariantIndexerView.class })
+	@JsonView({ PublicView.API.class, CurationView.VariantDocument.class })
 	@Relationship(type = "ASSOCIATION") private GenomeLocation location;
 
 	@JsonView({ PublicView.API.class })
 	@Relationship(type = "ASSOCIATION", direction = Relationship.Direction.INCOMING)
 	protected List<Transcript> transcriptList;
 
-	@JsonView({ PublicView.API.class, CurationView.VariantIndexerView.class })
+	@JsonView({ PublicView.API.class, CurationView.VariantDocument.class })
 	@Relationship(type = "ASSOCIATION") protected List<TranscriptLevelConsequence> transcriptLevelConsequence;
 
-	@JsonView({ PublicView.API.class, CurationView.VariantIndexerView.class })
+	@JsonView({ PublicView.API.class, CurationView.VariantDocument.class })
 	@JsonProperty(value = "consequence")
 	public String getConsequence() {
 		return geneLevelConsequence != null ? geneLevelConsequence.getGeneLevelConsequence() : null;
@@ -142,7 +142,7 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
 		return getPaddingLeft().charAt(getPaddingLeft().length() - 1) + change;
 	}
 
-	@JsonView({ PublicView.VariantAPI.class, CurationView.VariantIndexerView.class })
+	@JsonView({ PublicView.VariantAPI.class, CurationView.VariantDocument.class })
 	public List<String> getHgvsG() {
 		if (hgvsNames == null) {
 			HashSet<String> names = new HashSet<>();

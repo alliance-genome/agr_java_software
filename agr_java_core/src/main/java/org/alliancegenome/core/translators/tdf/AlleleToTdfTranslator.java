@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.api.entity.GeneTransgenicAlleleSummaryDocument;
 import org.alliancegenome.api.entity.TransgenicAlleleSummaryDocument;
-import org.alliancegenome.api.entity.VariantSummaryDocument;
+import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
 import org.alliancegenome.curation_api.model.entities.Allele;
 import org.alliancegenome.curation_api.model.entities.Note;
 import org.alliancegenome.curation_api.model.entities.Reference;
@@ -308,14 +308,18 @@ public class AlleleToTdfTranslator {
 			hgvsGs = hgvsgJoiner.toString();
 		}
 */
+		
 		hgvsGs = variant.getHgvs();
 
-		//if (CollectionUtils.isNotEmpty(variant.getHgvsC())) {
-		//	hgvsCs = getCommaDelimetedString(variant.getHgvsC());
-		//}
-		//if (CollectionUtils.isNotEmpty(variant.getHgvsP())) {
-		//	hgvsPs = getCommaDelimetedString(variant.getHgvsP());
-		//}
+		// TODO fix for view
+		
+//		if (CollectionUtils.isNotEmpty(variant.getHgvsC())) {
+//			hgvsCs = getCommaDelimetedString(variant.getHgvsC());
+//		}
+//		if (CollectionUtils.isNotEmpty(variant.getHgvsP())) {
+//			hgvsPs = getCommaDelimetedString(variant.getHgvsP());
+//		}
+
 /*
 		if (CollectionUtils.isNotEmpty(annotation.getCrossReferences())) {
 			StringJoiner crossRefJoiner = new StringJoiner(",");

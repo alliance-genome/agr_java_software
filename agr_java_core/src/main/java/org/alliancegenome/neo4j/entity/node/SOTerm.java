@@ -21,9 +21,9 @@ public class SOTerm extends Ontology {
 	public static final String INSERTION = "SO:0000667";
 	public static final String DELETION = "SO:0000159";
 
-	@JsonView({ PublicView.Default.class, CurationView.VariantIndexerView.class })
+	@JsonView({ PublicView.Default.class, CurationView.VariantDocument.class })
 	@JsonProperty(value = "id") private String primaryKey;
-	@JsonView({ PublicView.Default.class, CurationView.VariantIndexerView.class }) private String name;
+	@JsonView({ PublicView.Default.class, CurationView.VariantDocument.class }) private String name;
 
 	public boolean isInsertion() {
 		return primaryKey.equals(INSERTION);

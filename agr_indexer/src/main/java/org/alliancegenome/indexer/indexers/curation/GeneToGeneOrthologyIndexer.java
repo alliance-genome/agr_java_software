@@ -32,17 +32,15 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 	private final GeneDiseaseAnnotationCrudInterface geneDiseaseApi = RestProxyFactory.createProxy(GeneDiseaseAnnotationCrudInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 
 	private Set<String> allNeoGeneIDs;
-
+	private Set<String> geneExpressionSet = null;
+	private Set<String> geneAnnotationSet = null;
+	
 	private HashMap<String, Object> params = new HashMap<>() {
 		{
 			put("internal", false);
 			put("obsolete", false);
 		}
-
 	};
-
-	Set<String> geneExpressionSet = buildGeneExpressionSet();
-	Set<String> geneAnnotationSet = buildGeneAnnotationSet();
 
 	public GeneToGeneOrthologyIndexer(IndexerConfig config) {
 		super(config);
@@ -52,7 +50,9 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 	public void index() {
 		BaseService baseService = new BaseService();
 		allNeoGeneIDs = baseService.getAllNeoGeneIDs();
-
+		geneExpressionSet = buildGeneExpressionSet();
+		geneAnnotationSet = buildGeneAnnotationSet();
+		
 		try {
 			SearchResponse<GeneToGeneOrthologyDocument> resp = orthologyApi.findDocument(0, 0, params);
 			log.info("GeneToGeneOrthology count: " + String.format("%,d", resp.getTotalResults()));
@@ -66,7 +66,6 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
 	}
 
 	@Override

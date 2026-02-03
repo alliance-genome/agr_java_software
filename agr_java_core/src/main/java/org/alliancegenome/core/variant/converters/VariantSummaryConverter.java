@@ -9,7 +9,8 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
-import org.alliancegenome.api.entity.VariantSummaryDocument;
+import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
+import org.alliancegenome.curation_api.model.entities.Allele;
 import org.alliancegenome.curation_api.model.entities.AssemblyComponent;
 import org.alliancegenome.curation_api.model.entities.Gene;
 import org.alliancegenome.curation_api.model.entities.GenomeAssembly;
@@ -29,10 +30,10 @@ import org.apache.commons.lang3.StringUtils;
 import htsjdk.variant.variantcontext.VariantContext;
 
 /**
- * Converts VCF VariantContext to AlleleVariantSequenceCuration documents
- * using curation API entity classes.
+ * Converts VCF VariantContext to AlleleVariantSequenceCuration documents using
+ * curation API entity classes.
  */
-public class AlleleVariantSequenceCurationConverter {
+public class VariantSummaryConverter {
 
 	private static final Pattern VALID_ALLELES = Pattern.compile("[ACGTN\\-]+");
 	private NCBITaxonTerm taxon;
@@ -62,7 +63,7 @@ public class AlleleVariantSequenceCurationConverter {
 	private int proteinPosIdx = -1;
 	private int hgvsgIdx = -1;
 
-	public AlleleVariantSequenceCurationConverter(String[] header, GeneDocumentCache geneCache) {
+	public VariantSummaryConverter(String[] header, GeneDocumentCache geneCache) {
 		this.header = header;
 		this.geneCache = geneCache;
 		initializeHeaderIndices();
@@ -150,10 +151,10 @@ public class AlleleVariantSequenceCurationConverter {
 			variant.setTaxon(taxon);
 
 			// Create location association
-			CuratedVariantGenomicLocationAssociation variantLocation = new CuratedVariantGenomicLocationAssociation();
-			variantLocation.setVariantAssociationSubject(variant);
-			variantLocation.setReferenceSequence(ctx.getReference().getBaseString());
-			variantLocation.setVariantSequence(vcfAllele.getBaseString());
+			CuratedVariantGenomicLocationAssociation cvgla = new CuratedVariantGenomicLocationAssociation();
+			cvgla.setVariantAssociationSubject(variant);
+			cvgla.setReferenceSequence(ctx.getReference().getBaseString());
+			cvgla.setVariantSequence(vcfAllele.getBaseString());
 			//variantLocation.getNucleotideChange();
 			// Set location info
 			AssemblyComponent chromosome = new AssemblyComponent();
@@ -161,18 +162,14 @@ public class AlleleVariantSequenceCurationConverter {
 			GenomeAssembly assembly = new GenomeAssembly();
 			assembly.setPrimaryExternalId(speciesType.getAssembly());
 			chromosome.setGenomeAssembly(assembly);
-			variantLocation.setVariantGenomicLocationAssociationObject(chromosome);
-			variantLocation.setStart(ctx.getStart());
-			variantLocation.setEnd(ctx.getEnd());
+			cvgla.setVariantGenomicLocationAssociationObject(chromosome);
+			cvgla.setStart(ctx.getStart());
+			cvgla.setEnd(ctx.getEnd());
 
 			// Build variant name
 			StringBuilder variantName = new StringBuilder();
 			if (StringUtils.isNotEmpty(hgvsNomenclature)) {
-				variantName.append('(')
-					.append(speciesType.getAssembly())
-					.append(')')
-					.append(ctx.getContig())
-					.append(':');
+				variantName.append('(').append(speciesType.getAssembly()).append(')').append(ctx.getContig()).append(':');
 				if (hgvsNomenclature.contains(":")) {
 					variantName.append(hgvsNomenclature.split(":")[1]);
 				} else {
@@ -183,12 +180,12 @@ public class AlleleVariantSequenceCurationConverter {
 			String variantDisplayName = variantName.toString();
 			Optional<String> firstHGVS = hgvsGList.stream().findFirst();
 			if (firstHGVS.isPresent()) {
-				variantLocation.setHgvs(firstHGVS.get());
+				cvgla.setHgvs(firstHGVS.get());
 			} else {
-				variantLocation.setHgvs(variantDisplayName);
+				cvgla.setHgvs(variantDisplayName);
 			}
 
-			variantLocation.setHgvs(hgvsNomenclature);
+			cvgla.setHgvs(hgvsNomenclature);
 
 
 			// Set primary key
@@ -205,19 +202,19 @@ public class AlleleVariantSequenceCurationConverter {
 			variant.setModInternalId(primaryKey);
 
 			// Create curation API Allele entity
-			//Allele allele = new Allele();
-			///allele.setCurie(primaryKey);
+			Allele allele = new Allele();
+			allele.setCurie(primaryKey);
 			//allele.setModInternalId(primaryKey);
-			//allele.setTaxon(taxon);
+			allele.setTaxon(taxon);
 			// If we want to show 
 
-			variantLocation.setPredictedVariantConsequences(consequences);
+			cvgla.setPredictedVariantConsequences(consequences);
 
 			// Create the document for each consequence (full flattening)
 			VariantSummaryDocument doc = new VariantSummaryDocument();
 			doc.setSubCategory("HTP_variant");
-			//doc.setAllele(allele);
-			doc.setVariant(variantLocation);
+			doc.setAllele(allele);
+			doc.setVariant(cvgla);
 
 			returnDocuments.add(doc);
 		}
@@ -226,7 +223,8 @@ public class AlleleVariantSequenceCurationConverter {
 	}
 
 	/**
-	 * Parse VEP CSQ annotations from VCF and create PredictedVariantConsequence objects
+	 * Parse VEP CSQ annotations from VCF and create PredictedVariantConsequence
+	 * objects
 	 */
 	private List<PredictedVariantConsequence> getConsequences(VariantContext ctx, String varNuc, SpeciesType speciesType) {
 
@@ -296,7 +294,8 @@ public class AlleleVariantSequenceCurationConverter {
 					association.setTranscriptAssociationSubject(transcript);
 					association.setTranscriptGeneAssociationObject(gene);
 					transcript.setTranscriptGeneAssociations(List.of(association));
-					// Note: Can't directly attach gene to transcript without proper association objects
+					// Note: Can't directly attach gene to transcript without proper association
+					// objects
 					// The gene info will be stored separately for searchability
 				}
 
@@ -310,14 +309,11 @@ public class AlleleVariantSequenceCurationConverter {
 			if (hgvsPIdx >= 0 && StringUtils.isNotEmpty(infos[hgvsPIdx])) {
 				consequence.setHgvsProteinNomenclature(infos[hgvsPIdx]);
 			}
-/*
-			if (intron >= 0 && StringUtils.isNotEmpty(infos[intron])) {
-				consequence.setIntrons(infos[intron]);
-			}
-			if (exon >= 0 && StringUtils.isNotEmpty(infos[exon])) {
-				consequence.setExons(infos[exon]);
-			}
-*/
+			/*
+			 * if (intron >= 0 && StringUtils.isNotEmpty(infos[intron])) {
+			 * consequence.setIntrons(infos[intron]); } if (exon >= 0 &&
+			 * StringUtils.isNotEmpty(infos[exon])) { consequence.setExons(infos[exon]); }
+			 */
 
 			// Set amino acids (format: "R/H" = reference/variant)
 			if (aminoAcidsIdx >= 0 && StringUtils.isNotEmpty(infos[aminoAcidsIdx])) {
@@ -343,23 +339,17 @@ public class AlleleVariantSequenceCurationConverter {
 
 			// Set calculated cDNA position (format: "123" or "123-125")
 			if (cdnaPosIdx >= 0 && StringUtils.isNotEmpty(infos[cdnaPosIdx])) {
-				parseAndSetPosition(infos[cdnaPosIdx],
-					consequence::setCalculatedCdnaStart,
-					consequence::setCalculatedCdnaEnd);
+				parseAndSetPosition(infos[cdnaPosIdx], consequence::setCalculatedCdnaStart, consequence::setCalculatedCdnaEnd);
 			}
 
 			// Set calculated CDS position (format: "123" or "123-125")
 			if (cdsPosIdx >= 0 && StringUtils.isNotEmpty(infos[cdsPosIdx])) {
-				parseAndSetPosition(infos[cdsPosIdx],
-					consequence::setCalculatedCdsStart,
-					consequence::setCalculatedCdsEnd);
+				parseAndSetPosition(infos[cdsPosIdx], consequence::setCalculatedCdsStart, consequence::setCalculatedCdsEnd);
 			}
 
 			// Set calculated protein position (format: "123" or "123-125")
 			if (proteinPosIdx >= 0 && StringUtils.isNotEmpty(infos[proteinPosIdx])) {
-				parseAndSetPosition(infos[proteinPosIdx],
-					consequence::setCalculatedProteinStart,
-					consequence::setCalculatedProteinEnd);
+				parseAndSetPosition(infos[proteinPosIdx], consequence::setCalculatedProteinStart, consequence::setCalculatedProteinEnd);
 			}
 
 			// Set impact
@@ -406,7 +396,8 @@ public class AlleleVariantSequenceCurationConverter {
 	}
 
 	/**
-	 * Parse VEP position field (format: "123" or "123-125") and set start/end values
+	 * Parse VEP position field (format: "123" or "123-125") and set start/end
+	 * values
 	 */
 	private void parseAndSetPosition(String position, Consumer<Integer> startSetter, Consumer<Integer> endSetter) {
 		try {
@@ -428,4 +419,27 @@ public class AlleleVariantSequenceCurationConverter {
 			// Ignore invalid position values (e.g., "?" or "-")
 		}
 	}
+
+	/*
+	public String getNucleotideChange() {
+		if (variantAssociationSubject != null && variantAssociationSubject.getVariantType() != null) {
+			String variantTypeCurie = variantAssociationSubject.getVariantType().getCurie();
+			if ("SO:0000667".equals(variantTypeCurie)) {
+				// Insertion
+				return "c>c" + variantSequence;
+			} else if ("SO:1000008".equals(variantTypeCurie)) {
+				// Point mutation
+				return referenceSequence + ">" + variantSequence;
+			} else if ("SO:0000159".equals(variantTypeCurie)) {
+				// Deletion
+				return "t" + referenceSequence + ">t";
+			}
+			if (referenceSequence != null && variantSequence != null) {
+				return referenceSequence + ">" + variantSequence;
+			}
+		}
+		return null;
+	}
+	*/
+
 }

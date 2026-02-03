@@ -23,17 +23,17 @@ import lombok.Setter;
 @Schema(name = "Species", description = "POJO that represents the Species")
 public class Species extends Neo4jEntity implements Comparable<Species> {
 
-	@JsonView({ PublicView.Default.class, CurationView.VariantIndexerView.class })
+	@JsonView({ PublicView.Default.class, CurationView.VariantDocument.class })
 	@JsonProperty(value = "taxonId") private String primaryKey;
 
-	@JsonView({ PublicView.Default.class, CurationView.VariantIndexerView.class }) private String name;
-	@JsonView({ PublicView.Default.class, CurationView.VariantIndexerView.class }) private String shortName;
-	@JsonView({ PublicView.Default.class, CurationView.VariantIndexerView.class }) private String dataProviderFullName;
-	@JsonView({ PublicView.Default.class, CurationView.VariantIndexerView.class }) private String dataProviderShortName;
+	@JsonView({ PublicView.Default.class, CurationView.VariantDocument.class }) private String name;
+	@JsonView({ PublicView.Default.class, CurationView.VariantDocument.class }) private String shortName;
+	@JsonView({ PublicView.Default.class, CurationView.VariantDocument.class }) private String dataProviderFullName;
+	@JsonView({ PublicView.Default.class, CurationView.VariantDocument.class }) private String dataProviderShortName;
 
 	@JsonView({ PublicView.DiseaseCacher.class, PublicView.Homology.class }) private int phylogeneticOrder;
 
-	@JsonView({ PublicView.Default.class, CurationView.VariantIndexerView.class }) private String commonNames;
+	@JsonView({ PublicView.Default.class, CurationView.VariantDocument.class }) private String commonNames;
 
 	@Relationship(type = "CREATED_BY") private Set<Gene> genes = new HashSet<>();
 
