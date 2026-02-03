@@ -24,10 +24,12 @@ public class VariantSummaryCurationIndexer extends Indexer {
 
 	private final VariantDocumentInterface variantApi = RestProxyFactory.createProxy(VariantDocumentInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 
-	private final HashMap<String, Object> params = new HashMap<>() {{
-		put("internal", false);
-		put("obsolete", false);
-	}};
+	private final HashMap<String, Object> params = new HashMap<>() {
+		{
+			put("internal", false);
+			put("obsolete", false);
+		}
+	};
 
 	public VariantSummaryCurationIndexer(IndexerConfig config) {
 		super(config);
@@ -35,13 +37,13 @@ public class VariantSummaryCurationIndexer extends Indexer {
 
 	@Override
 	protected void index() {
-		
-		try {	
+
+		try {
 			SearchResponse<VariantSummaryDocument> searchResponse = variantApi.findDocuments(0, 0, params);
 			log.info("VariantSummary count: " + String.format("%,d", searchResponse.getTotalResults()));
-			
+
 			int totalPages = (int) (searchResponse.getTotalResults() / indexerConfig.getBufferSize());
-			
+
 			LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
 			for (int i = 0; i <= totalPages; i++) {
 				queue.add(String.valueOf(i));
@@ -65,15 +67,15 @@ public class VariantSummaryCurationIndexer extends Indexer {
 				// log.info(queue.size() + " pages to process " +
 				// Thread.currentThread().getName() + " starting page: " + page);
 				SearchResponse<VariantSummaryDocument> response = variantApi.findDocuments(Integer.valueOf(page), indexerConfig.getBufferSize(), params);
-				
+
 				// log.info("Search Response: " + response);
 				List<VariantSummaryDocument> results = response.getResults();
 				if (response == null || CollectionUtils.isEmpty(results)) {
 					return;
 				}
-				
+
 				List<VariantSummaryDocument> list = new ArrayList<>();
-				for (VariantSummaryDocument variantSummaryDto: results) {
+				for (VariantSummaryDocument variantSummaryDto : results) {
 					if (variantSummaryDto == null) {
 						continue;
 					}
@@ -91,7 +93,7 @@ public class VariantSummaryCurationIndexer extends Indexer {
 				return;
 			}
 		}
-		
+
 	}
 
 	@Override

@@ -36,19 +36,17 @@ public class AlleleESService extends ESService {
 		SearchResponse searchResponse = getSearchResponse(bool, new Pagination(), null, false);
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
 		List<TransgenicAlleleDocument> list = new ArrayList<>();
-		Arrays.stream(searchResponse.getHits().getHits())
-			.forEach(searchHit -> {
-				try {
-					TransgenicAlleleDocument object = mapper.readValue(searchHit.getSourceAsString(), TransgenicAlleleDocument.class);
-					list.add(object);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			});
+		Arrays.stream(searchResponse.getHits().getHits()).forEach(searchHit -> {
+			try {
+				TransgenicAlleleDocument object = mapper.readValue(searchHit.getSourceAsString(), TransgenicAlleleDocument.class);
+				list.add(object);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
 		ret.setResults(list);
 		return ret;
 	}
-
 
 	public AlleleSummaryDocument getById(String alleleId) {
 
@@ -76,7 +74,7 @@ public class AlleleESService extends ESService {
 		bool.filter(new TermQueryBuilder("category", "variant_summary"));
 		SearchResponse searchResponse = getSearchResponse(bool, pagination, null, false);
 		List<VariantSummaryDocument> list = new ArrayList<>();
-		for(SearchHit hit: searchResponse.getHits().getHits()) {
+		for (SearchHit hit : searchResponse.getHits().getHits()) {
 			try {
 				VariantSummaryDocument object = mapper.readValue(hit.getSourceAsString(), VariantSummaryDocument.class);
 				list.add(object);
@@ -97,15 +95,14 @@ public class AlleleESService extends ESService {
 		bool.filter(new TermQueryBuilder("category", "allele_summary"));
 		SearchResponse searchResponse = getSearchResponse(bool, pagination, null, false);
 		List<AlleleSummaryDocument> list = new ArrayList<>();
-		Arrays.stream(searchResponse.getHits().getHits())
-			.forEach(searchHit -> {
-				try {
-					AlleleSummaryDocument object = mapper.readValue(searchHit.getSourceAsString(), AlleleSummaryDocument.class);
-					list.add(object);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			});
+		Arrays.stream(searchResponse.getHits().getHits()).forEach(searchHit -> {
+			try {
+				AlleleSummaryDocument object = mapper.readValue(searchHit.getSourceAsString(), AlleleSummaryDocument.class);
+				list.add(object);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
 		JsonResultResponse<AlleleSummaryDocument> ret = new JsonResultResponse<>();
 		ret.setResults(list);
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);

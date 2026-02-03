@@ -34,7 +34,7 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 	private Set<String> allNeoGeneIDs;
 	private Set<String> geneExpressionSet = null;
 	private Set<String> geneAnnotationSet = null;
-	
+
 	private HashMap<String, Object> params = new HashMap<>() {
 		{
 			put("internal", false);
@@ -45,19 +45,19 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 	public GeneToGeneOrthologyIndexer(IndexerConfig config) {
 		super(config);
 	}
-	
+
 	@Override
 	public void index() {
 		BaseService baseService = new BaseService();
 		allNeoGeneIDs = baseService.getAllNeoGeneIDs();
 		geneExpressionSet = buildGeneExpressionSet();
 		geneAnnotationSet = buildGeneAnnotationSet();
-		
+
 		try {
 			SearchResponse<GeneToGeneOrthologyDocument> resp = orthologyApi.findDocument(0, 0, params);
 			log.info("GeneToGeneOrthology count: " + String.format("%,d", resp.getTotalResults()));
 			int totalPages = (int) (resp.getTotalResults() / indexerConfig.getBufferSize());
-			
+
 			LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
 			for (int i = 0; i <= totalPages; i++) {
 				queue.add(String.valueOf(i));
@@ -93,7 +93,7 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 						String primaryExternalId = (String) geneAnnotation.get("geneIdentifier");
 						geneAnnotation.put("hasExpressionAnnotations", geneExpressionSet.contains(primaryExternalId));
 						geneAnnotation.put("hasDiseaseAnnotations", geneAnnotationSet.contains(primaryExternalId));
-						
+
 					}
 				}
 
@@ -114,7 +114,7 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 	private Set<String> buildGeneAnnotationSet() {
 		return geneDiseaseApi.geneDiseaseAnnotationMap().getEntity();
 	}
-	
+
 	@Override
 	protected ObjectMapper customizeObjectMapper(ObjectMapper objectMapper) {
 		return RestConfig.config.getJacksonObjectMapperFactory().createObjectMapper();
