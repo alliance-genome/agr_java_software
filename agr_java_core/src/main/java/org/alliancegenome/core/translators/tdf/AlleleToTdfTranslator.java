@@ -308,7 +308,6 @@ public class AlleleToTdfTranslator {
 			hgvsGs = hgvsgJoiner.toString();
 		}
 */
-		
 		hgvsGs = variant.getHgvs();
 
 		if (CollectionUtils.isNotEmpty(variant.getHgvsC())) {
@@ -317,7 +316,6 @@ public class AlleleToTdfTranslator {
 		if (CollectionUtils.isNotEmpty(variant.getHgvsP())) {
 			hgvsPs = getCommaDelimetedString(variant.getHgvsP());
 		}
-
 /*
 		if (CollectionUtils.isNotEmpty(annotation.getCrossReferences())) {
 			StringJoiner crossRefJoiner = new StringJoiner(",");
