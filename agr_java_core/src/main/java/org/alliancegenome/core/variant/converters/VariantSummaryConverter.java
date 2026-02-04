@@ -306,11 +306,13 @@ public class VariantSummaryConverter {
 			if (hgvsPIdx >= 0 && StringUtils.isNotEmpty(infos[hgvsPIdx])) {
 				consequence.setHgvsProteinNomenclature(infos[hgvsPIdx]);
 			}
-			/*
-			 * if (intron >= 0 && StringUtils.isNotEmpty(infos[intron])) {
-			 * consequence.setIntrons(infos[intron]); } if (exon >= 0 &&
-			 * StringUtils.isNotEmpty(infos[exon])) { consequence.setExons(infos[exon]); }
-			 */
+
+			if (intronIdx >= 0 && StringUtils.isNotEmpty(infos[intronIdx])) {
+				consequence.setIntrons(infos[intronIdx]);
+			}
+			if (exonIdx >= 0 && StringUtils.isNotEmpty(infos[exonIdx])) {
+				consequence.setExons(infos[exonIdx]);
+			}
 
 			// Set amino acids (format: "R/H" = reference/variant)
 			if (aminoAcidsIdx >= 0 && StringUtils.isNotEmpty(infos[aminoAcidsIdx])) {
