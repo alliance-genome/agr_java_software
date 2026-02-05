@@ -2,17 +2,16 @@ package org.alliancegenome.api.controller;
 
 import java.util.List;
 
-import org.alliancegenome.api.entity.VariantSummaryDocument;
 import org.alliancegenome.api.rest.interfaces.VariantRESTInterface;
 import org.alliancegenome.api.service.VariantService;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.exceptions.RestErrorException;
 import org.alliancegenome.core.exceptions.RestErrorMessage;
+import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Transcript;
-import org.alliancegenome.neo4j.entity.node.Variant;
 
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;

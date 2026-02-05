@@ -37,7 +37,7 @@ public class ReleaseInfoService {
 		bool.must(new MatchQueryBuilder("category", "release_info"));
 		SearchResponse resp = searchDAO.performQuery(
 			bool, aggBuilders, null, List.of("*"),
-			pagination.getLimit(), (int) pagination.getOffset(), hlb, sorts, false);
+			pagination.getLimit(), pagination.getPage() * pagination.getLimit(), hlb, sorts, false);
 
 		if (resp.getHits().getHits().length > 0) {
 			try {

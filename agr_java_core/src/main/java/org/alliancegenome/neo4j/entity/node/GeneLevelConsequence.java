@@ -2,6 +2,7 @@ package org.alliancegenome.neo4j.entity.node;
 
 import java.util.List;
 
+import org.alliancegenome.curation_api.view.CurationView;
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
 import org.alliancegenome.neo4j.view.PublicView;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
@@ -20,10 +21,10 @@ import lombok.Setter;
 @Schema(name = "GeneLevelConsequence", description = "POJO that represents Gene Level Consequences")
 public class GeneLevelConsequence extends Neo4jEntity implements Comparable<GeneLevelConsequence> {
 
-	@JsonView({ PublicView.Default.class, PublicView.API.class, PublicView.AlleleVariantSequenceConverterForES.class })
+	@JsonView({ PublicView.Default.class, PublicView.API.class, CurationView.VariantDocument.class })
 	@JsonProperty(value = "id") protected String primaryKey;
 
-	@JsonView({ PublicView.Default.class, PublicView.API.class, PublicView.AlleleVariantSequenceConverterForES.class })
+	@JsonView({ PublicView.Default.class, PublicView.API.class, CurationView.VariantDocument.class })
 	@JsonProperty(value = "consequence") private String geneLevelConsequence;
 
 	@Override

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import org.alliancegenome.curation_api.view.CurationView;
 import org.alliancegenome.es.util.DateConverter;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
@@ -49,7 +50,7 @@ public class Gene extends GeneticEntity implements Comparable<Gene> {
 	@JsonView({PublicView.GeneAPI.class, PublicView.Expression.class})
 	private String dataProvider;
 
-	@JsonView(value = {PublicView.GeneAPI.class, PublicView.AlleleVariantSequenceConverterForES.class})
+	@JsonView(value = {PublicView.GeneAPI.class, CurationView.VariantDocument.class})
 	private String name;
 
 	@Convert(value = DateConverter.class)
@@ -77,7 +78,7 @@ public class Gene extends GeneticEntity implements Comparable<Gene> {
 	private List<Paralogous> paraGenes;
 
 	@Relationship(type = "ASSOCIATION")
-	@JsonView({ PublicView.GeneAPI.class, PublicView.VariantAPI.class, PublicView.AlleleAPI.class, PublicView.AlleleVariantSequenceConverterForES.class })
+	@JsonView({ PublicView.GeneAPI.class, PublicView.VariantAPI.class, PublicView.AlleleAPI.class, CurationView.VariantDocument.class })
 	private List<GenomeLocation> genomeLocations;
 
 	@Relationship(type = "LOCATED_ON")

@@ -2,5 +2,6 @@
 .classpath
 .project
 data
+agr_variant_indexer/histograms
 /.apt_generated/
 /.apt_generated_tests/

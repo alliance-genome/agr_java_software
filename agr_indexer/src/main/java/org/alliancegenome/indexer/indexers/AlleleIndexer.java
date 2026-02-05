@@ -5,11 +5,11 @@ import java.util.concurrent.LinkedBlockingDeque;
 
 import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.core.translators.document.AlleleTranslator;
+import org.alliancegenome.curation_api.view.CurationView;
 import org.alliancegenome.es.index.site.cache.AlleleDocumentCache;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.repository.indexer.AlleleIndexerRepository;
-import org.alliancegenome.neo4j.view.PublicView;
 
 import com.fasterxml.jackson.databind.MapperFeature;
 
@@ -58,16 +58,16 @@ public class AlleleIndexer extends Indexer {
 				if (list.size() >= indexerConfig.getBufferSize()) {
 					Iterable<AlleleVariantSequence> avsDocs = alleleTranslator.translateEntities(list);
 					alleleDocumentCache.addCachedFields(avsDocs);
-					//alleleTranslator.updateDocuments(avsDocs);
-					indexDocuments(avsDocs, PublicView.AlleleVariantSequenceConverterForES.class);
+					// alleleTranslator.updateDocuments(avsDocs);
+					indexDocuments(avsDocs, CurationView.VariantDocument.class);
 					list.clear();
 				}
 				if (queue.isEmpty()) {
 					if (list.size() > 0) {
 						Iterable<AlleleVariantSequence> avsDocs = alleleTranslator.translateEntities(list);
 						alleleDocumentCache.addCachedFields(avsDocs);
-						//alleleTranslator.updateDocuments(avsDocs);
-						indexDocuments(avsDocs, PublicView.AlleleVariantSequenceConverterForES.class);
+						// alleleTranslator.updateDocuments(avsDocs);
+						indexDocuments(avsDocs, CurationView.VariantDocument.class);
 						repo.clearCache();
 						list.clear();
 					}

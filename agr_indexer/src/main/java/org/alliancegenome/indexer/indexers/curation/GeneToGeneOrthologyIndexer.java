@@ -32,32 +32,32 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 	private final GeneDiseaseAnnotationCrudInterface geneDiseaseApi = RestProxyFactory.createProxy(GeneDiseaseAnnotationCrudInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 
 	private Set<String> allNeoGeneIDs;
+	private Set<String> geneExpressionSet;
+	private Set<String> geneAnnotationSet;
 
 	private HashMap<String, Object> params = new HashMap<>() {
 		{
 			put("internal", false);
 			put("obsolete", false);
 		}
-
 	};
-
-	Set<String> geneExpressionSet = buildGeneExpressionSet();
-	Set<String> geneAnnotationSet = buildGeneAnnotationSet();
 
 	public GeneToGeneOrthologyIndexer(IndexerConfig config) {
 		super(config);
 	}
-	
+
 	@Override
 	public void index() {
 		BaseService baseService = new BaseService();
 		allNeoGeneIDs = baseService.getAllNeoGeneIDs();
+		geneExpressionSet = buildGeneExpressionSet();
+		geneAnnotationSet = buildGeneAnnotationSet();
 
 		try {
 			SearchResponse<GeneToGeneOrthologyDocument> resp = orthologyApi.findDocument(0, 0, params);
 			log.info("GeneToGeneOrthology count: " + String.format("%,d", resp.getTotalResults()));
 			int totalPages = (int) (resp.getTotalResults() / indexerConfig.getBufferSize());
-			
+
 			LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
 			for (int i = 0; i <= totalPages; i++) {
 				queue.add(String.valueOf(i));
@@ -66,7 +66,6 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
 	}
 
 	@Override
@@ -94,7 +93,7 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 						String primaryExternalId = (String) geneAnnotation.get("geneIdentifier");
 						geneAnnotation.put("hasExpressionAnnotations", geneExpressionSet.contains(primaryExternalId));
 						geneAnnotation.put("hasDiseaseAnnotations", geneAnnotationSet.contains(primaryExternalId));
-						
+
 					}
 				}
 
@@ -115,7 +114,7 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 	private Set<String> buildGeneAnnotationSet() {
 		return geneDiseaseApi.geneDiseaseAnnotationMap().getEntity();
 	}
-	
+
 	@Override
 	protected ObjectMapper customizeObjectMapper(ObjectMapper objectMapper) {
 		return RestConfig.config.getJacksonObjectMapperFactory().createObjectMapper();

@@ -6,12 +6,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import jakarta.inject.Inject;
-import org.alliancegenome.api.entity.VariantSummaryDocument;
 import org.alliancegenome.cache.repository.helper.AlleleFiltering;
 import org.alliancegenome.cache.repository.helper.AlleleSorting;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.api.service.FilterService;
+import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
 import org.alliancegenome.es.index.site.dao.VariantESDAO;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.node.Allele;
@@ -22,6 +21,7 @@ import org.alliancegenome.neo4j.repository.VariantRepository;
 import org.apache.commons.lang3.StringUtils;
 
 import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
 
 @RequestScoped
 public class VariantService {

@@ -482,7 +482,8 @@ public class IndexManager {
 			}
 		}
 		if (map.size() > 0) {
-			map.remove(map.lastKey());
+			map.remove(map.firstKey()); // Keep the oldest snapshot, as this is presumably what is on production
+			map.remove(map.lastKey()); // Keep the latest snapshot
 			for (Date key : map.keySet()) {
 				deleteSnapShot(repo, map.get(key).snapshotId().getName());
 			}

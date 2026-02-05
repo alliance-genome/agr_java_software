@@ -1,5 +1,6 @@
 package org.alliancegenome.api.entity;
 
+import org.alliancegenome.curation_api.view.CurationView;
 import org.alliancegenome.es.index.site.document.SearchableItemDocument;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.TranscriptLevelConsequence;
@@ -19,13 +20,13 @@ import lombok.Setter;
 @Getter
 public class AlleleVariantSequence extends SearchableItemDocument {
 
-	@JsonView({PublicView.Default.class, PublicView.AlleleVariantSequenceConverterForES.class})
+	@JsonView({PublicView.Default.class, CurationView.VariantDocument.class})
 	private Allele allele;
-	@JsonView({PublicView.Default.class, PublicView.AlleleVariantSequenceConverterForES.class})
+	@JsonView({PublicView.Default.class, CurationView.VariantDocument.class})
 	private Variant variant;
 	@JsonView({PublicView.Default.class})
 	private TranscriptLevelConsequence consequence;
-	@JsonView({PublicView.Default.class, PublicView.AlleleVariantSequenceConverterForES.class})
+	@JsonView({PublicView.Default.class, CurationView.VariantDocument.class})
 	private Boolean searchable = true;
 
 	// Used only for deserialization purposes
