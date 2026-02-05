@@ -19,6 +19,7 @@ import org.alliancegenome.curation_api.model.entities.Transcript;
 import org.alliancegenome.curation_api.model.entities.Variant;
 import org.alliancegenome.curation_api.model.entities.VocabularyTerm;
 import org.alliancegenome.curation_api.model.entities.associations.CuratedVariantGenomicLocationAssociation;
+import org.alliancegenome.curation_api.model.entities.associations.GeneGenomicLocationAssociation;
 import org.alliancegenome.curation_api.model.entities.associations.TranscriptGeneAssociation;
 import org.alliancegenome.curation_api.model.entities.ontology.NCBITaxonTerm;
 import org.alliancegenome.curation_api.model.entities.ontology.SOTerm;
@@ -206,7 +207,6 @@ public class VariantSummaryConverter {
 			// If we want to show 
 
 			cvgla.setPredictedVariantConsequences(consequences);
-
 			// Create the document for each consequence (full flattening)
 			VariantSummaryDocument doc = new VariantSummaryDocument();
 			doc.setSubCategory("HTP_variant");
@@ -286,6 +286,23 @@ public class VariantSummaryConverter {
 						GeneSymbolSlotAnnotation geneSymbol = new GeneSymbolSlotAnnotation();
 						geneSymbol.setDisplayText(infos[geneSymbolIdx]);
 						gene.setGeneSymbol(geneSymbol);
+						if (geneCache != null) {
+							// Set genome location from cache
+							org.alliancegenome.neo4j.entity.node.Gene cachedGene = geneCache.getGeneMap().get(gene.getCurie());
+							if (cachedGene != null && cachedGene.getGenomeLocations() != null && !cachedGene.getGenomeLocations().isEmpty()) {
+								List<GeneGenomicLocationAssociation> geneLocations = new ArrayList<>();
+								for (org.alliancegenome.neo4j.entity.relationship.GenomeLocation loc : cachedGene.getGenomeLocations()) {
+									GeneGenomicLocationAssociation geneLocation = new GeneGenomicLocationAssociation();
+									geneLocation.setStart(loc.getStart() != null ? loc.getStart().intValue() : null);
+									geneLocation.setEnd(loc.getEnd() != null ? loc.getEnd().intValue() : null);
+									AssemblyComponent geneChromosome = new AssemblyComponent();
+									geneChromosome.setName(loc.getChromosome());
+									geneLocation.setGeneGenomicLocationAssociationObject(geneChromosome);
+									geneLocations.add(geneLocation);
+								}
+								gene.setGeneGenomicLocationAssociations(geneLocations);
+							}
+						}
 					}
 					TranscriptGeneAssociation association = new TranscriptGeneAssociation();
 					association.setTranscriptAssociationSubject(transcript);
@@ -374,7 +391,6 @@ public class VariantSummaryConverter {
 
 			consequences.add(consequence);
 		}
-
 		return consequences;
 	}
 
