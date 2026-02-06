@@ -281,6 +281,12 @@ public class SourceDocumentCreation extends Thread {
 			reader.start();
 			readers.add(reader);
 		}
+		
+		try {
+			Thread.sleep(3000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 
 		List<DocumentTransformer> transformers = new ArrayList<>();
 		ph2.startProcess(messageHeader + "VCFTransformers");

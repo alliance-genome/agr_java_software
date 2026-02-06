@@ -89,7 +89,6 @@ public class Mapping extends Builder {
 
 		// Allele Only Fields
 		new FieldBuilder(builder, "alterationType", "text").keyword().build(); // Allele
-		new FieldBuilder(builder, "allele.category", "text").keyword().build(); // Allele
 		new FieldBuilder(builder, "constructs", "text").keyword().classicText().build(); // allele
 		new FieldBuilder(builder, "constructExpressedComponent", "text").keyword().build(); // allele
 		new FieldBuilder(builder, "constructKnockdownComponent", "text").keyword().build(); // allele
@@ -186,25 +185,94 @@ public class Mapping extends Builder {
 		new FieldBuilder(builder, "species", "text").keyword().synonym().sort().build(); // allele, gene, model, dataset
 		new FieldBuilder(builder, "synonyms", "text").analyzer("symbols").autocomplete().keyword().keywordAutocomplete().htmlSmoosh().standardBigrams().build(); // gene, go, disease, model
 
+		// GeneMolecularInteractionDocument: dynamic false (222 -> ~13 indexed fields)
+		builder.startObject("geneMolecularInteraction");
+		builder.field("dynamic", false);
+		builder.endObject();
 		new FieldBuilder(builder, "geneMolecularInteraction.geneGeneAssociationObject.geneSymbol.displayText", "text").keyword().sort().build();
+		new FieldBuilder(builder, "geneMolecularInteraction.geneGeneAssociationObject.taxon.name", "text").keyword().sort().build();
+		new FieldBuilder(builder, "geneMolecularInteraction.geneAssociationSubject.curie", "text").keyword().build();
+		new FieldBuilder(builder, "geneMolecularInteraction.geneAssociationSubject.primaryExternalId", "text").keyword().build();
+		new FieldBuilder(builder, "geneMolecularInteraction.geneAssociationSubject.modInternalId", "text").keyword().build();
 		new FieldBuilder(builder, "geneMolecularInteraction.interactorAType.name", "text").keyword().sort().build();
 		new FieldBuilder(builder, "geneMolecularInteraction.interactorBType.name", "text").keyword().sort().build();
 		new FieldBuilder(builder, "geneMolecularInteraction.detectionMethod.name", "text").keyword().sort().build();
-		new FieldBuilder(builder, "geneMolecularInteraction.geneGeneAssociationObject.taxon.name", "text").keyword().sort().build();
+		new FieldBuilder(builder, "geneMolecularInteraction.evidence.referenceID", "text").keyword().build();
+		new FieldBuilder(builder, "geneMolecularInteraction.interactionId", "text").keyword().build();
+		new FieldBuilder(builder, "geneMolecularInteraction.aggregationDatabase.name", "text").keyword().build();
+		new FieldBuilder(builder, "geneMolecularInteraction.interactionSource.name", "text").keyword().build();
+		new FieldBuilder(builder, "geneMolecularInteraction.crossReferences.displayName", "text").keyword().build();
 
+		// GeneGeneticInteractionDocument: dynamic false (294 -> ~14 indexed fields)
+		builder.startObject("geneGeneticInteraction");
+		builder.field("dynamic", false);
+		builder.endObject();
 		new FieldBuilder(builder, "geneGeneticInteraction.geneGeneAssociationObject.geneSymbol.displayText", "text").keyword().sort().build();
+		new FieldBuilder(builder, "geneGeneticInteraction.geneGeneAssociationObject.taxon.name", "text").keyword().sort().build();
+		new FieldBuilder(builder, "geneGeneticInteraction.geneAssociationSubject.curie", "text").keyword().build();
+		new FieldBuilder(builder, "geneGeneticInteraction.geneAssociationSubject.primaryExternalId", "text").keyword().build();
+		new FieldBuilder(builder, "geneGeneticInteraction.geneAssociationSubject.modInternalId", "text").keyword().build();
 		new FieldBuilder(builder, "geneGeneticInteraction.interactorARole.name", "text").keyword().build();
 		new FieldBuilder(builder, "geneGeneticInteraction.interactorBRole.name", "text").keyword().build();
 		new FieldBuilder(builder, "geneGeneticInteraction.interactionType.name", "text").keyword().build();
-		new FieldBuilder(builder, "geneGeneticInteraction.geneGeneAssociationObject.taxon.name", "text").keyword().sort().build();
+		new FieldBuilder(builder, "geneGeneticInteraction.interactorAGeneticPerturbation.alleleSymbol.displayText", "text").keyword().build();
+		new FieldBuilder(builder, "geneGeneticInteraction.interactorBGeneticPerturbation.alleleSymbol.displayText", "text").keyword().build();
+		new FieldBuilder(builder, "geneGeneticInteraction.phenotypesOrTraits", "text").keyword().build();
+		new FieldBuilder(builder, "geneGeneticInteraction.evidence.referenceID", "text").keyword().build();
+		new FieldBuilder(builder, "geneGeneticInteraction.interactionId", "text").keyword().build();
+		new FieldBuilder(builder, "geneGeneticInteraction.crossReferences.displayName", "text").keyword().build();
+
+		// GeneToGeneParalogyDocument: dynamic false (112 -> 2 indexed fields)
+		builder.startObject("geneToGeneParalogy");
+		builder.field("dynamic", false);
+		builder.endObject();
+		new FieldBuilder(builder, "geneToGeneParalogy.subjectGene.primaryExternalId", "text").keyword().build();
+		new FieldBuilder(builder, "geneToGeneParalogy.rank", "integer").build();
+
+		// GeneToGeneOrthologyDocument: dynamic false (64 -> 1 indexed field)
+		builder.startObject("geneToGeneOrthologyGenerated");
+		builder.field("dynamic", false);
+		builder.endObject();
+		new FieldBuilder(builder, "geneToGeneOrthologyGenerated.subjectGene.primaryExternalId", "text").keyword().build();
 
 		new FieldBuilder(builder, "literatureSummary.date_arrived_in_pubmed", "text").keyword().build();
 		new FieldBuilder(builder, "literatureSummary.date_published", "text").keyword().build();
 
+		// GeneExpressionDocument: dynamic false (78 -> ~8 indexed fields)
+		builder.startObject("geneExpressionAnnotation");
+		builder.field("dynamic", false);
+		builder.endObject();
 		new FieldBuilder(builder, "geneExpressionAnnotation.expressionAnnotationSubject.geneSymbol.displayText", "text").keyword().sort().build();
+		new FieldBuilder(builder, "geneExpressionAnnotation.expressionAnnotationSubject.primaryExternalId", "text").keyword().build();
+		new FieldBuilder(builder, "geneExpressionAnnotation.expressionAnnotationSubject.taxon.name", "text").keyword().sort().build();
 		new FieldBuilder(builder, "geneExpressionAnnotation.whereExpressedStatement", "text").keyword().sort().build();
 		new FieldBuilder(builder, "geneExpressionAnnotation.whenExpressedStageName", "text").keyword().sort().build();
 		new FieldBuilder(builder, "geneExpressionAnnotation.expressionAssayUsed.name", "text").keyword().sort().build();
+		new FieldBuilder(builder, "geneExpressionAnnotation.crossReferences.referencedCurie", "text").keyword().build();
+
+		// AlleleSummaryDocument: dynamic false on deep curation API objects
+		// Only map fields actually queried in ES
+		builder.startObject("allele");
+		builder.field("dynamic", false);
+		builder.startObject("properties");
+		new FieldBuilder(builder, "primaryExternalId", "text").keyword().build();
+		builder.endObject();
+		builder.endObject();
+
+		builder.startObject("alleleOfGene");
+		builder.field("dynamic", false);
+		builder.startObject("properties");
+		new FieldBuilder(builder, "primaryExternalId", "text").keyword().build();
+		builder.endObject();
+		builder.endObject();
+
+		builder.startObject("variants");
+		builder.field("dynamic", false);
+		builder.endObject();
+
+		builder.startObject("crossReference");
+		builder.field("dynamic", false);
+		builder.endObject();
 
 	}
 
