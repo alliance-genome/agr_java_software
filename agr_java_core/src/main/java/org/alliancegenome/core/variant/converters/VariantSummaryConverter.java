@@ -1,11 +1,12 @@
 package org.alliancegenome.core.variant.converters;
 
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
@@ -36,13 +37,15 @@ import htsjdk.variant.variantcontext.VariantContext;
  */
 public class VariantSummaryConverter {
 
-	private static final Pattern VALID_ALLELES = Pattern.compile("[ACGTN\\-]+");
+	private static final Pattern PIPE_PATTERN = Pattern.compile("\\|");
 	private NCBITaxonTerm taxon;
 
 	// Header index positions (initialized once per header)
 	private String[] header;
 	private GeneDocumentCache geneCache;
-	
+	private Map<String, SOTerm> soTermCache = new ConcurrentHashMap<>();
+	private Map<String, VocabularyTerm> vocabularyTermCache = new ConcurrentHashMap<>();
+
 	private int alleleIdx = -1;
 	private int consequenceIdx = -1;
 	private int geneIdx = -1;
@@ -81,8 +84,8 @@ public class VariantSummaryConverter {
 		hgvsCIdx = findHeaderIndex(header, "HGVSc");
 		hgvsPIdx = findHeaderIndex(header, "HGVSp");
 		impactIdx = findHeaderIndex(header, "IMPACT");
-		polyphenIdx = findHeaderIndex(header, "PolyPhen");
-		siftIdx = findHeaderIndex(header, "SIFT");
+		polyphenIdx = findHeaderIndex(header, "PolyPhen_score");
+		siftIdx = findHeaderIndex(header, "SIFT_score");
 		intronIdx = findHeaderIndex(header, "INTRON");
 		exonIdx = findHeaderIndex(header, "EXON");
 		biotypeIdx = findHeaderIndex(header, "BIOTYPE");
@@ -116,34 +119,29 @@ public class VariantSummaryConverter {
 			variantType.setCurie("SO:" + typeName);
 		}
 
+		// Hoist CSQ list to a single call before the allele loop
+		List<String> csqList = ctx.getAttributeAsStringList("CSQ", "");
+
 		// Process each alternate allele in the VCF record
 		for (htsjdk.variant.variantcontext.Allele vcfAllele : ctx.getAlternateAlleles()) {
 			if (!alleleIsValid(vcfAllele.getBaseString())) {
 				continue;
 			}
-		
+
 			// Parse VEP consequences from CSQ field
-			List<PredictedVariantConsequence> consequences = getConsequences(ctx, vcfAllele.getBaseString(), speciesType);
+			Set<String> hgvsGList = new HashSet<>();
+			List<PredictedVariantConsequence> consequences = getConsequences(csqList, vcfAllele.getBaseString(), speciesType, hgvsGList);
 			if (consequences.isEmpty()) {
 				continue;
 			}
 
-			Set<String> hgvsGList = new HashSet<>();
-			for (String s : ctx.getAttributeAsStringList("CSQ", "")) {
-				String[] infos = s.split("\\|", -1);
-				if (infos.length >= 30) {
-					hgvsGList.add(infos[hgvsgIdx]);
-				}
-			}
-
 			// Get HGVS nomenclature from first consequence
 			String hgvsNomenclature = null;
-			if (!consequences.isEmpty()) {
-				PredictedVariantConsequence firstConsequence = consequences.getFirst();
-				hgvsNomenclature = firstConsequence.getHgvsProteinNomenclature();
-				if (StringUtils.isEmpty(hgvsNomenclature)) {
-					hgvsNomenclature = firstConsequence.getHgvsCodingNomenclature();
-				}
+
+			PredictedVariantConsequence firstConsequence = consequences.getFirst();
+			hgvsNomenclature = firstConsequence.getHgvsProteinNomenclature();
+			if (StringUtils.isEmpty(hgvsNomenclature)) {
+				hgvsNomenclature = firstConsequence.getHgvsCodingNomenclature();
 			}
 
 			// Create curation API Variant entity
@@ -156,7 +154,7 @@ public class VariantSummaryConverter {
 			cvgla.setVariantAssociationSubject(variant);
 			cvgla.setReferenceSequence(ctx.getReference().getBaseString());
 			cvgla.setVariantSequence(vcfAllele.getBaseString());
-			//variantLocation.getNucleotideChange();
+			// variantLocation.getNucleotideChange();
 			// Set location info
 			AssemblyComponent chromosome = new AssemblyComponent();
 			chromosome.setName(ctx.getContig());
@@ -171,8 +169,9 @@ public class VariantSummaryConverter {
 			StringBuilder variantName = new StringBuilder();
 			if (StringUtils.isNotEmpty(hgvsNomenclature)) {
 				variantName.append('(').append(speciesType.getAssembly()).append(')').append(ctx.getContig()).append(':');
-				if (hgvsNomenclature.contains(":")) {
-					variantName.append(hgvsNomenclature.split(":")[1]);
+				int colonIdx = hgvsNomenclature.indexOf(':');
+				if (colonIdx >= 0) {
+					variantName.append(hgvsNomenclature, colonIdx + 1, hgvsNomenclature.length());
 				} else {
 					variantName.append(hgvsNomenclature);
 				}
@@ -202,9 +201,9 @@ public class VariantSummaryConverter {
 			// Create curation API Allele entity
 			Allele allele = new Allele();
 			allele.setCurie(primaryKey);
-			//allele.setModInternalId(primaryKey);
+			// allele.setModInternalId(primaryKey);
 			allele.setTaxon(taxon);
-			// If we want to show 
+			// If we want to show
 
 			cvgla.setPredictedVariantConsequences(consequences);
 			// Create the document for each consequence (full flattening)
@@ -222,27 +221,36 @@ public class VariantSummaryConverter {
 	/**
 	 * Parse VEP CSQ annotations from VCF and create PredictedVariantConsequence
 	 * objects
+	 * 
+	 * @param hgvsGList
 	 */
-	private List<PredictedVariantConsequence> getConsequences(VariantContext ctx, String varNuc, SpeciesType speciesType) {
+	private List<PredictedVariantConsequence> getConsequences(List<String> csqList, String varNuc, SpeciesType speciesType, Set<String> hgvsGList) {
 
 		List<PredictedVariantConsequence> consequences = new ArrayList<>();
 		HashSet<String> alreadyAdded = new HashSet<>();
 
-		for (String s : ctx.getAttributeAsStringList("CSQ", "")) {
-			if (s.isEmpty()) {
+		for (String csq : csqList) {
+			if (csq.isEmpty()) {
 				continue;
 			}
 
-			String[] infos = s.split("\\|", -1);
+			// Pre-split allele filtering: check allele field before doing the full split
+			if (alleleIdx >= 0) {
+				String alleleField = extractField(csq, alleleIdx);
+				if (alleleField == null || !alleleField.equalsIgnoreCase(varNuc)) {
+					continue;
+				}
+			}
+
+			String[] infos = PIPE_PATTERN.split(csq, -1);
 
 			if (header.length != infos.length) {
 				// Header mismatch - skip this record
 				continue;
 			}
 
-			// Check if this annotation matches our alternate allele
-			if (alleleIdx >= 0 && !infos[alleleIdx].equalsIgnoreCase(varNuc)) {
-				continue;
+			if (!infos[hgvsgIdx].isEmpty()) {
+				hgvsGList.add(infos[hgvsgIdx]);
 			}
 
 			// Get transcript/feature ID to avoid duplicates
@@ -256,33 +264,31 @@ public class VariantSummaryConverter {
 			PredictedVariantConsequence consequence = new PredictedVariantConsequence();
 
 			// Set VEP consequence terms (list of SOTerms)
-			if (consequenceIdx >= 0 && StringUtils.isNotEmpty(infos[consequenceIdx])) {
+			if (!infos[consequenceIdx].isEmpty()) {
 				List<SOTerm> soTerms = new ArrayList<>();
 				// VEP consequences can be comma-separated
 				for (String consequenceName : infos[consequenceIdx].split(",")) {
-					SOTerm soTerm = new SOTerm();
-					soTerm.setName(consequenceName.trim());
+					SOTerm soTerm = getSOTerm(consequenceName.trim());
 					soTerms.add(soTerm);
 				}
 				consequence.setVepConsequences(soTerms);
 			}
 
 			// Set transcript info
-			if (StringUtils.isNotEmpty(infos[featureIdx])) {
+			if (!infos[featureIdx].isEmpty()) {
 				Transcript transcript = new Transcript();
 				transcript.setCurie(infos[featureIdx]);
 				transcript.setName(infos[featureIdx]);
-				SOTerm type = new SOTerm();
-				type.setName(biotypeIdx >= 0 ? infos[biotypeIdx] : "unknown");
+				SOTerm type = getSOTerm(!infos[biotypeIdx].isEmpty() ? infos[biotypeIdx] : "unknown");
 				transcript.setTranscriptType(type);
 				// Set gene info on transcript if available
-				if (geneIdx >= 0 && StringUtils.isNotEmpty(infos[geneIdx])) {
+				if (!infos[geneIdx].isEmpty()) {
 					Gene gene = new Gene();
 					gene.setCurie(infos[geneIdx]);
 					gene.setTaxon(taxon);
 
 					// Set gene symbol if available
-					if (geneSymbolIdx >= 0 && StringUtils.isNotEmpty(infos[geneSymbolIdx])) {
+					if (!infos[geneSymbolIdx].isEmpty()) {
 						GeneSymbolSlotAnnotation geneSymbol = new GeneSymbolSlotAnnotation();
 						geneSymbol.setDisplayText(infos[geneSymbolIdx]);
 						gene.setGeneSymbol(geneSymbol);
@@ -317,22 +323,13 @@ public class VariantSummaryConverter {
 			}
 
 			// Set HGVS nomenclature
-			if (hgvsCIdx >= 0 && StringUtils.isNotEmpty(infos[hgvsCIdx])) {
-				consequence.setHgvsCodingNomenclature(infos[hgvsCIdx]);
-			}
-			if (hgvsPIdx >= 0 && StringUtils.isNotEmpty(infos[hgvsPIdx])) {
-				consequence.setHgvsProteinNomenclature(infos[hgvsPIdx]);
-			}
-
-			if (intronIdx >= 0 && StringUtils.isNotEmpty(infos[intronIdx])) {
-				consequence.setIntrons(infos[intronIdx]);
-			}
-			if (exonIdx >= 0 && StringUtils.isNotEmpty(infos[exonIdx])) {
-				consequence.setExons(infos[exonIdx]);
-			}
+			consequence.setHgvsCodingNomenclature(infos[hgvsCIdx]);
+			consequence.setHgvsProteinNomenclature(infos[hgvsPIdx]);
+			consequence.setIntrons(infos[intronIdx]);
+			consequence.setExons(infos[exonIdx]);
 
 			// Set amino acids (format: "R/H" = reference/variant)
-			if (aminoAcidsIdx >= 0 && StringUtils.isNotEmpty(infos[aminoAcidsIdx])) {
+			if (!infos[aminoAcidsIdx].isEmpty()) {
 				String[] aminoAcids = infos[aminoAcidsIdx].split("/");
 				if (aminoAcids.length >= 1) {
 					consequence.setAminoAcidReference(aminoAcids[0]);
@@ -343,7 +340,7 @@ public class VariantSummaryConverter {
 			}
 
 			// Set codons (format: "cGc/cAc" = reference/variant)
-			if (codonsIdx >= 0 && StringUtils.isNotEmpty(infos[codonsIdx])) {
+			if (!infos[codonsIdx].isEmpty()) {
 				String[] codons = infos[codonsIdx].split("/");
 				if (codons.length >= 1) {
 					consequence.setCodonReference(codons[0]);
@@ -354,44 +351,59 @@ public class VariantSummaryConverter {
 			}
 
 			// Set calculated cDNA position (format: "123" or "123-125")
-			if (cdnaPosIdx >= 0 && StringUtils.isNotEmpty(infos[cdnaPosIdx])) {
+			if (!infos[cdnaPosIdx].isEmpty()) {
 				parseAndSetPosition(infos[cdnaPosIdx], consequence::setCalculatedCdnaStart, consequence::setCalculatedCdnaEnd);
 			}
 
 			// Set calculated CDS position (format: "123" or "123-125")
-			if (cdsPosIdx >= 0 && StringUtils.isNotEmpty(infos[cdsPosIdx])) {
+			if (!infos[cdsPosIdx].isEmpty()) {
 				parseAndSetPosition(infos[cdsPosIdx], consequence::setCalculatedCdsStart, consequence::setCalculatedCdsEnd);
 			}
 
 			// Set calculated protein position (format: "123" or "123-125")
-			if (proteinPosIdx >= 0 && StringUtils.isNotEmpty(infos[proteinPosIdx])) {
+			if (!infos[proteinPosIdx].isEmpty()) {
 				parseAndSetPosition(infos[proteinPosIdx], consequence::setCalculatedProteinStart, consequence::setCalculatedProteinEnd);
 			}
 
 			// Set impact
-			if (impactIdx >= 0 && StringUtils.isNotEmpty(infos[impactIdx])) {
-				VocabularyTerm impact = new VocabularyTerm();
-				impact.setName(infos[impactIdx]);
-				consequence.setVepImpact(impact);
+			if (!infos[impactIdx].isEmpty()) {
+				consequence.setVepImpact(getVocabularyTerm(infos[impactIdx]));
 			}
 
 			// Set PolyPhen prediction
-			if (polyphenIdx >= 0 && StringUtils.isNotEmpty(infos[polyphenIdx])) {
-				VocabularyTerm polyphenTerm = new VocabularyTerm();
-				polyphenTerm.setName(infos[polyphenIdx].split("\\(")[0]);
-				consequence.setPolyphenPrediction(polyphenTerm);
+			if (!infos[polyphenIdx].isEmpty()) {
+				String polyphenValue = infos[polyphenIdx];
+				int parenIdx = polyphenValue.indexOf('(');
+				consequence.setPolyphenPrediction(getVocabularyTerm(parenIdx >= 0 ? polyphenValue.substring(0, parenIdx) : polyphenValue));
 			}
 
 			// Set SIFT prediction
-			if (siftIdx >= 0 && StringUtils.isNotEmpty(infos[siftIdx])) {
-				VocabularyTerm siftTerm = new VocabularyTerm();
-				siftTerm.setName(infos[siftIdx].split("\\(")[0]);
-				consequence.setSiftPrediction(siftTerm);
+			if (!infos[siftIdx].isEmpty()) {
+				String siftValue = infos[siftIdx];
+				int parenIdx = siftValue.indexOf('(');
+				consequence.setSiftPrediction(getVocabularyTerm(parenIdx >= 0 ? siftValue.substring(0, parenIdx) : siftValue));
 			}
 
 			consequences.add(consequence);
 		}
 		return consequences;
+	}
+
+	/**
+	 * Extract a single pipe-delimited field from a CSQ line without splitting the
+	 * entire string.
+	 */
+	private static String extractField(String line, int fieldIndex) {
+		int start = 0;
+		for (int i = 0; i < fieldIndex; i++) {
+			start = line.indexOf('|', start);
+			if (start < 0) {
+				return null;
+			}
+			start++;
+		}
+		int end = line.indexOf('|', start);
+		return line.substring(start, end < 0 ? line.length() : end);
 	}
 
 	/**
@@ -406,8 +418,37 @@ public class VariantSummaryConverter {
 		return -1;
 	}
 
-	private boolean alleleIsValid(String allele) {
-		return VALID_ALLELES.matcher(allele).matches();
+	private static boolean alleleIsValid(String allele) {
+		if (allele.isEmpty()) {
+			return false;
+		}
+		for (int i = 0; i < allele.length(); i++) {
+			char c = allele.charAt(i);
+			if (c == 'A' || c == 'C' || c == 'G' || c == 'T' || c == 'N' || c == '-') {
+				continue;
+			}
+			return false;
+		}
+		return true;
+	}
+
+	private SOTerm getSOTerm(String name) {
+		if (name.isEmpty()) {
+			name = "unknown";
+		}
+		return soTermCache.computeIfAbsent(name, k -> {
+			SOTerm term = new SOTerm();
+			term.setName(k);
+			return term;
+		});
+	}
+
+	private VocabularyTerm getVocabularyTerm(String name) {
+		return vocabularyTermCache.computeIfAbsent(name, k -> {
+			VocabularyTerm term = new VocabularyTerm();
+			term.setName(k);
+			return term;
+		});
 	}
 
 	/**
@@ -416,13 +457,13 @@ public class VariantSummaryConverter {
 	 */
 	private void parseAndSetPosition(String position, Consumer<Integer> startSetter, Consumer<Integer> endSetter) {
 		try {
-			if (position.contains("-")) {
-				String[] parts = position.split("-");
-				if (parts.length >= 1 && !parts[0].isEmpty()) {
-					startSetter.accept(Integer.parseInt(parts[0]));
+			int dashIdx = position.indexOf('-');
+			if (dashIdx >= 0) {
+				if (dashIdx > 0) {
+					startSetter.accept(Integer.parseInt(position.substring(0, dashIdx)));
 				}
-				if (parts.length >= 2 && !parts[1].isEmpty()) {
-					endSetter.accept(Integer.parseInt(parts[1]));
+				if (dashIdx + 1 < position.length()) {
+					endSetter.accept(Integer.parseInt(position.substring(dashIdx + 1)));
 				}
 			} else {
 				// Single position - set both start and end to same value

@@ -26,7 +26,7 @@ import htsjdk.variant.variantcontext.VariantContext;
 
 public class AlleleVariantSequenceConverter {
 
-	private static Pattern validAlleles = Pattern.compile("[ACGTN\\-]+");
+	private static final Pattern PIPE_PATTERN = Pattern.compile("\\|");
 	private Species species;
 	private String[] header;
 	private GeneDocumentCache geneCache;
@@ -39,7 +39,7 @@ public class AlleleVariantSequenceConverter {
 	public List<AlleleVariantSequence> convertContextToAlleleVariantSequence(VariantContext ctx, SpeciesType speciesType) throws Exception {
 		List<AlleleVariantSequence> returnDocuments = new ArrayList<>();
 
-		//htsjdk.variant.variantcontext.Allele refNuc = ctx.getReference();
+		// htsjdk.variant.variantcontext.Allele refNuc = ctx.getReference();
 
 		if (species == null) {
 			species = new Species();
@@ -59,11 +59,13 @@ public class AlleleVariantSequenceConverter {
 			}
 		}
 
-
 		GenomeLocation location = new GenomeLocation();
 		location.setStart((long) ctx.getStart());
 		location.setEnd((long) ctx.getEnd());
 		location.setChromosome(ctx.getContig());
+
+		// Hoist CSQ list to a single call before the allele loop
+		List<String> csqList = ctx.getAttributeAsStringList("CSQ", "");
 
 		for (htsjdk.variant.variantcontext.Allele vcfAllele : ctx.getAlternateAlleles()) {
 			Allele agrAllele = new Allele(null, GeneticEntity.CrossReferenceType.VARIANT);
@@ -83,19 +85,17 @@ public class AlleleVariantSequenceConverter {
 //			}
 
 			if (!alleleIsValid(vcfAllele.getBaseString())) {
-				//System.out.println(" *** 2. Var Nucleotides must be A,C,G,T,N: " + vcfAllele.getBaseString());
+				// System.out.println(" *** 2. Var Nucleotides must be A,C,G,T,N: " +
+				// vcfAllele.getBaseString());
 				continue;
 			}
 
-			List<TranscriptLevelConsequence> htpConsequences = getConsequences(ctx, vcfAllele.getBaseString(), species);
-			if (htpConsequences.size() == 0) {
+			List<TranscriptLevelConsequence> htpConsequences = getConsequences(csqList, vcfAllele.getBaseString(), species);
+			if (htpConsequences.isEmpty()) {
 				continue;
 			}
 
-			String hgvsNomenclature = htpConsequences.stream()
-					.findFirst()
-					.map(TranscriptLevelConsequence::getHgvsVEPGeneNomenclature)
-					.orElse(null);
+			String hgvsNomenclature = htpConsequences.getFirst().getHgvsVEPGeneNomenclature();
 
 			variant.setGenomicReferenceSequence(ctx.getReference().getBaseString());
 			variant.setGenomicVariantSequence(vcfAllele.getBaseString());
@@ -110,15 +110,15 @@ public class AlleleVariantSequenceConverter {
 			Set<String> genes = new HashSet<>();
 			Set<String> geneIds = new HashSet<>();
 
-
 			StringBuilder variantName = new StringBuilder();
 			if (StringUtils.isNotEmpty(hgvsNomenclature)) {
-				variantName.append('(')
-						.append(speciesType.getAssembly())
-						.append(')')
-						.append(ctx.getContig())
-						.append(':')
-						.append(hgvsNomenclature.split(":")[1].substring(2));
+				int colonIdx = hgvsNomenclature.indexOf(':');
+				variantName.append('(').append(speciesType.getAssembly()).append(')').append(ctx.getContig()).append(':');
+				if (colonIdx >= 0) {
+					variantName.append(hgvsNomenclature, colonIdx + 3, hgvsNomenclature.length());
+				} else {
+					variantName.append(hgvsNomenclature);
+				}
 			}
 			variant.setName(variantName.toString());
 			variant.setHgvsNomenclature(hgvsNomenclature);
@@ -132,7 +132,7 @@ public class AlleleVariantSequenceConverter {
 				variant.setPrimaryKey(ctxId);
 
 			} else {
-				//	  if (hgvsNomenclature != null && hgvsNomenclature.length()<512) {
+				// if (hgvsNomenclature != null && hgvsNomenclature.length()<512) {
 				if (hgvsNomenclature != null && hgvsNomenclature.length() < 100) {
 					variant.setPrimaryKey(hgvsNomenclature);
 					avsDoc.setPrimaryKey(hgvsNomenclature);
@@ -149,41 +149,35 @@ public class AlleleVariantSequenceConverter {
 
 			boolean firstTranscript = true;
 
-			if (htpConsequences != null) {
-				for (TranscriptLevelConsequence consequence : htpConsequences) {
-					Gene consequenceGene = consequence.getAssociatedGene();
+			for (TranscriptLevelConsequence consequence : htpConsequences) {
+				Gene consequenceGene = consequence.getAssociatedGene();
 
-					String transcriptID = consequence.getTranscript().getPrimaryKey();
+				String transcriptID = consequence.getTranscript().getPrimaryKey();
 
-					if (!transcriptsProcessed.contains(transcriptID)) {
-						transcriptsProcessed.add(transcriptID);
+				if (!transcriptsProcessed.contains(transcriptID)) {
+					transcriptsProcessed.add(transcriptID);
 
-						if (firstTranscript) {
-							if (consequenceGene != null) {
-								if (variant.getGene() == null) {
-									variant.setGene(consequenceGene);
-								}
-								if (geneCache != null) {
-									geneSynonymSet = geneCache.getSynonyms().get(consequenceGene.getPrimaryKey());
-									geneCrossReferencesSet = geneCache.getCrossReferences().get(consequenceGene.getPrimaryKey());
-								}
-								firstTranscript = false;
+					if (firstTranscript) {
+						if (consequenceGene != null) {
+							if (variant.getGene() == null) {
+								variant.setGene(consequenceGene);
 							}
+							if (geneCache != null) {
+								geneSynonymSet = geneCache.getSynonyms().get(consequenceGene.getPrimaryKey());
+								geneCrossReferencesSet = geneCache.getCrossReferences().get(consequenceGene.getPrimaryKey());
+							}
+							firstTranscript = false;
 						}
+					}
 
-						molecularConsequences.addAll(consequence.getMolecularConsequences());
-						geneLevelConsequences.add(consequence.getGeneLevelConsequence());
-						if (consequenceGene != null && StringUtils.isNotEmpty(consequenceGene.getSymbol())) {
-							// This is faster than calling getNakeKey on the gene
-							StringBuffer buffer = new StringBuffer();
-							buffer.append(consequenceGene.getSymbol());
-							buffer.append(" (");
-							buffer.append(speciesType.getAbbreviation());
-							buffer.append(")");
-							genes.add(buffer.toString());
-							geneIds.add(consequenceGene.getPrimaryKey());
+					molecularConsequences.addAll(consequence.getMolecularConsequences());
+					geneLevelConsequences.add(consequence.getGeneLevelConsequence());
+					if (consequenceGene != null && StringUtils.isNotEmpty(consequenceGene.getSymbol())) {
+						StringBuilder buffer = new StringBuilder();
+						buffer.append(consequenceGene.getSymbol()).append(" (").append(speciesType.getAbbreviation()).append(')');
+						genes.add(buffer.toString());
+						geneIds.add(consequenceGene.getPrimaryKey());
 
-						}
 					}
 				}
 			}
@@ -203,54 +197,71 @@ public class AlleleVariantSequenceConverter {
 			avsDoc.setSpecies(species.getName());
 			avsDoc.setChromosome(ctx.getContig());
 			// TODO remove for HTP neo4j migration
-			//avsDoc.setVariantType(Collections.singleton(variantType.getName()));
+			// avsDoc.setVariantType(Collections.singleton(variantType.getName()));
 			avsDoc.setAllele(agrAllele);
 			returnDocuments.add(avsDoc);
 		}
 
-
 		return returnDocuments;
 	}
 
-	private List<TranscriptLevelConsequence> getConsequences(VariantContext ctx, String varNuc, Species species) throws Exception {
+	private List<TranscriptLevelConsequence> getConsequences(List<String> csqList, String varNuc, Species species) throws Exception {
 		List<TranscriptLevelConsequence> features = new ArrayList<>();
 		HashSet<String> alreadyAdded = new HashSet<>();
 
-		for (String s : ctx.getAttributeAsStringList("CSQ", "")) {
-			if (s.length() > 0) {
-				String[] infos = s.split("\\|", -1);
+		for (String csq : csqList) {
+			if (csq.isEmpty()) {
+				continue;
+			}
 
-				if (header.length == infos.length) {
-					if (infos[0].equalsIgnoreCase(varNuc)) {
+			// Pre-split allele filtering: check allele field (index 0) before doing the
+			// full split
+			int firstPipe = csq.indexOf('|');
+			String alleleField = firstPipe >= 0 ? csq.substring(0, firstPipe) : csq;
+			if (!alleleField.equalsIgnoreCase(varNuc)) {
+				continue;
+			}
 
-						TranscriptLevelConsequence feature = new TranscriptLevelConsequence(header, infos, geneCache, species);
+			String[] infos = PIPE_PATTERN.split(csq, -1);
 
-						Transcript transcript = feature.getTranscript();
-						
-						if (transcript != null) {
-							String transcriptID = transcript.getPrimaryKey();
-							if (!alreadyAdded.contains(transcriptID)) {
-								features.add(feature);
-								alreadyAdded.add(transcriptID);
-							}
-						}
+			if (header.length == infos.length) {
+				TranscriptLevelConsequence feature = new TranscriptLevelConsequence(header, infos, geneCache, species);
+
+				Transcript transcript = feature.getTranscript();
+
+				if (transcript != null) {
+					String transcriptID = transcript.getPrimaryKey();
+					if (!alreadyAdded.contains(transcriptID)) {
+						features.add(feature);
+						alreadyAdded.add(transcriptID);
 					}
-				} else {
-					String message = "Diff: " + header.length + " " + infos.length;
-					message += "\r" + String.join("|", Arrays.asList(header));
-					message += "\r" + String.join("|", Arrays.asList(infos));
-					// throw new RuntimeException("CSQ header is not matching the line " + message);
-					// This has got to fail ... there is something not right with the files.
-					// The code is mis matched with the files. Or the files are old files and need to be deleted / updated
-					System.exit(-1);
 				}
+			} else {
+				String message = "Diff: " + header.length + " " + infos.length;
+				message += "\r" + String.join("|", Arrays.asList(header));
+				message += "\r" + String.join("|", Arrays.asList(infos));
+				// throw new RuntimeException("CSQ header is not matching the line " + message);
+				// This has got to fail ... there is something not right with the files.
+				// The code is mis matched with the files. Or the files are old files and need
+				// to be deleted / updated
+				System.exit(-1);
 			}
 		}
 		return features;
 	}
 
-	private boolean alleleIsValid(String allele) {
-		return validAlleles.matcher(allele).matches();
+	private static boolean alleleIsValid(String allele) {
+		if (allele.isEmpty()) {
+			return false;
+		}
+		for (int i = 0; i < allele.length(); i++) {
+			char c = allele.charAt(i);
+			if (c == 'A' || c == 'C' || c == 'G' || c == 'T' || c == 'N' || c == '-') {
+				continue;
+			}
+			return false;
+		}
+		return true;
 	}
 
 }

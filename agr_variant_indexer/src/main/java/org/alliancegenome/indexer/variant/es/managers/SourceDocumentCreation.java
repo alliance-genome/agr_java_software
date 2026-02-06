@@ -19,7 +19,6 @@ import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.es.util.EsClientFactory;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
@@ -31,6 +30,7 @@ import org.elasticsearch.xcontent.XContentType;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 
 import htsjdk.samtools.util.CloseableIterator;
 import htsjdk.variant.variantcontext.VariantContext;
@@ -536,15 +536,20 @@ public class SourceDocumentCreation extends Thread {
 
 	private class JSONProducer extends Thread {
 
-		private final ObjectMapper mapper = new ObjectMapper();
+		private ObjectMapper mapper = new ObjectMapper();
+		private ObjectWriter cachedWriter;
 
-		//private SummaryStatistics stats = new SummaryStatistics();
-		private DescriptiveStatistics stats = new DescriptiveStatistics(100000);
+		// Welford's online algorithm state for mean, variance, and skewness
+		private long n;
+		private double mean;
+		private double m2; // second central moment (for variance/SD)
+		private double m3; // third central moment (for skewness)
 
 		@Override
 		public void run() {
 			mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 			mapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false);
+			cachedWriter = mapper.writerWithView(CurationView.VariantDocument.class);
 			while (!(Thread.currentThread().isInterrupted())) {
 				try {
 					List<ESDocument> docList = objectQueue.take();
@@ -563,23 +568,32 @@ public class SourceDocumentCreation extends Thread {
 							try {
 								String jsonDoc = null;
 								if (doc instanceof VariantSummaryDocument vsd) {
-									jsonDoc = mapper.writerWithView(CurationView.VariantDocument.class).writeValueAsString(vsd);
+									jsonDoc = cachedWriter.writeValueAsString(vsd);
 								} else if (doc instanceof AlleleVariantSequence avs) {
-									jsonDoc = mapper.writerWithView(CurationView.VariantDocument.class).writeValueAsString(avs);
+									jsonDoc = cachedWriter.writeValueAsString(avs);
 
 								} else {
 									// This should never happen
 								}
+
 								int len = jsonDoc.length();
-								stats.addValue(len);
 
-								double skew = stats.getSkewness();
-								double sd = stats.getStandardDeviation();
+								// Welford's online update for mean, M2, M3
+								// This code distributes the document via size over the 8
+								// queues so that each bulk processor works with same sized docs
+								n++;
+								double delta = len - mean;
+								double deltaN = delta / n;
+								double term1 = delta * deltaN * (n - 1);
+								mean += deltaN;
+								m3 += term1 * deltaN * (n - 2) - 3 * deltaN * m2;
+								m2 += term1;
 
-								int lowerWidth = (int) (sd / skew);
+								double sd = n > 1 ? Math.sqrt(m2 / (n - 1)) : 0.0;
+								double skew = (n > 2 && m2 > 0) ? (Math.sqrt(n) * m3 / Math.pow(m2, 1.5)) : 0.0;
+
+								int lowerWidth = skew != 0.0 ? (int) (sd / skew) : (int) sd;
 								int upperWidth = (int) sd;
-
-								double mean = stats.getMean();
 
 								int t1 = (int) (mean - (1.5 * lowerWidth));
 								int t2 = (int) (mean - (1.0 * lowerWidth));
@@ -615,17 +629,19 @@ public class SourceDocumentCreation extends Thread {
 									jqs[7][2] += len;
 								}
 
-								ph5.progressProcess("M: " + (int) mean + " SD: " + (int) sd + " SK: " + skew
-									//+ " lw: " + lowerWidth + " uw: " + upperWidth + " t1: " + t1 + " t2: " + t2 + " t3: " + t3 + " t4: " + t4 + " t5: " + t5 + " t6: " + t6 + " t7: " + t7
-									+ " jsonQueue1(" + jqs[0][0] + "," + jqs[0][1] + "," + jqs[0][2] + "): " + jsonQueue1.size()
-									+ " jsonQueue2(" + jqs[1][0] + "," + jqs[1][1] + "," + jqs[1][2] + "): " + jsonQueue2.size()
-									+ " jsonQueue3(" + jqs[2][0] + "," + jqs[2][1] + "," + jqs[2][2] + "): " + jsonQueue3.size()
-									+ " jsonQueue4(" + jqs[3][0] + "," + jqs[3][1] + "," + jqs[3][2] + "): " + jsonQueue4.size()
-									+ " jsonQueue5(" + jqs[4][0] + "," + jqs[4][1] + "," + jqs[4][2] + "): " + jsonQueue5.size()
-									+ " jsonQueue6(" + jqs[5][0] + "," + jqs[5][1] + "," + jqs[5][2] + "): " + jsonQueue6.size()
-									+ " jsonQueue7(" + jqs[6][0] + "," + jqs[6][1] + "," + jqs[6][2] + "): " + jsonQueue7.size()
-									+ " jsonQueue8(" + jqs[7][0] + "," + jqs[7][1] + "," + jqs[7][2] + "): " + jsonQueue8.size()
-								);
+								// Left here for debugging purposes
+//								ph5.progressProcess("M: " + (int) mean + " SD: " + (int) sd + " SK: " + skew
+//									//+ " lw: " + lowerWidth + " uw: " + upperWidth + " t1: " + t1 + " t2: " + t2 + " t3: " + t3 + " t4: " + t4 + " t5: " + t5 + " t6: " + t6 + " t7: " + t7
+//									+ " jsonQueue1(" + jqs[0][0] + "," + jqs[0][1] + "," + jqs[0][2] + "): " + jsonQueue1.size()
+//									+ " jsonQueue2(" + jqs[1][0] + "," + jqs[1][1] + "," + jqs[1][2] + "): " + jsonQueue2.size()
+//									+ " jsonQueue3(" + jqs[2][0] + "," + jqs[2][1] + "," + jqs[2][2] + "): " + jsonQueue3.size()
+//									+ " jsonQueue4(" + jqs[3][0] + "," + jqs[3][1] + "," + jqs[3][2] + "): " + jsonQueue4.size()
+//									+ " jsonQueue5(" + jqs[4][0] + "," + jqs[4][1] + "," + jqs[4][2] + "): " + jsonQueue5.size()
+//									+ " jsonQueue6(" + jqs[5][0] + "," + jqs[5][1] + "," + jqs[5][2] + "): " + jsonQueue6.size()
+//									+ " jsonQueue7(" + jqs[6][0] + "," + jqs[6][1] + "," + jqs[6][2] + "): " + jsonQueue7.size()
+//									+ " jsonQueue8(" + jqs[7][0] + "," + jqs[7][1] + "," + jqs[7][2] + "): " + jsonQueue8.size()
+//								);
+								ph5.progressProcess();
 
 							} catch (Exception e) {
 								e.printStackTrace();
