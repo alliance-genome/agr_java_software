@@ -21,23 +21,38 @@ public class VariantMapping extends Mapping {
 			new FieldBuilder(builder, "associatedPhenotype", "text").keyword().sort().build();
 			new FieldBuilder(builder, "diseaseTerms.name", "text").keyword().sort().build();
 
+			// allele: dynamic false prevents indexing the deep curation API Allele tree
+			// Only map fields actually queried in ES
 			builder.startObject("allele");
+			builder.field("dynamic", false);
 			builder.startObject("properties");
-			builder.startObject("variants");
+			// VariantSummaryDocument: queried via MatchQuery on allele.primaryExternalId
+			new FieldBuilder(builder, "primaryExternalId", "text").keyword().build();
+			builder.endObject();
+			builder.endObject();
+
+			// variant: dynamic false prevents indexing the deep variant association tree
+			// Only map fields actually queried in ES
+			builder.startObject("variant");
+			builder.field("dynamic", false);
 			builder.startObject("properties");
-			builder.startObject("transcriptLevelConsequence");
+			// VariantSummaryDocument: queried via TermQuery on variant.hgvs.keyword
+			new FieldBuilder(builder, "hgvs", "text").keyword().build();
+			// AlleleVariantSequence: queried via TermQuery on variant.gene.id.keyword
+			builder.startObject("gene");
 			builder.startObject("properties");
-			new FieldBuilder(builder, "cdsStartPosition", "long").notIndexed().build();
-			new FieldBuilder(builder, "cdnaStartPosition", "long").notIndexed().build();
-			new FieldBuilder(builder, "proteinStartPosition", "long").notIndexed().build();
-			new FieldBuilder(builder, "siftScore", "double").notIndexed().build();
-			new FieldBuilder(builder, "polyphenScore", "double").notIndexed().build();
+			new FieldBuilder(builder, "id", "text").keyword().build();
+			builder.endObject();
+			builder.endObject();
+			// AlleleVariantSequence: aggregation on variant.variantType.name.keyword
+			builder.startObject("variantType");
+			builder.startObject("properties");
+			new FieldBuilder(builder, "name", "text").keyword().build();
 			builder.endObject();
 			builder.endObject();
 			builder.endObject();
 			builder.endObject();
-			builder.endObject();
-			builder.endObject();
+
 			builder.endObject();
 			builder.endObject();
 		} catch (IOException e) {
