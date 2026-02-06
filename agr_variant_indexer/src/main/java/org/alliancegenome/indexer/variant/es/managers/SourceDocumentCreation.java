@@ -540,10 +540,10 @@ public class SourceDocumentCreation extends Thread {
 		private ObjectWriter cachedWriter;
 
 		// Welford's online algorithm state for mean, variance, and skewness
-		private long n = 0;
-		private double mean = 0.0;
-		private double m2 = 0.0;   // second central moment (for variance/SD)
-		private double m3 = 0.0;   // third central moment (for skewness)
+		private long n;
+		private double mean;
+		private double m2;   // second central moment (for variance/SD)
+		private double m3;   // third central moment (for skewness)
 
 		@Override
 		public void run() {
