@@ -1,6 +1,5 @@
 package org.alliancegenome.core.variant.converters;
 
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -45,7 +44,7 @@ public class VariantSummaryConverter {
 	private String[] header;
 	private GeneDocumentCache geneCache;
 	private Map<String, SOTerm> soTermCache = new HashMap<>();
-	
+
 	private int alleleIdx = -1;
 	private int consequenceIdx = -1;
 	private int geneIdx = -1;
@@ -124,7 +123,7 @@ public class VariantSummaryConverter {
 			if (!alleleIsValid(vcfAllele.getBaseString())) {
 				continue;
 			}
-		
+
 			// Parse VEP consequences from CSQ field
 			List<PredictedVariantConsequence> consequences = getConsequences(ctx, vcfAllele.getBaseString(), speciesType);
 			if (consequences.isEmpty()) {
@@ -148,7 +147,6 @@ public class VariantSummaryConverter {
 				hgvsNomenclature = firstConsequence.getHgvsCodingNomenclature();
 			}
 
-
 			// Create curation API Variant entity
 			Variant variant = new Variant();
 			variant.setVariantType(variantType);
@@ -159,7 +157,7 @@ public class VariantSummaryConverter {
 			cvgla.setVariantAssociationSubject(variant);
 			cvgla.setReferenceSequence(ctx.getReference().getBaseString());
 			cvgla.setVariantSequence(vcfAllele.getBaseString());
-			//variantLocation.getNucleotideChange();
+			// variantLocation.getNucleotideChange();
 			// Set location info
 			AssemblyComponent chromosome = new AssemblyComponent();
 			chromosome.setName(ctx.getContig());
@@ -205,9 +203,9 @@ public class VariantSummaryConverter {
 			// Create curation API Allele entity
 			Allele allele = new Allele();
 			allele.setCurie(primaryKey);
-			//allele.setModInternalId(primaryKey);
+			// allele.setModInternalId(primaryKey);
 			allele.setTaxon(taxon);
-			// If we want to show 
+			// If we want to show
 
 			cvgla.setPredictedVariantConsequences(consequences);
 			// Create the document for each consequence (full flattening)
@@ -395,13 +393,13 @@ public class VariantSummaryConverter {
 	private boolean alleleIsValid(String allele) {
 		return VALID_ALLELES.matcher(allele).matches();
 	}
-	
+
 	private SOTerm getSOTerm(String name) {
-		if(name.isEmpty()) {
+		if (name.isEmpty()) {
 			name = "unknown";
 		}
 		SOTerm term = soTermCache.get(name);
-		if(term == null) {
+		if (term == null) {
 			term = new SOTerm();
 			term.setName(name);
 			soTermCache.put(name, term);
@@ -417,7 +415,7 @@ public class VariantSummaryConverter {
 	 */
 	private void parseAndSetPosition(String position, Consumer<Integer> startSetter, Consumer<Integer> endSetter) {
 		try {
-			if(position.length() > 0) {
+			if (position.length() > 0) {
 				if (position.contains("-")) {
 					String[] parts = position.split("-");
 					if (parts.length >= 1 && !parts[0].isEmpty()) {
