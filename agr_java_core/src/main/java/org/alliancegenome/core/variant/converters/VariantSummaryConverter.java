@@ -2,8 +2,10 @@ package org.alliancegenome.core.variant.converters;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -42,6 +44,7 @@ public class VariantSummaryConverter {
 	// Header index positions (initialized once per header)
 	private String[] header;
 	private GeneDocumentCache geneCache;
+	private Map<String, SOTerm> soTermCache = new HashMap<>();
 	
 	private int alleleIdx = -1;
 	private int consequenceIdx = -1;
@@ -81,8 +84,8 @@ public class VariantSummaryConverter {
 		hgvsCIdx = findHeaderIndex(header, "HGVSc");
 		hgvsPIdx = findHeaderIndex(header, "HGVSp");
 		impactIdx = findHeaderIndex(header, "IMPACT");
-		polyphenIdx = findHeaderIndex(header, "PolyPhen");
-		siftIdx = findHeaderIndex(header, "SIFT");
+		polyphenIdx = findHeaderIndex(header, "PolyPhen_score");
+		siftIdx = findHeaderIndex(header, "SIFT_score");
 		intronIdx = findHeaderIndex(header, "INTRON");
 		exonIdx = findHeaderIndex(header, "EXON");
 		biotypeIdx = findHeaderIndex(header, "BIOTYPE");
@@ -138,13 +141,13 @@ public class VariantSummaryConverter {
 
 			// Get HGVS nomenclature from first consequence
 			String hgvsNomenclature = null;
-			if (!consequences.isEmpty()) {
-				PredictedVariantConsequence firstConsequence = consequences.getFirst();
-				hgvsNomenclature = firstConsequence.getHgvsProteinNomenclature();
-				if (StringUtils.isEmpty(hgvsNomenclature)) {
-					hgvsNomenclature = firstConsequence.getHgvsCodingNomenclature();
-				}
+
+			PredictedVariantConsequence firstConsequence = consequences.getFirst();
+			hgvsNomenclature = firstConsequence.getHgvsProteinNomenclature();
+			if (StringUtils.isEmpty(hgvsNomenclature)) {
+				hgvsNomenclature = firstConsequence.getHgvsCodingNomenclature();
 			}
+
 
 			// Create curation API Variant entity
 			Variant variant = new Variant();
@@ -256,33 +259,31 @@ public class VariantSummaryConverter {
 			PredictedVariantConsequence consequence = new PredictedVariantConsequence();
 
 			// Set VEP consequence terms (list of SOTerms)
-			if (consequenceIdx >= 0 && StringUtils.isNotEmpty(infos[consequenceIdx])) {
+			if (!infos[consequenceIdx].isEmpty()) {
 				List<SOTerm> soTerms = new ArrayList<>();
 				// VEP consequences can be comma-separated
 				for (String consequenceName : infos[consequenceIdx].split(",")) {
-					SOTerm soTerm = new SOTerm();
-					soTerm.setName(consequenceName.trim());
+					SOTerm soTerm = getSOTerm(consequenceName.trim());
 					soTerms.add(soTerm);
 				}
 				consequence.setVepConsequences(soTerms);
 			}
 
 			// Set transcript info
-			if (StringUtils.isNotEmpty(infos[featureIdx])) {
+			if (!infos[featureIdx].isEmpty()) {
 				Transcript transcript = new Transcript();
 				transcript.setCurie(infos[featureIdx]);
 				transcript.setName(infos[featureIdx]);
-				SOTerm type = new SOTerm();
-				type.setName(biotypeIdx >= 0 ? infos[biotypeIdx] : "unknown");
+				SOTerm type = getSOTerm(!infos[biotypeIdx].isEmpty() ? infos[biotypeIdx] : "unknown");
 				transcript.setTranscriptType(type);
 				// Set gene info on transcript if available
-				if (geneIdx >= 0 && StringUtils.isNotEmpty(infos[geneIdx])) {
+				if (!infos[geneIdx].isEmpty()) {
 					Gene gene = new Gene();
 					gene.setCurie(infos[geneIdx]);
 					gene.setTaxon(taxon);
 
 					// Set gene symbol if available
-					if (geneSymbolIdx >= 0 && StringUtils.isNotEmpty(infos[geneSymbolIdx])) {
+					if (!infos[geneSymbolIdx].isEmpty()) {
 						GeneSymbolSlotAnnotation geneSymbol = new GeneSymbolSlotAnnotation();
 						geneSymbol.setDisplayText(infos[geneSymbolIdx]);
 						gene.setGeneSymbol(geneSymbol);
@@ -317,22 +318,13 @@ public class VariantSummaryConverter {
 			}
 
 			// Set HGVS nomenclature
-			if (hgvsCIdx >= 0 && StringUtils.isNotEmpty(infos[hgvsCIdx])) {
-				consequence.setHgvsCodingNomenclature(infos[hgvsCIdx]);
-			}
-			if (hgvsPIdx >= 0 && StringUtils.isNotEmpty(infos[hgvsPIdx])) {
-				consequence.setHgvsProteinNomenclature(infos[hgvsPIdx]);
-			}
-
-			if (intronIdx >= 0 && StringUtils.isNotEmpty(infos[intronIdx])) {
-				consequence.setIntrons(infos[intronIdx]);
-			}
-			if (exonIdx >= 0 && StringUtils.isNotEmpty(infos[exonIdx])) {
-				consequence.setExons(infos[exonIdx]);
-			}
+			consequence.setHgvsCodingNomenclature(infos[hgvsCIdx]);
+			consequence.setHgvsProteinNomenclature(infos[hgvsPIdx]);
+			consequence.setIntrons(infos[intronIdx]);
+			consequence.setExons(infos[exonIdx]);
 
 			// Set amino acids (format: "R/H" = reference/variant)
-			if (aminoAcidsIdx >= 0 && StringUtils.isNotEmpty(infos[aminoAcidsIdx])) {
+			if (!infos[aminoAcidsIdx].isEmpty()) {
 				String[] aminoAcids = infos[aminoAcidsIdx].split("/");
 				if (aminoAcids.length >= 1) {
 					consequence.setAminoAcidReference(aminoAcids[0]);
@@ -343,7 +335,7 @@ public class VariantSummaryConverter {
 			}
 
 			// Set codons (format: "cGc/cAc" = reference/variant)
-			if (codonsIdx >= 0 && StringUtils.isNotEmpty(infos[codonsIdx])) {
+			if (!infos[codonsIdx].isEmpty()) {
 				String[] codons = infos[codonsIdx].split("/");
 				if (codons.length >= 1) {
 					consequence.setCodonReference(codons[0]);
@@ -354,36 +346,30 @@ public class VariantSummaryConverter {
 			}
 
 			// Set calculated cDNA position (format: "123" or "123-125")
-			if (cdnaPosIdx >= 0 && StringUtils.isNotEmpty(infos[cdnaPosIdx])) {
-				parseAndSetPosition(infos[cdnaPosIdx], consequence::setCalculatedCdnaStart, consequence::setCalculatedCdnaEnd);
-			}
+			parseAndSetPosition(infos[cdnaPosIdx], consequence::setCalculatedCdnaStart, consequence::setCalculatedCdnaEnd);
 
 			// Set calculated CDS position (format: "123" or "123-125")
-			if (cdsPosIdx >= 0 && StringUtils.isNotEmpty(infos[cdsPosIdx])) {
-				parseAndSetPosition(infos[cdsPosIdx], consequence::setCalculatedCdsStart, consequence::setCalculatedCdsEnd);
-			}
+			parseAndSetPosition(infos[cdsPosIdx], consequence::setCalculatedCdsStart, consequence::setCalculatedCdsEnd);
 
 			// Set calculated protein position (format: "123" or "123-125")
-			if (proteinPosIdx >= 0 && StringUtils.isNotEmpty(infos[proteinPosIdx])) {
-				parseAndSetPosition(infos[proteinPosIdx], consequence::setCalculatedProteinStart, consequence::setCalculatedProteinEnd);
-			}
+			parseAndSetPosition(infos[proteinPosIdx], consequence::setCalculatedProteinStart, consequence::setCalculatedProteinEnd);
 
 			// Set impact
-			if (impactIdx >= 0 && StringUtils.isNotEmpty(infos[impactIdx])) {
+			if (!infos[impactIdx].isEmpty()) {
 				VocabularyTerm impact = new VocabularyTerm();
 				impact.setName(infos[impactIdx]);
 				consequence.setVepImpact(impact);
 			}
 
 			// Set PolyPhen prediction
-			if (polyphenIdx >= 0 && StringUtils.isNotEmpty(infos[polyphenIdx])) {
+			if (!infos[polyphenIdx].isEmpty()) {
 				VocabularyTerm polyphenTerm = new VocabularyTerm();
 				polyphenTerm.setName(infos[polyphenIdx].split("\\(")[0]);
 				consequence.setPolyphenPrediction(polyphenTerm);
 			}
 
 			// Set SIFT prediction
-			if (siftIdx >= 0 && StringUtils.isNotEmpty(infos[siftIdx])) {
+			if (!infos[siftIdx].isEmpty()) {
 				VocabularyTerm siftTerm = new VocabularyTerm();
 				siftTerm.setName(infos[siftIdx].split("\\(")[0]);
 				consequence.setSiftPrediction(siftTerm);
@@ -409,6 +395,21 @@ public class VariantSummaryConverter {
 	private boolean alleleIsValid(String allele) {
 		return VALID_ALLELES.matcher(allele).matches();
 	}
+	
+	private SOTerm getSOTerm(String name) {
+		if(name.isEmpty()) {
+			name = "unknown";
+		}
+		SOTerm term = soTermCache.get(name);
+		if(term == null) {
+			term = new SOTerm();
+			term.setName(name);
+			soTermCache.put(name, term);
+			return term;
+		} else {
+			return term;
+		}
+	}
 
 	/**
 	 * Parse VEP position field (format: "123" or "123-125") and set start/end
@@ -416,19 +417,21 @@ public class VariantSummaryConverter {
 	 */
 	private void parseAndSetPosition(String position, Consumer<Integer> startSetter, Consumer<Integer> endSetter) {
 		try {
-			if (position.contains("-")) {
-				String[] parts = position.split("-");
-				if (parts.length >= 1 && !parts[0].isEmpty()) {
-					startSetter.accept(Integer.parseInt(parts[0]));
+			if(position.length() > 0) {
+				if (position.contains("-")) {
+					String[] parts = position.split("-");
+					if (parts.length >= 1 && !parts[0].isEmpty()) {
+						startSetter.accept(Integer.parseInt(parts[0]));
+					}
+					if (parts.length >= 2 && !parts[1].isEmpty()) {
+						endSetter.accept(Integer.parseInt(parts[1]));
+					}
+				} else {
+					// Single position - set both start and end to same value
+					int pos = Integer.parseInt(position);
+					startSetter.accept(pos);
+					endSetter.accept(pos);
 				}
-				if (parts.length >= 2 && !parts[1].isEmpty()) {
-					endSetter.accept(Integer.parseInt(parts[1]));
-				}
-			} else {
-				// Single position - set both start and end to same value
-				int pos = Integer.parseInt(position);
-				startSetter.accept(pos);
-				endSetter.accept(pos);
 			}
 		} catch (NumberFormatException e) {
 			// Ignore invalid position values (e.g., "?" or "-")
