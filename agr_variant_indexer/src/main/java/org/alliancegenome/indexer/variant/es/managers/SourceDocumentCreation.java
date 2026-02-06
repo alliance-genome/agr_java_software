@@ -31,6 +31,7 @@ import org.elasticsearch.xcontent.XContentType;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 
 import htsjdk.samtools.util.CloseableIterator;
 import htsjdk.variant.variantcontext.VariantContext;
@@ -536,7 +537,8 @@ public class SourceDocumentCreation extends Thread {
 
 	private class JSONProducer extends Thread {
 
-		private final ObjectMapper mapper = new ObjectMapper();
+		private ObjectMapper mapper = new ObjectMapper();
+		private ObjectWriter cachedWriter;
 
 		//private SummaryStatistics stats = new SummaryStatistics();
 		private DescriptiveStatistics stats = new DescriptiveStatistics(100000);
@@ -545,6 +547,7 @@ public class SourceDocumentCreation extends Thread {
 		public void run() {
 			mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 			mapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false);
+			cachedWriter = mapper.writerWithView(CurationView.VariantDocument.class);
 			while (!(Thread.currentThread().isInterrupted())) {
 				try {
 					List<ESDocument> docList = objectQueue.take();
@@ -563,9 +566,9 @@ public class SourceDocumentCreation extends Thread {
 							try {
 								String jsonDoc = null;
 								if (doc instanceof VariantSummaryDocument vsd) {
-									jsonDoc = mapper.writerWithView(CurationView.VariantDocument.class).writeValueAsString(vsd);
+									jsonDoc = cachedWriter.writeValueAsString(vsd);
 								} else if (doc instanceof AlleleVariantSequence avs) {
-									jsonDoc = mapper.writerWithView(CurationView.VariantDocument.class).writeValueAsString(avs);
+									jsonDoc = cachedWriter.writeValueAsString(avs);
 
 								} else {
 									// This should never happen
