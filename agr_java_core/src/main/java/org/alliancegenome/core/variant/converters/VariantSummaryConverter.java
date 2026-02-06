@@ -221,6 +221,7 @@ public class VariantSummaryConverter {
 	/**
 	 * Parse VEP CSQ annotations from VCF and create PredictedVariantConsequence
 	 * objects
+	 * 
 	 * @param hgvsGList
 	 */
 	private List<PredictedVariantConsequence> getConsequences(List<String> csqList, String varNuc, SpeciesType speciesType, Set<String> hgvsGList) {
@@ -248,7 +249,7 @@ public class VariantSummaryConverter {
 				continue;
 			}
 
-			if(!infos[hgvsgIdx].isEmpty()) {
+			if (!infos[hgvsgIdx].isEmpty()) {
 				hgvsGList.add(infos[hgvsgIdx]);
 			}
 
@@ -389,13 +390,16 @@ public class VariantSummaryConverter {
 	}
 
 	/**
-	 * Extract a single pipe-delimited field from a CSQ line without splitting the entire string.
+	 * Extract a single pipe-delimited field from a CSQ line without splitting the
+	 * entire string.
 	 */
 	private static String extractField(String line, int fieldIndex) {
 		int start = 0;
 		for (int i = 0; i < fieldIndex; i++) {
 			start = line.indexOf('|', start);
-			if (start < 0) return null;
+			if (start < 0) {
+				return null;
+			}
 			start++;
 		}
 		int end = line.indexOf('|', start);
@@ -415,10 +419,14 @@ public class VariantSummaryConverter {
 	}
 
 	private static boolean alleleIsValid(String allele) {
-		if (allele.isEmpty()) return false;
+		if (allele.isEmpty()) {
+			return false;
+		}
 		for (int i = 0; i < allele.length(); i++) {
 			char c = allele.charAt(i);
-			if (c == 'A' || c == 'C' || c == 'G' || c == 'T' || c == 'N' || c == '-') continue;
+			if (c == 'A' || c == 'C' || c == 'G' || c == 'T' || c == 'N' || c == '-') {
+				continue;
+			}
 			return false;
 		}
 		return true;
