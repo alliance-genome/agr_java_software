@@ -19,7 +19,6 @@ import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.es.util.EsClientFactory;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
@@ -540,8 +539,11 @@ public class SourceDocumentCreation extends Thread {
 		private ObjectMapper mapper = new ObjectMapper();
 		private ObjectWriter cachedWriter;
 
-		//private SummaryStatistics stats = new SummaryStatistics();
-		private DescriptiveStatistics stats = new DescriptiveStatistics(100000);
+		// Welford's online algorithm state for mean, variance, and skewness
+		private long n = 0;
+		private double mean = 0.0;
+		private double m2 = 0.0;   // second central moment (for variance/SD)
+		private double m3 = 0.0;   // third central moment (for skewness)
 
 		@Override
 		public void run() {
@@ -573,16 +575,25 @@ public class SourceDocumentCreation extends Thread {
 								} else {
 									// This should never happen
 								}
+
 								int len = jsonDoc.length();
-								stats.addValue(len);
 
-								double skew = stats.getSkewness();
-								double sd = stats.getStandardDeviation();
+								// Welford's online update for mean, M2, M3
+								// This code distributes the document via size over the 8
+								// queues so that each bulk processor works with same sized docs
+								n++;
+								double delta = len - mean;
+								double deltaN = delta / n;
+								double term1 = delta * deltaN * (n - 1);
+								mean += deltaN;
+								m3 += term1 * deltaN * (n - 2) - 3 * deltaN * m2;
+								m2 += term1;
 
-								int lowerWidth = (int) (sd / skew);
+								double sd = n > 1 ? Math.sqrt(m2 / (n - 1)) : 0.0;
+								double skew = (n > 2 && m2 > 0) ? (Math.sqrt(n) * m3 / Math.pow(m2, 1.5)) : 0.0;
+
+								int lowerWidth = skew != 0.0 ? (int) (sd / skew) : (int) sd;
 								int upperWidth = (int) sd;
-
-								double mean = stats.getMean();
 
 								int t1 = (int) (mean - (1.5 * lowerWidth));
 								int t2 = (int) (mean - (1.0 * lowerWidth));
