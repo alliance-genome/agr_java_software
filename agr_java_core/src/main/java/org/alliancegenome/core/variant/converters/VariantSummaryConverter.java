@@ -1,12 +1,12 @@
 package org.alliancegenome.core.variant.converters;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
@@ -37,13 +37,14 @@ import htsjdk.variant.variantcontext.VariantContext;
  */
 public class VariantSummaryConverter {
 
+	private static final Pattern PIPE_PATTERN = Pattern.compile("\\|");
 	private static final Pattern VALID_ALLELES = Pattern.compile("[ACGTN\\-]+");
 	private NCBITaxonTerm taxon;
 
 	// Header index positions (initialized once per header)
 	private String[] header;
 	private GeneDocumentCache geneCache;
-	private Map<String, SOTerm> soTermCache = new HashMap<>();
+	private Map<String, SOTerm> soTermCache = new ConcurrentHashMap<>();
 
 	private int alleleIdx = -1;
 	private int consequenceIdx = -1;
@@ -125,17 +126,10 @@ public class VariantSummaryConverter {
 			}
 
 			// Parse VEP consequences from CSQ field
-			List<PredictedVariantConsequence> consequences = getConsequences(ctx, vcfAllele.getBaseString(), speciesType);
+			Set<String> hgvsGList = new HashSet<>();
+			List<PredictedVariantConsequence> consequences = getConsequences(ctx, vcfAllele.getBaseString(), speciesType, hgvsGList);
 			if (consequences.isEmpty()) {
 				continue;
-			}
-
-			Set<String> hgvsGList = new HashSet<>();
-			for (String s : ctx.getAttributeAsStringList("CSQ", "")) {
-				String[] infos = s.split("\\|", -1);
-				if (infos.length >= 30) {
-					hgvsGList.add(infos[hgvsgIdx]);
-				}
 			}
 
 			// Get HGVS nomenclature from first consequence
@@ -223,8 +217,9 @@ public class VariantSummaryConverter {
 	/**
 	 * Parse VEP CSQ annotations from VCF and create PredictedVariantConsequence
 	 * objects
+	 * @param hgvsGList 
 	 */
-	private List<PredictedVariantConsequence> getConsequences(VariantContext ctx, String varNuc, SpeciesType speciesType) {
+	private List<PredictedVariantConsequence> getConsequences(VariantContext ctx, String varNuc, SpeciesType speciesType, Set<String> hgvsGList) {
 
 		List<PredictedVariantConsequence> consequences = new ArrayList<>();
 		HashSet<String> alreadyAdded = new HashSet<>();
@@ -234,11 +229,15 @@ public class VariantSummaryConverter {
 				continue;
 			}
 
-			String[] infos = s.split("\\|", -1);
+			String[] infos = PIPE_PATTERN.split(s, -1);
 
 			if (header.length != infos.length) {
 				// Header mismatch - skip this record
 				continue;
+			}
+			
+			if(!infos[hgvsgIdx].isEmpty()) {
+				hgvsGList.add(infos[hgvsgIdx]);
 			}
 
 			// Check if this annotation matches our alternate allele
