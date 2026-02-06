@@ -39,7 +39,7 @@ public class AlleleVariantSequenceConverter {
 	public List<AlleleVariantSequence> convertContextToAlleleVariantSequence(VariantContext ctx, SpeciesType speciesType) throws Exception {
 		List<AlleleVariantSequence> returnDocuments = new ArrayList<>();
 
-		//htsjdk.variant.variantcontext.Allele refNuc = ctx.getReference();
+		// htsjdk.variant.variantcontext.Allele refNuc = ctx.getReference();
 
 		if (species == null) {
 			species = new Species();
@@ -58,7 +58,6 @@ public class AlleleVariantSequenceConverter {
 				variantType.setPrimaryKey("delins");
 			}
 		}
-
 
 		GenomeLocation location = new GenomeLocation();
 		location.setStart((long) ctx.getStart());
@@ -86,7 +85,8 @@ public class AlleleVariantSequenceConverter {
 //			}
 
 			if (!alleleIsValid(vcfAllele.getBaseString())) {
-				//System.out.println(" *** 2. Var Nucleotides must be A,C,G,T,N: " + vcfAllele.getBaseString());
+				// System.out.println(" *** 2. Var Nucleotides must be A,C,G,T,N: " +
+				// vcfAllele.getBaseString());
 				continue;
 			}
 
@@ -110,15 +110,10 @@ public class AlleleVariantSequenceConverter {
 			Set<String> genes = new HashSet<>();
 			Set<String> geneIds = new HashSet<>();
 
-
 			StringBuilder variantName = new StringBuilder();
 			if (StringUtils.isNotEmpty(hgvsNomenclature)) {
 				int colonIdx = hgvsNomenclature.indexOf(':');
-				variantName.append('(')
-						.append(speciesType.getAssembly())
-						.append(')')
-						.append(ctx.getContig())
-						.append(':');
+				variantName.append('(').append(speciesType.getAssembly()).append(')').append(ctx.getContig()).append(':');
 				if (colonIdx >= 0) {
 					variantName.append(hgvsNomenclature, colonIdx + 3, hgvsNomenclature.length());
 				} else {
@@ -137,7 +132,7 @@ public class AlleleVariantSequenceConverter {
 				variant.setPrimaryKey(ctxId);
 
 			} else {
-				//	  if (hgvsNomenclature != null && hgvsNomenclature.length()<512) {
+				// if (hgvsNomenclature != null && hgvsNomenclature.length()<512) {
 				if (hgvsNomenclature != null && hgvsNomenclature.length() < 100) {
 					variant.setPrimaryKey(hgvsNomenclature);
 					avsDoc.setPrimaryKey(hgvsNomenclature);
@@ -179,10 +174,7 @@ public class AlleleVariantSequenceConverter {
 					geneLevelConsequences.add(consequence.getGeneLevelConsequence());
 					if (consequenceGene != null && StringUtils.isNotEmpty(consequenceGene.getSymbol())) {
 						StringBuilder buffer = new StringBuilder();
-						buffer.append(consequenceGene.getSymbol())
-							.append(" (")
-							.append(speciesType.getAbbreviation())
-							.append(')');
+						buffer.append(consequenceGene.getSymbol()).append(" (").append(speciesType.getAbbreviation()).append(')');
 						genes.add(buffer.toString());
 						geneIds.add(consequenceGene.getPrimaryKey());
 
@@ -205,11 +197,10 @@ public class AlleleVariantSequenceConverter {
 			avsDoc.setSpecies(species.getName());
 			avsDoc.setChromosome(ctx.getContig());
 			// TODO remove for HTP neo4j migration
-			//avsDoc.setVariantType(Collections.singleton(variantType.getName()));
+			// avsDoc.setVariantType(Collections.singleton(variantType.getName()));
 			avsDoc.setAllele(agrAllele);
 			returnDocuments.add(avsDoc);
 		}
-
 
 		return returnDocuments;
 	}
@@ -218,19 +209,20 @@ public class AlleleVariantSequenceConverter {
 		List<TranscriptLevelConsequence> features = new ArrayList<>();
 		HashSet<String> alreadyAdded = new HashSet<>();
 
-		for (String s : csqList) {
-			if (s.isEmpty()) {
+		for (String csq : csqList) {
+			if (csq.isEmpty()) {
 				continue;
 			}
 
-			// Pre-split allele filtering: check allele field (index 0) before doing the full split
-			int firstPipe = s.indexOf('|');
-			String alleleField = firstPipe >= 0 ? s.substring(0, firstPipe) : s;
+			// Pre-split allele filtering: check allele field (index 0) before doing the
+			// full split
+			int firstPipe = csq.indexOf('|');
+			String alleleField = firstPipe >= 0 ? csq.substring(0, firstPipe) : csq;
 			if (!alleleField.equalsIgnoreCase(varNuc)) {
 				continue;
 			}
 
-			String[] infos = PIPE_PATTERN.split(s, -1);
+			String[] infos = PIPE_PATTERN.split(csq, -1);
 
 			if (header.length == infos.length) {
 				TranscriptLevelConsequence feature = new TranscriptLevelConsequence(header, infos, geneCache, species);
@@ -250,7 +242,8 @@ public class AlleleVariantSequenceConverter {
 				message += "\r" + String.join("|", Arrays.asList(infos));
 				// throw new RuntimeException("CSQ header is not matching the line " + message);
 				// This has got to fail ... there is something not right with the files.
-				// The code is mis matched with the files. Or the files are old files and need to be deleted / updated
+				// The code is mis matched with the files. Or the files are old files and need
+				// to be deleted / updated
 				System.exit(-1);
 			}
 		}
@@ -258,10 +251,14 @@ public class AlleleVariantSequenceConverter {
 	}
 
 	private static boolean alleleIsValid(String allele) {
-		if (allele.isEmpty()) return false;
+		if (allele.isEmpty()) {
+			return false;
+		}
 		for (int i = 0; i < allele.length(); i++) {
 			char c = allele.charAt(i);
-			if (c == 'A' || c == 'C' || c == 'G' || c == 'T' || c == 'N' || c == '-') continue;
+			if (c == 'A' || c == 'C' || c == 'G' || c == 'T' || c == 'N' || c == '-') {
+				continue;
+			}
 			return false;
 		}
 		return true;
