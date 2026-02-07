@@ -187,6 +187,7 @@ public class Mapping extends Builder {
 
 		// GeneMolecularInteractionDocument: dynamic false (222 -> ~13 indexed fields)
 		builder.startObject("geneMolecularInteraction");
+		builder.field("type", "object");
 		builder.field("dynamic", false);
 		builder.endObject();
 		new FieldBuilder(builder, "geneMolecularInteraction.geneGeneAssociationObject.geneSymbol.displayText", "text").keyword().sort().build();
@@ -205,6 +206,7 @@ public class Mapping extends Builder {
 
 		// GeneGeneticInteractionDocument: dynamic false (294 -> ~14 indexed fields)
 		builder.startObject("geneGeneticInteraction");
+		builder.field("type", "object");
 		builder.field("dynamic", false);
 		builder.endObject();
 		new FieldBuilder(builder, "geneGeneticInteraction.geneGeneAssociationObject.geneSymbol.displayText", "text").keyword().sort().build();
@@ -224,6 +226,7 @@ public class Mapping extends Builder {
 
 		// GeneToGeneParalogyDocument: dynamic false (112 -> 2 indexed fields)
 		builder.startObject("geneToGeneParalogy");
+		builder.field("type", "object");
 		builder.field("dynamic", false);
 		builder.endObject();
 		new FieldBuilder(builder, "geneToGeneParalogy.subjectGene.primaryExternalId", "text").keyword().build();
@@ -231,6 +234,7 @@ public class Mapping extends Builder {
 
 		// GeneToGeneOrthologyDocument: dynamic false (64 -> 1 indexed field)
 		builder.startObject("geneToGeneOrthologyGenerated");
+		builder.field("type", "object");
 		builder.field("dynamic", false);
 		builder.endObject();
 		new FieldBuilder(builder, "geneToGeneOrthologyGenerated.subjectGene.primaryExternalId", "text").keyword().build();
@@ -240,6 +244,7 @@ public class Mapping extends Builder {
 
 		// GeneExpressionDocument: dynamic false (78 -> ~8 indexed fields)
 		builder.startObject("geneExpressionAnnotation");
+		builder.field("type", "object");
 		builder.field("dynamic", false);
 		builder.endObject();
 		new FieldBuilder(builder, "geneExpressionAnnotation.expressionAnnotationSubject.geneSymbol.displayText", "text").keyword().sort().build();
@@ -267,10 +272,12 @@ public class Mapping extends Builder {
 		builder.endObject();
 
 		builder.startObject("variants");
+		builder.field("type", "object");
 		builder.field("dynamic", false);
 		builder.endObject();
 
 		builder.startObject("crossReference");
+		builder.field("type", "object");
 		builder.field("dynamic", false);
 		builder.endObject();
 
