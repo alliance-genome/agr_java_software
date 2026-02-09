@@ -496,9 +496,13 @@ public class IndexManager {
 		TreeMap<Date, SnapshotInfo> map = new TreeMap<>();
 		for (SnapshotInfo info : list) {
 			String[] array = info.snapshotId().getName().split("_");
-			Date d = new Date(Long.parseLong(array[array.length - 1]));
-			if (info.snapshotId().getName().contains(index)) {
-				map.put(d, info);
+			try {
+				Date d = new Date(Long.parseLong(array[array.length - 1]));
+				if (info.snapshotId().getName().contains(index)) {
+					map.put(d, info);
+				}
+			} catch (NumberFormatException e) {
+				log.warn("Can't parse date from index: " + info.snapshotId().getName() + " skipping");
 			}
 		}
 		log.info("First Snapshot: " + map.firstKey());
