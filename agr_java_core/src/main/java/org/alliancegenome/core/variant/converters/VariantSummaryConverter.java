@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
 import org.alliancegenome.curation_api.model.entities.Allele;
 import org.alliancegenome.curation_api.model.entities.AssemblyComponent;
+import org.alliancegenome.curation_api.model.entities.CrossReference;
 import org.alliancegenome.curation_api.model.entities.Gene;
 import org.alliancegenome.curation_api.model.entities.GenomeAssembly;
 import org.alliancegenome.curation_api.model.entities.PredictedVariantConsequence;
@@ -125,6 +126,7 @@ public class VariantSummaryConverter {
 		// Process each alternate allele in the VCF record
 		for (htsjdk.variant.variantcontext.Allele vcfAllele : ctx.getAlternateAlleles()) {
 			if (!alleleIsValid(vcfAllele.getBaseString())) {
+				System.out.println("Skipping invalid allele: " + vcfAllele.getBaseString());
 				continue;
 			}
 
@@ -197,6 +199,14 @@ public class VariantSummaryConverter {
 			}
 			variant.setCurie(primaryKey);
 			variant.setModInternalId(primaryKey);
+
+			// Add rsID as cross reference if available
+			if (StringUtils.isNotEmpty(ctxId) && ctxId.startsWith("rs")) {
+				CrossReference dbSnpRef = new CrossReference();
+				dbSnpRef.setReferencedCurie(ctxId);
+				dbSnpRef.setDisplayName(ctxId);
+				variant.setCrossReferences(List.of(dbSnpRef));
+			}
 
 			// Create curation API Allele entity
 			Allele allele = new Allele();
