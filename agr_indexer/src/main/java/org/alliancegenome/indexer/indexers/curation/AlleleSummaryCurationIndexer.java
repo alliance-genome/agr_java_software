@@ -1,6 +1,6 @@
 package org.alliancegenome.indexer.indexers.curation;
 
-import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import org.alliancegenome.core.config.ConfigHelper;
@@ -22,10 +22,7 @@ public class AlleleSummaryCurationIndexer extends Indexer {
 
 	private final AlleleDocumentInterface alleleApi = RestProxyFactory.createProxy(AlleleDocumentInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 
-	private HashMap<String, Object> params = new HashMap<>() {{
-		put("internal", false);
-		put("obsolete", false);
-	}};
+	private List<List<Long>> idBatches;
 
 	public AlleleSummaryCurationIndexer(IndexerConfig indexerConfig) {
 		super(indexerConfig);
@@ -33,14 +30,42 @@ public class AlleleSummaryCurationIndexer extends Indexer {
 
 	@Override
 	protected void index() {
-		long cursor = 0;
+		try {
+			log.info("Fetching all allele IDs...");
+			SearchResponse<Long> idsResponse = alleleApi.getAllIds();
+			List<Long> allIds = idsResponse.getResults();
+			log.info("Fetched {} allele IDs", allIds.size());
+
+			idBatches = partition(allIds, indexerConfig.getBufferSize());
+			log.info("Partitioned into {} batches of up to {}", idBatches.size(), indexerConfig.getBufferSize());
+
+			LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
+			for (int i = 0; i < idBatches.size(); i++) {
+				queue.add(String.valueOf(i));
+			}
+
+			initiateThreading(queue);
+		} catch (Exception e) {
+			log.error("Error while indexing...", e);
+			System.exit(-1);
+		}
+	}
+
+	@Override
+	protected void startSingleThread(LinkedBlockingDeque<String> queue) {
 		while (true) {
 			try {
-				SearchResponse<AlleleSummaryDocument> response = alleleApi.findSummaryWithCursor(0, indexerConfig.getBufferSize(), cursor, params);
-				if (response == null || CollectionUtils.isEmpty(response.getResults())) {
+				if (queue.isEmpty()) {
 					return;
 				}
-				cursor = response.getNextCursor();
+				String batchIndex = queue.takeFirst();
+				List<Long> batchIds = idBatches.get(Integer.parseInt(batchIndex));
+
+				SearchResponse<AlleleSummaryDocument> response = alleleApi.findSummaryByIds(batchIds);
+				if (response == null || CollectionUtils.isEmpty(response.getResults())) {
+					continue;
+				}
+
 				indexDocuments(response.getResults());
 			} catch (Exception e) {
 				log.error("Error while indexing...", e);
@@ -48,11 +73,6 @@ public class AlleleSummaryCurationIndexer extends Indexer {
 				return;
 			}
 		}
-	}
-
-	@Override
-	protected void startSingleThread(LinkedBlockingDeque<String> queue) {
-
 	}
 
 	@Override
