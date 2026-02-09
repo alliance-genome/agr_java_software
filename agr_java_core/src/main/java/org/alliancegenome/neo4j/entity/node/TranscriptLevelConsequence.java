@@ -1,8 +1,8 @@
 package org.alliancegenome.neo4j.entity.node;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.alliancegenome.core.helpers.VariantServiceHelper;
 import org.alliancegenome.curation_api.view.CurationView;
@@ -27,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 @Schema(name = "TranscriptLevelConsequence", description = "POJO that represents Transcript Level Consequences")
 public class TranscriptLevelConsequence extends Neo4jEntity {
 
-	private static HashMap<String, Transcript> transcriptCache = new HashMap<String, Transcript>();
+	private static ConcurrentHashMap<String, Transcript> transcriptCache = new ConcurrentHashMap<>();
 
 	@JsonView({ PublicView.API.class, PublicView.GeneAlleleVariantSequenceAPI.class, CurationView.VariantDocument.class }) private List<String> molecularConsequences;
 
@@ -176,15 +176,12 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
 			// Not sure about field 5?
 
 			if (!infos[6].isEmpty()) {
-				transcript = transcriptCache.get(infos[6]);
-
-				if (transcript == null) {
-					transcript = new Transcript();
-					transcript.setName(infos[6]);
-					transcript.setPrimaryKey(infos[6]);
-					transcriptCache.put(infos[6], transcript);
-					// System.out.println(infos[6]);
-				}
+				transcript = transcriptCache.computeIfAbsent(infos[6], k -> {
+					Transcript t = new Transcript();
+					t.setName(k);
+					t.setPrimaryKey(k);
+					return t;
+				});
 			}
 
 			sequenceFeatureType = infos[7];
