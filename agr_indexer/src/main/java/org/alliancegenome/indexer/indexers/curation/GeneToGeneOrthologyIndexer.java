@@ -45,8 +45,8 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 	public void index() {
 		BaseService baseService = new BaseService();
 		allNeoGeneIDs = baseService.getAllNeoGeneIDs();
-		geneExpressionSet = new HashSet<>(geneExpressionApi.geneExpressionAnnotationList());
-		geneAnnotationSet = new HashSet<>(geneDiseaseApi.geneDiseaseAnnotationList());
+		geneExpressionSet = new HashSet<>(geneExpressionApi.annotatedGeneList().getEntities());
+		geneAnnotationSet = new HashSet<>(geneDiseaseApi.annotatedGeneList().getEntities());
 
 		try {
 			log.info("Fetching all orthology IDs...");
