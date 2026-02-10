@@ -21,9 +21,9 @@ import si.mazi.rescu.RestProxyFactory;
 public class GeneExpressionAnnotationIndexer extends Indexer {
 
 	private final GeneExpressionDocumentInterface geneExpressionApi = RestProxyFactory.createProxy(GeneExpressionDocumentInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
-	
+
 	private List<List<String>> idBatches;
-	
+
 	public GeneExpressionAnnotationIndexer(IndexerConfig indexerConfig) {
 		super(indexerConfig);
 	}
@@ -32,7 +32,7 @@ public class GeneExpressionAnnotationIndexer extends Indexer {
 	protected void index() {
 		try {
 			log.info("Fetching all allele IDs...");
-			SearchResponse <String> idsResponse = geneExpressionApi.getGeneIds();
+			SearchResponse<String> idsResponse = geneExpressionApi.getGeneIds();
 
 			List<String> primaryExternalIds = idsResponse.getResults();
 			log.info("Fetched {} gene IDs", primaryExternalIds.size());
@@ -65,7 +65,7 @@ public class GeneExpressionAnnotationIndexer extends Indexer {
 				if (response == null || CollectionUtils.isEmpty(response.getResults())) {
 					continue;
 				}
-				
+
 				indexDocuments(response.getResults());
 			} catch (Exception e) {
 				log.error("Error while indexing...", e);
@@ -80,5 +80,3 @@ public class GeneExpressionAnnotationIndexer extends Indexer {
 		return RestConfig.config.getJacksonObjectMapperFactory().createObjectMapper();
 	}
 }
-
-

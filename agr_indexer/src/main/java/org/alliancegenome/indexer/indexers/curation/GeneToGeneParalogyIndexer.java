@@ -30,12 +30,12 @@ public class GeneToGeneParalogyIndexer extends Indexer {
 		service = new GeneToGeneParalogyService();
 		try {
 			SearchResponse<GeneToGeneParalogy> paralogyResponse = service.getGeneToGeneParalogy(0, 0);
-			//log.info("GeneToGeneParalogy count: " + paralogyResponse.getTotalResults());
+			// log.info("GeneToGeneParalogy count: " + paralogyResponse.getTotalResults());
 
 			int totalPages = (int) (paralogyResponse.getTotalResults() / indexerConfig.getBufferSize());
 			LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
 			for (int i = 0; i <= totalPages; i++) {
-				//log.info("page: " + i + " limit: " + indexerConfig.getBufferSize());
+				// log.info("page: " + i + " limit: " + indexerConfig.getBufferSize());
 				queue.add(String.valueOf(i));
 			}
 
@@ -64,7 +64,8 @@ public class GeneToGeneParalogyIndexer extends Indexer {
 					return;
 				}
 				String page = queue.takeFirst();
-				//log.info(queue.size() + " pages to process " + Thread.currentThread().getName() + " starting page: " + page);
+				// log.info(queue.size() + " pages to process " +
+				// Thread.currentThread().getName() + " starting page: " + page);
 				SearchResponse<GeneToGeneParalogy> resp = service.getGeneToGeneParalogy(Integer.valueOf(page), indexerConfig.getBufferSize());
 				indexDocuments(generateDocuments(resp.getResults()));
 			} catch (Exception e) {
@@ -79,5 +80,5 @@ public class GeneToGeneParalogyIndexer extends Indexer {
 	protected ObjectMapper customizeObjectMapper(ObjectMapper objectMapper) {
 		return RestConfig.config.getJacksonObjectMapperFactory().createObjectMapper();
 	}
-	
+
 }
