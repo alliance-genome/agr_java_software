@@ -20,8 +20,7 @@ import si.mazi.rescu.RestProxyFactory;
 @Slf4j
 public class GOSearchResultCurationIndexer extends Indexer {
 
-	private final GODocumentInterface goApi = RestProxyFactory.createProxy(GODocumentInterface.class,
-			ConfigHelper.getCurationApiUrl(), RestConfig.config);
+	private final GODocumentInterface goApi = RestProxyFactory.createProxy(GODocumentInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 
 	private HashMap<String, Object> params = new HashMap<String, Object>() {
 		{
@@ -57,8 +56,7 @@ public class GOSearchResultCurationIndexer extends Indexer {
 					return;
 				}
 				String page = queue.takeFirst();
-				SearchResponse<GOSearchResultDocument> response = goApi.findSearchResult(Integer.valueOf(page),
-						indexerConfig.getBufferSize(), params);
+				SearchResponse<GOSearchResultDocument> response = goApi.findSearchResult(Integer.valueOf(page), indexerConfig.getBufferSize(), params);
 				if (response == null || CollectionUtils.isEmpty(response.getResults())) {
 					return;
 				}

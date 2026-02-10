@@ -35,9 +35,9 @@ public enum IndexerConfig {
 
 	// Curation Indexers
 	
-	// Run in Parallel
+	// Run Parallelly
 	ParalogyIndexer("paralogy", GeneToGeneParalogyIndexer.class, 4, 5000, 5000, 8, 1, true),
-	GOSearchResultCurationIndexer("goSearchResult", GOSearchResultCurationIndexer.class, 4, 1500, 1500, 8, 1, true),
+	GOSearchResultCurationIndexer("goSearchResult", GOSearchResultCurationIndexer.class, 4, 1500, 1500, 4, 1, true),
 	LiteratureIndexer("literature", LiteratureIndexer.class, 4, 5000, 5000, 1, 1, true),
 	GeneGeneticInteractionIndexers("geneGeneticInteraction", GeneGeneticInteractionCurationIndexer.class, 4, 1500, 1500, 2, 1, true),
 	AffectedGenomicModelIndexer("affectedGenomicModels", AffectedGenomicModelIndexer.class, 4, 1500, 1500, 8, 1, true),
@@ -49,7 +49,9 @@ public enum IndexerConfig {
 	// Run Sequentially
 	AlleleSummaryIndexer("alleleSummary", AlleleSummaryCurationIndexer.class, 4, 1500, 1500, 4, 1, false),
 	GeneToGeneOrthologyIndexer("geneToGeneOrthology", GeneToGeneOrthologyIndexer.class, 4, 2500, 2500, 8, 1, false),
-	GeneExpressionAnnotationIndexer("geneExpressionAnnotation", GeneExpressionAnnotationIndexer.class, 1, 2000, 1500, 4, 1, false),
+	
+	GeneExpressionAnnotationIndexer("geneExpressionAnnotation", GeneExpressionAnnotationIndexer.class, 8, 125, 2000, 4, 1, false),
+	
 	PhenotypeAnnotationIndexer("phenotypeAnnotation", PhenotypeAnnotationCurationIndexer.class, 4, 1500, 1500, 2, 1, false),
 	TransgenicAlleleIndexer("transgenicAlleles", TransgenicAlleleIndexer.class, 1, 3000, 1500, 8, 1, false),
 	GeneMolecularInteractionIndexers("geneMolecularInteraction", GeneMolecularInteractionCurationIndexer.class, 4, 1500, 1500, 2, 1, false),
