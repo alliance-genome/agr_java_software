@@ -1,7 +1,7 @@
 package org.alliancegenome.indexer.indexers.curation;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,12 +35,7 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 	private Set<String> geneExpressionSet;
 	private Set<String> geneAnnotationSet;
 
-	private HashMap<String, Object> params = new HashMap<>() {
-		{
-			put("internal", false);
-			put("obsolete", false);
-		}
-	};
+	private List<List<Long>> idBatches;
 
 	public GeneToGeneOrthologyIndexer(IndexerConfig config) {
 		super(config);
@@ -50,21 +45,27 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 	public void index() {
 		BaseService baseService = new BaseService();
 		allNeoGeneIDs = baseService.getAllNeoGeneIDs();
-		geneExpressionSet = buildGeneExpressionSet();
-		geneAnnotationSet = buildGeneAnnotationSet();
+		geneExpressionSet = new HashSet<>(geneExpressionApi.geneExpressionAnnotationList());
+		geneAnnotationSet = new HashSet<>(geneDiseaseApi.geneDiseaseAnnotationList());
 
 		try {
-			SearchResponse<GeneToGeneOrthologyDocument> resp = orthologyApi.findDocument(0, 0, params);
-			log.info("GeneToGeneOrthology count: " + String.format("%,d", resp.getTotalResults()));
-			int totalPages = (int) (resp.getTotalResults() / indexerConfig.getBufferSize());
+			log.info("Fetching all orthology IDs...");
+			SearchResponse<Long> idsResponse = orthologyApi.getAllIds();
+			List<Long> allIds = idsResponse.getResults();
+			log.info("Fetched {} orthology IDs", allIds.size());
+
+			idBatches = partition(allIds, indexerConfig.getBufferSize());
+			log.info("Partitioned into {} batches of up to {}", idBatches.size(), indexerConfig.getBufferSize());
 
 			LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
-			for (int i = 0; i <= totalPages; i++) {
+			for (int i = 0; i < idBatches.size(); i++) {
 				queue.add(String.valueOf(i));
 			}
+
 			initiateThreading(queue);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Error while indexing...", e);
+			System.exit(-1);
 		}
 	}
 
@@ -76,16 +77,15 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 					return;
 				}
 
-				String page = queue.takeFirst();
-				// log.info(queue.size() + " pages to process " +
-				// Thread.currentThread().getName() + " starting page: " + page);
+				String batchIndex = queue.takeFirst();
+				List<Long> batchIds = idBatches.get(Integer.parseInt(batchIndex));
 
-				SearchResponse<GeneToGeneOrthologyDocument> response = orthologyApi.findDocument(Integer.valueOf(page), indexerConfig.getBufferSize(), params);
-				// log.info("Search Response: " + response);
-				List<GeneToGeneOrthologyDocument> results = response.getResults();
-				if (response == null || CollectionUtils.isEmpty(results)) {
-					return;
+				SearchResponse<GeneToGeneOrthologyDocument> response = orthologyApi.findByIds(batchIds);
+				if (response == null || CollectionUtils.isEmpty(response.getResults())) {
+					continue;
 				}
+
+				List<GeneToGeneOrthologyDocument> results = response.getResults();
 				for (GeneToGeneOrthologyDocument geneToGeneOrthologyDocument : results) {
 					List<Map<String, Object>> geneAnnotations = geneToGeneOrthologyDocument.getGeneAnnotations();
 
@@ -93,11 +93,10 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 						String primaryExternalId = (String) geneAnnotation.get("geneIdentifier");
 						geneAnnotation.put("hasExpressionAnnotations", geneExpressionSet.contains(primaryExternalId));
 						geneAnnotation.put("hasDiseaseAnnotations", geneAnnotationSet.contains(primaryExternalId));
-
 					}
 				}
 
-				List<GeneToGeneOrthologyDocument> filteredResults = filterValidResults(response.getResults());
+				List<GeneToGeneOrthologyDocument> filteredResults = filterValidResults(results);
 				indexDocuments(filteredResults);
 			} catch (Exception e) {
 				log.error("Error while indexing...", e);
@@ -105,14 +104,6 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 				return;
 			}
 		}
-	}
-
-	private Set<String> buildGeneExpressionSet() {
-		return geneExpressionApi.geneExpressionAnnotationMap().getEntity();
-	}
-
-	private Set<String> buildGeneAnnotationSet() {
-		return geneDiseaseApi.geneDiseaseAnnotationMap().getEntity();
 	}
 
 	@Override
