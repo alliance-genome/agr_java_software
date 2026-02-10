@@ -31,7 +31,7 @@ public class GeneExpressionAnnotationIndexer extends Indexer {
 	@Override
 	protected void index() {
 		try {
-			log.info("Fetching all allele IDs...");
+			log.info("Fetching all gene IDs...");
 			SearchResponse<String> idsResponse = geneExpressionApi.getGeneIds();
 
 			List<String> primaryExternalIds = idsResponse.getResults();
