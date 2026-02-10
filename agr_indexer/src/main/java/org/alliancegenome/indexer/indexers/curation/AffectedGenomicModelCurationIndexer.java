@@ -1,4 +1,4 @@
-package org.alliancegenome.indexer.indexers;
+package org.alliancegenome.indexer.indexers.curation;
 
 import java.util.HashMap;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -9,14 +9,17 @@ import org.alliancegenome.curation_api.model.document.es.AffectedGenomicModelDoc
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.config.IndexerConfig;
+import org.alliancegenome.indexer.indexers.Indexer;
 import org.apache.commons.collections.CollectionUtils;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
 import si.mazi.rescu.RestProxyFactory;
 
 
 @Slf4j
-public class AffectedGenomicModelIndexer extends Indexer {
+public class AffectedGenomicModelCurationIndexer extends Indexer {
 
 	private final ModelDocumentInterface modelApi = RestProxyFactory.createProxy(ModelDocumentInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 
@@ -27,7 +30,7 @@ public class AffectedGenomicModelIndexer extends Indexer {
 		//put("gene.primaryExternalId", "ZFIN:ZDB-GENE-990415-8");
 	}};
 
-	public AffectedGenomicModelIndexer(IndexerConfig config) {
+	public AffectedGenomicModelCurationIndexer(IndexerConfig config) {
 		super(config);
 	}
 
@@ -70,5 +73,10 @@ public class AffectedGenomicModelIndexer extends Indexer {
 				return;
 			}
 		}
+	}
+	
+	@Override
+	protected ObjectMapper customizeObjectMapper(ObjectMapper objectMapper) {
+		return RestConfig.config.getJacksonObjectMapperFactory().createObjectMapper();
 	}
 }
