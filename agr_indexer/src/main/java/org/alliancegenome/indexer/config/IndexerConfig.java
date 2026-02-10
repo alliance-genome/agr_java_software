@@ -33,28 +33,30 @@ public enum IndexerConfig {
 	GoIndexer("go", GoIndexer.class, 4, 914, 914, 8, 1, false),
 	ModelIndexer("model", ModelIndexer.class, 4, 1500, 1426, 4, 1, false),
 
-	LiteratureIndexer("literature", LiteratureIndexer.class, 4, 5000, 5000, 1, 1, true),
-	
 	// Curation Indexers
-	VariantSummaryIndexer("variantSummary", VariantSummaryCurationIndexer.class, 1, 3000, 1500, 8, 1, true),
-	DiseaseAnnotationIndexer("diseaseAnnotation", DiseaseAnnotationCurationIndexer.class, 1, 1500, 1500, 2, 1, true),
-	GeneGeneticInteractionIndexers("geneGeneticInteraction", GeneGeneticInteractionCurationIndexer.class, 4, 1500, 1500, 2, 1, true),
-	GeneMolecularInteractionIndexers("geneMolecularInteraction", GeneMolecularInteractionCurationIndexer.class, 4, 1500, 1500, 2, 1, true),
+	
+	// Run in Parallel
 	ParalogyIndexer("paralogy", GeneToGeneParalogyIndexer.class, 4, 5000, 5000, 8, 1, true),
-	PhenotypeAnnotationIndexer("phenotypeAnnotation", PhenotypeAnnotationCurationIndexer.class, 4, 1500, 1500, 2, 1, true),
-	ReleaseInfoIndexer("release", ReleaseInfoIndexer.class, 1, 1, 1, 1, 1, true),
-	DiseaseSummaryIndexer("diseaseSummary", DiseaseSummaryCurationIndexer.class, 4, 1500, 1500, 4, 1, true),
-	AlleleSummaryIndexer("alleleSummary", AlleleSummaryCurationIndexer.class, 4, 1500, 1500, 4, 1, true),
-	AffectedGenomicModelIndexer("affectedGenomicModels", AffectedGenomicModelIndexer.class, 4, 1500, 1500, 8, 1, true),
-	TransgenicAlleleIndexer("transgenicAlleles", TransgenicAlleleIndexer.class, 1, 3000, 1500, 8, 1, true),
-	GeneToGeneOrthologyIndexer("geneToGeneOrthology", GeneToGeneOrthologyIndexer.class, 4, 2500, 2500, 8, 1, true),
 	GOSearchResultCurationIndexer("goSearchResult", GOSearchResultCurationIndexer.class, 4, 1500, 1500, 8, 1, true),
-	GeneExpressionAnnotationIndexer("geneExpressionAnnotation", GeneExpressionAnnotationIndexer.class, 1, 2000, 1500, 4, 1, true),
-	GeneExpressionRibbonSummaryIndexer("geneExpressionRibbonSummary", GeneExpressionRibbonSummaryIndexer.class, 1, 1, 1, 1, 1, true),
-	//GeneSearchResultCurationIndexer("geneSearchResult", GeneSearchResultCurationIndexer.class, 4, 250, 1000, 4, 1),
-	
+	LiteratureIndexer("literature", LiteratureIndexer.class, 4, 5000, 5000, 1, 1, true),
+	GeneGeneticInteractionIndexers("geneGeneticInteraction", GeneGeneticInteractionCurationIndexer.class, 4, 1500, 1500, 2, 1, true),
+	AffectedGenomicModelIndexer("affectedGenomicModels", AffectedGenomicModelIndexer.class, 4, 1500, 1500, 8, 1, true),
+	DiseaseSummaryIndexer("diseaseSummary", DiseaseSummaryCurationIndexer.class, 4, 1500, 1500, 4, 1, true),
 	SiteMapAccessionCurationIndexer("sitemap", SiteMapAccessionCurationIndexer.class, 4, 1500, 1500, 8, 1, true),
+	GeneExpressionRibbonSummaryIndexer("geneExpressionRibbonSummary", GeneExpressionRibbonSummaryIndexer.class, 1, 1, 1, 1, 1, true),
+	ReleaseInfoIndexer("release", ReleaseInfoIndexer.class, 1, 1, 1, 1, 1, true),
 	
+	// Run Sequentially
+	AlleleSummaryIndexer("alleleSummary", AlleleSummaryCurationIndexer.class, 4, 1500, 1500, 4, 1, false),
+	GeneToGeneOrthologyIndexer("geneToGeneOrthology", GeneToGeneOrthologyIndexer.class, 4, 2500, 2500, 8, 1, false),
+	GeneExpressionAnnotationIndexer("geneExpressionAnnotation", GeneExpressionAnnotationIndexer.class, 1, 2000, 1500, 4, 1, false),
+	PhenotypeAnnotationIndexer("phenotypeAnnotation", PhenotypeAnnotationCurationIndexer.class, 4, 1500, 1500, 2, 1, false),
+	TransgenicAlleleIndexer("transgenicAlleles", TransgenicAlleleIndexer.class, 1, 3000, 1500, 8, 1, false),
+	GeneMolecularInteractionIndexers("geneMolecularInteraction", GeneMolecularInteractionCurationIndexer.class, 4, 1500, 1500, 2, 1, false),
+	DiseaseAnnotationIndexer("diseaseAnnotation", DiseaseAnnotationCurationIndexer.class, 1, 1500, 1500, 2, 1, false),
+	VariantSummaryIndexer("variantSummary", VariantSummaryCurationIndexer.class, 1, 3000, 1500, 8, 1, false),
+
+	//GeneSearchResultCurationIndexer("geneSearchResult", GeneSearchResultCurationIndexer.class, 4, 250, 1000, 4, 1),
 	
 	;
 
