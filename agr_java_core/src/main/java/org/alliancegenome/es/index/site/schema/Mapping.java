@@ -185,7 +185,7 @@ public class Mapping extends Builder {
 		new FieldBuilder(builder, "species", "text").keyword().synonym().sort().build(); // allele, gene, model, dataset
 		new FieldBuilder(builder, "synonyms", "text").analyzer("symbols").autocomplete().keyword().keywordAutocomplete().htmlSmoosh().standardBigrams().build(); // gene, go, disease, model
 
-		// GeneMolecularInteractionDocument: dynamic false (222 -> ~13 indexed fields)
+		// GeneMolecularInteractionDocument: dynamic false (~12 indexed fields)
 		builder.startObject("geneMolecularInteraction");
 		builder.field("type", "object");
 		builder.field("dynamic", false);
@@ -194,7 +194,6 @@ public class Mapping extends Builder {
 		new FieldBuilder(builder, "geneMolecularInteraction.geneGeneAssociationObject.taxon.name", "text").keyword().sort().build();
 		new FieldBuilder(builder, "geneMolecularInteraction.geneAssociationSubject.curie", "text").keyword().build();
 		new FieldBuilder(builder, "geneMolecularInteraction.geneAssociationSubject.primaryExternalId", "text").keyword().build();
-		new FieldBuilder(builder, "geneMolecularInteraction.geneAssociationSubject.modInternalId", "text").keyword().build();
 		new FieldBuilder(builder, "geneMolecularInteraction.interactorAType.name", "text").keyword().sort().build();
 		new FieldBuilder(builder, "geneMolecularInteraction.interactorBType.name", "text").keyword().sort().build();
 		new FieldBuilder(builder, "geneMolecularInteraction.detectionMethod.name", "text").keyword().sort().build();
@@ -204,7 +203,7 @@ public class Mapping extends Builder {
 		new FieldBuilder(builder, "geneMolecularInteraction.interactionSource.name", "text").keyword().build();
 		new FieldBuilder(builder, "geneMolecularInteraction.crossReferences.displayName", "text").keyword().build();
 
-		// GeneGeneticInteractionDocument: dynamic false (294 -> ~14 indexed fields)
+		// GeneGeneticInteractionDocument: dynamic false (~13 indexed fields)
 		builder.startObject("geneGeneticInteraction");
 		builder.field("type", "object");
 		builder.field("dynamic", false);
@@ -213,7 +212,6 @@ public class Mapping extends Builder {
 		new FieldBuilder(builder, "geneGeneticInteraction.geneGeneAssociationObject.taxon.name", "text").keyword().sort().build();
 		new FieldBuilder(builder, "geneGeneticInteraction.geneAssociationSubject.curie", "text").keyword().build();
 		new FieldBuilder(builder, "geneGeneticInteraction.geneAssociationSubject.primaryExternalId", "text").keyword().build();
-		new FieldBuilder(builder, "geneGeneticInteraction.geneAssociationSubject.modInternalId", "text").keyword().build();
 		new FieldBuilder(builder, "geneGeneticInteraction.interactorARole.name", "text").keyword().build();
 		new FieldBuilder(builder, "geneGeneticInteraction.interactorBRole.name", "text").keyword().build();
 		new FieldBuilder(builder, "geneGeneticInteraction.interactionType.name", "text").keyword().build();

@@ -112,8 +112,7 @@ public class GeneService {
 		
 		String[] idFields = {
 				"geneGeneticInteraction.geneAssociationSubject.curie.keyword",
-				"geneGeneticInteraction.geneAssociationSubject.primaryExternalId.keyword",
-				"geneGeneticInteraction.geneAssociationSubject.modInternalId.keyword"
+				"geneGeneticInteraction.geneAssociationSubject.primaryExternalId.keyword"
 		};
 		BoolQueryBuilder idQuery = boolQuery();
 		Arrays.stream(idFields).forEach(idField -> {
@@ -158,8 +157,7 @@ public class GeneService {
 		BoolQueryBuilder query = boolQuery();
 		String[] idFields = {
 				"geneMolecularInteraction.geneAssociationSubject.curie.keyword",
-				"geneMolecularInteraction.geneAssociationSubject.primaryExternalId.keyword",
-				"geneMolecularInteraction.geneAssociationSubject.modInternalId.keyword"
+				"geneMolecularInteraction.geneAssociationSubject.primaryExternalId.keyword"
 		};
 		BoolQueryBuilder idQuery = boolQuery();
 		Arrays.stream(idFields).forEach(idField -> {
