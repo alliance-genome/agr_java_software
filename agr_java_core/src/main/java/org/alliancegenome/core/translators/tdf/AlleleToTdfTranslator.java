@@ -11,6 +11,7 @@ import org.alliancegenome.api.entity.GeneTransgenicAlleleSummaryDocument;
 import org.alliancegenome.api.entity.TransgenicAlleleSummaryDocument;
 import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
 import org.alliancegenome.curation_api.model.entities.Allele;
+import org.alliancegenome.curation_api.model.entities.CrossReference;
 import org.alliancegenome.curation_api.model.entities.Note;
 import org.alliancegenome.curation_api.model.entities.Reference;
 import org.alliancegenome.curation_api.model.entities.TransgenicAlleleConstruct;
@@ -283,11 +284,13 @@ public class AlleleToTdfTranslator {
 		CuratedVariantGenomicLocationAssociation variant = annotation.getVariant();
 		row.setSymbol(variant.getHgvs());
 		row.setVariantType(variant.getVariantAssociationSubject().getVariantType().getName());
-		row.setChrPosition(variant.getVariantGenomicLocationAssociationObject().getName());
+		row.setChrPosition(variant.getVariantGenomicLocationAssociationObject().getName() + ":" + variant.getStart());
 		String consequence = variant.getPredictedVariantConsequences().get(0).getVepConsequences().get(0).getName();
 		row.setConsequence(consequence);
-//		row.setChange(annotation.getNucleotideChange());
-//		row.setOverlaps(annotation.getGene().getSymbol());
+		row.setChange(variant.getNucleotideChange());
+		row.setOverlaps(variant.getOverlapGenes().stream()
+			.map(g -> g.getGeneSymbol().getDisplayText())
+			.collect(Collectors.joining(",")));
 		String hgvsGs = "";
 		String hgvsPs = "";
 		String hgvsCs = "";
@@ -316,13 +319,10 @@ public class AlleleToTdfTranslator {
 		if (CollectionUtils.isNotEmpty(variant.getHgvsP())) {
 			hgvsPs = getCommaDelimetedString(variant.getHgvsP());
 		}
-/*
-		if (CollectionUtils.isNotEmpty(annotation.getCrossReferences())) {
-			StringJoiner crossRefJoiner = new StringJoiner(",");
-			annotation.getCrossReferences().forEach(crossRef -> crossRefJoiner.add(crossRef.getDisplayName()));
-			crossRefs = crossRefJoiner.toString();
+		List<CrossReference> crossReferences = variant.getVariantAssociationSubject().getCrossReferences();
+		if (CollectionUtils.isNotEmpty(crossReferences)) {
+			crossRefs = getCommaDelimetedString(crossReferences.stream().map(CrossReference::getDisplayName).filter(Objects::nonNull).toList());
 		}
-*/
 		List<Note> relatedNotes = variant.getVariantAssociationSubject().getRelatedNotes();
 		if (CollectionUtils.isNotEmpty(relatedNotes)) {
 			notesDescs = getCommaDelimetedString(relatedNotes.stream().map(Note::getFreeText).toList());
@@ -330,6 +330,14 @@ public class AlleleToTdfTranslator {
 		List<Reference> references = variant.getVariantAssociationSubject().getReferences();
 		if (CollectionUtils.isNotEmpty(references)) {
 			pubs = getCommaDelimetedString(references.stream().map(Reference::getReferenceID).toList());
+		}
+		if (pubs.isEmpty() && CollectionUtils.isNotEmpty(variant.getEvidence())) {
+			pubs = getCommaDelimetedString(variant.getEvidence().stream()
+				.filter(Reference.class::isInstance)
+				.map(Reference.class::cast)
+				.map(Reference::getReferenceID)
+				.filter(Objects::nonNull)
+				.toList());
 		}
 
 		row.setVariantSynonyms(synonyms);
