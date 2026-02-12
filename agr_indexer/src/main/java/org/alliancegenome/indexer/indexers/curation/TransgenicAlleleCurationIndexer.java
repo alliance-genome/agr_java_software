@@ -1,4 +1,4 @@
-package org.alliancegenome.indexer.indexers;
+package org.alliancegenome.indexer.indexers.curation;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,6 +25,7 @@ import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.RestConfig;
 import org.alliancegenome.indexer.config.IndexerConfig;
+import org.alliancegenome.indexer.indexers.Indexer;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 
@@ -34,7 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 import si.mazi.rescu.RestProxyFactory;
 
 @Slf4j
-public class TransgenicAlleleIndexer extends Indexer {
+public class TransgenicAlleleCurationIndexer extends Indexer {
 
 	private final TransgenicAlleleDocumentInterface transgenicAlleleApi = RestProxyFactory.createProxy(TransgenicAlleleDocumentInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 
@@ -43,7 +44,7 @@ public class TransgenicAlleleIndexer extends Indexer {
 		put("obsolete", false);
 	}};
 
-	public TransgenicAlleleIndexer(IndexerConfig config) {
+	public TransgenicAlleleCurationIndexer(IndexerConfig config) {
 		super(config);
 
 	}
