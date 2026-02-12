@@ -160,7 +160,11 @@ public class VariantSummaryConverter {
 			cvgla.setVariantAssociationSubject(variant);
 			cvgla.setReferenceSequence(ctx.getReference().getBaseString());
 			cvgla.setVariantSequence(vcfAllele.getBaseString());
-			if (refBase.length() > 1 || vcfAllele.getBaseString().length() > 1) {
+			if (vcfAllele.getBaseString().length() < refBase.length()) {
+				// Deletion: the ALT allele is the padded base
+				cvgla.setPaddedBase(vcfAllele.getBaseString());
+			} else if (vcfAllele.getBaseString().length() > refBase.length()) {
+				// Insertion: the REF allele is the padded base
 				cvgla.setPaddedBase(refBase.substring(0, 1));
 			}
 			// Set location info
