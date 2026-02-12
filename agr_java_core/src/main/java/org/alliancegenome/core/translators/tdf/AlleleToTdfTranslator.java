@@ -1,23 +1,20 @@
 package org.alliancegenome.core.translators.tdf;
 
+import org.alliancegenome.api.entity.AlleleVariantSequence;
+import org.alliancegenome.api.entity.GeneTransgenicAlleleSummaryDocument;
+import org.alliancegenome.api.entity.TransgenicAlleleSummaryDocument;
+import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
+import org.alliancegenome.curation_api.model.entities.*;
+import org.alliancegenome.curation_api.model.entities.associations.CuratedVariantGenomicLocationAssociation;
+import org.alliancegenome.neo4j.entity.node.Publication;
+import org.alliancegenome.neo4j.entity.node.TranscriptLevelConsequence;
+import org.apache.commons.collections.CollectionUtils;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
-
-import org.alliancegenome.api.entity.AlleleVariantSequence;
-import org.alliancegenome.api.entity.GeneTransgenicAlleleSummaryDocument;
-import org.alliancegenome.api.entity.TransgenicAlleleSummaryDocument;
-import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
-import org.alliancegenome.curation_api.model.entities.Allele;
-import org.alliancegenome.curation_api.model.entities.Note;
-import org.alliancegenome.curation_api.model.entities.Reference;
-import org.alliancegenome.curation_api.model.entities.TransgenicAlleleConstruct;
-import org.alliancegenome.curation_api.model.entities.associations.CuratedVariantGenomicLocationAssociation;
-import org.alliancegenome.neo4j.entity.node.Publication;
-import org.alliancegenome.neo4j.entity.node.TranscriptLevelConsequence;
-import org.apache.commons.collections.CollectionUtils;
 
 public class AlleleToTdfTranslator {
 
@@ -281,13 +278,28 @@ public class AlleleToTdfTranslator {
 	private VariantDownloadRow getBaseDownloadVariantRow(VariantSummaryDocument annotation) {
 		VariantDownloadRow row = new VariantDownloadRow();
 		CuratedVariantGenomicLocationAssociation variant = annotation.getVariant();
+		if (variant == null) {
+			return row;
+		}
 		row.setSymbol(variant.getHgvs());
-		row.setVariantType(variant.getVariantAssociationSubject().getVariantType().getName());
-		row.setChrPosition(variant.getVariantGenomicLocationAssociationObject().getName());
-		String consequence = variant.getPredictedVariantConsequences().get(0).getVepConsequences().get(0).getName();
-		row.setConsequence(consequence);
-//		row.setChange(annotation.getNucleotideChange());
-//		row.setOverlaps(annotation.getGene().getSymbol());
+		if (variant.getVariantAssociationSubject() != null && variant.getVariantAssociationSubject().getVariantType() != null) {
+			row.setVariantType(variant.getVariantAssociationSubject().getVariantType().getName());
+		}
+		if (variant.getVariantGenomicLocationAssociationObject() != null) {
+			row.setChrPosition(variant.getVariantGenomicLocationAssociationObject().getName() + ":" + variant.getStart());
+		}
+		if (CollectionUtils.isNotEmpty(variant.getPredictedVariantConsequences())
+			&& CollectionUtils.isNotEmpty(variant.getPredictedVariantConsequences().get(0).getVepConsequences())) {
+			row.setConsequence(variant.getPredictedVariantConsequences().get(0).getVepConsequences().get(0).getName());
+		}
+		if (variant.getNucleotideChange() != null) {
+			row.setChange(variant.getNucleotideChange());
+		}
+		if (variant.getOverlapGenes() != null) {
+			row.setOverlaps(variant.getOverlapGenes().stream()
+				.map(g -> g.getGeneSymbol().getDisplayText())
+				.collect(Collectors.joining(",")));
+		}
 		String hgvsGs = "";
 		String hgvsPs = "";
 		String hgvsCs = "";
@@ -316,13 +328,10 @@ public class AlleleToTdfTranslator {
 		if (CollectionUtils.isNotEmpty(variant.getHgvsP())) {
 			hgvsPs = getCommaDelimetedString(variant.getHgvsP());
 		}
-/*
-		if (CollectionUtils.isNotEmpty(annotation.getCrossReferences())) {
-			StringJoiner crossRefJoiner = new StringJoiner(",");
-			annotation.getCrossReferences().forEach(crossRef -> crossRefJoiner.add(crossRef.getDisplayName()));
-			crossRefs = crossRefJoiner.toString();
+		List<CrossReference> crossReferences = variant.getVariantAssociationSubject().getCrossReferences();
+		if (CollectionUtils.isNotEmpty(crossReferences)) {
+			crossRefs = getCommaDelimetedString(crossReferences.stream().map(CrossReference::getDisplayName).filter(Objects::nonNull).toList());
 		}
-*/
 		List<Note> relatedNotes = variant.getVariantAssociationSubject().getRelatedNotes();
 		if (CollectionUtils.isNotEmpty(relatedNotes)) {
 			notesDescs = getCommaDelimetedString(relatedNotes.stream().map(Note::getFreeText).toList());
@@ -330,6 +339,14 @@ public class AlleleToTdfTranslator {
 		List<Reference> references = variant.getVariantAssociationSubject().getReferences();
 		if (CollectionUtils.isNotEmpty(references)) {
 			pubs = getCommaDelimetedString(references.stream().map(Reference::getReferenceID).toList());
+		}
+		if (pubs.isEmpty() && CollectionUtils.isNotEmpty(variant.getEvidence())) {
+			pubs = getCommaDelimetedString(variant.getEvidence().stream()
+				.filter(Reference.class::isInstance)
+				.map(Reference.class::cast)
+				.map(Reference::getReferenceID)
+				.filter(Objects::nonNull)
+				.toList());
 		}
 
 		row.setVariantSynonyms(synonyms);
