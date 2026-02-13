@@ -124,15 +124,19 @@ public class VariantSummaryConverter {
 		List<String> csqList = ctx.getAttributeAsStringList("CSQ", "");
 
 		// Process each alternate allele in the VCF record
+		String refBase = ctx.getReference().getBaseString();
 		for (htsjdk.variant.variantcontext.Allele vcfAllele : ctx.getAlternateAlleles()) {
 			if (!alleleIsValid(vcfAllele.getBaseString())) {
 				System.out.println("Skipping invalid allele: " + vcfAllele.getBaseString());
 				continue;
 			}
 
+			// Convert VCF allele to VEP CSQ representation by stripping common prefix
+			String vepAllele = toVepAllele(refBase, vcfAllele.getBaseString());
+
 			// Parse VEP consequences from CSQ field
 			Set<String> hgvsGList = new HashSet<>();
-			List<PredictedVariantConsequence> consequences = getConsequences(csqList, vcfAllele.getBaseString(), speciesType, hgvsGList);
+			List<PredictedVariantConsequence> consequences = getConsequences(csqList, vepAllele, speciesType, hgvsGList);
 			if (consequences.isEmpty()) {
 				continue;
 			}
@@ -156,7 +160,13 @@ public class VariantSummaryConverter {
 			cvgla.setVariantAssociationSubject(variant);
 			cvgla.setReferenceSequence(ctx.getReference().getBaseString());
 			cvgla.setVariantSequence(vcfAllele.getBaseString());
-			// variantLocation.getNucleotideChange();
+			if (vcfAllele.getBaseString().length() < refBase.length()) {
+				// Deletion: the ALT allele is the padded base
+				cvgla.setPaddedBase(vcfAllele.getBaseString());
+			} else if (vcfAllele.getBaseString().length() > refBase.length()) {
+				// Insertion: the REF allele is the padded base
+				cvgla.setPaddedBase(refBase.substring(0, 1));
+			}
 			// Set location info
 			AssemblyComponent chromosome = new AssemblyComponent();
 			chromosome.setName(ctx.getContig());
@@ -426,6 +436,23 @@ public class VariantSummaryConverter {
 			}
 		}
 		return -1;
+	}
+
+	/**
+	 * Convert VCF REF/ALT to VEP CSQ Allele representation.
+	 * VEP strips the common leading padding base from REF and ALT:
+	 * - Deletion: REF=AAGGAACCACTC, ALT=A → VEP allele = "-"
+	 * - Insertion: REF=A, ALT=ATCG → VEP allele = "TCG"
+	 * - SNP: REF=A, ALT=T → VEP allele = "T"
+	 */
+	private static String toVepAllele(String ref, String alt) {
+		int commonPrefix = 0;
+		int minLen = Math.min(ref.length(), alt.length());
+		while (commonPrefix < minLen && ref.charAt(commonPrefix) == alt.charAt(commonPrefix)) {
+			commonPrefix++;
+		}
+		String remaining = alt.substring(commonPrefix);
+		return remaining.isEmpty() ? "-" : remaining;
 	}
 
 	private static boolean alleleIsValid(String allele) {

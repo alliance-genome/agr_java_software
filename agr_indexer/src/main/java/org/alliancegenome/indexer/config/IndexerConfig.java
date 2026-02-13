@@ -1,13 +1,12 @@
 package org.alliancegenome.indexer.config;
 
-import org.alliancegenome.indexer.indexers.AffectedGenomicModelIndexer;
 import org.alliancegenome.indexer.indexers.DatasetIndexer;
 import org.alliancegenome.indexer.indexers.DiseaseIndexer;
 import org.alliancegenome.indexer.indexers.GeneIndexer;
 import org.alliancegenome.indexer.indexers.GoIndexer;
 import org.alliancegenome.indexer.indexers.LiteratureIndexer;
 import org.alliancegenome.indexer.indexers.ModelIndexer;
-import org.alliancegenome.indexer.indexers.TransgenicAlleleIndexer;
+import org.alliancegenome.indexer.indexers.curation.AffectedGenomicModelCurationIndexer;
 import org.alliancegenome.indexer.indexers.curation.AlleleSummaryCurationIndexer;
 import org.alliancegenome.indexer.indexers.curation.DiseaseAnnotationCurationIndexer;
 import org.alliancegenome.indexer.indexers.curation.DiseaseSummaryCurationIndexer;
@@ -21,6 +20,7 @@ import org.alliancegenome.indexer.indexers.curation.GeneToGeneParalogyIndexer;
 import org.alliancegenome.indexer.indexers.curation.PhenotypeAnnotationCurationIndexer;
 import org.alliancegenome.indexer.indexers.curation.ReleaseInfoIndexer;
 import org.alliancegenome.indexer.indexers.curation.SiteMapAccessionCurationIndexer;
+import org.alliancegenome.indexer.indexers.curation.TransgenicAlleleCurationIndexer;
 import org.alliancegenome.indexer.indexers.curation.VariantSummaryCurationIndexer;
 
 public enum IndexerConfig {
@@ -40,7 +40,7 @@ public enum IndexerConfig {
 	GOSearchResultCurationIndexer("goSearchResult", GOSearchResultCurationIndexer.class, 4, 1500, 1500, 4, 1, true),
 	LiteratureIndexer("literature", LiteratureIndexer.class, 4, 5000, 5000, 1, 1, true),
 	GeneGeneticInteractionIndexers("geneGeneticInteraction", GeneGeneticInteractionCurationIndexer.class, 4, 1500, 1500, 2, 1, true),
-	AffectedGenomicModelIndexer("affectedGenomicModels", AffectedGenomicModelIndexer.class, 4, 1500, 1500, 8, 1, true),
+	AffectedGenomicModelIndexer("affectedGenomicModels", AffectedGenomicModelCurationIndexer.class, 4, 1500, 1500, 8, 1, true),
 	DiseaseSummaryIndexer("diseaseSummary", DiseaseSummaryCurationIndexer.class, 4, 1500, 1500, 4, 1, true),
 	SiteMapAccessionCurationIndexer("sitemap", SiteMapAccessionCurationIndexer.class, 4, 1500, 1500, 8, 1, true),
 	GeneExpressionRibbonSummaryIndexer("geneExpressionRibbonSummary", GeneExpressionRibbonSummaryIndexer.class, 1, 1, 1, 1, 1, true),
@@ -53,7 +53,7 @@ public enum IndexerConfig {
 	GeneExpressionAnnotationIndexer("geneExpressionAnnotation", GeneExpressionAnnotationIndexer.class, 8, 125, 2000, 4, 1, false),
 	
 	PhenotypeAnnotationIndexer("phenotypeAnnotation", PhenotypeAnnotationCurationIndexer.class, 4, 1500, 1500, 2, 1, false),
-	TransgenicAlleleIndexer("transgenicAlleles", TransgenicAlleleIndexer.class, 1, 3000, 1500, 8, 1, false),
+	TransgenicAlleleIndexer("transgenicAlleles", TransgenicAlleleCurationIndexer.class, 1, 3000, 1500, 8, 1, false),
 	GeneMolecularInteractionIndexers("geneMolecularInteraction", GeneMolecularInteractionCurationIndexer.class, 4, 1500, 1500, 2, 1, false),
 	DiseaseAnnotationIndexer("diseaseAnnotation", DiseaseAnnotationCurationIndexer.class, 1, 1500, 1500, 2, 1, false),
 	VariantSummaryIndexer("variantSummary", VariantSummaryCurationIndexer.class, 1, 3000, 1500, 8, 1, false),
