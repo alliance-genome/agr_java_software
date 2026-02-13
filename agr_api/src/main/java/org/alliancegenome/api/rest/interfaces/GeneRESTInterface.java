@@ -110,6 +110,8 @@ public interface GeneRESTInterface {
 		@QueryParam("filter.symbol") String symbol,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.synonyms", description = "allele synonym", schema = @Schema(type = SchemaType.STRING))
 		@QueryParam("filter.synonyms") String synonym,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.variant", description = "Variant HGVS name", schema = @Schema(type = SchemaType.STRING))
+		@QueryParam("filter.variant") String variant,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.variantType", description = "Variant types", schema = @Schema(type = SchemaType.STRING))
 		@QueryParam("filter.variantType") String variantType,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.molecularConsequence", description = "Consequence", schema = @Schema(type = SchemaType.STRING))
@@ -234,6 +236,8 @@ public interface GeneRESTInterface {
 		@QueryParam("filter.symbol") String symbol,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.synonym", description = "allele synonym", schema = @Schema(type = SchemaType.STRING))
 		@QueryParam("filter.synonyms") String synonym,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.variant", description = "variant name/HGVS", schema = @Schema(type = SchemaType.STRING))
+		@QueryParam("filter.variant") String variant,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.variantType", description = "Variant types", schema = @Schema(type = SchemaType.STRING))
 		@QueryParam("filter.variantType") String variantType,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.molecularConsequence", description = "Consequence", schema = @Schema(type = SchemaType.STRING))

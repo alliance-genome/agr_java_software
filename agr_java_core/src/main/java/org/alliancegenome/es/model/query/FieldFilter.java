@@ -53,6 +53,7 @@ public enum FieldFilter {
 	SEQUENCE_FEATURE("filter.sequenceFeature"),
 	ASSOCIATED_GENE("filter.associatedGeneSymbol"),
 	VARIANT_HGVS_G("filter.hgvsgName"),
+	VARIANT("filter.variant"),
 	ALLELE_CATEGORY("filter.alleleCategory"),
 	VARIANT_IMPACT("filter.variantImpact"),
 	CONSTRUCT_SYMBOL("filter.allele-construct-symbol"),

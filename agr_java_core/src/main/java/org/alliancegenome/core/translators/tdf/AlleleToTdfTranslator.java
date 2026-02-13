@@ -9,19 +9,20 @@ import java.util.stream.Collectors;
 import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.api.entity.GeneTransgenicAlleleSummaryDocument;
 import org.alliancegenome.api.entity.TransgenicAlleleSummaryDocument;
+import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
 import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
 import org.alliancegenome.curation_api.model.entities.Allele;
 import org.alliancegenome.curation_api.model.entities.Note;
 import org.alliancegenome.curation_api.model.entities.Reference;
 import org.alliancegenome.curation_api.model.entities.TransgenicAlleleConstruct;
+import org.alliancegenome.curation_api.model.entities.Variant;
 import org.alliancegenome.curation_api.model.entities.associations.CuratedVariantGenomicLocationAssociation;
-import org.alliancegenome.neo4j.entity.node.Publication;
-import org.alliancegenome.neo4j.entity.node.TranscriptLevelConsequence;
+import org.alliancegenome.curation_api.model.entities.ontology.SOTerm;
 import org.apache.commons.collections.CollectionUtils;
 
 public class AlleleToTdfTranslator {
 
-	public String getAllRows(List<org.alliancegenome.neo4j.entity.node.Allele> annotations) {
+	public String getAllRows(List<AlleleSummaryDocument> annotations) {
 
 		List<AlleleDownloadRow> list = getAlleleDownloadRowsForGenes(annotations);
 		List<DownloadHeader> headers = List.of(
@@ -33,33 +34,26 @@ public class AlleleToTdfTranslator {
 			new DownloadHeader<>("Variant Type", AlleleDownloadRow::getVariantType),
 			new DownloadHeader<>("Variant Consequence", AlleleDownloadRow::getVariantConsequence),
 			new DownloadHeader<>("Has Phenotype", AlleleDownloadRow::getHasPhenotype),
-			new DownloadHeader<>("Has Disease", AlleleDownloadRow::getHasDisease),
-			new DownloadHeader<>("Variant Information Reference", AlleleDownloadRow::getReference)
+			new DownloadHeader<>("Has Disease", AlleleDownloadRow::getHasDisease)
 		);
 
 		return DownloadHeader.getDownloadOutput(list, headers);
 	}
 
-	public List<AlleleDownloadRow> getAlleleDownloadRowsForGenes(List<org.alliancegenome.neo4j.entity.node.Allele> annotations) {
+	public List<AlleleDownloadRow> getAlleleDownloadRowsForGenes(List<AlleleSummaryDocument> annotations) {
 		return annotations.stream()
 			.map(annotation -> {
 				if (CollectionUtils.isNotEmpty(annotation.getVariants())) {
 					return annotation.getVariants().stream()
 						.map(join -> {
-							if (CollectionUtils.isNotEmpty(join.getPublications())) {
-								return join.getPublications().stream()
-									.map(pub -> getBaseDownloadRow(annotation, join, pub))
-									.collect(Collectors.toList());
-							} else {
 								return annotation.getVariants().stream()
-									.map(var -> getBaseDownloadRow(annotation, var, null))
+									.map(var -> getBaseDownloadRow(annotation, var))
 									.collect(Collectors.toList());
-							}
 
 						}).flatMap(Collection::stream)
 						.collect(Collectors.toList());
 				} else {
-					return List.of(getBaseDownloadRow(annotation, null, null));
+					return List.of(getBaseDownloadRow(annotation, null));
 				}
 			})
 			.flatMap(Collection::stream)
@@ -73,37 +67,34 @@ public class AlleleToTdfTranslator {
 	}
 
 
-	private AlleleDownloadRow getBaseDownloadRow(org.alliancegenome.neo4j.entity.node.Allele annotation, org.alliancegenome.neo4j.entity.node.Variant join, Publication pub) {
+	private AlleleDownloadRow getBaseDownloadRow(AlleleSummaryDocument annotation, Variant variant) {
 		AlleleDownloadRow row = new AlleleDownloadRow();
-		row.setAlleleID(annotation.getPrimaryKey());
-		row.setAlleleSymbol(annotation.getSymbol());
+		row.setAlleleID(annotation.getAllele().getPrimaryExternalId());
+		row.setAlleleSymbol(annotation.getAllele().getAlleleSymbol().getDisplayText());
 		String synonyms = "";
-		if (CollectionUtils.isNotEmpty(annotation.getSynonyms())) {
+		if (CollectionUtils.isNotEmpty(annotation.getAllele().getAlleleSynonyms())) {
 			StringJoiner synonymJoiner = new StringJoiner(",");
-			annotation.getSynonyms().forEach(synonym -> synonymJoiner.add(synonym.getName()));
+			annotation.getAllele().getAlleleSynonyms().forEach(synonym -> synonymJoiner.add(synonym.getDisplayText()));
 			synonyms = synonymJoiner.toString();
 		}
 		row.setAlleleSynonyms(synonyms);
-		row.setVariantCategory(annotation.getCategory());
-		if (join != null) {
-			row.setVariantSymbol(join.getHgvsNomenclature());
-			row.setVariantType(join.getVariantType().getName());
+		row.setVariantCategory(annotation.getAlterationType());
+		if (variant != null) {
+			row.setVariantSymbol(variant.getCuratedVariantGenomicLocations().get(0).getHgvs());
+			row.setVariantType(variant.getVariantType().getName());
 			String consequence = "";
-			if (CollectionUtils.isNotEmpty(join.getTranscriptLevelConsequence())) {
-				consequence = join.getTranscriptLevelConsequence().stream()
+			List<SOTerm> vepConsequences = variant.getCuratedVariantGenomicLocations().get(0).getPredictedVariantConsequences().get(0).getVepConsequences();
+			if (CollectionUtils.isNotEmpty(vepConsequences)) {
+				consequence = vepConsequences.stream()
 					.filter(Objects::nonNull)
-					.map(TranscriptLevelConsequence::getMolecularConsequences)
-					.filter(Objects::nonNull)
-					.flatMap(List::stream).distinct()
+					.map(vc -> vc.getName())
+					.distinct()
 					.collect(Collectors.joining("|"));
 			}
 			row.setVariantConsequence(consequence);
 		}
-		row.setHasPhenotype(annotation.hasPhenotype().toString());
-		row.setHasDisease(annotation.hasDisease().toString());
-		if (pub != null) {
-			row.setReference(pub.getPubId());
-		}
+		row.setHasPhenotype(annotation.getHasPhenotype().toString());
+		row.setHasDisease(annotation.getHasDisease().toString());
 		return row;
 	}
 
