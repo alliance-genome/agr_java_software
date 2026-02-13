@@ -418,7 +418,7 @@ public class AlleleIT {
 	@Ignore
 	public void checkAllelesGeneTableSynonymFilter() {
 		GeneController ctrl = new GeneController();
-		JsonResultResponse<AlleleSummaryDocument> response = ctrl.getAllelesPerGene("RGD:2219", 10, 1, "", "true", "", "brc", "", "", "", "", "allele");
+		JsonResultResponse<AlleleSummaryDocument> response = ctrl.getAllelesPerGene("RGD:2219", 10, 1, "", "true", "", "brc", "","", "", "", "", "allele");
 		assertNotNull(response);
 
 	}
