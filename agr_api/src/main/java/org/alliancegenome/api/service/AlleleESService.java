@@ -142,7 +142,6 @@ public class AlleleESService extends ESService {
 				sortingMap.put(sortingSetMap.get("hasPhenotype"), SortOrder.DESC);
 				sortingMap.put(sortingSetMap.get("hasDisease"), SortOrder.DESC);
 				sortingMap.put(sortingSetMap.get("alterationType"), SortOrder.ASC);
-				//sortingMap.put(sortingSetMap.get("assay"), SortOrder.ASC);
 				break;
 			case "variant" :
 				sortingMap.put(sortingSetMap.get("variant"), SortOrder.ASC);
