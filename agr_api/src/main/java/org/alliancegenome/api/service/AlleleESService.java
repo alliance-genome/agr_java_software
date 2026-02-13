@@ -16,8 +16,6 @@ import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
 import org.alliancegenome.curation_api.model.document.es.TransgenicAlleleDocument;
 import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
@@ -131,9 +129,9 @@ public class AlleleESService extends ESService {
 		sortingSetMap.put("variantType", "variants.variantType.name.sort");
 		sortingSetMap.put("alleleSymbol", "allele.alleleSymbol.displayText.sort");
 		sortingSetMap.put("molecularConsequence", "variants.curatedVariantGenomicLocations.predictedVariantConsequences.vepConsequences.name.sort");
-		sortingSetMap.put("alterationType","alterationType.sort");
-		sortingSetMap.put("hasPhenotype","hasPhenotype");
-		sortingSetMap.put("hasDisease","hasDisease");
+		sortingSetMap.put("alterationType", "alterationType.sort");
+		sortingSetMap.put("hasPhenotype", "hasPhenotype");
+		sortingSetMap.put("hasDisease", "hasDisease");
 
 		String sortField = pagination.getSortBy() != null ? pagination.getSortBy() : "default";
 

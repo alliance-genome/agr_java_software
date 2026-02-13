@@ -279,7 +279,7 @@ public class Mapping extends Builder {
 		builder.endObject();
 		new FieldBuilder(builder, "variants.variantType.name", "text").keyword().sort().build();
 		new FieldBuilder(builder, "variants.curatedVariantGenomicLocations.predictedVariantConsequences.vepConsequences.name", "text").keyword().sort().build();
-		new FieldBuilder(builder,"variants.curatedVariantGenomicLocations.hgvs","text").keyword().sort().build();
+		new FieldBuilder(builder, "variants.curatedVariantGenomicLocations.hgvs", "text").keyword().sort().build();
 		builder.startObject("crossReference");
 		builder.field("type", "object");
 		builder.field("dynamic", false);
