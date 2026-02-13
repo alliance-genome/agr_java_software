@@ -88,7 +88,7 @@ public class Mapping extends Builder {
 		//new FieldBuilder(builder, "taxonId", "keyword").build();
 
 		// Allele Only Fields
-		new FieldBuilder(builder, "alterationType", "text").keyword().build(); // Allele
+		new FieldBuilder(builder, "alterationType", "text").keyword().sort().build(); // Allele
 		new FieldBuilder(builder, "constructs", "text").keyword().classicText().build(); // allele
 		new FieldBuilder(builder, "constructExpressedComponent", "text").keyword().build(); // allele
 		new FieldBuilder(builder, "constructKnockdownComponent", "text").keyword().build(); // allele
@@ -261,6 +261,10 @@ public class Mapping extends Builder {
 		new FieldBuilder(builder, "primaryExternalId", "text").keyword().build();
 		builder.endObject();
 		builder.endObject();
+		new FieldBuilder(builder, "allele.alleleSymbol.displayText", "text").keyword().sort().build();
+		new FieldBuilder(builder, "allele.alleleSynonyms.displayText", "text").keyword().sort().build();
+		new FieldBuilder(builder, "hasDisease", "boolean").build();
+		new FieldBuilder(builder, "hasPhenotype", "boolean").build();
 
 		builder.startObject("alleleOfGene");
 		builder.field("dynamic", false);
@@ -273,7 +277,9 @@ public class Mapping extends Builder {
 		builder.field("type", "object");
 		builder.field("dynamic", false);
 		builder.endObject();
-
+		new FieldBuilder(builder, "variants.variantType.name", "text").keyword().sort().build();
+		new FieldBuilder(builder, "variants.curatedVariantGenomicLocations.predictedVariantConsequences.vepConsequences.name", "text").keyword().sort().build();
+		new FieldBuilder(builder, "variants.curatedVariantGenomicLocations.hgvs", "text").keyword().sort().build();
 		builder.startObject("crossReference");
 		builder.field("type", "object");
 		builder.field("dynamic", false);

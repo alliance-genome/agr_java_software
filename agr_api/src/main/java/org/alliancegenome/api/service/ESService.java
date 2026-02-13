@@ -154,7 +154,6 @@ public class ESService {
 				}
 			}
 		}
-		//Log.info(bool);
 	}
 
 	private boolean isBooleanField(String filterName) {
@@ -166,6 +165,7 @@ public class ESService {
 			|| filterName.equals("primaryAnnotations.negated")
 			|| filterName.endsWith(".negated")
 			|| filterName.contains("hasPhenotype")
+			|| filterName.contains("hasDisease")
 			|| filterName.contains("hasVariant")
 			|| filterName.contains("hasConstruct");
 	}

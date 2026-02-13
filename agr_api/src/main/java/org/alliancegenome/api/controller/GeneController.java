@@ -134,6 +134,7 @@ public class GeneController implements GeneRESTInterface {
 															String asc,
 															String symbol,
 															String synonym,
+															String variant,
 															String variantType,
 															String molecularConsequence,
 															String hasDisease,
@@ -142,13 +143,14 @@ public class GeneController implements GeneRESTInterface {
 
 		long startTime = System.currentTimeMillis();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
-		pagination.addFieldFilter(FieldFilter.SYMBOL, symbol);
-		pagination.addFieldFilter(FieldFilter.SYNONYMS, synonym);
-		pagination.addFieldFilter(FieldFilter.ALLELE_CATEGORY, category);
-		pagination.addFieldFilter(FieldFilter.VARIANT_TYPE, variantType);
-		pagination.addFieldFilter(FieldFilter.HAS_DISEASE, hasDisease);
-		pagination.addFieldFilter(FieldFilter.HAS_PHENOTYPE, hasPhenotype);
-		pagination.addFieldFilter(FieldFilter.MOLECULAR_CONSEQUENCE, molecularConsequence);
+		pagination.addFilterOption("allele.alleleSymbol.displayText", symbol);
+		pagination.addFilterOption("allele.alleleSynonyms.displayText", synonym);
+		pagination.addFilterOption("variants.curatedVariantGenomicLocations.hgvs", variant);
+		pagination.addFilterOption("alterationType.keyword", category);
+		pagination.addFilterOption("variants.variantType.name.keyword", variantType);
+		pagination.addFilterOption("hasDisease", hasDisease);
+		pagination.addFilterOption("hasPhenotype", hasPhenotype);
+		pagination.addFilterOption("variants.curatedVariantGenomicLocations.predictedVariantConsequences.vepConsequences.name.keyword", molecularConsequence);
 
 		if (pagination.hasErrors()) {
 			RestErrorMessage message = new RestErrorMessage();
@@ -285,26 +287,14 @@ public class GeneController implements GeneRESTInterface {
 		String asc,
 		String symbol,
 		String synonym,
+		String variant,
 		String variantType,
 		String molecularConsequence,
 		String phenotype,
 		String source,
 		String disease) {
-		Pagination pagination = new Pagination(1, Integer.MAX_VALUE, sortBy, asc);
-		pagination.addFieldFilter(FieldFilter.SYMBOL, symbol);
-		pagination.addFieldFilter(FieldFilter.SYNONYMS, synonym);
-		pagination.addFieldFilter(FieldFilter.SOURCE, source);
-		pagination.addFieldFilter(FieldFilter.DISEASE, disease);
-		pagination.addFieldFilter(FieldFilter.VARIANT_TYPE, variantType);
-		pagination.addFieldFilter(FieldFilter.PHENOTYPE, phenotype);
-		pagination.addFieldFilter(FieldFilter.MOLECULAR_CONSEQUENCE, molecularConsequence);
-		if (pagination.hasErrors()) {
-			RestErrorMessage message = new RestErrorMessage();
-			message.setErrors(pagination.getErrors());
-			throw new RestErrorException(message);
-		}
 
-		JsonResultResponse<Allele> alleles = geneService.getAlleles(id, pagination);
+		JsonResultResponse<AlleleSummaryDocument> alleles = getAllelesPerGene(id, 200000, 1, sortBy, asc, symbol, synonym, variant, variantType, molecularConsequence, phenotype, source, disease);
 
 		Response.ResponseBuilder responseBuilder = Response.ok(alleleTranslator.getAllRows(alleles.getResults()));
 		APIServiceHelper.setDownloadHeader(id, EntityType.GENE, EntityType.ALLELE, responseBuilder);
