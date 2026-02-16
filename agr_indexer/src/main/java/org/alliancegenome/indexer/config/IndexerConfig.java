@@ -13,6 +13,7 @@ import org.alliancegenome.indexer.indexers.curation.DiseaseSummaryCurationIndexe
 import org.alliancegenome.indexer.indexers.curation.GOSearchResultCurationIndexer;
 import org.alliancegenome.indexer.indexers.curation.GeneExpressionAnnotationIndexer;
 import org.alliancegenome.indexer.indexers.curation.GeneExpressionRibbonSummaryIndexer;
+import org.alliancegenome.indexer.indexers.curation.GeneSummaryCurationIndexer;
 import org.alliancegenome.indexer.indexers.curation.GeneGeneticInteractionCurationIndexer;
 import org.alliancegenome.indexer.indexers.curation.GeneMolecularInteractionCurationIndexer;
 import org.alliancegenome.indexer.indexers.curation.GeneToGeneOrthologyIndexer;
@@ -48,6 +49,7 @@ public enum IndexerConfig {
 	
 	// Run Sequentially
 	AlleleSummaryIndexer("alleleSummary", AlleleSummaryCurationIndexer.class, 4, 1500, 1500, 4, 1, false),
+	GeneSummaryIndexer("geneSummary", GeneSummaryCurationIndexer.class, 4, 1500, 1500, 4, 1, false),
 	GeneToGeneOrthologyIndexer("geneToGeneOrthology", GeneToGeneOrthologyIndexer.class, 4, 2500, 2500, 8, 1, false),
 	
 	GeneExpressionAnnotationIndexer("geneExpressionAnnotation", GeneExpressionAnnotationIndexer.class, 8, 125, 2000, 4, 1, false),
