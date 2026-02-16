@@ -100,7 +100,16 @@ public class VariantSummaryConverter {
 		if (!"SYMBOLIC".equals(ctx.getType().name()) && !"MIXED".equals(ctx.getType().name())) {
 			String typeName = ctx.getType().name().toUpperCase();
 			if ("INDEL".equals(ctx.getType().name())) {
-				typeName = "delins";
+				// Sub-classify INDELs: htsjdk lumps insertions, deletions, and delins together
+				String ref = ctx.getReference().getBaseString();
+				String alt = ctx.getAlternateAlleles().getFirst().getBaseString();
+				if (alt.startsWith(ref)) {
+					typeName = "insertion";
+				} else if (ref.startsWith(alt)) {
+					typeName = "deletion";
+				} else {
+					typeName = "delins";
+				}
 			}
 			variantType.setName(typeName);
 			variantType.setCurie("SO:" + typeName);
@@ -203,7 +212,7 @@ public class VariantSummaryConverter {
 				dbSnpRef.setDisplayName(ctxId);
 				ResourceDescriptor rd = resourceDescriptorList.stream().filter(resourceDescriptor -> resourceDescriptor.getPrefix().equals("dbSNP")).toList().getFirst();
 				ResourceDescriptorPage page = new ResourceDescriptorPage();
-				page.setUrlTemplate(rd.getDefaultUrlTemplate());
+				page.setUrlTemplate(rd.getResourcePages().getFirst().getUrlTemplate());
 				dbSnpRef.setResourceDescriptorPage(page);
 				variant.setCrossReferences(List.of(dbSnpRef));
 			}

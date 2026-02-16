@@ -23,7 +23,7 @@ import org.alliancegenome.curation_api.model.entities.ontology.ECOTerm;
 import org.alliancegenome.curation_api.model.entities.orthology.GeneToGeneOrthologyGenerated;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
-import org.alliancegenome.indexer.RestConfig;
+import org.alliancegenome.es.rest.RestConfig;
 import org.alliancegenome.indexer.indexers.curation.interfaces.GeneDiseaseAnnotationInterface;
 import org.alliancegenome.indexer.indexers.curation.interfaces.GeneToGeneOrthologyGeneratedInterface;
 import org.apache.commons.collections4.CollectionUtils;

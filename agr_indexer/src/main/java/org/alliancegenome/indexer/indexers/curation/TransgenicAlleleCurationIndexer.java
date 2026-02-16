@@ -23,7 +23,7 @@ import org.alliancegenome.curation_api.model.entities.slotAnnotations.ConstructC
 import org.alliancegenome.curation_api.model.entities.slotAnnotations.GeneSymbolSlotAnnotation;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
-import org.alliancegenome.indexer.RestConfig;
+import org.alliancegenome.es.rest.RestConfig;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
 import org.apache.commons.collections4.CollectionUtils;

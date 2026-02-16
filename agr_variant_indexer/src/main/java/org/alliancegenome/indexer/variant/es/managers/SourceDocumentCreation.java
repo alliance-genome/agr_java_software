@@ -20,6 +20,7 @@ import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
 import org.alliancegenome.curation_api.model.entities.ResourceDescriptor;
 import org.alliancegenome.curation_api.view.CurationView;
 import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
+import org.alliancegenome.es.rest.RestConfig;
 import org.alliancegenome.es.util.EsClientFactory;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.neo4j.entity.SpeciesType;
@@ -544,7 +545,7 @@ public class SourceDocumentCreation extends Thread {
 
 	private class JSONProducer extends Thread {
 
-		private ObjectMapper mapper = new ObjectMapper();
+		private ObjectMapper mapper = RestConfig.createObjectMapper();
 		private ObjectWriter cachedWriter;
 
 		// Welford's online algorithm state for mean, variance, and skewness
@@ -555,8 +556,6 @@ public class SourceDocumentCreation extends Thread {
 
 		@Override
 		public void run() {
-			mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-			mapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false);
 			cachedWriter = mapper.writerWithView(CurationView.VariantDocument.class);
 			while (!(Thread.currentThread().isInterrupted())) {
 				try {
