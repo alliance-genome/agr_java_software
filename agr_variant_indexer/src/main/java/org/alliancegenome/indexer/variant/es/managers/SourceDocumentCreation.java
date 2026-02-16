@@ -14,6 +14,7 @@ import org.alliancegenome.core.variant.converters.AlleleVariantSequenceConverter
 import org.alliancegenome.core.variant.converters.VariantSummaryConverter;
 import org.alliancegenome.curation_api.model.document.es.ESDocument;
 import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
+import org.alliancegenome.curation_api.model.entities.ResourceDescriptor;
 import org.alliancegenome.curation_api.view.CurationView;
 import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.es.util.EsClientFactory;
@@ -106,13 +107,16 @@ public class SourceDocumentCreation extends Thread {
 	private RestHighLevelClient client7 = EsClientFactory.getMustCloseSearchClient();
 	private RestHighLevelClient client8 = EsClientFactory.getMustCloseSearchClient();
 
-	public SourceDocumentCreation(String downloadPath, DownloadSource source, GeneDocumentCache geneCache) {
+	public SourceDocumentCreation(String downloadPath, DownloadSource source, GeneDocumentCache geneCache, List<ResourceDescriptor> resourceDescriptorList) {
 		this.downloadPath = downloadPath;
 		this.source = source;
 		this.geneCache = geneCache;
 		speciesType = SpeciesType.getTypeByID(source.getTaxonId());
 		messageHeader = speciesType.getModName() + " ";
+		this.resourceDescriptorList = resourceDescriptorList;
 	}
+
+	private List<ResourceDescriptor> resourceDescriptorList;
 
 	@Override
 	public void run() {
@@ -510,7 +514,7 @@ public class SourceDocumentCreation extends Thread {
 								workBucket.add(avs);
 								ph2.progressProcess("objectQueue: " + objectQueue.size());
 							}
-							List<VariantSummaryDocument> variantSummaryDocuments = converter.convertContextToDocument(ctx, speciesType);
+							List<VariantSummaryDocument> variantSummaryDocuments = converter.convertContextToDocument(ctx, speciesType, resourceDescriptorList);
 							for (VariantSummaryDocument variantSummaryDocument : variantSummaryDocuments) {
 								workBucket.add(variantSummaryDocument);
 								ph2.progressProcess("objectQueue: " + objectQueue.size());

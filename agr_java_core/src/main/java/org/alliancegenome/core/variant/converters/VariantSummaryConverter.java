@@ -1,25 +1,8 @@
 package org.alliancegenome.core.variant.converters;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
-import java.util.regex.Pattern;
-
+import htsjdk.variant.variantcontext.VariantContext;
 import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
-import org.alliancegenome.curation_api.model.entities.Allele;
-import org.alliancegenome.curation_api.model.entities.AssemblyComponent;
-import org.alliancegenome.curation_api.model.entities.CrossReference;
-import org.alliancegenome.curation_api.model.entities.Gene;
-import org.alliancegenome.curation_api.model.entities.GenomeAssembly;
-import org.alliancegenome.curation_api.model.entities.PredictedVariantConsequence;
-import org.alliancegenome.curation_api.model.entities.Transcript;
-import org.alliancegenome.curation_api.model.entities.Variant;
-import org.alliancegenome.curation_api.model.entities.VocabularyTerm;
+import org.alliancegenome.curation_api.model.entities.*;
 import org.alliancegenome.curation_api.model.entities.associations.CuratedVariantGenomicLocationAssociation;
 import org.alliancegenome.curation_api.model.entities.associations.GeneGenomicLocationAssociation;
 import org.alliancegenome.curation_api.model.entities.associations.TranscriptGeneAssociation;
@@ -30,7 +13,10 @@ import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.apache.commons.lang3.StringUtils;
 
-import htsjdk.variant.variantcontext.VariantContext;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
+import java.util.regex.Pattern;
 
 /**
  * Converts VCF VariantContext to AlleleVariantSequenceCuration documents using
@@ -98,7 +84,7 @@ public class VariantSummaryConverter {
 		hgvsgIdx = findHeaderIndex(header, "HGVSg");
 	}
 
-	public List<VariantSummaryDocument> convertContextToDocument(VariantContext ctx, SpeciesType speciesType) throws Exception {
+	public List<VariantSummaryDocument> convertContextToDocument(VariantContext ctx, SpeciesType speciesType, List<ResourceDescriptor> resourceDescriptorList) throws Exception {
 
 		List<VariantSummaryDocument> returnDocuments = new ArrayList<>();
 
@@ -215,6 +201,10 @@ public class VariantSummaryConverter {
 				CrossReference dbSnpRef = new CrossReference();
 				dbSnpRef.setReferencedCurie(ctxId);
 				dbSnpRef.setDisplayName(ctxId);
+				ResourceDescriptor rd = resourceDescriptorList.stream().filter(resourceDescriptor -> resourceDescriptor.getPrefix().equals("dbSNP")).toList().getFirst();
+				ResourceDescriptorPage page = new ResourceDescriptorPage();
+				page.setUrlTemplate(rd.getDefaultUrlTemplate());
+				dbSnpRef.setResourceDescriptorPage(page);
 				variant.setCrossReferences(List.of(dbSnpRef));
 			}
 
@@ -241,7 +231,7 @@ public class VariantSummaryConverter {
 	/**
 	 * Parse VEP CSQ annotations from VCF and create PredictedVariantConsequence
 	 * objects
-	 * 
+	 *
 	 * @param hgvsGList
 	 */
 	private List<PredictedVariantConsequence> getConsequences(List<String> csqList, String varNuc, SpeciesType speciesType, Set<String> hgvsGList) {
