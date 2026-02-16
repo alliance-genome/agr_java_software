@@ -24,6 +24,7 @@ import org.alliancegenome.api.service.AlleleService;
 import org.alliancegenome.api.service.DiseaseESService;
 import org.alliancegenome.api.service.EntityType;
 import org.alliancegenome.api.service.ExpressionService;
+import org.alliancegenome.api.service.GeneESService;
 import org.alliancegenome.api.service.GeneService;
 import org.alliancegenome.api.service.GeneToGeneParalogyESService;
 import org.alliancegenome.api.service.OrthologyESService;
@@ -44,13 +45,13 @@ import org.alliancegenome.core.translators.tdf.GeneGeneticInteractionToTdfTransl
 import org.alliancegenome.core.translators.tdf.GeneMolecularInteractionToTdfTranslator;
 import org.alliancegenome.curation_api.model.document.es.AffectedGenomicModelDocument;
 import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
+import org.alliancegenome.curation_api.model.document.es.GeneSummaryDocument;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.DiseaseSummary;
 import org.alliancegenome.neo4j.entity.EntitySummary;
 import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.view.HomologView;
 import org.alliancegenome.neo4j.view.OrthologyFilter;
 import org.apache.commons.collections.CollectionUtils;
@@ -71,6 +72,9 @@ public class GeneController implements GeneRESTInterface {
 
 	@Inject
 	GeneService geneService;
+
+	@Inject
+	GeneESService geneESService;
 
 	@Inject
 	AlleleESService alleleESService;
@@ -116,8 +120,8 @@ public class GeneController implements GeneRESTInterface {
 	private static final DiseaseAnnotationToTdfTranslator diseaseTranslator = new DiseaseAnnotationToTdfTranslator();
 
 	@Override
-	public Gene getGene(String id) {
-		Gene gene = geneService.getById(id);
+	public GeneSummaryDocument getGene(String id) {
+		GeneSummaryDocument gene = geneESService.getById(id);
 		if (gene == null) {
 			RestErrorMessage error = new RestErrorMessage("No gene found with ID: " + id);
 			throw new RestErrorException(error);
