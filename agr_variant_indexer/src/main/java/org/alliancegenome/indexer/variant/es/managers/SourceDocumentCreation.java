@@ -1,11 +1,14 @@
 package org.alliancegenome.indexer.variant.es.managers;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.TimeUnit;
-
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import htsjdk.samtools.util.CloseableIterator;
+import htsjdk.variant.variantcontext.VariantContext;
+import htsjdk.variant.vcf.VCFFileReader;
+import htsjdk.variant.vcf.VCFInfoHeaderLine;
+import lombok.extern.slf4j.Slf4j;
 import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.core.filedownload.model.DownloadSource;
 import org.alliancegenome.core.util.StatsCollector;
@@ -28,16 +31,11 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.xcontent.XContentType;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-
-import htsjdk.samtools.util.CloseableIterator;
-import htsjdk.variant.variantcontext.VariantContext;
-import htsjdk.variant.vcf.VCFFileReader;
-import htsjdk.variant.vcf.VCFInfoHeaderLine;
-import lombok.extern.slf4j.Slf4j;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class SourceDocumentCreation extends Thread {
@@ -285,7 +283,7 @@ public class SourceDocumentCreation extends Thread {
 			reader.start();
 			readers.add(reader);
 		}
-		
+
 		try {
 			Thread.sleep(3000);
 		} catch (InterruptedException e) {

@@ -1,10 +1,12 @@
 package org.alliancegenome.indexer.variant.es.managers;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.StreamReadFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import jakarta.ws.rs.HeaderParam;
+import lombok.extern.slf4j.Slf4j;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.filedownload.model.DownloadFileSet;
 import org.alliancegenome.core.filedownload.model.DownloadSource;
@@ -13,21 +15,14 @@ import org.alliancegenome.curation_api.model.entities.ResourceDescriptor;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.neo4j.repository.indexer.GeneIndexerRepository;
-
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.StreamReadFeature;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-
-import jakarta.ws.rs.HeaderParam;
-import lombok.extern.slf4j.Slf4j;
 import si.mazi.rescu.ClientConfig;
 import si.mazi.rescu.RestProxyFactory;
 import si.mazi.rescu.serialization.jackson.JacksonObjectMapperFactory;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Slf4j
 public class SourceDocumentCreationManager extends Thread {
@@ -62,6 +57,7 @@ public class SourceDocumentCreationManager extends Thread {
 					mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
 					return mapper;
 				}
+
 				@Override
 				public void configureObjectMapper(ObjectMapper mapper) {
 				}
