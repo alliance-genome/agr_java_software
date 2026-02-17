@@ -84,7 +84,7 @@ public class VariantSummaryConverter {
 		hgvsgIdx = findHeaderIndex(header, "HGVSg");
 	}
 
-	public List<VariantSummaryDocument> convertContextToDocument(VariantContext ctx, SpeciesType speciesType, List<ResourceDescriptor> resourceDescriptorList) throws Exception {
+	public List<VariantSummaryDocument> convertContextToDocument(VariantContext ctx, SpeciesType speciesType) throws Exception {
 
 		List<VariantSummaryDocument> returnDocuments = new ArrayList<>();
 
@@ -99,20 +99,23 @@ public class VariantSummaryConverter {
 		SOTerm variantType = new SOTerm();
 		if (!"SYMBOLIC".equals(ctx.getType().name()) && !"MIXED".equals(ctx.getType().name())) {
 			String typeName = ctx.getType().name().toUpperCase();
+			String typeCurie = "SO:" + typeName;
 			if ("INDEL".equals(ctx.getType().name())) {
 				// Sub-classify INDELs: htsjdk lumps insertions, deletions, and delins together
 				String ref = ctx.getReference().getBaseString();
 				String alt = ctx.getAlternateAlleles().getFirst().getBaseString();
 				if (alt.startsWith(ref)) {
 					typeName = "insertion";
+					typeCurie = "SO:0000667";
 				} else if (ref.startsWith(alt)) {
 					typeName = "deletion";
+					typeCurie = "SO:0000159";
 				} else {
 					typeName = "delins";
 				}
 			}
 			variantType.setName(typeName);
-			variantType.setCurie("SO:" + typeName);
+			variantType.setCurie(typeCurie);
 		}
 
 		// Hoist CSQ list to a single call before the allele loop
@@ -210,10 +213,6 @@ public class VariantSummaryConverter {
 				CrossReference dbSnpRef = new CrossReference();
 				dbSnpRef.setReferencedCurie(ctxId);
 				dbSnpRef.setDisplayName(ctxId);
-				ResourceDescriptor rd = resourceDescriptorList.stream().filter(resourceDescriptor -> resourceDescriptor.getPrefix().equals("dbSNP")).toList().getFirst();
-				ResourceDescriptorPage page = new ResourceDescriptorPage();
-				page.setUrlTemplate(rd.getResourcePages().getFirst().getUrlTemplate());
-				dbSnpRef.setResourceDescriptorPage(page);
 				variant.setCrossReferences(List.of(dbSnpRef));
 			}
 

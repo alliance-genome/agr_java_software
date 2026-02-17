@@ -66,14 +66,9 @@ public class SourceDocumentCreationManager extends Thread {
 			clientConfig.setHttpConnTimeout(300000);
 			clientConfig.setHttpReadTimeout(300000);
 
-			ResourceDescriptorInterface rdApi = RestProxyFactory.createProxy(ResourceDescriptorInterface.class, ConfigHelper.getCurationApiUrl(), clientConfig);
-			HashMap<String, Object> params = new HashMap<>();
-			SearchResponse<ResourceDescriptor> response = rdApi.find(0, 100, params);
-			List<ResourceDescriptor> resourceDescriptorList = response.getResults();
-
 			for (DownloadSource source : downloadSet.getDownloadFileSources()) {
 				if (source.getActive()) {
-					SourceDocumentCreation creator = new SourceDocumentCreation(downloadSet.getDownloadPath(), source, geneCache, resourceDescriptorList);
+					SourceDocumentCreation creator = new SourceDocumentCreation(downloadSet.getDownloadPath(), source, geneCache);
 					executor.execute(creator);
 				}
 			}

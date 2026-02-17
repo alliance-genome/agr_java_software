@@ -106,16 +106,13 @@ public class SourceDocumentCreation extends Thread {
 	private RestHighLevelClient client7 = EsClientFactory.getMustCloseSearchClient();
 	private RestHighLevelClient client8 = EsClientFactory.getMustCloseSearchClient();
 
-	public SourceDocumentCreation(String downloadPath, DownloadSource source, GeneDocumentCache geneCache, List<ResourceDescriptor> resourceDescriptorList) {
+	public SourceDocumentCreation(String downloadPath, DownloadSource source, GeneDocumentCache geneCache) {
 		this.downloadPath = downloadPath;
 		this.source = source;
 		this.geneCache = geneCache;
 		speciesType = SpeciesType.getTypeByID(source.getTaxonId());
 		messageHeader = speciesType.getModName() + " ";
-		this.resourceDescriptorList = resourceDescriptorList;
 	}
-
-	private List<ResourceDescriptor> resourceDescriptorList;
 
 	@Override
 	public void run() {
@@ -513,7 +510,7 @@ public class SourceDocumentCreation extends Thread {
 								workBucket.add(avs);
 								ph2.progressProcess("objectQueue: " + objectQueue.size());
 							}
-							List<VariantSummaryDocument> variantSummaryDocuments = converter.convertContextToDocument(ctx, speciesType, resourceDescriptorList);
+							List<VariantSummaryDocument> variantSummaryDocuments = converter.convertContextToDocument(ctx, speciesType);
 							for (VariantSummaryDocument variantSummaryDocument : variantSummaryDocuments) {
 								workBucket.add(variantSummaryDocument);
 								ph2.progressProcess("objectQueue: " + objectQueue.size());
