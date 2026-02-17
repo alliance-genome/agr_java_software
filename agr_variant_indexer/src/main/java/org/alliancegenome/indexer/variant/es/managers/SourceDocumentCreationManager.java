@@ -1,15 +1,14 @@
 package org.alliancegenome.indexer.variant.es.managers;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
+import lombok.extern.slf4j.Slf4j;
 import org.alliancegenome.core.filedownload.model.DownloadFileSet;
 import org.alliancegenome.core.filedownload.model.DownloadSource;
 import org.alliancegenome.core.variant.config.VariantConfigHelper;
 import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.neo4j.repository.indexer.GeneIndexerRepository;
 
-import lombok.extern.slf4j.Slf4j;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Slf4j
 public class SourceDocumentCreationManager extends Thread {
@@ -37,8 +36,7 @@ public class SourceDocumentCreationManager extends Thread {
 					executor.execute(creator);
 				}
 			}
-
-			log.info("SourceDocumentCreationManager shuting down executor: ");
+			log.info("SourceDocumentCreationManager shutting down executor... ");
 			executor.shutdown();
 			while (!executor.isTerminated()) {
 				Thread.sleep(1000);

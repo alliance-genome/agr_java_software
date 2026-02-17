@@ -7,7 +7,7 @@ import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.interfaces.document.GODocumentInterface;
 import org.alliancegenome.curation_api.model.document.es.GOSearchResultDocument;
 import org.alliancegenome.curation_api.response.SearchResponse;
-import org.alliancegenome.indexer.RestConfig;
+import org.alliancegenome.es.rest.RestConfig;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
 import org.apache.commons.collections.CollectionUtils;

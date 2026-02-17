@@ -1,25 +1,8 @@
 package org.alliancegenome.core.variant.converters;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
-import java.util.regex.Pattern;
-
+import htsjdk.variant.variantcontext.VariantContext;
 import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
-import org.alliancegenome.curation_api.model.entities.Allele;
-import org.alliancegenome.curation_api.model.entities.AssemblyComponent;
-import org.alliancegenome.curation_api.model.entities.CrossReference;
-import org.alliancegenome.curation_api.model.entities.Gene;
-import org.alliancegenome.curation_api.model.entities.GenomeAssembly;
-import org.alliancegenome.curation_api.model.entities.PredictedVariantConsequence;
-import org.alliancegenome.curation_api.model.entities.Transcript;
-import org.alliancegenome.curation_api.model.entities.Variant;
-import org.alliancegenome.curation_api.model.entities.VocabularyTerm;
+import org.alliancegenome.curation_api.model.entities.*;
 import org.alliancegenome.curation_api.model.entities.associations.CuratedVariantGenomicLocationAssociation;
 import org.alliancegenome.curation_api.model.entities.associations.GeneGenomicLocationAssociation;
 import org.alliancegenome.curation_api.model.entities.associations.TranscriptGeneAssociation;
@@ -30,7 +13,10 @@ import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.apache.commons.lang3.StringUtils;
 
-import htsjdk.variant.variantcontext.VariantContext;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
+import java.util.regex.Pattern;
 
 /**
  * Converts VCF VariantContext to AlleleVariantSequenceCuration documents using
@@ -113,11 +99,23 @@ public class VariantSummaryConverter {
 		SOTerm variantType = new SOTerm();
 		if (!"SYMBOLIC".equals(ctx.getType().name()) && !"MIXED".equals(ctx.getType().name())) {
 			String typeName = ctx.getType().name().toUpperCase();
+			String typeCurie = "SO:" + typeName;
 			if ("INDEL".equals(ctx.getType().name())) {
-				typeName = "delins";
+				// Sub-classify INDELs: htsjdk lumps insertions, deletions, and delins together
+				String ref = ctx.getReference().getBaseString();
+				String alt = ctx.getAlternateAlleles().getFirst().getBaseString();
+				if (alt.startsWith(ref)) {
+					typeName = "insertion";
+					typeCurie = "SO:0000667";
+				} else if (ref.startsWith(alt)) {
+					typeName = "deletion";
+					typeCurie = "SO:0000159";
+				} else {
+					typeName = "delins";
+				}
 			}
 			variantType.setName(typeName);
-			variantType.setCurie("SO:" + typeName);
+			variantType.setCurie(typeCurie);
 		}
 
 		// Hoist CSQ list to a single call before the allele loop
@@ -241,7 +239,7 @@ public class VariantSummaryConverter {
 	/**
 	 * Parse VEP CSQ annotations from VCF and create PredictedVariantConsequence
 	 * objects
-	 * 
+	 *
 	 * @param hgvsGList
 	 */
 	private List<PredictedVariantConsequence> getConsequences(List<String> csqList, String varNuc, SpeciesType speciesType, Set<String> hgvsGList) {
