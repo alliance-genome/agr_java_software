@@ -1,7 +1,5 @@
 package org.alliancegenome.indexer.variant.es.managers;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import htsjdk.samtools.util.CloseableIterator;
@@ -17,7 +15,6 @@ import org.alliancegenome.core.variant.converters.AlleleVariantSequenceConverter
 import org.alliancegenome.core.variant.converters.VariantSummaryConverter;
 import org.alliancegenome.curation_api.model.document.es.ESDocument;
 import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
-import org.alliancegenome.curation_api.model.entities.ResourceDescriptor;
 import org.alliancegenome.curation_api.view.CurationView;
 import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.es.rest.RestConfig;
