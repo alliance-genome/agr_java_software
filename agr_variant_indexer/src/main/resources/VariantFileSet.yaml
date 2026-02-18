@@ -30,7 +30,7 @@ downloadFileSources:
     active: true
     species: YEAST
     taxonId: "NCBITaxon:559292"
-    chromosomeList: [chrI, chrII, chrIII, chrIV, chrV, chrVI, chrVII, chrVIII, chrIX, chrX, chrXI, chrXII, chrXIII, chrXIV, chrXV, chrXVI]
+    chromosomeList: [chrI, chrII, chrIII, chrIV, chrV, chrVI, chrVII, chrVIII, chrIX, chrX, chrXI, chrXII, chrXIII, chrXIV, chrXV, chrXVI, chrmt]
 
   - source: ZFIN
     active: true
