@@ -265,6 +265,7 @@ public class Mapping extends Builder {
 		new FieldBuilder(builder, "allele.alleleSynonyms.displayText", "text").keyword().sort().build();
 		new FieldBuilder(builder, "hasDisease", "boolean").build();
 		new FieldBuilder(builder, "hasPhenotype", "boolean").build();
+		new FieldBuilder(builder, "alterationTypeSortOrder", "integer").keyword().sort().build();
 
 		builder.startObject("alleleOfGene");
 		builder.field("dynamic", false);
