@@ -291,10 +291,10 @@ public class GeneController implements GeneRESTInterface {
 		String variantType,
 		String molecularConsequence,
 		String phenotype,
-		String source,
-		String disease) {
+		String disease,
+		String category) {
 
-		JsonResultResponse<AlleleSummaryDocument> alleles = getAllelesPerGene(id, 200000, 1, sortBy, asc, symbol, synonym, variant, variantType, molecularConsequence, phenotype, source, disease);
+		JsonResultResponse<AlleleSummaryDocument> alleles = getAllelesPerGene(id, 200000, 1, sortBy, asc, symbol, synonym, variant, variantType, molecularConsequence, disease, phenotype, category);
 
 		Response.ResponseBuilder responseBuilder = Response.ok(alleleTranslator.getAllRows(alleles.getResults()));
 		APIServiceHelper.setDownloadHeader(id, EntityType.GENE, EntityType.ALLELE, responseBuilder);
