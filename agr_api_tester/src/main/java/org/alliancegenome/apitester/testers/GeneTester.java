@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.neo4j.entity.node.Gene;
+import org.alliancegenome.curation_api.model.document.es.GeneSummaryDocument;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 
 import lombok.extern.slf4j.Slf4j;
@@ -59,7 +59,7 @@ public class GeneTester extends Tester {
 		@Override
 		public void run() {
 			try {
-				Gene g = geneInt.getGene(id);
+				GeneSummaryDocument g = geneInt.getGene(id);
 				progressProcess();
 			} catch (Exception e) {
 				e.printStackTrace();

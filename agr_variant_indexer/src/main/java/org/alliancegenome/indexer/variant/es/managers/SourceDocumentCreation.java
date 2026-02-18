@@ -1,11 +1,12 @@
 package org.alliancegenome.indexer.variant.es.managers;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.TimeUnit;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import htsjdk.samtools.util.CloseableIterator;
+import htsjdk.variant.variantcontext.VariantContext;
+import htsjdk.variant.vcf.VCFFileReader;
+import htsjdk.variant.vcf.VCFInfoHeaderLine;
+import lombok.extern.slf4j.Slf4j;
 import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.core.filedownload.model.DownloadSource;
 import org.alliancegenome.core.util.StatsCollector;
@@ -16,6 +17,7 @@ import org.alliancegenome.curation_api.model.document.es.ESDocument;
 import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
 import org.alliancegenome.curation_api.view.CurationView;
 import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
+import org.alliancegenome.es.rest.RestConfig;
 import org.alliancegenome.es.util.EsClientFactory;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.neo4j.entity.SpeciesType;
@@ -27,16 +29,11 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.xcontent.XContentType;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-
-import htsjdk.samtools.util.CloseableIterator;
-import htsjdk.variant.variantcontext.VariantContext;
-import htsjdk.variant.vcf.VCFFileReader;
-import htsjdk.variant.vcf.VCFInfoHeaderLine;
-import lombok.extern.slf4j.Slf4j;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class SourceDocumentCreation extends Thread {
@@ -281,7 +278,7 @@ public class SourceDocumentCreation extends Thread {
 			reader.start();
 			readers.add(reader);
 		}
-		
+
 		try {
 			Thread.sleep(3000);
 		} catch (InterruptedException e) {
@@ -542,7 +539,7 @@ public class SourceDocumentCreation extends Thread {
 
 	private class JSONProducer extends Thread {
 
-		private ObjectMapper mapper = new ObjectMapper();
+		private ObjectMapper mapper = RestConfig.createObjectMapper();
 		private ObjectWriter cachedWriter;
 
 		// Welford's online algorithm state for mean, variance, and skewness
@@ -553,8 +550,6 @@ public class SourceDocumentCreation extends Thread {
 
 		@Override
 		public void run() {
-			mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-			mapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false);
 			cachedWriter = mapper.writerWithView(CurationView.VariantDocument.class);
 			while (!(Thread.currentThread().isInterrupted())) {
 				try {

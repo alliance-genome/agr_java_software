@@ -7,7 +7,7 @@ import java.util.Objects;
 import org.alliancegenome.curation_api.model.entities.GeneGeneticInteraction;
 import org.alliancegenome.curation_api.model.entities.GeneInteraction;
 import org.alliancegenome.curation_api.model.entities.base.AuditedObject;
-import org.alliancegenome.indexer.RestConfig;
+import org.alliancegenome.es.rest.RestConfig;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 

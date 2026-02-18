@@ -13,7 +13,7 @@ import org.alliancegenome.curation_api.interfaces.crud.GeneExpressionAnnotationC
 import org.alliancegenome.curation_api.interfaces.document.GeneToGeneOrthologyDocumentInterface;
 import org.alliancegenome.curation_api.model.document.es.GeneToGeneOrthologyDocument;
 import org.alliancegenome.curation_api.response.SearchResponse;
-import org.alliancegenome.indexer.RestConfig;
+import org.alliancegenome.es.rest.RestConfig;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
 import org.alliancegenome.indexer.indexers.curation.service.BaseService;

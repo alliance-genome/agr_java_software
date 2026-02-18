@@ -15,15 +15,14 @@ import org.alliancegenome.api.entity.GeneTransgenicAlleleSummaryDocument;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.curation_api.model.document.es.AffectedGenomicModelDocument;
 import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
+import org.alliancegenome.curation_api.model.document.es.GeneSummaryDocument;
 import org.alliancegenome.curation_api.view.CurationView;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.DiseaseSummary;
 import org.alliancegenome.neo4j.entity.EntitySummary;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
-import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.view.HomologView;
 import org.alliancegenome.neo4j.view.PublicView;
-import org.alliancegenome.neo4j.view.PublicView.GeneAPI;
 import org.alliancegenome.neo4j.view.PublicView.GeneAlleleVariantSequenceAPI;
 import org.apache.commons.lang3.ObjectUtils.Null;
 import org.eclipse.microprofile.openapi.annotations.Operation;
@@ -61,20 +60,11 @@ public interface GeneRESTInterface {
 
 	@GET
 	@Path("/{id}")
-	@JsonView(value = {GeneAPI.class})
-	@Operation(description = "Retrieve a Gene for given ID")
-	@APIResponses(
-		value = {
-			@APIResponse(
-				responseCode = "404",
-				description = "Missing genes",
-				content = @Content(mediaType = "text/plain")),
-			@APIResponse(
-				responseCode = "200",
-				description = "Genes for a give ID.",
-				content = @Content(mediaType = "application/json",
-					schema = @Schema(implementation = Null.class)))})
-	Gene getGene(
+	@Operation(description = "Searches for a Gene", summary = "Gene Summary")
+	@APIResponses(value = {
+		@APIResponse(responseCode = "404", description = "Missing genes", content = @Content(mediaType = "text/plain")),
+		@APIResponse(responseCode = "200", description = "Search for a gene.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class)))})
+	GeneSummaryDocument getGene(
 		@Parameter(in = ParameterIn.PATH, name = "id", description = "Retrieve a Gene for given ID", required = true, schema = @Schema(type = SchemaType.STRING))
 		@PathParam("id") String id
 	);
