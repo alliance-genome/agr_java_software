@@ -28,6 +28,41 @@ import jakarta.enterprise.context.RequestScoped;
 @RequestScoped
 public class AlleleESService extends ESService {
 
+	LinkedHashMap<String, SortOrder> defaultSortMap = new LinkedHashMap<>() {{
+		put("hasPhenotype", SortOrder.DESC);
+		put("hasDisease", SortOrder.DESC);
+		put("alterationTypeSortOrder.sort", SortOrder.ASC);
+	}};
+
+	LinkedHashMap<String, SortOrder> variantSortMap = new LinkedHashMap<>() {{
+		put("variants.curatedVariantGenomicLocations.hgvs.sort", SortOrder.ASC);
+		put("allele.alleleSymbol.displayText.sort", SortOrder.ASC);
+	}};
+
+	LinkedHashMap<String, SortOrder> variantTypeSortMap = new LinkedHashMap<>() {{
+		put("variants.variantType.name.sort", SortOrder.ASC);
+		put("allele.alleleSymbol.displayText.sort", SortOrder.ASC);
+	}};
+
+	LinkedHashMap<String, SortOrder> molecualarConsequenceSortMap = new LinkedHashMap<>() {{
+		put("variants.curatedVariantGenomicLocations.predictedVariantConsequences.vepConsequences.name.sort", SortOrder.ASC);
+		put("variants.variantType.name.sort", SortOrder.ASC);
+		put("allele.alleleSymbol.displayText.sort", SortOrder.ASC);
+	}};
+
+	LinkedHashMap<String, SortOrder> alleleSymbolSortMap = new LinkedHashMap<>() {{
+		put("allele.alleleSymbol.displayText.sort", SortOrder.ASC);
+	}};
+
+	Map<String, LinkedHashMap<String, SortOrder>> sortMap = new HashMap<>() {{
+		put("default", defaultSortMap);
+		put("variant", variantSortMap);
+		put("variantType", variantTypeSortMap);
+		put("molecularConsequence", molecualarConsequenceSortMap);
+		put("alleleSymbol", alleleSymbolSortMap);
+		put(null, defaultSortMap);
+	}};
+
 	public JsonResultResponse<TransgenicAlleleDocument> getTransgenicAlleles(String alleleId) {
 		BoolQueryBuilder bool = boolQuery();
 		BoolQueryBuilder bool2 = boolQuery();
@@ -102,8 +137,7 @@ public class AlleleESService extends ESService {
 		JsonResultResponse<AlleleSummaryDocument> ret = new JsonResultResponse<>();
 		ret.setSupplementalData(getAlleleSupplementalData(bool));
 		addTableFilter(pagination, bool);
-		LinkedHashMap<String, SortOrder> sortOrders = getAlleleSortOrders(pagination);
-		SearchResponse searchResponse = getSearchResponse(bool, pagination, sortOrders, false);
+		SearchResponse searchResponse = getSearchResponse(bool, pagination, sortMap.get(pagination.getSortBy()), false);
 		List<AlleleSummaryDocument> list = new ArrayList<>();
 		Arrays.stream(searchResponse.getHits().getHits()).forEach(searchHit -> {
 			try {
@@ -117,48 +151,6 @@ public class AlleleESService extends ESService {
 		ret.setResults(list);
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
 		return ret;
-	}
-
-	private LinkedHashMap<String, SortOrder> getAlleleSortOrders(Pagination pagination) {
-		
-		LinkedHashMap<String, SortOrder> sortingMap = new LinkedHashMap<>();
-		LinkedHashMap<String, String> sortingSetMap = new LinkedHashMap<>();
-
-		//sortingSetMap.put("default", "geneExpressionAnnotation.expressionAnnotationSubject.taxon.name.keyword");
-		sortingSetMap.put("variant", "variants.curatedVariantGenomicLocations.hgvs.sort");
-		sortingSetMap.put("variantType", "variants.variantType.name.sort");
-		sortingSetMap.put("alleleSymbol", "allele.alleleSymbol.displayText.sort");
-		sortingSetMap.put("molecularConsequence", "variants.curatedVariantGenomicLocations.predictedVariantConsequences.vepConsequences.name.sort");
-		sortingSetMap.put("alterationType", "alterationType.sort");
-		sortingSetMap.put("hasPhenotype", "hasPhenotype");
-		sortingSetMap.put("hasDisease", "hasDisease");
-
-		String sortField = pagination.getSortBy() != null ? pagination.getSortBy() : "default";
-
-		switch (sortField) {
-			case "default" :
-				sortingMap.put(sortingSetMap.get("hasPhenotype"), SortOrder.DESC);
-				sortingMap.put(sortingSetMap.get("hasDisease"), SortOrder.DESC);
-				sortingMap.put(sortingSetMap.get("alterationType"), SortOrder.ASC);
-				break;
-			case "variant" :
-				sortingMap.put(sortingSetMap.get("variant"), SortOrder.ASC);
-				sortingMap.put(sortingSetMap.get("alleleSymbol"), SortOrder.ASC);
-				break;
-			case "variantType" :
-				sortingMap.put(sortingSetMap.get("variantType"), SortOrder.ASC);
-				sortingMap.put(sortingSetMap.get("alleleSymbol"), SortOrder.ASC);
-				break;
-			case "molecularConsequence" :
-				sortingMap.put(sortingSetMap.get("molecularConsequence"), SortOrder.ASC);
-				sortingMap.put(sortingSetMap.get("variantType"), SortOrder.ASC);
-				sortingMap.put(sortingSetMap.get("alleleSymbol"), SortOrder.ASC);
-				break;
-			case "alleleSymbol" :
-				sortingMap.put(sortingSetMap.get("alleleSymbol"), SortOrder.ASC);
-		}
-		
-		return sortingMap;
 	}
 
 	private Map<String, Object> getAlleleSupplementalData(BoolQueryBuilder unfilteredQuery) {
