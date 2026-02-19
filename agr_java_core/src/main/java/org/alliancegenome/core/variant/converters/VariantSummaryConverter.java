@@ -13,6 +13,8 @@ import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.apache.commons.lang3.StringUtils;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
@@ -340,9 +342,9 @@ public class VariantSummaryConverter {
 				consequence.setVariantTranscript(transcript);
 			}
 
-			// Set HGVS nomenclature
-			consequence.setHgvsCodingNomenclature(infos[hgvsCIdx]);
-			consequence.setHgvsProteinNomenclature(infos[hgvsPIdx]);
+			// Set HGVS nomenclature (VEP URL-encodes special characters like = in CSQ fields)
+			consequence.setHgvsCodingNomenclature(URLDecoder.decode(infos[hgvsCIdx], StandardCharsets.UTF_8));
+			consequence.setHgvsProteinNomenclature(URLDecoder.decode(infos[hgvsPIdx], StandardCharsets.UTF_8));
 			consequence.setIntrons(infos[intronIdx]);
 			consequence.setExons(infos[exonIdx]);
 
