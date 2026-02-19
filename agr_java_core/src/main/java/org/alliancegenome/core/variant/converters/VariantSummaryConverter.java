@@ -156,17 +156,28 @@ public class VariantSummaryConverter {
 			variant.setTaxon(taxon);
 
 			// Create location association
+			String altBase = vcfAllele.getBaseString();
+			// Strip common prefix (padding) to get actual changed bases
+			int commonPrefix = 0;
+			int minLen = Math.min(refBase.length(), altBase.length());
+			while (commonPrefix < minLen && refBase.charAt(commonPrefix) == altBase.charAt(commonPrefix)) {
+				commonPrefix++;
+			}
+			String actualRef = refBase.substring(commonPrefix);
+			String actualAlt = altBase.substring(commonPrefix);
+
 			CuratedVariantGenomicLocationAssociation cvgla = new CuratedVariantGenomicLocationAssociation();
 			cvgla.setVariantAssociationSubject(variant);
-			cvgla.setReferenceSequence(ctx.getReference().getBaseString());
-			cvgla.setVariantSequence(vcfAllele.getBaseString());
-			if (vcfAllele.getBaseString().length() < refBase.length()) {
-				// Deletion: the ALT allele is the padded base
-				cvgla.setPaddedBase(vcfAllele.getBaseString());
-			} else if (vcfAllele.getBaseString().length() > refBase.length()) {
-				// Insertion: the REF allele is the padded base
+			cvgla.setReferenceSequence(actualRef.isEmpty() ? null : actualRef);
+			cvgla.setVariantSequence(actualAlt.isEmpty() ? null : actualAlt);
+			if (commonPrefix > 0 && actualRef.isEmpty()) {
+				// Insertion: entire REF is padding
 				cvgla.setPaddedBase(refBase.substring(0, 1));
+			} else if (commonPrefix > 0 && actualAlt.isEmpty()) {
+				// Deletion: entire ALT is padding
+				cvgla.setPaddedBase(altBase);
 			}
+			// SNPs and delins: no padded base
 			// Set location info
 			AssemblyComponent chromosome = new AssemblyComponent();
 			chromosome.setName(ctx.getContig());
