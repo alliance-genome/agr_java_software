@@ -32,6 +32,7 @@ public class AlleleESService extends ESService {
 		put("hasPhenotype", SortOrder.DESC);
 		put("hasDisease", SortOrder.DESC);
 		put("alterationTypeSortOrder.sort", SortOrder.ASC);
+		put("allele.alleleSymbol.displayText.sort", SortOrder.ASC);
 	}};
 
 	LinkedHashMap<String, SortOrder> variantSortMap = new LinkedHashMap<>() {{
