@@ -27,7 +27,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<!-- <curation.version>0.0.0</curation.version> -->
-		<curation.version>v0.46.6</curation.version>
+		<curation.version>v0.46.8</curation.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
