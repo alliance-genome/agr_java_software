@@ -153,7 +153,7 @@ public class VariantIT {
 		JsonResultResponse<Transcript> response = variantService.getTranscriptsByVariant("NC_000069.6:g.115711892_115711893delinsGC", pagination);
 		List<Transcript> results = response.getResults();
 		assertNotNull(results);
-		assertThat((int)response.getTotal(), greaterThanOrEqualTo(2));
+		assertThat((int) response.getTotal(), greaterThanOrEqualTo(2));
 	}
 
 	@Test
@@ -165,7 +165,7 @@ public class VariantIT {
 		List<Transcript> results = response.getResults();
 		assertNotNull(results);
 		assertThat(results.size(), equalTo(2));
-		assertThat((int)response.getTotal(), greaterThanOrEqualTo(16));
+		assertThat((int) response.getTotal(), greaterThanOrEqualTo(16));
 	}
 
 	@Test

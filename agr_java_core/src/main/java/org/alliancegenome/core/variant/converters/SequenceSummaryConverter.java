@@ -27,17 +27,17 @@ public class SequenceSummaryConverter {
 			}
 
 			for (PredictedVariantConsequence consequence : variant.getPredictedVariantConsequences()) {
-				if(consequence.getVariantTranscript() != null && consequence.getVariantTranscript().getTranscriptGeneAssociations() != null) {
+				if (consequence.getVariantTranscript() != null && consequence.getVariantTranscript().getTranscriptGeneAssociations() != null) {
 					SequenceSummaryDocument ssd = new SequenceSummaryDocument();
 					ssd.setAllele(doc.getAllele());
 					ssd.setVariant(variant);
 					ssd.setConsequence(consequence);
 
 					HashSet<String> geneIds = new HashSet<>();
-					for(TranscriptGeneAssociation assoc: consequence.getVariantTranscript().getTranscriptGeneAssociations()) {
+					for (TranscriptGeneAssociation assoc : consequence.getVariantTranscript().getTranscriptGeneAssociations()) {
 						geneIds.add(assoc.getTranscriptGeneAssociationObject().getCurie());
 					}
-					for(Gene gene: variant.getOverlapGenes()) {
+					for (Gene gene : variant.getOverlapGenes()) {
 						geneIds.add(gene.getCurie());
 					}
 					ssd.setGeneIds(geneIds);

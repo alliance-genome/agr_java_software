@@ -47,11 +47,11 @@ public class OrthologyIT {
 		JsonResultResponse<HomologView> response = service.getOrthologyMultiGeneJson(List.of("MGI:109583"), pagination);
 		assertNotNull(response);
 		assertTrue(response.getResults().stream().anyMatch(orthologView -> orthologView.getHomologGene().getPrimaryKey().equals("MGI:97490")));
-		assertThat((int)response.getTotal(), greaterThan(6));
+		assertThat((int) response.getTotal(), greaterThan(6));
 
 		response = service.getOrthologyBySpecies("danio", pagination);
 		assertNotNull(response);
-		assertThat((int)response.getTotal(), greaterThan(6));
+		assertThat((int) response.getTotal(), greaterThan(6));
 		// all source genes are ZFIN genes
 		response.getResults().forEach(view -> assertEquals(view.getGene().getTaxonId(), "NCBITaxon:7955"));
 	}
@@ -62,7 +62,7 @@ public class OrthologyIT {
 		pagination.setLimit(500);
 		JsonResultResponse<HomologView> response = service.getOrthologyByTwoSpecies("NCBITaxon:7955", "NCBITaxon:10090", pagination);
 		assertNotNull(response);
-		assertThat((int)response.getTotal(), greaterThan(86000));
+		assertThat((int) response.getTotal(), greaterThan(86000));
 		// all source genes are ZFIN genes
 		response.getResults().forEach(view -> assertEquals(view.getGene().getTaxonId(), "NCBITaxon:7955"));
 
@@ -72,20 +72,20 @@ public class OrthologyIT {
 
 		pagination.addFieldFilter(FieldFilter.STRINGENCY, "stringent");
 		response = service.getOrthologyByTwoSpecies("NCBITaxon:7955", "NCBITaxon:10090", pagination);
-		assertThat((int)response.getTotal(), greaterThan(22000));
-		assertThat((int)response.getTotal(), Matchers.lessThan(30000));
+		assertThat((int) response.getTotal(), greaterThan(22000));
+		assertThat((int) response.getTotal(), Matchers.lessThan(30000));
 
 		// make sure the species are supported by partial names as well.
 		response = service.getOrthologyByTwoSpecies("danio", "mus", pagination);
 		assertNotNull(response);
-		assertThat((int)response.getTotal(), greaterThan(1000));
+		assertThat((int) response.getTotal(), greaterThan(1000));
 
 		// make sure the species are supported by partial names as well.
 		pagination.addFieldFilter(FieldFilter.ORTHOLOGY_METHOD, "roundUP");
 		response = service.getOrthologyByTwoSpecies("danio", "mus", pagination);
 		assertNotNull(response);
-		assertThat((int)response.getTotal(), greaterThan(8000));
-		assertThat((int)response.getTotal(), lessThan(11000));
+		assertThat((int) response.getTotal(), greaterThan(8000));
+		assertThat((int) response.getTotal(), lessThan(11000));
 
 	}
 }
