@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.List;
 
 import org.alliancegenome.api.dto.ExpressionSummary;
-import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.api.entity.GeneGeneticInteractionDocument;
 import org.alliancegenome.api.entity.GeneMolecularInteractionDocument;
@@ -16,6 +15,7 @@ import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.curation_api.model.document.es.AffectedGenomicModelDocument;
 import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
 import org.alliancegenome.curation_api.model.document.es.GeneSummaryDocument;
+import org.alliancegenome.curation_api.model.document.es.SequenceSummaryDocument;
 import org.alliancegenome.curation_api.view.CurationView;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.DiseaseSummary;
@@ -23,7 +23,6 @@ import org.alliancegenome.neo4j.entity.EntitySummary;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.view.HomologView;
 import org.alliancegenome.neo4j.view.PublicView;
-import org.alliancegenome.neo4j.view.PublicView.GeneAlleleVariantSequenceAPI;
 import org.apache.commons.lang3.ObjectUtils.Null;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.ParameterIn;
@@ -117,7 +116,7 @@ public interface GeneRESTInterface {
 	@GET
 	@Path("/{id}/allele-variant-detail")
 	@Operation(summary = "Retrieve all alleles of a given gene")
-	@JsonView(value = {GeneAlleleVariantSequenceAPI.class})
+	@JsonView(value = {CurationView.SequenceSummaryDocument.class})
 	@APIResponses(
 		value = {
 			@APIResponse(
@@ -129,7 +128,7 @@ public interface GeneRESTInterface {
 				description = "Alleles for a gene.",
 				content = @Content(mediaType = "application/json",
 					schema = @Schema(implementation = Null.class)))})
-	JsonResultResponse<AlleleVariantSequence> getAllelesVariantPerGene(
+	JsonResultResponse<SequenceSummaryDocument> getAllelesVariantPerGene(
 		@Parameter(in = ParameterIn.PATH, name = "id", description = "Search for Alleles for a given Gene by ID", required = true, schema = @Schema(type = SchemaType.STRING))
 		@PathParam("id") String id,
 		@Parameter(in = ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))

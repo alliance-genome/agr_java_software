@@ -304,13 +304,13 @@ public class PhenotypeIT {
 		response = geneService.getPhenotypeAnnotations(geneID, pagination);
 		assertResponse(response, 7, 7);
 
-		int zfinRefCount = response.getTotal();
+		int zfinRefCount = (int)response.getTotal();
 
 		pagination.makeSingleFieldFilter(FieldFilter.FREFERENCE, "pmid");
 		response = geneService.getPhenotypeAnnotations(geneID, pagination);
 		assertResponse(response, 11, 115);
 
-		assertThat("zfin pubs plus PUB MED pubs gives total number ", zfinRefCount + response.getTotal(), greaterThanOrEqualTo(totalSize));
+		assertThat("zfin pubs plus PUB MED pubs gives total number ", zfinRefCount + (int)response.getTotal(), greaterThanOrEqualTo(totalSize));
 
 		// add containsFilterValue on reference: pubmed
 		pagination.makeSingleFieldFilter(FieldFilter.FREFERENCE, "239");
@@ -439,7 +439,7 @@ public class PhenotypeIT {
 	private void assertResponse(JsonResultResponse response, int resultSize, int totalSize) {
 		assertNotNull(response);
 		assertThat("Number of returned records", response.getResults().size(), greaterThanOrEqualTo(resultSize));
-		assertThat("Number of total records", response.getTotal(), greaterThanOrEqualTo(totalSize));
+		assertThat("Number of total records", (int)response.getTotal(), greaterThanOrEqualTo(totalSize));
 	}
 
 

@@ -15,46 +15,24 @@ import org.alliancegenome.neo4j.view.PublicView;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Setter
-@Getter
+@Data
+@JsonView({ PublicView.Default.class, CurationView.ModelDocument.class, CurationView.SequenceSummaryDocument.class })
 public class JsonResultResponse<T> {
 
 	public static final String DISTINCT_FIELD_VALUES = "distinctFieldValues";
 
-	@JsonView({ PublicView.Default.class, CurationView.ModelDocument.class })
 	private List<T> results = new ArrayList<T>();
-	
-	@JsonView({ PublicView.Default.class, CurationView.ModelDocument.class })
-	private int total;
-	
-	@JsonView({ PublicView.Default.class, CurationView.ModelDocument.class })
-	private int returnedRecords;
-	
-	@JsonView({ PublicView.Default.class, CurationView.ModelDocument.class })
+	private long total;
+	private long returnedRecords;
 	private String errorMessage = "";
-	
-	@JsonView({ PublicView.Default.class, CurationView.ModelDocument.class })
 	private String note = "";
-	
-	@JsonView({ PublicView.Default.class, CurationView.ModelDocument.class })
 	private String title = "";
-	
-	@JsonView({ PublicView.Default.class, CurationView.ModelDocument.class })
 	private String requestDuration;
-	
-	@JsonView({ PublicView.Default.class, CurationView.ModelDocument.class })
 	private Request request;
-	
-	@JsonView({ PublicView.Default.class, CurationView.ModelDocument.class })
 	private String apiVersion;
-	
-	@JsonView({ PublicView.Default.class, CurationView.ModelDocument.class })
 	private String requestDate;
-	
-	@JsonView({ PublicView.Default.class, CurationView.ModelDocument.class })
 	private Map<String, Object> supplementalData;
 
 	public JsonResultResponse() {

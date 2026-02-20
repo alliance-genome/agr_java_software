@@ -7,13 +7,13 @@ import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFFileReader;
 import htsjdk.variant.vcf.VCFInfoHeaderLine;
 import lombok.extern.slf4j.Slf4j;
-import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.core.filedownload.model.DownloadSource;
 import org.alliancegenome.core.util.StatsCollector;
 import org.alliancegenome.core.variant.config.VariantConfigHelper;
-import org.alliancegenome.core.variant.converters.AlleleVariantSequenceConverter;
+import org.alliancegenome.core.variant.converters.SequenceSummaryConverter;
 import org.alliancegenome.core.variant.converters.VariantSummaryConverter;
 import org.alliancegenome.curation_api.model.document.es.ESDocument;
+import org.alliancegenome.curation_api.model.document.es.SequenceSummaryDocument;
 import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
 import org.alliancegenome.curation_api.view.CurationView;
 import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
@@ -88,8 +88,8 @@ public class SourceDocumentCreation extends Thread {
 	private ProcessDisplayHelper ph4 = new ProcessDisplayHelper(VariantConfigHelper.getDisplayInterval());
 	private ProcessDisplayHelper ph5 = new ProcessDisplayHelper(VariantConfigHelper.getDisplayInterval());
 
-	private AlleleVariantSequenceConverter aVSConverter;
-	private VariantSummaryConverter converter;
+	private VariantSummaryConverter variantSummaryConverter;
+	private SequenceSummaryConverter sequenceSummaryConverter;
 
 	private StatsCollector statsCollector = new StatsCollector();
 	private String messageHeader = "";
@@ -458,8 +458,8 @@ public class SourceDocumentCreation extends Thread {
 				VCFInfoHeaderLine fileHeader = reader.getFileHeader().getInfoHeaderLine("CSQ");
 				header = fileHeader.getDescription().split("Format: ")[1].split("\\|");
 				// All files for a Mod have the same header so we only need one of them
-				converter = new VariantSummaryConverter(header, geneCache);
-				aVSConverter = new AlleleVariantSequenceConverter(header, geneCache);
+				variantSummaryConverter = new VariantSummaryConverter(header, geneCache);
+				sequenceSummaryConverter = new SequenceSummaryConverter();
 				try {
 					TimeUnit.MILLISECONDS.sleep(20);
 				} catch (InterruptedException e) {
@@ -502,14 +502,14 @@ public class SourceDocumentCreation extends Thread {
 
 					for (VariantContext ctx : ctxList) {
 						try {
-							List<AlleleVariantSequence> avsList = aVSConverter.convertContextToAlleleVariantSequence(ctx, speciesType);
-							for (AlleleVariantSequence avs : avsList) {
-								workBucket.add(avs);
-								ph2.progressProcess("objectQueue: " + objectQueue.size());
-							}
-							List<VariantSummaryDocument> variantSummaryDocuments = converter.convertContextToDocument(ctx, speciesType);
+							List<VariantSummaryDocument> variantSummaryDocuments = variantSummaryConverter.convertContextToDocument(ctx, speciesType);
 							for (VariantSummaryDocument variantSummaryDocument : variantSummaryDocuments) {
 								workBucket.add(variantSummaryDocument);
+								ph2.progressProcess("objectQueue: " + objectQueue.size());
+							}
+							List<SequenceSummaryDocument> sequenceSummaryDocuments = sequenceSummaryConverter.convertToSequenceSummary(variantSummaryDocuments);
+							for (SequenceSummaryDocument sequenceSummaryDocument : sequenceSummaryDocuments) {
+								workBucket.add(sequenceSummaryDocument);
 								ph2.progressProcess("objectQueue: " + objectQueue.size());
 							}
 						} catch (Exception e) {
@@ -541,6 +541,7 @@ public class SourceDocumentCreation extends Thread {
 
 		private ObjectMapper mapper = RestConfig.createObjectMapper();
 		private ObjectWriter cachedWriter;
+		private ObjectWriter sequenceWriter;
 
 		// Welford's online algorithm state for mean, variance, and skewness
 		private long n;
@@ -550,7 +551,8 @@ public class SourceDocumentCreation extends Thread {
 
 		@Override
 		public void run() {
-			cachedWriter = mapper.writerWithView(CurationView.VariantDocument.class);
+			cachedWriter = mapper.writerWithView(CurationView.VariantSummaryDocument.class);
+			sequenceWriter = mapper.writerWithView(CurationView.SequenceSummaryDocument.class);
 			while (!(Thread.currentThread().isInterrupted())) {
 				try {
 					List<ESDocument> docList = objectQueue.take();
@@ -568,11 +570,10 @@ public class SourceDocumentCreation extends Thread {
 						for (ESDocument doc : docList) {
 							try {
 								String jsonDoc = null;
-								if (doc instanceof VariantSummaryDocument vsd) {
+								if (doc instanceof SequenceSummaryDocument ssd) {
+									jsonDoc = sequenceWriter.writeValueAsString(ssd);
+								} else if (doc instanceof VariantSummaryDocument vsd) {
 									jsonDoc = cachedWriter.writeValueAsString(vsd);
-								} else if (doc instanceof AlleleVariantSequence avs) {
-									jsonDoc = cachedWriter.writeValueAsString(avs);
-
 								} else {
 									// This should never happen
 								}

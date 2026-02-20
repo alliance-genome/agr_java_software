@@ -15,9 +15,9 @@ public class DiseaseEntitySubgroupSlim {
 	private String id;
 	@JsonView(PublicView.DiseaseAnnotation.class)
 	@JsonProperty("nb_classes")
-	private int numberOfClasses;
+	private long numberOfClasses;
 	@JsonView(PublicView.DiseaseAnnotation.class)
 	@JsonProperty("nb_annotations")
-	private int numberOfAnnotations;
+	private long numberOfAnnotations;
 
 }

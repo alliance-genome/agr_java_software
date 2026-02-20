@@ -2,6 +2,7 @@ package org.alliancegenome.api.tests.integration;
 
 import static java.util.Comparator.comparing;
 import static java.util.Comparator.comparingInt;
+import static java.util.Comparator.comparingLong;
 import static java.util.stream.Collectors.toMap;
 
 import java.io.IOException;
@@ -86,7 +87,7 @@ public class TransgenicAlleleStats {
 
 	public static void getOrganismTransgeneAlleles(Map<String, Gene> geneMap, Map<String, JsonResultResponse<Allele>> alleleMap) {
 
-		Map<String, JsonResultResponse<Allele>> sorted = alleleMap.entrySet().stream().filter(entry -> entry.getValue().getTotal() > 0).sorted(comparingInt(entry -> -entry.getValue().getTotal())).collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> {
+		Map<String, JsonResultResponse<Allele>> sorted = alleleMap.entrySet().stream().filter(entry -> entry.getValue().getTotal() > 0).sorted(comparingLong(entry -> -entry.getValue().getTotal())).collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> {
 			throw new AssertionError();
 		}, LinkedHashMap::new));
 

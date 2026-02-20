@@ -1,20 +1,25 @@
 package org.alliancegenome.core.translators.tdf;
 
-import org.alliancegenome.api.entity.AlleleVariantSequence;
-import org.alliancegenome.api.entity.GeneTransgenicAlleleSummaryDocument;
-import org.alliancegenome.api.entity.TransgenicAlleleSummaryDocument;
-import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
-import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
-import org.alliancegenome.curation_api.model.entities.*;
-import org.alliancegenome.curation_api.model.entities.associations.CuratedVariantGenomicLocationAssociation;
-import org.alliancegenome.curation_api.model.entities.ontology.SOTerm;
-import org.apache.commons.collections.CollectionUtils;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
+
+import org.alliancegenome.api.entity.AlleleVariantSequence;
+import org.alliancegenome.api.entity.GeneTransgenicAlleleSummaryDocument;
+import org.alliancegenome.api.entity.TransgenicAlleleSummaryDocument;
+import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
+import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
+import org.alliancegenome.curation_api.model.entities.Allele;
+import org.alliancegenome.curation_api.model.entities.CrossReference;
+import org.alliancegenome.curation_api.model.entities.Note;
+import org.alliancegenome.curation_api.model.entities.Reference;
+import org.alliancegenome.curation_api.model.entities.TransgenicAlleleConstruct;
+import org.alliancegenome.curation_api.model.entities.Variant;
+import org.alliancegenome.curation_api.model.entities.associations.CuratedVariantGenomicLocationAssociation;
+import org.alliancegenome.curation_api.model.entities.ontology.SOTerm;
+import org.apache.commons.collections.CollectionUtils;
 
 public class AlleleToTdfTranslator {
 

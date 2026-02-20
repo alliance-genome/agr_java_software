@@ -688,7 +688,7 @@ public class DiseaseIT {
 
 		assertNotNull(annotations);
 		// 14 different disease terms
-		assertThat(annotations.getTotal(), greaterThanOrEqualTo(14));
+		assertThat((int)annotations.getTotal(), greaterThanOrEqualTo(14));
 		// pick autism spectrum disorder
 		// one record (no duplication
 		List<DiseaseAnnotation> annots = annotations.getResults().stream().filter(diseaseDocument -> diseaseDocument.getDisease().getName().equals("autism spectrum disorder")).collect(Collectors.toList());
@@ -870,7 +870,7 @@ public class DiseaseIT {
 		// int rowSize =
 		// translator.getDownloadRowsFromGenes(response.getResults()).size();
 		assertNotNull(response);
-		assertThat(rowSize, greaterThan(response.getTotal()));
+		assertThat(rowSize, greaterThan((int)response.getTotal()));
 	}
 
 	@Test
@@ -962,7 +962,7 @@ public class DiseaseIT {
 	private void assertLimitResponse(JsonResultResponse response, int resultSize, int totalSize) {
 		assertNotNull(response);
 		assertThat("Number of returned records", response.getResults().size(), greaterThanOrEqualTo(resultSize));
-		assertThat("Number of total records", response.getTotal(), greaterThanOrEqualTo(totalSize));
+		assertThat("Number of total records", (int)response.getTotal(), greaterThanOrEqualTo(totalSize));
 	}
 
 }

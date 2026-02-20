@@ -99,7 +99,7 @@ public class GeneIT {
 		GeneController controller = new GeneController();
 		String[] geneIDs = {"RGD:2129"};
 		JsonResultResponse<GeneToGeneOrthologyDocument> response = controller.getGeneOrthology("MGI:109583", asList(geneIDs), null, "stringENT", null, null, 20, 1);
-		assertThat("Matches found for containsFilterValue 'stringent", response.getTotal(), greaterThan(0));
+		assertThat("Matches found for containsFilterValue 'stringent", (int)response.getTotal(), greaterThan(0));
 	}
 
 	@Test
@@ -107,7 +107,7 @@ public class GeneIT {
 
 		GeneController controller = new GeneController();
 		JsonResultResponse<GeneToGeneOrthologyDocument> response = controller.getGeneOrthology("MGI:109583", null, null, "stringENT", null, null, 20, 1);
-		assertThat("Matches found for containsFilterValue 'stringent", response.getTotal(), greaterThan(0));
+		assertThat("Matches found for containsFilterValue 'stringent", (int)response.getTotal(), greaterThan(0));
 	}
 
 	@Test
@@ -115,7 +115,7 @@ public class GeneIT {
 
 		OrthologyController controller = new OrthologyController();
 		JsonResultResponse<HomologView> response = controller.getSingleSpeciesOrthology("559292", "stringent", "OMA", 20, 1);
-		assertThat("Orthology records found for mouse geneMap", response.getTotal(), greaterThan(0));
+		assertThat("Orthology records found for mouse geneMap", (int)response.getTotal(), greaterThan(0));
 	}
 
 	@Test
@@ -123,14 +123,14 @@ public class GeneIT {
 
 		GeneController controller = new GeneController();
 		JsonResultResponse<GeneToGeneOrthologyDocument> response = controller.getGeneOrthology("MGI:109583", null, null, "stringent", null, null, 20, 1);
-		assertThat("No matches found for species 'NCBITaxon:10115", response.getTotal(), greaterThan(5));
+		assertThat("No matches found for species 'NCBITaxon:10115", (int)response.getTotal(), greaterThan(5));
 
 		String taxonArray = "NCBITaxon:10116";
 		response = controller.getGeneOrthology("MGI:109583", null, null, null, taxonArray, null, 20, 1);
-		assertThat("matches found for method species NCBITaxon:10116", response.getTotal(), greaterThan(0));
+		assertThat("matches found for method species NCBITaxon:10116", (int)response.getTotal(), greaterThan(0));
 
 		response = controller.getGeneOrthology("MGI:109583", null, null, "stringent", taxonArray, null, 20, 1);
-		assertThat("matches found for method species NCBITaxon:10116", response.getTotal(), greaterThan(0));
+		assertThat("matches found for method species NCBITaxon:10116", (int)response.getTotal(), greaterThan(0));
 
 /*
 		response = controller.getDoubleSpeciesOrthology("MGI:109583", null, "NCBITaxon:10116,NCBITaxon:7955", null, null, null);
@@ -148,19 +148,19 @@ public class GeneIT {
 		GeneController controller = new GeneController();
 		String methods = "ZFIN";
 		JsonResultResponse<GeneToGeneOrthologyDocument> response = controller.getGeneOrthology("MGI:109583", null, null, null, null, methods, 20, 1);
-		assertThat("No match against method 'ZFIN'", response.getTotal(), greaterThan(0));
+		assertThat("No match against method 'ZFIN'", (int)response.getTotal(), greaterThan(0));
 
 		methods = "OrthoFinder";
 		response = controller.getGeneOrthology("MGI:109583", null, null, null, null, methods, 20, 1);
-		assertThat("matches found for method 'OrthoFinder'", response.getTotal(), greaterThan(0));
+		assertThat("matches found for method 'OrthoFinder'", (int)response.getTotal(), greaterThan(0));
 
 		methods = "ZFIN";
 		response = controller.getGeneOrthology("MGI:109583", null, null, null, null, methods, 20, 1);
-		assertThat("no matches found for method 'OrthoFinder and ZFIN'", response.getTotal(), greaterThan(0));
+		assertThat("no matches found for method 'OrthoFinder and ZFIN'", (int)response.getTotal(), greaterThan(0));
 
 		methods = "PANTHER";
 		response = controller.getGeneOrthology("MGI:109583", null, null, null, null, methods, 20, 1);
-		assertThat("matches found for method 'OrthoFinder and Panther'", response.getTotal(), greaterThan(0));
+		assertThat("matches found for method 'OrthoFinder and Panther'", (int)response.getTotal(), greaterThan(0));
 	}
 
 	@Test
@@ -168,7 +168,7 @@ public class GeneIT {
 
 		GeneController controller = new GeneController();
 		JsonResultResponse<GeneToGeneOrthologyDocument> response = controller.getGeneOrthology("MGI:109583", null, null, null, null, null, 20, 1);
-		assertThat("matches found for gene MGI:109583'", response.getTotal(), greaterThan(0));
+		assertThat("matches found for gene MGI:109583'", (int)response.getTotal(), greaterThan(0));
 	}
 
 	@Test
@@ -184,7 +184,7 @@ public class GeneIT {
 		GenesController controller = new GenesController();
 		String[] taxonIDs = {"danio"};
 		JsonResultResponse<Gene> response = controller.getGenes(asList(taxonIDs), 10, 1);
-		assertThat("matches found for gene MGI:109583'", response.getTotal(), greaterThan(5));
+		assertThat("matches found for gene MGI:109583'", (int)response.getTotal(), greaterThan(5));
 	}
 
 	@Test

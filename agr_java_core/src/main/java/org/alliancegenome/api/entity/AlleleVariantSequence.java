@@ -20,13 +20,13 @@ import lombok.Setter;
 @Getter
 public class AlleleVariantSequence extends SearchableItemDocument {
 
-	@JsonView({PublicView.Default.class, CurationView.VariantDocument.class})
+	@JsonView({PublicView.Default.class, CurationView.VariantSummaryDocument.class})
 	private Allele allele;
-	@JsonView({PublicView.Default.class, CurationView.VariantDocument.class})
+	@JsonView({PublicView.Default.class, CurationView.VariantSummaryDocument.class})
 	private Variant variant;
 	@JsonView({PublicView.Default.class})
 	private TranscriptLevelConsequence consequence;
-	@JsonView({PublicView.Default.class, CurationView.VariantDocument.class})
+	@JsonView({PublicView.Default.class, CurationView.VariantSummaryDocument.class})
 	private Boolean searchable = true;
 
 	// Used only for deserialization purposes

@@ -1,8 +1,27 @@
 package org.alliancegenome.core.variant.converters;
 
-import htsjdk.variant.variantcontext.VariantContext;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
+import java.util.regex.Pattern;
+
 import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
-import org.alliancegenome.curation_api.model.entities.*;
+import org.alliancegenome.curation_api.model.entities.Allele;
+import org.alliancegenome.curation_api.model.entities.AssemblyComponent;
+import org.alliancegenome.curation_api.model.entities.CrossReference;
+import org.alliancegenome.curation_api.model.entities.Gene;
+import org.alliancegenome.curation_api.model.entities.GenomeAssembly;
+import org.alliancegenome.curation_api.model.entities.PredictedVariantConsequence;
+import org.alliancegenome.curation_api.model.entities.Transcript;
+import org.alliancegenome.curation_api.model.entities.Variant;
+import org.alliancegenome.curation_api.model.entities.VocabularyTerm;
 import org.alliancegenome.curation_api.model.entities.associations.CuratedVariantGenomicLocationAssociation;
 import org.alliancegenome.curation_api.model.entities.associations.GeneGenomicLocationAssociation;
 import org.alliancegenome.curation_api.model.entities.associations.TranscriptGeneAssociation;
@@ -13,12 +32,7 @@ import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.apache.commons.lang3.StringUtils;
 
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
-import java.util.regex.Pattern;
+import htsjdk.variant.variantcontext.VariantContext;
 
 /**
  * Converts VCF VariantContext to AlleleVariantSequenceCuration documents using
@@ -44,8 +58,10 @@ public class VariantSummaryConverter {
 	private int hgvsCIdx = -1;
 	private int hgvsPIdx = -1;
 	private int impactIdx = -1;
-	private int polyphenIdx = -1;
-	private int siftIdx = -1;
+	private int polyphenPredIdx = -1;
+	private int polyphenScoreIdx = -1;
+	private int siftPredIdx = -1;
+	private int siftScoreIdx = -1;
 	private int intronIdx = -1;
 	private int exonIdx = -1;
 	private int biotypeIdx = -1;
@@ -73,8 +89,10 @@ public class VariantSummaryConverter {
 		hgvsCIdx = findHeaderIndex(header, "HGVSc");
 		hgvsPIdx = findHeaderIndex(header, "HGVSp");
 		impactIdx = findHeaderIndex(header, "IMPACT");
-		polyphenIdx = findHeaderIndex(header, "PolyPhen_score");
-		siftIdx = findHeaderIndex(header, "SIFT_score");
+		polyphenPredIdx = findHeaderIndex(header, "PolyPhen_prediction");
+		polyphenScoreIdx = findHeaderIndex(header, "PolyPhen_score");
+		siftPredIdx = findHeaderIndex(header, "SIFT_prediction");
+		siftScoreIdx = findHeaderIndex(header, "SIFT_score");
 		intronIdx = findHeaderIndex(header, "INTRON");
 		exonIdx = findHeaderIndex(header, "EXON");
 		biotypeIdx = findHeaderIndex(header, "BIOTYPE");
@@ -401,18 +419,28 @@ public class VariantSummaryConverter {
 				consequence.setVepImpact(getVocabularyTerm(infos[impactIdx]));
 			}
 
-			// Set PolyPhen prediction
-			if (!infos[polyphenIdx].isEmpty()) {
-				String polyphenValue = infos[polyphenIdx];
-				int parenIdx = polyphenValue.indexOf('(');
-				consequence.setPolyphenPrediction(getVocabularyTerm(parenIdx >= 0 ? polyphenValue.substring(0, parenIdx) : polyphenValue));
+			// Set PolyPhen prediction and score
+			if (polyphenPredIdx >= 0 && !infos[polyphenPredIdx].isEmpty()) {
+				consequence.setPolyphenPrediction(getVocabularyTerm(infos[polyphenPredIdx]));
+			}
+			if (polyphenScoreIdx >= 0 && !infos[polyphenScoreIdx].isEmpty()) {
+				try {
+					consequence.setPolyphenScore(Float.parseFloat(infos[polyphenScoreIdx]));
+				} catch (NumberFormatException e) {
+					// skip invalid score
+				}
 			}
 
-			// Set SIFT prediction
-			if (!infos[siftIdx].isEmpty()) {
-				String siftValue = infos[siftIdx];
-				int parenIdx = siftValue.indexOf('(');
-				consequence.setSiftPrediction(getVocabularyTerm(parenIdx >= 0 ? siftValue.substring(0, parenIdx) : siftValue));
+			// Set SIFT prediction and score
+			if (siftPredIdx >= 0 && !infos[siftPredIdx].isEmpty()) {
+				consequence.setSiftPrediction(getVocabularyTerm(infos[siftPredIdx]));
+			}
+			if (siftScoreIdx >= 0 && !infos[siftScoreIdx].isEmpty()) {
+				try {
+					consequence.setSiftScore(Float.parseFloat(infos[siftScoreIdx]));
+				} catch (NumberFormatException e) {
+					// skip invalid score
+				}
 			}
 
 			consequences.add(consequence);

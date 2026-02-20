@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.alliancegenome.api.dto.ExpressionSummary;
-import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.api.entity.GeneGeneticInteractionDocument;
 import org.alliancegenome.api.entity.GeneMolecularInteractionDocument;
@@ -46,12 +45,12 @@ import org.alliancegenome.core.translators.tdf.GeneMolecularInteractionToTdfTran
 import org.alliancegenome.curation_api.model.document.es.AffectedGenomicModelDocument;
 import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
 import org.alliancegenome.curation_api.model.document.es.GeneSummaryDocument;
+import org.alliancegenome.curation_api.model.document.es.SequenceSummaryDocument;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.DiseaseSummary;
 import org.alliancegenome.neo4j.entity.EntitySummary;
-import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.view.HomologView;
 import org.alliancegenome.neo4j.view.OrthologyFilter;
 import org.apache.commons.collections.CollectionUtils;
@@ -180,7 +179,7 @@ public class GeneController implements GeneRESTInterface {
 	}
 
 	@Override
-	public JsonResultResponse<AlleleVariantSequence> getAllelesVariantPerGene(
+	public JsonResultResponse<SequenceSummaryDocument> getAllelesVariantPerGene(
 		String id,
 		Integer limit,
 		Integer page,
@@ -224,7 +223,7 @@ public class GeneController implements GeneRESTInterface {
 		}
 
 		try {
-			JsonResultResponse<AlleleVariantSequence> alleles = geneService.getAllelesAndVariantInfo(id, pagination);
+			JsonResultResponse<SequenceSummaryDocument> alleles = geneService.getAllelesAndVariantInfo(id, pagination);
 			alleles.setHttpServletRequest(null);
 			alleles.calculateRequestDuration(startTime);
 			return alleles;
@@ -258,7 +257,7 @@ public class GeneController implements GeneRESTInterface {
 		String hasPhenotype,
 		String category,
 		String location) {
-		JsonResultResponse<AlleleVariantSequence> alleles = getAllelesVariantPerGene(id,
+		JsonResultResponse<SequenceSummaryDocument> alleles = getAllelesVariantPerGene(id,
 			Integer.MAX_VALUE,
 			1,
 			null,
@@ -279,7 +278,8 @@ public class GeneController implements GeneRESTInterface {
 			category,
 			location);
 
-		Response.ResponseBuilder responseBuilder = Response.ok(alleleTranslator.getAllAlleleVariantDetailRows(alleles.getResults()));
+		// TODO: Response.ResponseBuilder responseBuilder = Response.ok(alleleTranslator.getAllAlleleVariantDetailRows(alleles.getResults()));
+		Response.ResponseBuilder responseBuilder = Response.ok("");
 		APIServiceHelper.setDownloadHeader(id, EntityType.GENE, EntityType.ALLELESANDVARIANT, responseBuilder);
 		return responseBuilder.build();
 	}

@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.api.entity.GeneGeneticInteractionDocument;
 import org.alliancegenome.api.entity.GeneMolecularInteractionDocument;
 import org.alliancegenome.api.entity.GenePhenotypeAnnotationDocument;
@@ -21,11 +20,11 @@ import org.alliancegenome.cache.repository.AlleleCacheRepository;
 import org.alliancegenome.cache.repository.InteractionCacheRepository;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.variant.service.AlleleVariantIndexService;
+import org.alliancegenome.curation_api.model.document.es.SequenceSummaryDocument;
 import org.alliancegenome.es.index.site.dao.SearchDAO;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.EntitySummary;
 import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.repository.GeneRepository;
@@ -67,10 +66,8 @@ public class GeneService {
 	@Inject
 	ObjectMapper mapper;
 
-
 	private static final ElasticSearchHelper elasticSearchHelper = new ElasticSearchHelper();
 	private static final SearchDAO searchDAO = new SearchDAO();
-
 
 	public Gene getById(String id) {
 		Gene gene = geneRepo.getOneGene(id);
@@ -85,35 +82,14 @@ public class GeneService {
 		return geneRepo.getExpressionAnnotationsByTaxon(taxon, termID, pagination);
 	}
 
-	public JsonResultResponse<Allele> getAlleles(String geneId, Pagination pagination) {
-		long startTime = System.currentTimeMillis();
-
-		JsonResultResponse<Allele> response = alleleVariantIndexService.getAlleles(geneId, pagination); // This needs to be a Helper function
-		if (response == null) {
-			response = new JsonResultResponse<>();
-		}
-		long duration = (System.currentTimeMillis() - startTime) / 1000;
-		response.setRequestDuration(Long.toString(duration));
-		return response;
-	}
-
-	public JsonResultResponse<AlleleVariantSequence> getAllelesAndVariantInfo(String geneId, Pagination pagination) {
-		List<AlleleVariantSequence> allelesNVariants = alleleVariantIndexService.getAllelesNVariants(geneId, pagination);
-		if (CollectionUtils.isEmpty(allelesNVariants)) {
-			JsonResultResponse<AlleleVariantSequence> response = new JsonResultResponse<>();
-			response.setResults(new ArrayList<>());
-			return response;
-		}
-		return alleleCacheRepository.getAlleleAndVariantJsonResultResponse(pagination, allelesNVariants);
+	public JsonResultResponse<SequenceSummaryDocument> getAllelesAndVariantInfo(String geneId, Pagination pagination) {
+		return alleleVariantIndexService.getAllelesNVariants(geneId, pagination);
 	}
 
 	public JsonResultResponse<GeneGeneticInteractionDocument> getGeneticInteractions(String geneId, Pagination pagination) {
 		BoolQueryBuilder query = boolQuery();
-		
-		String[] idFields = {
-				"geneGeneticInteraction.geneAssociationSubject.curie.keyword",
-				"geneGeneticInteraction.geneAssociationSubject.primaryExternalId.keyword"
-		};
+
+		String[] idFields = { "geneGeneticInteraction.geneAssociationSubject.curie.keyword", "geneGeneticInteraction.geneAssociationSubject.primaryExternalId.keyword" };
 		BoolQueryBuilder idQuery = boolQuery();
 		Arrays.stream(idFields).forEach(idField -> {
 			BoolQueryBuilder orClause = elasticSearchHelper.getBooleanAndedQueryBuilder(idField, geneId, true);
@@ -121,7 +97,7 @@ public class GeneService {
 		});
 
 		query.must(idQuery);
-		
+
 		JsonResultResponse<GeneGeneticInteractionDocument> ret = new JsonResultResponse<>();
 		ret.setSupplementalData(getGeneticInteractionSupplementalData(query));
 
@@ -138,16 +114,15 @@ public class GeneService {
 		SearchResponse searchResponse = searchDAO.performQuery(query, aggBuilders, null, List.of("*"), pagination.getLimit(), pagination.getOffset(), hlb, sorts, false);
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
 
-		List<GeneGeneticInteractionDocument> list = Arrays.stream(searchResponse.getHits().getHits())
-			.map(searchHit -> {
-				try {
-					GeneGeneticInteractionDocument object = mapper.readValue(searchHit.getSourceAsString(), GeneGeneticInteractionDocument.class);
-					return object;
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				return null;
-			}).toList();
+		List<GeneGeneticInteractionDocument> list = Arrays.stream(searchResponse.getHits().getHits()).map(searchHit -> {
+			try {
+				GeneGeneticInteractionDocument object = mapper.readValue(searchHit.getSourceAsString(), GeneGeneticInteractionDocument.class);
+				return object;
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			return null;
+		}).toList();
 		ret.setResults(list);
 		return ret;
 
@@ -155,10 +130,7 @@ public class GeneService {
 
 	public JsonResultResponse<GeneMolecularInteractionDocument> getMolecularInteractions(String geneId, Pagination pagination) {
 		BoolQueryBuilder query = boolQuery();
-		String[] idFields = {
-				"geneMolecularInteraction.geneAssociationSubject.curie.keyword",
-				"geneMolecularInteraction.geneAssociationSubject.primaryExternalId.keyword"
-		};
+		String[] idFields = { "geneMolecularInteraction.geneAssociationSubject.curie.keyword", "geneMolecularInteraction.geneAssociationSubject.primaryExternalId.keyword" };
 		BoolQueryBuilder idQuery = boolQuery();
 		Arrays.stream(idFields).forEach(idField -> {
 			BoolQueryBuilder orClause = elasticSearchHelper.getBooleanAndedQueryBuilder(idField, geneId, true);
@@ -166,7 +138,7 @@ public class GeneService {
 		});
 
 		query.must(idQuery);
-		
+
 		JsonResultResponse<GeneMolecularInteractionDocument> ret = new JsonResultResponse<>();
 		ret.setSupplementalData(getMolecularInteractionSupplementalData(query));
 
@@ -183,16 +155,15 @@ public class GeneService {
 		SearchResponse searchResponse = searchDAO.performQuery(query, aggBuilders, null, List.of("*"), pagination.getLimit(), pagination.getOffset(), hlb, sorts, false);
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
 
-		List<GeneMolecularInteractionDocument> list = Arrays.stream(searchResponse.getHits().getHits())
-			.map(searchHit -> {
-				try {
-					GeneMolecularInteractionDocument object = mapper.readValue(searchHit.getSourceAsString(), GeneMolecularInteractionDocument.class);
-					return object;
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				return null;
-			}).toList();
+		List<GeneMolecularInteractionDocument> list = Arrays.stream(searchResponse.getHits().getHits()).map(searchHit -> {
+			try {
+				GeneMolecularInteractionDocument object = mapper.readValue(searchHit.getSourceAsString(), GeneMolecularInteractionDocument.class);
+				return object;
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			return null;
+		}).toList();
 		ret.setResults(list);
 		return ret;
 
@@ -234,15 +205,12 @@ public class GeneService {
 			aggBuilders.add(aggregationBuilder);
 		});
 
-		SearchResponse searchResponseHistogram = searchDAO.performQuery(
-			bool, aggBuilders, null, List.of("*"),
-			0, 0, new HighlightBuilder(), null, false);
+		SearchResponse searchResponseHistogram = searchDAO.performQuery(bool, aggBuilders, null, List.of("*"), 0, 0, new HighlightBuilder(), null, false);
 
 		Map<String, List<String>> distinctFieldValueMap = new HashMap<>();
 		aggregationFields.forEach((field, colName) -> {
 			String fieldNameAgg = field + "_agg";
-			List<String> values = ((ParsedStringTerms) searchResponseHistogram.getAggregations().get(fieldNameAgg)).getBuckets().stream()
-				.map(MultiBucketsAggregation.Bucket::getKeyAsString).sorted().collect(Collectors.toList());
+			List<String> values = ((ParsedStringTerms) searchResponseHistogram.getAggregations().get(fieldNameAgg)).getBuckets().stream().map(MultiBucketsAggregation.Bucket::getKeyAsString).sorted().collect(Collectors.toList());
 			distinctFieldValueMap.put(colName, values);
 		});
 		return distinctFieldValueMap;
@@ -267,16 +235,12 @@ public class GeneService {
 		if (CollectionUtils.isEmpty(species)) {
 			taxonIDs = SpeciesType.getAllTaxonIDList();
 		} else {
-			taxonIDs = species.stream()
-				.map(SpeciesType::getTaxonId)
-				.collect(Collectors.toList());
+			taxonIDs = species.stream().map(SpeciesType::getTaxonId).collect(Collectors.toList());
 		}
 		if (CollectionUtils.isEmpty(taxonIDs)) {
 			return null;
 		}
-		List<String> taxIDs = taxonIDs.stream()
-			.map(SpeciesType::getTaxonId)
-			.collect(Collectors.toList());
+		List<String> taxIDs = taxonIDs.stream().map(SpeciesType::getTaxonId).collect(Collectors.toList());
 		return geneRepo.getAllGenes(taxIDs);
 	}
 

@@ -227,7 +227,7 @@ public class AlleleIT {
 	public void getVariantsPerAllele() {
 		Pagination pagination = new Pagination();
 		JsonResultResponse<Variant> response = variantService.getVariants("ZFIN:ZDB-ALT-180515-5", pagination);
-		assertThat(response.getTotal(), greaterThanOrEqualTo(1));
+		assertThat((int)response.getTotal(), greaterThanOrEqualTo(1));
 		assertNotNull("Computed Gene exists", response.getResults().get(0).getGene());
 		assertNotNull("Genomic Location exists on computed Gene", response.getResults().get(0).getGene().getGenomeLocations());
 	}
@@ -236,7 +236,7 @@ public class AlleleIT {
 	public void getVariantsPerAlleleWithNotes() {
 		Pagination pagination = new Pagination();
 		JsonResultResponse<Variant> response = variantService.getVariants("FB:FBal0000017", pagination);
-		assertThat(response.getTotal(), greaterThanOrEqualTo(1));
+		assertThat((int)response.getTotal(), greaterThanOrEqualTo(1));
 		assertNotNull("Computed Gene exists", response.getResults().get(0).getNotes());
 	}
 
@@ -254,7 +254,7 @@ public class AlleleIT {
 	public void getVariantsPerAlleleWitCrossReference() {
 		Pagination pagination = new Pagination();
 		JsonResultResponse<Variant> response = variantService.getVariants("WB:WBVar00252636", pagination);
-		assertThat(response.getTotal(), greaterThanOrEqualTo(1));
+		assertThat((int)response.getTotal(), greaterThanOrEqualTo(1));
 		assertNotNull("Computed Gene exists", response.getResults().get(0).getCrossReferences());
 	}
 
@@ -262,32 +262,25 @@ public class AlleleIT {
 	public void getVariantsPerAlleleWitPubliation() {
 		Pagination pagination = new Pagination();
 		JsonResultResponse<Variant> response = variantService.getVariants("WB:WBVar00087798", pagination);
-		assertThat(response.getTotal(), greaterThanOrEqualTo(1));
+		assertThat((int)response.getTotal(), greaterThanOrEqualTo(1));
 		assertNotNull("Computed Gene exists", response.getResults().get(0).getCrossReferences());
-	}
-
-	@Test
-	public void getAllelesPerGene() {
-		Pagination pagination = new Pagination();
-		JsonResultResponse<Allele> response = geneService.getAlleles("ZFIN:ZDB-GENE-990415-234", pagination);
-		assertThat(response.getTotal(), greaterThanOrEqualTo(1));
 	}
 
 	@Test
 	public void getVariantsWithInsertionDeletion() {
 		Pagination pagination = new Pagination();
 		JsonResultResponse<Variant> response = variantService.getVariants("ZFIN:ZDB-ALT-181010-2", pagination);
-		assertThat(response.getTotal(), greaterThanOrEqualTo(1));
+		assertThat((int)response.getTotal(), greaterThanOrEqualTo(1));
 		Variant variant = response.getResults().get(0);
 		assertEquals("Nucleotide change of Insertion", "t>tTCCAGAA", variant.getNucleotideChange());
 
 		response = variantService.getVariants("ZFIN:ZDB-ALT-180925-10", pagination);
-		assertThat(response.getTotal(), greaterThanOrEqualTo(1));
+		assertThat((int)response.getTotal(), greaterThanOrEqualTo(1));
 		variant = response.getResults().get(0);
 		assertEquals("Nucleotide change: Deletion", "aGCAGAGGTCA>a", variant.getNucleotideChange());
 
 		response = variantService.getVariants("ZFIN:ZDB-ALT-161003-18461", pagination);
-		assertThat(response.getTotal(), greaterThanOrEqualTo(1));
+		assertThat((int)response.getTotal(), greaterThanOrEqualTo(1));
 		variant = response.getResults().get(0);
 		assertEquals("Nucleotide change: non-insertion, non-deletion", "A>G", variant.getNucleotideChange());
 	}
@@ -296,7 +289,7 @@ public class AlleleIT {
 	public void getVariantsWithTransposon() {
 		Pagination pagination = new Pagination();
 		JsonResultResponse<Variant> response = variantService.getVariants("FB:FBal0125489", pagination);
-		assertThat(response.getTotal(), greaterThanOrEqualTo(1));
+		assertThat((int)response.getTotal(), greaterThanOrEqualTo(1));
 		Variant variant = response.getResults().get(0);
 		assertEquals("Nucleotide change of Insertion", "c>cN+", variant.getNucleotideChange());
 
@@ -344,7 +337,7 @@ public class AlleleIT {
 		String alleleID = "ZFIN:ZDB-ALT-980203-692";
 		JsonResultResponse<PhenotypeAnnotation> response = alleleService.getPhenotype(alleleID, new Pagination());
 		assertNotNull(response);
-		assertThat(response.getTotal(), greaterThanOrEqualTo(20));
+		assertThat((int)response.getTotal(), greaterThanOrEqualTo(20));
 	}
 
 	@Test
@@ -353,7 +346,7 @@ public class AlleleIT {
 		String alleleID = "MGI:4366755";
 		JsonResultResponse<PhenotypeAnnotation> response = alleleService.getPhenotype(alleleID, new Pagination());
 		assertNotNull(response);
-		assertThat(response.getTotal(), greaterThanOrEqualTo(8));
+		assertThat((int)response.getTotal(), greaterThanOrEqualTo(8));
 		response.getResults().stream().filter(phenotypeAnnotation -> phenotypeAnnotation.getPrimaryAnnotatedEntities() != null).forEach(annotation -> {
 			annotation.getPrimaryAnnotatedEntities().forEach(entity -> {
 				assertNotEquals("Do not have allele direct annotations reference alleles as PAE", entity.getType(), GeneticEntity.CrossReferenceType.ALLELE);
@@ -390,7 +383,7 @@ public class AlleleIT {
 		String alleleID = "MGI:1856424";
 		JsonResultResponse<DiseaseAnnotation> response = alleleService.getDisease(alleleID, new Pagination());
 		assertNotNull(response);
-		assertThat(response.getTotal(), greaterThanOrEqualTo(3));
+		assertThat((int)response.getTotal(), greaterThanOrEqualTo(3));
 	}
 
 	@Test
@@ -404,14 +397,14 @@ public class AlleleIT {
 		String variantID = "NC_007121.7:g.14484476_14484482del";
 		JsonResultResponse<Transcript> response = variantService.getTranscriptsByVariant(variantID, new Pagination());
 		assertNotNull(response);
-		assertThat(response.getTotal(), greaterThanOrEqualTo(2));
+		assertThat((int)response.getTotal(), greaterThanOrEqualTo(2));
 		assertEquals(response.getResults().get(0).getType().getName(), "mRNA");
 	}
 
 	private void assertResponse(JsonResultResponse<Allele> response, int resultSize, int totalSize) {
 		assertNotNull(response);
 		assertThat("Number of returned records", response.getResults().size(), greaterThanOrEqualTo(resultSize));
-		assertThat("Number of total records", response.getTotal(), greaterThanOrEqualTo(totalSize));
+		assertThat("Number of total records", (int)response.getTotal(), greaterThanOrEqualTo(totalSize));
 	}
 
 	@Test

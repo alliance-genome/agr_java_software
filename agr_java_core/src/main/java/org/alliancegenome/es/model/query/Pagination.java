@@ -12,11 +12,9 @@ import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.commons.lang3.StringUtils;
 
 import jakarta.ws.rs.core.MultivaluedMap;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Setter
-@Getter
+@Data
 public class Pagination {
 
 	public static final String SORTING_DELIMITER = ",";
