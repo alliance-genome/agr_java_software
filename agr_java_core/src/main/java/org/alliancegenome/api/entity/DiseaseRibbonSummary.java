@@ -42,7 +42,7 @@ public class DiseaseRibbonSummary implements Serializable {
 		return diseaseRibbonSections.get(diseaseRibbonSections.size() - 1);
 	}
 
-	public void addAllAnnotationsCount(String geneID, int totalNumber) {
+	public void addAllAnnotationsCount(String geneID, long totalNumber) {
 		Optional<DiseaseRibbonEntity> entity = diseaseRibbonEntities.stream()
 				.filter(diseaseRibbonEntity -> diseaseRibbonEntity.getId().equals(geneID))
 				.findFirst();

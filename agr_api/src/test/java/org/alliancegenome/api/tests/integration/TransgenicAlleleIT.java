@@ -38,7 +38,7 @@ public class TransgenicAlleleIT {
 	public void filterTransgenicAllelesBySymbol() {
 		Pagination pagination = new Pagination();
 		JsonResultResponse<Allele> response = alleleService.getTransgenicAlleles("WB:WBGene00002992", pagination);
-		int total = response.getTotal();
+		int total = (int) response.getTotal();
 		assertThat(total, greaterThan(1));
 
 		String firstAlleleSymbol = response.getResults().get(0).getSymbolText();
@@ -51,7 +51,7 @@ public class TransgenicAlleleIT {
 	public void filterTransgenicAllelesByConstruct() {
 		Pagination pagination = new Pagination();
 		JsonResultResponse<Allele> response = alleleService.getTransgenicAlleles("WB:WBGene00002992", pagination);
-		int total = response.getTotal();
+		int total = (int) response.getTotal();
 		assertThat(total, greaterThan(1));
 
 		String firstConstructSymbol = response.getResults().get(0).getConstructs().get(0).getNameText();
@@ -64,7 +64,7 @@ public class TransgenicAlleleIT {
 	public void filterTransgenicAllelesBySynonym() {
 		Pagination pagination = new Pagination();
 		JsonResultResponse<Allele> response = alleleService.getTransgenicAlleles("WB:WBGene00002992", pagination);
-		int total = response.getTotal();
+		int total = (int) response.getTotal();
 		assertThat(total, greaterThan(1));
 
 		pagination.addFieldFilter(FieldFilter.SYNONYMS, "dsred");
@@ -76,7 +76,7 @@ public class TransgenicAlleleIT {
 	public void filterTransgenicAllelesByPhenotype() {
 		Pagination pagination = new Pagination();
 		JsonResultResponse<Allele> response = alleleService.getTransgenicAlleles("WB:WBGene00002992", pagination);
-		int total = response.getTotal();
+		int total = (int) response.getTotal();
 		assertThat(total, greaterThan(1));
 
 		pagination.addFieldFilter(FieldFilter.TRANSGENE_HAS_PHENOTYPE, "true");
@@ -89,13 +89,13 @@ public class TransgenicAlleleIT {
 		Pagination pagination = new Pagination();
 		final String geneID = "FB:FBgn0284084";
 		JsonResultResponse<Allele> response = alleleService.getTransgenicAlleles(geneID, pagination);
-		int total = response.getTotal();
+		int total = (int) response.getTotal();
 		assertThat(total, greaterThan(100));
 
 		pagination.addFieldFilter(FieldFilter.TRANSGENE_HAS_DISEASE, "true");
 		response = alleleService.getTransgenicAlleles(geneID, pagination);
-		assertThat(response.getTotal(), greaterThan(1));
-		assertThat(response.getTotal(), lessThan(5));
+		assertThat((int) response.getTotal(), greaterThan(1));
+		assertThat((int) response.getTotal(), lessThan(5));
 	}
 
 	@Test
@@ -103,12 +103,12 @@ public class TransgenicAlleleIT {
 		Pagination pagination = new Pagination();
 		String geneID = "FB:FBgn0261532";
 		JsonResultResponse<Allele> response = alleleService.getTransgenicAlleles(geneID, pagination);
-		int total = response.getTotal();
+		int total = (int) response.getTotal();
 		assertThat(total, greaterThan(1));
 
 		pagination.addFieldFilter(FieldFilter.CONSTRUCT_REGULATED_GENE, "uast");
 		response = alleleService.getTransgenicAlleles(geneID, pagination);
-		assertThat(response.getTotal(), greaterThanOrEqualTo(4));
+		assertThat((int) response.getTotal(), greaterThanOrEqualTo(4));
 	}
 
 	@Test
@@ -116,19 +116,19 @@ public class TransgenicAlleleIT {
 		Pagination pagination = new Pagination();
 		String geneID = "FB:FBgn0261532";
 		JsonResultResponse<Allele> response = alleleService.getTransgenicAlleles(geneID, pagination);
-		int total = response.getTotal();
+		int total = (int) response.getTotal();
 		assertThat(total, greaterThan(8));
 
 		pagination.addFieldFilter(FieldFilter.CONSTRUCT_TARGETED_GENE, "cdm");
 		response = alleleService.getTransgenicAlleles(geneID, pagination);
-		assertThat(response.getTotal(), greaterThanOrEqualTo(4));
+		assertThat((int) response.getTotal(), greaterThanOrEqualTo(4));
 	}
 
 	@Test
 	public void filterTransgenicAllelesByConstructNonBGI() {
 		Pagination pagination = new Pagination();
 		JsonResultResponse<Allele> response = alleleService.getTransgenicAlleles("HGNC:12779", pagination);
-		int total = response.getTotal();
+		int total = (int) response.getTotal();
 		assertEquals(total, 1);
 
 		pagination.addFieldFilter(FieldFilter.CONSTRUCT_SYMBOL, "no-match");
@@ -139,7 +139,7 @@ public class TransgenicAlleleIT {
 	private void assertResponse(JsonResultResponse<Allele> response, int resultSize, int totalSize) {
 		assertNotNull(response);
 		assertThat("Number of returned records", response.getResults().size(), greaterThanOrEqualTo(resultSize));
-		assertThat("Number of total records", response.getTotal(), greaterThanOrEqualTo(totalSize));
+		assertThat("Number of total records", (int) response.getTotal(), greaterThanOrEqualTo(totalSize));
 	}
 
 }

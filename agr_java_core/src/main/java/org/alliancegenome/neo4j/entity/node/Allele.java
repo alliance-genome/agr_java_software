@@ -39,7 +39,7 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
 	private String release;
 	private String localId;
 	private String globalId;
-	@JsonView({PublicView.Default.class, CurationView.VariantDocument.class})
+	@JsonView({PublicView.Default.class, CurationView.VariantSummaryDocument.class})
 	private String symbolText;
 	private String symbolTextWithSpecies;
 	@JsonView({PublicView.AlleleAPI.class})
@@ -48,11 +48,11 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
 	public final static String ALLELE_WITH_ONE_VARIANT = "allele with one associated variant";
 	public final static String ALLELE_WITH_MULTIPLE_VARIANT = "allele with multiple associated variants";
 
-	@JsonView({PublicView.AlleleAPI.class, PublicView.TransgenicAlleleAPI.class, PublicView.GeneAlleleVariantSequenceAPI.class, CurationView.VariantDocument.class})
+	@JsonView({PublicView.AlleleAPI.class, PublicView.TransgenicAlleleAPI.class, PublicView.GeneAlleleVariantSequenceAPI.class, CurationView.VariantSummaryDocument.class})
 	@Relationship(type = "IS_ALLELE_OF")
 	private Gene gene;
 
-	@JsonView({PublicView.GeneAllelesAPI.class, PublicView.GeneAlleleVariantSequenceAPI.class, CurationView.VariantDocument.class})
+	@JsonView({PublicView.GeneAllelesAPI.class, PublicView.GeneAlleleVariantSequenceAPI.class, CurationView.VariantSummaryDocument.class})
 	@Relationship(type = "IS_IMPLICATED_IN", direction = Relationship.Direction.INCOMING)
 	private List<DOTerm> diseases;
 
@@ -91,7 +91,7 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
 	private boolean phenotype;
 	private boolean disease;
 
-	@JsonView({PublicView.API.class, PublicView.GeneAllelesAPI.class, PublicView.GeneAlleleVariantSequenceAPI.class, CurationView.VariantDocument.class})
+	@JsonView({PublicView.API.class, PublicView.GeneAllelesAPI.class, PublicView.GeneAlleleVariantSequenceAPI.class, CurationView.VariantSummaryDocument.class})
 	@JsonProperty(value = "hasPhenotype")
 	public Boolean hasPhenotype() {
 		return phenotype;
@@ -102,7 +102,7 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
 		this.phenotype = hasPhenotype;
 	}
 
-	@JsonView({PublicView.API.class, PublicView.GeneAllelesAPI.class, PublicView.GeneAlleleVariantSequenceAPI.class, CurationView.VariantDocument.class})
+	@JsonView({PublicView.API.class, PublicView.GeneAllelesAPI.class, PublicView.GeneAlleleVariantSequenceAPI.class, CurationView.VariantSummaryDocument.class})
 	public Boolean hasDisease() {
 		return disease;
 	}
@@ -147,12 +147,12 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
 		category = ALLELE_WITH_MULTIPLE_VARIANT;
 	}
 
-	@JsonView({PublicView.API.class, PublicView.GeneAllelesAPI.class, CurationView.VariantDocument.class})
+	@JsonView({PublicView.API.class, PublicView.GeneAllelesAPI.class, CurationView.VariantSummaryDocument.class})
 	public List<Variant> getVariants() {
 		return variants;
 	}
 
-	@JsonView({PublicView.API.class, PublicView.GeneAlleleVariantSequenceAPI.class, CurationView.VariantDocument.class})
+	@JsonView({PublicView.API.class, PublicView.GeneAlleleVariantSequenceAPI.class, CurationView.VariantSummaryDocument.class})
 	private String category;
 
 	public String getCategory() {

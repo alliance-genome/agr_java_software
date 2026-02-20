@@ -77,7 +77,7 @@ public interface DiseaseRESTInterface {
 	@Path("/{id}/alleles_counts")
 	@Operation(summary = "Retrieve DiseaseAnnotation records for a given disease id")
 	@APIResponses(value = { @APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
-	Integer getCountsOfDiseaseAnnotationsByAllele(@Parameter(in = ParameterIn.PATH, name = "id", description = "Disease by DOID: e.g. DOID:9952", schema = @Schema(type = SchemaType.STRING)) @DefaultValue("DOID:10652") @PathParam("id") String id);
+	Long getCountsOfDiseaseAnnotationsByAllele(@Parameter(in = ParameterIn.PATH, name = "id", description = "Disease by DOID: e.g. DOID:9952", schema = @Schema(type = SchemaType.STRING)) @DefaultValue("DOID:10652") @PathParam("id") String id);
 	
 	@GET
 	@Path("/{id}/alleles")
@@ -128,7 +128,7 @@ public interface DiseaseRESTInterface {
 	@Path("/{id}/genes_counts")
 	@Operation(summary = "Retrieve all DiseaseAnnotation records for a given disease id")
 	@APIResponses(value = { @APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
-	Integer getCountsOfDiseaseAnnotationsByGene(@Parameter(in = ParameterIn.PATH, name = "id", description = "Search for a disease by ID", required = true, schema = @Schema(type = SchemaType.STRING)) @DefaultValue("DOID:10652") @PathParam("id") String id);
+	Long getCountsOfDiseaseAnnotationsByGene(@Parameter(in = ParameterIn.PATH, name = "id", description = "Search for a disease by ID", required = true, schema = @Schema(type = SchemaType.STRING)) @DefaultValue("DOID:10652") @PathParam("id") String id);
 	
 	@GET
 	@Path("/{id}/genes")
@@ -197,7 +197,7 @@ public interface DiseaseRESTInterface {
 	@Path("/{id}/models_counts")
 	@Operation(summary = "Retrieve all DiseaseAnnotation records for a given disease id")
 	@APIResponses(value = { @APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
-	Integer getCountsOfDiseaseAnnotationsForModel(@Parameter(in = ParameterIn.PATH, name = "id", description = "Search for a disease by ID", required = true, schema = @Schema(type = SchemaType.STRING)) @DefaultValue("DOID:10652") @PathParam("id") String id);
+	Long getCountsOfDiseaseAnnotationsForModel(@Parameter(in = ParameterIn.PATH, name = "id", description = "Search for a disease by ID", required = true, schema = @Schema(type = SchemaType.STRING)) @DefaultValue("DOID:10652") @PathParam("id") String id);
 
 	@GET
 	@Path("/{id}/models/download")

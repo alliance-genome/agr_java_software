@@ -21,10 +21,10 @@ import lombok.Setter;
 @Schema(name = "GeneLevelConsequence", description = "POJO that represents Gene Level Consequences")
 public class GeneLevelConsequence extends Neo4jEntity implements Comparable<GeneLevelConsequence> {
 
-	@JsonView({ PublicView.Default.class, PublicView.API.class, CurationView.VariantDocument.class })
+	@JsonView({ PublicView.Default.class, PublicView.API.class, CurationView.VariantSummaryDocument.class })
 	@JsonProperty(value = "id") protected String primaryKey;
 
-	@JsonView({ PublicView.Default.class, PublicView.API.class, CurationView.VariantDocument.class })
+	@JsonView({ PublicView.Default.class, PublicView.API.class, CurationView.VariantSummaryDocument.class })
 	@JsonProperty(value = "consequence") private String geneLevelConsequence;
 
 	@Override
