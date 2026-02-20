@@ -1,6 +1,6 @@
 package org.alliancegenome.indexer.indexers.curation;
 
-import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import org.alliancegenome.core.config.ConfigHelper;
@@ -22,12 +22,7 @@ public class GOSearchResultCurationIndexer extends Indexer {
 
 	private final GODocumentInterface goApi = RestProxyFactory.createProxy(GODocumentInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 
-	private HashMap<String, Object> params = new HashMap<String, Object>() {
-		{
-			put("internal", false);
-			put("obsolete", false);
-		}
-	};
+	private List<List<Long>> idBatches;
 
 	public GOSearchResultCurationIndexer(IndexerConfig indexerConfig) {
 		super(indexerConfig);
@@ -36,15 +31,23 @@ public class GOSearchResultCurationIndexer extends Indexer {
 	@Override
 	protected void index() {
 		try {
-			SearchResponse<GOSearchResultDocument> response = goApi.findSearchResult(0, 0, params);
-			int totalPages = (int) (response.getTotalResults() / indexerConfig.getBufferSize());
+			log.info("Fetching all GO search result IDs...");
+			SearchResponse<Long> idsResponse = goApi.getAllIds();
+			List<Long> allIds = idsResponse.getResults();
+			log.info("Fetched {} GO search result IDs", allIds.size());
+
+			idBatches = partition(allIds, indexerConfig.getBufferSize());
+			log.info("Partitioned into {} batches of up to {}", idBatches.size(), indexerConfig.getBufferSize());
+
 			LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
-			for (int i = 0; i <= totalPages; i++) {
+			for (int i = 0; i < idBatches.size(); i++) {
 				queue.add(String.valueOf(i));
 			}
+
 			initiateThreading(queue);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Error while indexing...", e);
+			System.exit(-1);
 		}
 	}
 
@@ -55,10 +58,12 @@ public class GOSearchResultCurationIndexer extends Indexer {
 				if (queue.isEmpty()) {
 					return;
 				}
-				String page = queue.takeFirst();
-				SearchResponse<GOSearchResultDocument> response = goApi.findSearchResult(Integer.valueOf(page), indexerConfig.getBufferSize(), params);
+				String batchIndex = queue.takeFirst();
+				List<Long> batchIds = idBatches.get(Integer.parseInt(batchIndex));
+
+				SearchResponse<GOSearchResultDocument> response = goApi.findByIds(batchIds);
 				if (response == null || CollectionUtils.isEmpty(response.getResults())) {
-					return;
+					continue;
 				}
 
 				indexDocuments(response.getResults());
