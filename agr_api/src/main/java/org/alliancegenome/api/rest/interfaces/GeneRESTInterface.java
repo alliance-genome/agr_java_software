@@ -231,10 +231,10 @@ public interface GeneRESTInterface {
 		@QueryParam("filter.variantType") String variantType,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.molecularConsequence", description = "Consequence", schema = @Schema(type = SchemaType.STRING))
 		@QueryParam("filter.molecularConsequence") String consequence,
-		@Parameter(in = ParameterIn.QUERY, name = "filter.hasPhenotype", description = "Phenotypes", schema = @Schema(type = SchemaType.STRING))
-		@QueryParam("filter.hasPhenotype") String phenotype,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.hasDisease", description = "Disease for a given allele", schema = @Schema(type = SchemaType.STRING))
 		@QueryParam("filter.hasDisease") String disease,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.hasPhenotype", description = "Phenotypes", schema = @Schema(type = SchemaType.STRING))
+		@QueryParam("filter.hasPhenotype") String phenotype,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.alleleCategory", description = "Category of an allele", schema = @Schema(type = SchemaType.STRING))
 		@QueryParam("filter.alleleCategory") String alleleCategory
 	);
