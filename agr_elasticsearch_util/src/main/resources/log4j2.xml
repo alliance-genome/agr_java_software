@@ -2,22 +2,33 @@
 <Configuration>
 	<Properties>
 		<!-- Log levels can be changed via Env `export DEFAULT_LOG_LEVEL=DEBUG` -->
-		<Property name="DEFAULT_LOG_LEVEL">TRACE</Property>
+		<Property name="DEFAULT_LOG_LEVEL">INFO</Property>
 		<Property name="ES_LOG_LEVEL">WARN</Property>
 		<Property name="NETTY_LOG_LEVEL">WARN</Property>
 		<Property name="BOLT_LOG_LEVEL">WARN</Property>
+		<Property name="INFINISPAN_LOG_LEVEL">WARN</Property>
+		<Property name="RESCU_LOG_LEVEL">WARN</Property>
 	</Properties>
 	<Appenders>
-		<Console name="Console">
-			<PatternLayout pattern="%-5level %logger{1} - %msg%n" />
+		<Console name="StdOut" target="SYSTEM_OUT">
+			<PatternLayout pattern="%-5level %logger{1.} - %msg%n" />
+			<ThresholdFilter level="WARN" onMatch="DENY" onMismatch="ACCEPT" />
+		</Console>
+		<Console name="StdErr" target="SYSTEM_ERR">
+			<PatternLayout pattern="%-5level %logger{1.} - %msg%n" />
+			<ThresholdFilter level="WARN" onMatch="ACCEPT" onMismatch="DENY" />
 		</Console>
 	</Appenders>
 	<Loggers>
 		<Root level="${env:DEFAULT_LOG_LEVEL}">
-			<AppenderRef ref="Console" />
+			<AppenderRef ref="StdOut" />
+			<AppenderRef ref="StdErr" />
 		</Root>
+		<logger name="org.alliancegenome" level="${env:DEFAULT_LOG_LEVEL}" />
 		<logger name="org.elasticsearch" level="${env:ES_LOG_LEVEL}" />
 		<logger name="io.netty" level="${env:NETTY_LOG_LEVEL}" />
 		<logger name="org.neo4j.ogm" level="${env:BOLT_LOG_LEVEL}" />
+		<logger name="org.infinispan" level="${env:INFINISPAN_LOG_LEVEL}" />
+		<logger name="si.mazi.rescu" level="${env:RESCU_LOG_LEVEL}" />
 	</Loggers>
 </Configuration>
