@@ -148,7 +148,7 @@ public class AlleleESService extends ESService {
 		List<ESDocument> list = new ArrayList<>();
 		Arrays.stream(searchResponse.getHits().getHits()).forEach(searchHit -> {
 			try {
-				String category = (String)searchHit.getSourceAsMap().get("category");
+				String category = (String) searchHit.getSourceAsMap().get("category");
 				if (category.equals("allele_summary")) {
 					AlleleSummaryDocument asd = mapper.readValue(searchHit.getSourceAsString(), AlleleSummaryDocument.class);
 					list.add(asd);
