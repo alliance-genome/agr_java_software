@@ -59,7 +59,7 @@ public class AlleleDiseaseAnnotationService extends BaseDiseaseAnnotationService
 					ret.add(da);
 				}
 			}
-			display.progressProcess(response.getReturnedRecords().longValue());
+			display.progressProcess(response.getReturnedRecords());
 		}
 		display.finishProcess();
 		writeToCache(cacheFileName, ret);

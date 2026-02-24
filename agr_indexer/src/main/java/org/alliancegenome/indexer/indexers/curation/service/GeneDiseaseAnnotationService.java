@@ -75,7 +75,7 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 					}
 				}
 			}
-			display.progressProcess(response.getReturnedRecords().longValue());
+			display.progressProcess(response.getReturnedRecords());
 		}
 		display.finishProcess();
 		writeToCache(cacheFileName, ret);

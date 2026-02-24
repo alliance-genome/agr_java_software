@@ -129,7 +129,7 @@ public class TransgenicAlleleCurationIndexer extends Indexer {
 				document.setPhylogeneticSortingIndex(da.getAllele().getTaxon().getPhylogeneticSortOrder());
 				constructList.add(construct);
 			}
-			display.progressProcess(response.getReturnedRecords().longValue());
+			display.progressProcess(response.getReturnedRecords());
 		}
 		display.finishProcess();
 		Collection<TransgenicAlleleSummaryDocument> values = documentMap.values();
