@@ -14,6 +14,7 @@ import org.alliancegenome.api.entity.GeneTransgenicAlleleSummaryDocument;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.curation_api.model.document.es.AffectedGenomicModelDocument;
 import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
+import org.alliancegenome.curation_api.model.document.es.ESDocument;
 import org.alliancegenome.curation_api.model.document.es.GeneSummaryDocument;
 import org.alliancegenome.curation_api.model.document.es.SequenceSummaryDocument;
 import org.alliancegenome.curation_api.view.CurationView;
@@ -83,7 +84,7 @@ public interface GeneRESTInterface {
 				description = "Alleles for a gene.",
 				content = @Content(mediaType = "application/json",
 					schema = @Schema(implementation = Null.class)))})
-	JsonResultResponse<AlleleSummaryDocument> getAllelesPerGene(
+	JsonResultResponse<ESDocument> getAllelesPerGene(
 		//@ApiParam(name = "id", description = "Search for Alleles for a given Gene by ID")
 		@Parameter(in = ParameterIn.PATH, name = "id", description = "Search for Alleles for a given Gene by ID", required = true, schema = @Schema(type = SchemaType.STRING))
 		@PathParam("id") String id,

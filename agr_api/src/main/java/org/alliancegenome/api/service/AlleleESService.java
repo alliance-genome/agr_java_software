@@ -20,6 +20,7 @@ import org.alliancegenome.es.model.query.Pagination;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.SortOrder;
@@ -133,21 +134,25 @@ public class AlleleESService extends ESService {
 
 	public JsonResultResponse<ESDocument> getAllelesByGene(String geneId, Pagination pagination) {
 
-		BoolQueryBuilder bool = boolQuery();
-		bool.must(new MatchQueryBuilder("geneIds", geneId));
-		bool.filter(new TermQueryBuilder("category", "allele_summary"));
+		BoolQueryBuilder queryBuilder = new BoolQueryBuilder();
+		BoolQueryBuilder shouldQueryBuilder = new BoolQueryBuilder();
+		queryBuilder.must(QueryBuilders.termQuery("geneIds", geneId));
+		shouldQueryBuilder.should(QueryBuilders.termQuery("category.keyword", "allele_summary"));
+		shouldQueryBuilder.should(QueryBuilders.termQuery("category.keyword", "variant_summary"));
+		queryBuilder.must(shouldQueryBuilder);
+
 		JsonResultResponse<ESDocument> ret = new JsonResultResponse<>();
-		ret.setSupplementalData(getAlleleSupplementalData(bool));
-		addTableFilter(pagination, bool);
-		SearchResponse searchResponse = getSearchResponse(bool, pagination, sortMap.get(pagination.getSortBy()), false);
+		ret.setSupplementalData(getAlleleSupplementalData(queryBuilder));
+		addTableFilter(pagination, queryBuilder);
+		SearchResponse searchResponse = getSearchResponse(queryBuilder, pagination, sortMap.get(pagination.getSortBy()), true);
 		List<ESDocument> list = new ArrayList<>();
 		Arrays.stream(searchResponse.getHits().getHits()).forEach(searchHit -> {
 			try {
-				ESDocument object = mapper.readValue(searchHit.getSourceAsString(), ESDocument.class);
-				if (object.getCategory().equals("allele_summary")) {
+				String category = (String)searchHit.getSourceAsMap().get("category");
+				if (category.equals("allele_summary")) {
 					AlleleSummaryDocument asd = mapper.readValue(searchHit.getSourceAsString(), AlleleSummaryDocument.class);
 					list.add(asd);
-				} else if (object.getCategory().equals("variant_summary")) {
+				} else if (category.equals("variant_summary")) {
 					VariantSummaryDocument vsd = mapper.readValue(searchHit.getSourceAsString(), VariantSummaryDocument.class);
 					list.add(vsd);
 				}
