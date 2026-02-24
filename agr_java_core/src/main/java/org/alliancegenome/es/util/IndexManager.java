@@ -115,15 +115,7 @@ public class IndexManager {
 			}
 			closableSearchClient.indices().create(createIndexRequest, RequestOptions.DEFAULT);
 		} catch (Exception e) {
-			e.printStackTrace();
-			RefreshRequest refreshRequest = new RefreshRequest(index);
-			try {
-				closableSearchClient.indices().refresh(refreshRequest, RequestOptions.DEFAULT);
-			} catch (IOException ex) {
-				ex.printStackTrace();
-			}
-			log.error("Indexing Failed: " + index);
-			e.printStackTrace();
+			log.error("Index creation failed: " + index, e);
 			System.exit(-1);
 		}
 	}
