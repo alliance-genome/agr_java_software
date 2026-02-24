@@ -13,12 +13,14 @@ import java.util.Map;
 
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
+import org.alliancegenome.curation_api.model.document.es.ESDocument;
 import org.alliancegenome.curation_api.model.document.es.TransgenicAlleleDocument;
 import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
 import org.alliancegenome.es.model.query.Pagination;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.SortOrder;
@@ -130,20 +132,30 @@ public class AlleleESService extends ESService {
 		return ret;
 	}
 
-	public JsonResultResponse<AlleleSummaryDocument> getAllelesByGene(String geneId, Pagination pagination) {
+	public JsonResultResponse<ESDocument> getAllelesByGene(String geneId, Pagination pagination) {
 
-		BoolQueryBuilder bool = boolQuery();
-		bool.must(new MatchQueryBuilder("alleleOfGene.primaryExternalId", geneId));
-		bool.filter(new TermQueryBuilder("category", "allele_summary"));
-		JsonResultResponse<AlleleSummaryDocument> ret = new JsonResultResponse<>();
-		ret.setSupplementalData(getAlleleSupplementalData(bool));
-		addTableFilter(pagination, bool);
-		SearchResponse searchResponse = getSearchResponse(bool, pagination, sortMap.get(pagination.getSortBy()), false);
-		List<AlleleSummaryDocument> list = new ArrayList<>();
+		BoolQueryBuilder queryBuilder = new BoolQueryBuilder();
+		BoolQueryBuilder shouldQueryBuilder = new BoolQueryBuilder();
+		queryBuilder.must(QueryBuilders.termQuery("geneIds", geneId));
+		shouldQueryBuilder.should(QueryBuilders.termQuery("category.keyword", "allele_summary"));
+		shouldQueryBuilder.should(QueryBuilders.termQuery("category.keyword", "variant_summary"));
+		queryBuilder.must(shouldQueryBuilder);
+
+		JsonResultResponse<ESDocument> ret = new JsonResultResponse<>();
+		ret.setSupplementalData(getAlleleSupplementalData(queryBuilder));
+		addTableFilter(pagination, queryBuilder);
+		SearchResponse searchResponse = getSearchResponse(queryBuilder, pagination, sortMap.get(pagination.getSortBy()), true);
+		List<ESDocument> list = new ArrayList<>();
 		Arrays.stream(searchResponse.getHits().getHits()).forEach(searchHit -> {
 			try {
-				AlleleSummaryDocument object = mapper.readValue(searchHit.getSourceAsString(), AlleleSummaryDocument.class);
-				list.add(object);
+				String category = (String) searchHit.getSourceAsMap().get("category");
+				if (category.equals("allele_summary")) {
+					AlleleSummaryDocument asd = mapper.readValue(searchHit.getSourceAsString(), AlleleSummaryDocument.class);
+					list.add(asd);
+				} else if (category.equals("variant_summary")) {
+					VariantSummaryDocument vsd = mapper.readValue(searchHit.getSourceAsString(), VariantSummaryDocument.class);
+					list.add(vsd);
+				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

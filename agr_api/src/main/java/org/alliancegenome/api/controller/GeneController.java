@@ -44,6 +44,7 @@ import org.alliancegenome.core.translators.tdf.GeneGeneticInteractionToTdfTransl
 import org.alliancegenome.core.translators.tdf.GeneMolecularInteractionToTdfTranslator;
 import org.alliancegenome.curation_api.model.document.es.AffectedGenomicModelDocument;
 import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
+import org.alliancegenome.curation_api.model.document.es.ESDocument;
 import org.alliancegenome.curation_api.model.document.es.GeneSummaryDocument;
 import org.alliancegenome.curation_api.model.document.es.SequenceSummaryDocument;
 import org.alliancegenome.es.model.query.FieldFilter;
@@ -130,7 +131,7 @@ public class GeneController implements GeneRESTInterface {
 	}
 	
 	@Override
-	public JsonResultResponse<AlleleSummaryDocument> getAllelesPerGene(String id,
+	public JsonResultResponse<ESDocument> getAllelesPerGene(String id,
 															Integer limit,
 															Integer page,
 															String sortBy,
@@ -162,7 +163,7 @@ public class GeneController implements GeneRESTInterface {
 		}
 
 		try {
-			JsonResultResponse<AlleleSummaryDocument> alleles = alleleESService.getAllelesByGene(id, pagination);
+			JsonResultResponse<ESDocument> alleles = alleleESService.getAllelesByGene(id, pagination);
 			alleles.setHttpServletRequest(null);
 			alleles.calculateRequestDuration(startTime);
 			return alleles;
@@ -298,7 +299,7 @@ public class GeneController implements GeneRESTInterface {
 		String disease,
 		String category) {
 
-		JsonResultResponse<AlleleSummaryDocument> alleles = getAllelesPerGene(id, 200000, 1, sortBy, asc, symbol, synonym, variant, variantType, molecularConsequence, disease, phenotype, category);
+		JsonResultResponse<ESDocument> alleles = getAllelesPerGene(id, 200000, 1, sortBy, asc, symbol, synonym, variant, variantType, molecularConsequence, disease, phenotype, category);
 
 		Response.ResponseBuilder responseBuilder = Response.ok(alleleTranslator.getAllRows(alleles.getResults()));
 		APIServiceHelper.setDownloadHeader(id, EntityType.GENE, EntityType.ALLELE, responseBuilder);

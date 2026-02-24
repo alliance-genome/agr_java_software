@@ -10,6 +10,7 @@ import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.api.entity.GeneTransgenicAlleleSummaryDocument;
 import org.alliancegenome.api.entity.TransgenicAlleleSummaryDocument;
 import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
+import org.alliancegenome.curation_api.model.document.es.ESDocument;
 import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
 import org.alliancegenome.curation_api.model.entities.Allele;
 import org.alliancegenome.curation_api.model.entities.CrossReference;
@@ -23,7 +24,7 @@ import org.apache.commons.collections.CollectionUtils;
 
 public class AlleleToTdfTranslator {
 
-	public String getAllRows(List<AlleleSummaryDocument> annotations) {
+	public String getAllRows(List<ESDocument> annotations) {
 
 		List<AlleleDownloadRow> list = getAlleleDownloadRowsForGenes(annotations);
 		List<DownloadHeader> headers = List.of(
@@ -41,17 +42,14 @@ public class AlleleToTdfTranslator {
 		return DownloadHeader.getDownloadOutput(list, headers);
 	}
 
-	public List<AlleleDownloadRow> getAlleleDownloadRowsForGenes(List<AlleleSummaryDocument> annotations) {
+	public List<AlleleDownloadRow> getAlleleDownloadRowsForGenes(List<ESDocument> annotations) {
 		return annotations.stream()
+			.filter(AlleleSummaryDocument.class::isInstance)
+			.map(AlleleSummaryDocument.class::cast)
 			.map(annotation -> {
 				if (CollectionUtils.isNotEmpty(annotation.getVariants())) {
 					return annotation.getVariants().stream()
-						.map(join -> {
-								return annotation.getVariants().stream()
-									.map(var -> getBaseDownloadRow(annotation, var))
-									.collect(Collectors.toList());
-
-						}).flatMap(Collection::stream)
+						.map(var -> getBaseDownloadRow(annotation, var))
 						.collect(Collectors.toList());
 				} else {
 					return List.of(getBaseDownloadRow(annotation, null));

@@ -28,6 +28,7 @@ import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
+import org.alliancegenome.curation_api.model.document.es.ESDocument;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
@@ -411,7 +412,7 @@ public class AlleleIT {
 	@Ignore
 	public void checkAllelesGeneTableSynonymFilter() {
 		GeneController ctrl = new GeneController();
-		JsonResultResponse<AlleleSummaryDocument> response = ctrl.getAllelesPerGene("RGD:2219", 10, 1, "", "true", "", "brc", "", "", "", "", "", "allele");
+		JsonResultResponse<ESDocument> response = ctrl.getAllelesPerGene("RGD:2219", 10, 1, "", "true", "", "brc", "", "", "", "", "", "allele");
 		assertNotNull(response);
 
 	}

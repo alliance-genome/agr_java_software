@@ -31,6 +31,7 @@ import org.alliancegenome.curation_api.model.entities.slotAnnotations.GeneSymbol
 import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 
 import htsjdk.variant.variantcontext.VariantContext;
 
@@ -154,7 +155,8 @@ public class VariantSummaryConverter {
 
 			// Parse VEP consequences from CSQ field
 			Set<String> hgvsGList = new HashSet<>();
-			List<PredictedVariantConsequence> consequences = getConsequences(csqList, vepAllele, speciesType, hgvsGList);
+			Pair<List<PredictedVariantConsequence>, HashSet<String>> resultPair = getConsequences(csqList, vepAllele, speciesType, hgvsGList);
+			List<PredictedVariantConsequence> consequences = resultPair.getLeft();
 			if (consequences.isEmpty()) {
 				continue;
 			}
@@ -260,6 +262,7 @@ public class VariantSummaryConverter {
 			doc.setSubCategory("HTP_variant");
 			doc.setAllele(allele);
 			doc.setVariant(cvgla);
+			doc.setGeneIds(resultPair.getRight());
 
 			returnDocuments.add(doc);
 		}
@@ -273,10 +276,11 @@ public class VariantSummaryConverter {
 	 *
 	 * @param hgvsGList
 	 */
-	private List<PredictedVariantConsequence> getConsequences(List<String> csqList, String varNuc, SpeciesType speciesType, Set<String> hgvsGList) {
+	private Pair<List<PredictedVariantConsequence>, HashSet<String>> getConsequences(List<String> csqList, String varNuc, SpeciesType speciesType, Set<String> hgvsGList) {
 
 		List<PredictedVariantConsequence> consequences = new ArrayList<>();
 		HashSet<String> alreadyAdded = new HashSet<>();
+		HashSet<String> geneIds = new HashSet<>();
 
 		for (String csq : csqList) {
 			if (csq.isEmpty()) {
@@ -335,6 +339,7 @@ public class VariantSummaryConverter {
 					Gene gene = new Gene();
 					gene.setCurie(infos[geneIdx]);
 					gene.setTaxon(taxon);
+					geneIds.add(infos[geneIdx]);
 
 					// Set gene symbol if available
 					if (!infos[geneSymbolIdx].isEmpty()) {
@@ -445,7 +450,8 @@ public class VariantSummaryConverter {
 
 			consequences.add(consequence);
 		}
-		return consequences;
+		
+		return Pair.of(consequences, geneIds);
 	}
 
 	/**
