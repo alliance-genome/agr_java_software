@@ -237,8 +237,14 @@ public class Mapping extends Builder {
 		builder.endObject();
 		new FieldBuilder(builder, "geneToGeneOrthologyGenerated.subjectGene.primaryExternalId", "text").keyword().build();
 
+		builder.startObject("literatureSummary");
+		builder.field("type", "object");
+		builder.field("dynamic", false);
+		builder.endObject();
 		new FieldBuilder(builder, "literatureSummary.date_arrived_in_pubmed", "text").keyword().build();
 		new FieldBuilder(builder, "literatureSummary.date_published", "text").keyword().build();
+		new FieldBuilder(builder, "literatureSummary.date_last_modified_in_pubmed", "text").keyword().build();
+		new FieldBuilder(builder, "literatureSummary.page_range", "keyword").build();
 
 		// GeneExpressionDocument: dynamic false (78 -> ~8 indexed fields)
 		builder.startObject("geneExpressionAnnotation");
