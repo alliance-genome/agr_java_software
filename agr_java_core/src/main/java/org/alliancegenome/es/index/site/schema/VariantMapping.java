@@ -53,6 +53,11 @@ public class VariantMapping extends Mapping {
 			builder.endObject();
 			builder.endObject();
 
+			// consequence: dynamic false for now, add explicit field mappings as UI sorting/filtering is implemented
+			builder.startObject("consequence");
+			builder.field("dynamic", false);
+			builder.endObject();
+
 			builder.endObject();
 			builder.endObject();
 		} catch (IOException e) {

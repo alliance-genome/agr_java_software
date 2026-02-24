@@ -69,6 +69,10 @@ public class ProcessDisplayHelper {
 		progressProcess(data, 1);
 	}
 
+	public void progressProcess(long amount) {
+		progressProcess(null, amount);
+	}
+	
 	public void progressProcess(Long amount) {
 		progressProcess(null, amount);
 	}
