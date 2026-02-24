@@ -12,7 +12,7 @@ import lombok.EqualsAndHashCode;
 public class LiteratureSummaryDocument extends ESDocument {
 	{
 		category = "literature_summary";
-		searchable = true;
+		searchable = false;
 	}
 
 	private Map<String, Object> literatureSummary;
