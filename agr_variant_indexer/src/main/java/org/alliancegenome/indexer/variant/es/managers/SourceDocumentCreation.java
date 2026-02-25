@@ -1,22 +1,23 @@
 package org.alliancegenome.indexer.variant.es.managers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import htsjdk.samtools.util.CloseableIterator;
-import htsjdk.variant.variantcontext.VariantContext;
-import htsjdk.variant.vcf.VCFFileReader;
-import htsjdk.variant.vcf.VCFInfoHeaderLine;
-import lombok.extern.slf4j.Slf4j;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
+
 import org.alliancegenome.core.filedownload.model.DownloadSource;
 import org.alliancegenome.core.util.StatsCollector;
 import org.alliancegenome.core.variant.config.VariantConfigHelper;
 import org.alliancegenome.core.variant.converters.SequenceSummaryConverter;
+import org.alliancegenome.core.variant.converters.VariantSearchConverter;
 import org.alliancegenome.core.variant.converters.VariantSummaryConverter;
 import org.alliancegenome.curation_api.model.document.es.ESDocument;
 import org.alliancegenome.curation_api.model.document.es.SequenceSummaryDocument;
 import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
 import org.alliancegenome.curation_api.view.CurationView;
 import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
+import org.alliancegenome.es.model.VariantSearchResultDocument;
 import org.alliancegenome.es.rest.RestConfig;
 import org.alliancegenome.es.util.EsClientFactory;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
@@ -29,11 +30,14 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.xcontent.XContentType;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.TimeUnit;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+
+import htsjdk.samtools.util.CloseableIterator;
+import htsjdk.variant.variantcontext.VariantContext;
+import htsjdk.variant.vcf.VCFFileReader;
+import htsjdk.variant.vcf.VCFInfoHeaderLine;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class SourceDocumentCreation extends Thread {
@@ -90,6 +94,7 @@ public class SourceDocumentCreation extends Thread {
 
 	private VariantSummaryConverter variantSummaryConverter;
 	private SequenceSummaryConverter sequenceSummaryConverter;
+	private VariantSearchConverter variantSearchConverter;
 
 	private StatsCollector statsCollector = new StatsCollector();
 	private String messageHeader = "";
@@ -460,6 +465,7 @@ public class SourceDocumentCreation extends Thread {
 				// All files for a Mod have the same header so we only need one of them
 				variantSummaryConverter = new VariantSummaryConverter(header, geneCache);
 				sequenceSummaryConverter = new SequenceSummaryConverter();
+				variantSearchConverter = new VariantSearchConverter();
 				try {
 					TimeUnit.MILLISECONDS.sleep(20);
 				} catch (InterruptedException e) {
@@ -512,6 +518,11 @@ public class SourceDocumentCreation extends Thread {
 								workBucket.add(sequenceSummaryDocument);
 								ph2.progressProcess("objectQueue: " + objectQueue.size());
 							}
+							List<VariantSearchResultDocument> variantSearchDocuments = variantSearchConverter.convertToVariantSearchDocument(variantSummaryDocuments);
+							for (VariantSearchResultDocument variantSearchDocument : variantSearchDocuments) {
+								workBucket.add(variantSearchDocument);
+								ph2.progressProcess("objectQueue: " + objectQueue.size());
+							}
 						} catch (Exception e) {
 							e.printStackTrace();
 							System.exit(-1);
@@ -542,6 +553,7 @@ public class SourceDocumentCreation extends Thread {
 		private ObjectMapper mapper = RestConfig.createObjectMapper();
 		private ObjectWriter cachedWriter;
 		private ObjectWriter sequenceWriter;
+		private ObjectWriter searchWriter;
 
 		// Welford's online algorithm state for mean, variance, and skewness
 		private long n;
@@ -551,6 +563,7 @@ public class SourceDocumentCreation extends Thread {
 
 		@Override
 		public void run() {
+			searchWriter = mapper.writerWithView(CurationView.VariantSearchResultDocument.class);
 			cachedWriter = mapper.writerWithView(CurationView.VariantSummaryDocument.class);
 			sequenceWriter = mapper.writerWithView(CurationView.SequenceSummaryDocument.class);
 			while (!(Thread.currentThread().isInterrupted())) {
@@ -574,8 +587,11 @@ public class SourceDocumentCreation extends Thread {
 									jsonDoc = sequenceWriter.writeValueAsString(ssd);
 								} else if (doc instanceof VariantSummaryDocument vsd) {
 									jsonDoc = cachedWriter.writeValueAsString(vsd);
+								} else if (doc instanceof VariantSearchResultDocument vsd) {
+									jsonDoc = searchWriter.writeValueAsString(vsd);
 								} else {
-									// This should never happen
+									log.error("Unexpected ESDocument type: " + doc.getClass().getName());
+									continue;									// This should never happen
 								}
 
 								int len = jsonDoc.length();

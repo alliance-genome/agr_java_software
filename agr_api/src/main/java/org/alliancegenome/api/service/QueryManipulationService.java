@@ -7,10 +7,10 @@ import org.apache.commons.lang3.StringUtils;
 
 public class QueryManipulationService {
 
-	private static final String ESCAPE_CHARS = "[/\\[\\](){}]";
+	private static final String ESCAPE_CHARS = "[/\\[\\](){}<>]";
 	private static final Pattern LUCENE_PATTERN = Pattern.compile(ESCAPE_CHARS);
 	private static final String REPLACEMENT_STRING = "\\\\$0";
-	private static final Pattern HGVS_PATTERN = Pattern.compile("([A-Z]{2}_[0-9\\.]+[\\\\]*:g.[\\d\\w><_]+)");
+	private static final Pattern HGVS_PATTERN = Pattern.compile("([A-Z]{2}_[0-9\\.]+[\\\\]*:g.[\\d\\w\\\\><_]+)");
 
 	public String processQuery(String query) {
 		query = luceneEscape(query);
@@ -52,7 +52,10 @@ public class QueryManipulationService {
 		Matcher m = HGVS_PATTERN.matcher(value);
 		while (m.find()) {
 			String match = m.group(0);
-			value = value.replace(match, "\"" + match + "\"");
+			// Remove backslash escapes within the HGVS term so the quoted phrase
+			// matches the unescaped token stored in the index
+			String unescaped = match.replaceAll("\\\\([><=:])", "$1");
+			value = value.replace(match, "\"" + unescaped + "\"");
 		}
 		//an already quoted term will get an extra pair, so just clean them up all at once
 		value = value.replaceAll("\"\"", "\"");

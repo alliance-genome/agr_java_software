@@ -86,6 +86,15 @@ public class SearchHelper {
 					add("alleles");
 				}
 			});
+			put("variant_search_result", new ArrayList<>() {
+				{
+					add("species");
+					add("alterationType");
+					add("variantType");
+					add("molecularConsequence");
+					add("genes");
+				}
+			});
 		}
 	};
 

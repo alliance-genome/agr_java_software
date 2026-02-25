@@ -279,7 +279,11 @@ public class AlleleToTdfTranslator {
 			row.setVariantType(variant.getVariantAssociationSubject().getVariantType().getName());
 		}
 		if (variant.getVariantGenomicLocationAssociationObject() != null) {
-			row.setChrPosition(variant.getVariantGenomicLocationAssociationObject().getName() + ":" + variant.getStart());
+			String chrPos = variant.getVariantGenomicLocationAssociationObject().getName() + ":" + variant.getStart();
+			if (!Objects.equals(variant.getStart(), variant.getEnd())) {
+				chrPos += "-" + variant.getEnd();
+			}
+			row.setChrPosition(chrPos);
 		}
 		if (CollectionUtils.isNotEmpty(variant.getPredictedVariantConsequences())
 			&& CollectionUtils.isNotEmpty(variant.getPredictedVariantConsequences().get(0).getVepConsequences())) {

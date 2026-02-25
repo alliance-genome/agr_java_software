@@ -11,6 +11,7 @@ import org.alliancegenome.curation_api.model.entities.PredictedVariantConsequenc
 import org.alliancegenome.curation_api.model.entities.associations.CuratedVariantGenomicLocationAssociation;
 import org.alliancegenome.curation_api.model.entities.associations.TranscriptGeneAssociation;
 
+
 /**
  * Flattens VariantSummaryDocument objects into SequenceSummaryDocument objects,
  * producing one document per allele x variant x consequence combination.

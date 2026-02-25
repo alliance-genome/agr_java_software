@@ -12,8 +12,8 @@ import lombok.EqualsAndHashCode;
 public class LiteratureSummaryDocument extends ESDocument {
 	{
 		category = "literature_summary";
-		searchable = true;
 	}
+	
 
 	private Map<String, Object> literatureSummary;
 }
