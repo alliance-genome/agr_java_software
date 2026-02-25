@@ -294,6 +294,38 @@ public class Mapping extends Builder {
 		builder.field("dynamic", false);
 		builder.endObject();
 
+		// SequenceSummaryDocument: variant (CuratedVariantGenomicLocationAssociation)
+		builder.startObject("variant");
+		builder.field("type", "object");
+		builder.field("dynamic", false);
+		builder.startObject("properties");
+		new FieldBuilder(builder, "hgvs", "text").keyword().sort().build();
+		new FieldBuilder(builder, "start", "integer").build();
+		new FieldBuilder(builder, "end", "integer").build();
+		builder.endObject();
+		builder.endObject();
+		new FieldBuilder(builder, "variant.variantAssociationSubject.variantType.name", "text").keyword().sort().build();
+		new FieldBuilder(builder, "variant.variantGenomicLocationAssociationObject.name", "text").keyword().build();
+
+		// SequenceSummaryDocument: consequence (PredictedVariantConsequence)
+		builder.startObject("consequence");
+		builder.field("type", "object");
+		builder.field("dynamic", false);
+		builder.startObject("properties");
+		new FieldBuilder(builder, "geneLevelConsequence", "boolean").build();
+		new FieldBuilder(builder, "siftScore", "float").build();
+		new FieldBuilder(builder, "polyphenScore", "float").build();
+		new FieldBuilder(builder, "intronExonLocation", "text").keyword().build();
+		builder.endObject();
+		builder.endObject();
+		new FieldBuilder(builder, "consequence.vepImpact.name", "text").keyword().sort().build();
+		new FieldBuilder(builder, "consequence.vepConsequences.name", "text").keyword().sort().build();
+		new FieldBuilder(builder, "consequence.siftPrediction.name", "text").keyword().build();
+		new FieldBuilder(builder, "consequence.polyphenPrediction.name", "text").keyword().build();
+		new FieldBuilder(builder, "consequence.variantTranscript.curie", "text").keyword().build();
+		new FieldBuilder(builder, "consequence.variantTranscript.transcriptType.name", "text").keyword().build();
+		new FieldBuilder(builder, "consequence.variantTranscript.transcriptGeneAssociations.transcriptGeneAssociationObject.geneSymbol.displayText", "text").keyword().build();
+
 	}
 
 	public static class FieldBuilder {

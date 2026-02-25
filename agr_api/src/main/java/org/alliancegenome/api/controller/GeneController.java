@@ -163,6 +163,7 @@ public class GeneController implements GeneRESTInterface {
 		pagination.addFieldFilter(FieldFilter.SEQUENCE_FEATURE_TYPE, sequenceFeatureType);
 		pagination.addFieldFilter(FieldFilter.SEQUENCE_FEATURE, sequenceFeature);
 		pagination.addFieldFilter(FieldFilter.ASSOCIATED_GENE, associatedGeneSymbol);
+		pagination.addFieldFilter(FieldFilter.VARIANT_HGVS_G, hgvsgName);
 		pagination.addFieldFilter(FieldFilter.VARIANT_LOCATION, location);
 		if (pagination.hasErrors()) {
 			RestErrorMessage message = new RestErrorMessage();
