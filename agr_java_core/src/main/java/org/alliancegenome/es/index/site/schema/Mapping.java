@@ -159,6 +159,7 @@ public class Mapping extends Builder {
 
 		new FieldBuilder(builder, "branch", "text").keyword().build(); // go
 		new FieldBuilder(builder, "category", "keyword").symbol().autocomplete().keyword().build(); // ALL document must have
+		new FieldBuilder(builder, "sequenceSummaryCategory", "keyword").symbol().autocomplete().keyword().build(); // sequence_summary
 
 		new FieldBuilder(builder, "crossReferences", "text").keyword().classicText().build(); // allele, gene, dataset, disease
 
