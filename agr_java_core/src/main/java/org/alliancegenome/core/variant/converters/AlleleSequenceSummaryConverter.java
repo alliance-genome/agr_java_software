@@ -1,6 +1,7 @@
 package org.alliancegenome.core.variant.converters;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
@@ -16,25 +17,32 @@ public class AlleleSequenceSummaryConverter {
 		List<SequenceSummaryDocument> result = new ArrayList<>();
 
 		for (AlleleSummaryDocument doc : alleleDocs) {
+			HashSet<String> geneIds = new HashSet<>();
+			if(doc.getAlleleOfGene() != null) {
+				geneIds.add(doc.getAlleleOfGene().getPrimaryExternalId());
+			} else {
+				continue;
+			}
+
 			if (CollectionUtils.isEmpty(doc.getVariants())) {
-				result.add(buildDoc(doc, null, null));
+				result.add(buildDocument(doc, null, null, geneIds));
 				continue;
 			}
 
 			for (Variant variant : doc.getVariants()) {
 				if (CollectionUtils.isEmpty(variant.getCuratedVariantGenomicLocations())) {
-					result.add(buildDoc(doc, null, null));
+					result.add(buildDocument(doc, null, null, geneIds));
 					continue;
 				}
 
 				for (CuratedVariantGenomicLocationAssociation location : variant.getCuratedVariantGenomicLocations()) {
 					if (CollectionUtils.isEmpty(location.getPredictedVariantConsequences())) {
-						result.add(buildDoc(doc, location, null));
+						result.add(buildDocument(doc, location, null, geneIds));
 						continue;
 					}
 
 					for (PredictedVariantConsequence consequence : location.getPredictedVariantConsequences()) {
-						result.add(buildDoc(doc, location, consequence));
+						result.add(buildDocument(doc, location, consequence, geneIds));
 					}
 				}
 			}
@@ -43,7 +51,7 @@ public class AlleleSequenceSummaryConverter {
 		return result;
 	}
 
-	private SequenceSummaryDocument buildDoc(AlleleSummaryDocument doc, CuratedVariantGenomicLocationAssociation location, PredictedVariantConsequence consequence) {
+	private SequenceSummaryDocument buildDocument(AlleleSummaryDocument doc, CuratedVariantGenomicLocationAssociation location, PredictedVariantConsequence consequence, HashSet<String> geneIds) {
 		SequenceSummaryDocument ssd = new SequenceSummaryDocument();
 		ssd.setAllele(doc.getAllele());
 		ssd.setGeneIds(doc.getGeneIds());
@@ -52,6 +60,7 @@ public class AlleleSequenceSummaryConverter {
 		ssd.setHasDisease(doc.getHasDisease() != null && doc.getHasDisease());
 		ssd.setVariant(location);
 		ssd.setConsequence(consequence);
+		ssd.setGeneIds(geneIds);
 		return ssd;
 	}
 
