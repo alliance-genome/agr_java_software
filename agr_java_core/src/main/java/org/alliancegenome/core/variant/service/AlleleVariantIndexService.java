@@ -78,7 +78,6 @@ public class AlleleVariantIndexService {
 			for (SearchHit searchHit : searchResponse.getHits().getHits()) {
 				try {
 					SequenceSummaryDocument doc = mapper.readValue(searchHit.getSourceAsString(), SequenceSummaryDocument.class);
-					doc.setCategory("variant"); // will need to change this once we get the other file types
 					docList.add(doc);
 				} catch (JsonProcessingException e) {
 					e.printStackTrace();
