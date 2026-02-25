@@ -18,7 +18,7 @@ public class AlleleSequenceSummaryConverter {
 
 		for (AlleleSummaryDocument doc : alleleDocs) {
 			HashSet<String> geneIds = new HashSet<>();
-			if(doc.getAlleleOfGene() != null) {
+			if (doc.getAlleleOfGene() != null) {
 				geneIds.add(doc.getAlleleOfGene().getPrimaryExternalId());
 			} else {
 				continue;

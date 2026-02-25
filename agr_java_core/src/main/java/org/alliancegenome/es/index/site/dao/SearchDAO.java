@@ -25,7 +25,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SearchDAO extends ESDAO {
 
-
 	public Long performCountQuery(QueryBuilder query) {
 		SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
 
@@ -43,7 +42,6 @@ public class SearchDAO extends ESDAO {
 			e.printStackTrace();
 		}
 
-
 		if (response != null && response.getHits() != null) {
 			return response.getHits().getTotalHits().value;
 		} else {
@@ -52,27 +50,12 @@ public class SearchDAO extends ESDAO {
 
 	}
 
-	public SearchResponse performQuery(QueryBuilder query,
-									   List<AggregationBuilder> aggBuilders,
-									   QueryRescorerBuilder rescorerBuilder,
-									   List<String> responseFields,
-									   int limit, int offset,
-									   HighlightBuilder highlighter,
-									   LinkedHashMap<String, SortOrder> sorts, Boolean debug) {
+	public SearchResponse performQuery(QueryBuilder query, List<AggregationBuilder> aggBuilders, QueryRescorerBuilder rescorerBuilder, List<String> responseFields, int limit, int offset, HighlightBuilder highlighter, LinkedHashMap<String, SortOrder> sorts, Boolean debug) {
 		return performQuery(query, aggBuilders, rescorerBuilder, responseFields, limit, offset, highlighter, sorts, null, debug);
 	}
 
-
-	public SearchResponse performQuery(QueryBuilder query,
-									   List<AggregationBuilder> aggBuilders,
-									   QueryRescorerBuilder rescorerBuilder,
-									   List<String> responseFields,
-									   int limit, int offset,
-									   HighlightBuilder highlighter,
-									   LinkedHashMap<String, SortOrder> sorts,
-									   Map<String, Boolean> fieldSorter,
-									   Boolean debug) {
-
+	public SearchResponse performQuery(QueryBuilder query, List<AggregationBuilder> aggBuilders, QueryRescorerBuilder rescorerBuilder, List<String> responseFields, int limit, int offset, HighlightBuilder highlighter, LinkedHashMap<String, SortOrder> sorts, Map<String, Boolean> fieldSorter,
+		Boolean debug) {
 
 		SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
 
@@ -120,7 +103,7 @@ public class SearchDAO extends ESDAO {
 		SearchRequest searchRequest = new SearchRequest(ConfigHelper.getEsIndex());
 		searchRequest.source(searchSourceBuilder);
 		// This request cache doesn't work 07/07/2021
-		//searchRequest.requestCache(true);
+		// searchRequest.requestCache(true);
 
 		if (debug != null && debug) {
 			log.info("Request: " + searchRequest);
