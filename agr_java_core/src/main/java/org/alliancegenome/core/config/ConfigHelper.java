@@ -8,8 +8,6 @@ import static org.alliancegenome.core.config.Constants.API_SECURE;
 import static org.alliancegenome.core.config.Constants.AWS_BUCKET_NAME;
 import static org.alliancegenome.core.config.Constants.BLUETEAM_ES_INDEX;
 import static org.alliancegenome.core.config.Constants.BLUETEAM_ES_URL;
-import static org.alliancegenome.core.config.Constants.CACHE_HOST;
-import static org.alliancegenome.core.config.Constants.CACHE_PORT;
 import static org.alliancegenome.core.config.Constants.CURATION_API_TOKEN;
 import static org.alliancegenome.core.config.Constants.CURATION_API_URL;
 import static org.alliancegenome.core.config.Constants.DEBUG;
@@ -98,9 +96,6 @@ public class ConfigHelper {
 		defaults.put(API_PORT, "8080");
 		defaults.put(API_SECURE, "false");
 
-		defaults.put(CACHE_HOST, "localhost");
-		defaults.put(CACHE_PORT, "11222");
-
 		defaults.put(EXTRACTOR_OUTPUTDIR, "data");
 
 		defaults.put(NEO4J_HOST, "localhost");
@@ -188,24 +183,6 @@ public class ConfigHelper {
 			log.debug("Setting default: " + key + "=" + ret);
 		}
 		return ret;
-	}
-
-	public static String getCacheHost() {
-		if (!init) {
-			init();
-		}
-		return config.get(CACHE_HOST);
-	}
-
-	public static int getCachePort() {
-		if (!init) {
-			init();
-		}
-		try {
-			return Integer.parseInt(config.get(CACHE_PORT));
-		} catch (NumberFormatException e) {
-			return 11222;
-		}
 	}
 
 	public static int getEsBulkActionSize() {

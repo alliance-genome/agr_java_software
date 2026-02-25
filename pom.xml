@@ -10,7 +10,6 @@
 		<module>agr_java_core</module>
 		<module>agr_elasticsearch_util</module>
 		<module>agr_indexer</module>
-		<module>agr_cacher</module>
 		<module>agr_api</module>
 		<module>agr_api_tester</module>
 		<module>agr_schema_validation</module>
@@ -21,7 +20,6 @@
 		<maven.compiler.source>21</maven.compiler.source>
 		<maven.compiler.target>21</maven.compiler.target>
 		<revision>9.0.0</revision>
-		<infinispan.version>15.2.1.Final</infinispan.version>
 		<maven-checkstyle-plugin.version>3.3.1</maven-checkstyle-plugin.version>
 		<checkstyle.version>10.17.0</checkstyle.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -167,21 +165,6 @@
 				<groupId>org.projectlombok</groupId>
 				<artifactId>lombok</artifactId>
 				<version>1.18.38</version>
-			</dependency>
-			<dependency>
-				<groupId>org.infinispan</groupId>
-				<artifactId>infinispan-commons</artifactId>
-				<version>${infinispan.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.infinispan</groupId>
-				<artifactId>infinispan-core</artifactId>
-				<version>${infinispan.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.infinispan</groupId>
-				<artifactId>infinispan-client-hotrod</artifactId>
-				<version>${infinispan.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.amazonaws</groupId>

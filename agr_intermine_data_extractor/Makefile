@@ -31,14 +31,6 @@ pull: registry-docker-login
 bash:
 	docker-compose up agr_intermine_data_extractor bash
 
-removees:
-	docker-compose down -v
-
-reload: stopes removees
-	docker-compose up agr_infinispan
-	sleep 10
-	docker-compose up agr_intermine_data_extractor
-
 docker-pull-neo: registry-docker-login
 	docker pull ${REG}/agr_neo4j_data_image:build
 

@@ -31,7 +31,7 @@ public class Species extends Neo4jEntity implements Comparable<Species> {
 	@JsonView({ PublicView.Default.class, CurationView.VariantSummaryDocument.class }) private String dataProviderFullName;
 	@JsonView({ PublicView.Default.class, CurationView.VariantSummaryDocument.class }) private String dataProviderShortName;
 
-	@JsonView({ PublicView.DiseaseCacher.class, PublicView.Homology.class }) private int phylogeneticOrder;
+	@JsonView({ PublicView.Homology.class }) private int phylogeneticOrder;
 
 	@JsonView({ PublicView.Default.class, CurationView.VariantSummaryDocument.class }) private String commonNames;
 

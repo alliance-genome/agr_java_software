@@ -18,11 +18,8 @@ import org.alliancegenome.curation_api.model.document.es.ESDocument;
 import org.alliancegenome.curation_api.model.document.es.GeneSummaryDocument;
 import org.alliancegenome.curation_api.model.document.es.SequenceSummaryDocument;
 import org.alliancegenome.curation_api.view.CurationView;
-import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
-import org.alliancegenome.neo4j.entity.DiseaseSummary;
 import org.alliancegenome.neo4j.entity.EntitySummary;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
-import org.alliancegenome.neo4j.view.HomologView;
 import org.alliancegenome.neo4j.view.PublicView;
 import org.apache.commons.lang3.ObjectUtils.Null;
 import org.eclipse.microprofile.openapi.annotations.Operation;
@@ -302,66 +299,6 @@ public interface GeneRESTInterface {
 
 
 	@GET
-	@Path("/{id}/disease")
-	@JsonView(value = {PublicView.DiseaseAnnotation.class})
-	@Operation(summary = "Retrieve disease annotations for a given gene")
-	@APIResponses(
-		value = {
-			@APIResponse(
-				responseCode = "404",
-				description = "Missing disease annotations",
-				content = @Content(mediaType = "text/plain")),
-			@APIResponse(
-				responseCode = "200",
-				description = "Disease annotations for a gene.",
-				content = @Content(mediaType = "application/json",
-					schema = @Schema(implementation = Null.class)))})
-	JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotations(
-		@Parameter(in = ParameterIn.PATH, name = "id", description = "Gene by ID: e.g. ZFIN:ZDB-GENE-990415-8", required = true, schema = @Schema(type = SchemaType.STRING))
-		@PathParam("id") String id,
-		@Parameter(in = ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
-		@DefaultValue("20") @QueryParam("limit") Integer limit,
-		@Parameter(in = ParameterIn.QUERY, name = "page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER))
-		@DefaultValue("1") @QueryParam("page") Integer page,
-		@Parameter(in = ParameterIn.QUERY, name = "sortBy", description = "Field name by which to sort", schema = @Schema(type = SchemaType.STRING))
-		@DefaultValue("term") @QueryParam("sortBy") String sortBy,
-		@Parameter(in = ParameterIn.QUERY, name = "filter.geneticEntity", description = "genetic entity symbol", schema = @Schema(type = SchemaType.STRING))
-		@QueryParam("filter.geneticEntity") String geneticEntity,
-		@Parameter(in = ParameterIn.QUERY, name = "filter.geneticEntityType", description = "genetic entity type", schema = @Schema(type = SchemaType.STRING))
-		//allowedValues = "allele,gene"
-		@QueryParam("filter.geneticEntityType") String geneticEntityType,
-		@Parameter(in = ParameterIn.QUERY, name = "filter.termName", description = "term name", schema = @Schema(type = SchemaType.STRING))
-		@QueryParam("filter.termName") String disease,
-		@Parameter(in = ParameterIn.QUERY, name = "filter.reference", description = "Reference number: PUBMED or a Pub ID from the MOD", schema = @Schema(type = SchemaType.STRING))
-		@QueryParam("filter.reference") String reference,
-		@Parameter(in = ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))
-		@DefaultValue("true") @QueryParam("asc") String asc);
-
-	@GET
-	@Path("/{id}/disease/download")
-	@Operation(summary = "Download all disease annotations for a given gene")
-	@Produces(MediaType.TEXT_PLAIN)
-	Response getDiseaseAnnotationsDownloadFile(
-		@Parameter(in = ParameterIn.PATH, name = "id", description = "Gene by ID", required = true, schema = @Schema(type = SchemaType.STRING))
-		@PathParam("id") String id,
-		@Parameter(in = ParameterIn.QUERY, name = "sortBy", description = "Field name by which to sort", schema = @Schema(type = SchemaType.STRING))
-		//allowedValues = "termName,geneticEntity"
-		@DefaultValue("termName") @QueryParam("sortBy") String sortBy,
-		@Parameter(in = ParameterIn.QUERY, name = "filter.geneticEntity", description = "genetic entity symbol", schema = @Schema(type = SchemaType.STRING))
-		@QueryParam("filter.geneticEntity") String geneticEntity,
-		@Parameter(in = ParameterIn.QUERY, name = "filter.geneticEntityType", description = "genetic entity type", schema = @Schema(type = SchemaType.STRING))
-//allowedValues = "allele"
-		@QueryParam("filter.geneticEntityType") String geneticEntityType,
-		@Parameter(in = ParameterIn.QUERY, name = "filter.termName", description = "term name", schema = @Schema(type = SchemaType.STRING))
-		@QueryParam("filter.termName") String disease,
-		@Parameter(in = ParameterIn.QUERY, name = "filter.reference", description = "Reference number: PUBMED or a Pub ID from the MOD", schema = @Schema(type = SchemaType.STRING))
-		@QueryParam("filter.reference") String reference,
-		@Parameter(in = ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))
-		@DefaultValue("true")
-		@QueryParam("asc") String asc);
-
-
-	@GET
 	@Path("/{id}/models")
 	@JsonView(value = {CurationView.ModelDocument.class})
 	@Operation(summary = "Retrieve all DiseaseAnnotation records for a given disease id")
@@ -447,18 +384,6 @@ public interface GeneRESTInterface {
 		@DefaultValue("20") @QueryParam("limit") Integer limit,
 		@Parameter(in = ParameterIn.QUERY, name = "page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER))
 		@DefaultValue("1") @QueryParam("page") Integer page) throws IOException;
-
-	@GET
-	@Path("/{id}/homologs-with-expression")
-	@JsonView(value = {PublicView.Homology.class})
-	@Operation(summary = "Retrieve homologous gene records that have expression data")
-	@APIResponses(value = {@APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class)))})
-	JsonResultResponse<HomologView> getGeneOrthologyWithExpression(
-		@Parameter(in = ParameterIn.PATH, name = "id", description = "Source Gene ID: the gene for which you are searching homologous gene, e.g. 'MGI:109583'", required = true, schema = @Schema(type = SchemaType.STRING))
-		@PathParam("id") String id,
-		@Parameter(in = ParameterIn.QUERY, name = "stringencyFilter", description = "apply stringency containsFilterdescription", schema = @Schema(type = SchemaType.STRING))
-		@DefaultValue("stringent") @QueryParam("stringencyFilter") String stringencyFilter);
-
 
 	@GET
 	@Path("/{id}/genetic-interactions")
@@ -651,93 +576,6 @@ public interface GeneRESTInterface {
 
 		@Parameter(in = ParameterIn.QUERY, name = "geneID", description = "additional orthologous genes", required = true)
 		@RequestBody List<String> geneIDs
-	) throws JsonProcessingException;
-
-	@GET
-	@Path("/{id}/diseases-by-experiment")
-	@Operation(summary = "Retrieve disease annotations for a given gene")
-	@APIResponses(
-		value = {
-			@APIResponse(
-				responseCode = "404",
-				description = "Missing disease",
-				content = @Content(mediaType = "text/plain")),
-			@APIResponse(
-				responseCode = "200",
-				description = "Disease annotations for a gene.",
-				content = @Content(mediaType = "application/json",
-					schema = @Schema(implementation = Null.class)))})
-	@JsonView(value = {PublicView.DiseaseAnnotation.class})
-	JsonResultResponse<DiseaseAnnotation> getDiseaseByExperiment(
-		@Parameter(in = ParameterIn.PATH, name = "id", description = "Gene by ID, e.g. 'RGD:2129' or 'ZFIN:ZDB-GENE-990415-72 fgf8a'", required = true, schema = @Schema(type = SchemaType.STRING))
-		@PathParam("id") String id,
-		@Parameter(in = ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
-		@DefaultValue("20") @QueryParam("limit") Integer limit,
-		@Parameter(in = ParameterIn.QUERY, name = "page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER))
-		@DefaultValue("1") @QueryParam("page") Integer page,
-		@Parameter(in = ParameterIn.QUERY, name = "sortBy", description = "Field name by which to sort", schema = @Schema(type = SchemaType.STRING))
-//, allowedValues = "disease,geneticEntity")
-		@DefaultValue("disease") @QueryParam("sortBy") String sortBy,
-		@Parameter(in = ParameterIn.QUERY, name = "geneticEntity", description = "genetic entity symbol", schema = @Schema(type = SchemaType.STRING))
-		@QueryParam("filter.geneticEntity") String geneticEntity,
-		@Parameter(in = ParameterIn.QUERY, name = "filter.geneticEntityType", description = "genetic entity type", schema = @Schema(type = SchemaType.STRING))
-// allowedValues = "allele,gene")
-		@QueryParam("filter.geneticEntityType") String geneticEntityType,
-		@Parameter(in = ParameterIn.QUERY, name = "filter.disease", description = "termName annotation")
-		@QueryParam("filter.disease") String phenotype,
-		@Parameter(in = ParameterIn.QUERY, name = "filter.associationType", description = "association type")
-		@QueryParam("filter.associationType") String associationType,
-		@Parameter(in = ParameterIn.QUERY, name = "filter.evidenceCode", description = "Evidence Code")
-		@QueryParam("filter.evidenceCode") String evidenceCode,
-		@Parameter(in = ParameterIn.QUERY, name = "source", description = "Data Source")
-		@QueryParam("source") String source,
-		@Parameter(in = ParameterIn.QUERY, name = "publicaions", description = "Reference number: PUBMED or a Pub ID from the MOD")
-		@QueryParam("publications") String reference,
-		@Parameter(in = ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))
-//,allowedValues = "true,false")
-		@DefaultValue("true")
-		@QueryParam("asc") String asc,
-		@Context UriInfo ui) throws JsonProcessingException;
-
-	@GET
-	@Path("/{id}/diseases-by-experiment/download")
-	@Operation(summary = "Retrieve all disease annotations for a given gene and containsFilterdescription option", hidden = true)
-	Response getDiseaseByExperimentDownload(
-		@Parameter(in = ParameterIn.PATH, name = "id", description = "Gene by ID, e.g. 'RGD:2129' or 'ZFIN:ZDB-GENE-990415-72 fgf8a'", required = true, schema = @Schema(type = SchemaType.STRING))
-		@PathParam("id") String id,
-		@DefaultValue("disease") @QueryParam("sortBy") String sortBy,
-		@Parameter(in = ParameterIn.QUERY, name = "geneticEntity", description = "genetic entity symbol", schema = @Schema(type = SchemaType.STRING))
-		@QueryParam("filter.geneticEntity") String geneticEntity,
-		@Parameter(in = ParameterIn.QUERY, name = "filter.geneticEntityType", description = "genetic entity type", schema = @Schema(type = SchemaType.STRING))
-// allowedValues = "allele,gene")
-		@QueryParam("filter.geneticEntityType") String geneticEntityType,
-		@Parameter(in = ParameterIn.QUERY, name = "filter.disease", description = "termName annotation")
-		@QueryParam("filter.disease") String phenotype,
-		@Parameter(in = ParameterIn.QUERY, name = "filter.associationType", description = "association type")
-		@QueryParam("filter.associationType") String associationType,
-		@Parameter(in = ParameterIn.QUERY, name = "filter.evidenceCode", description = "Evidence Code")
-		@QueryParam("filter.evidenceCode") String evidenceCode,
-		@Parameter(in = ParameterIn.QUERY, name = "source", description = "Data Source")
-		@QueryParam("source") String source,
-		@Parameter(in = ParameterIn.QUERY, name = "publicaions", description = "Reference number: PUBMED or a Pub ID from the MOD")
-		@QueryParam("publications") String reference,
-		@Parameter(in = ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))
-//,allowedValues = "true,false")
-		@DefaultValue("true")
-		@QueryParam("asc") String asc,
-		@Context UriInfo ui) throws JsonProcessingException;
-
-	@GET
-	@Path("/{id}/disease-summary")
-	@Operation(summary = "Retrieve disease summary info for a given gene and disease type")
-	@APIResponses(value = {@APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class)))})
-	DiseaseSummary getDiseaseSummary(
-		@Parameter(in = ParameterIn.PATH, name = "id", description = "Gene by ID, e.g. 'RGD:2129' or 'ZFIN:ZDB-GENE-990415-72 fgf8a'", required = true, schema = @Schema(type = SchemaType.STRING))
-		@PathParam("id") String id,
-		@Parameter(in = ParameterIn.QUERY, name = "type", schema = @Schema(type = SchemaType.STRING))
-// allowedValues = "experiment,orthology")
-		@DefaultValue("experiment")
-		@QueryParam("type") String type
 	) throws JsonProcessingException;
 
 	@GET

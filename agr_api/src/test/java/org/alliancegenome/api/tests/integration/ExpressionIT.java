@@ -6,7 +6,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -15,10 +14,7 @@ import org.alliancegenome.api.dto.EntitySubgroupSlim;
 import org.alliancegenome.api.dto.RibbonSummary;
 import org.alliancegenome.api.service.ExpressionESService;
 import org.alliancegenome.api.service.ExpressionRibbonESService;
-import org.alliancegenome.cache.repository.ExpressionCacheRepository;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.cache.repository.helper.PaginationResult;
-import org.alliancegenome.core.ExpressionDetail;
 import org.alliancegenome.curation_api.model.document.es.GeneExpressionDocument;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
@@ -31,22 +27,9 @@ import jakarta.inject.Inject;
 
 public class ExpressionIT extends AbstractIT {
 
-	@Inject private ExpressionCacheRepository repository;
-
 	@Inject private ExpressionRibbonESService expressionService;
 
 	@Inject private ExpressionESService expressionESService;
-
-	@Test
-	public void checkAllExpressions() {
-		Pagination pagination = new Pagination();
-		pagination.setLimit(100000);
-		List<String> geneIDs = new ArrayList<>();
-		geneIDs.add("MGI:109583");
-
-		PaginationResult<ExpressionDetail> response = repository.getExpressionAnnotations(geneIDs, "UBERON:0000924", pagination);
-		System.out.println(response.getTotalNumber());
-	}
 
 	@Test
 	// Test Pten from MGI for expression ribbon summary

@@ -16,8 +16,6 @@ import org.alliancegenome.api.entity.GeneGeneticInteractionDocument;
 import org.alliancegenome.api.entity.GeneMolecularInteractionDocument;
 import org.alliancegenome.api.entity.GenePhenotypeAnnotationDocument;
 import org.alliancegenome.api.service.helper.ElasticSearchHelper;
-import org.alliancegenome.cache.repository.AlleleCacheRepository;
-import org.alliancegenome.cache.repository.InteractionCacheRepository;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.variant.service.AlleleVariantIndexService;
 import org.alliancegenome.curation_api.model.document.es.SequenceSummaryDocument;
@@ -54,12 +52,6 @@ public class GeneService {
 
 	@Inject
 	AlleleVariantIndexService alleleVariantIndexService;
-
-	@Inject
-	AlleleCacheRepository alleleCacheRepository;
-
-	@Inject
-	InteractionCacheRepository interCacheRepo;
 
 	@Inject
 	PhenotypeESService phenotypeESService;

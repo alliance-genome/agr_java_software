@@ -17,9 +17,7 @@ import java.util.stream.Collectors;
 import org.alliancegenome.api.dto.ExpressionSummary;
 import org.alliancegenome.api.dto.ExpressionSummaryGroup;
 import org.alliancegenome.api.dto.ExpressionSummaryGroupTerm;
-import org.alliancegenome.cache.repository.ExpressionCacheRepository;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.cache.repository.helper.PaginationResult;
 import org.alliancegenome.core.ExpressionDetail;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
@@ -33,14 +31,11 @@ import org.alliancegenome.neo4j.entity.node.UBERONTerm;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 
 import jakarta.enterprise.context.RequestScoped;
-import jakarta.inject.Inject;
 
 @RequestScoped
 public class ExpressionService {
 
 	private static GeneRepository geneRepository = new GeneRepository();
-	
-	@Inject ExpressionCacheRepository expressionCacheRepository;
 
 	public static final String CELLULAR_COMPONENT = "Subcellular";
 
@@ -223,12 +218,4 @@ public class ExpressionService {
 		return group;
 	}
 
-	public JsonResultResponse<ExpressionDetail> getExpressionDetails(List<String> geneIDs, String termID, Pagination pagination) {
-		JsonResultResponse<ExpressionDetail> response = new JsonResultResponse<>();
-		PaginationResult<ExpressionDetail> joins = expressionCacheRepository.getExpressionAnnotations(geneIDs, termID, pagination);
-		response.setResults(joins.getResult());
-		response.setTotal(joins.getTotalNumber());
-		response.addDistinctFieldValueSupplementalData(joins.getDistinctFieldValueMap());
-		return response;
-	}
 }

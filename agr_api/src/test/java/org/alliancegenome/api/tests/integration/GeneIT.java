@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 import org.alliancegenome.api.controller.ExpressionController;
 import org.alliancegenome.api.controller.GeneController;
 import org.alliancegenome.api.controller.GenesController;
-import org.alliancegenome.api.controller.OrthologyController;
 import org.alliancegenome.api.dto.ExpressionSummary;
 import org.alliancegenome.api.dto.ExpressionSummaryGroup;
 import org.alliancegenome.api.dto.ExpressionSummaryGroupTerm;
@@ -30,10 +29,8 @@ import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.model.document.es.GeneExpressionDocument;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.OrthoAlgorithm;
 import org.alliancegenome.neo4j.repository.AlleleRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
-import org.alliancegenome.neo4j.view.HomologView;
 import org.alliancegenome.neo4j.view.OrthologyModule;
 import org.apache.commons.collections.CollectionUtils;
 import org.junit.Before;
@@ -111,14 +108,6 @@ public class GeneIT {
 	}
 
 	@Test
-	public void checkOrthologyForSingleSpecies() throws IOException {
-
-		OrthologyController controller = new OrthologyController();
-		JsonResultResponse<HomologView> response = controller.getSingleSpeciesOrthology("559292", "stringent", "OMA", 20, 1);
-		assertThat("Orthology records found for mouse geneMap", (int) response.getTotal(), greaterThan(0));
-	}
-
-	@Test
 	public void checkOrthologyAPIWithSpecies() {
 
 		GeneController controller = new GeneController();
@@ -169,13 +158,6 @@ public class GeneIT {
 		GeneController controller = new GeneController();
 		JsonResultResponse<GeneToGeneOrthologyDocument> response = controller.getGeneOrthology("MGI:109583", null, null, null, null, null, 20, 1);
 		assertThat("matches found for gene MGI:109583'", (int) response.getTotal(), greaterThan(0));
-	}
-
-	@Test
-	public void getAllOrthologyMethods() {
-
-		OrthologyController controller = new OrthologyController();
-		JsonResultResponse<OrthoAlgorithm> response = controller.getAllMethodsCalculations();
 	}
 
 	@Test

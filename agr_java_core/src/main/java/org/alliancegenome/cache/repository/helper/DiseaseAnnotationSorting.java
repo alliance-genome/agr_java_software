@@ -40,9 +40,6 @@ public class DiseaseAnnotationSorting implements Sorting<DiseaseAnnotation> {
 				return annotation.getFeature().getSpecies().getPhylogeneticOrder();
 			});
 
-	private static Comparator<DiseaseAnnotation> experimentOrthologyOrder =
-			Comparator.comparing(DiseaseAnnotation::getSortOrder);
-
 	private static Comparator<DiseaseAnnotation> geneSymbolOrder =
 			Comparator.comparing(annotation -> {
 				if (annotation.getGene() == null) {
@@ -81,7 +78,7 @@ public class DiseaseAnnotationSorting implements Sorting<DiseaseAnnotation> {
 		super();
 
 		defaultList = new ArrayList<>(4);
-		defaultList.add(experimentOrthologyOrder);
+		//defaultList.add(experimentOrthologyOrder);
 		defaultList.add(phylogeneticOrder);
 		defaultList.add(geneSymbolOrder);
 		defaultList.add(diseaseOrder);
@@ -91,7 +88,7 @@ public class DiseaseAnnotationSorting implements Sorting<DiseaseAnnotation> {
 		alleleList.add(phylogeneticOrder);
 		alleleList.add(alleleSymbolOrder);
 		alleleList.add(diseaseOrder);
-		alleleList.add(experimentOrthologyOrder);
+		//alleleList.add(experimentOrthologyOrder);
 		alleleList.add(geneSymbolOrder);
 
 		alleleDefaultList = new ArrayList<>(4);

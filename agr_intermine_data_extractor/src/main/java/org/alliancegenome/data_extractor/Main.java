@@ -38,7 +38,7 @@ public class Main {
 		HashMap<String, DataExtractor> extractors = new HashMap<>();
 		for (ExtractorConfig cc : ExtractorConfig.values()) {
 			try {
-				DataExtractor ex = (DataExtractor) cc.getCacherClass().getDeclaredConstructor().newInstance();
+				DataExtractor ex = (DataExtractor) cc.getExtractorClass().getDeclaredConstructor().newInstance();
 				extractors.put(cc.getExtractorName(), ex);
 			} catch (Exception e) {
 				e.printStackTrace();

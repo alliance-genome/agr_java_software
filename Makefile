@@ -11,9 +11,6 @@ all:
 %:
 	mvn $(OPTS) -pl agr_$@ -am
 
-cacherrun:
-	java -jar agr_cacher/target/agr_cacher-jar-with-dependencies.jar
-
 apirun:
 	mvn compile quarkus:dev -pl agr_api -am
 
