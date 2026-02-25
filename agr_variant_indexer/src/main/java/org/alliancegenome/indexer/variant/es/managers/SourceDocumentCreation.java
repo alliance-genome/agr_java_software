@@ -20,6 +20,7 @@ import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.es.rest.RestConfig;
 import org.alliancegenome.es.util.EsClientFactory;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
+import org.alliancegenome.es.model.VariantSearchDocument;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.bulk.BulkRequest;
@@ -507,9 +508,16 @@ public class SourceDocumentCreation extends Thread {
 								workBucket.add(variantSummaryDocument);
 								ph2.progressProcess("objectQueue: " + objectQueue.size());
 							}
+/*
 							List<SequenceSummaryDocument> sequenceSummaryDocuments = sequenceSummaryConverter.convertToSequenceSummary(variantSummaryDocuments);
 							for (SequenceSummaryDocument sequenceSummaryDocument : sequenceSummaryDocuments) {
 								workBucket.add(sequenceSummaryDocument);
+								ph2.progressProcess("objectQueue: " + objectQueue.size());
+							}
+*/
+							List<VariantSearchDocument> variantSearchDocuments = sequenceSummaryConverter.convertToVariantSearchDocument(variantSummaryDocuments);
+							for (VariantSearchDocument variantSearchDocument : variantSearchDocuments) {
+								workBucket.add(variantSearchDocument);
 								ph2.progressProcess("objectQueue: " + objectQueue.size());
 							}
 						} catch (Exception e) {
@@ -542,6 +550,7 @@ public class SourceDocumentCreation extends Thread {
 		private ObjectMapper mapper = RestConfig.createObjectMapper();
 		private ObjectWriter cachedWriter;
 		private ObjectWriter sequenceWriter;
+		private ObjectWriter searchWriter;
 
 		// Welford's online algorithm state for mean, variance, and skewness
 		private long n;
@@ -551,6 +560,7 @@ public class SourceDocumentCreation extends Thread {
 
 		@Override
 		public void run() {
+			searchWriter = mapper.writerWithView(CurationView.FieldsAndLists.class);
 			cachedWriter = mapper.writerWithView(CurationView.VariantSummaryDocument.class);
 			sequenceWriter = mapper.writerWithView(CurationView.SequenceSummaryDocument.class);
 			while (!(Thread.currentThread().isInterrupted())) {
@@ -574,8 +584,11 @@ public class SourceDocumentCreation extends Thread {
 									jsonDoc = sequenceWriter.writeValueAsString(ssd);
 								} else if (doc instanceof VariantSummaryDocument vsd) {
 									jsonDoc = cachedWriter.writeValueAsString(vsd);
+								} else if (doc instanceof VariantSearchDocument vsd) {
+									jsonDoc = searchWriter.writeValueAsString(vsd);
 								} else {
-									// This should never happen
+									log.error("Unexpected ESDocument type: " + doc.getClass().getName());
+									continue;									// This should never happen
 								}
 
 								int len = jsonDoc.length();
