@@ -23,7 +23,6 @@ import org.alliancegenome.curation_api.model.document.es.TransgenicAlleleDocumen
 import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.node.Allele;
 import org.apache.commons.collections4.CollectionUtils;
 
 import jakarta.enterprise.context.RequestScoped;
@@ -119,17 +118,6 @@ public class AlleleController implements AlleleRESTInterface {
 		Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllVariantsRows(response.getResults()));
 		APIServiceHelper.setDownloadHeader(id, EntityType.ALLELE, EntityType.VARIANT, responseBuilder);
 		return responseBuilder.build();
-	}
-
-	@Override
-	public JsonResultResponse<Allele> getAllelesPerSpecies(String species, Integer limit, Integer page, String sortBy, String asc) {
-		long startTime = System.currentTimeMillis();
-		Pagination pagination = new Pagination(page, limit, sortBy, asc);
-		JsonResultResponse<Allele> response = alleleService.getAllelesBySpecies(species, pagination);
-		response.setHttpServletRequest(null);
-		Long duration = (System.currentTimeMillis() - startTime) / 1000;
-		response.setRequestDuration(duration.toString());
-		return response;
 	}
 
 	@Override
