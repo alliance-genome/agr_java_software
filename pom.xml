@@ -10,7 +10,6 @@
 		<module>agr_java_core</module>
 		<module>agr_elasticsearch_util</module>
 		<module>agr_indexer</module>
-		<module>agr_cacher</module>
 		<module>agr_api</module>
 		<module>agr_api_tester</module>
 		<module>agr_schema_validation</module>
