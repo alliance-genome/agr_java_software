@@ -21,7 +21,8 @@ public class VariantMapping extends Mapping {
 			new FieldBuilder(builder, "geneIds", "keyword").build();
 			new FieldBuilder(builder, "associatedPhenotype", "text").keyword().sort().build();
 			new FieldBuilder(builder, "diseaseTerms.name", "text").keyword().sort().build();
-
+			new FieldBuilder(builder, "sequenceSummaryCategory", "keyword").symbol().autocomplete().keyword().build(); // sequence_summary
+			
 			// allele: dynamic false prevents indexing the deep curation API Allele tree
 			// Only map fields actually queried in ES
 			builder.startObject("allele");

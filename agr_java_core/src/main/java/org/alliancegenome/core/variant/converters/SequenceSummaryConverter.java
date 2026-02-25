@@ -32,6 +32,7 @@ public class SequenceSummaryConverter {
 					ssd.setAllele(doc.getAllele());
 					ssd.setVariant(variant);
 					ssd.setConsequence(consequence);
+					ssd.setSequenceSummaryCategory("variant");
 
 					HashSet<String> geneIds = new HashSet<>();
 					for (TranscriptGeneAssociation assoc : consequence.getVariantTranscript().getTranscriptGeneAssociations()) {
