@@ -17,7 +17,7 @@ import org.alliancegenome.curation_api.view.CurationView;
 public class VariantSearchDocument extends ESDocument {
 
 	public VariantSearchDocument() {
-		category = "variant_search";
+		category = "variant_search_result";
 	}
 
 	private boolean searchable;

@@ -86,7 +86,7 @@ public class SearchHelper {
 					add("alleles");
 				}
 			});
-			put("variant_search", new ArrayList<>() {
+			put("variant_search_result", new ArrayList<>() {
 				{
 					add("species");
 					add("alterationType");

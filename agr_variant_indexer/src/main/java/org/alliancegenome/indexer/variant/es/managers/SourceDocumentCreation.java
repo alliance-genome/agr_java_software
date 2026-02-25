@@ -11,6 +11,7 @@ import org.alliancegenome.core.filedownload.model.DownloadSource;
 import org.alliancegenome.core.util.StatsCollector;
 import org.alliancegenome.core.variant.config.VariantConfigHelper;
 import org.alliancegenome.core.variant.converters.SequenceSummaryConverter;
+import org.alliancegenome.core.variant.converters.VariantSearchConverter;
 import org.alliancegenome.core.variant.converters.VariantSummaryConverter;
 import org.alliancegenome.curation_api.model.document.es.ESDocument;
 import org.alliancegenome.curation_api.model.document.es.SequenceSummaryDocument;
@@ -91,6 +92,7 @@ public class SourceDocumentCreation extends Thread {
 
 	private VariantSummaryConverter variantSummaryConverter;
 	private SequenceSummaryConverter sequenceSummaryConverter;
+	private VariantSearchConverter variantSearchConverter;
 
 	private StatsCollector statsCollector = new StatsCollector();
 	private String messageHeader = "";
@@ -461,6 +463,7 @@ public class SourceDocumentCreation extends Thread {
 				// All files for a Mod have the same header so we only need one of them
 				variantSummaryConverter = new VariantSummaryConverter(header, geneCache);
 				sequenceSummaryConverter = new SequenceSummaryConverter();
+				variantSearchConverter = new VariantSearchConverter();
 				try {
 					TimeUnit.MILLISECONDS.sleep(20);
 				} catch (InterruptedException e) {
@@ -508,14 +511,12 @@ public class SourceDocumentCreation extends Thread {
 								workBucket.add(variantSummaryDocument);
 								ph2.progressProcess("objectQueue: " + objectQueue.size());
 							}
-/*
 							List<SequenceSummaryDocument> sequenceSummaryDocuments = sequenceSummaryConverter.convertToSequenceSummary(variantSummaryDocuments);
 							for (SequenceSummaryDocument sequenceSummaryDocument : sequenceSummaryDocuments) {
 								workBucket.add(sequenceSummaryDocument);
 								ph2.progressProcess("objectQueue: " + objectQueue.size());
 							}
-*/
-							List<VariantSearchDocument> variantSearchDocuments = sequenceSummaryConverter.convertToVariantSearchDocument(variantSummaryDocuments);
+							List<VariantSearchDocument> variantSearchDocuments = variantSearchConverter.convertToVariantSearchDocument(variantSummaryDocuments);
 							for (VariantSearchDocument variantSearchDocument : variantSearchDocuments) {
 								workBucket.add(variantSearchDocument);
 								ph2.progressProcess("objectQueue: " + objectQueue.size());
