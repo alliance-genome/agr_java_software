@@ -8,12 +8,12 @@ import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
 import org.alliancegenome.curation_api.model.entities.Gene;
 import org.alliancegenome.curation_api.model.entities.PredictedVariantConsequence;
 import org.alliancegenome.curation_api.model.entities.associations.CuratedVariantGenomicLocationAssociation;
-import org.alliancegenome.es.model.VariantSearchDocument;
+import org.alliancegenome.es.model.VariantSearchResultDocument;
 
 public class VariantSearchConverter {
 
-	public List<VariantSearchDocument> convertToVariantSearchDocument(List<VariantSummaryDocument> variantSummaryDocuments) {
-		List<VariantSearchDocument> result = new ArrayList<>();
+	public List<VariantSearchResultDocument> convertToVariantSearchDocument(List<VariantSummaryDocument> variantSummaryDocuments) {
+		List<VariantSearchResultDocument> result = new ArrayList<>();
 
 		for (VariantSummaryDocument doc : variantSummaryDocuments) {
 			CuratedVariantGenomicLocationAssociation variant = doc.getVariant();
@@ -21,7 +21,7 @@ public class VariantSearchConverter {
 				continue;
 			}
 
-			VariantSearchDocument vsd = new VariantSearchDocument();
+			VariantSearchResultDocument vsd = new VariantSearchResultDocument();
 			vsd.setSearchable(true);
 			vsd.setAlterationType("variant");
 			vsd.setPrimaryKey(variant.getHgvs());

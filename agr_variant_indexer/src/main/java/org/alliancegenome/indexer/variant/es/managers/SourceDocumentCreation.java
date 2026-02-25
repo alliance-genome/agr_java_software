@@ -21,7 +21,7 @@ import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.es.rest.RestConfig;
 import org.alliancegenome.es.util.EsClientFactory;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
-import org.alliancegenome.es.model.VariantSearchDocument;
+import org.alliancegenome.es.model.VariantSearchResultDocument;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.bulk.BulkRequest;
@@ -516,8 +516,8 @@ public class SourceDocumentCreation extends Thread {
 								workBucket.add(sequenceSummaryDocument);
 								ph2.progressProcess("objectQueue: " + objectQueue.size());
 							}
-							List<VariantSearchDocument> variantSearchDocuments = variantSearchConverter.convertToVariantSearchDocument(variantSummaryDocuments);
-							for (VariantSearchDocument variantSearchDocument : variantSearchDocuments) {
+							List<VariantSearchResultDocument> variantSearchDocuments = variantSearchConverter.convertToVariantSearchDocument(variantSummaryDocuments);
+							for (VariantSearchResultDocument variantSearchDocument : variantSearchDocuments) {
 								workBucket.add(variantSearchDocument);
 								ph2.progressProcess("objectQueue: " + objectQueue.size());
 							}
@@ -585,7 +585,7 @@ public class SourceDocumentCreation extends Thread {
 									jsonDoc = sequenceWriter.writeValueAsString(ssd);
 								} else if (doc instanceof VariantSummaryDocument vsd) {
 									jsonDoc = cachedWriter.writeValueAsString(vsd);
-								} else if (doc instanceof VariantSearchDocument vsd) {
+								} else if (doc instanceof VariantSearchResultDocument vsd) {
 									jsonDoc = searchWriter.writeValueAsString(vsd);
 								} else {
 									log.error("Unexpected ESDocument type: " + doc.getClass().getName());

@@ -14,9 +14,9 @@ import org.alliancegenome.curation_api.view.CurationView;
 @Getter
 @Setter
 @JsonView({CurationView.FieldsAndLists.class})
-public class VariantSearchDocument extends ESDocument {
+public class VariantSearchResultDocument extends ESDocument {
 
-	public VariantSearchDocument() {
+	public VariantSearchResultDocument() {
 		category = "variant_search_result";
 	}
 
