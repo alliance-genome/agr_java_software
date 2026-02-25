@@ -25,16 +25,7 @@ public class PublicView {
 
 	public static class Homology extends Default {
 	}
-
-	public static class OrthologyCacher extends Homology {
-	}
-
-	public static class Cacher extends Default {
-	}
-
-	public static class CacherDetail extends Cacher {
-	}
-
+	
 	public static class PhenotypeAPI extends API {
 	}
 
@@ -51,9 +42,6 @@ public class PublicView {
 	}
 
 	public static class DiseaseAnnotationSummary extends DiseaseAnnotation {
-	}
-
-	public static class DiseaseCacher extends DiseaseAnnotationSummary {
 	}
 
 	public static class PrimaryAnnotation extends API {

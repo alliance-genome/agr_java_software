@@ -30,9 +30,6 @@ public class Constants {
 
 	public static final String API_SECURE = "API_SECURE";
 
-	public static final String CACHE_HOST = "CACHE_HOST";
-	public static final String CACHE_PORT = "CACHE_PORT";
-
 	public static final String NEO4J_HOST = "NEO4J_HOST";
 	public static final String NEO4J_PORT = "NEO4J_PORT";
 

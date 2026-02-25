@@ -142,8 +142,6 @@ public class ExpressionRibbonESService extends ESService {
 
 	private RibbonEntity getExpressionRibbonSummary(String geneID) {
 
-		// List<ExpressionDetail> expressionList =
-		// expressionCacheRepository.getExpressionDetails(geneID);
 		Pagination pagination = new Pagination(1, 250000, null, null);
 		JsonResultResponse<GeneExpressionDocument> expressionAnnotations = expressionService.getExpressionAnnotations(List.of(geneID), null, null, pagination);
 

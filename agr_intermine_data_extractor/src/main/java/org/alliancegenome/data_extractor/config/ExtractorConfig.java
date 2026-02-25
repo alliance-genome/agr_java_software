@@ -22,7 +22,7 @@ public enum ExtractorConfig {
 		return extractorName;
 	}
 
-	public Class<?> getCacherClass() {
+	public Class<?> getExtractorClass() {
 		return extractorClass;
 	}
 }

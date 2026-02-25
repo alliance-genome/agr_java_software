@@ -7,7 +7,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.alliancegenome.api.entity.PresentationEntity;
@@ -70,8 +69,6 @@ public class DiseaseAnnotation extends ConditionAnnotation implements Comparable
 	
 	@JsonView({PublicView.DiseaseAnnotation.class})
 	private String associationType;
-	@JsonView({PublicView.DiseaseCacher.class})
-	private int sortOrder;
 	@JsonView({PublicView.DiseaseAnnotation.class})
 	private List<Gene> orthologyGenes;
 
@@ -134,9 +131,6 @@ public class DiseaseAnnotation extends ConditionAnnotation implements Comparable
 				.collect(Collectors.toList());
 	}
 
-	@JsonView({PublicView.DiseaseCacher.class})
-	// lists the agr_do slim parents
-	private Set<String> parentIDs;
 
 	@JsonIgnore
 	public String getDocumentId() {
@@ -158,27 +152,6 @@ public class DiseaseAnnotation extends ConditionAnnotation implements Comparable
 	}
 
 	public DiseaseAnnotation() {
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) {
-			return true;
-		}
-		if (o == null || getClass() != o.getClass()) {
-			return false;
-		}
-		DiseaseAnnotation that = (DiseaseAnnotation) o;
-		return sortOrder == that.sortOrder
-				&& Objects.equals(primaryKey, that.primaryKey)
-				&& Objects.equals(source, that.source)
-				&& Objects.equals(disease, that.disease)
-				&& Objects.equals(gene, that.gene)
-				&& Objects.equals(feature, that.feature)
-				&& Objects.equals(references, that.references)
-				&& Objects.equals(publications, that.publications)
-				&& Objects.equals(evidenceCodes, that.evidenceCodes)
-				&& Objects.equals(associationType, that.associationType);
 	}
 
 	@Override
