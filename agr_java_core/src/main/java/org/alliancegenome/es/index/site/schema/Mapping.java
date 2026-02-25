@@ -162,6 +162,7 @@ public class Mapping extends Builder {
 		new FieldBuilder(builder, "sequenceSummaryCategory", "keyword").symbol().autocomplete().keyword().build(); // sequence_summary
 
 		new FieldBuilder(builder, "crossReferences", "text").keyword().classicText().build(); // allele, gene, dataset, disease
+		new FieldBuilder(builder, "curie", "keyword").build(); // go_search_result
 
 
 		new FieldBuilder(builder, "genes", "text").keyword().autocomplete().keywordAutocomplete().build(); // allele, model, go, disease
@@ -170,7 +171,8 @@ public class Mapping extends Builder {
 
 		new FieldBuilder(builder, "name", "text").symbol().autocomplete().keyword().keywordAutocomplete().htmlSmoosh().standardBigrams().build(); // allele, gene, model, go, dataset, disease
 		new FieldBuilder(builder, "nameText", "text").keyword().standardText().build(); // model
-		new FieldBuilder(builder, "name_key", "text").analyzer("symbols").autocomplete().keyword().keywordAutocomplete().htmlSmoosh().standardBigrams().build(); // allele, gene, model, go, dataset, disease
+		new FieldBuilder(builder, "name_key", "text").analyzer("symbols").autocomplete().keyword().keywordAutocomplete().htmlSmoosh().standardBigrams().build(); // allele, gene, model, dataset, disease
+		new FieldBuilder(builder, "nameKey", "text").analyzer("symbols").autocomplete().keyword().keywordAutocomplete().htmlSmoosh().standardBigrams().build(); // go_search_result
 
 
 		new FieldBuilder(builder, "subject.alleleSymbol.displayText", "text").keyword().sort().build(); // allele_disease_annotation

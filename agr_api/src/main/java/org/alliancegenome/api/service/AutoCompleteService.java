@@ -44,6 +44,7 @@ public class AutoCompleteService {
 		multi.field("symbol", 5.0F);
 		multi.field("symbol.keyword", 8.0F);
 		multi.field("name_key.autocomplete", 3.0F);
+		multi.field("nameKey.autocomplete", 3.0F);
 		multi.field("name.keyword", 2.0F);
 		multi.field("name.autocomplete");
 		multi.field("synonyms.keyword", 2.0F);
