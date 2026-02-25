@@ -281,6 +281,7 @@ public class Mapping extends Builder {
 		builder.endObject();
 		builder.endObject();
 
+		new FieldBuilder(builder, "geneIds", "keyword").build();
 		builder.startObject("variants");
 		builder.field("type", "object");
 		builder.field("dynamic", false);
