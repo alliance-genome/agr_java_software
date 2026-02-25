@@ -13,7 +13,7 @@ import org.alliancegenome.curation_api.view.CurationView;
 
 @Getter
 @Setter
-@JsonView({CurationView.FieldsAndLists.class})
+@JsonView({CurationView.VariantSearchResultDocument.class})
 public class VariantSearchResultDocument extends ESDocument {
 
 	public VariantSearchResultDocument() {

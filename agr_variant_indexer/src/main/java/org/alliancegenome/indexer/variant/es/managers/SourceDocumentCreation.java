@@ -10,7 +10,7 @@ import org.alliancegenome.core.filedownload.model.DownloadSource;
 import org.alliancegenome.core.util.StatsCollector;
 import org.alliancegenome.core.variant.config.VariantConfigHelper;
 import org.alliancegenome.core.variant.converters.SequenceSummaryConverter;
-import org.alliancegenome.core.variant.converters.VariantSearchConverter;
+import org.alliancegenome.core.variant.converters.VariantSearchResultConverter;
 import org.alliancegenome.core.variant.converters.VariantSummaryConverter;
 import org.alliancegenome.curation_api.model.document.es.ESDocument;
 import org.alliancegenome.curation_api.model.document.es.SequenceSummaryDocument;
@@ -21,6 +21,7 @@ import org.alliancegenome.es.model.VariantSearchResultDocument;
 import org.alliancegenome.es.rest.RestConfig;
 import org.alliancegenome.es.util.EsClientFactory;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
+import org.alliancegenome.es.model.VariantSearchResultDocument;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.bulk.BulkRequest;
@@ -94,7 +95,7 @@ public class SourceDocumentCreation extends Thread {
 
 	private VariantSummaryConverter variantSummaryConverter;
 	private SequenceSummaryConverter sequenceSummaryConverter;
-	private VariantSearchConverter variantSearchConverter;
+	private VariantSearchResultConverter variantSearchResultConverter;
 
 	private StatsCollector statsCollector = new StatsCollector();
 	private String messageHeader = "";
@@ -301,7 +302,7 @@ public class SourceDocumentCreation extends Thread {
 		List<JSONProducer> producers = new ArrayList<>();
 		ph5.startProcess(messageHeader + "JSONProducers");
 		for (int i = 0; i < VariantConfigHelper.getProducerThreads(); i++) {
-			JSONProducer producer = new JSONProducer();
+			DocumentTransformer.JSONProducer producer = new JSONProducer();
 			producer.start();
 			producers.add(producer);
 		}
@@ -318,7 +319,7 @@ public class SourceDocumentCreation extends Thread {
 			VCFJsonBulkIndexer indexer1 = new VCFJsonBulkIndexer(jsonQueue1, bulkProcessor1);
 			indexer1.start();
 			indexers.add(indexer1);
-			VCFJsonBulkIndexer indexer2 = new VCFJsonBulkIndexer(jsonQueue2, bulkProcessor2);
+			VCFJsonBulkIndexer indexer2 = new DocumentTransformer.VCFJsonBulkIndexer(jsonQueue2, bulkProcessor2);
 			indexer2.start();
 			indexers.add(indexer2);
 			VCFJsonBulkIndexer indexer3 = new VCFJsonBulkIndexer(jsonQueue3, bulkProcessor3);
@@ -465,7 +466,7 @@ public class SourceDocumentCreation extends Thread {
 				// All files for a Mod have the same header so we only need one of them
 				variantSummaryConverter = new VariantSummaryConverter(header, geneCache);
 				sequenceSummaryConverter = new SequenceSummaryConverter();
-				variantSearchConverter = new VariantSearchConverter();
+				variantSearchResultConverter = new VariantSearchResultConverter();
 				try {
 					TimeUnit.MILLISECONDS.sleep(20);
 				} catch (InterruptedException e) {
@@ -518,9 +519,9 @@ public class SourceDocumentCreation extends Thread {
 								workBucket.add(sequenceSummaryDocument);
 								ph2.progressProcess("objectQueue: " + objectQueue.size());
 							}
-							List<VariantSearchResultDocument> variantSearchDocuments = variantSearchConverter.convertToVariantSearchDocument(variantSummaryDocuments);
-							for (VariantSearchResultDocument variantSearchDocument : variantSearchDocuments) {
-								workBucket.add(variantSearchDocument);
+							List<VariantSearchResultDocument> variantSearchResultDocuments = variantSearchResultConverter.convertToVariantSearchDocument(variantSummaryDocuments);
+							for (VariantSearchResultDocument variantSearchResultDocument : variantSearchResultDocuments) {
+								workBucket.add(variantSearchResultDocument);
 								ph2.progressProcess("objectQueue: " + objectQueue.size());
 							}
 						} catch (Exception e) {
