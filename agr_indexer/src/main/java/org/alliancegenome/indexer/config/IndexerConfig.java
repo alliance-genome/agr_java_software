@@ -1,29 +1,7 @@
 package org.alliancegenome.indexer.config;
 
-import org.alliancegenome.indexer.indexers.DatasetIndexer;
-import org.alliancegenome.indexer.indexers.DiseaseIndexer;
-import org.alliancegenome.indexer.indexers.GeneIndexer;
-import org.alliancegenome.indexer.indexers.GoIndexer;
-import org.alliancegenome.indexer.indexers.LiteratureIndexer;
-import org.alliancegenome.indexer.indexers.ModelIndexer;
-import org.alliancegenome.indexer.indexers.VariantIndexer;
-import org.alliancegenome.indexer.indexers.curation.AffectedGenomicModelCurationIndexer;
-import org.alliancegenome.indexer.indexers.curation.AlleleSummaryCurationIndexer;
-import org.alliancegenome.indexer.indexers.curation.DiseaseAnnotationCurationIndexer;
-import org.alliancegenome.indexer.indexers.curation.DiseaseSummaryCurationIndexer;
-import org.alliancegenome.indexer.indexers.curation.GOSearchResultCurationIndexer;
-import org.alliancegenome.indexer.indexers.curation.GeneExpressionAnnotationIndexer;
-import org.alliancegenome.indexer.indexers.curation.GeneExpressionRibbonSummaryIndexer;
-import org.alliancegenome.indexer.indexers.curation.GeneSummaryCurationIndexer;
-import org.alliancegenome.indexer.indexers.curation.GeneGeneticInteractionCurationIndexer;
-import org.alliancegenome.indexer.indexers.curation.GeneMolecularInteractionCurationIndexer;
-import org.alliancegenome.indexer.indexers.curation.GeneToGeneOrthologyIndexer;
-import org.alliancegenome.indexer.indexers.curation.GeneToGeneParalogyIndexer;
-import org.alliancegenome.indexer.indexers.curation.PhenotypeAnnotationCurationIndexer;
-import org.alliancegenome.indexer.indexers.curation.ReleaseInfoIndexer;
-import org.alliancegenome.indexer.indexers.curation.SiteMapAccessionCurationIndexer;
-import org.alliancegenome.indexer.indexers.curation.TransgenicAlleleCurationIndexer;
-import org.alliancegenome.indexer.indexers.curation.VariantSummaryCurationIndexer;
+import org.alliancegenome.indexer.indexers.*;
+import org.alliancegenome.indexer.indexers.curation.*;
 
 public enum IndexerConfig {
 
@@ -36,7 +14,7 @@ public enum IndexerConfig {
 	ModelIndexer("model", ModelIndexer.class, 4, 1500, 1426, 4, 1, false),
 
 	// Curation Indexers
-	
+
 	// Run Parallelly
 	ParalogyIndexer("paralogy", GeneToGeneParalogyIndexer.class, 4, 5000, 5000, 8, 1, true),
 	GOSearchResultCurationIndexer("goSearchResult", GOSearchResultCurationIndexer.class, 4, 1500, 1500, 4, 1, true),
@@ -47,14 +25,14 @@ public enum IndexerConfig {
 	SiteMapAccessionCurationIndexer("sitemap", SiteMapAccessionCurationIndexer.class, 4, 1500, 1500, 8, 1, true),
 	GeneExpressionRibbonSummaryIndexer("geneExpressionRibbonSummary", GeneExpressionRibbonSummaryIndexer.class, 1, 1, 1, 1, 1, true),
 	ReleaseInfoIndexer("release", ReleaseInfoIndexer.class, 1, 1, 1, 1, 1, true),
-	
+
 	// Run Sequentially
 	AlleleSummaryIndexer("alleleSummary", AlleleSummaryCurationIndexer.class, 4, 1500, 1500, 4, 1, false),
 	GeneSummaryIndexer("geneSummary", GeneSummaryCurationIndexer.class, 4, 1500, 1500, 4, 1, false),
 	GeneToGeneOrthologyIndexer("geneToGeneOrthology", GeneToGeneOrthologyIndexer.class, 4, 2500, 2500, 8, 1, false),
-	
+
 	GeneExpressionAnnotationIndexer("geneExpressionAnnotation", GeneExpressionAnnotationIndexer.class, 8, 125, 2000, 4, 1, false),
-	
+
 	PhenotypeAnnotationIndexer("phenotypeAnnotation", PhenotypeAnnotationCurationIndexer.class, 4, 1500, 1500, 2, 1, false),
 	TransgenicAlleleIndexer("transgenicAlleles", TransgenicAlleleCurationIndexer.class, 1, 3000, 1500, 8, 1, false),
 	GeneMolecularInteractionIndexers("geneMolecularInteraction", GeneMolecularInteractionCurationIndexer.class, 4, 1500, 1500, 2, 1, false),
@@ -62,7 +40,7 @@ public enum IndexerConfig {
 	VariantSummaryIndexer("variantSummary", VariantSummaryCurationIndexer.class, 1, 3000, 1500, 8, 1, false),
 
 	//GeneSearchResultCurationIndexer("geneSearchResult", GeneSearchResultCurationIndexer.class, 4, 250, 1000, 4, 1),
-	
+
 	;
 
 
@@ -113,7 +91,7 @@ public enum IndexerConfig {
 	public int getBulkSize() {
 		return bulkSize;
 	}
-	
+
 	public boolean getRunInParallel() {
 		return runInParallel;
 	}
