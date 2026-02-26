@@ -6,7 +6,7 @@ public enum Category {
 	DISEASE("disease", true),
 	MODEL("model", true),
 	GENE("gene", true),
-	GO("go", true);
+	GO("go_search_result", true);
 
 	private String name;
 	private Boolean searchable;

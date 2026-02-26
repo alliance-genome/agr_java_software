@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 
 import org.alliancegenome.api.service.helper.SearchHelper;
 import org.alliancegenome.es.index.site.dao.SearchDAO;
+import org.alliancegenome.es.model.search.Category;
 import org.alliancegenome.es.model.search.RelatedDataLink;
 import org.alliancegenome.es.model.search.SearchApiResponse;
 import org.apache.commons.lang3.StringUtils;
@@ -152,12 +153,16 @@ public class SearchService {
 		functionList.add(pseudogeneBoost());
 
 		functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("name_key.keyword", q), ScoreFunctionBuilders.weightFactorFunction(1000F)));
+		functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("nameKey.keyword", q), ScoreFunctionBuilders.weightFactorFunction(1000F)));
 
 		functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("primaryKey", q), ScoreFunctionBuilders.weightFactorFunction(1000F)));
+		functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("curie", q), ScoreFunctionBuilders.weightFactorFunction(1000F)));
 
 		functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("name_key.keywordAutocomplete", q), ScoreFunctionBuilders.weightFactorFunction(500F)));
+		functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("nameKey.keywordAutocomplete", q), ScoreFunctionBuilders.weightFactorFunction(500F)));
 
 		functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("name_key.standardBigrams", q), ScoreFunctionBuilders.weightFactorFunction(500F)));
+		functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("nameKey.standardBigrams", q), ScoreFunctionBuilders.weightFactorFunction(500F)));
 
 		functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("species", q), ScoreFunctionBuilders.weightFactorFunction(2F)));
 
@@ -190,7 +195,7 @@ public class SearchService {
 	}
 
 	private FunctionScoreQueryBuilder.FilterFunctionBuilder geneCategoryBoost() {
-		return new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("category", "gene"), ScoreFunctionBuilders.weightFactorFunction(1.1F));
+		return new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("category", Category.GENE.getName()), ScoreFunctionBuilders.weightFactorFunction(1.1F));
 	}
 
 	private FunctionScoreQueryBuilder.FilterFunctionBuilder proteinCodingBoost() {
@@ -311,29 +316,33 @@ public class SearchService {
 
 	public void addRelatedDataLinks(Map<String, Object> result) {
 		String nameKey = (String) result.get("name_key");
+		// Gene documents use "name_key" (snake_case), GO search result documents use "nameKey" (camelCase)
+		if (nameKey == null) {
+			nameKey = (String) result.get("nameKey");
+		}
 		// String name = (String) result.get("name");
 		String category = (String) result.get("category");
 
 		List<RelatedDataLink> links = new ArrayList<>();
 
-		if (StringUtils.equals(category, "gene")) {
-			links.add(getRelatedDataLink("disease", "genes", nameKey));
-			links.add(getRelatedDataLink("allele", "genes", nameKey));
-			links.add(getRelatedDataLink("go", "go_genes", nameKey));
-			links.add(getRelatedDataLink("model", "genes", nameKey));
-		} else if (StringUtils.equals(category, "disease")) {
-			links.add(getRelatedDataLink("gene", "diseasesWithParents", nameKey));
-			links.add(getRelatedDataLink("allele", "diseasesWithParents", nameKey));
-			links.add(getRelatedDataLink("model", "diseasesWithParents", nameKey));
-		} else if (StringUtils.equals(category, "allele") && StringUtils.equals((String) result.get("alterationType"), "allele")) {
-			links.add(getRelatedDataLink("disease", "alleles", nameKey));
-			links.add(getRelatedDataLink("gene", "alleles", nameKey));
-			links.add(getRelatedDataLink("model", "alleles", nameKey));
-		} else if (StringUtils.equals(category, "model")) {
-			links.add(getRelatedDataLink("gene", "models", nameKey));
-			links.add(getRelatedDataLink("allele", "models", nameKey));
-			links.add(getRelatedDataLink("disease", "models", nameKey));
-		} else if (StringUtils.equals(category, "go")) {
+		if (StringUtils.equals(category, Category.GENE.getName())) {
+			links.add(getRelatedDataLink(Category.DISEASE.getName(), "genes", nameKey));
+			links.add(getRelatedDataLink(Category.ALLELE.getName(), "genes", nameKey));
+			links.add(getRelatedDataLink(Category.GO.getName(), "genes", nameKey));
+			links.add(getRelatedDataLink(Category.MODEL.getName(), "genes", nameKey));
+		} else if (StringUtils.equals(category, Category.DISEASE.getName())) {
+			links.add(getRelatedDataLink(Category.GENE.getName(), "diseasesWithParents", nameKey));
+			links.add(getRelatedDataLink(Category.ALLELE.getName(), "diseasesWithParents", nameKey));
+			links.add(getRelatedDataLink(Category.MODEL.getName(), "diseasesWithParents", nameKey));
+		} else if (StringUtils.equals(category, Category.ALLELE.getName()) && StringUtils.equals((String) result.get("alterationType"), "allele")) {
+			links.add(getRelatedDataLink(Category.DISEASE.getName(), "alleles", nameKey));
+			links.add(getRelatedDataLink(Category.GENE.getName(), "alleles", nameKey));
+			links.add(getRelatedDataLink(Category.MODEL.getName(), "alleles", nameKey));
+		} else if (StringUtils.equals(category, Category.MODEL.getName())) {
+			links.add(getRelatedDataLink(Category.GENE.getName(), "models", nameKey));
+			links.add(getRelatedDataLink(Category.ALLELE.getName(), "models", nameKey));
+			links.add(getRelatedDataLink(Category.DISEASE.getName(), "models", nameKey));
+		} else if (StringUtils.equals(category, Category.GO.getName())) {
 			String goType = (String) result.get("branch");
 			if (StringUtils.equals(goType, "biological_process")) {
 				links.add(getRelatedDataLink("gene", "biologicalProcessWithParents", nameKey, "Genes Annotated with this GO Term"));
