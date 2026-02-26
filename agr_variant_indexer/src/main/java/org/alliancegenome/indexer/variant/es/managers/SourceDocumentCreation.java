@@ -302,7 +302,7 @@ public class SourceDocumentCreation extends Thread {
 		List<JSONProducer> producers = new ArrayList<>();
 		ph5.startProcess(messageHeader + "JSONProducers");
 		for (int i = 0; i < VariantConfigHelper.getProducerThreads(); i++) {
-			DocumentTransformer.JSONProducer producer = new JSONProducer();
+			JSONProducer producer = new JSONProducer();
 			producer.start();
 			producers.add(producer);
 		}
@@ -319,7 +319,7 @@ public class SourceDocumentCreation extends Thread {
 			VCFJsonBulkIndexer indexer1 = new VCFJsonBulkIndexer(jsonQueue1, bulkProcessor1);
 			indexer1.start();
 			indexers.add(indexer1);
-			VCFJsonBulkIndexer indexer2 = new DocumentTransformer.VCFJsonBulkIndexer(jsonQueue2, bulkProcessor2);
+			VCFJsonBulkIndexer indexer2 = new VCFJsonBulkIndexer(jsonQueue2, bulkProcessor2);
 			indexer2.start();
 			indexers.add(indexer2);
 			VCFJsonBulkIndexer indexer3 = new VCFJsonBulkIndexer(jsonQueue3, bulkProcessor3);
