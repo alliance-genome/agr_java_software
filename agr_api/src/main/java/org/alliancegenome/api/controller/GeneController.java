@@ -202,7 +202,7 @@ public class GeneController implements GeneRESTInterface {
 	}
 
 	@Override
-	public Response getAllelesPerGeneDownload(String id, String sortBy, String asc, String symbol, String synonym, String variant, String variantType, String molecularConsequence, String phenotype, String disease, String category) {
+	public Response getAllelesPerGeneDownload(String id, String sortBy, String asc, String symbol, String synonym, String variant, String variantType, String molecularConsequence, String disease, String phenotype, String category) {
 
 		JsonResultResponse<ESDocument> alleles = getAllelesPerGene(id, 200000, 1, sortBy, asc, symbol, synonym, variant, variantType, molecularConsequence, disease, phenotype, category);
 
