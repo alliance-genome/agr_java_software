@@ -35,8 +35,8 @@ public class AlleleToTdfTranslator {
 			new DownloadHeader<>("Variant Symbol", AlleleDownloadRow::getVariantSymbol),
 			new DownloadHeader<>("Variant Type", AlleleDownloadRow::getVariantType),
 			new DownloadHeader<>("Variant Consequence", AlleleDownloadRow::getVariantConsequence),
-			new DownloadHeader<>("Has Phenotype", AlleleDownloadRow::getHasPhenotype),
-			new DownloadHeader<>("Has Disease", AlleleDownloadRow::getHasDisease)
+			new DownloadHeader<>("Has Disease", AlleleDownloadRow::getHasDisease),
+			new DownloadHeader<>("Has Phenotype", AlleleDownloadRow::getHasPhenotype)
 		);
 
 		return DownloadHeader.getDownloadOutput(list, headers);
