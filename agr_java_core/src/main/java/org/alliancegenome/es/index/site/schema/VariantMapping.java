@@ -22,11 +22,10 @@ public class VariantMapping extends Mapping {
 			new FieldBuilder(builder, "associatedPhenotype", "text").keyword().sort().build();
 			new FieldBuilder(builder, "diseaseTerms.name", "text").keyword().sort().build();
 			new FieldBuilder(builder, "sequenceSummaryCategory", "keyword").symbol().autocomplete().keyword().build(); // sequence_summary
-
 			new FieldBuilder(builder, "hasDisease", "boolean").build();
 			new FieldBuilder(builder, "hasPhenotype", "boolean").build();
-			new FieldBuilder(builder, "alterationTypeSortOrder", "integer").keyword().sort().build();
-			
+			new FieldBuilder(builder, "alterationTypeSortOrder", "integer").build();
+
 			// allele: dynamic false prevents indexing the deep curation API Allele tree
 			// Only map fields actually queried in ES
 			builder.startObject("allele");
@@ -43,7 +42,6 @@ public class VariantMapping extends Mapping {
 			builder.startObject("variants");
 			builder.field("dynamic", false);
 			builder.startObject("properties");
-			// VariantSummaryDocument: queried via MatchQuery on allele.primaryExternalId
 			new FieldBuilder(builder, "variantType.name", "text").keyword().sort().build();
 			new FieldBuilder(builder, "curatedVariantGenomicLocations.predictedVariantConsequences.vepConsequences.name", "text").keyword().sort().build();
 			new FieldBuilder(builder, "curatedVariantGenomicLocations.hgvs", "text").keyword().sort().build();
