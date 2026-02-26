@@ -21,7 +21,6 @@ import org.alliancegenome.es.model.VariantSearchResultDocument;
 import org.alliancegenome.es.rest.RestConfig;
 import org.alliancegenome.es.util.EsClientFactory;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
-import org.alliancegenome.es.model.VariantSearchResultDocument;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.bulk.BulkRequest;
