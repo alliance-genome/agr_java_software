@@ -47,7 +47,7 @@ public class AlleleVariantIndexService {
 			SearchSourceBuilder srb = new SearchSourceBuilder();
 
 			srb.query(buildBoolQuery(geneId, pagination));
-			srb.sort(new FieldSortBuilder(getSortFields(pagination)[0].getField()).order(SortOrder.ASC).unmappedType("integer"));
+			srb.sort(new FieldSortBuilder(getSortFields(pagination)[0].getField()).order(SortOrder.ASC));
 			srb.from(pagination.getStart());
 			srb.size(pagination.getLimit());
 			srb.trackTotalHits(true);
