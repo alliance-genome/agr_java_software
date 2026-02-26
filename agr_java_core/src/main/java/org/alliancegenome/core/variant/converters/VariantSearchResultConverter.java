@@ -10,7 +10,7 @@ import org.alliancegenome.curation_api.model.entities.PredictedVariantConsequenc
 import org.alliancegenome.curation_api.model.entities.associations.CuratedVariantGenomicLocationAssociation;
 import org.alliancegenome.es.model.VariantSearchResultDocument;
 
-public class VariantSearchConverter {
+public class VariantSearchResultConverter {
 
 	public List<VariantSearchResultDocument> convertToVariantSearchDocument(List<VariantSummaryDocument> variantSummaryDocuments) {
 		List<VariantSearchResultDocument> result = new ArrayList<>();
