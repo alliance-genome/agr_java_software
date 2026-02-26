@@ -22,11 +22,10 @@ public class VariantMapping extends Mapping {
 			new FieldBuilder(builder, "associatedPhenotype", "text").keyword().sort().build();
 			new FieldBuilder(builder, "diseaseTerms.name", "text").keyword().sort().build();
 			new FieldBuilder(builder, "sequenceSummaryCategory", "keyword").symbol().autocomplete().keyword().build(); // sequence_summary
-
 			new FieldBuilder(builder, "hasDisease", "boolean").build();
 			new FieldBuilder(builder, "hasPhenotype", "boolean").build();
-			new FieldBuilder(builder, "alterationTypeSortOrder", "integer").keyword().sort().build();
-			
+			new FieldBuilder(builder, "alterationTypeSortOrder", "integer").build();
+
 			// allele: dynamic false prevents indexing the deep curation API Allele tree
 			// Only map fields actually queried in ES
 			builder.startObject("allele");
@@ -43,7 +42,6 @@ public class VariantMapping extends Mapping {
 			builder.startObject("variants");
 			builder.field("dynamic", false);
 			builder.startObject("properties");
-			// VariantSummaryDocument: queried via MatchQuery on allele.primaryExternalId
 			new FieldBuilder(builder, "variantType.name", "text").keyword().sort().build();
 			new FieldBuilder(builder, "curatedVariantGenomicLocations.predictedVariantConsequences.vepConsequences.name", "text").keyword().sort().build();
 			new FieldBuilder(builder, "curatedVariantGenomicLocations.hgvs", "text").keyword().sort().build();
@@ -64,19 +62,24 @@ public class VariantMapping extends Mapping {
 			new FieldBuilder(builder, "id", "text").keyword().build();
 			builder.endObject();
 			builder.endObject();
-			// AlleleVariantSequence: aggregation on variant.variantType.name.keyword
-			builder.startObject("variantType");
-			builder.startObject("properties");
-			new FieldBuilder(builder, "name", "text").keyword().build();
-			builder.endObject();
-			builder.endObject();
+			new FieldBuilder(builder, "variantAssociationSubject.variantType.name", "text").keyword().sort().build();
 			builder.endObject();
 			builder.endObject();
 
-			// consequence: dynamic false for now, add explicit field mappings as UI sorting/filtering is implemented
+			// consequence: dynamic false, only map fields queried by AlleleVariantIndexService
 			builder.startObject("consequence");
 			builder.field("dynamic", false);
 			builder.startObject("properties");
+			new FieldBuilder(builder, "variantTranscript.curie", "text").keyword().build();
+			new FieldBuilder(builder, "variantTranscript.transcriptType.name", "text").keyword().sort().build();
+			new FieldBuilder(builder, "variantTranscript.transcriptGeneAssociations.transcriptGeneAssociationObject.geneSymbol.displayText", "text").keyword().sort().build();
+			new FieldBuilder(builder, "intronExonLocation", "text").keyword().build();
+			new FieldBuilder(builder, "vepConsequences.name", "text").keyword().sort().build();
+			new FieldBuilder(builder, "vepImpact.name", "text").keyword().sort().build();
+			new FieldBuilder(builder, "siftPrediction.name", "text").keyword().sort().build();
+			new FieldBuilder(builder, "siftScore", "float").build();
+			new FieldBuilder(builder, "polyphenPrediction.name", "text").keyword().sort().build();
+			new FieldBuilder(builder, "polyphenScore", "float").build();
 			builder.endObject();
 			builder.endObject();
 

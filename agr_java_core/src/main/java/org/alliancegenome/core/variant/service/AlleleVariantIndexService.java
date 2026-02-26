@@ -2,6 +2,7 @@ package org.alliancegenome.core.variant.service;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -153,12 +154,13 @@ public class AlleleVariantIndexService {
 					aggregations.get(filterKey).add(b.getKeyAsString());
 				}
 			}
+			Collections.sort(aggregations.get(filterKey), String.CASE_INSENSITIVE_ORDER);
 		}
 	}
 
 	public BoolQueryBuilder buildBoolQuery(String geneId, Pagination pagination) {
 		BoolQueryBuilder queryBuilder = new BoolQueryBuilder();
-		queryBuilder.filter(QueryBuilders.termQuery("geneIds.keyword", geneId));
+		queryBuilder.filter(QueryBuilders.termQuery("geneIds", geneId));
 		queryBuilder.filter(QueryBuilders.termQuery("category.keyword", "sequence_summary"));
 		if (pagination != null) {
 			Map<FieldFilter, String> filterValueMap = pagination.getFieldFilterValueMap();
