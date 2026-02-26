@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.alliancegenome.es.model.search.AggResult;
+import org.alliancegenome.es.model.search.Category;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -41,7 +42,7 @@ public class SearchHelper {
 					add("subcellularExpressionAgrSlim");
 				}
 			});
-			put("go", new ArrayList<>() {
+			put(Category.GO.getName(), new ArrayList<>() {
 				{
 					add("branch");
 					add("associatedSpecies");
@@ -185,6 +186,7 @@ public class SearchHelper {
 			add("subtype");
 			add("go_genes");
 			add("go_synonyms");
+			add("curie");
 			add("id");
 			add("localId");
 			add("name_key");
@@ -193,6 +195,12 @@ public class SearchHelper {
 			add("name_key.keyword");
 			add("name_key.standardBigrams");
 			add("name_key.keywordAutocomplete");
+			add("nameKey");
+			add("nameKey.autocomplete");
+			add("nameKey.htmlSmoosh");
+			add("nameKey.keyword");
+			add("nameKey.standardBigrams");
+			add("nameKey.keywordAutocomplete");
 			add("name");
 			add("name.autocomplete");
 			add("name.htmlSmoosh");
@@ -250,6 +258,7 @@ public class SearchHelper {
 			add("cellularComponent");
 			add("crossReferences");
 			add("crossReferenceLinks");
+			add("curie");
 			add("dataProvider");
 			add("definition");
 			add("description");
@@ -266,6 +275,7 @@ public class SearchHelper {
 			add("molecularFunction");
 			add("name");
 			add("name_key");
+			add("nameKey");
 			add("primaryKey");
 			add("soTermName");
 			add("species");
@@ -399,7 +409,11 @@ public class SearchHelper {
 
 			}
 			hit.getSourceAsMap().put("highlights", map);
-			hit.getSourceAsMap().put("id", hit.getSourceAsMap().get("primaryKey"));
+			Object id = hit.getSourceAsMap().get("primaryKey");
+			if (id == null) {
+				id = hit.getSourceAsMap().get("curie");
+			}
+			hit.getSourceAsMap().put("id", id);
 			hit.getSourceAsMap().put("score", hit.getScore());
 			if (hit.getExplanation() != null) {
 				hit.getSourceAsMap().put("explanation", hit.getExplanation());

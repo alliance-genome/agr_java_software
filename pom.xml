@@ -24,7 +24,7 @@
 		<checkstyle.version>10.17.0</checkstyle.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<curation.version>v0.46.16</curation.version>
+		<curation.version>v0.46.17</curation.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>

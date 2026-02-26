@@ -10,7 +10,7 @@ public enum IndexerConfig {
 	DatasetIndexer("dataset", DatasetIndexer.class, 4, 566, 566, 8, 1, false),
 	DiseaseIndexer("disease", DiseaseIndexer.class, 4, 680, 680, 8, 1, false),
 	//AlleleIndexer("allele", AlleleIndexer.class, 4, 1517, 1517, 8, 1, false),
-	GoIndexer("go", GoIndexer.class, 4, 914, 914, 8, 1, false),
+	//GoIndexer("go", GoIndexer.class, 4, 914, 914, 8, 1, false), // Disabled: GO indexing now handled by GOSearchResultCurationIndexer
 	ModelIndexer("model", ModelIndexer.class, 4, 1500, 1426, 4, 1, false),
 
 	// Curation Indexers
