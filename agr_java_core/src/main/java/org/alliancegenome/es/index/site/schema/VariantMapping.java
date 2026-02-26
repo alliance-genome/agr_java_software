@@ -26,7 +26,7 @@ public class VariantMapping extends Mapping {
 			new FieldBuilder(builder, "hasDisease", "boolean").build();
 			new FieldBuilder(builder, "hasPhenotype", "boolean").build();
 			new FieldBuilder(builder, "alterationTypeSortOrder", "integer").keyword().sort().build();
-			new FieldBuilder(builder, "allele.alleleSymbol.displayText","text").keyword().sort().build();
+			new FieldBuilder(builder, "allele.alleleSymbol.displayText", "text").keyword().sort().build();
 			new FieldBuilder(builder, "allele.alleleSynonyms.displayText", "text").keyword().sort().build();
 			new FieldBuilder(builder, "variants.variantType.name", "text").keyword().sort().build();
 			new FieldBuilder(builder, "variants.curatedVariantGenomicLocations.predictedVariantConsequences.vepConsequences.name", "text").keyword().sort().build();
