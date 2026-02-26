@@ -2,6 +2,7 @@ package org.alliancegenome.core.variant.service;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -46,7 +47,7 @@ public class AlleleVariantIndexService {
 			SearchSourceBuilder srb = new SearchSourceBuilder();
 
 			srb.query(buildBoolQuery(geneId, pagination));
-			srb.sort(new FieldSortBuilder(getSortFields(pagination)[0].getField()).order(SortOrder.ASC));
+			srb.sort(new FieldSortBuilder(getSortFields(pagination)[0].getField()).order(SortOrder.ASC).unmappedType("integer"));
 			srb.from(pagination.getStart());
 			srb.size(pagination.getLimit());
 			srb.trackTotalHits(true);
@@ -153,6 +154,7 @@ public class AlleleVariantIndexService {
 					aggregations.get(filterKey).add(b.getKeyAsString());
 				}
 			}
+			Collections.sort(aggregations.get(filterKey), String.CASE_INSENSITIVE_ORDER);
 		}
 	}
 

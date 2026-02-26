@@ -62,19 +62,24 @@ public class VariantMapping extends Mapping {
 			new FieldBuilder(builder, "id", "text").keyword().build();
 			builder.endObject();
 			builder.endObject();
-			// AlleleVariantSequence: aggregation on variant.variantType.name.keyword
-			builder.startObject("variantType");
-			builder.startObject("properties");
-			new FieldBuilder(builder, "name", "text").keyword().build();
-			builder.endObject();
-			builder.endObject();
+			new FieldBuilder(builder, "variantAssociationSubject.variantType.name", "text").keyword().sort().build();
 			builder.endObject();
 			builder.endObject();
 
-			// consequence: dynamic false for now, add explicit field mappings as UI sorting/filtering is implemented
+			// consequence: dynamic false, only map fields queried by AlleleVariantIndexService
 			builder.startObject("consequence");
 			builder.field("dynamic", false);
 			builder.startObject("properties");
+			new FieldBuilder(builder, "variantTranscript.curie", "text").keyword().build();
+			new FieldBuilder(builder, "variantTranscript.transcriptType.name", "text").keyword().sort().build();
+			new FieldBuilder(builder, "variantTranscript.transcriptGeneAssociations.transcriptGeneAssociationObject.geneSymbol.displayText", "text").keyword().sort().build();
+			new FieldBuilder(builder, "intronExonLocation", "text").keyword().build();
+			new FieldBuilder(builder, "vepConsequences.name", "text").keyword().sort().build();
+			new FieldBuilder(builder, "vepImpact.name", "text").keyword().sort().build();
+			new FieldBuilder(builder, "siftPrediction.name", "text").keyword().sort().build();
+			new FieldBuilder(builder, "siftScore", "float").build();
+			new FieldBuilder(builder, "polyphenPrediction.name", "text").keyword().sort().build();
+			new FieldBuilder(builder, "polyphenScore", "float").build();
 			builder.endObject();
 			builder.endObject();
 
