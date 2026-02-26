@@ -8,6 +8,7 @@ import java.util.Map;
 import org.alliancegenome.api.service.helper.SearchHelper;
 import org.alliancegenome.es.index.site.dao.AutoCompleteDAO;
 import org.alliancegenome.es.model.search.AutoCompleteResult;
+import org.alliancegenome.es.model.search.Category;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -80,7 +81,7 @@ public class AutoCompleteService {
 
 			//this comes over from the Python code, use symbol for geneMap,
 			//seems like maybe it could also use name_key for everyone...
-			if (StringUtils.equals(category, "gene")) {
+			if (StringUtils.equals(category, Category.GENE.getName())) {
 				hit.getSourceAsMap().put("name", hit.getSourceAsMap().get("symbol"));
 			}
 			ret.add(hit.getSourceAsMap());
