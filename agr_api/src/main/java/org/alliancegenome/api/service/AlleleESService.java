@@ -144,7 +144,7 @@ public class AlleleESService extends ESService {
 		JsonResultResponse<ESDocument> ret = new JsonResultResponse<>();
 		ret.setSupplementalData(getAlleleSupplementalData(queryBuilder));
 		addTableFilter(pagination, queryBuilder);
-		SearchResponse searchResponse = getSearchResponse(queryBuilder, pagination, sortMap.get(pagination.getSortBy()), true);
+		SearchResponse searchResponse = getSearchResponse(queryBuilder, pagination, sortMap.get(pagination.getSortBy()), false);
 		List<ESDocument> list = new ArrayList<>();
 		Arrays.stream(searchResponse.getHits().getHits()).forEach(searchHit -> {
 			try {
