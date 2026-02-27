@@ -1,11 +1,9 @@
 package org.alliancegenome.api.service.helper;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import jakarta.ws.rs.core.UriInfo;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import org.alliancegenome.es.model.search.AggDocCount;
 import org.alliancegenome.es.model.search.AggResult;
 import org.alliancegenome.es.model.search.Category;
 import org.elasticsearch.action.search.SearchResponse;
@@ -19,14 +17,12 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 
-import jakarta.ws.rs.core.UriInfo;
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
+import java.util.*;
 
 @Slf4j
 public class SearchHelper {
 
-	private static final String[] SUFFIX_LIST = { ".htmlSmoosh", ".keywordAutocomplete", ".keyword", ".smoosh", ".synonyms", ".symbols", ".text", ".classicText", ".standardText", ".letterText", ".bigrams", ".standardBigrams" };
+	private static final String[] SUFFIX_LIST = {".htmlSmoosh", ".keywordAutocomplete", ".keyword", ".smoosh", ".synonyms", ".symbols", ".text", ".classicText", ".standardText", ".letterText", ".bigrams", ".standardBigrams"};
 
 	private HashMap<String, List<String>> categoryFilters = new HashMap<>() {
 		{
@@ -94,6 +90,19 @@ public class SearchHelper {
 					add("variantType");
 					add("molecularConsequence");
 					add("genes");
+				}
+			});
+			put("allele_variant", new ArrayList<>() {
+				{
+					add("species");
+					add("alterationType");
+					add("variantType");
+					add("molecularConsequence");
+					add("diseasesAgrSlim");
+					add("genes");
+					add("constructExpressedComponent");
+					add("constructKnockdownComponent");
+					add("constructRegulatoryRegion");
 				}
 			});
 		}
@@ -249,7 +258,8 @@ public class SearchHelper {
 		}
 	};
 
-	@Getter private final List<String> responseFields = new ArrayList<>() {
+	@Getter
+	private final List<String> responseFields = new ArrayList<>() {
 		{
 			add("alterationType");
 			add("biologicalProcess");
@@ -335,7 +345,13 @@ public class SearchHelper {
 
 		if (category == null) {
 			Terms aggs = res.getAggregations().get("categories");
-			AggResult ares = new AggResult("category", aggs, categoryFilters.keySet());
+			// Allow allele and variant_search_result through for merging
+			Set<String> acceptableKeys = new HashSet<>(categoryFilters.keySet());
+			acceptableKeys.add(Category.ALLELE.getName());
+			acceptableKeys.add(Category.VARIANT_SEARCH_RESULT.getName());
+			AggResult ares = new AggResult("category", aggs, acceptableKeys);
+			mergeAlleleVariantBuckets(ares);
+			orderCategoryBuckets(ares);
 			ret.add(ares);
 		} else {
 			if (categoryFilters.containsKey(category)) {
@@ -348,6 +364,50 @@ public class SearchHelper {
 		}
 
 		return ret;
+	}
+
+	/**
+	 * Merge the "allele" and "variant_search_result" aggregation buckets into a single "allele_variant" bucket.
+	 */
+	private void mergeAlleleVariantBuckets(AggResult aggResult) {
+		long combinedCount = 0;
+		List<AggDocCount> toRemove = new ArrayList<>();
+		for (AggDocCount bucket : aggResult.getValues()) {
+			if (bucket.getKey().equals(Category.ALLELE.getName()) || bucket.getKey().equals(Category.VARIANT_SEARCH_RESULT.getName())) {
+				combinedCount += bucket.getTotal();
+				toRemove.add(bucket);
+			}
+		}
+		aggResult.getValues().removeAll(toRemove);
+		if (combinedCount > 0) {
+			aggResult.getValues().add(new AggDocCount(Category.ALLELE_VARIANT.getName(), combinedCount));
+		}
+	}
+
+	private static final List<String> CATEGORY_ORDER = List.of(
+		Category.ALLELE_VARIANT.getName(),
+		Category.GENE.getName(),
+		Category.GO.getName(),
+		Category.DISEASE.getName(),
+		Category.MODEL.getName(),
+		"dataset"
+	);
+
+	/**
+	 * Sort category aggregation buckets to match the desired display order.
+	 */
+	private void orderCategoryBuckets(AggResult aggResult) {
+		aggResult.getValues().sort((a, b) -> {
+			int idxA = CATEGORY_ORDER.indexOf(a.getKey());
+			int idxB = CATEGORY_ORDER.indexOf(b.getKey());
+			if (idxA < 0) {
+				idxA = CATEGORY_ORDER.size();
+			}
+			if (idxB < 0) {
+				idxB = CATEGORY_ORDER.size();
+			}
+			return Integer.compare(idxA, idxB);
+		});
 	}
 
 	public boolean filterIsValid(String category, String fieldName) {
