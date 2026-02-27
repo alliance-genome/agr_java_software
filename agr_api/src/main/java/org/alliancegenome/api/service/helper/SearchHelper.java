@@ -347,8 +347,8 @@ public class SearchHelper {
 			Terms aggs = res.getAggregations().get("categories");
 			// Allow allele and variant_search_result through for merging
 			Set<String> acceptableKeys = new HashSet<>(categoryFilters.keySet());
-			acceptableKeys.add("allele");
-			acceptableKeys.add("variant_search_result");
+			acceptableKeys.add(Category.ALLELE.getName());
+			acceptableKeys.add(Category.VARIANT_SEARCH_RESULT.getName());
 			AggResult ares = new AggResult("category", aggs, acceptableKeys);
 			mergeAlleleVariantBuckets(ares);
 			orderCategoryBuckets(ares);
