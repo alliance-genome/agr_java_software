@@ -7,6 +7,7 @@ import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.multiMatchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -243,7 +244,11 @@ public class SearchService {
 
 		// apply filters if a category has been set
 		if (StringUtils.isNotEmpty(category)) {
-			bool.filter(new TermQueryBuilder("category", category));
+			if (Category.ALLELE_VARIANT.getName().equals(category)) {
+				bool.filter(termsQuery("category", "allele", "variant_search_result"));
+			} else {
+				bool.filter(new TermQueryBuilder("category", category));
+			}
 
 			// expand the map of lists and add each key,value pair as filters
 			filters.entrySet().stream().forEach(entry -> entry.getValue().stream().forEach(value -> {

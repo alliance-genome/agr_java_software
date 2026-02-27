@@ -3,9 +3,12 @@ package org.alliancegenome.api.service.helper;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import org.alliancegenome.es.model.search.AggDocCount;
 import org.alliancegenome.es.model.search.AggResult;
 import org.alliancegenome.es.model.search.Category;
 import org.elasticsearch.action.search.SearchResponse;
@@ -94,6 +97,19 @@ public class SearchHelper {
 					add("variantType");
 					add("molecularConsequence");
 					add("genes");
+				}
+			});
+		put("allele_variant", new ArrayList<>() {
+				{
+					add("species");
+					add("alterationType");
+					add("variantType");
+					add("molecularConsequence");
+					add("diseasesAgrSlim");
+					add("genes");
+					add("constructExpressedComponent");
+					add("constructKnockdownComponent");
+					add("constructRegulatoryRegion");
 				}
 			});
 		}
@@ -335,7 +351,12 @@ public class SearchHelper {
 
 		if (category == null) {
 			Terms aggs = res.getAggregations().get("categories");
-			AggResult ares = new AggResult("category", aggs, categoryFilters.keySet());
+			// Allow allele and variant_search_result through for merging
+			Set<String> acceptableKeys = new HashSet<>(categoryFilters.keySet());
+			acceptableKeys.add("allele");
+			acceptableKeys.add("variant_search_result");
+			AggResult ares = new AggResult("category", aggs, acceptableKeys);
+			mergeAlleleVariantBuckets(ares);
 			ret.add(ares);
 		} else {
 			if (categoryFilters.containsKey(category)) {
@@ -348,6 +369,24 @@ public class SearchHelper {
 		}
 
 		return ret;
+	}
+
+	/**
+	 * Merge the "allele" and "variant_search_result" aggregation buckets into a single "allele_variant" bucket.
+	 */
+	private void mergeAlleleVariantBuckets(AggResult aggResult) {
+		long combinedCount = 0;
+		List<AggDocCount> toRemove = new ArrayList<>();
+		for (AggDocCount bucket : aggResult.getValues()) {
+			if ("allele".equals(bucket.getKey()) || "variant_search_result".equals(bucket.getKey())) {
+				combinedCount += bucket.getTotal();
+				toRemove.add(bucket);
+			}
+		}
+		aggResult.getValues().removeAll(toRemove);
+		if (combinedCount > 0) {
+			aggResult.getValues().add(new AggDocCount(Category.ALLELE_VARIANT.getName(), combinedCount));
+		}
 	}
 
 	public boolean filterIsValid(String category, String fieldName) {
