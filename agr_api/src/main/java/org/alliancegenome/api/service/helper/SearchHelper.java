@@ -357,6 +357,7 @@ public class SearchHelper {
 			acceptableKeys.add("variant_search_result");
 			AggResult ares = new AggResult("category", aggs, acceptableKeys);
 			mergeAlleleVariantBuckets(ares);
+			orderCategoryBuckets(ares);
 			ret.add(ares);
 		} else {
 			if (categoryFilters.containsKey(category)) {
@@ -387,6 +388,28 @@ public class SearchHelper {
 		if (combinedCount > 0) {
 			aggResult.getValues().add(new AggDocCount(Category.ALLELE_VARIANT.getName(), combinedCount));
 		}
+	}
+
+	private static final List<String> CATEGORY_ORDER = List.of(
+		Category.ALLELE_VARIANT.getName(),
+		Category.GENE.getName(),
+		Category.GO.getName(),
+		Category.DISEASE.getName(),
+		Category.MODEL.getName(),
+		"dataset"
+	);
+
+	/**
+	 * Sort category aggregation buckets to match the desired display order.
+	 */
+	private void orderCategoryBuckets(AggResult aggResult) {
+		aggResult.getValues().sort((a, b) -> {
+			int idxA = CATEGORY_ORDER.indexOf(a.getKey());
+			int idxB = CATEGORY_ORDER.indexOf(b.getKey());
+			if (idxA < 0) idxA = CATEGORY_ORDER.size();
+			if (idxB < 0) idxB = CATEGORY_ORDER.size();
+			return Integer.compare(idxA, idxB);
+		});
 	}
 
 	public boolean filterIsValid(String category, String fieldName) {
