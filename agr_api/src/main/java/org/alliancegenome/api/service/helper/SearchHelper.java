@@ -400,8 +400,12 @@ public class SearchHelper {
 		aggResult.getValues().sort((a, b) -> {
 			int idxA = CATEGORY_ORDER.indexOf(a.getKey());
 			int idxB = CATEGORY_ORDER.indexOf(b.getKey());
-			if (idxA < 0) idxA = CATEGORY_ORDER.size();
-			if (idxB < 0) idxB = CATEGORY_ORDER.size();
+			if (idxA < 0) {
+				idxA = CATEGORY_ORDER.size();
+			}
+			if (idxB < 0) {
+				idxB = CATEGORY_ORDER.size();
+			}
 			return Integer.compare(idxA, idxB);
 		});
 	}
