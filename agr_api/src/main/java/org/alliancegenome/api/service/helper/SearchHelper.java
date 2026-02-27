@@ -1,13 +1,8 @@
 package org.alliancegenome.api.service.helper;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import jakarta.ws.rs.core.UriInfo;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.alliancegenome.es.model.search.AggDocCount;
 import org.alliancegenome.es.model.search.AggResult;
 import org.alliancegenome.es.model.search.Category;
@@ -22,14 +17,12 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 
-import jakarta.ws.rs.core.UriInfo;
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
+import java.util.*;
 
 @Slf4j
 public class SearchHelper {
 
-	private static final String[] SUFFIX_LIST = { ".htmlSmoosh", ".keywordAutocomplete", ".keyword", ".smoosh", ".synonyms", ".symbols", ".text", ".classicText", ".standardText", ".letterText", ".bigrams", ".standardBigrams" };
+	private static final String[] SUFFIX_LIST = {".htmlSmoosh", ".keywordAutocomplete", ".keyword", ".smoosh", ".synonyms", ".symbols", ".text", ".classicText", ".standardText", ".letterText", ".bigrams", ".standardBigrams"};
 
 	private HashMap<String, List<String>> categoryFilters = new HashMap<>() {
 		{
@@ -99,7 +92,7 @@ public class SearchHelper {
 					add("genes");
 				}
 			});
-		put("allele_variant", new ArrayList<>() {
+			put("allele_variant", new ArrayList<>() {
 				{
 					add("species");
 					add("alterationType");
@@ -265,7 +258,8 @@ public class SearchHelper {
 		}
 	};
 
-	@Getter private final List<String> responseFields = new ArrayList<>() {
+	@Getter
+	private final List<String> responseFields = new ArrayList<>() {
 		{
 			add("alterationType");
 			add("biologicalProcess");
