@@ -373,7 +373,7 @@ public class SearchHelper {
 		long combinedCount = 0;
 		List<AggDocCount> toRemove = new ArrayList<>();
 		for (AggDocCount bucket : aggResult.getValues()) {
-			if (bucket.getKey().equals("allele") || bucket.getKey().equals("variant_search_result")) {
+			if (bucket.getKey().equals(Category.ALLELE.getName()) || bucket.getKey().equals(Category.VARIANT_SEARCH_RESULT.getName())) {
 				combinedCount += bucket.getTotal();
 				toRemove.add(bucket);
 			}
