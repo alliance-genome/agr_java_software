@@ -292,10 +292,20 @@ public class AlleleToTdfTranslator {
 		if (variant.getNucleotideChange() != null) {
 			row.setChange(variant.getNucleotideChange());
 		}
-		if (variant.getOverlapGenes() != null) {
-			row.setOverlaps(variant.getOverlapGenes().stream()
-				.map(g -> g.getGeneSymbol().getDisplayText())
-				.collect(Collectors.joining(",")));
+		if (variant.getPredictedVariantConsequences() != null) {
+			String overlaps = variant.getPredictedVariantConsequences().stream()
+				.filter(pvc -> pvc.getVariantTranscript() != null && pvc.getVariantTranscript().getTranscriptGeneAssociations() != null)
+				.flatMap(pvc -> pvc.getVariantTranscript().getTranscriptGeneAssociations().stream())
+				.map(tga -> tga.getTranscriptGeneAssociationObject())
+				.filter(gene -> gene.getGeneSymbol() != null)
+				.map(gene -> gene.getGeneSymbol().getDisplayText())
+				.filter(Objects::nonNull)
+				.distinct()
+				.sorted()
+				.collect(Collectors.joining(","));
+			if (!overlaps.isEmpty()) {
+				row.setOverlaps(overlaps);
+			}
 		}
 		String hgvsGs = "";
 		String hgvsPs = "";

@@ -28,7 +28,6 @@ public class AlleleSequenceSummaryConverter {
 
 			for (Variant variant : doc.getVariants()) {
 				if (CollectionUtils.isEmpty(variant.getCuratedVariantGenomicLocations())) {
-					result.add(buildDocument(doc, null, null, geneIds));
 					continue;
 				}
 
