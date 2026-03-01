@@ -47,7 +47,7 @@ public class Main {
 			try {
 				Indexer i = (Indexer) ic.getIndexClazz().getDeclaredConstructor(IndexerConfig.class).newInstance(ic);
 				indexers.put(ic.getTypeName(), i);
-				if (ic.getRunInParallel()) {
+				if (ic.getRunInParallel() && ConfigHelper.isThreaded()) {
 					parallelMap.put(ic.getTypeName(), i);
 				} else {
 					sequentialMap.put(ic.getTypeName(), i);

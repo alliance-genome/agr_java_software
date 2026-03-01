@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.alliancegenome.curation_api.model.document.es.SequenceSummaryDocument;
 import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
-import org.alliancegenome.curation_api.model.entities.Gene;
 import org.alliancegenome.curation_api.model.entities.PredictedVariantConsequence;
 import org.alliancegenome.curation_api.model.entities.associations.CuratedVariantGenomicLocationAssociation;
 import org.alliancegenome.curation_api.model.entities.associations.TranscriptGeneAssociation;
@@ -39,9 +38,6 @@ public class SequenceSummaryConverter {
 					HashSet<String> geneIds = new HashSet<>();
 					for (TranscriptGeneAssociation assoc : consequence.getVariantTranscript().getTranscriptGeneAssociations()) {
 						geneIds.add(assoc.getTranscriptGeneAssociationObject().getCurie());
-					}
-					for (Gene gene : variant.getOverlapGenes()) {
-						geneIds.add(gene.getCurie());
 					}
 					ssd.setGeneIds(geneIds);
 					result.add(ssd);

@@ -17,21 +17,17 @@ public class AlleleSequenceSummaryConverter {
 		List<SequenceSummaryDocument> result = new ArrayList<>();
 
 		for (AlleleSummaryDocument doc : alleleDocs) {
-			HashSet<String> geneIds = new HashSet<>();
-			if (doc.getAlleleOfGene() != null) {
-				geneIds.add(doc.getAlleleOfGene().getPrimaryExternalId());
-			} else {
+			if (CollectionUtils.isEmpty(doc.getVariants())) {
 				continue;
 			}
 
-			if (CollectionUtils.isEmpty(doc.getVariants())) {
-				result.add(buildDocument(doc, null, null, geneIds));
-				continue;
+			HashSet<String> geneIds = new HashSet<>();
+			if (doc.getAlleleOfGene() != null) {
+				geneIds.add(doc.getAlleleOfGene().getPrimaryExternalId());
 			}
 
 			for (Variant variant : doc.getVariants()) {
 				if (CollectionUtils.isEmpty(variant.getCuratedVariantGenomicLocations())) {
-					result.add(buildDocument(doc, null, null, geneIds));
 					continue;
 				}
 

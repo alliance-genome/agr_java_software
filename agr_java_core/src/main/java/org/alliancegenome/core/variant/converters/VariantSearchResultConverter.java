@@ -3,9 +3,10 @@ package org.alliancegenome.core.variant.converters;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
-import org.alliancegenome.curation_api.model.entities.Gene;
 import org.alliancegenome.curation_api.model.entities.PredictedVariantConsequence;
 import org.alliancegenome.curation_api.model.entities.associations.CuratedVariantGenomicLocationAssociation;
 import org.alliancegenome.es.model.VariantSearchResultDocument;
@@ -39,12 +40,18 @@ public class VariantSearchResultConverter {
 
 			vsd.setPopularity(0.0);
 
-			if (variant.getOverlapGenes() != null && !variant.getOverlapGenes().isEmpty()) {
-				List<String> geneNames = new ArrayList<>();
-				for (Gene gene : variant.getOverlapGenes()) {
-					geneNames.add(gene.getPrimaryExternalId());
+			if (variant.getPredictedVariantConsequences() != null) {
+				List<String> geneNames = variant.getPredictedVariantConsequences().stream()
+					.filter(pvc -> pvc.getVariantTranscript() != null && pvc.getVariantTranscript().getTranscriptGeneAssociations() != null)
+					.flatMap(pvc -> pvc.getVariantTranscript().getTranscriptGeneAssociations().stream())
+					.map(tga -> tga.getTranscriptGeneAssociationObject().getPrimaryExternalId())
+					.filter(Objects::nonNull)
+					.distinct()
+					.sorted()
+					.collect(Collectors.toList());
+				if (!geneNames.isEmpty()) {
+					vsd.setGenes(geneNames);
 				}
-				vsd.setGenes(geneNames);
 			}
 
 			if (variant.getVariantAssociationSubject() != null && variant.getVariantAssociationSubject().getCrossReferences() != null) {
