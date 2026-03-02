@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
 import org.alliancegenome.curation_api.model.entities.PredictedVariantConsequence;
 import org.alliancegenome.curation_api.model.entities.associations.CuratedVariantGenomicLocationAssociation;
+import org.alliancegenome.curation_api.model.entities.associations.TranscriptGeneAssociation;
 import org.alliancegenome.es.model.VariantSearchResultDocument;
 
 public class VariantSearchResultConverter {
@@ -44,7 +45,17 @@ public class VariantSearchResultConverter {
 				List<String> geneNames = variant.getPredictedVariantConsequences().stream()
 					.filter(pvc -> pvc.getVariantTranscript() != null && pvc.getVariantTranscript().getTranscriptGeneAssociations() != null)
 					.flatMap(pvc -> pvc.getVariantTranscript().getTranscriptGeneAssociations().stream())
-					.map(tga -> tga.getTranscriptGeneAssociationObject().getPrimaryExternalId())
+					.map(TranscriptGeneAssociation::getTranscriptGeneAssociationObject)
+					.filter(Objects::nonNull)
+					.map(gene -> {
+						if (gene.getGeneSymbol() != null && gene.getGeneSymbol().getDisplayText() != null) {
+							return gene.getGeneSymbol().getDisplayText();
+						}
+						if (gene.getPrimaryExternalId() != null) {
+							return gene.getPrimaryExternalId();
+						}
+						return gene.getCurie();
+					})
 					.filter(Objects::nonNull)
 					.distinct()
 					.sorted()
