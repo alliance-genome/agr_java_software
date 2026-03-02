@@ -6,7 +6,7 @@ import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.AllelePhenotypeAnnotationDocument;
 import org.alliancegenome.api.rest.interfaces.AlleleRESTInterface;
 import org.alliancegenome.api.service.AlleleESService;
-import org.alliancegenome.api.service.AlleleService;
+
 import org.alliancegenome.api.service.DiseaseESService;
 import org.alliancegenome.api.service.EntityType;
 import org.alliancegenome.api.service.PhenotypeESService;
@@ -33,9 +33,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequestScoped
 public class AlleleController implements AlleleRESTInterface {
-
-	@Inject
-	AlleleService alleleService;
 
 	@Inject
 	AlleleESService alleleEsService;
