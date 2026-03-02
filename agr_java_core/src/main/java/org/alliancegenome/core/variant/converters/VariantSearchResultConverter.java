@@ -18,7 +18,7 @@ public class VariantSearchResultConverter {
 		List<VariantSearchResultDocument> result = new ArrayList<>();
 
 		for (VariantSummaryDocument doc : variantSummaryDocuments) {
-			CuratedVariantGenomicLocationAssociation variant = doc.getVariant();
+			CuratedVariantGenomicLocationAssociation variant = doc.getVariantLocation();
 			if (variant == null) {
 				continue;
 			}

@@ -21,7 +21,7 @@ public class SequenceSummaryConverter {
 		List<SequenceSummaryDocument> result = new ArrayList<>();
 
 		for (VariantSummaryDocument doc : docs) {
-			CuratedVariantGenomicLocationAssociation variant = doc.getVariant();
+			CuratedVariantGenomicLocationAssociation variant = doc.getVariantLocation();
 			if (variant == null || variant.getPredictedVariantConsequences() == null) {
 				continue;
 			}
@@ -30,7 +30,7 @@ public class SequenceSummaryConverter {
 				if (consequence.getVariantTranscript() != null && consequence.getVariantTranscript().getTranscriptGeneAssociations() != null) {
 					SequenceSummaryDocument ssd = new SequenceSummaryDocument();
 					ssd.setAllele(doc.getAllele());
-					ssd.setVariant(variant);
+					ssd.setVariantLocation(variant);
 					ssd.setConsequence(consequence);
 					ssd.setSequenceSummaryCategory("variant");
 					ssd.setAlterationType("variant");
