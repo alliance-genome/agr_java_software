@@ -21,16 +21,16 @@ public class SequenceSummaryConverter {
 		List<SequenceSummaryDocument> result = new ArrayList<>();
 
 		for (VariantSummaryDocument doc : docs) {
-			CuratedVariantGenomicLocationAssociation variant = doc.getVariant();
-			if (variant == null || variant.getPredictedVariantConsequences() == null) {
+			CuratedVariantGenomicLocationAssociation variantLocation = doc.getVariantLocation();
+			if (variantLocation == null || variantLocation.getPredictedVariantConsequences() == null) {
 				continue;
 			}
 
-			for (PredictedVariantConsequence consequence : variant.getPredictedVariantConsequences()) {
+			for (PredictedVariantConsequence consequence : variantLocation.getPredictedVariantConsequences()) {
 				if (consequence.getVariantTranscript() != null && consequence.getVariantTranscript().getTranscriptGeneAssociations() != null) {
 					SequenceSummaryDocument ssd = new SequenceSummaryDocument();
 					ssd.setAllele(doc.getAllele());
-					ssd.setVariant(variant);
+					ssd.setVariantLocation(variantLocation);
 					ssd.setConsequence(consequence);
 					ssd.setSequenceSummaryCategory("variant");
 					ssd.setAlterationType("variant");

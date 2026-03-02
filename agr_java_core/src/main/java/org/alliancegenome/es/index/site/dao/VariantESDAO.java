@@ -227,7 +227,7 @@ public class VariantESDAO extends ESDAO {
 		for (SearchHit hit : searchHits) {
 			try {
 				VariantSummaryDocument summaryDoc = mapper.readValue(hit.getSourceAsString(), VariantSummaryDocument.class);
-				if (summaryDoc != null && summaryDoc.getVariant() != null) {
+				if (summaryDoc != null && summaryDoc.getVariantLocation() != null) {
 					return summaryDoc;
 				}
 			} catch (IOException e) {

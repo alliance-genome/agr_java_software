@@ -260,8 +260,16 @@ public class VariantSummaryConverter {
 			// Create the document for each consequence (full flattening)
 			VariantSummaryDocument doc = new VariantSummaryDocument();
 			doc.setSubCategory("HTP_variant");
+			doc.setAlterationType("variant");
+			doc.setAlterationTypeSortOrder(4);
+			doc.setHasPhenotype(false);
+			doc.setHasDisease(false);
 			doc.setAllele(allele);
-			doc.setVariant(cvgla);
+			doc.setVariantLocation(cvgla);
+			Variant variantWrapper = new Variant();
+			variantWrapper.setVariantType(variantType);
+			variantWrapper.setCuratedVariantGenomicLocations(List.of(cvgla));
+			doc.setVariants(List.of(variantWrapper));
 			doc.setGeneIds(resultPair.getRight());
 
 			returnDocuments.add(doc);

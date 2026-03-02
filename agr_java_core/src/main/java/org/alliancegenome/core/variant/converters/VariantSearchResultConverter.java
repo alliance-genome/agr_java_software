@@ -18,31 +18,31 @@ public class VariantSearchResultConverter {
 		List<VariantSearchResultDocument> result = new ArrayList<>();
 
 		for (VariantSummaryDocument doc : variantSummaryDocuments) {
-			CuratedVariantGenomicLocationAssociation variant = doc.getVariant();
-			if (variant == null) {
+			CuratedVariantGenomicLocationAssociation curatedVariantGenomicLocationAssociation = doc.getVariantLocation();
+			if (curatedVariantGenomicLocationAssociation == null) {
 				continue;
 			}
 
 			VariantSearchResultDocument vsd = new VariantSearchResultDocument();
 			vsd.setSearchable(true);
 			vsd.setAlterationType("variant");
-			vsd.setPrimaryKey(variant.getHgvs());
-			vsd.setName(variant.getHgvs());
-			vsd.setNameKey(variant.getHgvs());
+			vsd.setPrimaryKey(curatedVariantGenomicLocationAssociation.getHgvs());
+			vsd.setName(curatedVariantGenomicLocationAssociation.getHgvs());
+			vsd.setNameKey(curatedVariantGenomicLocationAssociation.getHgvs());
 
-			if (variant.getVariantAssociationSubject() != null) {
-				if (variant.getVariantAssociationSubject().getTaxon() != null) {
-					vsd.setSpecies(variant.getVariantAssociationSubject().getTaxon().getName());
+			if (curatedVariantGenomicLocationAssociation.getVariantAssociationSubject() != null) {
+				if (curatedVariantGenomicLocationAssociation.getVariantAssociationSubject().getTaxon() != null) {
+					vsd.setSpecies(curatedVariantGenomicLocationAssociation.getVariantAssociationSubject().getTaxon().getName());
 				}
-				if (variant.getVariantAssociationSubject().getVariantType() != null && variant.getVariantAssociationSubject().getVariantType().getName() != null) {
-					vsd.setVariantType(List.of(variant.getVariantAssociationSubject().getVariantType().getName()));
+				if (curatedVariantGenomicLocationAssociation.getVariantAssociationSubject().getVariantType() != null && curatedVariantGenomicLocationAssociation.getVariantAssociationSubject().getVariantType().getName() != null) {
+					vsd.setVariantType(List.of(curatedVariantGenomicLocationAssociation.getVariantAssociationSubject().getVariantType().getName()));
 				}
 			}
 
 			vsd.setPopularity(0.0);
 
-			if (variant.getPredictedVariantConsequences() != null) {
-				List<String> geneNames = variant.getPredictedVariantConsequences().stream()
+			if (curatedVariantGenomicLocationAssociation.getPredictedVariantConsequences() != null) {
+				List<String> geneNames = curatedVariantGenomicLocationAssociation.getPredictedVariantConsequences().stream()
 					.filter(pvc -> pvc.getVariantTranscript() != null && pvc.getVariantTranscript().getTranscriptGeneAssociations() != null)
 					.flatMap(pvc -> pvc.getVariantTranscript().getTranscriptGeneAssociations().stream())
 					.map(TranscriptGeneAssociation::getTranscriptGeneAssociationObject)
@@ -65,9 +65,9 @@ public class VariantSearchResultConverter {
 				}
 			}
 
-			if (variant.getVariantAssociationSubject() != null && variant.getVariantAssociationSubject().getCrossReferences() != null) {
+			if (curatedVariantGenomicLocationAssociation.getVariantAssociationSubject() != null && curatedVariantGenomicLocationAssociation.getVariantAssociationSubject().getCrossReferences() != null) {
 				List<String> crossRefs = new ArrayList<>();
-				for (var xref : variant.getVariantAssociationSubject().getCrossReferences()) {
+				for (var xref : curatedVariantGenomicLocationAssociation.getVariantAssociationSubject().getCrossReferences()) {
 					crossRefs.add(xref.getDisplayName());
 				}
 				if (!crossRefs.isEmpty()) {
@@ -75,9 +75,9 @@ public class VariantSearchResultConverter {
 				}
 			}
 
-			if (variant.getPredictedVariantConsequences() != null) {
+			if (curatedVariantGenomicLocationAssociation.getPredictedVariantConsequences() != null) {
 				HashSet<String> consequences = new HashSet<>();
-				for (PredictedVariantConsequence pvc : variant.getPredictedVariantConsequences()) {
+				for (PredictedVariantConsequence pvc : curatedVariantGenomicLocationAssociation.getPredictedVariantConsequences()) {
 					if (pvc.getVepConsequences() != null) {
 						for (var soTerm : pvc.getVepConsequences()) {
 							consequences.add(soTerm.getName());
