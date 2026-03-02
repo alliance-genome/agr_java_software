@@ -2,14 +2,14 @@ package org.alliancegenome.es.model;
 
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonView;
-import org.alliancegenome.curation_api.model.document.es.ESDocument;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
+
+import org.alliancegenome.curation_api.model.document.es.ESDocument;
+import org.alliancegenome.curation_api.view.CurationView;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.alliancegenome.curation_api.view.CurationView;
 
 @Getter
 @Setter
