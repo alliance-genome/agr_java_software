@@ -92,7 +92,7 @@ public class AlleleVariantIndexService {
 
 		if (pagination.getSortBy() != null && !pagination.getSortBy().equalsIgnoreCase("default")) {
 			if (pagination.getSortBy().equalsIgnoreCase("variantType")) {
-				sortField[0] = new SortField("variant.variantAssociationSubject.variantType.name.keyword", SortField.Type.STRING);
+				sortField[0] = new SortField("variantLocation.variantAssociationSubject.variantType.name.keyword", SortField.Type.STRING);
 			}
 			if (pagination.getSortBy().equalsIgnoreCase("molecularConsequence")) {
 				sortField[0] = new SortField("consequence.vepConsequences.name.keyword", SortField.Type.STRING);
@@ -104,7 +104,7 @@ public class AlleleVariantIndexService {
 				sortField[0] = new SortField("consequence.variantTranscript.curie.keyword", SortField.Type.STRING);
 			}
 			if (pagination.getSortBy().equalsIgnoreCase("VariantHgvsName") || pagination.getSortBy().equalsIgnoreCase("symbol")) {
-				sortField[0] = new SortField("variant.hgvs.sort", SortField.Type.STRING);
+				sortField[0] = new SortField("variantLocation.hgvs.sort", SortField.Type.STRING);
 			}
 		} else {
 			sortField[0] = new SortField("alterationTypeSortOrder", SortField.Type.INT);
@@ -180,7 +180,7 @@ public class AlleleVariantIndexService {
 							queryBuilder.filter(QueryBuilders.termsQuery("alterationType.keyword", value.split("\\|")));
 							break;
 						case VARIANT_TYPE:
-							queryBuilder.filter(QueryBuilders.termsQuery("variant.variantAssociationSubject.variantType.name.keyword", value.split("\\|")));
+							queryBuilder.filter(QueryBuilders.termsQuery("variantLocation.variantAssociationSubject.variantType.name.keyword", value.split("\\|")));
 							break;
 						case HAS_DISEASE:
 							queryBuilder.filter(QueryBuilders.termsQuery("hasDisease", value.split("\\|")));
@@ -210,7 +210,7 @@ public class AlleleVariantIndexService {
 							queryBuilder.filter(QueryBuilders.termsQuery("consequence.variantTranscript.transcriptGeneAssociations.transcriptGeneAssociationObject.geneSymbol.displayText.keyword", value.split("\\|")));
 							break;
 						case VARIANT_HGVS_G:
-							queryBuilder.must(QueryBuilders.wildcardQuery("variant.hgvs", "*" + value.toLowerCase() + "*"));
+							queryBuilder.must(QueryBuilders.wildcardQuery("variantLocation.hgvs", "*" + value.toLowerCase() + "*"));
 							break;
 						case VARIANT_LOCATION:
 							queryBuilder.must(QueryBuilders.wildcardQuery("consequence.intronExonLocation", "*" + value.toLowerCase() + "*"));
@@ -226,7 +226,7 @@ public class AlleleVariantIndexService {
 
 
 	public void buildAggregations(SearchSourceBuilder srb) {
-		srb.aggregation(AggregationBuilders.terms("variantType").field("variant.variantAssociationSubject.variantType.name.keyword"));
+		srb.aggregation(AggregationBuilders.terms("variantType").field("variantLocation.variantAssociationSubject.variantType.name.keyword"));
 		srb.aggregation(AggregationBuilders.terms("hasDisease").field("hasDisease"));
 		srb.aggregation(AggregationBuilders.terms("hasPhenotype").field("hasPhenotype"));
 		srb.aggregation(AggregationBuilders.terms("impact").field("consequence.vepImpact.name.keyword"));

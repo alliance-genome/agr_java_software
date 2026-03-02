@@ -296,8 +296,8 @@ public class Mapping extends Builder {
 		builder.field("dynamic", false);
 		builder.endObject();
 
-		// SequenceSummaryDocument: variant (CuratedVariantGenomicLocationAssociation)
-		builder.startObject("variant");
+		// SequenceSummaryDocument: variantLocation (CuratedVariantGenomicLocationAssociation)
+		builder.startObject("variantLocation");
 		builder.field("type", "object");
 		builder.field("dynamic", false);
 		builder.startObject("properties");
@@ -306,8 +306,8 @@ public class Mapping extends Builder {
 		new FieldBuilder(builder, "end", "integer").build();
 		builder.endObject();
 		builder.endObject();
-		new FieldBuilder(builder, "variant.variantAssociationSubject.variantType.name", "text").keyword().sort().build();
-		new FieldBuilder(builder, "variant.variantGenomicLocationAssociationObject.name", "text").keyword().build();
+		new FieldBuilder(builder, "variantLocation.variantAssociationSubject.variantType.name", "text").keyword().sort().build();
+		new FieldBuilder(builder, "variantLocation.variantGenomicLocationAssociationObject.name", "text").keyword().build();
 
 		// SequenceSummaryDocument: consequence (PredictedVariantConsequence)
 		builder.startObject("consequence");
@@ -325,6 +325,7 @@ public class Mapping extends Builder {
 		new FieldBuilder(builder, "consequence.siftPrediction.name", "text").keyword().build();
 		new FieldBuilder(builder, "consequence.polyphenPrediction.name", "text").keyword().build();
 		new FieldBuilder(builder, "consequence.variantTranscript.curie", "text").keyword().build();
+		new FieldBuilder(builder, "consequence.variantTranscript.name", "text").keyword().build();
 		new FieldBuilder(builder, "consequence.variantTranscript.transcriptType.name", "text").keyword().build();
 		new FieldBuilder(builder, "consequence.variantTranscript.transcriptGeneAssociations.transcriptGeneAssociationObject.geneSymbol.displayText", "text").keyword().build();
 
