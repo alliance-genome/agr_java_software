@@ -308,6 +308,11 @@ public class VariantSummaryConverter {
 				continue;
 			}
 
+			// Skip consequences without a gene
+			if (infos[geneIdx].isEmpty()) {
+				continue;
+			}
+
 			if (!infos[hgvsgIdx].isEmpty()) {
 				hgvsGList.add(infos[hgvsgIdx]);
 			}

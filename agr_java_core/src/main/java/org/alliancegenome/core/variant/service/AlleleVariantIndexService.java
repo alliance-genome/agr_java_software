@@ -101,7 +101,7 @@ public class AlleleVariantIndexService {
 				sortField[0] = new SortField("allele.alleleSymbol.displayText.sort", SortField.Type.STRING);
 			}
 			if (pagination.getSortBy().equalsIgnoreCase("transcript")) {
-				sortField[0] = new SortField("consequence.variantTranscript.curie.keyword", SortField.Type.STRING);
+				sortField[0] = new SortField("consequence.variantTranscript.name.keyword", SortField.Type.STRING);
 			}
 			if (pagination.getSortBy().equalsIgnoreCase("VariantHgvsName") || pagination.getSortBy().equalsIgnoreCase("symbol")) {
 				sortField[0] = new SortField("variant.curatedVariantGenomicLocations.hgvs.sort", SortField.Type.STRING);
@@ -201,7 +201,7 @@ public class AlleleVariantIndexService {
 							queryBuilder.filter(QueryBuilders.termsQuery("consequence.polyphenPrediction.name.keyword", value.split("\\|")));
 							break;
 						case SEQUENCE_FEATURE:
-							queryBuilder.must(QueryBuilders.wildcardQuery("consequence.variantTranscript.curie", "*" + value.toLowerCase() + "*"));
+							queryBuilder.must(QueryBuilders.wildcardQuery("consequence.variantTranscript.name", "*" + value.toLowerCase() + "*"));
 							break;
 						case SEQUENCE_FEATURE_TYPE:
 							queryBuilder.filter(QueryBuilders.termsQuery("consequence.variantTranscript.transcriptType.name.keyword", value.split("\\|")));
