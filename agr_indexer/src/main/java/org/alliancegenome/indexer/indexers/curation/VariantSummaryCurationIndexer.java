@@ -8,8 +8,6 @@ import java.util.concurrent.LinkedBlockingDeque;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.interfaces.document.VariantDocumentInterface;
 import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
-import org.alliancegenome.curation_api.model.entities.Variant;
-import org.alliancegenome.curation_api.model.entities.associations.CuratedVariantGenomicLocationAssociation;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.es.rest.RestConfig;
 import org.alliancegenome.indexer.config.IndexerConfig;
@@ -77,25 +75,14 @@ public class VariantSummaryCurationIndexer extends Indexer {
 				}
 
 				List<VariantSummaryDocument> list = new ArrayList<>();
-				for (VariantSummaryDocument variantSummaryDto : results) {
-					if (variantSummaryDto == null) {
+				for (VariantSummaryDocument document : results) {
+					if (document == null) {
 						continue;
 					}
-					VariantSummaryDocument document = new VariantSummaryDocument();
-					document.setSubCategory("LTP_variant");
 					document.setAlterationType("variant");
 					document.setAlterationTypeSortOrder(4);
 					document.setHasPhenotype(false);
 					document.setHasDisease(false);
-					CuratedVariantGenomicLocationAssociation cvgla = variantSummaryDto.getVariantLocation();
-					document.setVariantLocation(cvgla);
-					if (cvgla != null && cvgla.getVariantAssociationSubject() != null) {
-						Variant variantWrapper = new Variant();
-						variantWrapper.setVariantType(cvgla.getVariantAssociationSubject().getVariantType());
-						variantWrapper.setCuratedVariantGenomicLocations(List.of(cvgla));
-						document.setVariants(List.of(variantWrapper));
-					}
-					document.setAllele(variantSummaryDto.getAllele());
 					list.add(document);
 				}
 

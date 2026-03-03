@@ -21,7 +21,6 @@ public class VariantMapping extends Mapping {
 			new FieldBuilder(builder, "geneIds", "keyword").build();
 			new FieldBuilder(builder, "associatedPhenotype", "text").keyword().sort().build();
 			new FieldBuilder(builder, "diseaseTerms.name", "text").keyword().sort().build();
-			new FieldBuilder(builder, "sequenceSummaryCategory", "keyword").symbol().autocomplete().keyword().build(); // sequence_summary
 			new FieldBuilder(builder, "hasDisease", "boolean").build();
 			new FieldBuilder(builder, "hasPhenotype", "boolean").build();
 			new FieldBuilder(builder, "alterationTypeSortOrder", "integer").sort().build();
@@ -49,20 +48,15 @@ public class VariantMapping extends Mapping {
 			builder.endObject();
 			builder.endObject();
 
-			// variant: dynamic false prevents indexing the deep variant association tree
-			// Only map fields actually queried in ES
+			// variant: dynamic false prevents indexing the deep Variant entity tree
 			builder.startObject("variant");
 			builder.field("dynamic", false);
 			builder.startObject("properties");
-			// VariantSummaryDocument: queried via TermQuery on variant.hgvs.keyword
-			new FieldBuilder(builder, "hgvs", "text").keyword().build();
-			// AlleleVariantSequence: queried via TermQuery on variant.gene.id.keyword
-			builder.startObject("gene");
-			builder.startObject("properties");
-			new FieldBuilder(builder, "id", "text").keyword().build();
-			builder.endObject();
-			builder.endObject();
-			new FieldBuilder(builder, "variantAssociationSubject.variantType.name", "text").keyword().sort().build();
+			new FieldBuilder(builder, "variantType.name", "text").keyword().sort().build();
+			new FieldBuilder(builder, "curatedVariantGenomicLocations.hgvs", "text").keyword().sort().build();
+			new FieldBuilder(builder, "curatedVariantGenomicLocations.start", "integer").build();
+			new FieldBuilder(builder, "curatedVariantGenomicLocations.end", "integer").build();
+			new FieldBuilder(builder, "curatedVariantGenomicLocations.variantGenomicLocationAssociationObject.name", "text").keyword().build();
 			builder.endObject();
 			builder.endObject();
 

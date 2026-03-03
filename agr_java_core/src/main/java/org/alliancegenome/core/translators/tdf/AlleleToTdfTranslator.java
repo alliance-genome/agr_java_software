@@ -270,7 +270,7 @@ public class AlleleToTdfTranslator {
 
 	private VariantDownloadRow getBaseDownloadVariantRow(VariantSummaryDocument annotation) {
 		VariantDownloadRow row = new VariantDownloadRow();
-		CuratedVariantGenomicLocationAssociation variant = annotation.getVariantLocation();
+		CuratedVariantGenomicLocationAssociation variant = annotation.getVariants().get(0).getCuratedVariantGenomicLocations().get(0);
 		if (variant == null) {
 			return row;
 		}

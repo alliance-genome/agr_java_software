@@ -49,18 +49,18 @@ public class TestSynonyms {
 								for (int i = 0; i < Math.min(5, loc.getPredictedVariantConsequences().size()); i++) {
 									PredictedVariantConsequence pvc = loc.getPredictedVariantConsequences().get(i);
 									Transcript t = pvc.getVariantTranscript();
-									System.out.println("    [" + i + "] transcript curie: " + (t != null ? t.getCurie() : "null"));
-									System.out.println("        transcript name: " + (t != null ? t.getName() : "null"));
-									System.out.println("        transcript primaryExternalId: " + (t != null ? t.getPrimaryExternalId() : "null"));
-									System.out.println("        transcriptType: " + (t != null && t.getTranscriptType() != null ? t.getTranscriptType().getName() : "null"));
-									System.out.println("        vepImpact: " + (pvc.getVepImpact() != null ? pvc.getVepImpact().getName() : "null"));
-									System.out.println("        introns: " + pvc.getIntrons());
-									System.out.println("        exons: " + pvc.getExons());
-									System.out.println("        intronExonLocation: " + pvc.getIntronExonLocation());
-									System.out.println("        geneLevelConsequence: " + pvc.getGeneLevelConsequence());
+									System.out.println("	[" + i + "] transcript curie: " + (t != null ? t.getCurie() : "null"));
+									System.out.println("		transcript name: " + (t != null ? t.getName() : "null"));
+									System.out.println("		transcript primaryExternalId: " + (t != null ? t.getPrimaryExternalId() : "null"));
+									System.out.println("		transcriptType: " + (t != null && t.getTranscriptType() != null ? t.getTranscriptType().getName() : "null"));
+									System.out.println("		vepImpact: " + (pvc.getVepImpact() != null ? pvc.getVepImpact().getName() : "null"));
+									System.out.println("		introns: " + pvc.getIntrons());
+									System.out.println("		exons: " + pvc.getExons());
+									System.out.println("		intronExonLocation: " + pvc.getIntronExonLocation());
+									System.out.println("		geneLevelConsequence: " + pvc.getGeneLevelConsequence());
 								}
 								if (loc.getPredictedVariantConsequences().size() > 5) {
-									System.out.println("    ... and " + (loc.getPredictedVariantConsequences().size() - 5) + " more");
+									System.out.println("	... and " + (loc.getPredictedVariantConsequences().size() - 5) + " more");
 								}
 							}
 						}
