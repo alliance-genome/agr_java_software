@@ -306,7 +306,6 @@ public class Mapping extends Builder {
 		new FieldBuilder(builder, "end", "integer").build();
 		builder.endObject();
 		builder.endObject();
-		new FieldBuilder(builder, "variantLocation.variantAssociationSubject.variantType.name", "text").keyword().sort().build();
 		new FieldBuilder(builder, "variantLocation.variantGenomicLocationAssociationObject.name", "text").keyword().build();
 
 		// SequenceSummaryDocument: consequence (PredictedVariantConsequence)

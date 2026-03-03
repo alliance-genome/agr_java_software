@@ -57,6 +57,9 @@ public class AlleleSequenceSummaryConverter {
 		ssd.setAlterationType(doc.getAlterationType());
 		ssd.setAlterationTypeSortOrder(doc.getAlterationTypeSortOrder());
 		ssd.setVariantLocation(location);
+		if (location != null && location.getVariantAssociationSubject() != null) {
+			ssd.setVariants(List.of(location.getVariantAssociationSubject()));
+		}
 		ssd.setConsequence(consequence);
 		ssd.setGeneIds(geneIds);
 		return ssd;
