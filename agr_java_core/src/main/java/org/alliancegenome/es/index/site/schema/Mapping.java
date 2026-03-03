@@ -159,7 +159,6 @@ public class Mapping extends Builder {
 
 		new FieldBuilder(builder, "branch", "text").keyword().build(); // go
 		new FieldBuilder(builder, "category", "keyword").symbol().autocomplete().keyword().build(); // ALL document must have
-		new FieldBuilder(builder, "sequenceSummaryCategory", "keyword").symbol().autocomplete().keyword().build(); // sequence_summary
 
 		new FieldBuilder(builder, "crossReferences", "text").keyword().classicText().build(); // allele, gene, dataset, disease
 		new FieldBuilder(builder, "curie", "keyword").build(); // go_search_result
@@ -296,17 +295,18 @@ public class Mapping extends Builder {
 		builder.field("dynamic", false);
 		builder.endObject();
 
-		// SequenceSummaryDocument: variantLocation (CuratedVariantGenomicLocationAssociation)
-		builder.startObject("variantLocation");
+		// SequenceSummaryDocument: variant (Variant)
+		builder.startObject("variant");
 		builder.field("type", "object");
 		builder.field("dynamic", false);
 		builder.startObject("properties");
-		new FieldBuilder(builder, "hgvs", "text").keyword().sort().build();
-		new FieldBuilder(builder, "start", "integer").build();
-		new FieldBuilder(builder, "end", "integer").build();
 		builder.endObject();
 		builder.endObject();
-		new FieldBuilder(builder, "variantLocation.variantGenomicLocationAssociationObject.name", "text").keyword().build();
+		new FieldBuilder(builder, "variant.variantType.name", "text").keyword().sort().build();
+		new FieldBuilder(builder, "variant.curatedVariantGenomicLocations.hgvs", "text").keyword().sort().build();
+		new FieldBuilder(builder, "variant.curatedVariantGenomicLocations.start", "integer").build();
+		new FieldBuilder(builder, "variant.curatedVariantGenomicLocations.end", "integer").build();
+		new FieldBuilder(builder, "variant.curatedVariantGenomicLocations.variantGenomicLocationAssociationObject.name", "text").keyword().build();
 
 		// SequenceSummaryDocument: consequence (PredictedVariantConsequence)
 		builder.startObject("consequence");
@@ -323,7 +323,6 @@ public class Mapping extends Builder {
 		new FieldBuilder(builder, "consequence.vepConsequences.name", "text").keyword().sort().build();
 		new FieldBuilder(builder, "consequence.siftPrediction.name", "text").keyword().build();
 		new FieldBuilder(builder, "consequence.polyphenPrediction.name", "text").keyword().build();
-		new FieldBuilder(builder, "consequence.variantTranscript.curie", "text").keyword().build();
 		new FieldBuilder(builder, "consequence.variantTranscript.name", "text").keyword().build();
 		new FieldBuilder(builder, "consequence.variantTranscript.transcriptType.name", "text").keyword().build();
 		new FieldBuilder(builder, "consequence.variantTranscript.transcriptGeneAssociations.transcriptGeneAssociationObject.geneSymbol.displayText", "text").keyword().build();

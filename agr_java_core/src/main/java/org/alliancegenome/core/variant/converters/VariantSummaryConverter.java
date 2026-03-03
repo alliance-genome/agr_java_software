@@ -259,13 +259,11 @@ public class VariantSummaryConverter {
 			cvgla.setPredictedVariantConsequences(consequences);
 			// Create the document for each consequence (full flattening)
 			VariantSummaryDocument doc = new VariantSummaryDocument();
-			doc.setSubCategory("HTP_variant");
 			doc.setAlterationType("variant");
 			doc.setAlterationTypeSortOrder(4);
 			doc.setHasPhenotype(false);
 			doc.setHasDisease(false);
 			doc.setAllele(allele);
-			doc.setVariantLocation(cvgla);
 			Variant variantWrapper = new Variant();
 			variantWrapper.setVariantType(variantType);
 			variantWrapper.setCuratedVariantGenomicLocations(List.of(cvgla));
@@ -307,6 +305,11 @@ public class VariantSummaryConverter {
 
 			if (header.length != infos.length) {
 				// Header mismatch - skip this record
+				continue;
+			}
+
+			// Skip consequences without a gene
+			if (infos[geneIdx].isEmpty()) {
 				continue;
 			}
 

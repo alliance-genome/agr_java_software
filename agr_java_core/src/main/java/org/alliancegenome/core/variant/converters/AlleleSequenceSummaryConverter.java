@@ -33,12 +33,12 @@ public class AlleleSequenceSummaryConverter {
 
 				for (CuratedVariantGenomicLocationAssociation location : variant.getCuratedVariantGenomicLocations()) {
 					if (CollectionUtils.isEmpty(location.getPredictedVariantConsequences())) {
-						result.add(buildDocument(doc, location, null, geneIds));
+						result.add(buildDocument(doc, variant, null, geneIds));
 						continue;
 					}
 
 					for (PredictedVariantConsequence consequence : location.getPredictedVariantConsequences()) {
-						result.add(buildDocument(doc, location, consequence, geneIds));
+						result.add(buildDocument(doc, variant, consequence, geneIds));
 					}
 				}
 			}
@@ -47,19 +47,15 @@ public class AlleleSequenceSummaryConverter {
 		return result;
 	}
 
-	private SequenceSummaryDocument buildDocument(AlleleSummaryDocument doc, CuratedVariantGenomicLocationAssociation location, PredictedVariantConsequence consequence, HashSet<String> geneIds) {
+	private SequenceSummaryDocument buildDocument(AlleleSummaryDocument doc, Variant variant, PredictedVariantConsequence consequence, HashSet<String> geneIds) {
 		SequenceSummaryDocument ssd = new SequenceSummaryDocument();
 		ssd.setAllele(doc.getAllele());
 		ssd.setGeneIds(doc.getGeneIds());
-		ssd.setSequenceSummaryCategory("allele");
 		ssd.setHasPhenotype(doc.getHasPhenotype() != null && doc.getHasPhenotype());
 		ssd.setHasDisease(doc.getHasDisease() != null && doc.getHasDisease());
 		ssd.setAlterationType(doc.getAlterationType());
 		ssd.setAlterationTypeSortOrder(doc.getAlterationTypeSortOrder());
-		ssd.setVariantLocation(location);
-		if (location != null && location.getVariantAssociationSubject() != null) {
-			ssd.setVariants(List.of(location.getVariantAssociationSubject()));
-		}
+		ssd.setVariant(variant);
 		ssd.setConsequence(consequence);
 		ssd.setGeneIds(geneIds);
 		return ssd;
