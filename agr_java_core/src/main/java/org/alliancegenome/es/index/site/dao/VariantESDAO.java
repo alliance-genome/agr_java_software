@@ -203,7 +203,7 @@ public class VariantESDAO extends ESDAO {
 
 		BoolQueryBuilder bool = boolQuery();
 		bool.filter(new TermQueryBuilder("category", "variant_summary"));
-		bool.must(new TermQueryBuilder("variant.hgvs.keyword", id));
+		bool.must(new TermQueryBuilder("variants.curatedVariantGenomicLocations.hgvs.keyword", id));
 
 		SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
 		searchSourceBuilder.query(bool);
