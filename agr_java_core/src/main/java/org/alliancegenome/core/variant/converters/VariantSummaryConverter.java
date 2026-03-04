@@ -266,6 +266,7 @@ public class VariantSummaryConverter {
 			doc.setAllele(allele);
 			Variant variantWrapper = new Variant();
 			variantWrapper.setVariantType(variantType);
+			variantWrapper.setTaxon(taxon);
 			variantWrapper.setCuratedVariantGenomicLocations(List.of(cvgla));
 			doc.setVariants(List.of(variantWrapper));
 			doc.setGeneIds(resultPair.getRight());
