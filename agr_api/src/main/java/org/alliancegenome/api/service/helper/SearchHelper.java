@@ -26,7 +26,7 @@ public class SearchHelper {
 
 	private HashMap<String, List<String>> categoryFilters = new HashMap<>() {
 		{
-			put("gene", new ArrayList<>() {
+			put(Category.GENE.getName(), new ArrayList<>() {
 				{
 					add("species");
 					add("biotypes");
@@ -45,7 +45,7 @@ public class SearchHelper {
 					add("genes");
 				}
 			});
-			put("dataset", new ArrayList<String>() {
+			put(Category.DATASET.getName(), new ArrayList<String>() {
 				{
 					add("species");
 					add("tags");
@@ -55,14 +55,14 @@ public class SearchHelper {
 //					  add("stage"); will be implemented in the future
 				}
 			});
-			put("disease", new ArrayList<>() {
+			put(Category.DISEASE.getName(), new ArrayList<>() {
 				{
 					add("diseaseGroup");
 					add("genes");
 					add("associatedSpecies");
 				}
 			});
-			put("allele", new ArrayList<>() {
+			put(Category.ALLELE.getName(), new ArrayList<>() {
 				{
 					add("species");
 					add("alterationType");
@@ -75,7 +75,7 @@ public class SearchHelper {
 					add("constructRegulatoryRegion");
 				}
 			});
-			put("model", new ArrayList<>() {
+			put(Category.MODEL.getName(), new ArrayList<>() {
 				{
 					add("species");
 					add("diseasesAgrSlim");
@@ -83,7 +83,7 @@ public class SearchHelper {
 					add("alleles");
 				}
 			});
-			put("variant_search_result", new ArrayList<>() {
+			put(Category.VARIANT_SEARCH_RESULT.getName(), new ArrayList<>() {
 				{
 					add("species");
 					add("alterationType");
@@ -92,7 +92,7 @@ public class SearchHelper {
 					add("genes");
 				}
 			});
-			put("allele_variant", new ArrayList<>() {
+			put(Category.ALLELE_VARIANT.getName(), new ArrayList<>() {
 				{
 					add("species");
 					add("alterationType");
@@ -390,7 +390,7 @@ public class SearchHelper {
 		Category.GO.getName(),
 		Category.DISEASE.getName(),
 		Category.MODEL.getName(),
-		"dataset"
+		Category.DATASET.getName()
 	);
 
 	/**
