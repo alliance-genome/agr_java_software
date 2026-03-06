@@ -7,7 +7,7 @@ public enum IndexerConfig {
 
 	// Neo Indexers
 	GeneIndexer("gene", GeneIndexer.class, 4, 359, 359, 8, 1, false),
-	DatasetIndexer("dataset", DatasetIndexer.class, 4, 566, 566, 8, 1, false),
+	//DatasetIndexer("dataset", DatasetIndexer.class, 4, 566, 566, 8, 1, false), // Disabled: Dataset indexing now handled by HTPDatasetSearchResultCurationIndexer
 	DiseaseIndexer("disease", DiseaseIndexer.class, 4, 680, 680, 8, 1, false),
 	AlleleIndexer("allele", AlleleIndexer.class, 4, 1517, 1517, 8, 1, false),
 	//GoIndexer("go", GoIndexer.class, 4, 914, 914, 8, 1, false), // Disabled: GO indexing now handled by GOSearchResultCurationIndexer
@@ -18,6 +18,7 @@ public enum IndexerConfig {
 	// Run Parallelly
 	ParalogyIndexer("paralogy", GeneToGeneParalogyIndexer.class, 4, 5000, 5000, 8, 1, true),
 	GOSearchResultCurationIndexer("goSearchResult", GOSearchResultCurationIndexer.class, 4, 1500, 1500, 4, 1, true),
+	HTPDatasetSearchResultCurationIndexer("htpDatasetSearchResult", HTPDatasetSearchResultCurationIndexer.class, 4, 1500, 1500, 4, 1, true),
 	LiteratureIndexer("literature", LiteratureIndexer.class, 4, 5000, 5000, 1, 1, true),
 	GeneGeneticInteractionIndexers("geneGeneticInteraction", GeneGeneticInteractionCurationIndexer.class, 4, 1500, 1500, 2, 1, true),
 	AffectedGenomicModelIndexer("affectedGenomicModels", AffectedGenomicModelCurationIndexer.class, 4, 1500, 1500, 8, 1, true),
