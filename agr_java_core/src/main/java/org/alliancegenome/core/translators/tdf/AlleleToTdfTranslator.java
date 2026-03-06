@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.api.entity.GeneTransgenicAlleleSummaryDocument;
 import org.alliancegenome.api.entity.TransgenicAlleleSummaryDocument;
+import org.alliancegenome.curation_api.model.document.es.AVSParentDocument;
 import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
 import org.alliancegenome.curation_api.model.document.es.ESDocument;
 import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
@@ -18,6 +19,7 @@ import org.alliancegenome.curation_api.model.entities.Note;
 import org.alliancegenome.curation_api.model.entities.Reference;
 import org.alliancegenome.curation_api.model.entities.TransgenicAlleleConstruct;
 import org.alliancegenome.curation_api.model.entities.Variant;
+import org.alliancegenome.curation_api.model.entities.PredictedVariantConsequence;
 import org.alliancegenome.curation_api.model.entities.associations.CuratedVariantGenomicLocationAssociation;
 import org.alliancegenome.curation_api.model.entities.ontology.SOTerm;
 import org.apache.commons.collections.CollectionUtils;
@@ -44,19 +46,28 @@ public class AlleleToTdfTranslator {
 
 	public List<AlleleDownloadRow> getAlleleDownloadRowsForGenes(List<ESDocument> annotations) {
 		return annotations.stream()
-			.filter(AlleleSummaryDocument.class::isInstance)
-			.map(AlleleSummaryDocument.class::cast)
 			.map(annotation -> {
-				if (CollectionUtils.isNotEmpty(annotation.getVariants())) {
-					return annotation.getVariants().stream()
-						.map(var -> getBaseDownloadRow(annotation, var))
+				AVSParentDocument doc = (AVSParentDocument) annotation;
+				List<Variant> variants = getVariants(doc);
+				if (CollectionUtils.isNotEmpty(variants)) {
+					return variants.stream()
+						.map(var -> getBaseDownloadRow(doc, var))
 						.collect(Collectors.toList());
 				} else {
-					return List.of(getBaseDownloadRow(annotation, null));
+					return List.of(getBaseDownloadRow(doc, null));
 				}
 			})
 			.flatMap(Collection::stream)
 			.collect(Collectors.toList());
+	}
+
+	private List<Variant> getVariants(AVSParentDocument doc) {
+		if (doc instanceof AlleleSummaryDocument asd) {
+			return asd.getVariants();
+		} else if (doc instanceof VariantSummaryDocument vsd) {
+			return vsd.getVariants();
+		}
+		return null;
 	}
 
 	public List<AlleleVariantSequenceDownloadRow> alleleVariantSequenceDownloadRow(List<AlleleVariantSequence> annotations) {
@@ -66,34 +77,47 @@ public class AlleleToTdfTranslator {
 	}
 
 
-	private AlleleDownloadRow getBaseDownloadRow(AlleleSummaryDocument annotation, Variant variant) {
+	private AlleleDownloadRow getBaseDownloadRow(AVSParentDocument annotation, Variant variant) {
 		AlleleDownloadRow row = new AlleleDownloadRow();
-		row.setAlleleID(annotation.getAllele().getPrimaryExternalId());
-		row.setAlleleSymbol(annotation.getAllele().getAlleleSymbol().getDisplayText());
-		String synonyms = "";
-		if (CollectionUtils.isNotEmpty(annotation.getAllele().getAlleleSynonyms())) {
-			StringJoiner synonymJoiner = new StringJoiner(",");
-			annotation.getAllele().getAlleleSynonyms().forEach(synonym -> synonymJoiner.add(synonym.getDisplayText()));
-			synonyms = synonymJoiner.toString();
+		Allele allele = annotation.getAllele();
+
+		row.setAlleleID(allele != null ? allele.getIdentifier() : "");
+		row.setAlleleSymbol(allele != null && allele.getAlleleSymbol() != null ? allele.getAlleleSymbol().getDisplayText() : "");
+		if (allele != null && CollectionUtils.isNotEmpty(allele.getAlleleSynonyms())) {
+			row.setAlleleSynonyms(allele.getAlleleSynonyms().stream()
+				.map(syn -> syn.getDisplayText())
+				.collect(Collectors.joining(",")));
 		}
-		row.setAlleleSynonyms(synonyms);
 		row.setVariantCategory(annotation.getAlterationType());
+
 		if (variant != null) {
-			row.setVariantSymbol(variant.getCuratedVariantGenomicLocations().get(0).getHgvs());
-			row.setVariantType(variant.getVariantType().getName());
-			String consequence = "";
-			List<SOTerm> vepConsequences = variant.getCuratedVariantGenomicLocations().get(0).getPredictedVariantConsequences().get(0).getVepConsequences();
-			if (CollectionUtils.isNotEmpty(vepConsequences)) {
-				consequence = vepConsequences.stream()
-					.filter(Objects::nonNull)
-					.map(vc -> vc.getName())
-					.distinct()
-					.collect(Collectors.joining("|"));
+			List<CuratedVariantGenomicLocationAssociation> locations = variant.getCuratedVariantGenomicLocations();
+			if (CollectionUtils.isNotEmpty(locations)) {
+				CuratedVariantGenomicLocationAssociation location = locations.get(0);
+
+				if (annotation instanceof VariantSummaryDocument) {
+					row.setAlleleID(location.getHgvs());
+					row.setAlleleSymbol(location.getHgvs());
+				}
+
+				row.setVariantSymbol(location.getHgvs());
+
+				List<PredictedVariantConsequence> pvcs = location.getPredictedVariantConsequences();
+				if (CollectionUtils.isNotEmpty(pvcs) && CollectionUtils.isNotEmpty(pvcs.get(0).getVepConsequences())) {
+					row.setVariantConsequence(pvcs.get(0).getVepConsequences().stream()
+						.filter(Objects::nonNull)
+						.map(SOTerm::getName)
+						.distinct()
+						.collect(Collectors.joining("|")));
+				}
 			}
-			row.setVariantConsequence(consequence);
+			if (variant.getVariantType() != null) {
+				row.setVariantType(variant.getVariantType().getName());
+			}
 		}
-		row.setHasPhenotype(annotation.getHasPhenotype().toString());
-		row.setHasDisease(annotation.getHasDisease().toString());
+
+		row.setHasPhenotype(annotation.getHasPhenotype() != null ? annotation.getHasPhenotype().toString() : "false");
+		row.setHasDisease(annotation.getHasDisease() != null ? annotation.getHasDisease().toString() : "false");
 		return row;
 	}
 

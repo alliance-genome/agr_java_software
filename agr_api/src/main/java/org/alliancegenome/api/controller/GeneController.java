@@ -113,7 +113,7 @@ public class GeneController implements GeneRESTInterface {
 
 		long startTime = System.currentTimeMillis();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
-		pagination.addFilterOption("allele.alleleSymbol.displayText", symbol);
+		pagination.addFilterOption("allele.alleleSymbol.displayTextORvariants.curatedVariantGenomicLocations.hgvs", symbol != null ? symbol.strip() : null);
 		pagination.addFilterOption("allele.alleleSynonyms.displayText", synonym);
 		pagination.addFilterOption("variants.curatedVariantGenomicLocations.hgvs", variant);
 		pagination.addFilterOption("alterationType.keyword", category);
@@ -204,7 +204,7 @@ public class GeneController implements GeneRESTInterface {
 	@Override
 	public Response getAllelesPerGeneDownload(String id, String sortBy, String asc, String symbol, String synonym, String variant, String variantType, String molecularConsequence, String disease, String phenotype, String category) {
 
-		JsonResultResponse<ESDocument> alleles = getAllelesPerGene(id, 200000, 1, sortBy, asc, symbol, synonym, variant, variantType, molecularConsequence, disease, phenotype, category);
+		JsonResultResponse<ESDocument> alleles = getAllelesPerGene(id, 150000, 1, sortBy, asc, symbol, synonym, variant, variantType, molecularConsequence, disease, phenotype, category);
 
 		Response.ResponseBuilder responseBuilder = Response.ok(alleleTranslator.getAllRows(alleles.getResults()));
 		APIServiceHelper.setDownloadHeader(id, EntityType.GENE, EntityType.ALLELE, responseBuilder);
