@@ -4,7 +4,7 @@ public enum Category {
 
 	ALLELE("allele", true),
 	ALLELE_VARIANT("allele_variant", true),
-	VARIANT_SEARCH_RESULT("variant_search_result", true),
+	VARIANT("variant_search_result", true),
 	DISEASE("disease", true),
 	MODEL("model", true),
 	GENE("gene", true),

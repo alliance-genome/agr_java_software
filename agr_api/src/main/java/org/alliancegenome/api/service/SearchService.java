@@ -245,7 +245,7 @@ public class SearchService {
 		// apply filters if a category has been set
 		if (StringUtils.isNotEmpty(category)) {
 			if (Category.ALLELE_VARIANT.getName().equals(category)) {
-				bool.filter(termsQuery("category", Category.ALLELE.getName(), Category.VARIANT_SEARCH_RESULT.getName()));
+				bool.filter(termsQuery("category", Category.ALLELE.getName(), Category.VARIANT.getName()));
 			} else {
 				bool.filter(new TermQueryBuilder("category", category));
 			}

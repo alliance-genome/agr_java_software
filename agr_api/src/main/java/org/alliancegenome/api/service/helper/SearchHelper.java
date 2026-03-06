@@ -83,7 +83,7 @@ public class SearchHelper {
 					add("alleles");
 				}
 			});
-			put(Category.VARIANT_SEARCH_RESULT.getName(), new ArrayList<>() {
+			put(Category.VARIANT.getName(), new ArrayList<>() {
 				{
 					add("species");
 					add("alterationType");
@@ -348,7 +348,7 @@ public class SearchHelper {
 			// Allow allele and variant_search_result through for merging
 			Set<String> acceptableKeys = new HashSet<>(categoryFilters.keySet());
 			acceptableKeys.add(Category.ALLELE.getName());
-			acceptableKeys.add(Category.VARIANT_SEARCH_RESULT.getName());
+			acceptableKeys.add(Category.VARIANT.getName());
 			AggResult ares = new AggResult("category", aggs, acceptableKeys);
 			mergeAlleleVariantBuckets(ares);
 			orderCategoryBuckets(ares);
@@ -373,7 +373,7 @@ public class SearchHelper {
 		long combinedCount = 0;
 		List<AggDocCount> toRemove = new ArrayList<>();
 		for (AggDocCount bucket : aggResult.getValues()) {
-			if (bucket.getKey().equals(Category.ALLELE.getName()) || bucket.getKey().equals(Category.VARIANT_SEARCH_RESULT.getName())) {
+			if (bucket.getKey().equals(Category.ALLELE.getName()) || bucket.getKey().equals(Category.VARIANT.getName())) {
 				combinedCount += bucket.getTotal();
 				toRemove.add(bucket);
 			}
