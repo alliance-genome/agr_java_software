@@ -113,7 +113,7 @@ public class GeneController implements GeneRESTInterface {
 
 		long startTime = System.currentTimeMillis();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
-		pagination.addFilterOption("allele.alleleSymbol.displayTextORvariants.curatedVariantGenomicLocations.hgvs", symbol != null ? symbol.strip() : null);
+		pagination.addFilterOption("allele.alleleSymbol.displayTextORvariants.curatedVariantGenomicLocations.hgvs", symbol);
 		pagination.addFilterOption("allele.alleleSynonyms.displayText", synonym);
 		pagination.addFilterOption("variants.curatedVariantGenomicLocations.hgvs", variant);
 		pagination.addFilterOption("alterationType.keyword", category);
