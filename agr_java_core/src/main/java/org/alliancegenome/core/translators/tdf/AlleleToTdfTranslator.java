@@ -62,12 +62,11 @@ public class AlleleToTdfTranslator {
 	}
 
 	private List<Variant> getVariants(AVSParentDocument doc) {
-		if (doc instanceof AlleleSummaryDocument asd) {
-			return asd.getVariants();
-		} else if (doc instanceof VariantSummaryDocument vsd) {
-			return vsd.getVariants();
-		}
-		return null;
+		return switch (doc) {
+			case AlleleSummaryDocument asd -> asd.getVariants();
+			case VariantSummaryDocument vsd -> vsd.getVariants();
+			default -> null;
+		};
 	}
 
 	public List<AlleleVariantSequenceDownloadRow> alleleVariantSequenceDownloadRow(List<AlleleVariantSequence> annotations) {
