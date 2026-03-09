@@ -21,6 +21,7 @@ import org.alliancegenome.curation_api.model.entities.TransgenicAlleleConstruct;
 import org.alliancegenome.curation_api.model.entities.Variant;
 import org.alliancegenome.curation_api.model.entities.PredictedVariantConsequence;
 import org.alliancegenome.curation_api.model.entities.associations.CuratedVariantGenomicLocationAssociation;
+import org.alliancegenome.curation_api.model.entities.associations.TranscriptGeneAssociation;
 import org.alliancegenome.curation_api.model.entities.ontology.SOTerm;
 import org.apache.commons.collections.CollectionUtils;
 
@@ -293,7 +294,8 @@ public class AlleleToTdfTranslator {
 
 	private VariantDownloadRow getBaseDownloadVariantRow(VariantSummaryDocument annotation) {
 		VariantDownloadRow row = new VariantDownloadRow();
-		CuratedVariantGenomicLocationAssociation variant = annotation.getVariants().get(0).getCuratedVariantGenomicLocations().get(0);
+		Variant rootVariant = annotation.getVariants().getFirst();
+		CuratedVariantGenomicLocationAssociation variant = rootVariant.getCuratedVariantGenomicLocations().getFirst();
 		if (variant == null) {
 			return row;
 		}
@@ -309,17 +311,17 @@ public class AlleleToTdfTranslator {
 			row.setChrPosition(chrPos);
 		}
 		if (CollectionUtils.isNotEmpty(variant.getPredictedVariantConsequences())
-			&& CollectionUtils.isNotEmpty(variant.getPredictedVariantConsequences().get(0).getVepConsequences())) {
-			row.setConsequence(variant.getPredictedVariantConsequences().get(0).getVepConsequences().get(0).getName());
+			&& CollectionUtils.isNotEmpty(variant.getPredictedVariantConsequences().getFirst().getVepConsequences())) {
+			row.setConsequence(variant.getPredictedVariantConsequences().getFirst().getVepConsequences().getFirst().getName());
 		}
-		if (variant.getNucleotideChange() != null) {
-			row.setChange(variant.getNucleotideChange());
+		if (rootVariant.getNucleotideChange() != null) {
+			row.setChange(rootVariant.getNucleotideChange());
 		}
 		if (variant.getPredictedVariantConsequences() != null) {
 			String overlaps = variant.getPredictedVariantConsequences().stream()
 				.filter(pvc -> pvc.getVariantTranscript() != null && pvc.getVariantTranscript().getTranscriptGeneAssociations() != null)
 				.flatMap(pvc -> pvc.getVariantTranscript().getTranscriptGeneAssociations().stream())
-				.map(tga -> tga.getTranscriptGeneAssociationObject())
+				.map(TranscriptGeneAssociation::getTranscriptGeneAssociationObject)
 				.filter(gene -> gene.getGeneSymbol() != null)
 				.map(gene -> gene.getGeneSymbol().getDisplayText())
 				.filter(Objects::nonNull)

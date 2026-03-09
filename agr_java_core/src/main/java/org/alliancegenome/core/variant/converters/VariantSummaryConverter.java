@@ -1,27 +1,8 @@
 package org.alliancegenome.core.variant.converters;
 
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
-import java.util.regex.Pattern;
-
+import htsjdk.variant.variantcontext.VariantContext;
 import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
-import org.alliancegenome.curation_api.model.entities.Allele;
-import org.alliancegenome.curation_api.model.entities.AssemblyComponent;
-import org.alliancegenome.curation_api.model.entities.CrossReference;
-import org.alliancegenome.curation_api.model.entities.Gene;
-import org.alliancegenome.curation_api.model.entities.GenomeAssembly;
-import org.alliancegenome.curation_api.model.entities.PredictedVariantConsequence;
-import org.alliancegenome.curation_api.model.entities.Transcript;
-import org.alliancegenome.curation_api.model.entities.Variant;
-import org.alliancegenome.curation_api.model.entities.VocabularyTerm;
+import org.alliancegenome.curation_api.model.entities.*;
 import org.alliancegenome.curation_api.model.entities.associations.CuratedVariantGenomicLocationAssociation;
 import org.alliancegenome.curation_api.model.entities.associations.GeneGenomicLocationAssociation;
 import org.alliancegenome.curation_api.model.entities.associations.TranscriptGeneAssociation;
@@ -33,7 +14,12 @@ import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
-import htsjdk.variant.variantcontext.VariantContext;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
+import java.util.regex.Pattern;
 
 /**
  * Converts VCF VariantContext to AlleleVariantSequenceCuration documents using
@@ -269,9 +255,9 @@ public class VariantSummaryConverter {
 			variantWrapper.setVariantType(variantType);
 			variantWrapper.setTaxon(taxon);
 			variantWrapper.setCuratedVariantGenomicLocations(List.of(cvgla));
+			variantWrapper.setCrossReferences(variant.getCrossReferences());
 			doc.setVariants(List.of(variantWrapper));
 			doc.setGeneIds(resultPair.getRight());
-
 			returnDocuments.add(doc);
 		}
 
@@ -463,7 +449,7 @@ public class VariantSummaryConverter {
 
 			consequences.add(consequence);
 		}
-		
+
 		return Pair.of(consequences, geneIds);
 	}
 
