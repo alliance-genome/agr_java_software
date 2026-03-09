@@ -98,7 +98,7 @@ public class AlleleVariantIndexService {
 				sortField[0] = new SortField("consequence.vepConsequences.name.keyword", SortField.Type.STRING);
 			}
 			if (pagination.getSortBy().equalsIgnoreCase("VARIANT")) {
-				sortField[0] = new SortField("allele.alleleSymbol.displayText.sort", SortField.Type.STRING);
+				sortField[0] = new SortField("symbol.sort", SortField.Type.STRING);
 			}
 			if (pagination.getSortBy().equalsIgnoreCase("transcript")) {
 				sortField[0] = new SortField("consequence.variantTranscript.name.keyword", SortField.Type.STRING);
@@ -171,7 +171,7 @@ public class AlleleVariantIndexService {
 					String value = e.getValue();
 					switch (key) {
 						case SYMBOL:
-							queryBuilder.must(QueryBuilders.wildcardQuery("allele.alleleSymbol.displayText", "*" + value.toLowerCase() + "*"));
+							queryBuilder.must(QueryBuilders.wildcardQuery("symbol", "*" + value.toLowerCase() + "*"));
 							break;
 						case SYNONYMS:
 							queryBuilder.must(QueryBuilders.wildcardQuery("allele.alleleSynonyms.displayText", "*" + value.toLowerCase() + "*"));

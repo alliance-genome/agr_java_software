@@ -247,6 +247,7 @@ public class VariantSummaryConverter {
 			VariantSummaryDocument doc = new VariantSummaryDocument();
 			doc.setAlterationType("variant");
 			doc.setAlterationTypeSortOrder(4);
+			doc.setSymbol(cvgla.getHgvs());
 			doc.setHasPhenotype(false);
 			doc.setHasDisease(false);
 			doc.setAllele(allele);

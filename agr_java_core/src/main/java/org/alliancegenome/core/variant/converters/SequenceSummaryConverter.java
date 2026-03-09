@@ -30,6 +30,7 @@ public class SequenceSummaryConverter {
 				if (consequence.getVariantTranscript() != null && consequence.getVariantTranscript().getTranscriptGeneAssociations() != null) {
 					SequenceSummaryDocument ssd = new SequenceSummaryDocument();
 					ssd.setAllele(doc.getAllele());
+					ssd.setSymbol(doc.getSymbol());
 					ssd.setVariant(doc.getVariants().get(0));
 					ssd.setConsequence(consequence);
 					ssd.setAlterationType("variant");
