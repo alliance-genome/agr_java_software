@@ -34,27 +34,27 @@ public class AlleleESService extends ESService {
 		put("hasPhenotype", SortOrder.DESC);
 		put("hasDisease", SortOrder.DESC);
 		put("alterationTypeSortOrder.sort", SortOrder.ASC);
-		put("allele.alleleSymbol.displayText.sort", SortOrder.ASC);
+		put("symbol.sort", SortOrder.ASC);
 	}};
 
 	LinkedHashMap<String, SortOrder> variantSortMap = new LinkedHashMap<>() {{
 		put("variants.curatedVariantGenomicLocations.hgvs.sort", SortOrder.ASC);
-		put("allele.alleleSymbol.displayText.sort", SortOrder.ASC);
+		put("symbol.sort", SortOrder.ASC);
 	}};
 
 	LinkedHashMap<String, SortOrder> variantTypeSortMap = new LinkedHashMap<>() {{
 		put("variants.variantType.name.sort", SortOrder.ASC);
-		put("allele.alleleSymbol.displayText.sort", SortOrder.ASC);
+		put("symbol.sort", SortOrder.ASC);
 	}};
 
 	LinkedHashMap<String, SortOrder> molecualarConsequenceSortMap = new LinkedHashMap<>() {{
 		put("variants.curatedVariantGenomicLocations.predictedVariantConsequences.vepConsequences.name.sort", SortOrder.ASC);
 		put("variants.variantType.name.sort", SortOrder.ASC);
-		put("allele.alleleSymbol.displayText.sort", SortOrder.ASC);
+		put("symbol.sort", SortOrder.ASC);
 	}};
 
 	LinkedHashMap<String, SortOrder> alleleSymbolSortMap = new LinkedHashMap<>() {{
-		put("allele.alleleSymbol.displayText.sort", SortOrder.ASC);
+		put("symbol.sort", SortOrder.ASC);
 	}};
 
 	Map<String, LinkedHashMap<String, SortOrder>> sortMap = new HashMap<>() {{

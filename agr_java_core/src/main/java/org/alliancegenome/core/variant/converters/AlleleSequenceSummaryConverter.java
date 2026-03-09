@@ -50,6 +50,7 @@ public class AlleleSequenceSummaryConverter {
 	private SequenceSummaryDocument buildDocument(AlleleSummaryDocument doc, Variant variant, PredictedVariantConsequence consequence, HashSet<String> geneIds) {
 		SequenceSummaryDocument ssd = new SequenceSummaryDocument();
 		ssd.setAllele(doc.getAllele());
+		ssd.setSymbol(doc.getSymbol());
 		ssd.setGeneIds(doc.getGeneIds());
 		ssd.setHasPhenotype(doc.getHasPhenotype() != null && doc.getHasPhenotype());
 		ssd.setHasDisease(doc.getHasDisease() != null && doc.getHasDisease());
