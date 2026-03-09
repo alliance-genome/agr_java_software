@@ -38,7 +38,6 @@ public class AlleleESService extends ESService {
 	}};
 
 	LinkedHashMap<String, SortOrder> variantSortMap = new LinkedHashMap<>() {{
-		put("variants.curatedVariantGenomicLocations.hgvs.sort", SortOrder.ASC);
 		put("symbol.sort", SortOrder.ASC);
 	}};
 
