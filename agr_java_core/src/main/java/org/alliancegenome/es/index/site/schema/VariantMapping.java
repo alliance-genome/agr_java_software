@@ -33,7 +33,6 @@ public class VariantMapping extends Mapping {
 			builder.startObject("properties");
 			// VariantSummaryDocument: queried via MatchQuery on allele.primaryExternalId
 			new FieldBuilder(builder, "primaryExternalId", "text").keyword().build();
-			new FieldBuilder(builder, "alleleSymbol.displayText", "text").keyword().sort().build();
 			new FieldBuilder(builder, "alleleSynonyms.displayText", "text").keyword().sort().build();
 
 			builder.endObject();
