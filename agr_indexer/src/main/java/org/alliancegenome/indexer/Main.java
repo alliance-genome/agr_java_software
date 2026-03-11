@@ -57,6 +57,7 @@ public class Main {
 			} catch (Exception e) {
 				e.printStackTrace();
 				log.error(e.getMessage());
+				ExceptionCatcher.report(e);
 				System.exit(-1);
 			}
 		}
@@ -95,6 +96,7 @@ public class Main {
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
+				ExceptionCatcher.report(e);
 				e.printStackTrace();
 			}
 		}
@@ -104,6 +106,7 @@ public class Main {
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
+				ExceptionCatcher.report(e);
 				e.printStackTrace();
 			}
 		}
@@ -118,6 +121,7 @@ public class Main {
 			} catch (Exception e) {
 				e.printStackTrace();
 				log.error(e.getMessage());
+				ExceptionCatcher.report(e);
 				System.exit(-1);
 			}
 		}

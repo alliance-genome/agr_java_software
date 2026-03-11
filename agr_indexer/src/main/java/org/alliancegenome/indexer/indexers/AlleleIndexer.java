@@ -7,6 +7,7 @@ import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.core.translators.document.AlleleTranslator;
 import org.alliancegenome.curation_api.view.CurationView;
 import org.alliancegenome.es.index.site.cache.AlleleDocumentCache;
+import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.repository.indexer.AlleleIndexerRepository;
@@ -42,6 +43,7 @@ public class AlleleIndexer extends Indexer {
 			repo.close();
 		} catch (Exception e) {
 			log.error("Error while indexing...", e);
+			ExceptionCatcher.report(e);
 			System.exit(-1);
 		}
 
@@ -83,6 +85,7 @@ public class AlleleIndexer extends Indexer {
 				}
 			} catch (Exception e) {
 				log.error("Error while indexing...", e);
+				ExceptionCatcher.report(e);
 				System.exit(-1);
 				return;
 			}
