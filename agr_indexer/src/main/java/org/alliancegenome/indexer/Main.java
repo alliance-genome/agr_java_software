@@ -10,6 +10,7 @@ import java.util.concurrent.Executors;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.util.IndexManager;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
+import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
 import org.apache.commons.lang3.time.DurationFormatUtils;
@@ -24,6 +25,7 @@ public class Main {
 
 	public static void main(String[] args) {
 		ConfigHelper.init();
+		ExceptionCatcher.initialize();
 
 		ProcessDisplayHelper ph = new ProcessDisplayHelper();
 
