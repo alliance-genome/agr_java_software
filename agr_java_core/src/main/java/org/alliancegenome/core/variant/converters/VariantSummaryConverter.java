@@ -319,7 +319,7 @@ public class VariantSummaryConverter {
 			if (!infos[consequenceIdx].isEmpty()) {
 				List<SOTerm> soTerms = new ArrayList<>();
 				// VEP consequences can be comma-separated
-				for (String consequenceName : infos[consequenceIdx].split(",")) {
+				for (String consequenceName : infos[consequenceIdx].split("&")) {
 					SOTerm soTerm = getSOTerm(consequenceName.trim());
 					soTerms.add(soTerm);
 				}
