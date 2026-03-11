@@ -302,8 +302,8 @@ public class AlleleToTdfTranslator {
 			return row;
 		}
 		row.setSymbol(variant.getHgvs());
-		if (variant.getVariantAssociationSubject() != null && variant.getVariantAssociationSubject().getVariantType() != null) {
-			row.setVariantType(variant.getVariantAssociationSubject().getVariantType().getName());
+		if (rootVariant.getVariantType() != null) {
+			row.setVariantType(rootVariant.getVariantType().getName());
 		}
 		if (variant.getVariantGenomicLocationAssociationObject() != null) {
 			String chrPos = variant.getVariantGenomicLocationAssociationObject().getName() + ":" + variant.getStart();
@@ -362,15 +362,15 @@ public class AlleleToTdfTranslator {
 		if (CollectionUtils.isNotEmpty(variant.getHgvsP())) {
 			hgvsPs = getCommaDelimetedString(variant.getHgvsP());
 		}
-		List<CrossReference> crossReferences = variant.getVariantAssociationSubject().getCrossReferences();
+		List<CrossReference> crossReferences = rootVariant.getCrossReferences();
 		if (CollectionUtils.isNotEmpty(crossReferences)) {
 			crossRefs = getCommaDelimetedString(crossReferences.stream().map(CrossReference::getDisplayName).filter(Objects::nonNull).toList());
 		}
-		List<Note> relatedNotes = variant.getVariantAssociationSubject().getRelatedNotes();
+		List<Note> relatedNotes = rootVariant.getRelatedNotes();
 		if (CollectionUtils.isNotEmpty(relatedNotes)) {
 			notesDescs = getCommaDelimetedString(relatedNotes.stream().map(Note::getFreeText).toList());
 		}
-		List<Reference> references = variant.getVariantAssociationSubject().getReferences();
+		List<Reference> references = rootVariant.getReferences();
 		if (CollectionUtils.isNotEmpty(references)) {
 			pubs = getCommaDelimetedString(references.stream().map(Reference::getReferenceID).toList());
 		}
