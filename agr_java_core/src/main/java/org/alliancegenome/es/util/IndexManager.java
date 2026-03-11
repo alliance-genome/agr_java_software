@@ -14,6 +14,7 @@ import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.index.site.schema.Mapping;
 import org.alliancegenome.es.index.site.schema.Settings;
 import org.alliancegenome.es.index.site.schema.settings.SiteIndexSettings;
+import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.admin.cluster.repositories.delete.DeleteRepositoryRequest;
@@ -80,6 +81,7 @@ public class IndexManager {
 		try {
 			closableSearchClient.indices().updateAliases(request, RequestOptions.DEFAULT);
 		} catch (IOException e) {
+			ExceptionCatcher.report(e);
 			e.printStackTrace();
 		}
 	}
@@ -95,6 +97,7 @@ public class IndexManager {
 		try {
 			closableSearchClient.indices().updateAliases(request, RequestOptions.DEFAULT);
 		} catch (IOException e) {
+			ExceptionCatcher.report(e);
 			e.printStackTrace();
 		}
 
@@ -116,6 +119,7 @@ public class IndexManager {
 			closableSearchClient.indices().create(createIndexRequest, RequestOptions.DEFAULT);
 		} catch (Exception e) {
 			log.error("Index creation failed: " + index, e);
+			ExceptionCatcher.report(e);
 			System.exit(-1);
 		}
 	}
@@ -130,6 +134,7 @@ public class IndexManager {
 			response = closableSearchClient.indices().getAlias(request, RequestOptions.DEFAULT);
 
 		} catch (IOException e) {
+			ExceptionCatcher.report(e);
 			e.printStackTrace();
 		}
 
@@ -150,6 +155,7 @@ public class IndexManager {
 			response = closableSearchClient.indices().getAlias(request, RequestOptions.DEFAULT);
 
 		} catch (IOException e) {
+			ExceptionCatcher.report(e);
 			e.printStackTrace();
 		}
 
@@ -174,6 +180,7 @@ public class IndexManager {
 		try {
 			closableSearchClient.indices().delete(request, RequestOptions.DEFAULT);
 		} catch (IOException e) {
+			ExceptionCatcher.report(e);
 			e.printStackTrace();
 		}
 	}
@@ -196,6 +203,7 @@ public class IndexManager {
 				log.info("Deleted Repo: " + repoName + " failed");
 			}
 		} catch (IOException e) {
+			ExceptionCatcher.report(e);
 			log.error("Exception deleting getRepository: " + e.toString());
 		}
 	}
@@ -218,6 +226,7 @@ public class IndexManager {
 				return createRepo(repoName);
 			}
 		} catch (Exception ex) {
+			ExceptionCatcher.report(e);
 			log.error("Exception in getRepository method: " + ex.toString());
 		}
 
@@ -233,6 +242,7 @@ public class IndexManager {
 			return repositories;
 		} catch (Exception ex) {
 			ex.printStackTrace();
+			ExceptionCatcher.report(ex);
 			log.error("Exception in getRepository method: " + ex.toString());
 		}
 		return null;
@@ -265,6 +275,7 @@ public class IndexManager {
 				closableSearchClient.snapshot().delete(request, RequestOptions.DEFAULT);
 			}
 		} catch (Exception ex) {
+			ExceptionCatcher.report(ex);
 			log.error("Exception in deleteSnapShot method: " + ex.toString());
 		}
 	}
@@ -284,6 +295,7 @@ public class IndexManager {
 			closableSearchClient.snapshot().restore(request, RequestOptions.DEFAULT);
 
 		} catch (Exception ex) {
+			ExceptionCatcher.report(ex);
 			log.error("Exception in restoreSnapShot method: " + ex.toString());
 		}
 	}
@@ -308,6 +320,7 @@ public class IndexManager {
 
 			log.info("Snapshot " + snapShotName + " was created for indices: " + indices);
 		} catch (Exception ex) {
+			ExceptionCatcher.report(ex);
 			log.error("Exception in createSnapshot method: " + ex.toString());
 		}
 	}
@@ -334,6 +347,7 @@ public class IndexManager {
 				log.info("Repository was created: " + response.toString());
 				return repoName;
 			} catch (Exception ex) {
+				ExceptionCatcher.report(ex);
 				log.error("Exception in createRepository method: " + ex.toString());
 			}
 		} else {
@@ -353,6 +367,7 @@ public class IndexManager {
 		try {
 			response = closableSearchClient.snapshot().get(request, RequestOptions.DEFAULT);
 		} catch (IOException e) {
+			ExceptionCatcher.report(e);
 			e.printStackTrace();
 		}
 
@@ -371,6 +386,7 @@ public class IndexManager {
 			return new ArrayList<String>(Arrays.asList(indices));
 
 		} catch (Exception e) {
+			ExceptionCatcher.report(e);
 			log.error("No Indexes found: " + e.getLocalizedMessage());
 		}
 
@@ -424,6 +440,7 @@ public class IndexManager {
 		try {
 			closableSearchClient.indices().refresh(request, RequestOptions.DEFAULT);
 		} catch (IOException e) {
+			ExceptionCatcher.report(e);
 			e.printStackTrace();
 		}
 
@@ -432,6 +449,7 @@ public class IndexManager {
 		try {
 			closableSearchClient.close();
 		} catch (IOException e) {
+			ExceptionCatcher.report(e);
 			e.printStackTrace();
 		}
 
@@ -494,6 +512,7 @@ public class IndexManager {
 					map.put(d, info);
 				}
 			} catch (NumberFormatException e) {
+				ExceptionCatcher.report(e);
 				log.warn("Can't parse date from index: " + info.snapshotId().getName() + " skipping");
 			}
 		}
