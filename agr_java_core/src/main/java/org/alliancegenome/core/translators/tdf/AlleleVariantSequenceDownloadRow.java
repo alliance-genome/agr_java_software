@@ -23,7 +23,7 @@ public class AlleleVariantSequenceDownloadRow {
 	private String sequenceFeatureAssociatedGene;
 	private String sequenceFeatureAssociatedGeneID;
 	private String location;
-	private List<String> molecularConsequences;
+	private List<String> molecularConsequences = List.of();
 	private String vepImpact;
 	private String siftPrediction;
 	private String siftScore;

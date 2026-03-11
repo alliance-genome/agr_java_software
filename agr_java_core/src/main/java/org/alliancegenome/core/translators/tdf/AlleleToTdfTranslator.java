@@ -6,12 +6,12 @@ import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
-import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.api.entity.GeneTransgenicAlleleSummaryDocument;
 import org.alliancegenome.api.entity.TransgenicAlleleSummaryDocument;
 import org.alliancegenome.curation_api.model.document.es.AVSParentDocument;
 import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
 import org.alliancegenome.curation_api.model.document.es.ESDocument;
+import org.alliancegenome.curation_api.model.document.es.SequenceSummaryDocument;
 import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
 import org.alliancegenome.curation_api.model.entities.Allele;
 import org.alliancegenome.curation_api.model.entities.CrossReference;
@@ -70,13 +70,6 @@ public class AlleleToTdfTranslator {
 		};
 	}
 
-	public List<AlleleVariantSequenceDownloadRow> alleleVariantSequenceDownloadRow(List<AlleleVariantSequence> annotations) {
-		return annotations.stream()
-			.map(this::getBaseAlleleVariantDownloadRow)
-			.collect(Collectors.toList());
-	}
-
-
 	private AlleleDownloadRow getBaseDownloadRow(AVSParentDocument annotation, Variant variant) {
 		AlleleDownloadRow row = new AlleleDownloadRow();
 		Allele allele = annotation.getAllele();
@@ -120,43 +113,6 @@ public class AlleleToTdfTranslator {
 
 		row.setHasPhenotype(annotation.getHasPhenotype() != null ? annotation.getHasPhenotype().toString() : "false");
 		row.setHasDisease(annotation.getHasDisease() != null ? annotation.getHasDisease().toString() : "false");
-		return row;
-	}
-
-	private AlleleVariantSequenceDownloadRow getBaseAlleleVariantDownloadRow(AlleleVariantSequence annotation) {
-		AlleleVariantSequenceDownloadRow row = new AlleleVariantSequenceDownloadRow();
-
-		row.setAlleleID(annotation.getAllele().getPrimaryKey());
-		row.setAlleleSymbol(annotation.getAllele().getSymbol());
-		String synonyms = "";
-		if (CollectionUtils.isNotEmpty(annotation.getAllele().getSynonyms())) {
-			StringJoiner synonymJoiner = new StringJoiner(",");
-			annotation.getAllele().getSynonyms().forEach(synonym -> synonymJoiner.add(synonym.getName()));
-			synonyms = synonymJoiner.toString();
-		}
-		row.setAlleleSynonyms(synonyms);
-		row.setVariantCategory(annotation.getAllele().getCategory());
-		row.setHasDisease(annotation.getAllele().hasDisease().toString());
-		row.setHasPhenotype(annotation.getAllele().hasPhenotype().toString());
-		if (annotation.getVariant() != null) {
-			row.setHgvsgName(annotation.getVariant().getHgvsNomenclature());
-			row.setVariantType(annotation.getVariant().getVariantType().getName());
-		}
-		if (annotation.getConsequence() != null) {
-			row.setMolecularConsequences(annotation.getConsequence().getMolecularConsequences());
-			row.setSequenceFeature(annotation.getConsequence().getTranscript().getName());
-			row.setSequenceFeatureType(annotation.getConsequence().getSequenceFeatureType());
-			row.setLocation(annotation.getConsequence().getLocation());
-			row.setVepImpact(annotation.getConsequence().getImpact());
-			row.setSiftPrediction(annotation.getConsequence().getSiftPrediction());
-			row.setSiftScore(annotation.getConsequence().getSiftScore());
-			row.setPolyphenPrediction(annotation.getConsequence().getPolyphenPrediction());
-			row.setPolyphenScore(annotation.getConsequence().getPolyphenScore());
-			if (annotation.getConsequence().getAssociatedGene() != null) {
-				row.setSequenceFeatureAssociatedGene(annotation.getConsequence().getAssociatedGene().getSymbol());
-				row.setSequenceFeatureAssociatedGeneID(annotation.getConsequence().getAssociatedGene().getPrimaryKey());
-			}
-		}
 		return row;
 	}
 
@@ -402,9 +358,81 @@ public class AlleleToTdfTranslator {
 		return hgvsCs;
 	}
 
-	public String getAllAlleleVariantDetailRows(List<AlleleVariantSequence> annotations) {
+	public String getAllSequenceSummaryDetailRows(List<SequenceSummaryDocument> documents) {
+		List<AlleleVariantSequenceDownloadRow> list = documents.stream().map(doc -> {
+			AlleleVariantSequenceDownloadRow row = new AlleleVariantSequenceDownloadRow();
+			Allele allele = doc.getAllele();
+			Variant variant = doc.getVariant();
+			PredictedVariantConsequence consequence = doc.getConsequence();
 
-		List<AlleleVariantSequenceDownloadRow> list = alleleVariantSequenceDownloadRow(annotations);
+			if (allele != null) {
+				row.setAlleleID(allele.getPrimaryExternalId());
+				if (allele.getAlleleSymbol() != null) {
+					row.setAlleleSymbol(allele.getAlleleSymbol().getDisplayText());
+				}
+				if (CollectionUtils.isNotEmpty(allele.getAlleleSynonyms())) {
+					row.setAlleleSynonyms(allele.getAlleleSynonyms().stream()
+						.map(s -> s.getDisplayText())
+						.collect(Collectors.joining(",")));
+				}
+			}
+			row.setVariantCategory(doc.getAlterationType());
+			row.setHasDisease(doc.getHasDisease() != null ? doc.getHasDisease().toString() : "");
+			row.setHasPhenotype(doc.getHasPhenotype() != null ? doc.getHasPhenotype().toString() : "");
+
+			if (variant != null) {
+				if (variant.getVariantType() != null) {
+					row.setVariantType(variant.getVariantType().getName());
+				}
+				if (CollectionUtils.isNotEmpty(variant.getCuratedVariantGenomicLocations())) {
+					CuratedVariantGenomicLocationAssociation loc = variant.getCuratedVariantGenomicLocations().get(0);
+					if (loc != null) {
+						row.setHgvsgName(loc.getHgvs());
+					}
+				}
+			}
+
+			if (consequence != null) {
+				if (consequence.getVariantTranscript() != null) {
+					row.setSequenceFeature(consequence.getVariantTranscript().getName());
+					if (consequence.getVariantTranscript().getTranscriptType() != null) {
+						row.setSequenceFeatureType(consequence.getVariantTranscript().getTranscriptType().getName());
+					}
+					if (CollectionUtils.isNotEmpty(consequence.getVariantTranscript().getTranscriptGeneAssociations())) {
+						TranscriptGeneAssociation tga = consequence.getVariantTranscript().getTranscriptGeneAssociations().get(0);
+						if (tga != null && tga.getTranscriptGeneAssociationObject() != null) {
+							if (tga.getTranscriptGeneAssociationObject().getGeneSymbol() != null) {
+								row.setSequenceFeatureAssociatedGene(tga.getTranscriptGeneAssociationObject().getGeneSymbol().getDisplayText());
+							}
+							row.setSequenceFeatureAssociatedGeneID(tga.getTranscriptGeneAssociationObject().getIdentifier());
+						}
+					}
+				}
+				if (CollectionUtils.isNotEmpty(consequence.getVepConsequences())) {
+					row.setMolecularConsequences(consequence.getVepConsequences().stream()
+						.map(SOTerm::getName)
+						.collect(Collectors.toList()));
+				}
+				row.setLocation(consequence.getIntronExonLocation());
+				if (consequence.getVepImpact() != null) {
+					row.setVepImpact(consequence.getVepImpact().getName());
+				}
+				if (consequence.getSiftPrediction() != null) {
+					row.setSiftPrediction(consequence.getSiftPrediction().getName());
+				}
+				if (consequence.getSiftScore() != null) {
+					row.setSiftScore(consequence.getSiftScore().toString());
+				}
+				if (consequence.getPolyphenPrediction() != null) {
+					row.setPolyphenPrediction(consequence.getPolyphenPrediction().getName());
+				}
+				if (consequence.getPolyphenScore() != null) {
+					row.setPolyphenScore(consequence.getPolyphenScore().toString());
+				}
+			}
+			return row;
+		}).collect(Collectors.toList());
+
 		List<DownloadHeader> headers = List.of(
 			new DownloadHeader<>("Allele ID", AlleleVariantSequenceDownloadRow::getAlleleID),
 			new DownloadHeader<>("Allele Symbol", AlleleVariantSequenceDownloadRow::getAlleleSymbol),
@@ -429,7 +457,6 @@ public class AlleleToTdfTranslator {
 
 		return DownloadHeader.getDownloadOutput(list, headers);
 	}
-
 
 }
 
