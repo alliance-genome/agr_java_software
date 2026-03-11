@@ -13,7 +13,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 import org.alliancegenome.api.entity.GeneTransgenicAlleleSummaryDocument;
 import org.alliancegenome.api.entity.TransgenicAlleleSummaryDocument;
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.curation_api.interfaces.document.TransgenicAlleleDocumentInterface;
+import org.alliancegenome.curation_api.interfaces.document.AlleleDocumentInterface;
 import org.alliancegenome.curation_api.model.document.es.TransgenicAlleleDTO;
 import org.alliancegenome.curation_api.model.entities.Allele;
 import org.alliancegenome.curation_api.model.entities.Construct;
@@ -22,8 +22,8 @@ import org.alliancegenome.curation_api.model.entities.TransgenicAlleleConstruct;
 import org.alliancegenome.curation_api.model.entities.slotAnnotations.ConstructComponentSlotAnnotation;
 import org.alliancegenome.curation_api.model.entities.slotAnnotations.GeneSymbolSlotAnnotation;
 import org.alliancegenome.curation_api.response.SearchResponse;
-import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.es.rest.RestConfig;
+import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
 import org.apache.commons.collections4.CollectionUtils;
@@ -37,7 +37,7 @@ import si.mazi.rescu.RestProxyFactory;
 @Slf4j
 public class TransgenicAlleleCurationIndexer extends Indexer {
 
-	private final TransgenicAlleleDocumentInterface transgenicAlleleApi = RestProxyFactory.createProxy(TransgenicAlleleDocumentInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
+	private final AlleleDocumentInterface alleleApi = RestProxyFactory.createProxy(AlleleDocumentInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 
 	private final HashMap<String, Object> params = new HashMap<>() {{
 		put("internal", false);
@@ -86,14 +86,14 @@ public class TransgenicAlleleCurationIndexer extends Indexer {
 	}
 
 	private List<TransgenicAlleleSummaryDocument> indexTransgenicAlleleSummary() {
-		SearchResponse<TransgenicAlleleDTO> searchResponse = transgenicAlleleApi.findDocuments(0, 0, params);
+		SearchResponse<TransgenicAlleleDTO> searchResponse = alleleApi.findDocuments(0, 0, params);
 		ProcessDisplayHelper display = new ProcessDisplayHelper();
 		display.startProcess("Pulling Transgenic Alleles from curation", searchResponse.getTotalResults());
 		Map<Allele, TransgenicAlleleSummaryDocument> documentMap = new LinkedHashMap<>();
 		int batchSize = indexerConfig.getBufferSize();
 		int maxPage = (int) (searchResponse.getTotalResults() / batchSize);
 		for (int page = 0; page <= maxPage; page++) {
-			SearchResponse<TransgenicAlleleDTO> response = transgenicAlleleApi.findDocuments(page, batchSize, params);
+			SearchResponse<TransgenicAlleleDTO> response = alleleApi.findDocuments(page, batchSize, params);
 			for (TransgenicAlleleDTO da : response.getResults()) {
 				if (da == null) {
 					continue;
