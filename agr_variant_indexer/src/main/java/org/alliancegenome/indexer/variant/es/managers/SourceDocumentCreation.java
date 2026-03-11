@@ -584,7 +584,7 @@ public class SourceDocumentCreation extends Thread {
 					List<String> docs7 = new ArrayList<>();
 					List<String> docs8 = new ArrayList<>();
 
-					if (docList.size() > 0) {
+					if (!docList.isEmpty()) {
 						for (ESDocument doc : docList) {
 							try {
 								String jsonDoc = null;
