@@ -6,6 +6,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 import org.alliancegenome.core.translators.document.ModelTranslator;
 import org.alliancegenome.es.index.site.cache.ModelDocumentCache;
 import org.alliancegenome.es.index.site.document.SearchableItemDocument;
+import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.neo4j.entity.node.AffectedGenomicModel;
 import org.alliancegenome.neo4j.repository.indexer.ModelIndexerRepository;
@@ -34,6 +35,7 @@ public class ModelIndexer extends Indexer {
 			repo.close();
 		} catch (Exception e) {
 			log.error("Error while indexing...", e);
+			ExceptionCatcher.report(e);
 			System.exit(-1);
 		}
 	}
@@ -71,6 +73,7 @@ public class ModelIndexer extends Indexer {
 				}
 			} catch (Exception e) {
 				log.error("Error while indexing...", e);
+				ExceptionCatcher.report(e);
 				System.exit(-1);
 				return;
 			}

@@ -6,6 +6,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.alliancegenome.exceptional.client.ExceptionCatcher;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.fge.jackson.JsonLoader;
 import com.github.fge.jsonschema.core.report.ListProcessingReport;
@@ -21,7 +23,7 @@ public class Main {
 	}
 
 	public static void main(String[] args) {
-
+		ExceptionCatcher.initialize();
 		if (args.length > 0 && args[0].length() > 0) {
 			String schemaPath = args[0];
 			try {

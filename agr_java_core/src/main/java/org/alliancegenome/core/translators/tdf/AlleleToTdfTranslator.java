@@ -103,12 +103,14 @@ public class AlleleToTdfTranslator {
 				row.setVariantSymbol(location.getHgvs());
 
 				List<PredictedVariantConsequence> pvcs = location.getPredictedVariantConsequences();
-				if (CollectionUtils.isNotEmpty(pvcs) && CollectionUtils.isNotEmpty(pvcs.get(0).getVepConsequences())) {
-					row.setVariantConsequence(pvcs.get(0).getVepConsequences().stream()
+				if (CollectionUtils.isNotEmpty(pvcs)) {
+					row.setVariantConsequence(pvcs.stream()
+						.filter(pvc -> CollectionUtils.isNotEmpty(pvc.getVepConsequences()))
+						.flatMap(pvc -> pvc.getVepConsequences().stream())
 						.filter(Objects::nonNull)
 						.map(SOTerm::getName)
 						.distinct()
-						.collect(Collectors.joining("|")));
+						.collect(Collectors.joining(",")));
 				}
 			}
 			if (variant.getVariantType() != null) {

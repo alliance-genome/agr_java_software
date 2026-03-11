@@ -7,6 +7,7 @@ import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.translators.document.VariantTranslator;
 import org.alliancegenome.es.index.site.cache.IndexerCache;
 import org.alliancegenome.es.index.site.document.SearchableItemDocument;
+import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.neo4j.entity.node.Variant;
 import org.alliancegenome.neo4j.repository.indexer.VariantIndexerRepository;
@@ -42,6 +43,7 @@ public class VariantIndexer extends Indexer {
 			repo.close();
 		} catch (Exception e) {
 			log.error("Error while indexing...", e);
+			ExceptionCatcher.report(e);
 			System.exit(-1);
 		}
 	}
@@ -79,6 +81,7 @@ public class VariantIndexer extends Indexer {
 				}
 			} catch (Exception e) {
 				log.error("Error while indexing...", e);
+				ExceptionCatcher.report(e);
 				System.exit(-1);
 				return;
 			}

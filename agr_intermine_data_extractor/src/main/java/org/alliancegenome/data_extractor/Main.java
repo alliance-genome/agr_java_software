@@ -9,6 +9,7 @@ import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.data_extractor.config.ExtractorConfig;
 import org.alliancegenome.data_extractor.extractors.DataExtractor;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
+import org.alliancegenome.exceptional.client.ExceptionCatcher;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -19,7 +20,8 @@ public class Main {
 	
 	public static void main(String[] args) {
 		ConfigHelper.init();
-
+		ExceptionCatcher.initialize();
+		
 		Date start = new Date();
 		log.info("Start Time: " + start);
 

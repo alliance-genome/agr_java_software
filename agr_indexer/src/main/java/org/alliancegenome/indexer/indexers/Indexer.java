@@ -14,6 +14,7 @@ import org.alliancegenome.core.util.StatsCollector;
 import org.alliancegenome.curation_api.model.document.es.ESDocument;
 import org.alliancegenome.es.util.EsClientFactory;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
+import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.bulk.BackoffPolicy;
@@ -114,6 +115,7 @@ public abstract class Indexer extends Thread {
 		} catch (Exception e) {
 			e.printStackTrace();
 			log.error(e.getMessage());
+			ExceptionCatcher.report(e);
 			System.exit(-1);
 		}
 	}
@@ -135,6 +137,7 @@ public abstract class Indexer extends Thread {
 		} catch (Exception e) {
 			e.printStackTrace();
 			log.error(e.getMessage());
+			ExceptionCatcher.report(e);
 			System.exit(-1);
 		}
 	}
@@ -171,6 +174,7 @@ public abstract class Indexer extends Thread {
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 			log.error(e.getMessage());
+			ExceptionCatcher.report(e);
 			System.exit(-1);
 		}
 	}

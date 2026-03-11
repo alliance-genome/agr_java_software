@@ -7,6 +7,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 import org.alliancegenome.core.translators.document.DiseaseTranslator;
 import org.alliancegenome.es.index.site.cache.DiseaseDocumentCache;
 import org.alliancegenome.es.index.site.document.SearchableItemDocument;
+import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
@@ -36,6 +37,7 @@ public class DiseaseIndexer extends Indexer {
 			diseaseIndexerRepository.close();
 		} catch (Exception e) {
 			log.error("Error while indexing...", e);
+			ExceptionCatcher.report(e);
 			System.exit(-1);
 		}
 	}
@@ -74,6 +76,7 @@ public class DiseaseIndexer extends Indexer {
 				}
 			} catch (Exception e) {
 				log.error("Error while indexing...", e);
+				ExceptionCatcher.report(e);
 				System.exit(-1);
 				return;
 			}

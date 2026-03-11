@@ -24,7 +24,7 @@ public class VariantMapping extends Mapping {
 			new FieldBuilder(builder, "hasDisease", "boolean").build();
 			new FieldBuilder(builder, "hasPhenotype", "boolean").build();
 			new FieldBuilder(builder, "alterationTypeSortOrder", "integer").sort().build();
-			new FieldBuilder(builder, "symbol", "text").keyword().sort().build();
+			new FieldBuilder(builder, "symbol", "text").analyzer("symbols").autocomplete().htmlSmoosh().keyword().keywordAutocomplete().sort().build(); // allele, gene
 
 			// allele: dynamic false prevents indexing the deep curation API Allele tree
 			// Only map fields actually queried in ES

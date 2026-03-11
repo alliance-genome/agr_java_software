@@ -10,6 +10,7 @@ import org.alliancegenome.curation_api.interfaces.document.GeneMolecularInteract
 import org.alliancegenome.curation_api.model.entities.GeneMolecularInteraction;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.es.rest.RestConfig;
+import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
 import org.alliancegenome.indexer.indexers.curation.service.GeneMolecularInteractionService;
@@ -53,6 +54,7 @@ public class GeneMolecularInteractionCurationIndexer extends Indexer {
 			initiateThreading(queue);
 		} catch (Exception e) {
 			log.error("Error while indexing...", e);
+			ExceptionCatcher.report(e);
 			System.exit(-1);
 		}
 	}
@@ -86,6 +88,7 @@ public class GeneMolecularInteractionCurationIndexer extends Indexer {
 				indexDocuments(documentsToIndex, PublicView.MolecularInteraction.class);
 			} catch (Exception e) {
 				log.error("Error while indexing...", e);
+				ExceptionCatcher.report(e);
 				System.exit(-1);
 				return;
 			}
