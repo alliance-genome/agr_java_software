@@ -7,6 +7,7 @@ import org.alliancegenome.core.variant.config.VariantConfigHelper;
 import org.alliancegenome.es.index.site.schema.VariantMapping;
 import org.alliancegenome.es.index.site.schema.settings.VariantIndexSettings;
 import org.alliancegenome.es.util.IndexManager;
+import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.variant.es.managers.SourceDocumentCreation;
 import org.alliancegenome.indexer.variant.es.managers.SourceDocumentCreationManager;
 
@@ -19,9 +20,10 @@ public class Main {
 	}
 
 	public static void main(String[] args) {
-
 		ConfigHelper.init();
 		VariantConfigHelper.init();
+		ExceptionCatcher.initialize();
+		
 		ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
 		boolean downloading = VariantConfigHelper.isDownloading();
@@ -56,6 +58,7 @@ public class Main {
 			}
 
 		} catch (Exception e) {
+			ExceptionCatcher.report(e);
 			e.printStackTrace();
 		}
 

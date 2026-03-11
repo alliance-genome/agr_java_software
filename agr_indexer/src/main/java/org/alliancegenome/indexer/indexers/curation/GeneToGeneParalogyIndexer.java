@@ -8,6 +8,7 @@ import org.alliancegenome.api.entity.GeneToGeneParalogyDocument;
 import org.alliancegenome.curation_api.model.entities.GeneToGeneParalogy;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.es.rest.RestConfig;
+import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
 import org.alliancegenome.indexer.indexers.curation.service.GeneToGeneParalogyService;
@@ -41,6 +42,7 @@ public class GeneToGeneParalogyIndexer extends Indexer {
 
 			initiateThreading(queue);
 		} catch (InterruptedException e) {
+			ExceptionCatcher.report(e);
 			e.printStackTrace();
 		}
 	}
@@ -70,6 +72,7 @@ public class GeneToGeneParalogyIndexer extends Indexer {
 				indexDocuments(generateDocuments(resp.getResults()));
 			} catch (Exception e) {
 				log.error("Error while indexing...", e);
+				ExceptionCatcher.report(e);
 				System.exit(-1);
 				return;
 			}

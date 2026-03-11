@@ -5,6 +5,7 @@ import org.alliancegenome.core.filedownload.model.DownloadFileSet;
 import org.alliancegenome.core.filedownload.model.DownloadSource;
 import org.alliancegenome.core.variant.config.VariantConfigHelper;
 import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
+import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.neo4j.repository.indexer.GeneIndexerRepository;
 
 import java.util.concurrent.ExecutorService;
@@ -44,6 +45,7 @@ public class SourceDocumentCreationManager extends Thread {
 			log.info("SourceDocumentCreationManager executor shut down: ");
 
 		} catch (Exception e) {
+			ExceptionCatcher.report(e);
 			e.printStackTrace();
 		}
 	}

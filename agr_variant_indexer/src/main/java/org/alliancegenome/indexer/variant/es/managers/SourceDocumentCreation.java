@@ -21,6 +21,7 @@ import org.alliancegenome.es.model.VariantSearchResultDocument;
 import org.alliancegenome.es.rest.RestConfig;
 import org.alliancegenome.es.util.EsClientFactory;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
+import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.bulk.BulkRequest;
@@ -287,6 +288,7 @@ public class SourceDocumentCreation extends Thread {
 		try {
 			Thread.sleep(3000);
 		} catch (InterruptedException e) {
+			ExceptionCatcher.report(e);
 			e.printStackTrace();
 		}
 
@@ -438,6 +440,7 @@ public class SourceDocumentCreation extends Thread {
 			log.info(messageHeader + "Threads finished: ");
 
 		} catch (Exception e) {
+			ExceptionCatcher.report(e);
 			e.printStackTrace();
 		}
 
@@ -489,6 +492,7 @@ public class SourceDocumentCreation extends Thread {
 					vcQueue.put(workBucket);
 				}
 			} catch (Exception e) {
+				ExceptionCatcher.report(e);
 				e.printStackTrace();
 			}
 			reader.close();
@@ -525,6 +529,7 @@ public class SourceDocumentCreation extends Thread {
 							}
 						} catch (Exception e) {
 							e.printStackTrace();
+							ExceptionCatcher.report(e);
 							System.exit(-1);
 						}
 					}
@@ -662,6 +667,7 @@ public class SourceDocumentCreation extends Thread {
 								ph5.progressProcess();
 
 							} catch (Exception e) {
+								ExceptionCatcher.report(e);
 								e.printStackTrace();
 							}
 						}
@@ -710,6 +716,7 @@ public class SourceDocumentCreation extends Thread {
 
 
 						} catch (InterruptedException e) {
+							ExceptionCatcher.report(e);
 							e.printStackTrace();
 						}
 					}

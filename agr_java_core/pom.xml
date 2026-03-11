@@ -28,6 +28,12 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+		
+		<dependency>
+			<groupId>org.alliancegenome.exceptional</groupId>
+			<artifactId>client</artifactId>
+			<version>0.1.0</version>
+		</dependency>
 
 		<dependency>
 			<groupId>org.slf4j</groupId>

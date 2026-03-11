@@ -7,6 +7,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 
 import org.alliancegenome.api.entity.LiteratureSummaryDocument;
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.curation.interfaces.ElasticSearchInterface;
 
@@ -42,6 +43,7 @@ public class LiteratureIndexer extends Indexer {
 
 		} catch (InterruptedException e) {
 			e.printStackTrace();
+			ExceptionCatcher.report(e);
 		}
 	}
 
@@ -75,6 +77,7 @@ public class LiteratureIndexer extends Indexer {
 				indexDocuments(list);
 
 			} catch (Exception e) {
+				ExceptionCatcher.report(e);
 				throw new RuntimeException("Unhandled error for page " + page, e);
 			}
 		}

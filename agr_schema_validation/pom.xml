@@ -38,6 +38,12 @@
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-core</artifactId>
 		</dependency>
+		
+		<dependency>
+			<groupId>org.alliancegenome.exceptional</groupId>
+			<artifactId>client</artifactId>
+			<version>0.1.0</version>
+		</dependency>
 
 
 		<dependency>

@@ -10,6 +10,7 @@ import org.alliancegenome.curation_api.interfaces.document.VariantDocumentInterf
 import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.es.rest.RestConfig;
+import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
 import org.apache.commons.collections4.CollectionUtils;
@@ -50,6 +51,7 @@ public class VariantSummaryCurationIndexer extends Indexer {
 			}
 			initiateThreading(queue);
 		} catch (Exception e) {
+			ExceptionCatcher.report(e);
 			e.printStackTrace();
 		}
 	}
@@ -89,6 +91,7 @@ public class VariantSummaryCurationIndexer extends Indexer {
 				indexDocuments(list);
 			} catch (Exception e) {
 				log.error("Error while indexing...", e);
+				ExceptionCatcher.report(e);
 				System.exit(-1);
 				return;
 			}

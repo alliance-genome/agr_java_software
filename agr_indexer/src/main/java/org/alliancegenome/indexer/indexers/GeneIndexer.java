@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import org.alliancegenome.core.translators.document.GeneTranslator;
 import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.es.index.site.document.SearchableItemDocument;
+import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.repository.indexer.GeneIndexerRepository;
@@ -42,6 +43,7 @@ public class GeneIndexer extends Indexer {
 			geneIndexerRepository.close();
 		} catch (Exception e) {
 			log.error("Error while indexing...", e);
+			ExceptionCatcher.report(e);
 			System.exit(-1);
 		}
 	}
@@ -78,6 +80,7 @@ public class GeneIndexer extends Indexer {
 				}
 			} catch (Exception e) {
 				log.error("Error while indexing...", e);
+				ExceptionCatcher.report(e);
 				System.exit(-1);
 				return;
 			}
