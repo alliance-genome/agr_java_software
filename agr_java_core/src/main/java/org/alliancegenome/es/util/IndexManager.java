@@ -226,7 +226,7 @@ public class IndexManager {
 				return createRepo(repoName);
 			}
 		} catch (Exception ex) {
-			ExceptionCatcher.report(e);
+			ExceptionCatcher.report(ex);
 			log.error("Exception in getRepository method: " + ex.toString());
 		}
 
