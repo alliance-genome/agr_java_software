@@ -2,6 +2,7 @@ package org.alliancegenome.indexer.variant.es.managers;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
@@ -44,6 +45,7 @@ import lombok.extern.slf4j.Slf4j;
 public class SourceDocumentCreation extends Thread {
 
 	private final GeneDocumentCache geneCache;
+	private final HashSet<String> variantsCache;
 	private String downloadPath;
 	private DownloadSource source;
 	private SpeciesType speciesType;
@@ -109,10 +111,11 @@ public class SourceDocumentCreation extends Thread {
 	private RestHighLevelClient client7 = EsClientFactory.getMustCloseSearchClient();
 	private RestHighLevelClient client8 = EsClientFactory.getMustCloseSearchClient();
 
-	public SourceDocumentCreation(String downloadPath, DownloadSource source, GeneDocumentCache geneCache) {
+	public SourceDocumentCreation(String downloadPath, DownloadSource source, GeneDocumentCache geneCache, HashSet<String> variantsCache) {
 		this.downloadPath = downloadPath;
 		this.source = source;
 		this.geneCache = geneCache;
+		this.variantsCache = variantsCache;
 		speciesType = SpeciesType.getTypeByID(source.getTaxonId());
 		messageHeader = speciesType.getModName() + " ";
 	}
@@ -513,6 +516,7 @@ public class SourceDocumentCreation extends Thread {
 					for (VariantContext ctx : ctxList) {
 						try {
 							List<VariantSummaryDocument> variantSummaryDocuments = variantSummaryConverter.convertContextToDocument(ctx, speciesType);
+							variantSummaryDocuments.removeIf(doc -> doc.getSymbol() != null && variantsCache.contains(doc.getSymbol()));
 							for (VariantSummaryDocument variantSummaryDocument : variantSummaryDocuments) {
 								workBucket.add(variantSummaryDocument);
 								ph2.progressProcess("objectQueue: " + objectQueue.size());
