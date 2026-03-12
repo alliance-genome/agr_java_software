@@ -7,7 +7,6 @@ import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.filedownload.model.DownloadFileSet;
 import org.alliancegenome.core.filedownload.model.DownloadSource;
 import org.alliancegenome.core.variant.config.VariantConfigHelper;
-import org.alliancegenome.curation_api.interfaces.document.GeneExpressionDocumentInterface;
 import org.alliancegenome.curation_api.interfaces.document.VariantDocumentInterface;
 import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.es.rest.RestConfig;
@@ -39,7 +38,7 @@ public class SourceDocumentCreationManager extends Thread {
 			GeneIndexerRepository geneRepo = new GeneIndexerRepository();
 			GeneDocumentCache geneCache = geneRepo.getGeneCacheCrossReferencesSynonyms();
 
-			HashSet<String> variantsCache= new HashSet<>(variantApi.getAllVariantNames().getEntities());
+			HashSet<String> variantsCache = new HashSet<>(variantApi.getAllVariantNames().getEntities());
 			geneRepo.close();
 
 			for (DownloadSource source : downloadSet.getDownloadFileSources()) {
