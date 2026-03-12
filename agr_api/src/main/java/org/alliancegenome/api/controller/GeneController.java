@@ -193,7 +193,7 @@ public class GeneController implements GeneRESTInterface {
 		String variantSift, String hasDisease, String hasPhenotype, String category, String location) {
 		int pageSize = 10000;
 		int page = 1;
-		List<SequenceSummaryDocument> allResults = new java.util.ArrayList<>();
+		List<SequenceSummaryDocument> allResults = new ArrayList<>();
 		long total;
 		do {
 			JsonResultResponse<SequenceSummaryDocument> batch = getAllelesVariantPerGene(id, pageSize, page, null, null, symbol, associatedGeneSymbol, synonyms, hgvsgName, variantType, molecularConsequence, impact, sequenceFeatureType, sequenceFeature, variantPolyphen, variantSift, hasDisease,
