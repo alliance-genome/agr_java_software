@@ -1,6 +1,6 @@
 package org.alliancegenome.indexer.indexers.curation;
 
-import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import org.alliancegenome.core.config.ConfigHelper;
@@ -22,11 +22,8 @@ import si.mazi.rescu.RestProxyFactory;
 public class DiseaseSearchResultCurationIndexer extends Indexer {
 
 	private final DiseaseDocumentInterface diseaseApi = RestProxyFactory.createProxy(DiseaseDocumentInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
-	
-	private HashMap<String, Object> params = new HashMap<>() {{
-		put("internal", false);
-		put("obsolete", false);
-	}};
+
+	private List<List<Long>> idBatches;
 
 	public DiseaseSearchResultCurationIndexer(IndexerConfig indexerConfig) {
 		super(indexerConfig);
@@ -35,16 +32,24 @@ public class DiseaseSearchResultCurationIndexer extends Indexer {
 	@Override
 	protected void index() {
 		try {
-			SearchResponse<DiseaseSearchResultDocument> diseaseSummaryResponse = diseaseApi.findSearchResult(0, 0, params);
-			int totalPages = (int) (diseaseSummaryResponse.getTotalResults() / indexerConfig.getBufferSize());
+			log.info("Fetching all disease search result IDs...");
+			SearchResponse<Long> idsResponse = diseaseApi.getAllIds();
+			List<Long> allIds = idsResponse.getResults();
+			log.info("Fetched {} disease search result IDs", allIds.size());
+
+			idBatches = partition(allIds, indexerConfig.getBufferSize());
+			log.info("Partitioned into {} batches of up to {}", idBatches.size(), indexerConfig.getBufferSize());
+
 			LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
-			for (int i = 0; i <= totalPages; i++) {
+			for (int i = 0; i < idBatches.size(); i++) {
 				queue.add(String.valueOf(i));
 			}
+
 			initiateThreading(queue);
 		} catch (Exception e) {
+			log.error("Error while indexing...", e);
 			ExceptionCatcher.report(e);
-			e.printStackTrace();
+			System.exit(-1);
 		}
 	}
 
@@ -55,10 +60,12 @@ public class DiseaseSearchResultCurationIndexer extends Indexer {
 				if (queue.isEmpty()) {
 					return;
 				}
-				String page = queue.takeFirst();
-				SearchResponse<DiseaseSearchResultDocument> response = diseaseApi.findSearchResult(Integer.valueOf(page), indexerConfig.getBufferSize(), params);
+				String batchIndex = queue.takeFirst();
+				List<Long> batchIds = idBatches.get(Integer.parseInt(batchIndex));
+
+				SearchResponse<DiseaseSearchResultDocument> response = diseaseApi.findByIds(batchIds);
 				if (response == null || CollectionUtils.isEmpty(response.getResults())) {
-					return;
+					continue;
 				}
 
 				indexDocuments(response.getResults());
@@ -75,5 +82,5 @@ public class DiseaseSearchResultCurationIndexer extends Indexer {
 	protected ObjectMapper customizeObjectMapper(ObjectMapper objectMapper) {
 		return RestConfig.config.getJacksonObjectMapperFactory().createObjectMapper();
 	}
-	
+
 }
