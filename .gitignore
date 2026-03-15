@@ -13,3 +13,4 @@ agr_indexer/alliance_popularity.tsv
 # vscode
 .vscode/
 .factorypath
+.claude
