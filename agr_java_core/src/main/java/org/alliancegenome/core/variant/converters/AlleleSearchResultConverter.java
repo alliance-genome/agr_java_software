@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
 import org.alliancegenome.curation_api.model.entities.Allele;
 import org.alliancegenome.es.model.AlleleSearchResultDocument;
+import org.alliancegenome.es.model.search.RelatedDataLink;
 import org.apache.commons.collections.CollectionUtils;
 
 public class AlleleSearchResultConverter {
@@ -65,6 +66,27 @@ public class AlleleSearchResultConverter {
 				searchDoc.setPopularity(allele.getPopularity());
 			} else {
 				searchDoc.setPopularity(0.0);
+			}
+
+			List<RelatedDataLink> relatedData = new ArrayList<>();
+			if (doc.getAlleleOfGene() != null && doc.getAlleleOfGene().getGeneSymbol() != null) {
+				RelatedDataLink geneLink = new RelatedDataLink();
+				geneLink.setCategory("gene");
+				geneLink.setTargetField("alleles");
+				geneLink.setSourceName(searchDoc.getNameKey());
+				geneLink.setCount(1L);
+				relatedData.add(geneLink);
+			}
+			if (Boolean.TRUE.equals(doc.getHasDisease())) {
+				RelatedDataLink diseaseLink = new RelatedDataLink();
+				diseaseLink.setCategory("disease");
+				diseaseLink.setTargetField("alleles");
+				diseaseLink.setSourceName(searchDoc.getNameKey());
+				diseaseLink.setCount(1L);
+				relatedData.add(diseaseLink);
+			}
+			if (!relatedData.isEmpty()) {
+				searchDoc.setRelatedData(relatedData);
 			}
 
 			result.add(searchDoc);

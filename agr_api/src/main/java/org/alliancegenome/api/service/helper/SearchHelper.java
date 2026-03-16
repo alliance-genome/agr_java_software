@@ -282,6 +282,7 @@ public class SearchHelper {
 			add("tags");
 			add("variants");
 			add("variantName");
+			add("relatedData");
 		}
 	};
 

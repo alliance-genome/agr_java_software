@@ -5,6 +5,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import org.alliancegenome.curation_api.model.document.es.ESDocument;
+import org.alliancegenome.es.model.search.RelatedDataLink;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -14,7 +15,7 @@ import lombok.Setter;
 public class AlleleSearchResultDocument extends ESDocument {
 
 	public AlleleSearchResultDocument() {
-		category = "allele_variant_search_results";
+		category = "allele_variant_search_result";
 	}
 
 	private boolean searchable;
@@ -35,5 +36,6 @@ public class AlleleSearchResultDocument extends ESDocument {
 	private String globalId;
 	private String localId;
 	private String modCrossRefCompleteUrl;
+	private List<RelatedDataLink> relatedData;
 
 }

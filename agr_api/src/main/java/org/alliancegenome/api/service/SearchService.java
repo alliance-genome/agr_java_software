@@ -320,6 +320,10 @@ public class SearchService {
 	}
 
 	public void addRelatedDataLinks(Map<String, Object> result) {
+		// Skip if relatedData was already set at index time
+		if (result.containsKey("relatedData")) {
+			return;
+		}
 		String nameKey = (String) result.get("name_key");
 		// Gene documents use "name_key" (snake_case), GO search result documents use "nameKey" (camelCase)
 		if (nameKey == null) {
