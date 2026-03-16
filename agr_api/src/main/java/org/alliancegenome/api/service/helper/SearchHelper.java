@@ -62,7 +62,7 @@ public class SearchHelper {
 					add("associatedSpecies");
 				}
 			});
-			put(Category.ALLELE.getName(), new ArrayList<>() {
+			put(Category.ALLELE_VARIANT.getName(), new ArrayList<>() {
 				{
 					add("species");
 					add("alterationType");
@@ -90,19 +90,6 @@ public class SearchHelper {
 					add("variantType");
 					add("molecularConsequence");
 					add("genes");
-				}
-			});
-			put(Category.ALLELE_VARIANT.getName(), new ArrayList<>() {
-				{
-					add("species");
-					add("alterationType");
-					add("variantType");
-					add("molecularConsequence");
-					add("diseasesAgrSlim");
-					add("genes");
-					add("constructExpressedComponent");
-					add("constructKnockdownComponent");
-					add("constructRegulatoryRegion");
 				}
 			});
 		}
@@ -345,10 +332,7 @@ public class SearchHelper {
 
 		if (category == null) {
 			Terms aggs = res.getAggregations().get("categories");
-			// Allow allele and variant_search_result through for merging
 			Set<String> acceptableKeys = new HashSet<>(categoryFilters.keySet());
-			acceptableKeys.add(Category.ALLELE.getName());
-			acceptableKeys.add(Category.VARIANT.getName());
 			AggResult ares = new AggResult("category", aggs, acceptableKeys);
 			mergeAlleleVariantBuckets(ares);
 			orderCategoryBuckets(ares);
@@ -367,13 +351,13 @@ public class SearchHelper {
 	}
 
 	/**
-	 * Merge the "allele" and "variant_search_result" aggregation buckets into a single "allele_variant" bucket.
+	 * Merge the "allele_variant_search_results" and "variant_search_results" aggregation buckets into a single "allele_variant_search_results" bucket.
 	 */
 	private void mergeAlleleVariantBuckets(AggResult aggResult) {
 		long combinedCount = 0;
 		List<AggDocCount> toRemove = new ArrayList<>();
 		for (AggDocCount bucket : aggResult.getValues()) {
-			if (bucket.getKey().equals(Category.ALLELE.getName()) || bucket.getKey().equals(Category.VARIANT.getName())) {
+			if (bucket.getKey().equals(Category.ALLELE_VARIANT.getName()) || bucket.getKey().equals(Category.VARIANT.getName())) {
 				combinedCount += bucket.getTotal();
 				toRemove.add(bucket);
 			}

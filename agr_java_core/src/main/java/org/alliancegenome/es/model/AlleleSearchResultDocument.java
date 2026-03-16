@@ -14,7 +14,7 @@ import lombok.Setter;
 public class AlleleSearchResultDocument extends ESDocument {
 
 	public AlleleSearchResultDocument() {
-		category = "allele";
+		category = "allele_variant_search_results";
 	}
 
 	private boolean searchable;
