@@ -15,7 +15,7 @@ import org.alliancegenome.api.entity.GeneTransgenicAlleleSummaryDocument;
 import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
 import org.alliancegenome.api.service.AffectedGenomicModelESService;
 import org.alliancegenome.api.service.AlleleESService;
-import org.alliancegenome.api.service.AlleleService;
+
 import org.alliancegenome.api.service.DiseaseESService;
 import org.alliancegenome.api.service.EntityType;
 import org.alliancegenome.api.service.ExpressionService;
@@ -65,9 +65,6 @@ public class GeneController implements GeneRESTInterface {
 
 	@Inject
 	AlleleESService alleleESService;
-
-	@Inject
-	AlleleService alleleService;
 
 	@Inject
 	OrthologyESService orthologyESService;
