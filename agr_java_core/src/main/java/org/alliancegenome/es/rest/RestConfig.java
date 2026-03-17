@@ -1,5 +1,9 @@
 package org.alliancegenome.es.rest;
 
+import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.curation_api.model.entities.ResourceDescriptor;
+import org.alliancegenome.curation_api.model.entities.ResourceDescriptorPage;
+
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.StreamReadFeature;
@@ -9,11 +13,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
 import jakarta.ws.rs.HeaderParam;
 import lombok.extern.slf4j.Slf4j;
-import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.curation_api.model.entities.ResourceDescriptor;
-import org.alliancegenome.curation_api.model.entities.ResourceDescriptorPage;
 import si.mazi.rescu.ClientConfig;
 import si.mazi.rescu.serialization.jackson.JacksonObjectMapperFactory;
 
@@ -42,8 +44,8 @@ public class RestConfig {
 			config.addDefaultParam(HeaderParam.class, "Authorization", ConfigHelper.getCurationApiToken());
 			log.info("Using Authorization token");
 		}
-		config.setHttpConnTimeout(300000);
-		config.setHttpReadTimeout(300000);
+		config.setHttpConnTimeout(600000);
+		config.setHttpReadTimeout(600000);
 	}
 
 	public static ObjectMapper createObjectMapper() {
