@@ -1,7 +1,29 @@
 package org.alliancegenome.indexer.config;
 
-import org.alliancegenome.indexer.indexers.*;
-import org.alliancegenome.indexer.indexers.curation.*;
+import org.alliancegenome.indexer.indexers.DiseaseIndexer;
+import org.alliancegenome.indexer.indexers.GeneIndexer;
+import org.alliancegenome.indexer.indexers.LiteratureIndexer;
+import org.alliancegenome.indexer.indexers.ModelIndexer;
+import org.alliancegenome.indexer.indexers.curation.AffectedGenomicModelCurationIndexer;
+import org.alliancegenome.indexer.indexers.curation.AlleleSummaryCurationIndexer;
+import org.alliancegenome.indexer.indexers.curation.DiseaseAnnotationCurationIndexer;
+import org.alliancegenome.indexer.indexers.curation.DiseaseSearchResultCurationIndexer;
+import org.alliancegenome.indexer.indexers.curation.DiseaseSummaryCurationIndexer;
+import org.alliancegenome.indexer.indexers.curation.GOSearchResultCurationIndexer;
+import org.alliancegenome.indexer.indexers.curation.GeneExpressionAnnotationIndexer;
+import org.alliancegenome.indexer.indexers.curation.GeneExpressionRibbonSummaryIndexer;
+import org.alliancegenome.indexer.indexers.curation.GeneGeneticInteractionCurationIndexer;
+import org.alliancegenome.indexer.indexers.curation.GeneMolecularInteractionCurationIndexer;
+import org.alliancegenome.indexer.indexers.curation.GeneSearchResultCurationIndexer;
+import org.alliancegenome.indexer.indexers.curation.GeneSummaryCurationIndexer;
+import org.alliancegenome.indexer.indexers.curation.GeneToGeneOrthologyIndexer;
+import org.alliancegenome.indexer.indexers.curation.GeneToGeneParalogyIndexer;
+import org.alliancegenome.indexer.indexers.curation.HTPDatasetSearchResultCurationIndexer;
+import org.alliancegenome.indexer.indexers.curation.PhenotypeAnnotationCurationIndexer;
+import org.alliancegenome.indexer.indexers.curation.ReleaseInfoIndexer;
+import org.alliancegenome.indexer.indexers.curation.SiteMapAccessionCurationIndexer;
+import org.alliancegenome.indexer.indexers.curation.TransgenicAlleleCurationIndexer;
+import org.alliancegenome.indexer.indexers.curation.VariantSummaryCurationIndexer;
 
 public enum IndexerConfig {
 
@@ -41,7 +63,7 @@ public enum IndexerConfig {
 	DiseaseAnnotationIndexer("diseaseAnnotation", DiseaseAnnotationCurationIndexer.class, 1, 1500, 1500, 2, 1, false),
 	VariantSummaryIndexer("variantSummary", VariantSummaryCurationIndexer.class, 1, 3000, 1500, 8, 1, false),
 
-	//GeneSearchResultCurationIndexer("geneSearchResult", GeneSearchResultCurationIndexer.class, 4, 1000, 1500, 4, 1, false),
+	GeneSearchResultCurationIndexer("geneSearchResult", GeneSearchResultCurationIndexer.class, 4, 1000, 1500, 4, 1, false),
 
 	;
 
