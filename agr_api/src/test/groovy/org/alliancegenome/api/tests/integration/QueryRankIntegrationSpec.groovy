@@ -30,8 +30,8 @@ class QueryRankIntegrationSpec extends Specification {
 
         where:
         query                 | filter                               | betterResultId             | worseResultId             | issue
-        "parkinson's disease" | "&category=gene&species=Danio+rerio" | "ZFIN:ZDB-GENE-050417-109" | "ZFIN:ZDB-GENE-040827-4"  | "AGR-461"
-        "melanogaster kinase" | "&category=gene"                     | "FB:FBgn0028427"           | "RGD:1308199"             | "AGR-461"
+        "parkinson's disease" | "&category=gene_search_result&species=Danio+rerio" | "ZFIN:ZDB-GENE-050417-109" | "ZFIN:ZDB-GENE-040827-4"  | "AGR-461"
+        "melanogaster kinase" | "&category=gene_search_result"                     | "FB:FBgn0028427"           | "RGD:1308199"             | "AGR-461"
         "maple bark"          | ""                                   | "DOID:8484"                | "FB:FBgn0031571"          | "AGR-461"
     }
 
@@ -41,7 +41,7 @@ class QueryRankIntegrationSpec extends Specification {
         when:
         def encodedQuery = URLEncoder.encode(query, "UTF-8")
         //todo: need to set the base search url in a nicer way
-        def results = ApiTester.getApiResults("/api/search?category=gene&limit=50&offset=0&q=$encodedQuery")
+        def results = ApiTester.getApiResults("/api/search?category=gene_search_result&limit=50&offset=0&q=$encodedQuery")
         def firstResultSymbol = results.first().get("symbol").toLowerCase()
 
         then:
@@ -59,7 +59,7 @@ class QueryRankIntegrationSpec extends Specification {
         when:
         def encodedQuery = URLEncoder.encode(query, "UTF-8")
         //todo: need to set the base search url in a nicer way
-        def results = ApiTester.getApiResults("/api/search?category=gene&limit=50&offset=0&q=$encodedQuery")
+        def results = ApiTester.getApiResults("/api/search?category=gene_search_result&limit=50&offset=0&q=$encodedQuery")
         def names = (results.take(n)*.symbol)*.toLowerCase()
 
         def results2 = ApiTester.getApiResults("/api/search_autocomplete?q=$encodedQuery")
@@ -83,7 +83,7 @@ class QueryRankIntegrationSpec extends Specification {
         when:
         def encodedQuery = URLEncoder.encode(query, "UTF-8")
         //todo: need to set the base search url in a nicer way
-        def results = ApiTester.getApiResults("/api/search?category=gene&limit=50&offset=0&q=$encodedQuery")
+        def results = ApiTester.getApiResults("/api/search?category=gene_search_result&limit=50&offset=0&q=$encodedQuery")
 
         def resultIds = results*.id
 
@@ -157,16 +157,16 @@ class QueryRankIntegrationSpec extends Specification {
        positions.get(id) <= n
 
        where:
-       query                            | id           | nameKey        | category | n
-       "breast cancer"                  | "HGNC:1100"  | "BRCA1 (Hsa)"  | "gene"   | 2
-       "breast cancer"                  | "HGNC:1101"  | "BRCA2 (Hsa)"  | "gene"   | 2
-       "Huntington’s"                   | "HGNC:4851"  | "HTT (Hsa)"    | "gene"   | 7
-       "familial adenomatous polyposis" | "HGNC:583"   | "APC (Hsa)"    | "gene"   | 3
-       "Parkinson’s"                    | "HGNC:8607"   | "PRKN (Hsa)"  | "gene"   | 20
-//       "Alzheimer’s"                    | "HGNC:620"    | "APP (Hsa)"   | "gene"   | 10 //failing at 27
-//       "Alzheimer’s"                    | "HGNC:9508"   | "PSEN1 (Hsa)" | "gene"   | 10 //failing at 223 !
-//       "Alzheimer’s"                    | "HGNC:9509"   | "PSEN2 (Hsa)" | "gene"   | 10 //failing at 21
-       "Cystic fibrosis"                | "HGNC:1884"   | "CFTR"        | "gene"   | 1
+       query                            | id           | nameKey        | category              | n
+       "breast cancer"                  | "HGNC:1100"  | "BRCA1 (Hsa)"  | "gene_search_result"   | 2
+       "breast cancer"                  | "HGNC:1101"  | "BRCA2 (Hsa)"  | "gene_search_result"   | 2
+       "Huntington’s"                   | "HGNC:4851"  | "HTT (Hsa)"    | "gene_search_result"   | 7
+       "familial adenomatous polyposis" | "HGNC:583"   | "APC (Hsa)"    | "gene_search_result"   | 3
+       "Parkinson’s"                    | "HGNC:8607"   | "PRKN (Hsa)"  | "gene_search_result"   | 20
+//       "Alzheimer’s"                    | "HGNC:620"    | "APP (Hsa)"   | "gene_search_result"   | 10 //failing at 27
+//       "Alzheimer’s"                    | "HGNC:9508"   | "PSEN1 (Hsa)" | "gene_search_result"   | 10 //failing at 223 !
+//       "Alzheimer’s"                    | "HGNC:9509"   | "PSEN2 (Hsa)" | "gene_search_result"   | 10 //failing at 21
+       "Cystic fibrosis"                | "HGNC:1884"   | "CFTR"        | "gene_search_result"   | 1
     }
 
 }

@@ -19,12 +19,12 @@ class QueryMatchIntegrationSpec extends Specification {
 
         where:
         filter             | query                    | issue
-        "&category=gene"   | "FBgn0086442"            | "AGR-525"
-        "&category=gene"   | "FB:FBgn0086442"         | "AGR-525"
-        "&category=gene"   | "ZDB-GENE-001120-2"      | "AGR-525"
-        "&category=gene"   | "ZFIN:ZDB-GENE-001120-2" | "AGR-525"
-        "&category=gene"   | "WBGene00000244"         | "AGR-525"
-        "&category=gene"   | "WB:WBGene00000244"      | "AGR-525"
+        "&category=gene_search_result"   | "FBgn0086442"            | "AGR-525"
+        "&category=gene_search_result"   | "FB:FBgn0086442"         | "AGR-525"
+        "&category=gene_search_result"   | "ZDB-GENE-001120-2"      | "AGR-525"
+        "&category=gene_search_result"   | "ZFIN:ZDB-GENE-001120-2" | "AGR-525"
+        "&category=gene_search_result"   | "WBGene00000244"         | "AGR-525"
+        "&category=gene_search_result"   | "WB:WBGene00000244"      | "AGR-525"
         "&category=allele" | "MGI:5752578"            | "AGR-525"
 
     }

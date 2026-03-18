@@ -22,6 +22,7 @@ import org.alliancegenome.curation_api.model.document.es.GeneExpressionRibbonSum
 import org.alliancegenome.curation_api.model.entities.Gene;
 import org.alliancegenome.curation_api.model.entities.GeneExpressionAnnotation;
 import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.es.model.search.Category;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MultiValuedMap;
@@ -112,10 +113,8 @@ public class ExpressionRibbonESService extends ESService {
 
 	public Map<String, Object> getGene(String geneID) {
 		BoolQueryBuilder boolQuery = boolQuery();
-		// Need to change category = gene to new category when the search functionlity
-		// is converted into ES
-		boolQuery.filter(new TermQueryBuilder("category", "gene"));
-		boolQuery.filter(new TermQueryBuilder("primaryKey", geneID));
+		boolQuery.filter(new TermQueryBuilder("category", Category.GENE.getName()));
+		boolQuery.filter(new TermQueryBuilder("curie", geneID));
 		LinkedHashMap<String, SortOrder> sorts = new LinkedHashMap<>();
 		Pagination pagination = new Pagination();
 		SearchResponse searchResponse = getSearchResponse(boolQuery, pagination, sorts, false);

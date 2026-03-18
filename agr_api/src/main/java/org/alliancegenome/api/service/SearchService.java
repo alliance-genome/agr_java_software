@@ -170,6 +170,7 @@ public class SearchService {
 		functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("species.synonyms", q), ScoreFunctionBuilders.weightFactorFunction(2F)));
 
 		functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("automatedGeneSynopsis", q), ScoreFunctionBuilders.weightFactorFunction(1.5F)));
+		functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("automatedGeneDescription", q), ScoreFunctionBuilders.weightFactorFunction(1.5F)));
 
 		functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("diseases", q), ScoreFunctionBuilders.weightFactorFunction(1.2F)));
 
@@ -354,12 +355,12 @@ public class SearchService {
 		} else if (StringUtils.equals(category, Category.GO.getName())) {
 			String goType = (String) result.get("branch");
 			if (StringUtils.equals(goType, "biological_process")) {
-				links.add(getRelatedDataLink("gene", "biologicalProcessWithParents", nameKey, "Genes Annotated with this GO Term"));
+				links.add(getRelatedDataLink(Category.GENE.getName(), "biologicalProcessWithParents", nameKey, "Genes Annotated with this GO Term"));
 			} else if (StringUtils.equals(goType, "molecular_function")) {
-				links.add(getRelatedDataLink("gene", "molecularFunctionWithParents", nameKey, "Genes Annotated with this GO Term"));
+				links.add(getRelatedDataLink(Category.GENE.getName(), "molecularFunctionWithParents", nameKey, "Genes Annotated with this GO Term"));
 			} else if (StringUtils.equals(goType, "cellular_component")) {
-				links.add(getRelatedDataLink("gene", "cellularComponentWithParents", nameKey, "Genes Annotated with this GO Term"));
-				links.add(getRelatedDataLink("gene", "cellularComponentExpressionWithParents", nameKey, "Genes Expressed in this Structure"));
+				links.add(getRelatedDataLink(Category.GENE.getName(), "cellularComponentWithParents", nameKey, "Genes Annotated with this GO Term"));
+				links.add(getRelatedDataLink(Category.GENE.getName(), "cellularComponentExpressionWithParents", nameKey, "Genes Expressed in this Structure"));
 			}
 		}
 

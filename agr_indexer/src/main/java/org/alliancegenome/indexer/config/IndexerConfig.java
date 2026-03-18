@@ -1,7 +1,6 @@
 package org.alliancegenome.indexer.config;
 
-import org.alliancegenome.indexer.indexers.DiseaseIndexer;
-import org.alliancegenome.indexer.indexers.GeneIndexer;
+
 import org.alliancegenome.indexer.indexers.LiteratureIndexer;
 import org.alliancegenome.indexer.indexers.ModelIndexer;
 import org.alliancegenome.indexer.indexers.curation.AffectedGenomicModelCurationIndexer;
@@ -25,13 +24,10 @@ import org.alliancegenome.indexer.indexers.curation.SiteMapAccessionCurationInde
 import org.alliancegenome.indexer.indexers.curation.TransgenicAlleleCurationIndexer;
 import org.alliancegenome.indexer.indexers.curation.VariantSummaryCurationIndexer;
 
+
 public enum IndexerConfig {
 
 	// Neo Indexers
-	GeneIndexer("gene", GeneIndexer.class, 4, 359, 359, 8, 1, false),
-	//DatasetIndexer("dataset", DatasetIndexer.class, 4, 566, 566, 8, 1, false), // Disabled: Dataset indexing now handled by HTPDatasetSearchResultCurationIndexer
-	DiseaseIndexer("disease", DiseaseIndexer.class, 4, 680, 680, 8, 1, false),
-	//GoIndexer("go", GoIndexer.class, 4, 914, 914, 8, 1, false), // Disabled: GO indexing now handled by GOSearchResultCurationIndexer
 	ModelIndexer("model", ModelIndexer.class, 4, 1500, 1426, 4, 1, false),
 
 	// Curation Indexers
