@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.module.blackbird.BlackbirdModule;
 
 import jakarta.ws.rs.HeaderParam;
 import lombok.extern.slf4j.Slf4j;
@@ -56,6 +57,7 @@ public class RestConfig {
 
 		ObjectMapper mapper = new ObjectMapper(factory);
 		mapper.registerModule(new JavaTimeModule());
+		mapper.registerModule(new BlackbirdModule());
 		mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
 		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 		mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
