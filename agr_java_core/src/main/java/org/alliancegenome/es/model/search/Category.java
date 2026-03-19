@@ -6,9 +6,9 @@ public enum Category {
 	ALLELE_VARIANT("allele_variant_search_result", true),
 	VARIANT("variant_search_result", true),
 	SEQUENCE_SUMMARY("sequence_summary", false),
-	DISEASE("disease", true),
+	DISEASE("disease_search_result", true),
 	MODEL("model", true),
-	GENE("gene", true),
+	GENE("gene_search_result", true),
 	GO("go_search_result", true),
 	DATASET("htp_dataset_search_result", true);
 

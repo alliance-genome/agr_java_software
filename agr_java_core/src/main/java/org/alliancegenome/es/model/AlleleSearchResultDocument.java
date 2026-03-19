@@ -2,10 +2,10 @@ package org.alliancegenome.es.model;
 
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import org.alliancegenome.curation_api.model.document.es.ESDocument;
 import org.alliancegenome.es.model.search.RelatedDataLink;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Getter;
 import lombok.Setter;
