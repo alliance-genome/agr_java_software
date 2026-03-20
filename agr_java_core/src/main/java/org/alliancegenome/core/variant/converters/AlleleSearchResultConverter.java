@@ -90,6 +90,13 @@ public class AlleleSearchResultConverter {
 				searchDoc.setRelatedData(relatedData);
 			}
 
+			if (doc.getDiseases() != null && !doc.getDiseases().isEmpty()) {
+				searchDoc.setDiseases(new ArrayList<>(doc.getDiseases()));
+			}
+			if (doc.getDiseasesAgrSlim() != null && !doc.getDiseasesAgrSlim().isEmpty()) {
+				searchDoc.setDiseasesAgrSlim(new ArrayList<>(doc.getDiseasesAgrSlim()));
+			}
+
 			result.add(searchDoc);
 		}
 		return result;
