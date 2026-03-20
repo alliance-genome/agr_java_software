@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
+import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.filedownload.model.DownloadSource;
 import org.alliancegenome.core.util.StatsCollector;
 import org.alliancegenome.core.variant.config.VariantConfigHelper;
@@ -274,9 +275,9 @@ public class SourceDocumentCreation extends Thread {
 				}
 			});
 
-			int concurrentRequests = 10;
-			ByteSizeValue bulkSize = new ByteSizeValue(10, ByteSizeUnit.MB);
-			BackoffPolicy backoff = BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(1L), 60);
+			int concurrentRequests = ConfigHelper.getEsBulkConcurrentRequests();
+			ByteSizeValue bulkSize = new ByteSizeValue(ConfigHelper.getEsBulkSizeMB(), ByteSizeUnit.MB);
+			BackoffPolicy backoff = BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(1L), 100);
 
 			bulkProcessor1 = builder1.setBulkActions(7643).setConcurrentRequests(concurrentRequests).setBulkSize(bulkSize).setBackoffPolicy(backoff).build();
 			bulkProcessor2 = builder2.setBulkActions(6410).setConcurrentRequests(concurrentRequests).setBulkSize(bulkSize).setBackoffPolicy(backoff).build();

@@ -85,8 +85,8 @@ public class ConfigHelper {
 
 		// ES Bulk Processing defaults
 		defaults.put(ES_BULK_ACTION_SIZE, "400");
-		defaults.put(ES_BULK_REQUEST_SIZE, "4");
-		defaults.put(ES_BULK_CONCURRENT_REQUESTS, "4");
+		defaults.put(ES_BULK_REQUEST_SIZE, "10");
+		defaults.put(ES_BULK_CONCURRENT_REQUESTS, "2");
 
 		defaults.put(INDEX_VARIANTS, "false");
 
