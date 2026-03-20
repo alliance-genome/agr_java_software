@@ -34,6 +34,7 @@ public class SequenceSummaryConverter {
 					ssd.setVariant(doc.getVariants().get(0));
 					ssd.setConsequence(consequence);
 					ssd.setAlterationType("variant");
+					ssd.setAlterationTypeSortOrder(4);
 
 					HashSet<String> geneIds = new HashSet<>();
 					for (TranscriptGeneAssociation assoc : consequence.getVariantTranscript().getTranscriptGeneAssociations()) {
