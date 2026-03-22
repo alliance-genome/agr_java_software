@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
 import org.alliancegenome.curation_api.model.entities.Allele;
 import org.alliancegenome.es.model.AlleleSearchResultDocument;
+import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.es.model.search.Category;
 import org.alliancegenome.es.model.search.RelatedDataLink;
 import org.apache.commons.collections.CollectionUtils;
@@ -56,7 +57,14 @@ public class AlleleSearchResultConverter {
 			}
 
 			if (doc.getAlleleOfGene() != null && doc.getAlleleOfGene().getGeneSymbol() != null) {
-				searchDoc.setGenes(List.of(doc.getAlleleOfGene().getGeneSymbol().getDisplayText()));
+				String geneSymbol = doc.getAlleleOfGene().getGeneSymbol().getDisplayText();
+				if (allele.getTaxon() != null) {
+					SpeciesType speciesType = SpeciesType.getTypeByNameField(allele.getTaxon().getName());
+					if (speciesType != null) {
+						geneSymbol = geneSymbol + " (" + speciesType.getAbbreviation() + ")";
+					}
+				}
+				searchDoc.setGenes(List.of(geneSymbol));
 			}
 
 			if (doc.getCrossReference() != null && doc.getCrossReference().getReferencedCurie() != null) {
@@ -95,6 +103,17 @@ public class AlleleSearchResultConverter {
 			}
 			if (doc.getDiseasesAgrSlim() != null && !doc.getDiseasesAgrSlim().isEmpty()) {
 				searchDoc.setDiseasesAgrSlim(new ArrayList<>(doc.getDiseasesAgrSlim()));
+			}
+
+			if (CollectionUtils.isNotEmpty(doc.getVariants())) {
+				List<String> variantTypes = doc.getVariants().stream()
+					.filter(v -> v.getVariantType() != null && v.getVariantType().getName() != null)
+					.map(v -> v.getVariantType().getName())
+					.distinct()
+					.toList();
+				if (!variantTypes.isEmpty()) {
+					searchDoc.setVariantType(variantTypes);
+				}
 			}
 
 			result.add(searchDoc);
