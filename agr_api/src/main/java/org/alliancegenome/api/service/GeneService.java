@@ -22,12 +22,10 @@ import org.alliancegenome.curation_api.model.document.es.SequenceSummaryDocument
 import org.alliancegenome.es.index.site.dao.SearchDAO;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.EntitySummary;
-import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.repository.PhenotypeRepository;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -220,20 +218,6 @@ public class GeneService {
 		summary.setNumberOfAnnotations(phenoRepo.getTotalPhenotypeCount(geneID, new Pagination()));
 		summary.setNumberOfEntities(phenoRepo.getDistinctPhenotypeCount(geneID));
 		return summary;
-	}
-
-	public List<Gene> getAllGenes(List<String> species) {
-		List<String> taxonIDs;
-		if (CollectionUtils.isEmpty(species)) {
-			taxonIDs = SpeciesType.getAllTaxonIDList();
-		} else {
-			taxonIDs = species.stream().map(SpeciesType::getTaxonId).collect(Collectors.toList());
-		}
-		if (CollectionUtils.isEmpty(taxonIDs)) {
-			return null;
-		}
-		List<String> taxIDs = taxonIDs.stream().map(SpeciesType::getTaxonId).collect(Collectors.toList());
-		return geneRepo.getAllGenes(taxIDs);
 	}
 
 }

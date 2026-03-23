@@ -5,48 +5,71 @@ import java.util.stream.Collectors;
 
 import org.alliancegenome.api.entity.GeneToGeneOrthologyDocument;
 import org.alliancegenome.es.model.query.FieldFilter;
-import org.alliancegenome.neo4j.view.OrthologyFilter.Stringency;
 import org.apache.commons.collections.CollectionUtils;
 
 public class OrthologyFiltering extends AnnotationFiltering<GeneToGeneOrthologyDocument> {
 
+	public FilterFunction<GeneToGeneOrthologyDocument, String> stringencyFilter = (orthoDoc, value) -> {
+		Stringency stringency = Stringency.getOrthologyFilter(value);
+		if (stringency == null) {
+			return false;
+		}
+		if (stringency.equals(Stringency.STRINGENT)) {
+			return FilterFunction.contains(orthoDoc.getStringencyFilter(), value);
+		}
+		if (stringency.equals(Stringency.MODERATE)) {
+			return FilterFunction.contains(orthoDoc.getStringencyFilter(), value) || FilterFunction.contains(orthoDoc.getStringencyFilter(), Stringency.STRINGENT.name());
+		}
+		if (stringency.equals(Stringency.ALL)) {
+			return true;
+		}
+		return false;
+	};
 
-	public FilterFunction<GeneToGeneOrthologyDocument, String> stringencyFilter =
-			(orthoDoc, value) -> {
-				Stringency stringency = Stringency.getOrthologyFilter(value);
-				if (stringency == null) {
-					return false;
-				}
-				if (stringency.equals(Stringency.STRINGENT)) {
-					return FilterFunction.contains(orthoDoc.getStringencyFilter(), value);
-				}
-			if (stringency.equals(Stringency.MODERATE)) {
-				return FilterFunction.contains(orthoDoc.getStringencyFilter(), value) || FilterFunction.contains(orthoDoc.getStringencyFilter(), Stringency.STRINGENT.name());
-			}
-				if (stringency.equals(Stringency.ALL)) {
-					return true;
-				}
-				return false;
-			};
+	public FilterFunction<GeneToGeneOrthologyDocument, String> methodFilter = (orthoDoc, value) -> {
+		if (CollectionUtils.isEmpty(orthoDoc.getGeneToGeneOrthologyGenerated().getPredictionMethodsMatched())) {
+			return false;
+		}
+		List<String> concatenatedMethodsList = orthoDoc.getGeneToGeneOrthologyGenerated().getPredictionMethodsMatched().stream().map(method -> method.getVocabulary().getName()).collect(Collectors.toList());
 
-	public FilterFunction<GeneToGeneOrthologyDocument, String> methodFilter =
-			(orthoDoc, value) -> {
-				if (CollectionUtils.isEmpty(orthoDoc.getGeneToGeneOrthologyGenerated().getPredictionMethodsMatched())) {
-					return false;
-				}
-				List<String> concatenatedMethodsList = orthoDoc.getGeneToGeneOrthologyGenerated().getPredictionMethodsMatched()
-						.stream()
-						.map(method -> method.getVocabulary().getName())
-						.collect(Collectors.toList());
+		String concatenatedMethods = String.join(",", concatenatedMethodsList);
 
-				String concatenatedMethods = String.join(",", concatenatedMethodsList);
-
-				return FilterFunction.contains(concatenatedMethods, value);
-			};
+		return FilterFunction.contains(concatenatedMethods, value);
+	};
 
 	public OrthologyFiltering() {
 		filterFieldMap.put(FieldFilter.STRINGENCY, stringencyFilter);
 		filterFieldMap.put(FieldFilter.ORTHOLOGY_METHOD, methodFilter);
 	}
 
+	public enum Stringency {
+		ALL("all"), STRINGENT("stringent"), MODERATE("moderate");
+
+		private String name;
+
+		Stringency(String name) {
+			this.name = name;
+		}
+
+		public static Stringency getOrthologyFilter(String name) {
+			if (name == null || name.isEmpty() || name.equalsIgnoreCase("all")) {
+				return ALL;
+			}
+			if (name.trim().equalsIgnoreCase(STRINGENT.name)) {
+				return STRINGENT;
+			}
+			if (name.trim().equalsIgnoreCase(MODERATE.name)) {
+				return MODERATE;
+			}
+			return null;
+		}
+
+		public Boolean isStrict() {
+			return this.equals(STRINGENT);
+		}
+
+		public Boolean isModerate() {
+			return this.equals(MODERATE);
+		}
+	}
 }

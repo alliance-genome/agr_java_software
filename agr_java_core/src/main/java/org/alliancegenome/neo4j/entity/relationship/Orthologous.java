@@ -2,7 +2,6 @@ package org.alliancegenome.neo4j.entity.relationship;
 
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
 import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.view.OrthologyFilter;
 import org.alliancegenome.neo4j.view.PublicView;
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.RelationshipEntity;
@@ -30,17 +29,4 @@ public class Orthologous extends Neo4jEntity {
 	private boolean moderateFilter;
 	private boolean strictFilter;
 
-	public boolean hasFilter(OrthologyFilter filter) {
-		OrthologyFilter.Stringency stringency = filter.getStringency();
-		if (stringency.equals(OrthologyFilter.Stringency.ALL)) {
-			return true;
-		}
-		if (stringency.equals(OrthologyFilter.Stringency.MODERATE) && moderateFilter) {
-			return true;
-		}
-		if (stringency.equals(OrthologyFilter.Stringency.STRINGENT) && strictFilter) {
-			return true;
-		}
-		return false;
-	}
 }
