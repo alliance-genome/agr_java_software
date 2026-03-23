@@ -29,7 +29,7 @@ public class AlleleSearchResultDocument extends ESDocument {
 	private String species;
 	private Double popularity;
 	private String alterationType;
-	private List<String> variantType;
+	private List<String> variantTypes;
 	private Set<String> molecularConsequence;
 	private List<String> synonyms;
 	private List<String> secondaryIds;
