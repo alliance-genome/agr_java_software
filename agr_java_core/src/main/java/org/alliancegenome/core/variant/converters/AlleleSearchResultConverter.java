@@ -117,11 +117,17 @@ public class AlleleSearchResultConverter {
 
 				Set<String> consequences = new HashSet<>();
 				for (var variant : doc.getVariants()) {
-					if (variant.getCuratedVariantGenomicLocations() == null) continue;
+					if (variant.getCuratedVariantGenomicLocations() == null) {
+						continue;
+					}
 					for (var location : variant.getCuratedVariantGenomicLocations()) {
-						if (location.getPredictedVariantConsequences() == null) continue;
+						if (location.getPredictedVariantConsequences() == null) {
+							continue;
+						}
 						for (var pvc : location.getPredictedVariantConsequences()) {
-							if (pvc.getVepConsequences() == null) continue;
+							if (pvc.getVepConsequences() == null) {
+								continue;
+							}
 							for (var soTerm : pvc.getVepConsequences()) {
 								if (soTerm.getName() != null) {
 									consequences.add(soTerm.getName());
