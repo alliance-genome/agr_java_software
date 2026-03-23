@@ -1,6 +1,7 @@
 package org.alliancegenome.es.model;
 
 import java.util.List;
+import java.util.Set;
 
 import org.alliancegenome.curation_api.model.document.es.ESDocument;
 import org.alliancegenome.es.model.search.RelatedDataLink;
@@ -28,6 +29,8 @@ public class AlleleSearchResultDocument extends ESDocument {
 	private String species;
 	private Double popularity;
 	private String alterationType;
+	private List<String> variantTypes;
+	private Set<String> molecularConsequences;
 	private List<String> synonyms;
 	private List<String> secondaryIds;
 	private List<String> genes;

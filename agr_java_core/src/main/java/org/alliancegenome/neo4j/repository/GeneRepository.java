@@ -39,7 +39,6 @@ import org.alliancegenome.neo4j.entity.node.Species;
 import org.alliancegenome.neo4j.entity.node.Synonym;
 import org.alliancegenome.neo4j.entity.node.UBERONTerm;
 import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
-import org.alliancegenome.neo4j.view.OrthologyFilter;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections4.map.MultiKeyMap;
 import org.neo4j.ogm.model.Result;
@@ -447,48 +446,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 		return getGoSlimList(CELLULAR_COMPONENT.toLowerCase());
 	}
 
-	public List<Gene> getGenes(OrthologyFilter filter) {
 
-		String query = getAllGenesQuery(filter);
-		query += " RETURN gene order by gene.taxonID, gene.symbol ";
-		query += " SKIP " + (filter.getStart() - 1) + " limit " + filter.getRows();
-
-		Iterable<Gene> genes = query(query);
-		return StreamSupport.stream(genes.spliterator(), false).map(gene -> {
-			// gene.setSpeciesName(SpeciesType.fromTaxonId(gene.getTaxonId()).getName());
-			return gene;
-		}).collect(Collectors.toList());
-	}
-
-	public int getGeneCount(OrthologyFilter filter) {
-		String query = getAllGenesQuery(filter);
-		query += " RETURN count(gene) ";
-		long count = queryCount(query);
-		return (int) count;
-	}
-
-	private String getAllGenesQuery(OrthologyFilter filter) {
-		StringJoiner taxonJoiner = new StringJoiner(",", "[", "]");
-		String taxonClause = null;
-		if (filter.getTaxonIDs() != null) {
-			filter.getTaxonIDs().forEach(taxonID -> taxonJoiner.add("'" + taxonID + "'"));
-			taxonClause = taxonJoiner.toString();
-		}
-		String query = " MATCH (gene:Gene) ";
-		if (taxonClause != null) {
-			query += "WHERE gene.taxonId in " + taxonClause;
-		}
-		return query;
-	}
-
-	public List<String> getGeneIDs(OrthologyFilter filter) {
-		String query = getAllGenesQuery(filter);
-		query += " RETURN gene order by gene.taxonID, gene.symbol ";
-		query += " SKIP " + (filter.getStart() - 1) + " limit " + filter.getRows();
-
-		Iterable<Gene> genes = query(query);
-		return StreamSupport.stream(genes.spliterator(), false).map(gene -> gene.getPrimaryKey()).collect(Collectors.toList());
-	}
 
 	public Map<String, String> getStageList() {
 		if (stageMap != null) {

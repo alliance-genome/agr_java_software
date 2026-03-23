@@ -5,11 +5,8 @@ import static org.alliancegenome.api.service.EntityType.GENE;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.alliancegenome.api.entity.AGMDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
@@ -27,10 +24,8 @@ import org.alliancegenome.core.exceptions.RestErrorMessage;
 import org.alliancegenome.core.util.FileHelper;
 import org.alliancegenome.curation_api.model.document.es.DiseaseSummaryDocument;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.view.PublicView;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -261,7 +256,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 			pagination.addFilterOption("subject.curie", geneID);
 		}
 		if (species != null) {
-			pagination.addFilterOption("subject.taxon.name.keyword", correctSpeciesInOptionList(species));
+			pagination.addFilterOption("subject.taxon.species.name.keyword", species);
 		}
 
 
@@ -282,18 +277,6 @@ public class DiseaseController implements DiseaseRESTInterface {
 			error.addErrorMessage(e.getMessage());
 			throw new RestErrorException(error);
 		}
-	}
-
-	/**
-	 * replace species name if a non-canonical should be used
-	 */
-	private static String correctSpeciesInOptionList(String speciesList) {
-		String[] individualSpecies = speciesList.split("\\|");
-		List<String> individualReplacedSpeciesList = new ArrayList<>();
-		for (String species : individualSpecies) {
-			individualReplacedSpeciesList.add(SpeciesType.getSpeciesNameCorrected(species));
-		}
-		return String.join("|", individualReplacedSpeciesList);
 	}
 
 	@Override
@@ -486,21 +469,6 @@ public class DiseaseController implements DiseaseRESTInterface {
 			throw new RestErrorException(error);
 		}
 
-		return responseBuilder.build();
-	}
-
-	@Override
-	public Response getDiseaseAnnotationsBySpeciesDownload(List<String> speciesIDs, String diseaseID, String sortBy) {
-
-		if (CollectionUtils.isEmpty(speciesIDs)) {
-			speciesIDs = Arrays.stream(SpeciesType.values()).map(SpeciesType::getTaxonID).collect(Collectors.toList());
-		} else {
-			speciesIDs = speciesIDs.stream().map(SpeciesType::getTaxonId).collect(Collectors.toList());
-		}
-		List<DiseaseAnnotation> alleleAnnotations = new ArrayList<>();
-		List<DiseaseAnnotation> geneAnnotations = new ArrayList<>();
-		List<DiseaseAnnotation> modelAnnotations = new ArrayList<>();
-		Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRowsForGenesAndAlleles(geneAnnotations, alleleAnnotations, modelAnnotations));
 		return responseBuilder.build();
 	}
 

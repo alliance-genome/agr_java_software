@@ -2,12 +2,12 @@ package org.alliancegenome.api.entity;
 
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.alliancegenome.curation_api.model.document.es.ESDocument;
 import org.alliancegenome.curation_api.model.entities.BiologicalEntity;
 import org.alliancegenome.curation_api.model.entities.ConditionRelation;
 import org.alliancegenome.curation_api.model.entities.DiseaseAnnotation;
@@ -16,7 +16,6 @@ import org.alliancegenome.curation_api.model.entities.Reference;
 import org.alliancegenome.curation_api.model.entities.VocabularyTerm;
 import org.alliancegenome.curation_api.model.entities.ontology.DOTerm;
 import org.alliancegenome.curation_api.model.entities.ontology.ECOTerm;
-import org.alliancegenome.es.index.site.document.SearchableItemDocument;
 import org.alliancegenome.neo4j.view.PublicView;
 import org.apache.commons.collections4.CollectionUtils;
 
@@ -28,7 +27,7 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class DiseaseAnnotationDocument extends SearchableItemDocument {
+public class DiseaseAnnotationDocument extends ESDocument {
 
 	private String uniqueId;
 	private Integer countId;
@@ -45,8 +44,7 @@ public class DiseaseAnnotationDocument extends SearchableItemDocument {
 	private Set<String> parentSlimIDs;
 	private List<DiseaseAnnotation> primaryAnnotations;
 	private List<Gene> basedOnGenes;
-	private HashMap<String, Integer> speciesOrder;
-	int phylogeneticSortingIndex;
+	private int phylogeneticSortingIndex;
 	private List<ConditionRelation> conditionModifierList;
 	private List<BiologicalEntity> geneticModifierList;
 	private VocabularyTerm geneticModifierRelation;

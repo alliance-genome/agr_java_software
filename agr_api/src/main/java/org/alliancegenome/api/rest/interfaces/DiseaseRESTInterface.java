@@ -276,11 +276,4 @@ public interface DiseaseRESTInterface {
 //allowedValues = "true,false"
 		@DefaultValue("true") @QueryParam("asc") String asc, @Parameter(in = ParameterIn.QUERY, name = "geneID", description = "Gene by ID", required = true) @RequestBody List<String> geneIDs) throws JsonProcessingException;
 
-	@GET
-	@Path("/annotation/download")
-	@Operation(summary = "Download all disease annotations of a given set of species", hidden = true)
-	Response getDiseaseAnnotationsBySpeciesDownload(@Parameter(in = ParameterIn.PATH, name = "species", description = "Species by ID", required = true) @QueryParam("species") List<String> species,
-		@Parameter(in = ParameterIn.PATH, name = "diseaseID", description = "Disease ID") @DefaultValue("DOID:4") @QueryParam("diseaseID") String diseaseID, @Parameter(in = ParameterIn.PATH, name = "sortBy", description = "Sort by field name") @QueryParam("sortBy") String sortBy)
-		throws JsonProcessingException;
-
 }

@@ -1,7 +1,6 @@
 package org.alliancegenome.api.tests.integration;
 
 import static java.util.Arrays.asList;
-import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 import static org.alliancegenome.api.service.ExpressionService.CELLULAR_COMPONENT;
 import static org.hamcrest.Matchers.equalTo;
@@ -10,7 +9,6 @@ import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.List;
@@ -18,7 +16,6 @@ import java.util.stream.Collectors;
 
 import org.alliancegenome.api.controller.ExpressionController;
 import org.alliancegenome.api.controller.GeneController;
-import org.alliancegenome.api.controller.GenesController;
 import org.alliancegenome.api.dto.ExpressionSummary;
 import org.alliancegenome.api.dto.ExpressionSummaryGroup;
 import org.alliancegenome.api.dto.ExpressionSummaryGroupTerm;
@@ -31,7 +28,6 @@ import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.repository.AlleleRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
-import org.alliancegenome.neo4j.view.OrthologyModule;
 import org.apache.commons.collections.CollectionUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -68,9 +64,7 @@ public class GeneIT {
 		//geneService = new GeneService();
 		mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
 		mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-		mapper.registerModule(new OrthologyModule());
 	}
-
 
 	@Test
 	public void checkForSecondaryId() {
@@ -158,24 +152,6 @@ public class GeneIT {
 		GeneController controller = new GeneController();
 		JsonResultResponse<GeneToGeneOrthologyDocument> response = controller.getGeneOrthology("MGI:109583", null, null, null, null, null, 20, 1);
 		assertThat("matches found for gene MGI:109583'", (int) response.getTotal(), greaterThan(0));
-	}
-
-	@Test
-	public void getAllGenes() throws IOException {
-
-		GenesController controller = new GenesController();
-		String[] taxonIDs = {"danio"};
-		JsonResultResponse<Gene> response = controller.getGenes(asList(taxonIDs), 10, 1);
-		assertThat("matches found for gene MGI:109583'", (int) response.getTotal(), greaterThan(5));
-	}
-
-	@Test
-	public void getAllGeneIDs() {
-
-		GenesController controller = new GenesController();
-		String[] taxonIDs = {"danio"};
-		String responseString = controller.getGeneIDs(asList(taxonIDs), 5, 1);
-		assertThat("matches found for gene MGI:109583'", responseString.split(",").length, equalTo(5));
 	}
 
 	@Test
@@ -397,13 +373,5 @@ public class GeneIT {
 		assertTrue(transgenicAlleles.size() > 0);
 	}
 
-	@Test
-	public void getSpeciesGenes() {
-		GeneService service = new GeneService();
-		List<Gene> genes = service.getAllGenes(asList("mus", "sac"));
-		assertNotNull(genes);
-		List<String> species = genes.stream().map(Gene::getTaxonId).distinct().collect(Collectors.toList());
-		assertEquals(2, species.size());
-	}
 
 }
