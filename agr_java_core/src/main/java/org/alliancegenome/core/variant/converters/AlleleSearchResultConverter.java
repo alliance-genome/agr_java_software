@@ -1,18 +1,18 @@
 package org.alliancegenome.core.variant.converters;
 
+import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
+import org.alliancegenome.curation_api.model.entities.Allele;
+import org.alliancegenome.curation_api.model.entities.ontology.NCBITaxonTerm;
+import org.alliancegenome.es.model.AlleleSearchResultDocument;
+import org.alliancegenome.es.model.search.Category;
+import org.alliancegenome.es.model.search.RelatedDataLink;
+import org.apache.commons.collections.CollectionUtils;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
-import org.alliancegenome.curation_api.model.entities.Allele;
-import org.alliancegenome.es.model.AlleleSearchResultDocument;
-import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.es.model.search.Category;
-import org.alliancegenome.es.model.search.RelatedDataLink;
-import org.apache.commons.collections.CollectionUtils;
 
 public class AlleleSearchResultConverter {
 
@@ -39,10 +39,11 @@ public class AlleleSearchResultConverter {
 				searchDoc.setName(allele.getAlleleSymbol().getDisplayText());
 			}
 
-			if (allele.getTaxon() != null) {
-				searchDoc.setSpecies(allele.getTaxon().getName());
+			NCBITaxonTerm taxon = allele.getTaxon();
+			if (taxon != null) {
+				searchDoc.setSpecies(taxon.getName());
 				if (allele.getAlleleSymbol() != null) {
-					searchDoc.setNameKey(allele.getAlleleSymbol().getFormatText() + " (" + allele.getTaxon().getName() + ")");
+					searchDoc.setNameKey(allele.getAlleleSymbol().getFormatText() + " (" + taxon.getName() + ")");
 				}
 			} else if (allele.getAlleleSymbol() != null) {
 				searchDoc.setNameKey(allele.getAlleleSymbol().getFormatText());
@@ -60,11 +61,8 @@ public class AlleleSearchResultConverter {
 
 			if (doc.getAlleleOfGene() != null && doc.getAlleleOfGene().getGeneSymbol() != null) {
 				String geneSymbol = doc.getAlleleOfGene().getGeneSymbol().getDisplayText();
-				if (allele.getTaxon() != null) {
-					SpeciesType speciesType = SpeciesType.getTypeByNameField(allele.getTaxon().getName());
-					if (speciesType != null) {
-						geneSymbol = geneSymbol + " (" + speciesType.getAbbreviation() + ")";
-					}
+				if (taxon != null) {
+					geneSymbol = geneSymbol + " (" + taxon.getName() + ")";
 				}
 				searchDoc.setGenes(List.of(geneSymbol));
 			}
