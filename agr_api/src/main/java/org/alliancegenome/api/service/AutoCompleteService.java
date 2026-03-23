@@ -5,7 +5,6 @@ import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import java.util.ArrayList;
 import java.util.Map;
 
-import org.alliancegenome.api.service.helper.SearchHelper;
 import org.alliancegenome.es.index.site.dao.AutoCompleteDAO;
 import org.alliancegenome.es.model.search.AutoCompleteResult;
 import org.alliancegenome.es.model.search.Category;
@@ -25,7 +24,6 @@ import jakarta.inject.Inject;
 public class AutoCompleteService {
 
 	private static AutoCompleteDAO autoCompleteDAO = new AutoCompleteDAO();
-	private SearchHelper searchHelper = new SearchHelper();
 
 	@Inject SearchService searchService;
 
@@ -83,6 +81,7 @@ public class AutoCompleteService {
 			//seems like maybe it could also use name_key for everyone...
 			if (StringUtils.equals(category, Category.GENE.getName())) {
 				hit.getSourceAsMap().put("name", hit.getSourceAsMap().get("symbol"));
+				hit.getSourceAsMap().put("name_key", hit.getSourceAsMap().get("nameKey"));
 			}
 			ret.add(hit.getSourceAsMap());
 		}
