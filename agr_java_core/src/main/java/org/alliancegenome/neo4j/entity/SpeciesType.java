@@ -15,6 +15,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Getter
 @AllArgsConstructor
+/**
+ * This class is being replaced by curation and should no longer be used.
+ * The functionality has been moved to {@link org.alliancegenome.curation_api.model.entities.Species}.
+ *
+ * @deprecated and replaced by {@link org.alliancegenome.curation_api.model.entities.Species}
+ */
+@Deprecated
 public enum SpeciesType {
 	HUMAN("Homo sapiens", "HUMAN", "NCBITaxon:9606", "Hsa", "HUMAN", "Human", "9606", 1, "GRCh38"), RAT("Rattus norvegicus", "RGD", "NCBITaxon:10116", "Rno", "RGD", "Rat Genome Database", "10116", 2, "mRatBN7.2"),
 	MOUSE("Mus musculus", "MGI", "NCBITaxon:10090", "Mmu", "MGD", "Mouse Genome Database", "10090", 3, "GRCm39"), AFRCLAWFROG("Xenopus laevis", "XBXL", "NCBITaxon:8355", "Xla", "XB", "Xenbase", "8355", 4, "XL10.1"),
@@ -39,6 +46,7 @@ public enum SpeciesType {
 
 	public static final String NCBITAXON = "NCBITaxon:";
 
+	@Deprecated
 	public static SpeciesType getTypeByNameField(String name) {
 		for (SpeciesType type : values()) {
 			if (type.getName().equals(name)) {
@@ -49,6 +57,7 @@ public enum SpeciesType {
 		return null;
 	}
 
+	@Deprecated
 	public static SpeciesType getTypeByID(String id) {
 		for (SpeciesType type : values()) {
 			if (type.taxonID.equals(id)) {
@@ -59,11 +68,13 @@ public enum SpeciesType {
 		return null;
 	}
 
+	@Deprecated
 	public static SpeciesType getTypeByPartialName(String name) {
 		List<SpeciesType> species = Arrays.stream(values()).filter(type -> type.name.toLowerCase().contains(name.toLowerCase())).collect(Collectors.toList());
 		return species != null && species.size() == 1 ? species.get(0) : null;
 	}
 
+	@Deprecated
 	public static SpeciesDoclet fromModName(String modName) {
 		for (SpeciesType species : SpeciesType.values()) {
 			if (species.modName.equals(modName)) {
@@ -73,6 +84,7 @@ public enum SpeciesType {
 		return null;
 	}
 
+	@Deprecated
 	public static SpeciesDoclet fromTaxonIdPart(String taxonIDPart) {
 		for (SpeciesType species : SpeciesType.values()) {
 			if (species.taxonIDPart.equals(taxonIDPart)) {
@@ -82,6 +94,7 @@ public enum SpeciesType {
 		return null;
 	}
 
+	@Deprecated
 	public static SpeciesDoclet fromTaxonId(String taxonID) {
 		for (SpeciesType species : SpeciesType.values()) {
 			if (species.taxonID.equals(taxonID)) {
@@ -91,6 +104,7 @@ public enum SpeciesType {
 		return null;
 	}
 
+	@Deprecated
 	public static SpeciesDoclet getByModNameOrIdPart(String string) {
 		if (fromTaxonIdPart(string) != null) {
 			return fromTaxonIdPart(string);
@@ -101,26 +115,32 @@ public enum SpeciesType {
 		return null;
 	}
 
+	@Deprecated
 	public static String getAllTaxonIDs() {
 		return List.of(values()).stream().map(SpeciesType::getTaxonID).collect(Collectors.joining(","));
 	}
 
+	@Deprecated
 	public static List<String> getAllTaxonIDList() {
 		return List.of(values()).stream().map(SpeciesType::getTaxonID).collect(Collectors.toList());
 	}
 
+	@Deprecated
 	public static List<String> getAllTaxonIDPartList() {
 		return List.of(values()).stream().map(SpeciesType::getTaxonIDPart).collect(Collectors.toList());
 	}
 
+	@Deprecated
 	public static String getNameByID(String taxonID) {
 		return List.of(values()).stream().filter(species -> species.taxonID.equals(taxonID)).findFirst().get().getDisplayName();
 	}
 
+	@Deprecated
 	public SpeciesDoclet getDoclet() {
 		return getDoclet(this);
 	}
 
+	@Deprecated
 	public static SpeciesDoclet getDoclet(SpeciesType type) {
 		SpeciesDoclet ret = new SpeciesDoclet();
 		ret.setName(type.name);
@@ -134,6 +154,7 @@ public enum SpeciesType {
 		return ret;
 	}
 
+	@Deprecated
 	public static String getTaxonId(String species) {
 		if (species == null) {
 			return null;
@@ -158,9 +179,12 @@ public enum SpeciesType {
 	}
 
 	// Fix up species name with yeast correction
+	@Deprecated
 	public static String getSpeciesNameCorrected(String name) {
 		return name.contains(YEAST.getName()) ? YEAST.getName() + " S288C" : name;
 	}
+	
+	@Deprecated
 	public static HashMap<String, Integer> getSpeciesOrderByTaxonID(String taxonId) {
 
 		SpeciesType type = getTypeByID(taxonId);
