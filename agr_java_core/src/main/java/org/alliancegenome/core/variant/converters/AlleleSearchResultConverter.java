@@ -112,7 +112,7 @@ public class AlleleSearchResultConverter {
 					.distinct()
 					.toList();
 				if (!variantTypes.isEmpty()) {
-					searchDoc.setVariantType(variantTypes);
+					searchDoc.setVariantTypes(variantTypes);
 				}
 
 				Set<String> consequences = new HashSet<>();
@@ -137,7 +137,7 @@ public class AlleleSearchResultConverter {
 					}
 				}
 				if (!consequences.isEmpty()) {
-					searchDoc.setMolecularConsequence(consequences);
+					searchDoc.setMolecularConsequences(consequences);
 				}
 			}
 
