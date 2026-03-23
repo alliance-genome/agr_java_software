@@ -5,23 +5,16 @@ import static java.util.stream.Collectors.toMap;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.alliancegenome.api.entity.AlleleVariantSequence;
-import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
 import org.alliancegenome.es.index.ESDAO;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.es.util.EsClientFactory;
-import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.CrossReference;
-import org.alliancegenome.neo4j.entity.node.GeneticEntity;
-import org.alliancegenome.neo4j.entity.node.Variant;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
@@ -72,59 +65,6 @@ public class VariantESDAO extends ESDAO {
 		}
 
 		return response == null ? 0 : (int) response.getCount();
-	}
-
-	public JsonResultResponse<Allele> performQuery(SearchSourceBuilder searchSourceBuilder, Pagination pagination) {
-
-		SearchRequest searchRequest = new SearchRequest(SITE_INDEX);
-		searchRequest.source(searchSourceBuilder);
-		searchSourceBuilder.size(pagination.getLimit());
-		// sorting
-		if (sortAlleles.get(pagination.getSortBy()) != null) {
-			sortAlleles.get(pagination.getSortBy()).forEach(searchSourceBuilder::sort);
-		}
-		SearchResponse response = null;
-
-		try {
-			response = EsClientFactory.getDefaultEsClient().search(searchRequest, RequestOptions.DEFAULT);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		if (response == null || response.getHits() == null) {
-			return null;
-		}
-
-		SearchHit[] searchHits = response.getHits().getHits();
-		List<AlleleVariantSequence> results = Arrays.stream(searchHits).map(hit -> {
-			try {
-				return mapper.readValue(hit.getSourceAsString(), AlleleVariantSequence.class);
-			} catch (IOException e) {
-				log.error("Error during deserialization ", e);
-				throw new RuntimeException(e);
-			}
-		}).collect(toList());
-		List<Allele> alleles = results.stream().map(alleleVariantSequence -> {
-			Allele allele;
-			if (alleleVariantSequence.getAllele() == null) {
-				allele = new Allele(alleleVariantSequence.getPrimaryKey(), GeneticEntity.CrossReferenceType.VARIANT);
-				Variant variant = alleleVariantSequence.getVariant();
-
-				allele.setSymbol(alleleVariantSequence.getPrimaryKey());
-				Map<String, CrossReference> crossRefs = new HashMap<>();
-				CrossReference ref = new CrossReference();
-				ref.setName("");
-				crossRefs.put("primary", ref);
-				allele.setCrossReferenceMap(Map.copyOf(crossRefs));
-			} else {
-				allele = alleleVariantSequence.getAllele();
-			}
-			return allele;
-		}).collect(toList());
-		JsonResultResponse<Allele> resultResponse = new JsonResultResponse<>();
-		resultResponse.setResults(alleles);
-		resultResponse.setTotal(performQueryCount(searchSourceBuilder.query(), pagination));
-
-		return resultResponse;
 	}
 
 	public Map<String, List<String>> getDistinctValues(SearchSourceBuilder searchSourceBuilder) {

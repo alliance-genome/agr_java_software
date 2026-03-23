@@ -1,7 +1,8 @@
 package org.alliancegenome.indexer.variant.es.managers;
 
-import lombok.extern.slf4j.Slf4j;
-import si.mazi.rescu.RestProxyFactory;
+import java.util.HashSet;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.filedownload.model.DownloadFileSet;
@@ -13,9 +14,8 @@ import org.alliancegenome.es.rest.RestConfig;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.neo4j.repository.indexer.GeneIndexerRepository;
 
-import java.util.HashSet;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import lombok.extern.slf4j.Slf4j;
+import si.mazi.rescu.RestProxyFactory;
 
 @Slf4j
 public class SourceDocumentCreationManager extends Thread {
@@ -57,6 +57,7 @@ public class SourceDocumentCreationManager extends Thread {
 		} catch (Exception e) {
 			ExceptionCatcher.report(e);
 			e.printStackTrace();
+			System.exit(-1);
 		}
 	}
 }

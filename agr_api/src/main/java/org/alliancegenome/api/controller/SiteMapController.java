@@ -4,8 +4,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import org.alliancegenome.api.model.xml.SiteMap;
 import org.alliancegenome.api.model.xml.SiteMapIndex;
@@ -14,6 +12,7 @@ import org.alliancegenome.api.model.xml.XMLURLSet;
 import org.alliancegenome.api.rest.interfaces.SiteMapRESTInterface;
 import org.alliancegenome.api.service.SiteMapService;
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.es.model.search.Category;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
 
@@ -82,20 +81,26 @@ public class SiteMapController implements SiteMapRESTInterface {
 
 		Log.info("Id Lookup: " + id);
 
-		Map<String, String> map = Map.of("gene", "primaryKey", "allele", "primaryKey", "variant", "primaryKey", "disease", "primaryKey");
+		// Each entry: [urlPath, esCategory, keyField]
+		String[][] lookups = {
+			{"gene", Category.GENE.getName(), "curie"},
+			{"allele", "allele", "primaryKey"},
+			{"variant", "variant", "primaryKey"},
+			{"disease", Category.DISEASE.getName(), "primaryKey"},
+		};
 
-		for (Entry<String, String> entry : map.entrySet()) {
-			SearchResponse response = siteMapService.getAccession(entry.getKey(), entry.getValue(), id);
+		for (String[] lookup : lookups) {
+			String urlPath = lookup[0];
+			String esCategory = lookup[1];
+			String keyField = lookup[2];
+			SearchResponse response = siteMapService.getAccession(esCategory, keyField, id);
 
 			if (response == null || response.getHits() == null || response.getHits().getHits() == null || response.getHits().getHits().length == 0) {
 				continue;
 			} else {
-				System.out.println(entry + " " + id);
+				Log.info(urlPath + " " + id);
 
-				String url = null;
-				if (url == null) {
-					url = "https://www.alliancegenome.org/" + entry.getKey() + "/" + id;
-				}
+				String url = "https://www.alliancegenome.org/" + urlPath + "/" + id;
 
 				try {
 					URI uri = new URI(url);

@@ -4,10 +4,12 @@ import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.core.variant.converters.AlleleSearchResultConverter;
 import org.alliancegenome.core.variant.converters.AlleleSequenceSummaryConverter;
 import org.alliancegenome.curation_api.interfaces.document.AlleleDocumentInterface;
 import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
 import org.alliancegenome.curation_api.model.document.es.SequenceSummaryDocument;
+import org.alliancegenome.es.model.AlleleSearchResultDocument;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.curation_api.view.CurationView;
 import org.alliancegenome.es.rest.RestConfig;
@@ -26,6 +28,7 @@ public class AlleleSummaryCurationIndexer extends Indexer {
 
 	private final AlleleDocumentInterface alleleApi = RestProxyFactory.createProxy(AlleleDocumentInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 	private final AlleleSequenceSummaryConverter sequenceSummaryConverter = new AlleleSequenceSummaryConverter();
+	private final AlleleSearchResultConverter alleleSearchResultConverter = new AlleleSearchResultConverter();
 
 	private List<List<Long>> idBatches;
 
@@ -76,6 +79,9 @@ public class AlleleSummaryCurationIndexer extends Indexer {
 
 				List<SequenceSummaryDocument> sequenceDocs = sequenceSummaryConverter.convert(response.getResults());
 				indexDocuments(sequenceDocs, CurationView.SequenceSummaryDocument.class);
+
+				List<AlleleSearchResultDocument> searchDocs = alleleSearchResultConverter.convert(response.getResults());
+				indexDocuments(searchDocs);
 			} catch (Exception e) {
 				log.error("Error while indexing...", e);
 				ExceptionCatcher.report(e);

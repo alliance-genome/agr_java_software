@@ -15,7 +15,7 @@ import org.alliancegenome.api.entity.GeneTransgenicAlleleSummaryDocument;
 import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
 import org.alliancegenome.api.service.AffectedGenomicModelESService;
 import org.alliancegenome.api.service.AlleleESService;
-import org.alliancegenome.api.service.AlleleService;
+
 import org.alliancegenome.api.service.DiseaseESService;
 import org.alliancegenome.api.service.EntityType;
 import org.alliancegenome.api.service.ExpressionService;
@@ -65,9 +65,6 @@ public class GeneController implements GeneRESTInterface {
 
 	@Inject
 	AlleleESService alleleESService;
-
-	@Inject
-	AlleleService alleleService;
 
 	@Inject
 	OrthologyESService orthologyESService;
@@ -191,12 +188,19 @@ public class GeneController implements GeneRESTInterface {
 	@Override
 	public Response getAllelesVariantPerGeneDownload(String id, String symbol, String associatedGeneSymbol, String synonyms, String hgvsgName, String variantType, String molecularConsequence, String impact, String sequenceFeatureType, String sequenceFeature, String variantPolyphen,
 		String variantSift, String hasDisease, String hasPhenotype, String category, String location) {
-		JsonResultResponse<SequenceSummaryDocument> alleles = getAllelesVariantPerGene(id, Integer.MAX_VALUE, 1, null, null, symbol, associatedGeneSymbol, synonyms, hgvsgName, variantType, molecularConsequence, impact, sequenceFeatureType, sequenceFeature, variantPolyphen, variantSift, hasDisease,
-			hasPhenotype, category, location);
+		int pageSize = 10000;
+		int page = 1;
+		List<SequenceSummaryDocument> allResults = new ArrayList<>();
+		long total;
+		do {
+			JsonResultResponse<SequenceSummaryDocument> batch = getAllelesVariantPerGene(id, pageSize, page, null, null, symbol, associatedGeneSymbol, synonyms, hgvsgName, variantType, molecularConsequence, impact, sequenceFeatureType, sequenceFeature, variantPolyphen, variantSift, hasDisease,
+				hasPhenotype, category, location);
+			allResults.addAll(batch.getResults());
+			total = batch.getTotal();
+			page++;
+		} while (allResults.size() < total);
 
-		// TODO: Response.ResponseBuilder responseBuilder =
-		// Response.ok(alleleTranslator.getAllAlleleVariantDetailRows(alleles.getResults()));
-		Response.ResponseBuilder responseBuilder = Response.ok("");
+		Response.ResponseBuilder responseBuilder = Response.ok(alleleTranslator.getAllSequenceSummaryDetailRows(allResults));
 		APIServiceHelper.setDownloadHeader(id, EntityType.GENE, EntityType.ALLELESANDVARIANT, responseBuilder);
 		return responseBuilder.build();
 	}

@@ -47,7 +47,9 @@ public class AlleleVariantIndexService {
 			SearchSourceBuilder srb = new SearchSourceBuilder();
 
 			srb.query(buildBoolQuery(geneId, pagination));
-			srb.sort(new FieldSortBuilder(getSortFields(pagination)[0].getField()).order(SortOrder.ASC));
+			for (SortField sortField : getSortFields(pagination)) {
+				srb.sort(new FieldSortBuilder(sortField.getField()).order(SortOrder.ASC));
+			}
 			srb.from(pagination.getStart());
 			srb.size(pagination.getLimit());
 			srb.trackTotalHits(true);
@@ -87,29 +89,32 @@ public class AlleleVariantIndexService {
 
 	}
 
-	public SortField[] getSortFields(Pagination pagination) {
-		SortField[] sortField = new SortField[2];
+	public List<SortField> getSortFields(Pagination pagination) {
+		List<SortField> sortFields = new ArrayList<>();
 
 		if (pagination.getSortBy() != null && !pagination.getSortBy().equalsIgnoreCase("default")) {
 			if (pagination.getSortBy().equalsIgnoreCase("variantType")) {
-				sortField[0] = new SortField("variant.variantType.name.keyword", SortField.Type.STRING);
+				sortFields.add(new SortField("variant.variantType.name.keyword", SortField.Type.STRING));
 			}
 			if (pagination.getSortBy().equalsIgnoreCase("molecularConsequence")) {
-				sortField[0] = new SortField("consequence.vepConsequences.name.keyword", SortField.Type.STRING);
+				sortFields.add(new SortField("consequence.vepConsequences.name.keyword", SortField.Type.STRING));
 			}
 			if (pagination.getSortBy().equalsIgnoreCase("VARIANT")) {
-				sortField[0] = new SortField("symbol.sort", SortField.Type.STRING);
+				sortFields.add(new SortField("symbol.sort", SortField.Type.STRING));
 			}
 			if (pagination.getSortBy().equalsIgnoreCase("transcript")) {
-				sortField[0] = new SortField("consequence.variantTranscript.name.keyword", SortField.Type.STRING);
+				sortFields.add(new SortField("consequence.variantTranscript.name.keyword", SortField.Type.STRING));
 			}
 			if (pagination.getSortBy().equalsIgnoreCase("VariantHgvsName") || pagination.getSortBy().equalsIgnoreCase("symbol")) {
-				sortField[0] = new SortField("variant.curatedVariantGenomicLocations.hgvs.sort", SortField.Type.STRING);
+				sortFields.add(new SortField("variant.curatedVariantGenomicLocations.hgvs.sort", SortField.Type.STRING));
 			}
 		} else {
-			sortField[0] = new SortField("alterationTypeSortOrder", SortField.Type.INT);
+			sortFields.add(new SortField("alterationTypeSortOrder", SortField.Type.INT));
+			sortFields.add(new SortField("symbol.sort", SortField.Type.STRING));
+			sortFields.add(new SortField("variant.curatedVariantGenomicLocations.hgvs.sort", SortField.Type.STRING));
+			sortFields.add(new SortField("consequence.variantTranscript.name.keyword", SortField.Type.STRING));
 		}
-		return sortField;
+		return sortFields;
 	}
 
 	public Map<String, List<String>> getAggregations(String geneId) {

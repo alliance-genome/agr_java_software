@@ -2,12 +2,13 @@ package org.alliancegenome.es.model.search;
 
 public enum Category {
 
-	ALLELE("allele", true),
-	ALLELE_VARIANT("allele_variant", true),
+	ALLELE_SUMMARY("allele_summary", false),
+	ALLELE_VARIANT("allele_variant_search_result", true),
 	VARIANT("variant_search_result", true),
-	DISEASE("disease", true),
+	SEQUENCE_SUMMARY("sequence_summary", false),
+	DISEASE("disease_search_result", true),
 	MODEL("model", true),
-	GENE("gene", true),
+	GENE("gene_search_result", true),
 	GO("go_search_result", true),
 	DATASET("htp_dataset_search_result", true);
 

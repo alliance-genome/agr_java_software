@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
+import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.filedownload.model.DownloadSource;
 import org.alliancegenome.core.util.StatsCollector;
 import org.alliancegenome.core.variant.config.VariantConfigHelper;
@@ -24,16 +25,21 @@ import org.alliancegenome.es.util.EsClientFactory;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.neo4j.entity.SpeciesType;
+import org.elasticsearch.action.bulk.BackoffPolicy;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.unit.ByteSizeUnit;
+import org.elasticsearch.common.unit.ByteSizeValue;
+import org.elasticsearch.core.TimeValue;
 import org.elasticsearch.xcontent.XContentType;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 import htsjdk.samtools.util.CloseableIterator;
 import htsjdk.variant.variantcontext.VariantContext;
@@ -269,14 +275,18 @@ public class SourceDocumentCreation extends Thread {
 				}
 			});
 
-			bulkProcessor1 = builder1.build();
-			bulkProcessor2 = builder2.build();
-			bulkProcessor3 = builder3.build();
-			bulkProcessor4 = builder4.build();
-			bulkProcessor5 = builder5.build();
-			bulkProcessor6 = builder6.build();
-			bulkProcessor7 = builder7.build();
-			bulkProcessor8 = builder8.build();
+			int concurrentRequests = ConfigHelper.getEsBulkConcurrentRequests();
+			ByteSizeValue bulkSize = new ByteSizeValue(ConfigHelper.getEsBulkSizeMB(), ByteSizeUnit.MB);
+			BackoffPolicy backoff = BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(1L), 100);
+
+			bulkProcessor1 = builder1.setBulkActions(7643).setConcurrentRequests(concurrentRequests).setBulkSize(bulkSize).setBackoffPolicy(backoff).build();
+			bulkProcessor2 = builder2.setBulkActions(6410).setConcurrentRequests(concurrentRequests).setBulkSize(bulkSize).setBackoffPolicy(backoff).build();
+			bulkProcessor3 = builder3.setBulkActions(6045).setConcurrentRequests(concurrentRequests).setBulkSize(bulkSize).setBackoffPolicy(backoff).build();
+			bulkProcessor4 = builder4.setBulkActions(6241).setConcurrentRequests(concurrentRequests).setBulkSize(bulkSize).setBackoffPolicy(backoff).build();
+			bulkProcessor5 = builder5.setBulkActions(3120).setConcurrentRequests(concurrentRequests).setBulkSize(bulkSize).setBackoffPolicy(backoff).build();
+			bulkProcessor6 = builder6.setBulkActions(2181).setConcurrentRequests(concurrentRequests).setBulkSize(bulkSize).setBackoffPolicy(backoff).build();
+			bulkProcessor7 = builder7.setBulkActions(1393).setConcurrentRequests(concurrentRequests).setBulkSize(bulkSize).setBackoffPolicy(backoff).build();
+			bulkProcessor8 = builder8.setBulkActions(510).setConcurrentRequests(concurrentRequests).setBulkSize(bulkSize).setBackoffPolicy(backoff).build();
 
 		}
 
@@ -519,16 +529,28 @@ public class SourceDocumentCreation extends Thread {
 							variantSummaryDocuments.removeIf(doc -> doc.getSymbol() != null && variantsCache.contains(doc.getSymbol()));
 							for (VariantSummaryDocument variantSummaryDocument : variantSummaryDocuments) {
 								workBucket.add(variantSummaryDocument);
+								if (workBucket.size() >= workBucketSize) {
+									objectQueue.put(workBucket);
+									workBucket = new ArrayList<>();
+								}
 								ph2.progressProcess("objectQueue: " + objectQueue.size());
 							}
 							List<SequenceSummaryDocument> sequenceSummaryDocuments = sequenceSummaryConverter.convertToSequenceSummary(variantSummaryDocuments);
 							for (SequenceSummaryDocument sequenceSummaryDocument : sequenceSummaryDocuments) {
 								workBucket.add(sequenceSummaryDocument);
+								if (workBucket.size() >= workBucketSize) {
+									objectQueue.put(workBucket);
+									workBucket = new ArrayList<>();
+								}
 								ph2.progressProcess("objectQueue: " + objectQueue.size());
 							}
 							List<VariantSearchResultDocument> variantSearchResultDocuments = variantSearchResultConverter.convertToVariantSearchDocument(variantSummaryDocuments);
 							for (VariantSearchResultDocument variantSearchResultDocument : variantSearchResultDocuments) {
 								workBucket.add(variantSearchResultDocument);
+								if (workBucket.size() >= workBucketSize) {
+									objectQueue.put(workBucket);
+									workBucket = new ArrayList<>();
+								}
 								ph2.progressProcess("objectQueue: " + objectQueue.size());
 							}
 						} catch (Exception e) {
@@ -572,6 +594,7 @@ public class SourceDocumentCreation extends Thread {
 
 		@Override
 		public void run() {
+			mapper.disable(SerializationFeature.INDENT_OUTPUT);
 			searchWriter = mapper.writerWithView(CurationView.VariantSearchResultDocument.class);
 			cachedWriter = mapper.writerWithView(CurationView.VariantSummaryDocument.class);
 			sequenceWriter = mapper.writerWithView(CurationView.SequenceSummaryDocument.class);
@@ -668,6 +691,7 @@ public class SourceDocumentCreation extends Thread {
 //									+ " jsonQueue7(" + jqs[6][0] + "," + jqs[6][1] + "," + jqs[6][2] + "): " + jsonQueue7.size()
 //									+ " jsonQueue8(" + jqs[7][0] + "," + jqs[7][1] + "," + jqs[7][2] + "): " + jsonQueue8.size()
 //								);
+								
 								ph5.progressProcess();
 
 							} catch (Exception e) {
