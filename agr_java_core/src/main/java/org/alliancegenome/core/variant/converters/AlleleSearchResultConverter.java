@@ -1,7 +1,9 @@
 package org.alliancegenome.core.variant.converters;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
@@ -113,6 +115,25 @@ public class AlleleSearchResultConverter {
 					.toList();
 				if (!variantTypes.isEmpty()) {
 					searchDoc.setVariantType(variantTypes);
+				}
+
+				Set<String> consequences = new HashSet<>();
+				for (var variant : doc.getVariants()) {
+					if (variant.getCuratedVariantGenomicLocations() == null) continue;
+					for (var location : variant.getCuratedVariantGenomicLocations()) {
+						if (location.getPredictedVariantConsequences() == null) continue;
+						for (var pvc : location.getPredictedVariantConsequences()) {
+							if (pvc.getVepConsequences() == null) continue;
+							for (var soTerm : pvc.getVepConsequences()) {
+								if (soTerm.getName() != null) {
+									consequences.add(soTerm.getName());
+								}
+							}
+						}
+					}
+				}
+				if (!consequences.isEmpty()) {
+					searchDoc.setMolecularConsequence(consequences);
 				}
 			}
 
