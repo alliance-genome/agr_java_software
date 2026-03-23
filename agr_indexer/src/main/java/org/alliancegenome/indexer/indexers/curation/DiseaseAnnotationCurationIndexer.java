@@ -187,8 +187,11 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 							gdad.addReference(evidenceItem);
 							gdad.addPubMedPubModID(getPubmedPubModID(evidenceItem));
 							gdad.addPubModID(getPubModID(evidenceItem));
-
-							gdad.setPhylogeneticSortingIndex(gene.getTaxon().getSpecies().getPhylogeneticOrder());
+							if(gene.getTaxon().getSpecies() != null) {
+								gdad.setPhylogeneticSortingIndex(gene.getTaxon().getSpecies().getPhylogeneticOrder());
+							} else {
+								gdad.setPhylogeneticSortingIndex(10000);
+							}
 							gdad.addPrimaryAnnotation(diseaseAnnotation);
 							returnList.add(gdad);
 						});
@@ -380,7 +383,12 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		dad.addPubMedPubModID(getPubmedPubModID(evidenceItem));
 		dad.addPubModID(getPubModID(evidenceItem));
 		dad.addPrimaryAnnotation(da);
-		dad.setPhylogeneticSortingIndex(biologicalEntity.getTaxon().getSpecies().getPhylogeneticOrder());
+		if(biologicalEntity.getTaxon().getSpecies() != null) {
+			dad.setPhylogeneticSortingIndex(biologicalEntity.getTaxon().getSpecies().getPhylogeneticOrder());
+		} else {
+			dad.setPhylogeneticSortingIndex(10000);
+		}
+		
 		dad.addEvidenceCodes(da.getEvidenceCodes());
 		if (CollectionUtils.isNotEmpty(da.getDiseaseQualifiers())) {
 			Set<String> diseaseQualifiers = da.getDiseaseQualifiers().stream().map(VocabularyTerm::getName).collect(Collectors.toSet());
