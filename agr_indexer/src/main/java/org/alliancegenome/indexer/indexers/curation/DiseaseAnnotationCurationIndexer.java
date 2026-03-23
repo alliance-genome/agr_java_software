@@ -36,15 +36,14 @@ import org.alliancegenome.curation_api.model.entities.base.SubmittedObject;
 import org.alliancegenome.curation_api.model.entities.ontology.DOTerm;
 import org.alliancegenome.curation_api.model.entities.ontology.ECOTerm;
 import org.alliancegenome.curation_api.model.entities.ontology.OntologyTerm;
-import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.es.rest.RestConfig;
+import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
 import org.alliancegenome.indexer.indexers.curation.service.AGMDiseaseAnnotationService;
 import org.alliancegenome.indexer.indexers.curation.service.AlleleDiseaseAnnotationService;
 import org.alliancegenome.indexer.indexers.curation.service.GeneDiseaseAnnotationService;
 import org.alliancegenome.indexer.indexers.curation.service.VocabularyTermService;
-import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -189,9 +188,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 							gdad.addPubMedPubModID(getPubmedPubModID(evidenceItem));
 							gdad.addPubModID(getPubModID(evidenceItem));
 
-							HashMap<String, Integer> order = SpeciesType.getSpeciesOrderByTaxonID(gene.getTaxon().getCurie());
-							gdad.setSpeciesOrder(order);
-							gdad.setPhylogeneticSortingIndex(gene.getTaxon().getPhylogeneticSortOrder());
+							gdad.setPhylogeneticSortingIndex(gene.getTaxon().getSpecies().getPhylogeneticOrder());
 							gdad.addPrimaryAnnotation(diseaseAnnotation);
 							returnList.add(gdad);
 						});
@@ -245,8 +242,6 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 				GeneDiseaseAnnotationDocument gdad = lookup.computeIfAbsent(key, k -> new GeneDiseaseAnnotationDocument());
 				if (gdad.getSubject() == null) {
 					gdad.setSubject(gene);
-					HashMap<String, Integer> order = SpeciesType.getSpeciesOrderByTaxonID(gene.getTaxon().getCurie());
-					gdad.setSpeciesOrder(order);
 					gdad.setRelation(relation);
 					String generatedRelationString = getGeneratedRelationString(gdad.getRelation().getName(), da.getNegated());
 					gdad.setGeneratedRelationString(generatedRelationString);
@@ -319,8 +314,6 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 				AlleleDiseaseAnnotationDocument adad = lookup.computeIfAbsent(key, k -> new AlleleDiseaseAnnotationDocument());
 				Allele allele = entry.getValue().getLeft();
 				if (adad.getSubject() == null) {
-					HashMap<String, Integer> order = SpeciesType.getSpeciesOrderByTaxonID(allele.getTaxon().getCurie());
-					adad.setSpeciesOrder(order);
 					adad.setSubject(allele);
 					adad.setRelation(relation);
 					String generatedRelationString = getGeneratedRelationString(relation.getName(), da.getNegated());
@@ -356,8 +349,6 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 
 				AGMDiseaseAnnotationDocument adad = lookup.computeIfAbsent(key, k -> new AGMDiseaseAnnotationDocument());
 				if (adad.getSubject() == null) {
-					HashMap<String, Integer> order = SpeciesType.getSpeciesOrderByTaxonID(model.getTaxon().getCurie());
-					adad.setSpeciesOrder(order);
 					adad.setSubject(model);
 					adad.setRelation(da.getRelation());
 					String generatedRelationString = getGeneratedRelationString(da.getRelation().getName(), da.getNegated());
@@ -389,7 +380,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		dad.addPubMedPubModID(getPubmedPubModID(evidenceItem));
 		dad.addPubModID(getPubModID(evidenceItem));
 		dad.addPrimaryAnnotation(da);
-		dad.setPhylogeneticSortingIndex(biologicalEntity.getTaxon().getPhylogeneticSortOrder());
+		dad.setPhylogeneticSortingIndex(biologicalEntity.getTaxon().getSpecies().getPhylogeneticOrder());
 		dad.addEvidenceCodes(da.getEvidenceCodes());
 		if (CollectionUtils.isNotEmpty(da.getDiseaseQualifiers())) {
 			Set<String> diseaseQualifiers = da.getDiseaseQualifiers().stream().map(VocabularyTerm::getName).collect(Collectors.toSet());

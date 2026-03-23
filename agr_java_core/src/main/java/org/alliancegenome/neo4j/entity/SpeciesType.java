@@ -1,11 +1,9 @@
 package org.alliancegenome.neo4j.entity;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.alliancegenome.es.index.site.doclet.SpeciesDoclet;
 import org.apache.commons.lang3.StringUtils;
 
 import lombok.AllArgsConstructor;
@@ -45,6 +43,7 @@ public enum SpeciesType {
 	private int orderID;
 	private String assembly;
 
+	@Deprecated
 	public static final String NCBITAXON = "NCBITaxon:";
 
 	@Deprecated
@@ -70,89 +69,16 @@ public enum SpeciesType {
 	}
 
 	@Deprecated
-	public static SpeciesType getTypeByPartialName(String name) {
+	private static SpeciesType getTypeByPartialName(String name) {
 		List<SpeciesType> species = Arrays.stream(values()).filter(type -> type.name.toLowerCase().contains(name.toLowerCase())).collect(Collectors.toList());
 		return species != null && species.size() == 1 ? species.get(0) : null;
 	}
 
-	@Deprecated
-	public static SpeciesDoclet fromModName(String modName) {
-		for (SpeciesType species : SpeciesType.values()) {
-			if (species.modName.equals(modName)) {
-				return getDoclet(species);
-			}
-		}
-		return null;
-	}
 
-	@Deprecated
-	public static SpeciesDoclet fromTaxonIdPart(String taxonIDPart) {
-		for (SpeciesType species : SpeciesType.values()) {
-			if (species.taxonIDPart.equals(taxonIDPart)) {
-				return getDoclet(species);
-			}
-		}
-		return null;
-	}
-
-	@Deprecated
-	public static SpeciesDoclet fromTaxonId(String taxonID) {
-		for (SpeciesType species : SpeciesType.values()) {
-			if (species.taxonID.equals(taxonID)) {
-				return getDoclet(species);
-			}
-		}
-		return null;
-	}
-
-	@Deprecated
-	public static SpeciesDoclet getByModNameOrIdPart(String string) {
-		if (fromTaxonIdPart(string) != null) {
-			return fromTaxonIdPart(string);
-		}
-		if (fromModName(string) != null) {
-			return fromModName(string);
-		}
-		return null;
-	}
 
 	@Deprecated
 	public static String getAllTaxonIDs() {
 		return List.of(values()).stream().map(SpeciesType::getTaxonID).collect(Collectors.joining(","));
-	}
-
-	@Deprecated
-	public static List<String> getAllTaxonIDList() {
-		return List.of(values()).stream().map(SpeciesType::getTaxonID).collect(Collectors.toList());
-	}
-
-	@Deprecated
-	public static List<String> getAllTaxonIDPartList() {
-		return List.of(values()).stream().map(SpeciesType::getTaxonIDPart).collect(Collectors.toList());
-	}
-
-	@Deprecated
-	public static String getNameByID(String taxonID) {
-		return List.of(values()).stream().filter(species -> species.taxonID.equals(taxonID)).findFirst().get().getDisplayName();
-	}
-
-	@Deprecated
-	public SpeciesDoclet getDoclet() {
-		return getDoclet(this);
-	}
-
-	@Deprecated
-	public static SpeciesDoclet getDoclet(SpeciesType type) {
-		SpeciesDoclet ret = new SpeciesDoclet();
-		ret.setName(type.name);
-		ret.setTaxonID(type.taxonID);
-		ret.setDisplayName(type.displayName);
-		ret.setAbbreviation(type.abbreviation);
-		ret.setModName(type.modName);
-		ret.setDatabaseName(type.databaseName);
-		ret.setTaxonIDPart(type.taxonIDPart);
-		ret.setOrderID(type.orderID);
-		return ret;
 	}
 
 	@Deprecated
@@ -177,27 +103,6 @@ public enum SpeciesType {
 			return typeByName.getTaxonID();
 		}
 		return species;
-	}
-
-	// Fix up species name with yeast correction
-	@Deprecated
-	public static String getSpeciesNameCorrected(String name) {
-		return name.contains(YEAST.getName()) ? YEAST.getName() + " S288C" : name;
-	}
-	
-	@Deprecated
-	public static HashMap<String, Integer> getSpeciesOrderByTaxonID(String taxonId) {
-
-		SpeciesType type = getTypeByID(taxonId);
-
-		HashMap<String, Integer> map = new HashMap<>();
-		for (SpeciesType species : values()) {
-			map.put(species.taxonIDPart, type.getOrderID());
-		}
-		taxonId = taxonId.replace(NCBITAXON, "");
-		map.put(taxonId, 0);
-
-		return map;
 	}
 
 }
