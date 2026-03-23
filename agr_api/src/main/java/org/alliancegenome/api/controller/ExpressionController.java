@@ -3,32 +3,19 @@ package org.alliancegenome.api.controller;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import org.alliancegenome.api.dto.RibbonSummary;
 import org.alliancegenome.api.rest.interfaces.ExpressionRESTInterface;
 import org.alliancegenome.api.service.EntityType;
 import org.alliancegenome.api.service.ExpressionESService;
 import org.alliancegenome.api.service.ExpressionRibbonESService;
-import org.alliancegenome.api.service.ExpressionService;
-import org.alliancegenome.api.service.GeneService;
 import org.alliancegenome.api.service.helper.APIServiceHelper;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.core.ExpressionDetail;
 import org.alliancegenome.core.exceptions.RestErrorException;
 import org.alliancegenome.core.exceptions.RestErrorMessage;
 import org.alliancegenome.core.translators.tdf.ExpressionToTdfTranslator;
 import org.alliancegenome.curation_api.model.document.es.GeneExpressionDocument;
-import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
-import org.alliancegenome.neo4j.view.BaseFilter;
-import org.alliancegenome.neo4j.view.PublicView;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.RequestScoped;
@@ -38,15 +25,9 @@ import jakarta.ws.rs.core.Response;
 @RequestScoped
 public class ExpressionController implements ExpressionRESTInterface {
 
-	//@Context
-	//private HttpRequest request;
-
-	@Inject ExpressionService expressionService;
 	@Inject ExpressionESService expressionESService;
 	@Inject ExpressionRibbonESService expressionRibbonESService;
 
-	@Inject GeneService geneService;
-	
 	private static final ExpressionToTdfTranslator expressionTranslator = new ExpressionToTdfTranslator();
 
 	@Override
@@ -109,33 +90,6 @@ public class ExpressionController implements ExpressionRESTInterface {
 		expressions.calculateRequestDuration(startTime);
 		return expressions;
 
-	}
-
-	@Override
-	public String getExpressionAnnotationsByTaxon(String species, String termID, Integer limit, Integer page) throws JsonProcessingException {
-		Pagination pagination = new Pagination(page, limit, null, null);
-		BaseFilter filterMap = new BaseFilter();
-		filterMap.put(FieldFilter.TERM_NAME, termID);
-		filterMap.values().removeIf(Objects::isNull);
-		pagination.setFieldFilterValueMap(filterMap);
-
-		LocalDateTime startDate = LocalDateTime.now();
-		JsonResultResponse<ExpressionDetail> response = new JsonResultResponse<>();
-		response.setHttpServletRequest(null);
-
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
-
-		// check if valid taxon identifier
-		String taxon = SpeciesType.getTaxonId(species);
-
-		List<BioEntityGeneExpressionJoin> joins = geneService.getExpressionAnnotationsByTaxon(taxon, termID, pagination);
-
-		JsonResultResponse<ExpressionDetail> result = expressionService.getExpressionDetails(joins, pagination);
-		response.setResults(result.getResults());
-		response.setTotal(result.getTotal());
-		response.calculateRequestDuration(startDate);
-		return mapper.writerWithView(PublicView.Expression.class).writeValueAsString(response);
 	}
 
 	@Override

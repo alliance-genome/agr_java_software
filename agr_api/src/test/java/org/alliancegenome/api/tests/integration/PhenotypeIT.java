@@ -23,10 +23,8 @@ import org.alliancegenome.curation_api.model.entities.PhenotypeAnnotation;
 import org.alliancegenome.curation_api.model.entities.base.CurieObject;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.EntitySummary;
 import org.alliancegenome.neo4j.entity.node.GeneticEntity;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -67,26 +65,6 @@ public class PhenotypeIT {
 		mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 	}
 
-
-	@Test
-	@Ignore
-	// This can go away as we do not display those numbers any longer.
-	// Just waiting for curators to confirm
-	public void checkPhenotypeByGeneWithoutPagination() {
-		Pagination pagination = new Pagination(1, 100, null, null);
-		// mkks
-
-		String geneID = "ZFIN:ZDB-GENE-040426-757";
-		JsonResultResponse<GenePhenotypeAnnotationDocument> response = geneService.getPhenotypeAnnotations(geneID, pagination);
-
-		assertResponse(response, 19, 19);
-
-		EntitySummary summary = geneService.getPhenotypeSummary(geneID);
-		assertNotNull(summary);
-		assertThat(19L, equalTo(summary.getNumberOfAnnotations()));
-		assertThat(19L, equalTo(summary.getNumberOfEntities()));
-
-	}
 
 	@Test
 	// ZFIN gene: mkks

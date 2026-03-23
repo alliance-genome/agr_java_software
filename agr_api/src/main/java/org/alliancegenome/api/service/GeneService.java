@@ -21,11 +21,8 @@ import org.alliancegenome.core.variant.service.AlleleVariantIndexService;
 import org.alliancegenome.curation_api.model.document.es.SequenceSummaryDocument;
 import org.alliancegenome.es.index.site.dao.SearchDAO;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.EntitySummary;
-import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.repository.GeneRepository;
-import org.alliancegenome.neo4j.repository.PhenotypeRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -46,7 +43,6 @@ import jakarta.inject.Inject;
 public class GeneService {
 
 	private static GeneRepository geneRepo = new GeneRepository();
-	private static PhenotypeRepository phenoRepo = new PhenotypeRepository();
 
 	@Inject
 	AlleleVariantIndexService alleleVariantIndexService;
@@ -66,10 +62,6 @@ public class GeneService {
 			return geneRepo.getOneGeneBySecondaryId(id);
 		}
 		return gene;
-	}
-
-	public List<BioEntityGeneExpressionJoin> getExpressionAnnotationsByTaxon(String taxon, String termID, Pagination pagination) {
-		return geneRepo.getExpressionAnnotationsByTaxon(taxon, termID, pagination);
 	}
 
 	public JsonResultResponse<SequenceSummaryDocument> getAllelesAndVariantInfo(String geneId, Pagination pagination) {
@@ -211,13 +203,6 @@ public class GeneService {
 		JsonResultResponse<GenePhenotypeAnnotationDocument> response = phenotypeESService.getGenePhenotypeAnnotations(geneID, pagination, false);
 		response.calculateRequestDuration(startDate);
 		return response;
-	}
-
-	public EntitySummary getPhenotypeSummary(String geneID) {
-		EntitySummary summary = new EntitySummary();
-		summary.setNumberOfAnnotations(phenoRepo.getTotalPhenotypeCount(geneID, new Pagination()));
-		summary.setNumberOfEntities(phenoRepo.getDistinctPhenotypeCount(geneID));
-		return summary;
 	}
 
 }

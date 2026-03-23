@@ -21,10 +21,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DefaultValue;
-import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
@@ -107,15 +105,6 @@ public interface ExpressionRESTInterface {
 											//@Parameter(in = ParameterIn.QUERY, name = "geneID", description = "Gene by ID", required = true)
 											@RequestBody List<String> geneIDs
 	);
-
-	@GET
-	@Path("/{taxonID}")
-	@Operation(summary = "Retrieve all expression records of a given set of geneMap")
-	String getExpressionAnnotationsByTaxon(
-		@Parameter(in = ParameterIn.PATH, name = "taxonID", description = "Taxon ID for the first gene: Could be the full ID, e.g. 'NCBITaxon:10090', or just the ID, i.e. '10090'. Alternatively, part of a species name uniquely identifying a single species, e.g. 'danio' or 'mus'.", required = true, schema = @Schema(type = SchemaType.STRING)) @PathParam("taxonID") String speciesOne,
-		@Parameter(in = ParameterIn.QUERY, name = "termID", description = "Term ID by which rollup should happen", schema = @Schema(type = SchemaType.STRING)) @QueryParam("termID") String termID,
-		@Parameter(in = ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("20") @QueryParam("limit") Integer limit,
-		@Parameter(in = ParameterIn.QUERY, name = "page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("1") @QueryParam("page") Integer page) throws JsonProcessingException;
 
 	@POST
 	@Path("/ribbon-summary")

@@ -3,7 +3,6 @@ package org.alliancegenome.api.rest.interfaces;
 import java.io.IOException;
 import java.util.List;
 
-import org.alliancegenome.api.dto.ExpressionSummary;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.api.entity.GeneGeneticInteractionDocument;
 import org.alliancegenome.api.entity.GeneMolecularInteractionDocument;
@@ -18,7 +17,6 @@ import org.alliancegenome.curation_api.model.document.es.ESDocument;
 import org.alliancegenome.curation_api.model.document.es.GeneSummaryDocument;
 import org.alliancegenome.curation_api.model.document.es.SequenceSummaryDocument;
 import org.alliancegenome.curation_api.view.CurationView;
-import org.alliancegenome.neo4j.entity.EntitySummary;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.view.PublicView;
 import org.apache.commons.lang3.ObjectUtils.Null;
@@ -547,16 +545,6 @@ public interface GeneRESTInterface {
 		@QueryParam("filter.reference") String reference
 	);
 
-	@GET
-	@Path("/{id}/expression-summary")
-	@JsonView(value = {PublicView.Expression.class})
-	@Operation(summary = "Retrieve all expression records of a given gene")
-	@APIResponses(value = {@APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class)))})
-	ExpressionSummary getExpressionSummary(
-		@Parameter(in = ParameterIn.PATH, name = "id", description = "Gene by ID, e.g. 'RGD:2129' or 'ZFIN:ZDB-GENE-990415-72 fgf8a'", required = true, schema = @Schema(type = SchemaType.STRING))
-		@PathParam("id") String id
-	) throws JsonProcessingException;
-
 	@POST
 	@Path("/{id}/disease-ribbon-summary")
 	@JsonView(value = {PublicView.DiseaseAnnotation.class})
@@ -576,25 +564,6 @@ public interface GeneRESTInterface {
 
 		@Parameter(in = ParameterIn.QUERY, name = "geneID", description = "additional orthologous genes", required = true)
 		@RequestBody List<String> geneIDs
-	) throws JsonProcessingException;
-
-	@GET
-	@Path("/{id}/phenotype-summary")
-	@Operation(summary = "Retrieve phenotype summary info for a given gene")
-	@APIResponses(
-		value = {
-			@APIResponse(
-				responseCode = "404",
-				description = "Missing phenotype",
-				content = @Content(mediaType = "text/plain")),
-			@APIResponse(
-				responseCode = "200",
-				description = "Phenotype for a gene.",
-				content = @Content(mediaType = "application/json",
-					schema = @Schema(implementation = Null.class)))})
-	EntitySummary getPhenotypeSummary(
-		@Parameter(in = ParameterIn.PATH, name = "id", description = "Gene by ID, e.g. 'RGD:2129' or 'ZFIN:ZDB-GENE-990415-72 fgf8a'", required = true, schema = @Schema(type = SchemaType.STRING))
-		@PathParam("id") String id
 	) throws JsonProcessingException;
 
 	@GET
