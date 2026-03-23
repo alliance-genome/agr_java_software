@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
 import org.alliancegenome.curation_api.model.document.es.ESDocument;
@@ -137,7 +136,10 @@ public class AlleleESService extends ESService {
 		BoolQueryBuilder shouldQueryBuilder = new BoolQueryBuilder();
 		queryBuilder.must(QueryBuilders.termQuery("geneIds", geneId));
 		shouldQueryBuilder.should(QueryBuilders.termQuery("category.keyword", "allele_summary"));
-		shouldQueryBuilder.should(QueryBuilders.termQuery("category.keyword", "variant_summary"));
+		BoolQueryBuilder variantWithNullAllele = new BoolQueryBuilder();
+		variantWithNullAllele.must(QueryBuilders.termQuery("category.keyword", "variant_summary"));
+		variantWithNullAllele.mustNot(QueryBuilders.existsQuery("allele"));
+		shouldQueryBuilder.should(variantWithNullAllele);
 		queryBuilder.must(shouldQueryBuilder);
 
 		JsonResultResponse<ESDocument> ret = new JsonResultResponse<>();
