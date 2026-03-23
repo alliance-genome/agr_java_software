@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 /**
  * This class is being replaced by curation and should no longer be used.
+ * This class goes away with neo4j.
  * The functionality has been moved to {@link org.alliancegenome.curation_api.model.entities.Species}.
  *
  * @deprecated and replaced by {@link org.alliancegenome.curation_api.model.entities.Species}
