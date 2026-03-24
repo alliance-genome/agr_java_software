@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.alliancegenome.api.dto.ExpressionSummary;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.api.entity.GeneGeneticInteractionDocument;
 import org.alliancegenome.api.entity.GeneMolecularInteractionDocument;
@@ -18,7 +17,6 @@ import org.alliancegenome.api.service.AlleleESService;
 
 import org.alliancegenome.api.service.DiseaseESService;
 import org.alliancegenome.api.service.EntityType;
-import org.alliancegenome.api.service.ExpressionService;
 import org.alliancegenome.api.service.GeneESService;
 import org.alliancegenome.api.service.GeneService;
 import org.alliancegenome.api.service.GeneToGeneParalogyESService;
@@ -42,7 +40,6 @@ import org.alliancegenome.curation_api.model.document.es.GeneSummaryDocument;
 import org.alliancegenome.curation_api.model.document.es.SequenceSummaryDocument;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.EntitySummary;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -71,9 +68,6 @@ public class GeneController implements GeneRESTInterface {
 
 	@Inject
 	DiseaseService diseaseService;
-
-	@Inject
-	ExpressionService service;
 
 	@Inject
 	DiseaseESService diseaseESService;
@@ -462,11 +456,6 @@ public class GeneController implements GeneRESTInterface {
 	}
 
 	@Override
-	public ExpressionSummary getExpressionSummary(String id) {
-		return service.getExpressionSummary(id);
-	}
-
-	@Override
 	// the List passed in here is unmodifiable
 	public DiseaseRibbonSummary getDiseaseRibbonSummary(String id, Boolean includeNegation, Boolean debug, List<String> geneIDs) {
 		List<String> ids = new ArrayList<>();
@@ -485,11 +474,6 @@ public class GeneController implements GeneRESTInterface {
 			error.addErrorMessage(e.getMessage());
 			throw new RestErrorException(error);
 		}
-	}
-
-	@Override
-	public EntitySummary getPhenotypeSummary(String id) {
-		return geneService.getPhenotypeSummary(id);
 	}
 
 	@Override

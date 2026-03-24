@@ -2,23 +2,17 @@ package org.alliancegenome.api.tests.integration;
 
 import static java.util.Arrays.asList;
 import static junit.framework.TestCase.assertTrue;
-import static org.alliancegenome.api.service.ExpressionService.CELLULAR_COMPONENT;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 import java.lang.reflect.Method;
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.alliancegenome.api.controller.ExpressionController;
 import org.alliancegenome.api.controller.GeneController;
-import org.alliancegenome.api.dto.ExpressionSummary;
-import org.alliancegenome.api.dto.ExpressionSummaryGroup;
-import org.alliancegenome.api.dto.ExpressionSummaryGroupTerm;
 import org.alliancegenome.api.entity.GeneToGeneOrthologyDocument;
 import org.alliancegenome.api.service.GeneService;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
@@ -152,48 +146,6 @@ public class GeneIT {
 		GeneController controller = new GeneController();
 		JsonResultResponse<GeneToGeneOrthologyDocument> response = controller.getGeneOrthology("MGI:109583", null, null, null, null, null, 20, 1);
 		assertThat("matches found for gene MGI:109583'", (int) response.getTotal(), greaterThan(0));
-	}
-
-	@Test
-	public void checkExpressionSummary() {
-
-		GeneController controller = new GeneController();
-		ExpressionSummary response = controller.getExpressionSummary("RGD:2129");
-		//String responseString = controller.getExpressionSummary("FB:FBgn0029123");
-		//String responseString = controller.getExpressionSummary("ZFIN:ZDB-GENE-080204-52", 5, 1);
-
-		assertThat("matches found for gene RGD:2129'", response.getTotalAnnotations(), equalTo(10));
-		// GoCC
-		List<ExpressionSummaryGroupTerm> terms = response.getGroups().stream()
-				.filter(expressionSummaryGroup -> expressionSummaryGroup.getName().equals(CELLULAR_COMPONENT))
-				.map(ExpressionSummaryGroup::getTerms)
-				.flatMap(Collection::stream)
-				.collect(Collectors.toList());
-
-		terms.forEach(expressionSummaryGroupTerm -> {
-			switch (expressionSummaryGroupTerm.getName()) {
-				case "extracellular region":
-					assertThat(expressionSummaryGroupTerm.getNumberOfAnnotations(), equalTo(4));
-					break;
-				case "protein-containing complex":
-					assertThat(expressionSummaryGroupTerm.getNumberOfAnnotations(), equalTo(3));
-					break;
-				case "other locations":
-					assertThat(expressionSummaryGroupTerm.getNumberOfAnnotations(), equalTo(3));
-					break;
-				default:
-					assertThat(expressionSummaryGroupTerm.getNumberOfAnnotations(), equalTo(0));
-					break;
-			}
-		});
-	}
-
-	@Test
-	public void checkExpressionSummaryGOAndAO() {
-
-		GeneController controller = new GeneController();
-		ExpressionSummary response = controller.getExpressionSummary("ZFIN:ZDB-GENE-980526-188");
-		assertThat("matches found for gene ZFIN:ZDB-GENE-980526-188'", response.getTotalAnnotations(), greaterThanOrEqualTo(26));
 	}
 
 	@Test

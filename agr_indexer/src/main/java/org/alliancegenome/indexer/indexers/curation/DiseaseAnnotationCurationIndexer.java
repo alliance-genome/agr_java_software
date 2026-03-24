@@ -134,24 +134,21 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 
 			// Group By:
 			// Disease, association type, Disease qualifiers, BasedOn Gene List (names),
-			Map<DOTerm, Map<VocabularyTerm, Map<String, Map<String, List<DiseaseAnnotation>>>>> groupedByAnnotations = diseaseAnnotations.stream()
-				.collect(groupingBy(DiseaseAnnotation::getDiseaseAnnotationObject,
-					groupingBy(DiseaseAnnotation::getRelation,
-						groupingBy(diseaseAnnotation -> {
-							List<VocabularyTerm> terms = diseaseAnnotation.getDiseaseQualifiers();
-							// allow for grouping by empty disease qualifiers
-							if (CollectionUtils.isEmpty(terms)) {
-								return "null";
-							}
-							return diseaseAnnotation.getDiseaseQualifiers().stream().map(VocabularyTerm::getName).sorted().collect(Collectors.joining("_"));
-						}, groupingBy(diseaseAnnotation -> {
-							List<Gene> genes = diseaseAnnotation.getWith();
-							// allow for grouping by missing based-on genes
-							if (CollectionUtils.isEmpty(genes)) {
-								return "null";
-							}
-							return diseaseAnnotation.getWith().stream().map(Gene::getIdentifier).sorted().collect(Collectors.joining("_"));
-						})))));
+			Map<DOTerm, Map<VocabularyTerm, Map<String, Map<String, List<DiseaseAnnotation>>>>> groupedByAnnotations = diseaseAnnotations.stream().collect(groupingBy(DiseaseAnnotation::getDiseaseAnnotationObject, groupingBy(DiseaseAnnotation::getRelation, groupingBy(diseaseAnnotation -> {
+				List<VocabularyTerm> terms = diseaseAnnotation.getDiseaseQualifiers();
+				// allow for grouping by empty disease qualifiers
+				if (CollectionUtils.isEmpty(terms)) {
+					return "null";
+				}
+				return diseaseAnnotation.getDiseaseQualifiers().stream().map(VocabularyTerm::getName).sorted().collect(Collectors.joining("_"));
+			}, groupingBy(diseaseAnnotation -> {
+				List<Gene> genes = diseaseAnnotation.getWith();
+				// allow for grouping by missing based-on genes
+				if (CollectionUtils.isEmpty(genes)) {
+					return "null";
+				}
+				return diseaseAnnotation.getWith().stream().map(Gene::getIdentifier).sorted().collect(Collectors.joining("_"));
+			})))));
 
 			groupedByAnnotations.forEach((diseaseTerm, associationTypeMap) -> {
 				associationTypeMap.forEach((associationType, diseaseQualifierMap) -> {
@@ -187,8 +184,11 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 							gdad.addReference(evidenceItem);
 							gdad.addPubMedPubModID(getPubmedPubModID(evidenceItem));
 							gdad.addPubModID(getPubModID(evidenceItem));
-
-							gdad.setPhylogeneticSortingIndex(gene.getTaxon().getSpecies().getPhylogeneticOrder());
+							if (gene.getTaxon().getSpecies() != null) {
+								gdad.setPhylogeneticSortingIndex(gene.getTaxon().getSpecies().getPhylogeneticOrder());
+							} else {
+								gdad.setPhylogeneticSortingIndex(10000);
+							}
 							gdad.addPrimaryAnnotation(diseaseAnnotation);
 							returnList.add(gdad);
 						});
@@ -230,7 +230,8 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 					addCreatedDiseaseAnnotationsImplicatedToMap(alleleDA, gene);
 				} else {
 					// Not sure what you want to do here?
-					//throw new RuntimeException("CreateImplicatedDA() Disease Annotations can only be used for AGM DAs or Allele DAs.");
+					// throw new RuntimeException("CreateImplicatedDA() Disease Annotations can only
+					// be used for AGM DAs or Allele DAs.");
 				}
 
 				String key = getConsolidationKey(da, relation.getName());
@@ -380,7 +381,12 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		dad.addPubMedPubModID(getPubmedPubModID(evidenceItem));
 		dad.addPubModID(getPubModID(evidenceItem));
 		dad.addPrimaryAnnotation(da);
-		dad.setPhylogeneticSortingIndex(biologicalEntity.getTaxon().getSpecies().getPhylogeneticOrder());
+		if (biologicalEntity.getTaxon().getSpecies() != null) {
+			dad.setPhylogeneticSortingIndex(biologicalEntity.getTaxon().getSpecies().getPhylogeneticOrder());
+		} else {
+			dad.setPhylogeneticSortingIndex(10000);
+		}
+
 		dad.addEvidenceCodes(da.getEvidenceCodes());
 		if (CollectionUtils.isNotEmpty(da.getDiseaseQualifiers())) {
 			Set<String> diseaseQualifiers = da.getDiseaseQualifiers().stream().map(VocabularyTerm::getName).collect(Collectors.toSet());
@@ -389,10 +395,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 	}
 
 	private static String getGeneticModifierConsolidatedKey(DiseaseAnnotation da) {
-		if (da.getDiseaseGeneticModifierRelation() == null
-			&& CollectionUtils.isEmpty(da.getDiseaseGeneticModifierAlleles())
-			&& CollectionUtils.isEmpty(da.getDiseaseGeneticModifierGenes())
-			&& CollectionUtils.isEmpty(da.getDiseaseGeneticModifierAgms())) {
+		if (da.getDiseaseGeneticModifierRelation() == null && CollectionUtils.isEmpty(da.getDiseaseGeneticModifierAlleles()) && CollectionUtils.isEmpty(da.getDiseaseGeneticModifierGenes()) && CollectionUtils.isEmpty(da.getDiseaseGeneticModifierAgms())) {
 			return null;
 		}
 		StringBuilder geneticModifier = new StringBuilder();
@@ -444,9 +447,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 	}
 
 	private static void populateGeneticModifier(DiseaseAnnotation da, DiseaseAnnotationDocument adad) {
-		if (CollectionUtils.isNotEmpty(da.getDiseaseGeneticModifierAlleles())
-			|| CollectionUtils.isNotEmpty(da.getDiseaseGeneticModifierGenes())
-			|| CollectionUtils.isNotEmpty(da.getDiseaseGeneticModifierAgms())) {
+		if (CollectionUtils.isNotEmpty(da.getDiseaseGeneticModifierAlleles()) || CollectionUtils.isNotEmpty(da.getDiseaseGeneticModifierGenes()) || CollectionUtils.isNotEmpty(da.getDiseaseGeneticModifierAgms())) {
 			List<BiologicalEntity> geneticModifiers = new ArrayList<>();
 			if (CollectionUtils.isNotEmpty(da.getDiseaseGeneticModifierAlleles())) {
 				geneticModifiers.addAll(da.getDiseaseGeneticModifierAlleles().stream().filter(Objects::nonNull).toList());

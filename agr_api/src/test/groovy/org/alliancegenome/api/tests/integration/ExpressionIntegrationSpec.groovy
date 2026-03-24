@@ -7,32 +7,6 @@ import spock.lang.Unroll
 class ExpressionIntegrationSpec extends Specification {
 
     @Unroll
-    def "Gene page - Expression Summary for #geneId"() {
-        when:
-        def encodedQuery = URLEncoder.encode(geneId, "UTF-8")
-        def result = ApiTester.getApiResult("/api/gene/$encodedQuery/expression-summary")
-
-        then:
-        result
-        totalAnnotations <= result.totalAnnotations
-        result.groups
-        groupCount == result.groups.size()
-        anatomyTerms <= result.groups[0].terms.size()
-        anatomyTotal <= result.groups[0].totalAnnotations
-        CCTerms == result.groups[1].terms.size()
-        CCTotal <= result.groups[1].totalAnnotations
-        stageTerms == result.groups[2].terms.size()
-        stageTotal <= result.groups[2].totalAnnotations
-
-        where:
-        geneId                   | totalAnnotations | groupCount | anatomyTerms | anatomyTotal | CCTerms | CCTotal | stageTerms | stageTotal
-        "MGI:109583"             | 141              | 3          | 19           | 165          | 17      | 0       | 3          | 141
-        "RGD:2129"               | 10               | 3          | 19           | 0            | 17      | 10      | 3          | 0
-        "ZFIN:ZDB-GENE-001103-1" | 248              | 3          | 26           | 400          | 17      | 1       | 3          | 245
-
-    }
-
-    @Unroll
     def "Gene page - Expression Annotations for #geneId"() {
         when:
         def results = ApiTester.getApiResults("/api/expression?geneID=$geneId&page=1&limit=10&sortBy=")
