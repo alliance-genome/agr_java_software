@@ -1,24 +1,13 @@
 package org.alliancegenome.indexer.indexers.curation;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.LinkedBlockingDeque;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.alliancegenome.api.entity.GeneTransgenicAlleleSummaryDocument;
 import org.alliancegenome.api.entity.TransgenicAlleleSummaryDocument;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.interfaces.document.AlleleDocumentInterface;
 import org.alliancegenome.curation_api.model.document.es.TransgenicAlleleDTO;
-import org.alliancegenome.curation_api.model.entities.Allele;
-import org.alliancegenome.curation_api.model.entities.Construct;
-import org.alliancegenome.curation_api.model.entities.Gene;
-import org.alliancegenome.curation_api.model.entities.TransgenicAlleleConstruct;
+import org.alliancegenome.curation_api.model.entities.*;
 import org.alliancegenome.curation_api.model.entities.slotAnnotations.ConstructComponentSlotAnnotation;
 import org.alliancegenome.curation_api.model.entities.slotAnnotations.GeneSymbolSlotAnnotation;
 import org.alliancegenome.curation_api.response.SearchResponse;
@@ -28,11 +17,10 @@ import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import lombok.extern.slf4j.Slf4j;
 import si.mazi.rescu.RestProxyFactory;
+
+import java.util.*;
+import java.util.concurrent.LinkedBlockingDeque;
 
 @Slf4j
 public class TransgenicAlleleCurationIndexer extends Indexer {
@@ -96,6 +84,10 @@ public class TransgenicAlleleCurationIndexer extends Indexer {
 			SearchResponse<TransgenicAlleleDTO> response = alleleApi.findDocuments(page, batchSize, params);
 			for (TransgenicAlleleDTO da : response.getResults()) {
 				if (da == null) {
+					continue;
+				}
+				Species species = da.getAllele().getTaxon().getSpecies();
+				if (species == null) {
 					continue;
 				}
 				TransgenicAlleleSummaryDocument document = documentMap.computeIfAbsent(da.getAllele(), allele -> {
