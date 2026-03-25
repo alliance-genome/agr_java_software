@@ -6,7 +6,7 @@ import org.alliancegenome.api.entity.GeneTransgenicAlleleSummaryDocument;
 import org.alliancegenome.api.entity.TransgenicAlleleSummaryDocument;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.interfaces.document.AlleleDocumentInterface;
-import org.alliancegenome.curation_api.model.document.es.TransgenicAlleleDTO;
+import org.alliancegenome.curation_api.model.document.es.TransgenicAlleleDocument;
 import org.alliancegenome.curation_api.model.entities.*;
 import org.alliancegenome.curation_api.model.entities.slotAnnotations.ConstructComponentSlotAnnotation;
 import org.alliancegenome.curation_api.model.entities.slotAnnotations.GeneSymbolSlotAnnotation;
@@ -74,15 +74,15 @@ public class TransgenicAlleleCurationIndexer extends Indexer {
 	}
 
 	private List<TransgenicAlleleSummaryDocument> indexTransgenicAlleleSummary() {
-		SearchResponse<TransgenicAlleleDTO> searchResponse = alleleApi.findDocuments(0, 0, params);
+		SearchResponse<TransgenicAlleleDocument> searchResponse = alleleApi.findDocuments(0, 0, params);
 		ProcessDisplayHelper display = new ProcessDisplayHelper();
 		display.startProcess("Pulling Transgenic Alleles from curation", searchResponse.getTotalResults());
 		Map<Allele, TransgenicAlleleSummaryDocument> documentMap = new LinkedHashMap<>();
 		int batchSize = indexerConfig.getBufferSize();
 		int maxPage = (int) (searchResponse.getTotalResults() / batchSize);
 		for (int page = 0; page <= maxPage; page++) {
-			SearchResponse<TransgenicAlleleDTO> response = alleleApi.findDocuments(page, batchSize, params);
-			for (TransgenicAlleleDTO da : response.getResults()) {
+			SearchResponse<TransgenicAlleleDocument> response = alleleApi.findDocuments(page, batchSize, params);
+			for (TransgenicAlleleDocument da : response.getResults()) {
 				if (da == null) {
 					continue;
 				}
@@ -101,7 +101,7 @@ public class TransgenicAlleleCurationIndexer extends Indexer {
 					constructList = new ArrayList<>();
 					document.setTransgenicAlleleConstructs(constructList);
 				}
-				Construct constructObj = da.getConstruct();
+				Construct constructObj = da.getConstructList().getFirst();
 
 				TransgenicAlleleConstruct construct = new TransgenicAlleleConstruct();
 				// MGI special handling
