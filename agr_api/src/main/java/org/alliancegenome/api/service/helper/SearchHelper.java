@@ -259,6 +259,7 @@ public class SearchHelper {
 			add("dataProvider");
 			add("definition");
 			add("description");
+			add("geneDescription");
 			add("diseases");
 			add("variantType");
 			add("external_ids");
