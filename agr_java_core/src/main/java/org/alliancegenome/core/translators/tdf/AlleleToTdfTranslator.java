@@ -392,6 +392,10 @@ public class AlleleToTdfTranslator {
 				}
 			}
 
+			if (row.getAlleleSymbol() == null && row.getHgvsgName() != null) {
+				row.setAlleleSymbol(row.getHgvsgName());
+			}
+
 			if (consequence != null) {
 				if (consequence.getVariantTranscript() != null) {
 					row.setSequenceFeature(consequence.getVariantTranscript().getName());
@@ -435,7 +439,7 @@ public class AlleleToTdfTranslator {
 
 		List<DownloadHeader> headers = List.of(
 			new DownloadHeader<>("Allele ID", AlleleVariantSequenceDownloadRow::getAlleleID),
-			new DownloadHeader<>("Allele Symbol", AlleleVariantSequenceDownloadRow::getAlleleSymbol),
+			new DownloadHeader<>("Allele/Variant Symbol", AlleleVariantSequenceDownloadRow::getAlleleSymbol),
 			new DownloadHeader<>("Allele Synonyms", AlleleVariantSequenceDownloadRow::getAlleleSynonyms),
 			new DownloadHeader<>("Category", AlleleVariantSequenceDownloadRow::getVariantCategory),
 			new DownloadHeader<>("Has Phenotype", AlleleVariantSequenceDownloadRow::getHasPhenotype),
