@@ -20,6 +20,7 @@ import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.DiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.core.helpers.DiseaseAnnotationHelper;
+import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.AffectedGenomicModel;
 import org.alliancegenome.curation_api.model.entities.Allele;
@@ -31,6 +32,7 @@ import org.alliancegenome.curation_api.model.entities.ExperimentalCondition;
 import org.alliancegenome.curation_api.model.entities.Gene;
 import org.alliancegenome.curation_api.model.entities.GeneDiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.Reference;
+import org.alliancegenome.curation_api.model.entities.Species;
 import org.alliancegenome.curation_api.model.entities.VocabularyTerm;
 import org.alliancegenome.curation_api.model.entities.base.SubmittedObject;
 import org.alliancegenome.curation_api.model.entities.ontology.DOTerm;
@@ -40,10 +42,13 @@ import org.alliancegenome.es.rest.RestConfig;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
+import org.alliancegenome.indexer.indexers.curation.interfaces.SpeciesInterface;
 import org.alliancegenome.indexer.indexers.curation.service.AGMDiseaseAnnotationService;
 import org.alliancegenome.indexer.indexers.curation.service.AlleleDiseaseAnnotationService;
 import org.alliancegenome.indexer.indexers.curation.service.GeneDiseaseAnnotationService;
 import org.alliancegenome.indexer.indexers.curation.service.VocabularyTermService;
+
+import si.mazi.rescu.RestProxyFactory;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -55,10 +60,15 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DiseaseAnnotationCurationIndexer extends Indexer {
 
+	private final SpeciesInterface speciesApi = RestProxyFactory.createProxy(SpeciesInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
+
 	private GeneDiseaseAnnotationService geneService;
 	private AlleleDiseaseAnnotationService alleleService;
 	private AGMDiseaseAnnotationService agmService;
 	private VocabularyTermService vocabTermService;
+
+	// taxonIdPart (e.g. "9606") -> phylogeneticOrder
+	private Map<String, Integer> speciesOrderLookup;
 
 	private Map<String, Set<String>> closureMap;
 	private Map<String, Pair<Gene, ArrayList<DiseaseAnnotation>>> geneMap = new HashMap<>();
@@ -93,6 +103,16 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		vocabTermService = new VocabularyTermService();
 		DiseaseRepository diseaseRepository = new DiseaseRepository();
 		closureMap = diseaseRepository.getDOClosureChildMapping();
+
+		speciesOrderLookup = new HashMap<>();
+		List<Species> allSpecies = speciesApi.findForPublic(0, 100, "FieldsOnly", new HashMap<>()).getResults();
+		for (Species species : allSpecies) {
+			if (species.getTaxon() != null && species.getPhylogeneticOrder() != null) {
+				String taxonIdPart = species.getTaxon().getCurie().replace("NCBITaxon:", "");
+				speciesOrderLookup.put(taxonIdPart, species.getPhylogeneticOrder());
+			}
+		}
+		log.info("Loaded " + speciesOrderLookup.size() + " species for speciesOrder lookup");
 
 		indexGenes();
 		indexAlleles();
@@ -189,6 +209,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 							} else {
 								gdad.setPhylogeneticSortingIndex(10000);
 							}
+							gdad.setSpeciesOrder(buildSpeciesOrder(gene.getTaxon().getCurie()));
 							gdad.addPrimaryAnnotation(diseaseAnnotation);
 							returnList.add(gdad);
 						});
@@ -369,6 +390,16 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		return ret;
 	}
 
+	private HashMap<String, Integer> buildSpeciesOrder(String taxonCurie) {
+		HashMap<String, Integer> order = new HashMap<>();
+		String subjectTaxonIdPart = taxonCurie.replace("NCBITaxon:", "");
+		for (Map.Entry<String, Integer> entry : speciesOrderLookup.entrySet()) {
+			order.put(entry.getKey(), entry.getValue());
+		}
+		order.put(subjectTaxonIdPart, 0);
+		return order;
+	}
+
 	private void populateBaseDiseaseAnnotationDocument(BiologicalEntity biologicalEntity, DiseaseAnnotation da, DiseaseAnnotationDocument dad) {
 		if (dad.getCountId() == null) {
 			dad.setCountId(uniqueAnnotationCounter.getAndIncrement());
@@ -386,6 +417,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		} else {
 			dad.setPhylogeneticSortingIndex(10000);
 		}
+		dad.setSpeciesOrder(buildSpeciesOrder(biologicalEntity.getTaxon().getCurie()));
 
 		dad.addEvidenceCodes(da.getEvidenceCodes());
 		if (CollectionUtils.isNotEmpty(da.getDiseaseQualifiers())) {

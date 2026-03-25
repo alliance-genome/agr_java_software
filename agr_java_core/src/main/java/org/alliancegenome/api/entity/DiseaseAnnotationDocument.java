@@ -2,6 +2,7 @@ package org.alliancegenome.api.entity;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +45,7 @@ public class DiseaseAnnotationDocument extends ESDocument {
 	private Set<String> parentSlimIDs;
 	private List<DiseaseAnnotation> primaryAnnotations;
 	private List<Gene> basedOnGenes;
+	private HashMap<String, Integer> speciesOrder;
 	private int phylogeneticSortingIndex;
 	private List<ConditionRelation> conditionModifierList;
 	private List<BiologicalEntity> geneticModifierList;
