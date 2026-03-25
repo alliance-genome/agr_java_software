@@ -3,15 +3,13 @@ package org.alliancegenome.core.variant.converters;
 import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
 import org.alliancegenome.curation_api.model.entities.Allele;
 import org.alliancegenome.curation_api.model.entities.ontology.NCBITaxonTerm;
+import org.alliancegenome.curation_api.model.entities.slotAnnotations.NameSlotAnnotation;
 import org.alliancegenome.es.model.AlleleSearchResultDocument;
 import org.alliancegenome.es.model.search.Category;
 import org.alliancegenome.es.model.search.RelatedDataLink;
 import org.apache.commons.collections.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class AlleleSearchResultConverter {
@@ -51,8 +49,8 @@ public class AlleleSearchResultConverter {
 
 			if (CollectionUtils.isNotEmpty(allele.getAlleleSynonyms())) {
 				List<String> synonyms = allele.getAlleleSynonyms().stream()
-					.map(syn -> syn.getDisplayText())
-					.filter(s -> s != null)
+					.map(NameSlotAnnotation::getDisplayText)
+					.filter(Objects::nonNull)
 					.collect(Collectors.toList());
 				if (!synonyms.isEmpty()) {
 					searchDoc.setSynonyms(synonyms);
@@ -103,6 +101,18 @@ public class AlleleSearchResultConverter {
 			}
 			if (doc.getDiseasesAgrSlim() != null && !doc.getDiseasesAgrSlim().isEmpty()) {
 				searchDoc.setDiseasesAgrSlim(new ArrayList<>(doc.getDiseasesAgrSlim()));
+			}
+
+			if (doc.getConstructExpressedComponents() != null && !doc.getConstructExpressedComponents().isEmpty()) {
+				searchDoc.setConstructExpressedComponent(doc.getConstructExpressedComponents());
+			}
+
+			if (doc.getConstructRegulatoryRegions() != null && !doc.getConstructRegulatoryRegions().isEmpty()) {
+				searchDoc.setConstructRegulatoryRegion(doc.getConstructRegulatoryRegions());
+			}
+
+			if (doc.getConstructKnockdownComponents() != null && !doc.getConstructKnockdownComponents().isEmpty()) {
+				searchDoc.setConstructKnockdownComponent(doc.getConstructKnockdownComponents());
 			}
 
 			if (CollectionUtils.isNotEmpty(doc.getVariants())) {
