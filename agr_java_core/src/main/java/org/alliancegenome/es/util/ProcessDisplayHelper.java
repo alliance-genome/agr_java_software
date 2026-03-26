@@ -45,6 +45,20 @@ public class ProcessDisplayHelper {
 	public void startProcess(String message) {
 		startProcess(message, 0);
 	}
+	
+	public void startProcess(long totalSize) {
+		this.totalSize = totalSize;
+		lastSizeCounter = 0;
+		startTime = new Date().getTime();
+		sizeCounter = new AtomicLong(0);
+		if (totalSize > 0) {
+			logInfoMessage(this.message + "Starting Process [total =	" + getBigNumber(totalSize) + "] " + new Date());
+		} else {
+			logInfoMessage(this.message + "Starting Process... (" + new Date() + ")");
+		}
+
+		lastTime = new Date().getTime();
+	}
 
 	public void startProcess(String message, long totalSize) {
 		this.message = message + ": ";

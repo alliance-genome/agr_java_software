@@ -8,6 +8,7 @@ import org.alliancegenome.curation_api.interfaces.document.DiseaseDocumentInterf
 import org.alliancegenome.curation_api.model.document.es.DiseaseSummaryDocument;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.es.rest.RestConfig;
+import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
@@ -33,9 +34,10 @@ public class DiseaseSummaryCurationIndexer extends Indexer {
 	}
 
 	@Override
-	protected void index() {
+	protected void index(ProcessDisplayHelper display) {
 		try {
 			SearchResponse<DiseaseSummaryDocument> diseaseSummaryResponse = diseaseApi.findSummary(0, 0, params);
+			display.startProcess(diseaseSummaryResponse.getTotalResults());
 			int totalPages = (int) (diseaseSummaryResponse.getTotalResults() / indexerConfig.getBufferSize());
 			LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
 			for (int i = 0; i <= totalPages; i++) {

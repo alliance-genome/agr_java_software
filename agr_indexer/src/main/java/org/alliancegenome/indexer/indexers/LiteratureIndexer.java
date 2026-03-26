@@ -7,6 +7,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 
 import org.alliancegenome.api.entity.LiteratureSummaryDocument;
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.curation.interfaces.ElasticSearchInterface;
@@ -27,7 +28,7 @@ public class LiteratureIndexer extends Indexer {
 
 	// with multiple thread
 	@Override
-	protected void index() {
+	protected void index(ProcessDisplayHelper display) {
 		log.info("IndexName: " + indexName);
 		Map<String, Object> countObject = literatureESApi.count(indexName);
 		try {

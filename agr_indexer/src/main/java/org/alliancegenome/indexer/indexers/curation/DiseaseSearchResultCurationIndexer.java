@@ -7,6 +7,7 @@ import org.alliancegenome.curation_api.interfaces.document.DiseaseDocumentInterf
 import org.alliancegenome.curation_api.model.document.es.DiseaseSearchResultDocument;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.es.rest.RestConfig;
+import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
@@ -26,12 +27,12 @@ public class DiseaseSearchResultCurationIndexer extends Indexer {
 	}
 
 	@Override
-	protected void index() {
+	protected void index(ProcessDisplayHelper display) {
 		try {
 			log.info("Fetching all disease search result documents...");
 			SearchResponse<DiseaseSearchResultDocument> response = diseaseApi.findAll();
 			log.info("Fetched {} disease search result documents", response.getResults().size());
-
+			display.startProcess(response.getResults().size());
 			indexDocuments(response.getResults());
 		} catch (Exception e) {
 			log.error("Error while indexing...", e);

@@ -4,6 +4,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 
 import org.alliancegenome.core.translators.document.GoTranslator;
 import org.alliancegenome.es.index.site.document.SearchableItemDocument;
+import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.neo4j.entity.node.GOTerm;
 import org.alliancegenome.neo4j.repository.GoRepository;
@@ -21,7 +22,7 @@ public class GoIndexer extends Indexer {
 	}
 
 	@Override
-	public void index() {
+	public void index(ProcessDisplayHelper display) {
 		
 		goRepo = new GoRepository();
 		goTrans = new GoTranslator();

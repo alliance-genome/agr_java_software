@@ -66,7 +66,7 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 	}
 
 	@Override
-	protected void index() {
+	protected void index(ProcessDisplayHelper display) {
 
 		geneService = new GenePhenotypeAnnotationService();
 		alleleService = new AllelePhenotypeAnnotationService();
