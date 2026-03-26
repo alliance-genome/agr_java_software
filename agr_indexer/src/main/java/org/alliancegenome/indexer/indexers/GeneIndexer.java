@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import org.alliancegenome.core.translators.document.GeneTranslator;
 import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.es.index.site.document.SearchableItemDocument;
+import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.neo4j.entity.node.Gene;
@@ -25,7 +26,7 @@ public class GeneIndexer extends Indexer {
 	}
 
 	@Override
-	public void index() {
+	public void index(ProcessDisplayHelper display) {
 
 		try {
 			LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();

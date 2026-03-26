@@ -75,27 +75,6 @@ public class AlleleSearchResultConverter {
 				searchDoc.setPopularity(0.0);
 			}
 
-			List<RelatedDataLink> relatedData = new ArrayList<>();
-			if (doc.getAlleleOfGene() != null && doc.getAlleleOfGene().getGeneSymbol() != null) {
-				RelatedDataLink geneLink = new RelatedDataLink();
-				geneLink.setCategory(Category.GENE.getName());
-				geneLink.setTargetField("alleles");
-				geneLink.setSourceName(searchDoc.getNameKey());
-				geneLink.setCount(1L);
-				relatedData.add(geneLink);
-			}
-			if (Boolean.TRUE.equals(doc.getHasDisease())) {
-				RelatedDataLink diseaseLink = new RelatedDataLink();
-				diseaseLink.setCategory(Category.DISEASE.getName());
-				diseaseLink.setTargetField("alleles");
-				diseaseLink.setSourceName(searchDoc.getNameKey());
-				diseaseLink.setCount(1L);
-				relatedData.add(diseaseLink);
-			}
-			if (!relatedData.isEmpty()) {
-				searchDoc.setRelatedData(relatedData);
-			}
-
 			if (doc.getDiseases() != null && !doc.getDiseases().isEmpty()) {
 				searchDoc.setDiseases(new ArrayList<>(doc.getDiseases()));
 			}

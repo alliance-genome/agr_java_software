@@ -11,6 +11,7 @@ import org.alliancegenome.curation_api.model.document.es.GeneExpressionDocument;
 import org.alliancegenome.curation_api.model.entities.Species;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.es.rest.RestConfig;
+import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
@@ -38,7 +39,7 @@ public class GeneExpressionAnnotationIndexer extends Indexer {
 	}
 
 	@Override
-	protected void index() {
+	protected void index(ProcessDisplayHelper display) {
 		try {
 			speciesOrderLookup = new HashMap<>();
 			List<Species> allSpecies = speciesApi.findForPublic(0, 100, "FieldsOnly", new HashMap<>()).getResults();
@@ -55,7 +56,7 @@ public class GeneExpressionAnnotationIndexer extends Indexer {
 
 			List<String> primaryExternalIds = idsResponse.getResults();
 			log.info("Fetched {} gene IDs", primaryExternalIds.size());
-
+			display.startProcess(primaryExternalIds.size());
 			idBatches = partition(primaryExternalIds, indexerConfig.getBufferSize());
 			log.info("Partitioned into {} batches of up to {}", idBatches.size(), indexerConfig.getBufferSize());
 

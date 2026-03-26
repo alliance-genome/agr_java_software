@@ -7,6 +7,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 
 import org.alliancegenome.api.entity.ReleaseInfoDocument;
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
 
@@ -17,7 +18,7 @@ public class ReleaseInfoIndexer extends Indexer {
 	}
 
 	@Override
-	protected void index() {
+	protected void index(ProcessDisplayHelper display) {
 		ReleaseInfoDocument releaseInfoDocument = new ReleaseInfoDocument();
 		releaseInfoDocument.setReleaseDate(new Date());
 		releaseInfoDocument.setReleaseVersion(ConfigHelper.getAllianceRelease());

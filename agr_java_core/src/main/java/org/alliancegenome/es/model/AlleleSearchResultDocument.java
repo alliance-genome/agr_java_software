@@ -44,6 +44,5 @@ public class AlleleSearchResultDocument extends ESDocument {
 	private String globalId;
 	private String localId;
 	private String modCrossRefCompleteUrl;
-	private List<RelatedDataLink> relatedData;
 
 }

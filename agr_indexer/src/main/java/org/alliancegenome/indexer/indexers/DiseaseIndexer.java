@@ -7,6 +7,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 import org.alliancegenome.core.translators.document.DiseaseTranslator;
 import org.alliancegenome.es.index.site.cache.DiseaseDocumentCache;
 import org.alliancegenome.es.index.site.document.SearchableItemDocument;
+import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
@@ -25,7 +26,7 @@ public class DiseaseIndexer extends Indexer {
 	}
 
 	@Override
-	public void index() {
+	public void index(ProcessDisplayHelper display) {
 		try {
 			DiseaseIndexerRepository diseaseIndexerRepository = new DiseaseIndexerRepository();
 			diseaseDocumentCache = diseaseIndexerRepository.getDiseaseDocumentCache();

@@ -7,6 +7,7 @@ import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.translators.document.VariantTranslator;
 import org.alliancegenome.es.index.site.cache.IndexerCache;
 import org.alliancegenome.es.index.site.document.SearchableItemDocument;
+import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.neo4j.entity.node.Variant;
@@ -25,7 +26,7 @@ public class VariantIndexer extends Indexer {
 	}
 
 	@Override
-	protected void index() {
+	protected void index(ProcessDisplayHelper display) {
 
 		// for now, variants only get indexed if an additional flag is set
 		if (!ConfigHelper.getIndexVariants()) {

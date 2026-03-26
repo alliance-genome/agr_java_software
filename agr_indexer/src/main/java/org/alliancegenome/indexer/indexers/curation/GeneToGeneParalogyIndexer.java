@@ -8,6 +8,7 @@ import org.alliancegenome.api.entity.GeneToGeneParalogyDocument;
 import org.alliancegenome.curation_api.model.entities.GeneToGeneParalogy;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.es.rest.RestConfig;
+import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
@@ -27,12 +28,12 @@ public class GeneToGeneParalogyIndexer extends Indexer {
 	}
 
 	@Override
-	protected void index() {
+	protected void index(ProcessDisplayHelper display) {
 		service = new GeneToGeneParalogyService();
 		try {
 			SearchResponse<GeneToGeneParalogy> paralogyResponse = service.getGeneToGeneParalogy(0, 0);
 			// log.info("GeneToGeneParalogy count: " + paralogyResponse.getTotalResults());
-
+			display.startProcess(paralogyResponse.getTotalResults());
 			int totalPages = (int) (paralogyResponse.getTotalResults() / indexerConfig.getBufferSize());
 			LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
 			for (int i = 0; i <= totalPages; i++) {

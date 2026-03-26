@@ -38,8 +38,9 @@ public class TransgenicAlleleCurationIndexer extends Indexer {
 	}
 
 	@Override
-	protected void index() {
+	protected void index(ProcessDisplayHelper display) {
 		List<TransgenicAlleleSummaryDocument> alleleList = indexTransgenicAlleleSummary();
+		display.startProcess(alleleList.size());
 		indexTransgenicAlleleAnnotations(alleleList);
 	}
 

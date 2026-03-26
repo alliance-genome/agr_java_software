@@ -10,6 +10,7 @@ import org.alliancegenome.curation_api.interfaces.document.VariantDocumentInterf
 import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.es.rest.RestConfig;
+import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
@@ -37,12 +38,12 @@ public class VariantSummaryCurationIndexer extends Indexer {
 	}
 
 	@Override
-	protected void index() {
+	protected void index(ProcessDisplayHelper display) {
 
 		try {
 			SearchResponse<VariantSummaryDocument> searchResponse = variantApi.findDocuments(0, 0, params);
 			log.info("VariantSummary count: " + String.format("%,d", searchResponse.getTotalResults()));
-
+			display.startProcess(searchResponse.getTotalResults());
 			int totalPages = (int) (searchResponse.getTotalResults() / indexerConfig.getBufferSize());
 
 			LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();

@@ -6,6 +6,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 import org.alliancegenome.core.translators.document.ModelTranslator;
 import org.alliancegenome.es.index.site.cache.ModelDocumentCache;
 import org.alliancegenome.es.index.site.document.SearchableItemDocument;
+import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.neo4j.entity.node.AffectedGenomicModel;
@@ -24,13 +25,13 @@ public class ModelIndexer extends Indexer {
 	}
 
 	@Override
-	protected void index() {
+	protected void index(ProcessDisplayHelper display) {
 		try {
 			repo = new ModelIndexerRepository();
 			cache = repo.getModelDocumentCache();
 
 			LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>(cache.getModelMap().keySet());
-
+			display.startProcess(queue.size());
 			initiateThreading(queue);
 			repo.close();
 		} catch (Exception e) {

@@ -104,7 +104,7 @@ public abstract class Indexer extends Thread {
 		try {
 			Instant start = Instant.now();
 			display.startProcess(getClass().getSimpleName());
-			index();
+			index(display);
 			log.info("Waiting for bulkProcessor to finish");
 			bulkProcessor.flush();
 			bulkProcessor.awaitClose(30L, TimeUnit.DAYS);
@@ -126,7 +126,7 @@ public abstract class Indexer extends Thread {
 		try {
 			Instant start = Instant.now();
 			display.startProcess(getClass().getSimpleName());
-			index();
+			index(display);
 			log.info("Waiting for bulkProcessor to finish");
 			bulkProcessor.flush();
 			bulkProcessor.awaitClose(30L, TimeUnit.DAYS);
@@ -213,7 +213,7 @@ public abstract class Indexer extends Thread {
 		return parts;
 	}
 
-	protected abstract void index();
+	protected abstract void index(ProcessDisplayHelper display);
 
 	protected abstract void startSingleThread(LinkedBlockingDeque<String> queue);
 

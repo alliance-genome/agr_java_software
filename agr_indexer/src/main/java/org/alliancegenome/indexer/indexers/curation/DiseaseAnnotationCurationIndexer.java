@@ -96,7 +96,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 	}
 
 	@Override
-	protected void index() {
+	protected void index(ProcessDisplayHelper display) {
 		geneService = new GeneDiseaseAnnotationService();
 		alleleService = new AlleleDiseaseAnnotationService();
 		agmService = new AGMDiseaseAnnotationService();

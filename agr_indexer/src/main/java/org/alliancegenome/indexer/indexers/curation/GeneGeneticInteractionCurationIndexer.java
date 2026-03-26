@@ -10,6 +10,7 @@ import org.alliancegenome.curation_api.interfaces.document.GeneGeneticInteractio
 import org.alliancegenome.curation_api.model.entities.GeneGeneticInteraction;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.es.rest.RestConfig;
+import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
@@ -35,14 +36,14 @@ public class GeneGeneticInteractionCurationIndexer extends Indexer {
 	}
 
 	@Override
-	protected void index() {
+	protected void index(ProcessDisplayHelper display) {
 		geneGeneticInteractionService = new GeneGeneticInteractionService();
 		try {
 			log.info("Fetching all GeneGeneticInteraction IDs...");
 			SearchResponse<Long> idsResponse = geneGeneticInteractionApi.getAllIds();
 			List<Long> allIds = idsResponse.getResults();
 			log.info("Fetched {} GeneGeneticInteraction IDs", allIds.size());
-
+			display.startProcess(allIds.size());
 			idBatches = partition(allIds, indexerConfig.getBufferSize());
 			log.info("Partitioned into {} batches of up to {}", idBatches.size(), indexerConfig.getBufferSize());
 
