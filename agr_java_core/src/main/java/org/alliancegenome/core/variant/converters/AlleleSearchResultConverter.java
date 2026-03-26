@@ -102,6 +102,9 @@ public class AlleleSearchResultConverter {
 			if (doc.getDiseasesAgrSlim() != null && !doc.getDiseasesAgrSlim().isEmpty()) {
 				searchDoc.setDiseasesAgrSlim(new ArrayList<>(doc.getDiseasesAgrSlim()));
 			}
+			if (doc.getDiseasesWithParents() != null && !doc.getDiseasesWithParents().isEmpty()) {
+				searchDoc.setDiseasesWithParents(new ArrayList<>(doc.getDiseasesWithParents()));
+			}
 
 			if (doc.getConstructExpressedComponents() != null && !doc.getConstructExpressedComponents().isEmpty()) {
 				searchDoc.setConstructExpressedComponent(doc.getConstructExpressedComponents());

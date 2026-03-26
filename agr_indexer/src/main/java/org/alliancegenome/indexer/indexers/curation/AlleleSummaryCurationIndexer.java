@@ -75,12 +75,16 @@ public class AlleleSummaryCurationIndexer extends Indexer {
 					continue;
 				}
 
-				indexDocuments(response.getResults());
-
+				// Convert to derived documents first (consumes transport-only fields)
 				List<SequenceSummaryDocument> sequenceDocs = sequenceSummaryConverter.convert(response.getResults());
-				indexDocuments(sequenceDocs, CurationView.SequenceSummaryDocument.class);
-
 				List<AlleleSearchResultDocument> searchDocs = alleleSearchResultConverter.convert(response.getResults());
+
+				// Strip fields only needed by derived documents before indexing to ES
+				response.getResults().forEach(AlleleSummaryDocument::removeTransportFields);
+
+				// Index all document types
+				indexDocuments(response.getResults());
+				indexDocuments(sequenceDocs, CurationView.SequenceSummaryDocument.class);
 				indexDocuments(searchDocs);
 			} catch (Exception e) {
 				log.error("Error while indexing...", e);

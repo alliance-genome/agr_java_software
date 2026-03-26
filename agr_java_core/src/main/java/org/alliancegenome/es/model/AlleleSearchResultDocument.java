@@ -39,6 +39,7 @@ public class AlleleSearchResultDocument extends ESDocument {
 	private List<String> genes;
 	private List<String> diseases;
 	private List<String> diseasesAgrSlim;
+	private List<String> diseasesWithParents;
 	private List<String> phenotypeStatements;
 	private String globalId;
 	private String localId;
