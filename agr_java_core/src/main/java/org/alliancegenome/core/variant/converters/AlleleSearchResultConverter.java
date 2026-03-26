@@ -39,9 +39,10 @@ public class AlleleSearchResultConverter {
 
 			NCBITaxonTerm taxon = allele.getTaxon();
 			if (taxon != null) {
-				searchDoc.setSpecies(taxon.getName());
+				String speciesName = normalizeSpeciesName(taxon.getName());
+				searchDoc.setSpecies(speciesName);
 				if (allele.getAlleleSymbol() != null) {
-					searchDoc.setNameKey(allele.getAlleleSymbol().getFormatText() + " (" + taxon.getName() + ")");
+					searchDoc.setNameKey(allele.getAlleleSymbol().getFormatText() + " (" + speciesName + ")");
 				}
 			} else if (allele.getAlleleSymbol() != null) {
 				searchDoc.setNameKey(allele.getAlleleSymbol().getFormatText());
@@ -60,7 +61,8 @@ public class AlleleSearchResultConverter {
 			if (doc.getAlleleOfGene() != null && doc.getAlleleOfGene().getGeneSymbol() != null) {
 				String geneSymbol = doc.getAlleleOfGene().getGeneSymbol().getDisplayText();
 				if (taxon != null) {
-					geneSymbol = geneSymbol + " (" + taxon.getName() + ")";
+					String speciesName = normalizeSpeciesName(taxon.getName());
+					geneSymbol = geneSymbol + " (" + speciesName + ")";
 				}
 				searchDoc.setGenes(List.of(geneSymbol));
 			}
@@ -154,6 +156,16 @@ public class AlleleSearchResultConverter {
 			result.add(searchDoc);
 		}
 		return result;
+	}
+
+	private String normalizeSpeciesName(String name) {
+		if (name == null) {
+			return null;
+		}
+		if (name.equals("Saccharomyces cerevisiae S288C")) {
+			return "Saccharomyces cerevisiae";
+		}
+		return name;
 	}
 
 }
