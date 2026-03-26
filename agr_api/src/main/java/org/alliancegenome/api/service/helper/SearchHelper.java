@@ -260,6 +260,7 @@ public class SearchHelper {
 			add("definition");
 			add("description");
 			add("geneDescription");
+			add("automatedGeneDescription");
 			add("diseases");
 			add("variantType");
 			add("external_ids");
