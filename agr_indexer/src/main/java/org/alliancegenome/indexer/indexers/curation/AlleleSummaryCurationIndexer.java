@@ -79,7 +79,7 @@ public class AlleleSummaryCurationIndexer extends Indexer {
 				List<SequenceSummaryDocument> sequenceDocs = sequenceSummaryConverter.convert(response.getResults());
 				List<AlleleSearchResultDocument> searchDocs = alleleSearchResultConverter.convert(response.getResults());
 
-				// Strip fields only needed by derived documents before indexing to OpenSearch
+				// Strip fields only needed by derived documents before indexing to ES
 				response.getResults().forEach(AlleleSummaryDocument::removeTransportFields);
 
 				// Index all document types
