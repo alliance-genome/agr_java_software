@@ -322,7 +322,7 @@ public class Mapping extends Builder {
 		new FieldBuilder(builder, "consequence.vepConsequences.name", "text").keyword().sort().build();
 		new FieldBuilder(builder, "consequence.siftPrediction.name", "text").keyword().build();
 		new FieldBuilder(builder, "consequence.polyphenPrediction.name", "text").keyword().build();
-		new FieldBuilder(builder, "consequence.variantTranscript.name", "text").keyword().build();
+		new FieldBuilder(builder, "consequence.variantTranscript.name", "text").keyword().sort().build();
 		new FieldBuilder(builder, "consequence.variantTranscript.transcriptType.name", "text").keyword().build();
 		new FieldBuilder(builder, "consequence.variantTranscript.transcriptGeneAssociations.transcriptGeneAssociationObject.geneSymbol.displayText", "text").keyword().build();
 

@@ -103,7 +103,7 @@ public class AlleleVariantIndexService {
 				sortFields.add(new SortField("symbol.sort", SortField.Type.STRING));
 			}
 			if (pagination.getSortBy().equalsIgnoreCase("transcript")) {
-				sortFields.add(new SortField("consequence.variantTranscript.name.keyword", SortField.Type.STRING));
+				sortFields.add(new SortField("consequence.variantTranscript.name.sort", SortField.Type.STRING));
 			}
 			if (pagination.getSortBy().equalsIgnoreCase("VariantHgvsName") || pagination.getSortBy().equalsIgnoreCase("symbol")) {
 				sortFields.add(new SortField("variant.curatedVariantGenomicLocations.hgvs.sort", SortField.Type.STRING));
@@ -112,7 +112,7 @@ public class AlleleVariantIndexService {
 			sortFields.add(new SortField("alterationTypeSortOrder", SortField.Type.INT));
 			sortFields.add(new SortField("symbol.sort", SortField.Type.STRING));
 			sortFields.add(new SortField("variant.curatedVariantGenomicLocations.hgvs.sort", SortField.Type.STRING));
-			sortFields.add(new SortField("consequence.variantTranscript.name.keyword", SortField.Type.STRING));
+			sortFields.add(new SortField("consequence.variantTranscript.name.sort", SortField.Type.STRING));
 		}
 		return sortFields;
 	}

@@ -64,7 +64,7 @@ public class VariantMapping extends Mapping {
 			builder.startObject("consequence");
 			builder.field("dynamic", false);
 			builder.startObject("properties");
-			new FieldBuilder(builder, "variantTranscript.name", "text").keyword().build();
+			new FieldBuilder(builder, "variantTranscript.name", "text").keyword().sort().build();
 			new FieldBuilder(builder, "variantTranscript.transcriptType.name", "text").keyword().sort().build();
 			new FieldBuilder(builder, "variantTranscript.transcriptGeneAssociations.transcriptGeneAssociationObject.geneSymbol.displayText", "text").keyword().sort().build();
 			new FieldBuilder(builder, "intronExonLocation", "text").keyword().build();
