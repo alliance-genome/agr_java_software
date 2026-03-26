@@ -94,10 +94,10 @@ public class AlleleVariantIndexService {
 
 		if (pagination.getSortBy() != null && !pagination.getSortBy().equalsIgnoreCase("default")) {
 			if (pagination.getSortBy().equalsIgnoreCase("variantType")) {
-				sortFields.add(new SortField("variant.variantType.name.keyword", SortField.Type.STRING));
+				sortFields.add(new SortField("variant.variantType.name.sort", SortField.Type.STRING));
 			}
 			if (pagination.getSortBy().equalsIgnoreCase("molecularConsequence")) {
-				sortFields.add(new SortField("consequence.vepConsequences.name.keyword", SortField.Type.STRING));
+				sortFields.add(new SortField("consequence.vepConsequences.name.sort", SortField.Type.STRING));
 			}
 			if (pagination.getSortBy().equalsIgnoreCase("VARIANT")) {
 				sortFields.add(new SortField("symbol.sort", SortField.Type.STRING));
