@@ -22,7 +22,7 @@ import java.util.*;
 @Slf4j
 public class SearchHelper {
 
-	private static final String[] SUFFIX_LIST = {".htmlSmoosh", ".keywordAutocomplete", ".keyword", ".smoosh", ".synonyms", ".symbols", ".text", ".classicText", ".standardText", ".letterText", ".bigrams", ".standardBigrams"};
+	private static final String[] SUFFIX_LIST = {".htmlSmoosh", ".keywordAutocomplete", ".keyword", ".autocomplete", ".smoosh", ".synonyms", ".symbols", ".text", ".classicText", ".standardText", ".letterText", ".bigrams", ".standardBigrams"};
 
 	private HashMap<String, List<String>> categoryFilters = new HashMap<>() {
 		{
@@ -449,7 +449,15 @@ public class SearchHelper {
 				name = highlightCollapseMap.getOrDefault(name, name);
 
 				if (map.containsKey(name)) {
-					map.get(name).addAll(list);
+					Set<String> existingRaw = new HashSet<>();
+					for (String existing : map.get(name)) {
+						existingRaw.add(existing.replaceAll("</?em>", ""));
+					}
+					for (String item : list) {
+						if (!existingRaw.contains(item.replaceAll("</?em>", ""))) {
+							map.get(name).add(item);
+						}
+					}
 				} else {
 					map.put(name, list);
 				}
