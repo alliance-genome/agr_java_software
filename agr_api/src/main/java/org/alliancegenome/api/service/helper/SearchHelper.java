@@ -137,7 +137,7 @@ public class SearchHelper {
 			add("anatomicalExpressionWithParents.keyword");
 			add("associatedSpecies");
 			add("associatedSpecies.synonyms");
-			add("automatedGeneSynopsis");
+			add("automatedGeneDescription");
 			add("biotypes");
 			add("biologicalProcessWithParents");
 			add("cellularComponentWithParents");
@@ -175,7 +175,7 @@ public class SearchHelper {
 			add("genes.keyword");
 			add("genes.autocomplete");
 			add("genes.keywordAutocomplete");
-			add("geneSynopsis");
+			add("geneDescription");
 			add("geneSynonyms");
 			add("geneCrossReferences");
 			add("globalId");
