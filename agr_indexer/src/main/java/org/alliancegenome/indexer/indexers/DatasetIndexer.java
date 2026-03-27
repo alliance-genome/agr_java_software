@@ -6,6 +6,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 import org.alliancegenome.core.translators.document.HTPDatasetTranslator;
 import org.alliancegenome.es.index.site.cache.DatasetDocumentCache;
 import org.alliancegenome.es.index.site.document.SearchableItemDocument;
+import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.neo4j.entity.node.HTPDataset;
@@ -24,7 +25,7 @@ public class DatasetIndexer extends Indexer {
 	}
 
 	@Override
-	public void index() {
+	public void index(ProcessDisplayHelper display) {
 		try {
 			repo = new DatasetIndexerRepository();
 			cache = repo.getCache();
