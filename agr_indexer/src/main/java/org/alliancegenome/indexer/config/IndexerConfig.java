@@ -34,7 +34,7 @@ public enum IndexerConfig {
 
 	// Run Parallelly
 	ParalogyIndexer("paralogy", GeneToGeneParalogyIndexer.class, 4, 5000, 5000, 8, 1, true),
-	GOSearchResultCurationIndexer("goSearchResult", GOSearchResultCurationIndexer.class, 4, 1500, 1500, 4, 1, true),
+	GOSearchResultCurationIndexer("goSearchResult", GOSearchResultCurationIndexer.class, 4, 1500, 1500, 4, 1, false),
 	AffectedGenomicModelIndexer("affectedGenomicModels", AffectedGenomicModelCurationIndexer.class, 4, 1500, 1500, 8, 1, true),
 	
 	GeneSearchResultCurationIndexer("geneSearchResult", GeneSearchResultCurationIndexer.class, 4, 1000, 1500, 4, 1, true),
