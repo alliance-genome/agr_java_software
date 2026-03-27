@@ -50,7 +50,7 @@ public class SearchHelper {
 					add("species");
 					add("tags");
 					add("assays");
-					add("anatomicalExpression");
+					add("anatomicalExpressionSlim");
 					add("sex");
 //					  add("stage"); will be implemented in the future
 				}
@@ -97,7 +97,7 @@ public class SearchHelper {
 
 	public Map<String, String> highlightCollapseMap = new HashMap<>() {
 		{
-			put("anatomicalExpression", "expression");
+			put("anatomicalExpressionSlim", "expression");
 			put("anatomicalExpressionWithParents", "expression");
 			put("cellularComponentExpression", "expression");
 			put("cellularComponentExpressionWithParents", "expression");
@@ -131,8 +131,8 @@ public class SearchHelper {
 			add("alleles");
 			add("alleles.text");
 			add("alleles.autocomplete");
-			add("anatomicalExpression");
-			add("anatomicalExpression.keyword");
+			add("anatomicalExpressionSlim");
+			add("anatomicalExpressionSlim.keyword");
 			add("anatomicalExpressionWithParents");
 			add("anatomicalExpressionWithParents.keyword");
 			add("associatedSpecies");

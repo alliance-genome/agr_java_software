@@ -138,7 +138,7 @@ public class Mapping extends Builder {
 		new FieldBuilder(builder, "object.curie", "text").keyword().sort().build(); // gene_disease_annotation, allele_disease_annotation, agm_disease_annotation
 		new FieldBuilder(builder, "subject.primaryExternalId", "text").keyword().sort().build(); // gene_disease_annotation, allele_disease_annotation, agm_disease_annotation
 
-		new FieldBuilder(builder, "anatomicalExpression", "text").keyword().build(); // gene, dataset
+		new FieldBuilder(builder, "anatomicalExpressionSlim", "text").keyword().build(); // gene, dataset
 		new FieldBuilder(builder, "whereExpressed", "text").keyword().build(); // gene, dataset
 
 		new FieldBuilder(builder, "associatedSpecies", "text").keyword().synonym().sort().build(); // go, disease
