@@ -41,7 +41,7 @@ public class AlleleSearchResultConverter {
 			NCBITaxonTerm taxon = allele.getTaxon();
 			if (taxon != null) {
 				Species species = taxon.getSpecies();
-				if(species != null) {
+				if (species != null) {
 					searchDoc.setSpecies(species.getFullName());
 					if (allele.getAlleleSymbol() != null) {
 						searchDoc.setNameKey(allele.getAlleleSymbol().getFormatText() + " (" + species.getAbbreviation() + ")");
