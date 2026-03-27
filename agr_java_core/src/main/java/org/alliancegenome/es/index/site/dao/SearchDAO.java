@@ -30,6 +30,7 @@ public class SearchDAO extends ESDAO {
 
 		searchSourceBuilder.query(query);
 		searchSourceBuilder.size(0);
+		searchSourceBuilder.trackTotalHits(true);
 
 		SearchRequest searchRequest = new SearchRequest(ConfigHelper.getEsIndex());
 		searchRequest.source(searchSourceBuilder);

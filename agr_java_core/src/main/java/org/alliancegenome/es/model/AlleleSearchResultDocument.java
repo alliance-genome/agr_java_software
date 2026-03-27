@@ -29,8 +29,8 @@ public class AlleleSearchResultDocument extends ESDocument {
 	private String species;
 	private Double popularity;
 	private String alterationType;
-	private List<String> variantTypes;
-	private Set<String> molecularConsequences;
+	private List<String> variantType;
+	private Set<String> molecularConsequence;
 	private Set<String> constructExpressedComponent;
 	private Set<String> constructRegulatoryRegion;
 	private Set<String> constructKnockdownComponent;
