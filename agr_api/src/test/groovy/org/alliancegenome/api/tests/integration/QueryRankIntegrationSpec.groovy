@@ -105,13 +105,13 @@ class QueryRankIntegrationSpec extends Specification {
 
     @Unroll
     @Ignore
-    def "When querying for #query first result name_key should be #nameKey"() {
+    def "When querying for #query first result nameKey should be #nameKey"() {
         when:
         def encodedQuery = URLEncoder.encode(query, "UTF-8")
         //todo: need to set the base search url in a nicer way
         def results = ApiTester.getApiResults("/api/search?limit=50&offset=0&q=$encodedQuery")
 
-        def firstResultNameKey = results.first().get("name_key")
+        def firstResultNameKey = results.first().get("nameKey")
 
         then:
         results //should be some results

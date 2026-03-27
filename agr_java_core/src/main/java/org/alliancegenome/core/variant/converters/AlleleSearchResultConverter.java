@@ -2,6 +2,7 @@ package org.alliancegenome.core.variant.converters;
 
 import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
 import org.alliancegenome.curation_api.model.entities.Allele;
+import org.alliancegenome.curation_api.model.entities.Species;
 import org.alliancegenome.curation_api.model.entities.ontology.NCBITaxonTerm;
 import org.alliancegenome.curation_api.model.entities.slotAnnotations.NameSlotAnnotation;
 import org.alliancegenome.es.model.AlleleSearchResultDocument;
@@ -39,9 +40,17 @@ public class AlleleSearchResultConverter {
 
 			NCBITaxonTerm taxon = allele.getTaxon();
 			if (taxon != null) {
-				searchDoc.setSpecies(taxon.getName());
-				if (allele.getAlleleSymbol() != null) {
-					searchDoc.setNameKey(allele.getAlleleSymbol().getFormatText() + " (" + taxon.getName() + ")");
+				Species species = taxon.getSpecies();
+				if (species != null) {
+					searchDoc.setSpecies(species.getFullName());
+					if (allele.getAlleleSymbol() != null) {
+						searchDoc.setNameKey(allele.getAlleleSymbol().getFormatText() + " (" + species.getAbbreviation() + ")");
+					}
+				} else {
+					searchDoc.setSpecies(taxon.getName());
+					if (allele.getAlleleSymbol() != null) {
+						searchDoc.setNameKey(allele.getAlleleSymbol().getFormatText() + " (" + taxon.getName() + ")");
+					}
 				}
 			} else if (allele.getAlleleSymbol() != null) {
 				searchDoc.setNameKey(allele.getAlleleSymbol().getFormatText());

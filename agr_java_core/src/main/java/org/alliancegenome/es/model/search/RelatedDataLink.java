@@ -1,9 +1,8 @@
 package org.alliancegenome.es.model.search;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter @Setter
+@Data
 public class RelatedDataLink {
 
 	private String category;

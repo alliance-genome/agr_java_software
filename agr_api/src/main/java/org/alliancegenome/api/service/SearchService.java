@@ -153,16 +153,13 @@ public class SearchService {
 		functionList.add(rnaBoost());
 		functionList.add(pseudogeneBoost());
 
-		functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("name_key.keyword", q), ScoreFunctionBuilders.weightFactorFunction(1000F)));
 		functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("nameKey.keyword", q), ScoreFunctionBuilders.weightFactorFunction(1000F)));
 
 		functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("primaryKey", q), ScoreFunctionBuilders.weightFactorFunction(1000F)));
 		functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("curie", q), ScoreFunctionBuilders.weightFactorFunction(1000F)));
 
-		functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("name_key.keywordAutocomplete", q), ScoreFunctionBuilders.weightFactorFunction(500F)));
 		functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("nameKey.keywordAutocomplete", q), ScoreFunctionBuilders.weightFactorFunction(500F)));
 
-		functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("name_key.standardBigrams", q), ScoreFunctionBuilders.weightFactorFunction(500F)));
 		functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("nameKey.standardBigrams", q), ScoreFunctionBuilders.weightFactorFunction(500F)));
 
 		functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("species", q), ScoreFunctionBuilders.weightFactorFunction(2F)));
@@ -325,11 +322,7 @@ public class SearchService {
 		if (result.containsKey("relatedData")) {
 			return;
 		}
-		String nameKey = (String) result.get("name_key");
-		// Gene documents use "name_key" (snake_case), GO search result documents use "nameKey" (camelCase)
-		if (nameKey == null) {
-			nameKey = (String) result.get("nameKey");
-		}
+		String nameKey = (String) result.get("nameKey");
 		// String name = (String) result.get("name");
 		String category = (String) result.get("category");
 

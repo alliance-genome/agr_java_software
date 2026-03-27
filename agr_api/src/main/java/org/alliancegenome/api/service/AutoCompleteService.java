@@ -42,7 +42,6 @@ public class AutoCompleteService {
 		MultiMatchQueryBuilder multi = QueryBuilders.multiMatchQuery(queryTerm);
 		multi.field("symbol", 5.0F);
 		multi.field("symbol.keyword", 8.0F);
-		multi.field("name_key.autocomplete", 3.0F);
 		multi.field("nameKey.autocomplete", 3.0F);
 		multi.field("name.keyword", 2.0F);
 		multi.field("name.autocomplete");
@@ -77,11 +76,9 @@ public class AutoCompleteService {
 		for (SearchHit hit: res.getHits()) {
 			String category = (String) hit.getSourceAsMap().get("category");
 
-			//this comes over from the Python code, use symbol for geneMap,
-			//seems like maybe it could also use name_key for everyone...
+			//this comes over from the Python code, use symbol for geneMap
 			if (StringUtils.equals(category, Category.GENE.getName())) {
 				hit.getSourceAsMap().put("name", hit.getSourceAsMap().get("symbol"));
-				hit.getSourceAsMap().put("name_key", hit.getSourceAsMap().get("nameKey"));
 			}
 			ret.add(hit.getSourceAsMap());
 		}
