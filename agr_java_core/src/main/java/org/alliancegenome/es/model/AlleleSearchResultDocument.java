@@ -6,8 +6,6 @@ import java.util.Set;
 import org.alliancegenome.curation_api.model.document.es.ESDocument;
 import org.alliancegenome.es.model.search.RelatedDataLink;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import lombok.Getter;
 import lombok.Setter;
 
@@ -23,7 +21,6 @@ public class AlleleSearchResultDocument extends ESDocument {
 	private String symbol;
 	private String symbolText;
 	private String name;
-	@JsonProperty("name_key")
 	private String nameKey;
 	private String primaryKey;
 	private String species;

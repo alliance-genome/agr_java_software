@@ -170,8 +170,7 @@ public class Mapping extends Builder {
 
 		new FieldBuilder(builder, "name", "text").symbol().autocomplete().keyword().keywordAutocomplete().htmlSmoosh().standardBigrams().build(); // allele, gene, model, go, dataset, disease
 		new FieldBuilder(builder, "nameText", "text").keyword().standardText().build(); // model
-		new FieldBuilder(builder, "name_key", "text").analyzer("symbols").autocomplete().keyword().keywordAutocomplete().htmlSmoosh().standardBigrams().build(); // allele, gene, model, dataset, disease
-		new FieldBuilder(builder, "nameKey", "text").analyzer("symbols").autocomplete().keyword().keywordAutocomplete().htmlSmoosh().standardBigrams().build(); // go_search_result
+		new FieldBuilder(builder, "nameKey", "text").analyzer("symbols").autocomplete().keyword().keywordAutocomplete().htmlSmoosh().standardBigrams().build(); // allele, gene, model, dataset, disease, go_search_result
 
 
 		new FieldBuilder(builder, "subject.alleleSymbol.displayText", "text").keyword().sort().build(); // allele_disease_annotation

@@ -8,7 +8,6 @@ import org.alliancegenome.curation_api.model.document.es.ESDocument;
 import org.alliancegenome.es.index.site.doclet.CrossReferenceDoclet;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -34,7 +33,6 @@ public class SearchableItemDocument extends ESDocument {
 	String href; //GO terms use this rather than modCrossRefCompleteUrl
 	String localId;
 	String name;
-	@JsonProperty("name_key")
 	String nameKey;
 	String nameText;
 	String modCrossRefCompleteUrl;

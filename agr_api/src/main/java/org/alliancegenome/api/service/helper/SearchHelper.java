@@ -185,12 +185,6 @@ public class SearchHelper {
 			add("curie");
 			add("id");
 			add("localId");
-			add("name_key");
-			add("name_key.autocomplete");
-			add("name_key.htmlSmoosh");
-			add("name_key.keyword");
-			add("name_key.standardBigrams");
-			add("name_key.keywordAutocomplete");
 			add("nameKey");
 			add("nameKey.autocomplete");
 			add("nameKey.htmlSmoosh");
@@ -273,7 +267,7 @@ public class SearchHelper {
 			add("molecularConsequence");
 			add("molecularFunction");
 			add("name");
-			add("name_key");
+			add("nameKey");
 			add("nameKey");
 			add("primaryKey");
 			add("soTermName");
