@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.curation_api.interfaces.document.ModelDocumentInterface;
-import org.alliancegenome.curation_api.model.document.es.AffectedGenomicModelDocument;
+import org.alliancegenome.curation_api.interfaces.document.AGMAnnotationDocumentInterface;
+import org.alliancegenome.curation_api.model.document.es.AGMAnnotationDocument;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.es.rest.RestConfig;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
@@ -20,21 +20,21 @@ import lombok.extern.slf4j.Slf4j;
 import si.mazi.rescu.RestProxyFactory;
 
 @Slf4j
-public class AffectedGenomicModelCurationIndexer extends Indexer {
+public class AGMAnnotationCurationIndexer extends Indexer {
 
-	private final ModelDocumentInterface modelApi = RestProxyFactory.createProxy(ModelDocumentInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
+	private final AGMAnnotationDocumentInterface agmAnnotationDocumentApi = RestProxyFactory.createProxy(AGMAnnotationDocumentInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 
 	private List<List<Long>> idBatches;
 
-	public AffectedGenomicModelCurationIndexer(IndexerConfig config) {
+	public AGMAnnotationCurationIndexer(IndexerConfig config) {
 		super(config);
 	}
 
 	@Override
 	protected void index(ProcessDisplayHelper display) {
 		try {
-			log.info("Fetching all AGM IDs...");
-			SearchResponse<Long> idsResponse = modelApi.getAllIds();
+			log.info("Fetching all AGM Annotation IDs...");
+			SearchResponse<Long> idsResponse = agmAnnotationDocumentApi.getAllIds();
 			List<Long> allIds = idsResponse.getResults();
 			log.info("Fetched {} AGM IDs", allIds.size());
 			display.startProcess(allIds.size());
@@ -64,7 +64,7 @@ public class AffectedGenomicModelCurationIndexer extends Indexer {
 				String batchIndex = queue.takeFirst();
 				List<Long> batchIds = idBatches.get(Integer.parseInt(batchIndex));
 
-				SearchResponse<AffectedGenomicModelDocument> response = modelApi.findByIds(batchIds);
+				SearchResponse<AGMAnnotationDocument> response = agmAnnotationDocumentApi.findByIds(batchIds);
 				if (response == null || CollectionUtils.isEmpty(response.getResults())) {
 					continue;
 				}
