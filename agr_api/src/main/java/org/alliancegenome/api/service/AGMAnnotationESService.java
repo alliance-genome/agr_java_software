@@ -16,9 +16,9 @@ import jakarta.enterprise.context.RequestScoped;
 
 
 @RequestScoped
-public class AffectedGenomicModelESService extends ESService {
+public class AGMAnnotationESService extends ESService {
 
-	public JsonResultResponse<AGMAnnotationDocument> getGeneModels(
+	public JsonResultResponse<AGMAnnotationDocument> getGeneAGMAnnotationDocuments(
 		String geneId,
 		Pagination pagination,
 		boolean debug) {

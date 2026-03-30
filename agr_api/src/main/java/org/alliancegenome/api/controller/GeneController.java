@@ -12,9 +12,8 @@ import org.alliancegenome.api.entity.GeneToGeneOrthologyDocument;
 import org.alliancegenome.api.entity.GeneToGeneParalogyDocument;
 import org.alliancegenome.api.entity.GeneTransgenicAlleleSummaryDocument;
 import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
-import org.alliancegenome.api.service.AffectedGenomicModelESService;
+import org.alliancegenome.api.service.AGMAnnotationESService;
 import org.alliancegenome.api.service.AlleleESService;
-
 import org.alliancegenome.api.service.DiseaseESService;
 import org.alliancegenome.api.service.EntityType;
 import org.alliancegenome.api.service.GeneESService;
@@ -77,7 +76,7 @@ public class GeneController implements GeneRESTInterface {
 	@Inject
 	PhenotypeESService phenotypeESService;
 	@Inject
-	AffectedGenomicModelESService agmESService;
+	AGMAnnotationESService agmESService;
 
 	@Inject
 	TransgenicAlleleESService transgenicAlleleESService;
@@ -397,7 +396,7 @@ public class GeneController implements GeneRESTInterface {
 		pagination.addFilterOption("dataProvider", source);
 
 		try {
-			JsonResultResponse<AGMAnnotationDocument> response = agmESService.getGeneModels(id, pagination, false);
+			JsonResultResponse<AGMAnnotationDocument> response = agmESService.getGeneAGMAnnotationDocuments(id, pagination, false);
 			response.setHttpServletRequest(null);
 			response.calculateRequestDuration(startTime);
 			return response;
