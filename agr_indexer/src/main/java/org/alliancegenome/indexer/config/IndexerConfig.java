@@ -2,7 +2,7 @@ package org.alliancegenome.indexer.config;
 
 import org.alliancegenome.indexer.indexers.LiteratureIndexer;
 import org.alliancegenome.indexer.indexers.ModelIndexer;
-import org.alliancegenome.indexer.indexers.curation.AffectedGenomicModelCurationIndexer;
+import org.alliancegenome.indexer.indexers.curation.AGMAnnotationCurationIndexer;
 import org.alliancegenome.indexer.indexers.curation.AlleleSummaryCurationIndexer;
 import org.alliancegenome.indexer.indexers.curation.DiseaseAnnotationCurationIndexer;
 import org.alliancegenome.indexer.indexers.curation.DiseaseSearchResultCurationIndexer;
@@ -32,7 +32,7 @@ public enum IndexerConfig {
 
 	// Run Parallelly
 	ParalogyIndexer("paralogy", GeneToGeneParalogyIndexer.class, 4, 5000, 5000, 8, 1, true),
-	AffectedGenomicModelIndexer("affectedGenomicModels", AffectedGenomicModelCurationIndexer.class, 4, 1500, 1500, 8, 1, true),
+	AffectedGenomicModelAnnotationIndexer("agmAnnotation", AGMAnnotationCurationIndexer.class, 4, 1500, 1500, 8, 1, true),
 	GeneSearchResultCurationIndexer("geneSearchResult", GeneSearchResultCurationIndexer.class, 4, 1000, 1500, 4, 1, true),
 	GeneSummaryIndexer("geneSummary", GeneSummaryCurationIndexer.class, 4, 1500, 1500, 4, 1, true),
 	VariantSummaryIndexer("variantSummary", VariantSummaryCurationIndexer.class, 1, 3000, 1500, 8, 1, false),

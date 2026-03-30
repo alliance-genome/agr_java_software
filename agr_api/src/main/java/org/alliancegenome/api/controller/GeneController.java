@@ -12,9 +12,8 @@ import org.alliancegenome.api.entity.GeneToGeneOrthologyDocument;
 import org.alliancegenome.api.entity.GeneToGeneParalogyDocument;
 import org.alliancegenome.api.entity.GeneTransgenicAlleleSummaryDocument;
 import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
-import org.alliancegenome.api.service.AffectedGenomicModelESService;
+import org.alliancegenome.api.service.AGMAnnotationESService;
 import org.alliancegenome.api.service.AlleleESService;
-
 import org.alliancegenome.api.service.DiseaseESService;
 import org.alliancegenome.api.service.EntityType;
 import org.alliancegenome.api.service.GeneESService;
@@ -34,7 +33,7 @@ import org.alliancegenome.core.exceptions.RestErrorMessage;
 import org.alliancegenome.core.translators.tdf.AlleleToTdfTranslator;
 import org.alliancegenome.core.translators.tdf.GeneGeneticInteractionToTdfTranslator;
 import org.alliancegenome.core.translators.tdf.GeneMolecularInteractionToTdfTranslator;
-import org.alliancegenome.curation_api.model.document.es.AffectedGenomicModelDocument;
+import org.alliancegenome.curation_api.model.document.es.AGMAnnotationDocument;
 import org.alliancegenome.curation_api.model.document.es.ESDocument;
 import org.alliancegenome.curation_api.model.document.es.GeneSummaryDocument;
 import org.alliancegenome.curation_api.model.document.es.SequenceSummaryDocument;
@@ -77,7 +76,7 @@ public class GeneController implements GeneRESTInterface {
 	@Inject
 	PhenotypeESService phenotypeESService;
 	@Inject
-	AffectedGenomicModelESService agmESService;
+	AGMAnnotationESService agmESService;
 
 	@Inject
 	TransgenicAlleleESService transgenicAlleleESService;
@@ -382,7 +381,7 @@ public class GeneController implements GeneRESTInterface {
 	}
 
 	@Override
-	public JsonResultResponse<AffectedGenomicModelDocument> getPrimaryAnnotatedEntityForModel(String id, Integer limit, Integer page, String sortBy, String modelName, String species, String experimentalCondition, String disease, String phenotype, String source, String asc) {
+	public JsonResultResponse<AGMAnnotationDocument> getPrimaryAnnotatedEntityForModel(String id, Integer limit, Integer page, String sortBy, String modelName, String species, String experimentalCondition, String disease, String phenotype, String source, String asc) {
 		long startTime = System.currentTimeMillis();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
 		if (pagination.hasErrors()) {
@@ -397,7 +396,7 @@ public class GeneController implements GeneRESTInterface {
 		pagination.addFilterOption("dataProvider", source);
 
 		try {
-			JsonResultResponse<AffectedGenomicModelDocument> response = agmESService.getGeneModels(id, pagination, false);
+			JsonResultResponse<AGMAnnotationDocument> response = agmESService.getGeneAGMAnnotationDocuments(id, pagination, false);
 			response.setHttpServletRequest(null);
 			response.calculateRequestDuration(startTime);
 			return response;

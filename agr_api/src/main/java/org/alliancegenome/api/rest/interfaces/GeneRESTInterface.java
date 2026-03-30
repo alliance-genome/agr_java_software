@@ -11,7 +11,7 @@ import org.alliancegenome.api.entity.GeneToGeneOrthologyDocument;
 import org.alliancegenome.api.entity.GeneToGeneParalogyDocument;
 import org.alliancegenome.api.entity.GeneTransgenicAlleleSummaryDocument;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.curation_api.model.document.es.AffectedGenomicModelDocument;
+import org.alliancegenome.curation_api.model.document.es.AGMAnnotationDocument;
 import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
 import org.alliancegenome.curation_api.model.document.es.ESDocument;
 import org.alliancegenome.curation_api.model.document.es.GeneSummaryDocument;
@@ -311,7 +311,7 @@ public interface GeneRESTInterface {
 				description = "disease annotations for a gene.",
 				content = @Content(mediaType = "application/json",
 					schema = @Schema(implementation = Null.class)))})
-	JsonResultResponse<AffectedGenomicModelDocument> getPrimaryAnnotatedEntityForModel(
+	JsonResultResponse<AGMAnnotationDocument> getPrimaryAnnotatedEntityForModel(
 		@Parameter(in = ParameterIn.PATH, name = "id", description = "gene ID: e.g. MGI:109583", required = true, schema = @Schema(type = SchemaType.STRING))
 		@PathParam("id") String id,
 		@Parameter(in = ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))

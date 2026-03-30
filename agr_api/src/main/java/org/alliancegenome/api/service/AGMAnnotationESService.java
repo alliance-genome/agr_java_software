@@ -5,7 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.curation_api.model.document.es.AffectedGenomicModelDocument;
+import org.alliancegenome.curation_api.model.document.es.AGMAnnotationDocument;
 import org.alliancegenome.es.index.site.schema.Mapping;
 import org.alliancegenome.es.model.query.Pagination;
 import org.elasticsearch.action.search.SearchResponse;
@@ -16,9 +16,9 @@ import jakarta.enterprise.context.RequestScoped;
 
 
 @RequestScoped
-public class AffectedGenomicModelESService extends ESService {
+public class AGMAnnotationESService extends ESService {
 
-	public JsonResultResponse<AffectedGenomicModelDocument> getGeneModels(
+	public JsonResultResponse<AGMAnnotationDocument> getGeneAGMAnnotationDocuments(
 		String geneId,
 		Pagination pagination,
 		boolean debug) {
@@ -26,7 +26,7 @@ public class AffectedGenomicModelESService extends ESService {
 		// unfiltered query
 		BoolQueryBuilder query = getBaseModelQuery(List.of(geneId), false, "affected_genomic_model_annotation");
 
-		JsonResultResponse<AffectedGenomicModelDocument> ret = new JsonResultResponse<>();
+		JsonResultResponse<AGMAnnotationDocument> ret = new JsonResultResponse<>();
 
 		// add table filter
 		addTableFilter(pagination, query);
@@ -39,10 +39,10 @@ public class AffectedGenomicModelESService extends ESService {
 		SearchResponse searchResponse = getSearchResponse(query, pagination, sortingMap, null, debug);
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
 
-		List<AffectedGenomicModelDocument> list = Arrays.stream(searchResponse.getHits().getHits())
+		List<AGMAnnotationDocument> list = Arrays.stream(searchResponse.getHits().getHits())
 			.map(searchHit -> {
 				try {
-					AffectedGenomicModelDocument object = mapper.readValue(searchHit.getSourceAsString(), AffectedGenomicModelDocument.class);
+					AGMAnnotationDocument object = mapper.readValue(searchHit.getSourceAsString(), AGMAnnotationDocument.class);
 					return object;
 				} catch (Exception e) {
 					e.printStackTrace();
