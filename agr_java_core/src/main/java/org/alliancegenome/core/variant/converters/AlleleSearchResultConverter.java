@@ -67,7 +67,7 @@ public class AlleleSearchResultConverter {
 			}
 
 			if (doc.getAlleleOfGene() != null && doc.getAlleleOfGene().getGeneSymbol() != null) {
-				String geneSymbol = doc.getAlleleOfGene().getGeneSymbol().getDisplayText();
+				String geneSymbol = doc.getAlleleOfGene().getGeneSymbol().getFormatText();
 				if (taxon != null) {
 					Species geneSpecies = taxon.getSpecies();
 					if (geneSpecies != null) {
