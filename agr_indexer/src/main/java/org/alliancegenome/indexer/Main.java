@@ -68,18 +68,7 @@ public class Main {
 			log.info("Args[" + i + "]: " + args[i]);
 		}
 
-		ExecutorService parallelExecutor = Executors.newFixedThreadPool(10);
 		ExecutorService sequentialExecutor = Executors.newFixedThreadPool(1);
-
-		for (String type : parallelMap.keySet()) {
-			if (argumentSet.size() == 0 || argumentSet.contains(type)) {
-				log.info("Running Parallel for: " + type);
-				parallelExecutor.execute(indexers.get(type));
-				//indexers.get(type).start();
-			} else {
-				log.info("Not Starting: " + type);
-			}
-		}
 		
 		for (String type : sequentialMap.keySet()) {
 			if (argumentSet.size() == 0 || argumentSet.contains(type)) {
@@ -90,17 +79,6 @@ public class Main {
 				log.info("Not Starting: " + type);
 			}
 		}
-
-		parallelExecutor.shutdown();
-		while (!parallelExecutor.isTerminated()) {
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				ExceptionCatcher.report(e);
-				e.printStackTrace();
-			}
-		}
-		log.info("Finished Running Curation Indexers");
 		sequentialExecutor.shutdown();
 		while (!sequentialExecutor.isTerminated()) {
 			try {
@@ -110,9 +88,32 @@ public class Main {
 				e.printStackTrace();
 			}
 		}
-		log.info("Finished Running Neo4j Indexers");
+		log.info("Finished Running Sequential Indexers");
+		
+		
+		ExecutorService parallelExecutor = Executors.newFixedThreadPool(10);
+		
+		for (String type : parallelMap.keySet()) {
+			if (argumentSet.size() == 0 || argumentSet.contains(type)) {
+				log.info("Running Parallel for: " + type);
+				parallelExecutor.execute(indexers.get(type));
+				//indexers.get(type).start();
+			} else {
+				log.info("Not Starting: " + type);
+			}
+		}
+		parallelExecutor.shutdown();
+		while (!parallelExecutor.isTerminated()) {
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				ExceptionCatcher.report(e);
+				e.printStackTrace();
+			}
+		}
+		log.info("Finished Running Parallel Indexers");
 
-		log.debug("Waiting for Indexers to finish");
+		log.debug("Waiting for ALL Indexers to finish");
 		for (Indexer i : indexers.values()) {
 			try {
 				if (i.isAlive()) {
