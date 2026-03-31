@@ -67,9 +67,14 @@ public class AlleleSearchResultConverter {
 			}
 
 			if (doc.getAlleleOfGene() != null && doc.getAlleleOfGene().getGeneSymbol() != null) {
-				String geneSymbol = doc.getAlleleOfGene().getGeneSymbol().getDisplayText();
+				String geneSymbol = doc.getAlleleOfGene().getGeneSymbol().getFormatText();
 				if (taxon != null) {
-					geneSymbol = geneSymbol + " (" + taxon.getName() + ")";
+					Species geneSpecies = taxon.getSpecies();
+					if (geneSpecies != null) {
+						geneSymbol = geneSymbol + " (" + geneSpecies.getAbbreviation() + ")";
+					} else {
+						geneSymbol = geneSymbol + " (" + taxon.getName() + ")";
+					}
 				}
 				searchDoc.setGenes(List.of(geneSymbol));
 			}

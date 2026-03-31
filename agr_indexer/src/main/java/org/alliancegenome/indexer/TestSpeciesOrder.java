@@ -30,7 +30,7 @@ public class TestSpeciesOrder {
 			String taxonCurie = species.getTaxon() != null ? species.getTaxon().getCurie() : "null";
 			Integer order = species.getPhylogeneticOrder();
 			String fullName = species.getFullName();
-			System.out.println("  " + fullName + " | taxon: " + taxonCurie + " | phylogeneticOrder: " + order);
+			System.out.println(fullName + " | taxon: " + taxonCurie + " | phylogeneticOrder: " + order);
 
 			if (species.getTaxon() != null && order != null) {
 				String taxonIdPart = taxonCurie.replace("NCBITaxon:", "");
@@ -41,7 +41,7 @@ public class TestSpeciesOrder {
 		System.out.println("\n=== Species order lookup map ===");
 		speciesOrderLookup.entrySet().stream()
 			.sorted(Map.Entry.comparingByValue())
-			.forEach(e -> System.out.println("  " + e.getKey() + " -> " + e.getValue()));
+			.forEach(e -> System.out.println(e.getKey() + " -> " + e.getValue()));
 
 		// Test buildSpeciesOrder for a specific taxon (e.g. Xenopus laevis 8355)
 		String testTaxon = args.length > 0 ? args[0] : "NCBITaxon:8355";
@@ -49,7 +49,7 @@ public class TestSpeciesOrder {
 		HashMap<String, Integer> speciesOrder = buildSpeciesOrder(speciesOrderLookup, testTaxon);
 		speciesOrder.entrySet().stream()
 			.sorted(Map.Entry.comparingByValue())
-			.forEach(e -> System.out.println("  " + e.getKey() + " -> " + e.getValue()));
+			.forEach(e -> System.out.println(e.getKey() + " -> " + e.getValue()));
 
 		System.out.println("\nDone.");
 	}
