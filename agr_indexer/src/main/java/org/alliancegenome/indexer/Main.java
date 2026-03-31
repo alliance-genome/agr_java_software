@@ -91,7 +91,7 @@ public class Main {
 		log.info("Finished Running Sequential Indexers");
 		
 		
-		ExecutorService parallelExecutor = Executors.newFixedThreadPool(10);
+		ExecutorService parallelExecutor = Executors.newFixedThreadPool(5);
 		
 		for (String type : parallelMap.keySet()) {
 			if (argumentSet.size() == 0 || argumentSet.contains(type)) {
