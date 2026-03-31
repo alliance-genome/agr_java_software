@@ -30,11 +30,11 @@ public class SearchHelper {
 				{
 					add("species");
 					add("biotypes");
-					add("diseasesWithParents");
+					add("diseasesAgrSlim");
 					add("biologicalProcessAgrSlim");
 					add("molecularFunctionAgrSlim");
 					add("cellularComponentAgrSlim");
-					add("anatomicalExpressionWithParents");
+					add("anatomicalExpressionAgrSlim");
 					add("subcellularExpressionAgrSlim");
 				}
 			});
