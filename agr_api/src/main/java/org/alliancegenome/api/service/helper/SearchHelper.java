@@ -34,7 +34,7 @@ public class SearchHelper {
 					add("biologicalProcessAgrSlim");
 					add("molecularFunctionAgrSlim");
 					add("cellularComponentAgrSlim");
-					add("anatomicalExpressionAgrSlim");
+					add("anatomicalExpressionSlim");
 					add("subcellularExpressionAgrSlim");
 				}
 			});
