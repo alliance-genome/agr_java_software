@@ -59,7 +59,7 @@ public class ExpressionToTdfTranslator {
 		StringJoiner joiner = new StringJoiner("\t");
 		if (isMultipleGenes) {
 			var subject = annotation.getExpressionAnnotationSubject();
-			joiner.add(subject.getTaxon().getName())
+			joiner.add(subject.getTaxon().getSpecies().getFullName())
 					.add(subject.getGeneSymbol().getDisplayText())
 					.add(subject.getPrimaryExternalId());
 		}

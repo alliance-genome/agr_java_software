@@ -56,7 +56,7 @@ public class GeneGeneticInteractionToTdfTranslator {
 			joiner.add(interaction.getGeneGeneticInteraction().getGeneGeneAssociationObject().getIdentifier());
 			joiner.add(interaction.getGeneGeneticInteraction().getGeneGeneAssociationObject().getGeneSymbol().getDisplayText());
 			joiner.add(interaction.getGeneGeneticInteraction().getGeneGeneAssociationObject().getTaxon().getCurie());
-			joiner.add(interaction.getGeneGeneticInteraction().getGeneGeneAssociationObject().getTaxon().getName());
+			joiner.add(interaction.getGeneGeneticInteraction().getGeneGeneAssociationObject().getTaxon().getSpecies().getFullName());
 			
 			joiner.add(interaction.getGeneGeneticInteraction().getInteractorBType().getCurie());
 			joiner.add(interaction.getGeneGeneticInteraction().getInteractorBType().getName());

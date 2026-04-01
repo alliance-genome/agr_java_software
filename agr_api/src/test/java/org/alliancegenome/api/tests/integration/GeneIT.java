@@ -176,7 +176,7 @@ public class GeneIT {
 		String terms = String.join(",", termList);
 //		  String stages = String.join(",", stageList);
 		String symbols = String.join(",", symbolList);
-		assertThat("first element species", response.getResults().get(0).getGeneExpressionAnnotation().getExpressionAnnotationSubject().getTaxon().getName(), equalTo("Danio rerio"));
+		assertThat("first element species", response.getResults().get(0).getGeneExpressionAnnotation().getExpressionAnnotationSubject().getTaxon().getSpecies().getFullName(), equalTo("Danio rerio"));
 		assertThat("first element symbol", response.getResults().get(0).getGeneExpressionAnnotation().getExpressionAnnotationSubject().getGeneSymbol().getDisplayText(), equalTo("abcb4"));
 		assertThat("list of terms", terms, equalTo("bile canaliculus,head,head,head,head,head,head,head,head,hepatocyte intracellular canaliculus,intestinal bulb,intestine,intestine,intestine,intestine"));
 		//		assertThat("list of stages", stages, equalTo("ZFS:0000029,ZFS:0000030,ZFS:0000031,ZFS:0000032,ZFS:0000033,ZFS:0000034,ZFS:0000035,ZFS:0000036,ZFS:0000037,ZFS:0000029,ZFS:0000030,ZFS:0000031,ZFS:0000032,ZFS:0000033,ZFS:0000034"));
@@ -261,7 +261,7 @@ public class GeneIT {
 		String terms = String.join(",", termList);
 //		  String stages = String.join(",", stageList);
 		String symbols = String.join(",", symbolList);
-		assertThat("first element species", response.getResults().get(0).getGeneExpressionAnnotation().getExpressionAnnotationSubject().getTaxon().getName(), equalTo("Danio rerio"));
+		assertThat("first element species", response.getResults().get(0).getGeneExpressionAnnotation().getExpressionAnnotationSubject().getTaxon().getSpecies().getFullName(), equalTo("Danio rerio"));
 		assertThat("first element symbol", response.getResults().get(0).getGeneExpressionAnnotation().getExpressionAnnotationSubject().getGeneSymbol().getDisplayText(), equalTo("shha"));
 		assertThat("list of terms", terms, equalTo("anal fin,anterior neural keel,anterior neural keel ventral region,anterior neural rod,axial chorda mesoderm,axial chorda mesoderm"));
 		//		assertThat("list of stages", stages, equalTo("ZFS:0000029,ZFS:0000030,ZFS:0000031,ZFS:0000032,ZFS:0000033,ZFS:0000034,ZFS:0000035,ZFS:0000036,ZFS:0000044"));

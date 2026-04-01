@@ -191,19 +191,19 @@ public class DiseaseAnnotationToTdfTranslator extends BaseToTdfTranslator {
 		if (annotation instanceof GeneDiseaseAnnotationDocument document) {
 			org.alliancegenome.curation_api.model.entities.Gene subject = document.getSubject();
 			subjectTaxonCurie = subject.getTaxon().getCurie();
-			subjectTaxonName = subject.getTaxon().getName();
+			subjectTaxonName = subject.getTaxon().getSpecies().getFullName();
 			subjectID = subject.getIdentifier();
 			subjectSymbol = subject.getGeneSymbol().getDisplayText();
 		} else if (annotation instanceof AlleleDiseaseAnnotationDocument document) {
 			org.alliancegenome.curation_api.model.entities.Allele subject = document.getSubject();
 			subjectTaxonCurie = subject.getTaxon().getCurie();
-			subjectTaxonName = subject.getTaxon().getName();
+			subjectTaxonName = subject.getTaxon().getSpecies().getFullName();
 			subjectID = subject.getIdentifier();
 			subjectSymbol = subject.getAlleleSymbol().getDisplayText();
 		} else if (annotation instanceof AGMDiseaseAnnotationDocument document) {
 			org.alliancegenome.curation_api.model.entities.AffectedGenomicModel subject = document.getSubject();
 			subjectTaxonCurie = subject.getTaxon().getCurie();
-			subjectTaxonName = subject.getTaxon().getName();
+			subjectTaxonName = subject.getTaxon().getSpecies().getFullName();
 			subjectID = subject.getIdentifier();
 			subjectSymbol = subject.getAgmFullName().getDisplayText();
 			row.setEntityType(subject.getSubtype().getName());
