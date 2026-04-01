@@ -16,10 +16,10 @@ import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
 import org.alliancegenome.curation_api.model.entities.Allele;
 import org.alliancegenome.curation_api.model.entities.CrossReference;
 import org.alliancegenome.curation_api.model.entities.Note;
+import org.alliancegenome.curation_api.model.entities.PredictedVariantConsequence;
 import org.alliancegenome.curation_api.model.entities.Reference;
 import org.alliancegenome.curation_api.model.entities.TransgenicAlleleConstruct;
 import org.alliancegenome.curation_api.model.entities.Variant;
-import org.alliancegenome.curation_api.model.entities.PredictedVariantConsequence;
 import org.alliancegenome.curation_api.model.entities.associations.CuratedVariantGenomicLocationAssociation;
 import org.alliancegenome.curation_api.model.entities.associations.TranscriptGeneAssociation;
 import org.alliancegenome.curation_api.model.entities.ontology.SOTerm;
@@ -163,7 +163,7 @@ public class AlleleToTdfTranslator {
 		TransgenicAlleleDownloadRow row = new TransgenicAlleleDownloadRow();
 		Allele allele = transgenicAlleleSummaryDocument.getAllele();
 
-		row.setSpecies(allele.getTaxon().getName());
+		row.setSpecies(allele.getTaxon().getSpecies().getFullName());
 		row.setAlleleID(allele.getPrimaryExternalId());
 		row.setAlleleSymbol(allele.getAlleleSymbol().getFormatText());
 		row.setTgConstructID(transgenicAlleleConstruct.getConstruct().getPrimaryExternalId());

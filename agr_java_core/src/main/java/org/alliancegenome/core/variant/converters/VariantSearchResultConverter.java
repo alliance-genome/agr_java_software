@@ -32,7 +32,7 @@ public class VariantSearchResultConverter {
 
 			if (variantLocation.getVariantAssociationSubject() != null) {
 				if (variantLocation.getVariantAssociationSubject().getTaxon() != null) {
-					vsd.setSpecies(variantLocation.getVariantAssociationSubject().getTaxon().getName());
+					vsd.setSpecies(variantLocation.getVariantAssociationSubject().getTaxon().getSpecies().getFullName());
 				}
 				if (variantLocation.getVariantAssociationSubject().getVariantType() != null && variantLocation.getVariantAssociationSubject().getVariantType().getName() != null) {
 					vsd.setVariantType(List.of(variantLocation.getVariantAssociationSubject().getVariantType().getName()));

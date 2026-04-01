@@ -153,7 +153,7 @@ public class ExpressionRibbonESService extends ESService {
 			dataProvider = annotation.getDataProvider().getAbbreviation();
 			entity.setLabel(gene.getGeneSymbol().getDisplayText());
 			entity.setTaxonID(gene.getTaxon().getCurie());
-			entity.setTaxonName(gene.getTaxon().getName());
+			entity.setTaxonName(gene.getTaxon().getSpecies().getFullName());
 		} else {
 			Map<String, Object> geneDoc = getGene(geneID);
 			SpeciesType type = SpeciesType.getTypeByNameField(geneDoc.get("species").toString());
