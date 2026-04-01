@@ -156,7 +156,7 @@ public class GeneService {
 		aggregationFields.put("geneGeneticInteraction.interactorARole.name.keyword", "filter.role");
 		aggregationFields.put("geneGeneticInteraction.interactorBRole.name.keyword", "filter.interactorRole");
 		aggregationFields.put("geneGeneticInteraction.interactionType.name.keyword", "filter.interactionType");
-		aggregationFields.put("geneGeneticInteraction.geneGeneAssociationObject.taxon.name.keyword", "filter.interactorSpecies");
+		aggregationFields.put("geneGeneticInteraction.geneGeneAssociationObject.taxon.species.fullName.keyword", "filter.interactorSpecies");
 		return getInteractionSupplementalData(aggregationFields, unfilteredQuery);
 	}
 
@@ -165,7 +165,7 @@ public class GeneService {
 		aggregationFields.put("geneMolecularInteraction.interactorBType.name.keyword", "filter.interactorMoleculeType");
 		aggregationFields.put("geneMolecularInteraction.interactorAType.name.keyword", "filter.moleculeType");
 		aggregationFields.put("geneMolecularInteraction.detectionMethod.name.keyword", "filter.detectionMethod");
-		aggregationFields.put("geneMolecularInteraction.geneGeneAssociationObject.taxon.name.keyword", "filter.interactorSpecies");
+		aggregationFields.put("geneMolecularInteraction.geneGeneAssociationObject.taxon.species.fullName.keyword", "filter.interactorSpecies");
 		return getInteractionSupplementalData(aggregationFields, unfilteredQuery);
 	}
 

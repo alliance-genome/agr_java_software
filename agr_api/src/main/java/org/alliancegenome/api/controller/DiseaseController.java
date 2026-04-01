@@ -85,9 +85,8 @@ public class DiseaseController implements DiseaseRESTInterface {
 			sortBy = SortingField.DISEASE_ALLELE_DEFAULT.toString();
 		}
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
-		pagination.addFilterOption("subject.taxon.name.keyword", species);
+		pagination.addFilterOption("subject.taxon.species.fullName.keyword", species);
 		pagination.addFilterOption("subject.alleleSymbol.displayText", alleleName);
-		pagination.addFilterOption("subject.taxon.name.keyword", species);
 		pagination.addFilterOption("evidenceCodes.abbreviation", evidenceCode);
 		pagination.addFilterOption("generatedRelationString.keyword", associationType);
 		pagination.addFilterOption("diseaseQualifiers.keyword", diseaseQualifier);
@@ -256,7 +255,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 			pagination.addFilterOption("subject.curie", geneID);
 		}
 		if (species != null) {
-			pagination.addFilterOption("subject.taxon.species.name.keyword", species);
+			pagination.addFilterOption("subject.taxon.species.fullName.keyword", species);
 		}
 
 
@@ -300,7 +299,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 		long startTime = System.currentTimeMillis();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
 		pagination.addFilterOption("subject.agmFullName.displayText", modelName);
-		pagination.addFilterOption("subject.taxon.name.keyword", species);
+		pagination.addFilterOption("subject.taxon.species.fullName.keyword", species);
 		pagination.addFilterOption("evidenceCodes.abbreviation", evidenceCode);
 		pagination.addFilterOption("generatedRelationString.keyword", associationType);
 		pagination.addFilterOption("conditionModifierAggregated", conditionModifier);
@@ -414,14 +413,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 		pagination.addFilterOption("primaryAnnotations.with.geneSymbol.displayText", basedOnGeneSymbol);
 		pagination.addFilterOption("primaryAnnotations.dataProvider.abbreviation OR primaryAnnotations.secondaryDataProvider.abbreviation", filterSource);
 
-		// TODO: remove when SC data is fixed:
-		if (filterSpecies != null) {
-			if (filterSpecies.equals("Saccharomyces cerevisiae")) {
-				pagination.addFilterOption("subject.taxon.name.keyword", "Saccharomyces cerevisiae S288C");
-			} else {
-				pagination.addFilterOption("subject.taxon.name.keyword", filterSpecies);
-			}
-		}
+		pagination.addFilterOption("subject.taxon.species.fullName.keyword", filterSpecies);
 
 		if (pagination.hasErrors()) {
 			RestErrorMessage message = new RestErrorMessage();

@@ -27,7 +27,7 @@ public class TransgenicAlleleESService extends ESService {
 		BoolQueryBuilder query = getBaseModelQuery(List.of(geneId), false, "transgenic_allele_annotations");
 
 		JsonResultResponse<GeneTransgenicAlleleSummaryDocument> ret = new JsonResultResponse<>();
-		Map<String, String> aggregationFields = Map.of("alleleDocument.allele.taxon.name.keyword", "species");
+		Map<String, String> aggregationFields = Map.of("alleleDocument.allele.taxon.species.fullName.keyword", "species");
 		ret.setSupplementalData(getSupplementalData(geneId, true, debug, query, aggregationFields));
 
 		// add table filter
