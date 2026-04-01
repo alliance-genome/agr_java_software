@@ -137,6 +137,7 @@ public class Mapping extends Builder {
 		new FieldBuilder(builder, "object.name", "text").keyword().sort().build(); // gene_disease_annotation, allele_disease_annotation, agm_disease_annotation
 		new FieldBuilder(builder, "object.curie", "text").keyword().sort().build(); // gene_disease_annotation, allele_disease_annotation, agm_disease_annotation
 		new FieldBuilder(builder, "subject.primaryExternalId", "text").keyword().sort().build(); // gene_disease_annotation, allele_disease_annotation, agm_disease_annotation
+		new FieldBuilder(builder, "subject.taxon.species.fullName", "text").keyword().sort().build(); // gene_disease_annotation, allele_disease_annotation, agm_disease_annotation
 
 		new FieldBuilder(builder, "anatomicalExpressionSlim", "text").keyword().build(); // gene, dataset
 		new FieldBuilder(builder, "whereExpressed", "text").keyword().build(); // gene, dataset
@@ -148,6 +149,7 @@ public class Mapping extends Builder {
 		new FieldBuilder(builder, "model.agmFullName.displayText", "text").keyword().sort().build(); //
 		new FieldBuilder(builder, "model.agmFullName.formatText", "text").keyword().sort().build(); //
 		new FieldBuilder(builder, "alleleDocument.allele.alleleSymbol.formatText", "text").keyword().sort().build(); //
+		new FieldBuilder(builder, "alleleDocument.allele.taxon.species.fullName", "text").keyword().sort().build(); //
 		new FieldBuilder(builder, "alleleDocument.phylogeneticSortingIndex", "long").keyword().sort().build(); //
 		new FieldBuilder(builder, "definition", "text").standardText().build(); // go, disease
 
@@ -193,6 +195,7 @@ public class Mapping extends Builder {
 		builder.endObject();
 		new FieldBuilder(builder, "geneMolecularInteraction.geneGeneAssociationObject.geneSymbol.displayText", "text").keyword().sort().build();
 		new FieldBuilder(builder, "geneMolecularInteraction.geneGeneAssociationObject.taxon.name", "text").keyword().sort().build();
+		new FieldBuilder(builder, "geneMolecularInteraction.geneGeneAssociationObject.taxon.species.fullName", "text").keyword().sort().build();
 		new FieldBuilder(builder, "geneMolecularInteraction.geneAssociationSubject.curie", "text").keyword().build();
 		new FieldBuilder(builder, "geneMolecularInteraction.geneAssociationSubject.primaryExternalId", "text").keyword().build();
 		new FieldBuilder(builder, "geneMolecularInteraction.interactorAType.name", "text").keyword().sort().build();
@@ -211,6 +214,7 @@ public class Mapping extends Builder {
 		builder.endObject();
 		new FieldBuilder(builder, "geneGeneticInteraction.geneGeneAssociationObject.geneSymbol.displayText", "text").keyword().sort().build();
 		new FieldBuilder(builder, "geneGeneticInteraction.geneGeneAssociationObject.taxon.name", "text").keyword().sort().build();
+		new FieldBuilder(builder, "geneGeneticInteraction.geneGeneAssociationObject.taxon.species.fullName", "text").keyword().sort().build();
 		new FieldBuilder(builder, "geneGeneticInteraction.geneAssociationSubject.curie", "text").keyword().build();
 		new FieldBuilder(builder, "geneGeneticInteraction.geneAssociationSubject.primaryExternalId", "text").keyword().build();
 		new FieldBuilder(builder, "geneGeneticInteraction.interactorARole.name", "text").keyword().build();
@@ -255,6 +259,7 @@ public class Mapping extends Builder {
 		new FieldBuilder(builder, "geneExpressionAnnotation.expressionAnnotationSubject.geneSymbol.displayText", "text").keyword().sort().build();
 		new FieldBuilder(builder, "geneExpressionAnnotation.expressionAnnotationSubject.primaryExternalId", "text").keyword().build();
 		new FieldBuilder(builder, "geneExpressionAnnotation.expressionAnnotationSubject.taxon.name", "text").keyword().sort().build();
+		new FieldBuilder(builder, "geneExpressionAnnotation.expressionAnnotationSubject.taxon.species.fullName", "text").keyword().sort().build();
 		new FieldBuilder(builder, "geneExpressionAnnotation.whereExpressedStatement", "text").keyword().sort().build();
 		new FieldBuilder(builder, "geneExpressionAnnotation.whenExpressedStageName", "text").keyword().sort().build();
 		new FieldBuilder(builder, "geneExpressionAnnotation.expressionAssayUsed.name", "text").keyword().sort().build();

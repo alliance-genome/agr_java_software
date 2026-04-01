@@ -73,7 +73,7 @@ public class ExpressionESService extends ESService {
 		LinkedHashMap<String, SortOrder> sortingMap = new LinkedHashMap<>();
 		LinkedHashMap<String, String> sortingSetMap = new LinkedHashMap<>();
 
-		sortingSetMap.put("species", "geneExpressionAnnotation.expressionAnnotationSubject.taxon.name.keyword");
+		sortingSetMap.put("species", "geneExpressionAnnotation.expressionAnnotationSubject.taxon.species.fullName.keyword");
 		sortingSetMap.put("gene", "geneExpressionAnnotation.expressionAnnotationSubject.geneSymbol.displayText.sort");
 		sortingSetMap.put("location", "geneExpressionAnnotation.whereExpressedStatement.sort");
 		sortingSetMap.put("stage", "geneExpressionAnnotation.whenExpressedStageName.sort");
@@ -131,7 +131,7 @@ public class ExpressionESService extends ESService {
 	private Map<String, Object> getSupplementalData(BoolQueryBuilder unfilteredQuery) {
 
 		Map<String, String> aggregationFields = new HashMap<>();
-		aggregationFields.put("geneExpressionAnnotation.expressionAnnotationSubject.taxon.name.keyword", "species");
+		aggregationFields.put("geneExpressionAnnotation.expressionAnnotationSubject.taxon.species.fullName.keyword", "species");
 		aggregationFields.put("geneExpressionAnnotation.whereExpressedStatement.keyword", "location");
 		aggregationFields.put("geneExpressionAnnotation.whenExpressedStageName.keyword", "stage");
 		aggregationFields.put("geneExpressionAnnotation.expressionAssayUsed.name.keyword", "assay");

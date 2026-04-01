@@ -109,7 +109,7 @@ public class DiseaseESService extends ESService {
 		// create histogram of select columns of unfiltered query
 		Map<String, String> aggregationFields = new HashMap<>();
 		if (useSpeciesAggregation) {
-			aggregationFields.put("subject.taxon.name.keyword", "species");
+			aggregationFields.put("subject.taxon.species.fullName.keyword", "species");
 		}
 		aggregationFields.put("generatedRelationString.keyword", "associationType");
 		aggregationFields.put("diseaseQualifiers.keyword", "diseaseQualifiers");
@@ -277,7 +277,7 @@ public class DiseaseESService extends ESService {
 		sortingSetMap.put("default", List.of("viaOrthologyOrder", "phylogeneticSortingIndex", "subject.geneSymbol.displayText.sort"));
 		sortingSetMap.put("gene", List.of("subject.geneSymbol.displayText.sort", "phylogeneticSortingIndex"));
 		sortingSetMap.put("disease", List.of("object.name.sort", "phylogeneticSortingIndex", "subject.geneSymbol.displayText.sort"));
-		sortingSetMap.put("species", List.of("subject.taxon.name.keyword", "subject.geneSymbol.displayText.sort"));
+		sortingSetMap.put("species", List.of("subject.taxon.species.fullName.keyword", "subject.geneSymbol.displayText.sort"));
 
 		LinkedHashMap<String, SortOrder> sortingMap = new LinkedHashMap<>();
 
@@ -324,7 +324,7 @@ public class DiseaseESService extends ESService {
 		sortingSetMap.put("default", List.of("phylogeneticSortingIndex", "subject.name.sort"));
 		sortingSetMap.put("model", List.of("subject.name.sort", "phylogeneticSortingIndex"));
 		sortingSetMap.put("disease", List.of("object.name.sort", "phylogeneticSortingIndex", "subject.name.sort"));
-		sortingSetMap.put("species", List.of("subject.taxon.name.keyword", "subject.name.sort"));
+		sortingSetMap.put("species", List.of("subject.taxon.species.fullName.keyword", "subject.name.sort"));
 
 		LinkedHashMap<String, SortOrder> sortingMap = new LinkedHashMap<>();
 
@@ -372,7 +372,7 @@ public class DiseaseESService extends ESService {
 		sortingSetMap.put("default", List.of("phylogeneticSortingIndex", "subject.alleleSymbol.displayText.sort"));
 		sortingSetMap.put("allele", List.of("subject.alleleSymbol.displayText.sort", "phylogeneticSortingIndex"));
 		sortingSetMap.put("disease", List.of("object.name.sort", "phylogeneticSortingIndex", "subject.alleleSymbol.displayText.sort"));
-		sortingSetMap.put("species", List.of("subject.taxon.name.keyword", "subject.alleleSymbol.displayText.sort"));
+		sortingSetMap.put("species", List.of("subject.taxon.species.fullName.keyword", "subject.alleleSymbol.displayText.sort"));
 
 		LinkedHashMap<String, SortOrder> sortingMap = new LinkedHashMap<>();
 
