@@ -48,13 +48,18 @@ public class VariantSearchResultConverter {
 					.map(TranscriptGeneAssociation::getTranscriptGeneAssociationObject)
 					.filter(Objects::nonNull)
 					.map(gene -> {
+						String name = null;
 						if (gene.getGeneSymbol() != null && gene.getGeneSymbol().getDisplayText() != null) {
-							return gene.getGeneSymbol().getDisplayText();
+							name = gene.getGeneSymbol().getDisplayText();
+						} else if (gene.getPrimaryExternalId() != null) {
+							name = gene.getPrimaryExternalId();
+						} else {
+							name = gene.getCurie();
 						}
-						if (gene.getPrimaryExternalId() != null) {
-							return gene.getPrimaryExternalId();
+						if (name != null && gene.getTaxon() != null && gene.getTaxon().getSpecies() != null) {
+							name = name + " (" + gene.getTaxon().getSpecies().getAbbreviation() + ")";
 						}
-						return gene.getCurie();
+						return name;
 					})
 					.filter(Objects::nonNull)
 					.distinct()

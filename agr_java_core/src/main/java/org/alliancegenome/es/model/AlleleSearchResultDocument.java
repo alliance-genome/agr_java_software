@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.alliancegenome.curation_api.model.document.es.ESDocument;
-import org.alliancegenome.es.model.search.RelatedDataLink;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -14,7 +13,7 @@ import lombok.Setter;
 public class AlleleSearchResultDocument extends ESDocument {
 
 	public AlleleSearchResultDocument() {
-		category = "allele_variant_search_result";
+		category = "allele_search_result";
 	}
 
 	private boolean searchable;

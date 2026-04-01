@@ -17,6 +17,7 @@ import org.alliancegenome.curation_api.model.entities.CrossReference;
 import org.alliancegenome.curation_api.model.entities.Gene;
 import org.alliancegenome.curation_api.model.entities.GenomeAssembly;
 import org.alliancegenome.curation_api.model.entities.PredictedVariantConsequence;
+import org.alliancegenome.curation_api.model.entities.Species;
 import org.alliancegenome.curation_api.model.entities.Transcript;
 import org.alliancegenome.curation_api.model.entities.Variant;
 import org.alliancegenome.curation_api.model.entities.VocabularyTerm;
@@ -106,11 +107,15 @@ public class VariantSummaryConverter {
 
 		List<VariantSummaryDocument> returnDocuments = new ArrayList<>();
 
+		// TODO remove speciesType altogether and use the correct Species class coming from curation
 		// Initialize taxon if not already done
 		if (taxon == null) {
 			taxon = new NCBITaxonTerm();
 			taxon.setName(speciesType.getName());
 			taxon.setCurie(speciesType.getTaxonID());
+			Species species = new Species();
+			species.setAbbreviation(speciesType.getAbbreviation());
+			taxon.setSpecies(species);
 		}
 
 		// Create variant type

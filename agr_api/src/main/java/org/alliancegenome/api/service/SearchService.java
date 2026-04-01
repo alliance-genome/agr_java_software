@@ -242,8 +242,8 @@ public class SearchService {
 
 		// apply filters if a category has been set
 		if (StringUtils.isNotEmpty(category)) {
-			if (Category.ALLELE_VARIANT.getName().equals(category)) {
-				bool.filter(termsQuery("category", Category.ALLELE_VARIANT.getName(), Category.VARIANT.getName()));
+			if (Category.ALLELE.getName().equals(category)) {
+				bool.filter(termsQuery("category", Category.ALLELE.getName(), Category.VARIANT.getName()));
 			} else {
 				bool.filter(new TermQueryBuilder("category", category));
 			}
@@ -330,20 +330,21 @@ public class SearchService {
 
 		if (StringUtils.equals(category, Category.GENE.getName())) {
 			links.add(getRelatedDataLink(Category.DISEASE.getName(), "genes", nameKey));
-			links.add(getRelatedDataLink(Category.ALLELE_VARIANT.getName(), "genes", nameKey));
+			links.add(getRelatedDataLink(Category.ALLELE.getName(), "genes", nameKey));
+			links.add(getRelatedDataLink(Category.VARIANT.getName(), "genes", nameKey));
 			links.add(getRelatedDataLink(Category.GO.getName(), "genes", nameKey));
 			links.add(getRelatedDataLink(Category.MODEL.getName(), "genes", nameKey));
 		} else if (StringUtils.equals(category, Category.DISEASE.getName())) {
 			links.add(getRelatedDataLink(Category.GENE.getName(), "diseasesWithParents", nameKey));
-			links.add(getRelatedDataLink(Category.ALLELE_VARIANT.getName(), "diseasesWithParents", nameKey));
+			links.add(getRelatedDataLink(Category.ALLELE.getName(), "diseasesWithParents", nameKey));
 			links.add(getRelatedDataLink(Category.MODEL.getName(), "diseasesWithParents", nameKey));
-		} else if (StringUtils.equals(category, Category.ALLELE_VARIANT.getName()) && StringUtils.equals((String) result.get("alterationType"), "allele")) {
+		} else if (StringUtils.equals(category, Category.ALLELE.getName()) && StringUtils.equals((String) result.get("alterationType"), "allele")) {
 			links.add(getRelatedDataLink(Category.DISEASE.getName(), "alleles", nameKey));
 			links.add(getRelatedDataLink(Category.GENE.getName(), "alleles", nameKey));
 			links.add(getRelatedDataLink(Category.MODEL.getName(), "alleles", nameKey));
 		} else if (StringUtils.equals(category, Category.MODEL.getName())) {
 			links.add(getRelatedDataLink(Category.GENE.getName(), "models", nameKey));
-			links.add(getRelatedDataLink(Category.ALLELE_VARIANT.getName(), "models", nameKey));
+			links.add(getRelatedDataLink(Category.ALLELE.getName(), "models", nameKey));
 			links.add(getRelatedDataLink(Category.DISEASE.getName(), "models", nameKey));
 		} else if (StringUtils.equals(category, Category.GO.getName())) {
 			String goType = (String) result.get("branch");

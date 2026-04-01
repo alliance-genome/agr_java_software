@@ -1,8 +1,6 @@
 package org.alliancegenome.indexer.indexers.curation;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import org.alliancegenome.core.config.ConfigHelper;
@@ -14,7 +12,6 @@ import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
-import org.apache.commons.collections4.CollectionUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -67,29 +64,10 @@ public class VariantSummaryCurationIndexer extends Indexer {
 				}
 
 				String page = queue.takeFirst();
-				// log.info(queue.size() + " pages to process " +
-				// Thread.currentThread().getName() + " starting page: " + page);
+				
 				SearchResponse<VariantSummaryDocument> response = variantApi.findDocuments(Integer.valueOf(page), indexerConfig.getBufferSize(), params);
-
-				// log.info("Search Response: " + response);
-				List<VariantSummaryDocument> results = response.getResults();
-				if (response == null || CollectionUtils.isEmpty(results)) {
-					return;
-				}
-
-				List<VariantSummaryDocument> list = new ArrayList<>();
-				for (VariantSummaryDocument document : results) {
-					if (document == null) {
-						continue;
-					}
-					document.setAlterationType("variant");
-					document.setAlterationTypeSortOrder(4);
-					document.setHasPhenotype(false);
-					document.setHasDisease(false);
-					list.add(document);
-				}
-
-				indexDocuments(list);
+				
+				indexDocuments(response.getResults());
 			} catch (Exception e) {
 				log.error("Error while indexing...", e);
 				ExceptionCatcher.report(e);
