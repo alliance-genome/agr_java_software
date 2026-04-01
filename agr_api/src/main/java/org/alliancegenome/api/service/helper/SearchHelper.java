@@ -1,8 +1,13 @@
 package org.alliancegenome.api.service.helper;
 
-import jakarta.ws.rs.core.UriInfo;
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.alliancegenome.es.model.search.AggDocCount;
 import org.alliancegenome.es.model.search.AggResult;
 import org.alliancegenome.es.model.search.Category;
@@ -17,7 +22,9 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 
-import java.util.*;
+import jakarta.ws.rs.core.UriInfo;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class SearchHelper {
@@ -62,7 +69,7 @@ public class SearchHelper {
 					add("associatedSpecies");
 				}
 			});
-			put(Category.ALLELE_VARIANT.getName(), new ArrayList<>() {
+			put(Category.ALLELE.getName(), new ArrayList<>() {
 				{
 					add("species");
 					add("alterationType");
@@ -348,30 +355,31 @@ public class SearchHelper {
 	}
 
 	/**
-	 * Merge the "allele_variant_search_results" and "variant_search_results" aggregation buckets into a single "allele_variant_search_results" bucket.
+	 * Merge the "allele_search_results" and "variant_search_results" aggregation buckets into a single "allele_search_results" bucket.
 	 */
 	private void mergeAlleleVariantBuckets(AggResult aggResult) {
 		long combinedCount = 0;
 		List<AggDocCount> toRemove = new ArrayList<>();
 		for (AggDocCount bucket : aggResult.getValues()) {
-			if (bucket.getKey().equals(Category.ALLELE_VARIANT.getName()) || bucket.getKey().equals(Category.VARIANT.getName())) {
+			if (bucket.getKey().equals(Category.ALLELE.getName()) || bucket.getKey().equals(Category.VARIANT.getName())) {
 				combinedCount += bucket.getTotal();
 				toRemove.add(bucket);
 			}
 		}
 		aggResult.getValues().removeAll(toRemove);
 		if (combinedCount > 0) {
-			aggResult.getValues().add(new AggDocCount(Category.ALLELE_VARIANT.getName(), combinedCount));
+			aggResult.getValues().add(new AggDocCount(Category.ALLELE.getName(), combinedCount));
 		}
 	}
 
 	private static final List<String> CATEGORY_ORDER = List.of(
-		Category.ALLELE_VARIANT.getName(),
+		Category.ALLELE.getName(),
 		Category.GENE.getName(),
 		Category.GO.getName(),
 		Category.DISEASE.getName(),
 		Category.MODEL.getName(),
-		Category.DATASET.getName()
+		Category.DATASET.getName(),
+		Category.VARIANT.getName()
 	);
 
 	/**
