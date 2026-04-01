@@ -87,7 +87,6 @@ public class DiseaseController implements DiseaseRESTInterface {
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
 		pagination.addFilterOption("subject.taxon.species.fullName.keyword", species);
 		pagination.addFilterOption("subject.alleleSymbol.displayText", alleleName);
-		pagination.addFilterOption("subject.taxon.species.fullName.keyword", species);
 		pagination.addFilterOption("evidenceCodes.abbreviation", evidenceCode);
 		pagination.addFilterOption("generatedRelationString.keyword", associationType);
 		pagination.addFilterOption("diseaseQualifiers.keyword", diseaseQualifier);
