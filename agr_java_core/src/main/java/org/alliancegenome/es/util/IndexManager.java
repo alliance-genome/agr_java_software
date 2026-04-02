@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
@@ -31,6 +32,7 @@ import org.elasticsearch.action.admin.indices.alias.get.GetAliasesRequest;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.forcemerge.ForceMergeRequest;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
+import org.elasticsearch.action.admin.indices.settings.put.UpdateSettingsRequest;
 import org.elasticsearch.action.support.master.AcknowledgedResponse;
 import org.elasticsearch.client.GetAliasesResponse;
 import org.elasticsearch.client.RequestOptions;
@@ -461,6 +463,15 @@ public class IndexManager {
 
 	private void forceMerge() {
 		log.info("Force merging index: " + newIndexName);
+		try {
+			UpdateSettingsRequest settingsRequest = new UpdateSettingsRequest(newIndexName);
+			settingsRequest.settings(Map.of("index.merge.scheduler.max_thread_count", Runtime.getRuntime().availableProcessors()));
+			closableSearchClient.indices().putSettings(settingsRequest, RequestOptions.DEFAULT);
+			log.info("Increased merge threads for force merge");
+		} catch (IOException e) {
+			ExceptionCatcher.report(e);
+			e.printStackTrace();
+		}
 		ForceMergeRequest request = new ForceMergeRequest(newIndexName);
 		request.maxNumSegments(1);
 		request.flush(true);
