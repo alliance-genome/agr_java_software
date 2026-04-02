@@ -18,6 +18,7 @@ import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.core.TimeValue;
 import org.elasticsearch.xcontent.XContentType;
 
 import lombok.extern.slf4j.Slf4j;
@@ -58,7 +59,7 @@ public class RoutedBulkIndexer extends Thread {
 		this.jsonQueue = jsonQueue;
 		this.indexName = indexName;
 		this.shardCount = shardCount;
-		this.maxBulkSizeBytes = (ConfigHelper.getEsBulkSizeMB() * 1024 * 1024) * 10; //10MB * the multiplier 
+		this.maxBulkSizeBytes = (ConfigHelper.getEsBulkSizeMB() * 1024 * 1024); //10MB * the multiplier 
 		this.maxRetries = maxRetries;
 		this.retryBaseMs = 1000;
 		this.label = label;
@@ -157,7 +158,7 @@ public class RoutedBulkIndexer extends Thread {
 		if (!VariantConfigHelper.isIndexing()) {
 			return;
 		}
-		BulkRequest bulkRequest = new BulkRequest();
+		BulkRequest bulkRequest = new BulkRequest().timeout(TimeValue.timeValueHours(1));
 		for (byte[] smileDoc : docs) {
 			bulkRequest.add(new IndexRequest(indexName).source(smileDoc, XContentType.SMILE).routing(routing));
 		}

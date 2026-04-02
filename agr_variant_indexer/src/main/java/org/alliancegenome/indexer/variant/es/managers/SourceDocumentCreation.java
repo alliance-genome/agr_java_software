@@ -47,16 +47,7 @@ public class SourceDocumentCreation extends Thread {
 	private LinkedBlockingDeque<List<VariantContext>> vcQueue;
 	private LinkedBlockingDeque<List<ESDocument>> objectQueue;
 
-	private LinkedBlockingDeque<List<byte[]>> jsonQueue1;
-	private LinkedBlockingDeque<List<byte[]>> jsonQueue2;
-	private LinkedBlockingDeque<List<byte[]>> jsonQueue3;
-	private LinkedBlockingDeque<List<byte[]>> jsonQueue4;
-	private LinkedBlockingDeque<List<byte[]>> jsonQueue5;
-	private LinkedBlockingDeque<List<byte[]>> jsonQueue6;
-	private LinkedBlockingDeque<List<byte[]>> jsonQueue7;
-	private LinkedBlockingDeque<List<byte[]>> jsonQueue8;
-
-	private long[][] jqs = new long[8][3]; // Json Queue Stats
+	private LinkedBlockingDeque<List<byte[]>> jsonQueue;
 
 	private ProcessDisplayHelper ph1 = new ProcessDisplayHelper(VariantConfigHelper.getDisplayInterval());
 	private ProcessDisplayHelper ph2 = new ProcessDisplayHelper(VariantConfigHelper.getDisplayInterval());
@@ -80,19 +71,11 @@ public class SourceDocumentCreation extends Thread {
 		int objectQueueSize = source.getObjectQueueSize() != null ? source.getObjectQueueSize() : VariantConfigHelper.getSourceDocumentCreatorObjectQueueSize();
 		vcQueue = new LinkedBlockingDeque<>(vcQueueSize);
 		objectQueue = new LinkedBlockingDeque<>(objectQueueSize);
+		jsonQueue = new LinkedBlockingDeque<>(250);
 	}
 
 	@Override
 	public void run() {
-
-		jsonQueue1 = new LinkedBlockingDeque<>(250);
-		jsonQueue2 = new LinkedBlockingDeque<>(250);
-		jsonQueue3 = new LinkedBlockingDeque<>(250);
-		jsonQueue4 = new LinkedBlockingDeque<>(250);
-		jsonQueue5 = new LinkedBlockingDeque<>(250);
-		jsonQueue6 = new LinkedBlockingDeque<>(250);
-		jsonQueue7 = new LinkedBlockingDeque<>(250);
-		jsonQueue8 = new LinkedBlockingDeque<>(250);
 
 		ph1.startProcess(messageHeader + "VCFReader");
 		List<VCFReader> readers = new ArrayList<VCFReader>();
@@ -128,18 +111,11 @@ public class SourceDocumentCreation extends Thread {
 		}
 
 		int shardCount = VariantConfigHelper.getIndexerShards();
-		LinkedBlockingDeque<List<byte[]>>[] jsonQueues = new LinkedBlockingDeque[] {
-			jsonQueue1, jsonQueue2, jsonQueue3, jsonQueue4,
-			jsonQueue5, jsonQueue6, jsonQueue7, jsonQueue8
-		};
 
 		ph4.startProcess(messageHeader + "RoutedBulkIndexers");
 		ArrayList<RoutedBulkIndexer> indexers = new ArrayList<>();
-		for (int i = 0; i < jsonQueues.length; i++) {
-			RoutedBulkIndexer indexer = new RoutedBulkIndexer(
-				jsonQueues[i], indexName, shardCount, 100,
-				messageHeader + "BP(" + (i + 1) + ")", ph4
-			);
+		for (int i = 0; i < shardCount * 4; i++) {
+			RoutedBulkIndexer indexer = new RoutedBulkIndexer(jsonQueue, indexName, shardCount, 100, messageHeader + "BP(" + (i + 1) + ")", ph4);
 			indexer.start();
 			indexers.add(indexer);
 		}
@@ -183,10 +159,7 @@ public class SourceDocumentCreation extends Thread {
 			ph3.finishProcess();
 
 			log.info(messageHeader + "Waiting for jsonQueues to empty");
-			while (
-				!jsonQueue1.isEmpty() || !jsonQueue2.isEmpty() || !jsonQueue3.isEmpty() || !jsonQueue4.isEmpty() ||
-					!jsonQueue5.isEmpty() || !jsonQueue6.isEmpty() || !jsonQueue7.isEmpty() || !jsonQueue8.isEmpty()
-			) {
+			while (!jsonQueue.isEmpty()) {
 				Thread.sleep(1000);
 			}
 
@@ -332,12 +305,6 @@ public class SourceDocumentCreation extends Thread {
 		private ObjectWriter sequenceWriter;
 		private ObjectWriter searchWriter;
 
-		// Welford's online algorithm state for mean, variance, and skewness
-		private long n;
-		private double mean;
-		private double m2; // second central moment (for variance/SD)
-		private double m3; // third central moment (for skewness)
-
 		@Override
 		public void run() {
 			mapper.disable(SerializationFeature.INDENT_OUTPUT);
@@ -348,14 +315,7 @@ public class SourceDocumentCreation extends Thread {
 				try {
 					List<ESDocument> docList = objectQueue.take();
 
-					List<byte[]> docs1 = new ArrayList<>();
-					List<byte[]> docs2 = new ArrayList<>();
-					List<byte[]> docs3 = new ArrayList<>();
-					List<byte[]> docs4 = new ArrayList<>();
-					List<byte[]> docs5 = new ArrayList<>();
-					List<byte[]> docs6 = new ArrayList<>();
-					List<byte[]> docs7 = new ArrayList<>();
-					List<byte[]> docs8 = new ArrayList<>();
+					List<byte[]> workBucket = new ArrayList<>();
 
 					if (!docList.isEmpty()) {
 						for (ESDocument doc : docList) {
@@ -372,61 +332,10 @@ public class SourceDocumentCreation extends Thread {
 									smileDoc = searchWriter.writeValueAsBytes(vsrd);
 								} else {
 									log.error("Unexpected ESDocument type: " + doc.getClass().getName());
-									continue;									// This should never happen
+									continue;
 								}
 
-								int len = smileDoc.length;
-
-								// Welford's online update for mean, M2, M3
-								// This code distributes the document via size over the 8
-								// queues so that each bulk processor works with same sized docs
-								n++;
-								double delta = len - mean;
-								double deltaN = delta / n;
-								double term1 = delta * deltaN * (n - 1);
-								mean += deltaN;
-								m3 += term1 * deltaN * (n - 2) - 3 * deltaN * m2;
-								m2 += term1;
-
-								double sd = n > 1 ? Math.sqrt(m2 / (n - 1)) : 0.0;
-								double skew = (n > 2 && m2 > 0) ? (Math.sqrt(n) * m3 / Math.pow(m2, 1.5)) : 0.0;
-
-								int lowerWidth = skew != 0.0 ? (int) (sd / skew) : (int) sd;
-								int upperWidth = (int) sd;
-
-								int t1 = (int) (mean - (1.5 * lowerWidth));
-								int t2 = (int) (mean - (1.0 * lowerWidth));
-								int t3 = (int) (mean - (0.5 * lowerWidth));
-								int t4 = (int) mean;
-								int t5 = (int) (mean + (0.5 * upperWidth));
-								int t6 = (int) (mean + (1.0 * upperWidth));
-								int t7 = (int) (mean + (2.0 * upperWidth));
-
-								if (len < t1) {
-									docs1.add(smileDoc);
-									jqs[0][2] += len;
-								} else if (len < t2) {
-									docs2.add(smileDoc);
-									jqs[1][2] += len;
-								} else if (len < t3) {
-									docs3.add(smileDoc);
-									jqs[2][2] += len;
-								} else if (len < t4) {
-									docs4.add(smileDoc);
-									jqs[3][2] += len;
-								} else if (len < t5) {
-									docs5.add(smileDoc);
-									jqs[4][2] += len;
-								} else if (len < t6) {
-									docs6.add(smileDoc);
-									jqs[5][2] += len;
-								} else if (len < t7) {
-									docs7.add(smileDoc);
-									jqs[6][2] += len;
-								} else {
-									docs8.add(smileDoc);
-									jqs[7][2] += len;
-								}
+								workBucket.add(smileDoc);
 
 								// Left here for debugging purposes
 //								ph5.progressProcess("M: " + (int) mean + " SD: " + (int) sd + " SK: " + skew
@@ -450,48 +359,10 @@ public class SourceDocumentCreation extends Thread {
 						}
 
 						try {
-							if (docs1.size() > 0) {
-								jsonQueue1.put(docs1);
-								jqs[0][0]++;
-								jqs[0][1] += docs1.size();
+							if (workBucket.size() > 0) {
+								jsonQueue.put(workBucket);
 							}
-							if (docs2.size() > 0) {
-								jsonQueue2.put(docs2);
-								jqs[1][0]++;
-								jqs[1][1] += docs2.size();
-							}
-							if (docs3.size() > 0) {
-								jsonQueue3.put(docs3);
-								jqs[2][0]++;
-								jqs[2][1] += docs3.size();
-							}
-							if (docs4.size() > 0) {
-								jsonQueue4.put(docs4);
-								jqs[3][0]++;
-								jqs[3][1] += docs4.size();
-							}
-							if (docs5.size() > 0) {
-								jsonQueue5.put(docs5);
-								jqs[4][0]++;
-								jqs[4][1] += docs5.size();
-							}
-							if (docs6.size() > 0) {
-								jsonQueue6.put(docs6);
-								jqs[5][0]++;
-								jqs[5][1] += docs6.size();
-							}
-							if (docs7.size() > 0) {
-								jsonQueue7.put(docs7);
-								jqs[6][0]++;
-								jqs[6][1] += docs7.size();
-							}
-							if (docs8.size() > 0) {
-								jsonQueue8.put(docs8);
-								jqs[7][0]++;
-								jqs[7][1] += docs8.size();
-							}
-
-
+							
 						} catch (InterruptedException e) {
 							ExceptionCatcher.report(e);
 							e.printStackTrace();
