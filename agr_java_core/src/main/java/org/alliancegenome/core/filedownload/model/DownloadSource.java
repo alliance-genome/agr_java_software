@@ -16,6 +16,11 @@ public class DownloadSource {
 	private String species;
 	private String taxonId;
 	private List<String> chromosomeList;
+	private Integer transformerThreads;
+	private Integer producerThreads;
+	private Integer bulkProcessorConcurrentRequests;
+	private Integer vcQueueSize;
+	private Integer objectQueueSize;
 	
 	public List<String> getGenerateFilePaths() {
 		ArrayList<String> ret = new ArrayList<String>();

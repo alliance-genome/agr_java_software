@@ -162,9 +162,9 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene> {
 				if (!cacheFile.exists()) {
 
 					String query = """
-							MATCH p1=(species:Species)-[:FROM_SPECIES]-(g:Gene)
-							OPTIONAL MATCH pSoTerm=(g:Gene)-[:ANNOTATED_TO]-(soTerm:SOTerm)
-							OPTIONAL MATCH p5=(g:Gene)--(:GenomicLocation)
+							MATCH p1=(species:Species)<-[:FROM_SPECIES]-(g:Gene)
+							OPTIONAL MATCH pSoTerm=(g:Gene)-[:ANNOTATED_TO]->(soTerm:SOTerm)
+							OPTIONAL MATCH p5=(g:Gene)-[:ASSOCIATION]->(:GenomicLocation)
 							RETURN p1, pSoTerm, p5
 						""";
 

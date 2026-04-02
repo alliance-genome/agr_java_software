@@ -29,6 +29,7 @@ import org.elasticsearch.action.admin.cluster.snapshots.restore.RestoreSnapshotR
 import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequest;
 import org.elasticsearch.action.admin.indices.alias.get.GetAliasesRequest;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
+import org.elasticsearch.action.admin.indices.forcemerge.ForceMergeRequest;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.action.support.master.AcknowledgedResponse;
 import org.elasticsearch.client.GetAliasesResponse;
@@ -321,7 +322,8 @@ public class IndexManager {
 			log.info("Snapshot " + snapShotName + " was created for indices: " + indices);
 		} catch (Exception ex) {
 			ExceptionCatcher.report(ex);
-			log.error("Exception in createSnapshot method: " + ex.toString());
+			ex.printStackTrace();
+			System.exit(-1);
 		}
 	}
 
@@ -444,6 +446,7 @@ public class IndexManager {
 			e.printStackTrace();
 		}
 
+		forceMerge();
 		takeSnapShot();
 
 		try {
@@ -454,6 +457,20 @@ public class IndexManager {
 		}
 
 		log.info(baseIndexName + " Finished: ");
+	}
+
+	private void forceMerge() {
+		log.info("Force merging index: " + newIndexName);
+		ForceMergeRequest request = new ForceMergeRequest(newIndexName);
+		request.maxNumSegments(1);
+		request.flush(true);
+		try {
+			closableSearchClient.indices().forcemerge(request, RequestOptions.DEFAULT);
+			log.info("Force merge complete: " + newIndexName);
+		} catch (IOException e) {
+			ExceptionCatcher.report(e);
+			e.printStackTrace();
+		}
 	}
 
 	public void closeClient() throws IOException { // ES Util

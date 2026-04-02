@@ -81,8 +81,8 @@ public class SourceDocumentCreation extends Thread {
 	private boolean indexing = VariantConfigHelper.isIndexing();
 	private boolean gatherStats = VariantConfigHelper.isGatherStats();
 
-	private LinkedBlockingDeque<List<VariantContext>> vcQueue = new LinkedBlockingDeque<List<VariantContext>>(VariantConfigHelper.getSourceDocumentCreatorVCQueueSize());
-	private LinkedBlockingDeque<List<ESDocument>> objectQueue = new LinkedBlockingDeque<>(VariantConfigHelper.getSourceDocumentCreatorObjectQueueSize());
+	private LinkedBlockingDeque<List<VariantContext>> vcQueue;
+	private LinkedBlockingDeque<List<ESDocument>> objectQueue;
 
 	private LinkedBlockingDeque<List<String>> jsonQueue1;
 	private LinkedBlockingDeque<List<String>> jsonQueue2;
@@ -108,14 +108,14 @@ public class SourceDocumentCreation extends Thread {
 	private StatsCollector statsCollector = new StatsCollector();
 	private String messageHeader = "";
 
-	private RestHighLevelClient client1 = EsClientFactory.getMustCloseSearchClient();
-	private RestHighLevelClient client2 = EsClientFactory.getMustCloseSearchClient();
-	private RestHighLevelClient client3 = EsClientFactory.getMustCloseSearchClient();
-	private RestHighLevelClient client4 = EsClientFactory.getMustCloseSearchClient();
-	private RestHighLevelClient client5 = EsClientFactory.getMustCloseSearchClient();
-	private RestHighLevelClient client6 = EsClientFactory.getMustCloseSearchClient();
-	private RestHighLevelClient client7 = EsClientFactory.getMustCloseSearchClient();
-	private RestHighLevelClient client8 = EsClientFactory.getMustCloseSearchClient();
+	private RestHighLevelClient client1;
+	private RestHighLevelClient client2;
+	private RestHighLevelClient client3;
+	private RestHighLevelClient client4;
+	private RestHighLevelClient client5;
+	private RestHighLevelClient client6;
+	private RestHighLevelClient client7;
+	private RestHighLevelClient client8;
 
 	public SourceDocumentCreation(String downloadPath, DownloadSource source, GeneDocumentCache geneCache, HashSet<String> variantsCache) {
 		this.downloadPath = downloadPath;
@@ -124,6 +124,10 @@ public class SourceDocumentCreation extends Thread {
 		this.variantsCache = variantsCache;
 		speciesType = SpeciesType.getTypeByID(source.getTaxonId());
 		messageHeader = speciesType.getModName() + " ";
+		int vcQueueSize = source.getVcQueueSize() != null ? source.getVcQueueSize() : VariantConfigHelper.getSourceDocumentCreatorVCQueueSize();
+		int objectQueueSize = source.getObjectQueueSize() != null ? source.getObjectQueueSize() : VariantConfigHelper.getSourceDocumentCreatorObjectQueueSize();
+		vcQueue = new LinkedBlockingDeque<>(vcQueueSize);
+		objectQueue = new LinkedBlockingDeque<>(objectQueueSize);
 	}
 
 	@Override
@@ -139,6 +143,15 @@ public class SourceDocumentCreation extends Thread {
 		jsonQueue8 = new LinkedBlockingDeque<>(250);
 
 		if (indexing) {
+			client1 = EsClientFactory.getMustCloseSearchClient();
+			client2 = EsClientFactory.getMustCloseSearchClient();
+			client3 = EsClientFactory.getMustCloseSearchClient();
+			client4 = EsClientFactory.getMustCloseSearchClient();
+			client5 = EsClientFactory.getMustCloseSearchClient();
+			client6 = EsClientFactory.getMustCloseSearchClient();
+			client7 = EsClientFactory.getMustCloseSearchClient();
+			client8 = EsClientFactory.getMustCloseSearchClient();
+
 			builder1 = BulkProcessor.builder((request, bulkListener) -> client1.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), new BulkProcessor.Listener() {
 				@Override
 				public void beforeBulk(long executionId, BulkRequest request) {
@@ -275,7 +288,7 @@ public class SourceDocumentCreation extends Thread {
 				}
 			});
 
-			int concurrentRequests = ConfigHelper.getEsBulkConcurrentRequests();
+			int concurrentRequests = source.getBulkProcessorConcurrentRequests() != null ? source.getBulkProcessorConcurrentRequests() : ConfigHelper.getEsBulkConcurrentRequests();
 			ByteSizeValue bulkSize = new ByteSizeValue(ConfigHelper.getEsBulkSizeMB(), ByteSizeUnit.MB);
 			BackoffPolicy backoff = BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(1L), 100);
 
@@ -307,7 +320,8 @@ public class SourceDocumentCreation extends Thread {
 
 		List<DocumentTransformer> transformers = new ArrayList<>();
 		ph2.startProcess(messageHeader + "VCFTransformers");
-		for (int i = 0; i < VariantConfigHelper.getTransformerThreads(); i++) {
+		int transformerThreadCount = source.getTransformerThreads() != null ? source.getTransformerThreads() : VariantConfigHelper.getTransformerThreads();
+		for (int i = 0; i < transformerThreadCount; i++) {
 			DocumentTransformer transformer = new DocumentTransformer();
 			transformer.start();
 			transformers.add(transformer);
@@ -315,7 +329,8 @@ public class SourceDocumentCreation extends Thread {
 
 		List<JSONProducer> producers = new ArrayList<>();
 		ph5.startProcess(messageHeader + "JSONProducers");
-		for (int i = 0; i < VariantConfigHelper.getProducerThreads(); i++) {
+		int producerThreadCount = source.getProducerThreads() != null ? source.getProducerThreads() : VariantConfigHelper.getProducerThreads();
+		for (int i = 0; i < producerThreadCount; i++) {
 			JSONProducer producer = new JSONProducer();
 			producer.start();
 			producers.add(producer);
