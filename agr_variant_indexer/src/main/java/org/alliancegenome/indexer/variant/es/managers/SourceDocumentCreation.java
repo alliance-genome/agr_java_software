@@ -8,7 +8,6 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
 import org.alliancegenome.core.filedownload.model.DownloadSource;
-import org.alliancegenome.core.util.StatsCollector;
 import org.alliancegenome.core.variant.config.VariantConfigHelper;
 import org.alliancegenome.core.variant.converters.SequenceSummaryConverter;
 import org.alliancegenome.core.variant.converters.VariantSearchResultConverter;
@@ -45,25 +44,24 @@ public class SourceDocumentCreation extends Thread {
 	private String[] header;
 	public static String indexName;
 
-	private boolean gatherStats = VariantConfigHelper.isGatherStats();
-
 	private LinkedBlockingDeque<List<VariantContext>> vcQueue;
 	private LinkedBlockingDeque<List<ESDocument>> objectQueue;
 
-	private LinkedBlockingDeque<List<String>> jsonQueue1;
-	private LinkedBlockingDeque<List<String>> jsonQueue2;
-	private LinkedBlockingDeque<List<String>> jsonQueue3;
-	private LinkedBlockingDeque<List<String>> jsonQueue4;
-	private LinkedBlockingDeque<List<String>> jsonQueue5;
-	private LinkedBlockingDeque<List<String>> jsonQueue6;
-	private LinkedBlockingDeque<List<String>> jsonQueue7;
-	private LinkedBlockingDeque<List<String>> jsonQueue8;
+	private LinkedBlockingDeque<List<byte[]>> jsonQueue1;
+	private LinkedBlockingDeque<List<byte[]>> jsonQueue2;
+	private LinkedBlockingDeque<List<byte[]>> jsonQueue3;
+	private LinkedBlockingDeque<List<byte[]>> jsonQueue4;
+	private LinkedBlockingDeque<List<byte[]>> jsonQueue5;
+	private LinkedBlockingDeque<List<byte[]>> jsonQueue6;
+	private LinkedBlockingDeque<List<byte[]>> jsonQueue7;
+	private LinkedBlockingDeque<List<byte[]>> jsonQueue8;
 
 	private long[][] jqs = new long[8][3]; // Json Queue Stats
 
 	private ProcessDisplayHelper ph1 = new ProcessDisplayHelper(VariantConfigHelper.getDisplayInterval());
 	private ProcessDisplayHelper ph2 = new ProcessDisplayHelper(VariantConfigHelper.getDisplayInterval());
-	private ProcessDisplayHelper ph5 = new ProcessDisplayHelper(VariantConfigHelper.getDisplayInterval());
+	private ProcessDisplayHelper ph3 = new ProcessDisplayHelper(VariantConfigHelper.getDisplayInterval());
+	private ProcessDisplayHelper ph4 = new ProcessDisplayHelper(VariantConfigHelper.getDisplayInterval());
 
 	private VariantSummaryConverter variantSummaryConverter;
 	private SequenceSummaryConverter sequenceSummaryConverter;
@@ -121,7 +119,7 @@ public class SourceDocumentCreation extends Thread {
 		}
 
 		List<JSONProducer> producers = new ArrayList<>();
-		ph5.startProcess(messageHeader + "JSONProducers");
+		ph3.startProcess(messageHeader + "JSONProducers");
 		int producerThreadCount = source.getProducerThreads() != null ? source.getProducerThreads() : VariantConfigHelper.getProducerThreads();
 		for (int i = 0; i < producerThreadCount; i++) {
 			JSONProducer producer = new JSONProducer();
@@ -130,16 +128,17 @@ public class SourceDocumentCreation extends Thread {
 		}
 
 		int shardCount = VariantConfigHelper.getIndexerShards();
-		LinkedBlockingDeque<List<String>>[] jsonQueues = new LinkedBlockingDeque[] {
+		LinkedBlockingDeque<List<byte[]>>[] jsonQueues = new LinkedBlockingDeque[] {
 			jsonQueue1, jsonQueue2, jsonQueue3, jsonQueue4,
 			jsonQueue5, jsonQueue6, jsonQueue7, jsonQueue8
 		};
 
+		ph4.startProcess(messageHeader + "RoutedBulkIndexers");
 		ArrayList<RoutedBulkIndexer> indexers = new ArrayList<>();
 		for (int i = 0; i < jsonQueues.length; i++) {
 			RoutedBulkIndexer indexer = new RoutedBulkIndexer(
 				jsonQueues[i], indexName, shardCount, 100,
-				messageHeader + "BP(" + (i + 1) + ")"
+				messageHeader + "BP(" + (i + 1) + ")", ph4
 			);
 			indexer.start();
 			indexers.add(indexer);
@@ -181,7 +180,7 @@ public class SourceDocumentCreation extends Thread {
 				p.join();
 			}
 			log.info(messageHeader + "JSONProducers shutdown");
-			ph5.finishProcess();
+			ph3.finishProcess();
 
 			log.info(messageHeader + "Waiting for jsonQueues to empty");
 			while (
@@ -196,8 +195,9 @@ public class SourceDocumentCreation extends Thread {
 				indexer.interrupt();
 				indexer.join();
 			}
+			ph4.finishProcess();
 			log.info(messageHeader + "Bulk Indexers shutdown");
-
+			
 		} catch (Exception e) {
 			ExceptionCatcher.report(e);
 			e.printStackTrace();
@@ -327,7 +327,7 @@ public class SourceDocumentCreation extends Thread {
 
 	private class JSONProducer extends Thread {
 
-		private ObjectMapper mapper = RestConfig.createObjectMapper();
+		private ObjectMapper mapper = RestConfig.createSmileObjectMapper();
 		private ObjectWriter cachedWriter;
 		private ObjectWriter sequenceWriter;
 		private ObjectWriter searchWriter;
@@ -348,31 +348,34 @@ public class SourceDocumentCreation extends Thread {
 				try {
 					List<ESDocument> docList = objectQueue.take();
 
-					List<String> docs1 = new ArrayList<>();
-					List<String> docs2 = new ArrayList<>();
-					List<String> docs3 = new ArrayList<>();
-					List<String> docs4 = new ArrayList<>();
-					List<String> docs5 = new ArrayList<>();
-					List<String> docs6 = new ArrayList<>();
-					List<String> docs7 = new ArrayList<>();
-					List<String> docs8 = new ArrayList<>();
+					List<byte[]> docs1 = new ArrayList<>();
+					List<byte[]> docs2 = new ArrayList<>();
+					List<byte[]> docs3 = new ArrayList<>();
+					List<byte[]> docs4 = new ArrayList<>();
+					List<byte[]> docs5 = new ArrayList<>();
+					List<byte[]> docs6 = new ArrayList<>();
+					List<byte[]> docs7 = new ArrayList<>();
+					List<byte[]> docs8 = new ArrayList<>();
 
 					if (!docList.isEmpty()) {
 						for (ESDocument doc : docList) {
 							try {
-								String jsonDoc = null;
+								byte[] smileDoc = null;
 								if (doc instanceof SequenceSummaryDocument ssd) {
-									jsonDoc = sequenceWriter.writeValueAsString(ssd);
+									//jsonDoc = sequenceWriter.writeValueAsString(ssd);
+									smileDoc = sequenceWriter.writeValueAsBytes(ssd);
 								} else if (doc instanceof VariantSummaryDocument vsd) {
-									jsonDoc = cachedWriter.writeValueAsString(vsd);
-								} else if (doc instanceof VariantSearchResultDocument vsd) {
-									jsonDoc = searchWriter.writeValueAsString(vsd);
+									//jsonDoc = cachedWriter.writeValueAsString(vsd);
+									smileDoc = cachedWriter.writeValueAsBytes(vsd);
+								} else if (doc instanceof VariantSearchResultDocument vsrd) {
+									//jsonDoc = searchWriter.writeValueAsString(vsrd);
+									smileDoc = searchWriter.writeValueAsBytes(vsrd);
 								} else {
 									log.error("Unexpected ESDocument type: " + doc.getClass().getName());
 									continue;									// This should never happen
 								}
 
-								int len = jsonDoc.length();
+								int len = smileDoc.length;
 
 								// Welford's online update for mean, M2, M3
 								// This code distributes the document via size over the 8
@@ -400,28 +403,28 @@ public class SourceDocumentCreation extends Thread {
 								int t7 = (int) (mean + (2.0 * upperWidth));
 
 								if (len < t1) {
-									docs1.add(jsonDoc);
+									docs1.add(smileDoc);
 									jqs[0][2] += len;
 								} else if (len < t2) {
-									docs2.add(jsonDoc);
+									docs2.add(smileDoc);
 									jqs[1][2] += len;
 								} else if (len < t3) {
-									docs3.add(jsonDoc);
+									docs3.add(smileDoc);
 									jqs[2][2] += len;
 								} else if (len < t4) {
-									docs4.add(jsonDoc);
+									docs4.add(smileDoc);
 									jqs[3][2] += len;
 								} else if (len < t5) {
-									docs5.add(jsonDoc);
+									docs5.add(smileDoc);
 									jqs[4][2] += len;
 								} else if (len < t6) {
-									docs6.add(jsonDoc);
+									docs6.add(smileDoc);
 									jqs[5][2] += len;
 								} else if (len < t7) {
-									docs7.add(jsonDoc);
+									docs7.add(smileDoc);
 									jqs[6][2] += len;
 								} else {
-									docs8.add(jsonDoc);
+									docs8.add(smileDoc);
 									jqs[7][2] += len;
 								}
 
@@ -438,7 +441,7 @@ public class SourceDocumentCreation extends Thread {
 //									+ " jsonQueue8(" + jqs[7][0] + "," + jqs[7][1] + "," + jqs[7][2] + "): " + jsonQueue8.size()
 //								);
 								
-								ph5.progressProcess();
+								ph3.progressProcess();
 
 							} catch (Exception e) {
 								ExceptionCatcher.report(e);

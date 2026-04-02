@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
+import com.fasterxml.jackson.dataformat.smile.SmileFactory;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.blackbird.BlackbirdModule;
 
@@ -56,6 +57,22 @@ public class RestConfig {
 			.build();
 
 		ObjectMapper mapper = new ObjectMapper(factory);
+		mapper.registerModule(new JavaTimeModule());
+		mapper.registerModule(new BlackbirdModule());
+		mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+		mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
+		mapper.setSerializationInclusion(Include.NON_NULL);
+		mapper.setSerializationInclusion(Include.NON_EMPTY);
+		mapper.registerSubtypes(
+			new NamedType(ResourceDescriptor.class, "ResourceDescriptor"),
+			new NamedType(ResourceDescriptorPage.class, "ResourceDescriptorPage")
+		);
+		return mapper;
+	}
+	
+	public static ObjectMapper createSmileObjectMapper() {
+		ObjectMapper mapper = new ObjectMapper(new SmileFactory());
 		mapper.registerModule(new JavaTimeModule());
 		mapper.registerModule(new BlackbirdModule());
 		mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
