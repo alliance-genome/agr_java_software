@@ -59,7 +59,7 @@ public class RoutedBulkIndexer extends Thread {
 		this.jsonQueue = jsonQueue;
 		this.indexName = indexName;
 		this.shardCount = shardCount;
-		this.maxBulkSizeBytes = (ConfigHelper.getEsBulkSizeMB() * 1024 * 1024); //10MB * the multiplier 
+		this.maxBulkSizeBytes = ConfigHelper.getEsBulkSizeMB() * 1024 * 1024; //10MB * the multiplier 
 		this.maxRetries = maxRetries;
 		this.retryBaseMs = 1000;
 		this.label = label;
