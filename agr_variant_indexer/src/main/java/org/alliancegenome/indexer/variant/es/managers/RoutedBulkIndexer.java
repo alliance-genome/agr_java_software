@@ -30,8 +30,6 @@ public class RoutedBulkIndexer extends Thread {
 	private final String indexName;
 	private final int shardCount;
 	private final long maxBulkSizeBytes;
-	private final int maxRetries;
-	private final long retryBaseMs;
 	private final String label;
 
 	private RestHighLevelClient client;
@@ -52,16 +50,13 @@ public class RoutedBulkIndexer extends Thread {
 		LinkedBlockingDeque<List<byte[]>> jsonQueue,
 		String indexName,
 		int shardCount,
-		int maxRetries,
 		String label,
 		ProcessDisplayHelper phGlobal
 	) {
 		this.jsonQueue = jsonQueue;
 		this.indexName = indexName;
 		this.shardCount = shardCount;
-		this.maxBulkSizeBytes = ConfigHelper.getEsBulkSizeMB() * 1024 * 1024; //10MB * the multiplier 
-		this.maxRetries = maxRetries;
-		this.retryBaseMs = 1000;
+		this.maxBulkSizeBytes = ConfigHelper.getEsBulkSizeMB() * 1024 * 1024;
 		this.label = label;
 		this.phGlobal = phGlobal;
 	}
@@ -83,10 +78,8 @@ public class RoutedBulkIndexer extends Thread {
 
 			while (!Thread.currentThread().isInterrupted()) {
 				try {
-					List<byte[]> docs = jsonQueue.poll(1, TimeUnit.SECONDS);
-					if (docs == null) {
-						continue;
-					}
+					List<byte[]> docs = jsonQueue.take();
+
 					if (gatherStats) {
 						queueStats.addValue(docs.size());
 					}
@@ -151,10 +144,10 @@ public class RoutedBulkIndexer extends Thread {
 			esBatchRequestStats.addValue(docs.size());
 		}
 		String routing = Integer.toString(ThreadLocalRandom.current().nextInt(shardCount));
-		submitWithRetry(docs, routing, 0);
+		submitWithRetry(docs, routing);
 	}
 
-	private void submitWithRetry(List<byte[]> docs, String routing, int attempt) {
+	private void submitWithRetry(List<byte[]> docs, String routing) {
 		if (!VariantConfigHelper.isIndexing()) {
 			return;
 		}
@@ -173,41 +166,31 @@ public class RoutedBulkIndexer extends Thread {
 						failedDocs.add(docs.get(item.getItemId()));
 					}
 				}
-
-				if (!failedDocs.isEmpty() && attempt < maxRetries) {
+				if (!failedDocs.isEmpty()) {
 					totalRetries++;
-					long sleepMs = retryBaseMs * (1L << Math.min(attempt, 10));
-					log.warn(label + " Retrying " + failedDocs.size() + " failed items (attempt " + (attempt + 1) + "), sleeping " + sleepMs + "ms");
-					try {
-						Thread.sleep(sleepMs);
-					} catch (InterruptedException e) {
-						Thread.currentThread().interrupt();
-						return;
-					}
-					submitWithRetry(failedDocs, routing, attempt + 1);
-				} else if (!failedDocs.isEmpty()) {
-					totalFailedDocs += failedDocs.size();
-					log.error(label + " Failed to index " + failedDocs.size() + " documents after " + maxRetries + " retries");
-					log.error(label + " First failure: " + response.getItems()[0].getFailureMessage());
+					log.warn(label + " " + failedDocs.size() + " failed items, splitting and requeueing");
+					requeueSplit(failedDocs);
 				}
 			}
 
 		} catch (IOException e) {
-			if (attempt < maxRetries) {
-				totalRetries++;
-				long sleepMs = retryBaseMs * (1L << Math.min(attempt, 10));
-				log.warn(label + " Bulk request failed: " + e.getMessage() + ", retrying (attempt " + (attempt + 1) + "), sleeping " + sleepMs + "ms");
-				try {
-					Thread.sleep(sleepMs);
-				} catch (InterruptedException ie) {
-					Thread.currentThread().interrupt();
-					return;
-				}
-				submitWithRetry(docs, routing, attempt + 1);
+			totalRetries++;
+			log.warn(label + " Bulk request failed: " + e.getMessage() + ", splitting " + docs.size() + " items and requeueing");
+			requeueSplit(docs);
+		}
+	}
+
+	private void requeueSplit(List<byte[]> docs) {
+		try {
+			if (docs.size() == 1) {
+				jsonQueue.put(docs);
 			} else {
-				log.error(label + " Bulk request failed after " + maxRetries + " retries: " + e.getMessage());
-				System.exit(-1);
+				int mid = docs.size() / 2;
+				jsonQueue.put(new ArrayList<>(docs.subList(0, mid)));
+				jsonQueue.put(new ArrayList<>(docs.subList(mid, docs.size())));
 			}
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
 		}
 	}
 

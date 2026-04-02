@@ -448,7 +448,6 @@ public class IndexManager {
 			e.printStackTrace();
 		}
 
-		forceMerge();
 		takeSnapShot();
 
 		try {

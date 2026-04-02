@@ -115,7 +115,7 @@ public class SourceDocumentCreation extends Thread {
 		ph4.startProcess(messageHeader + "RoutedBulkIndexers");
 		ArrayList<RoutedBulkIndexer> indexers = new ArrayList<>();
 		for (int i = 0; i < shardCount * 4; i++) {
-			RoutedBulkIndexer indexer = new RoutedBulkIndexer(jsonQueue, indexName, shardCount, 100, messageHeader + "BP(" + (i + 1) + ")", ph4);
+			RoutedBulkIndexer indexer = new RoutedBulkIndexer(jsonQueue, indexName, shardCount, messageHeader + "BP(" + (i + 1) + ")", ph4);
 			indexer.start();
 			indexers.add(indexer);
 		}

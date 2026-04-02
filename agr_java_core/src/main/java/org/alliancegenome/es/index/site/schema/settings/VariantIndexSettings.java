@@ -25,7 +25,6 @@ public class VariantIndexSettings extends Settings {
 				.field("merge.scheduler.max_thread_count", "1")
 				.field("merge.policy.segments_per_tier", "50")
 				.field("merge.policy.floor_segment", "200mb")
-				.field("codec", "best_compression")
 				.field("translog.sync_interval", "60s")
 				.field("translog.flush_threshold_size", "4096mb")
 				.field("translog.durability", "async");
