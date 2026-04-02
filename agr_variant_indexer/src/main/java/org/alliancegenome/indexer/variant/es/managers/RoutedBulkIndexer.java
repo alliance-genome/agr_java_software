@@ -73,7 +73,7 @@ public class RoutedBulkIndexer extends Thread {
 			client = EsClientFactory.getMustCloseSearchClient();
 		}
 		ph = new ProcessDisplayHelper(VariantConfigHelper.getDisplayInterval());
-		if(gatherStats) {
+		if (gatherStats) {
 			ph.startProcess(label);
 		}
 
@@ -87,14 +87,14 @@ public class RoutedBulkIndexer extends Thread {
 					if (docs == null) {
 						continue;
 					}
-					if(gatherStats) {
+					if (gatherStats) {
 						queueStats.addValue(docs.size());
 					}
 
 					for (byte[] smileDoc : docs) {
 						int docBytes = smileDoc.length;
 						
-						if(gatherStats) {
+						if (gatherStats) {
 							docStats.addValue(docBytes);
 						}
 
@@ -106,14 +106,14 @@ public class RoutedBulkIndexer extends Thread {
 
 						pendingDocs.add(smileDoc);
 						pendingBytes += docBytes;
-						if(gatherStats) {
+						if (gatherStats) {
 							totalBytes += docBytes;
 							ph.progressProcess(
-								"qs: (" + jsonQueue.size() +
-								") q: (" + queueStats.getN() + "/" + (int)queueStats.getMean() +
-								") d: (" + docStats.getN() + "/" + (int)docStats.getMean() +
-								") es: (" + esBatchRequestStats.getN() + "/" + (int)esBatchRequestStats.getMean() +
-								") B/r/f: (" + totalBytes + "/" + totalRetries + "/" + totalFailedDocs + ")"
+								"qs: (" + jsonQueue.size()
+								+ ") q: (" + queueStats.getN() + "/" + (int) queueStats.getMean()
+								+ ") d: (" + docStats.getN() + "/" + (int) docStats.getMean()
+								+ ") es: (" + esBatchRequestStats.getN() + "/" + (int) esBatchRequestStats.getMean()
+								+ ") B/r/f: (" + totalBytes + "/" + totalRetries + "/" + totalFailedDocs + ")"
 							);
 						}
 						phGlobal.progressProcess();
@@ -132,7 +132,7 @@ public class RoutedBulkIndexer extends Thread {
 			}
 
 		} finally {
-			if(gatherStats) {
+			if (gatherStats) {
 				ph.finishProcess();
 				logStats();
 			}
@@ -147,7 +147,7 @@ public class RoutedBulkIndexer extends Thread {
 	}
 
 	private void submitBatch(List<byte[]> docs) {
-		if(gatherStats) {
+		if (gatherStats) {
 			esBatchRequestStats.addValue(docs.size());
 		}
 		String routing = Integer.toString(ThreadLocalRandom.current().nextInt(shardCount));
