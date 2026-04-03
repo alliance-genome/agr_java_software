@@ -1,11 +1,16 @@
 package org.alliancegenome.indexer.variant.es.managers;
 
 import java.io.IOException;
+import java.net.ConnectException;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
+
+import org.apache.http.ConnectionClosedException;
+import org.apache.http.conn.ConnectTimeoutException;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.variant.config.VariantConfigHelper;
@@ -187,19 +192,48 @@ public class RoutedBulkIndexer extends Thread {
 				Thread.currentThread().interrupt();
 			}
 			requeueSplit(docs);
+		} catch (ConnectTimeoutException e) {
+			totalRetries++;
+			log.warn(label + " Bulk request ConnectTimeoutException: " + e.getMessage() + ", reconnecting and splitting " + docs.size() + " items and requeueing");
+			reconnectClient();
+			requeueSplit(docs);
+		} catch (SocketTimeoutException e) {
+			totalRetries++;
+			log.warn(label + " Bulk request SocketTimeoutException: " + e.getMessage() + ", reconnecting and splitting " + docs.size() + " items and requeueing");
+			reconnectClient();
+			requeueSplit(docs);
+		} catch (ConnectionClosedException e) {
+			totalRetries++;
+			log.warn(label + " Bulk request ConnectionClosedException: " + e.getMessage() + ", reconnecting and splitting " + docs.size() + " items and requeueing");
+			reconnectClient();
+			requeueSplit(docs);
+		} catch (ConnectException e) {
+			totalRetries++;
+			log.warn(label + " Bulk request ConnectException: " + e.getMessage() + ", reconnecting and splitting " + docs.size() + " items and requeueing");
+			reconnectClient();
+			requeueSplit(docs);
 		} catch (IOException e) {
 			totalRetries++;
-			log.warn(label + " Bulk request failed: " + e.getMessage() + ", reconnecting and splitting " + docs.size() + " items and requeueing");
-			try {
-				log.info(label + " Closing dead ES client: " + System.identityHashCode(client));
-				client.close();
-			} catch (IOException ce) {
-				log.warn(label + " Error closing dead client: " + ce.getMessage());
-			}
-			client = EsClientFactory.getMustCloseSearchClient();
-			log.info(label + " ES client reconnected: " + System.identityHashCode(client));
+			log.warn(label + " Bulk request IOException: " + e.getMessage() + ", reconnecting and splitting " + docs.size() + " items and requeueing");
+			reconnectClient();
+			requeueSplit(docs);
+		} catch (RuntimeException e) {
+			totalRetries++;
+			log.warn(label + " Bulk request RuntimeException (" + e.getClass().getSimpleName() + "): " + e.getMessage() + ", reconnecting and splitting " + docs.size() + " items and requeueing");
+			reconnectClient();
 			requeueSplit(docs);
 		}
+	}
+
+	private void reconnectClient() {
+		try {
+			log.info(label + " Closing dead ES client: " + System.identityHashCode(client));
+			client.close();
+		} catch (IOException ce) {
+			log.warn(label + " Error closing dead client: " + ce.getMessage());
+		}
+		client = EsClientFactory.getMustCloseSearchClient();
+		log.info(label + " ES client reconnected: " + System.identityHashCode(client));
 	}
 
 	private void requeueSplit(List<byte[]> docs) {

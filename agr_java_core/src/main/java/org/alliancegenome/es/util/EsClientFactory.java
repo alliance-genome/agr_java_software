@@ -75,12 +75,12 @@ public class EsClientFactory {
 
 		log.info("Creating new ES Client: " + map);
 		int hours = 3 * (60 * 60 * 1000);
-		client = new RestHighLevelClient(RestClient.builder(hosts).setRequestConfigCallback(
+		RestHighLevelClient localClient = new RestHighLevelClient(RestClient.builder(hosts).setRequestConfigCallback(
 			// Timeout after 3 hours. Needed for long running snapshots
 			requestConfigBuilder -> requestConfigBuilder.setConnectTimeout(5000).setSocketTimeout(hours).setConnectionRequestTimeout(hours)));
 
 		log.info("Finished Connecting to ES");
-		return client;
+		return localClient;
 	}
 
 }
