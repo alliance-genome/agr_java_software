@@ -19,12 +19,12 @@ public class VariantMapping extends Mapping {
 			new FieldBuilder(builder, "alterationType", "text").keyword().build();
 			new FieldBuilder(builder, "genes", "text").keyword().build();
 			new FieldBuilder(builder, "geneIds", "keyword").build();
-			new FieldBuilder(builder, "associatedPhenotype", "text").keyword().sort().build();
-			new FieldBuilder(builder, "diseaseTerms.name", "text").keyword().sort().build();
+			new FieldBuilder(builder, "associatedPhenotype", "text").keyword().sortLowercase().build();
+			new FieldBuilder(builder, "diseaseTerms.name", "text").keyword().sortLowercase().build();
 			new FieldBuilder(builder, "hasDisease", "boolean").build();
 			new FieldBuilder(builder, "hasPhenotype", "boolean").build();
-			new FieldBuilder(builder, "alterationTypeSortOrder", "integer").sort().build();
-			new FieldBuilder(builder, "symbol", "text").analyzer("symbols").autocomplete().htmlSmoosh().keyword().keywordAutocomplete().sort().build(); // allele, gene
+			new FieldBuilder(builder, "alterationTypeSortOrder", "integer").sortLowercase().build();
+			new FieldBuilder(builder, "symbol", "text").analyzer("symbols").autocomplete().htmlSmoosh().keyword().keywordAutocomplete().sortSmartAlpha().build(); // allele, gene
 
 			// allele: dynamic false prevents indexing the deep curation API Allele tree
 			// Only map fields actually queried in ES
@@ -33,7 +33,7 @@ public class VariantMapping extends Mapping {
 			builder.startObject("properties");
 			// VariantSummaryDocument: queried via MatchQuery on allele.primaryExternalId
 			new FieldBuilder(builder, "primaryExternalId", "text").keyword().build();
-			new FieldBuilder(builder, "alleleSynonyms.displayText", "text").keyword().sort().build();
+			new FieldBuilder(builder, "alleleSynonyms.displayText", "text").keyword().sortLowercase().build();
 
 			builder.endObject();
 			builder.endObject();
@@ -41,9 +41,9 @@ public class VariantMapping extends Mapping {
 			builder.startObject("variants");
 			builder.field("dynamic", false);
 			builder.startObject("properties");
-			new FieldBuilder(builder, "variantType.name", "text").keyword().sort().build();
-			new FieldBuilder(builder, "curatedVariantGenomicLocations.predictedVariantConsequences.vepConsequences.name", "text").keyword().sort().build();
-			new FieldBuilder(builder, "curatedVariantGenomicLocations.hgvs", "text").keyword().sort().build();
+			new FieldBuilder(builder, "variantType.name", "text").keyword().sortLowercase().build();
+			new FieldBuilder(builder, "curatedVariantGenomicLocations.predictedVariantConsequences.vepConsequences.name", "text").keyword().sortLowercase().build();
+			new FieldBuilder(builder, "curatedVariantGenomicLocations.hgvs", "text").keyword().sortSmartAlpha().build();
 
 			builder.endObject();
 			builder.endObject();
@@ -52,8 +52,8 @@ public class VariantMapping extends Mapping {
 			builder.startObject("variant");
 			builder.field("dynamic", false);
 			builder.startObject("properties");
-			new FieldBuilder(builder, "variantType.name", "text").keyword().sort().build();
-			new FieldBuilder(builder, "curatedVariantGenomicLocations.hgvs", "text").keyword().sort().build();
+			new FieldBuilder(builder, "variantType.name", "text").keyword().sortLowercase().build();
+			new FieldBuilder(builder, "curatedVariantGenomicLocations.hgvs", "text").keyword().sortSmartAlpha().build();
 			new FieldBuilder(builder, "curatedVariantGenomicLocations.start", "integer").build();
 			new FieldBuilder(builder, "curatedVariantGenomicLocations.end", "integer").build();
 			new FieldBuilder(builder, "curatedVariantGenomicLocations.variantGenomicLocationAssociationObject.name", "text").keyword().build();
@@ -64,15 +64,15 @@ public class VariantMapping extends Mapping {
 			builder.startObject("consequence");
 			builder.field("dynamic", false);
 			builder.startObject("properties");
-			new FieldBuilder(builder, "variantTranscript.name", "text").keyword().sort().build();
-			new FieldBuilder(builder, "variantTranscript.transcriptType.name", "text").keyword().sort().build();
-			new FieldBuilder(builder, "variantTranscript.transcriptGeneAssociations.transcriptGeneAssociationObject.geneSymbol.displayText", "text").keyword().sort().build();
+			new FieldBuilder(builder, "variantTranscript.name", "text").keyword().sortSmartAlpha().build();
+			new FieldBuilder(builder, "variantTranscript.transcriptType.name", "text").keyword().sortLowercase().build();
+			new FieldBuilder(builder, "variantTranscript.transcriptGeneAssociations.transcriptGeneAssociationObject.geneSymbol.displayText", "text").keyword().sortSmartAlpha().build();
 			new FieldBuilder(builder, "intronExonLocation", "text").keyword().build();
-			new FieldBuilder(builder, "vepConsequences.name", "text").keyword().sort().build();
-			new FieldBuilder(builder, "vepImpact.name", "text").keyword().sort().build();
-			new FieldBuilder(builder, "siftPrediction.name", "text").keyword().sort().build();
+			new FieldBuilder(builder, "vepConsequences.name", "text").keyword().sortLowercase().build();
+			new FieldBuilder(builder, "vepImpact.name", "text").keyword().sortLowercase().build();
+			new FieldBuilder(builder, "siftPrediction.name", "text").keyword().sortLowercase().build();
 			new FieldBuilder(builder, "siftScore", "float").build();
-			new FieldBuilder(builder, "polyphenPrediction.name", "text").keyword().sort().build();
+			new FieldBuilder(builder, "polyphenPrediction.name", "text").keyword().sortLowercase().build();
 			new FieldBuilder(builder, "polyphenScore", "float").build();
 			builder.endObject();
 			builder.endObject();

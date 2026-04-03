@@ -84,7 +84,7 @@ public class RoutedBulkIndexer extends Thread {
 
 					for (byte[] smileDoc : docs) {
 						int docBytes = smileDoc.length;
-						
+
 						if (gatherStats) {
 							docStats.addValue(docBytes);
 						}
@@ -122,6 +122,10 @@ public class RoutedBulkIndexer extends Thread {
 				submitBatch(pendingDocs);
 			}
 
+		} catch (Exception e) {
+			log.error(label + " Unexpected exception in indexer thread, exiting", e);
+			e.printStackTrace();
+			System.exit(-1);
 		} finally {
 			if (gatherStats) {
 				ph.finishProcess();
