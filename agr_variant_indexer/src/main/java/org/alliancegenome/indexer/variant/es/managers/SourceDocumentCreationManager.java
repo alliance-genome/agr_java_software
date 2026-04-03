@@ -4,10 +4,12 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.filedownload.model.DownloadFileSet;
 import org.alliancegenome.core.filedownload.model.DownloadSource;
+import org.alliancegenome.curation_api.interfaces.crud.ontology.SoTermCrudInterface;
 import org.alliancegenome.curation_api.interfaces.document.VariantDocumentInterface;
 import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.es.rest.RestConfig;
@@ -24,6 +26,7 @@ public class SourceDocumentCreationManager extends Thread {
 	private DownloadFileSet downloadSet;
 
 	private final VariantDocumentInterface variantApi = RestProxyFactory.createProxy(VariantDocumentInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
+	private final SoTermCrudInterface soTermApi = RestProxyFactory.createProxy(SoTermCrudInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 
 	public SourceDocumentCreationManager(DownloadFileSet downloadSet) {
 		this.downloadSet = downloadSet;
@@ -56,10 +59,13 @@ public class SourceDocumentCreationManager extends Thread {
 				e.printStackTrace();
 			}
 
+			log.info("Fetching SO term severity ranking from curation API...");
+			Map<String, Integer> severityRanking = soTermApi.getSeverityRanking();
+			log.info("Fetched severity ranking for {} SO terms", severityRanking.size());
 			List<SourceDocumentCreation> creators = new ArrayList<>();
 			for (DownloadSource source : downloadSet.getDownloadFileSources()) {
 				if (source.getActive()) {
-					SourceDocumentCreation creator = new SourceDocumentCreation(downloadSet.getDownloadPath(), source, geneCache, variantsCache);
+					SourceDocumentCreation creator = new SourceDocumentCreation(downloadSet.getDownloadPath(), source, geneCache, variantsCache, severityRanking);
 					creator.start();
 					creators.add(creator);
 				}
