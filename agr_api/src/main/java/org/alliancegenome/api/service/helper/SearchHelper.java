@@ -372,31 +372,8 @@ public class SearchHelper {
 		}
 	}
 
-	private static final List<String> CATEGORY_ORDER = List.of(
-		Category.ALLELE.getName(),
-		Category.GENE.getName(),
-		Category.GO.getName(),
-		Category.DISEASE.getName(),
-		Category.MODEL.getName(),
-		Category.DATASET.getName(),
-		Category.VARIANT.getName()
-	);
-
-	/**
-	 * Sort category aggregation buckets to match the desired display order.
-	 */
 	private void orderCategoryBuckets(AggResult aggResult) {
-		aggResult.getValues().sort((a, b) -> {
-			int idxA = CATEGORY_ORDER.indexOf(a.getKey());
-			int idxB = CATEGORY_ORDER.indexOf(b.getKey());
-			if (idxA < 0) {
-				idxA = CATEGORY_ORDER.size();
-			}
-			if (idxB < 0) {
-				idxB = CATEGORY_ORDER.size();
-			}
-			return Integer.compare(idxA, idxB);
-		});
+		aggResult.getValues().sort((a, b) -> Long.compare(b.getTotal(), a.getTotal()));
 	}
 
 	public boolean filterIsValid(String category, String fieldName) {
