@@ -12,6 +12,7 @@ import org.alliancegenome.core.variant.config.VariantConfigHelper;
 import org.alliancegenome.es.util.EsClientFactory;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
+import org.elasticsearch.ElasticsearchStatusException;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
@@ -177,6 +178,15 @@ public class RoutedBulkIndexer extends Thread {
 				}
 			}
 
+		} catch (ElasticsearchStatusException e) {
+			totalRetries++;
+			log.warn(label + " Bulk request rejected (HTTP " + e.status().getStatus() + "): " + e.getMessage() + ", sleeping and splitting " + docs.size() + " items and requeueing");
+			try {
+				Thread.sleep(1000 + ThreadLocalRandom.current().nextInt(2000));
+			} catch (InterruptedException ie) {
+				Thread.currentThread().interrupt();
+			}
+			requeueSplit(docs);
 		} catch (IOException e) {
 			totalRetries++;
 			log.warn(label + " Bulk request failed: " + e.getMessage() + ", reconnecting and splitting " + docs.size() + " items and requeueing");
