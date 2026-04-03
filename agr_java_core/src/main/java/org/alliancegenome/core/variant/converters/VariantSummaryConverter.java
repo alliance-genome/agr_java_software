@@ -3,6 +3,7 @@ package org.alliancegenome.core.variant.converters;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +46,7 @@ public class VariantSummaryConverter {
 	// Header index positions (initialized once per header)
 	private String[] header;
 	private GeneDocumentCache geneCache;
+	private Map<String, Integer> severityRanking;
 	private Map<String, SOTerm> soTermCache = new ConcurrentHashMap<>();
 	private Map<String, VocabularyTerm> vocabularyTermCache = new ConcurrentHashMap<>();
 
@@ -71,9 +73,10 @@ public class VariantSummaryConverter {
 	private int proteinPosIdx = -1;
 	private int hgvsgIdx = -1;
 
-	public VariantSummaryConverter(String[] header, GeneDocumentCache geneCache) {
+	public VariantSummaryConverter(String[] header, GeneDocumentCache geneCache, Map<String, Integer> severityRanking) {
 		this.header = header;
 		this.geneCache = geneCache;
+		this.severityRanking = severityRanking;
 		initializeHeaderIndices();
 	}
 
@@ -347,6 +350,9 @@ public class VariantSummaryConverter {
 						ampIdx = csqField.indexOf('&', start);
 					} while (ampIdx >= 0);
 					soTerms.add(getSOTerm(csqField.substring(start)));
+					soTerms.sort(Comparator.comparingInt(
+						term -> term.getSeverityOrder() != null ? term.getSeverityOrder() : Integer.MAX_VALUE
+					));
 					consequence.setVepConsequences(soTerms);
 				}
 			}
@@ -559,6 +565,9 @@ public class VariantSummaryConverter {
 		return soTermCache.computeIfAbsent(name, k -> {
 			SOTerm term = new SOTerm();
 			term.setName(k);
+			if (severityRanking != null) {
+				term.setSeverityOrder(severityRanking.get(k));
+			}
 			return term;
 		});
 	}

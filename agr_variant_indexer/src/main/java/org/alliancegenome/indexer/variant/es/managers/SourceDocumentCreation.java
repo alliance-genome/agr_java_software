@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
@@ -38,6 +39,7 @@ public class SourceDocumentCreation extends Thread {
 
 	private final GeneDocumentCache geneCache;
 	private final HashSet<String> variantsCache;
+	private final Map<String, Integer> severityRanking;
 	private String downloadPath;
 	private DownloadSource source;
 	private SpeciesType speciesType;
@@ -60,11 +62,12 @@ public class SourceDocumentCreation extends Thread {
 
 	private String messageHeader = "";
 
-	public SourceDocumentCreation(String downloadPath, DownloadSource source, GeneDocumentCache geneCache, HashSet<String> variantsCache) {
+	public SourceDocumentCreation(String downloadPath, DownloadSource source, GeneDocumentCache geneCache, HashSet<String> variantsCache, Map<String, Integer> severityRanking) {
 		this.downloadPath = downloadPath;
 		this.source = source;
 		this.geneCache = geneCache;
 		this.variantsCache = variantsCache;
+		this.severityRanking = severityRanking;
 		speciesType = SpeciesType.getTypeByID(source.getTaxonId());
 		messageHeader = speciesType.getModName() + " ";
 		int vcQueueSize = source.getVcQueueSize() != null ? source.getVcQueueSize() : VariantConfigHelper.getSourceDocumentCreatorVCQueueSize();
@@ -198,7 +201,7 @@ public class SourceDocumentCreation extends Thread {
 				VCFInfoHeaderLine fileHeader = reader.getFileHeader().getInfoHeaderLine("CSQ");
 				header = fileHeader.getDescription().split("Format: ")[1].split("\\|");
 				// All files for a Mod have the same header so we only need one of them
-				variantSummaryConverter = new VariantSummaryConverter(header, geneCache);
+				variantSummaryConverter = new VariantSummaryConverter(header, geneCache, severityRanking);
 				sequenceSummaryConverter = new SequenceSummaryConverter();
 				variantSearchResultConverter = new VariantSearchResultConverter();
 				try {
