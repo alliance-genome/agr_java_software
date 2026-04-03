@@ -28,7 +28,6 @@ public class RoutedBulkIndexer extends Thread {
 
 	private final LinkedBlockingDeque<List<byte[]>> jsonQueue;
 	private final String indexName;
-	private final int shardCount;
 	private final long maxBulkSizeBytes;
 	private final String label;
 
@@ -49,13 +48,11 @@ public class RoutedBulkIndexer extends Thread {
 	public RoutedBulkIndexer(
 		LinkedBlockingDeque<List<byte[]>> jsonQueue,
 		String indexName,
-		int shardCount,
 		String label,
 		ProcessDisplayHelper phGlobal
 	) {
 		this.jsonQueue = jsonQueue;
 		this.indexName = indexName;
-		this.shardCount = shardCount;
 		this.maxBulkSizeBytes = ConfigHelper.getEsBulkSizeMB() * 1024 * 1024;
 		this.label = label;
 		this.phGlobal = phGlobal;
@@ -66,6 +63,7 @@ public class RoutedBulkIndexer extends Thread {
 		boolean indexing = VariantConfigHelper.isIndexing();
 		if (indexing) {
 			client = EsClientFactory.getMustCloseSearchClient();
+			log.info(label + " ES client created: " + System.identityHashCode(client));
 		}
 		ph = new ProcessDisplayHelper(VariantConfigHelper.getDisplayInterval());
 		if (gatherStats) {
@@ -131,9 +129,11 @@ public class RoutedBulkIndexer extends Thread {
 			}
 			if (client != null) {
 				try {
+					log.info(label + " Closing ES client: " + System.identityHashCode(client));
 					client.close();
+					log.info(label + " ES client closed: " + System.identityHashCode(client));
 				} catch (IOException e) {
-					log.error(label + " Error closing ES client", e);
+					log.error(label + " Error closing ES client: " + System.identityHashCode(client), e);
 				}
 			}
 		}
@@ -143,7 +143,7 @@ public class RoutedBulkIndexer extends Thread {
 		if (gatherStats) {
 			esBatchRequestStats.addValue(docs.size());
 		}
-		String routing = Integer.toString(ThreadLocalRandom.current().nextInt(shardCount));
+		String routing = Integer.toString(ThreadLocalRandom.current().nextInt(Integer.MAX_VALUE));
 		submitWithRetry(docs, routing);
 	}
 
