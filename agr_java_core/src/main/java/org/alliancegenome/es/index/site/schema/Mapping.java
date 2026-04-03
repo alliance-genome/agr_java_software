@@ -81,14 +81,14 @@ public class Mapping extends Builder {
 		//new FieldBuilder(builder, "id", "keyword");
 		//new FieldBuilder(builder, "molecularFunction", "text").keyword().build();
 		//new FieldBuilder(builder, "references.crossReferences", "nested").build();
-		//new FieldBuilder(builder, "searchSymbol", "text").analyzer("symbols").autocomplete().keyword().keywordAutocomplete().sort().build();
-		//new FieldBuilder(builder, "displayText", "text").keyword().sort().build();
+		//new FieldBuilder(builder, "searchSymbol", "text").analyzer("symbols").autocomplete().keyword().keywordAutocomplete().sortSmartAlpha().build();
+		//new FieldBuilder(builder, "displayText", "text").keyword().sortSmartAlpha().build();
 		//new FieldBuilder(builder, "stage", "text").keyword().build();
 		//new FieldBuilder(builder, "systematicName", "text").analyzer("symbols").build();
 		//new FieldBuilder(builder, "taxonId", "keyword").build();
 
 		// Allele Only Fields
-		new FieldBuilder(builder, "alterationType", "text").keyword().sort().build(); // Allele
+		new FieldBuilder(builder, "alterationType", "text").keyword().sortSmartAlpha().build(); // Allele
 		new FieldBuilder(builder, "constructs", "text").keyword().classicText().build(); // allele
 		new FieldBuilder(builder, "constructExpressedComponent", "text").keyword().build(); // allele
 		new FieldBuilder(builder, "constructKnockdownComponent", "text").keyword().build(); // allele
@@ -132,25 +132,25 @@ public class Mapping extends Builder {
 		new FieldBuilder(builder, "diseasesAgrSlim", "text").keyword().build(); // gene, allele, model
 		new FieldBuilder(builder, "diseasesWithParents", "text").keyword().build(); // gene, allele, model
 		new FieldBuilder(builder, "phenotypeStatements", "text").keyword().build(); // gene, allele, model
-		new FieldBuilder(builder, "phenotypeStatement", "text").keyword().sort().build(); // phenotype annotation
+		new FieldBuilder(builder, "phenotypeStatement", "text").keyword().sortSmartAlpha().build(); // phenotype annotation
 
-		new FieldBuilder(builder, "object.name", "text").keyword().sort().build(); // gene_disease_annotation, allele_disease_annotation, agm_disease_annotation
-		new FieldBuilder(builder, "object.curie", "text").keyword().sort().build(); // gene_disease_annotation, allele_disease_annotation, agm_disease_annotation
-		new FieldBuilder(builder, "subject.primaryExternalId", "text").keyword().sort().build(); // gene_disease_annotation, allele_disease_annotation, agm_disease_annotation
-		new FieldBuilder(builder, "subject.taxon.species.fullName", "text").keyword().sort().build(); // gene_disease_annotation, allele_disease_annotation, agm_disease_annotation
+		new FieldBuilder(builder, "object.name", "text").keyword().sortSmartAlpha().build(); // gene_disease_annotation, allele_disease_annotation, agm_disease_annotation
+		new FieldBuilder(builder, "object.curie", "text").keyword().sortSmartAlpha().build(); // gene_disease_annotation, allele_disease_annotation, agm_disease_annotation
+		new FieldBuilder(builder, "subject.primaryExternalId", "text").keyword().sortSmartAlpha().build(); // gene_disease_annotation, allele_disease_annotation, agm_disease_annotation
+		new FieldBuilder(builder, "subject.taxon.species.fullName", "text").keyword().sortSmartAlpha().build(); // gene_disease_annotation, allele_disease_annotation, agm_disease_annotation
 
 		new FieldBuilder(builder, "anatomicalExpressionSlim", "text").keyword().build(); // gene, dataset
 		new FieldBuilder(builder, "whereExpressed", "text").keyword().build(); // gene, dataset
 
-		new FieldBuilder(builder, "associatedSpecies", "text").keyword().synonym().sort().build(); // go, disease
-		new FieldBuilder(builder, AffectedGenomicModel.HAS_DISEASE_AND_PHENOTYPE_ANNOTATIONS.getFieldName(), "text").keyword().sort().build(); // associated phenotypes for model objects
-		new FieldBuilder(builder, AffectedGenomicModel.HAS_DISEASE_ANNOTATIONS.getFieldName(), "text").keyword().sort().build(); // associated phenotypes for model objects
-		new FieldBuilder(builder, AffectedGenomicModel.HAS_PHENOTYPE_ANNOTATIONS.getFieldName(), "text").keyword().sort().build(); // associated phenotypes for model objects
-		new FieldBuilder(builder, "model.agmFullName.displayText", "text").keyword().sort().build(); //
-		new FieldBuilder(builder, "model.agmFullName.formatText", "text").keyword().sort().build(); //
-		new FieldBuilder(builder, "alleleDocument.allele.alleleSymbol.formatText", "text").keyword().sort().build(); //
-		new FieldBuilder(builder, "alleleDocument.allele.taxon.species.fullName", "text").keyword().sort().build(); //
-		new FieldBuilder(builder, "alleleDocument.phylogeneticSortingIndex", "long").keyword().sort().build(); //
+		new FieldBuilder(builder, "associatedSpecies", "text").keyword().synonym().sortSmartAlpha().build(); // go, disease
+		new FieldBuilder(builder, AffectedGenomicModel.HAS_DISEASE_AND_PHENOTYPE_ANNOTATIONS.getFieldName(), "text").keyword().sortSmartAlpha().build(); // associated phenotypes for model objects
+		new FieldBuilder(builder, AffectedGenomicModel.HAS_DISEASE_ANNOTATIONS.getFieldName(), "text").keyword().sortSmartAlpha().build(); // associated phenotypes for model objects
+		new FieldBuilder(builder, AffectedGenomicModel.HAS_PHENOTYPE_ANNOTATIONS.getFieldName(), "text").keyword().sortSmartAlpha().build(); // associated phenotypes for model objects
+		new FieldBuilder(builder, "model.agmFullName.displayText", "text").keyword().sortSmartAlpha().build(); //
+		new FieldBuilder(builder, "model.agmFullName.formatText", "text").keyword().sortSmartAlpha().build(); //
+		new FieldBuilder(builder, "alleleDocument.allele.alleleSymbol.formatText", "text").keyword().sortSmartAlpha().build(); //
+		new FieldBuilder(builder, "alleleDocument.allele.taxon.species.fullName", "text").keyword().sortSmartAlpha().build(); //
+		new FieldBuilder(builder, "alleleDocument.phylogeneticSortingIndex", "long").keyword().sortSmartAlpha().build(); //
 		new FieldBuilder(builder, "definition", "text").standardText().build(); // go, disease
 
 		new FieldBuilder(builder, "models", "text").keyword().autocomplete().build(); // gene, disease
@@ -175,17 +175,17 @@ public class Mapping extends Builder {
 		new FieldBuilder(builder, "nameKey", "text").analyzer("symbols").autocomplete().keyword().keywordAutocomplete().htmlSmoosh().standardBigrams().build(); // allele, gene, model, dataset, disease, go_search_result
 
 
-		new FieldBuilder(builder, "subject.alleleSymbol.displayText", "text").keyword().sort().build(); // allele_disease_annotation
-		new FieldBuilder(builder, "subject.geneSymbol.displayText", "text").keyword().sort().build(); // gene_disease_annotation
-		new FieldBuilder(builder, "subject.name", "text").keyword().sort().build(); // agm_disease_annotation
+		new FieldBuilder(builder, "subject.alleleSymbol.displayText", "text").keyword().sortSmartAlpha().build(); // allele_disease_annotation
+		new FieldBuilder(builder, "subject.geneSymbol.displayText", "text").keyword().sortSmartAlpha().build(); // gene_disease_annotation
+		new FieldBuilder(builder, "subject.name", "text").keyword().sortSmartAlpha().build(); // agm_disease_annotation
 
 
 		new FieldBuilder(builder, "popularity", "double").build(); // gene, model, dataset, disease
 		new FieldBuilder(builder, "primaryKey", "keyword").build(); // allele, gene, model, go, dataset, disease
-		new FieldBuilder(builder, "symbol", "text").analyzer("symbols").autocomplete().htmlSmoosh().keyword().keywordAutocomplete().sort().build(); // allele, gene
+		new FieldBuilder(builder, "symbol", "text").analyzer("symbols").autocomplete().htmlSmoosh().keyword().keywordAutocomplete().sortSmartAlpha().build(); // allele, gene
 
 
-		new FieldBuilder(builder, "species", "text").keyword().synonym().sort().build(); // allele, gene, model, dataset
+		new FieldBuilder(builder, "species", "text").keyword().synonym().sortSmartAlpha().build(); // allele, gene, model, dataset
 		new FieldBuilder(builder, "synonyms", "text").analyzer("symbols").autocomplete().keyword().keywordAutocomplete().htmlSmoosh().standardBigrams().build(); // gene, go, disease, model
 
 		// GeneMolecularInteractionDocument: dynamic false (~12 indexed fields)
@@ -193,14 +193,14 @@ public class Mapping extends Builder {
 		builder.field("type", "object");
 		builder.field("dynamic", false);
 		builder.endObject();
-		new FieldBuilder(builder, "geneMolecularInteraction.geneGeneAssociationObject.geneSymbol.displayText", "text").keyword().sort().build();
-		new FieldBuilder(builder, "geneMolecularInteraction.geneGeneAssociationObject.taxon.name", "text").keyword().sort().build();
-		new FieldBuilder(builder, "geneMolecularInteraction.geneGeneAssociationObject.taxon.species.fullName", "text").keyword().sort().build();
+		new FieldBuilder(builder, "geneMolecularInteraction.geneGeneAssociationObject.geneSymbol.displayText", "text").keyword().sortSmartAlpha().build();
+		new FieldBuilder(builder, "geneMolecularInteraction.geneGeneAssociationObject.taxon.name", "text").keyword().sortSmartAlpha().build();
+		new FieldBuilder(builder, "geneMolecularInteraction.geneGeneAssociationObject.taxon.species.fullName", "text").keyword().sortSmartAlpha().build();
 		new FieldBuilder(builder, "geneMolecularInteraction.geneAssociationSubject.curie", "text").keyword().build();
 		new FieldBuilder(builder, "geneMolecularInteraction.geneAssociationSubject.primaryExternalId", "text").keyword().build();
-		new FieldBuilder(builder, "geneMolecularInteraction.interactorAType.name", "text").keyword().sort().build();
-		new FieldBuilder(builder, "geneMolecularInteraction.interactorBType.name", "text").keyword().sort().build();
-		new FieldBuilder(builder, "geneMolecularInteraction.detectionMethod.name", "text").keyword().sort().build();
+		new FieldBuilder(builder, "geneMolecularInteraction.interactorAType.name", "text").keyword().sortSmartAlpha().build();
+		new FieldBuilder(builder, "geneMolecularInteraction.interactorBType.name", "text").keyword().sortSmartAlpha().build();
+		new FieldBuilder(builder, "geneMolecularInteraction.detectionMethod.name", "text").keyword().sortSmartAlpha().build();
 		new FieldBuilder(builder, "geneMolecularInteraction.evidence.referenceID", "text").keyword().build();
 		new FieldBuilder(builder, "geneMolecularInteraction.interactionId", "text").keyword().build();
 		new FieldBuilder(builder, "geneMolecularInteraction.aggregationDatabase.name", "text").keyword().build();
@@ -212,9 +212,9 @@ public class Mapping extends Builder {
 		builder.field("type", "object");
 		builder.field("dynamic", false);
 		builder.endObject();
-		new FieldBuilder(builder, "geneGeneticInteraction.geneGeneAssociationObject.geneSymbol.displayText", "text").keyword().sort().build();
-		new FieldBuilder(builder, "geneGeneticInteraction.geneGeneAssociationObject.taxon.name", "text").keyword().sort().build();
-		new FieldBuilder(builder, "geneGeneticInteraction.geneGeneAssociationObject.taxon.species.fullName", "text").keyword().sort().build();
+		new FieldBuilder(builder, "geneGeneticInteraction.geneGeneAssociationObject.geneSymbol.displayText", "text").keyword().sortSmartAlpha().build();
+		new FieldBuilder(builder, "geneGeneticInteraction.geneGeneAssociationObject.taxon.name", "text").keyword().sortSmartAlpha().build();
+		new FieldBuilder(builder, "geneGeneticInteraction.geneGeneAssociationObject.taxon.species.fullName", "text").keyword().sortSmartAlpha().build();
 		new FieldBuilder(builder, "geneGeneticInteraction.geneAssociationSubject.curie", "text").keyword().build();
 		new FieldBuilder(builder, "geneGeneticInteraction.geneAssociationSubject.primaryExternalId", "text").keyword().build();
 		new FieldBuilder(builder, "geneGeneticInteraction.interactorARole.name", "text").keyword().build();
@@ -256,13 +256,13 @@ public class Mapping extends Builder {
 		builder.field("type", "object");
 		builder.field("dynamic", false);
 		builder.endObject();
-		new FieldBuilder(builder, "geneExpressionAnnotation.expressionAnnotationSubject.geneSymbol.displayText", "text").keyword().sort().build();
+		new FieldBuilder(builder, "geneExpressionAnnotation.expressionAnnotationSubject.geneSymbol.displayText", "text").keyword().sortSmartAlpha().build();
 		new FieldBuilder(builder, "geneExpressionAnnotation.expressionAnnotationSubject.primaryExternalId", "text").keyword().build();
-		new FieldBuilder(builder, "geneExpressionAnnotation.expressionAnnotationSubject.taxon.name", "text").keyword().sort().build();
-		new FieldBuilder(builder, "geneExpressionAnnotation.expressionAnnotationSubject.taxon.species.fullName", "text").keyword().sort().build();
-		new FieldBuilder(builder, "geneExpressionAnnotation.whereExpressedStatement", "text").keyword().sort().build();
-		new FieldBuilder(builder, "geneExpressionAnnotation.whenExpressedStageName", "text").keyword().sort().build();
-		new FieldBuilder(builder, "geneExpressionAnnotation.expressionAssayUsed.name", "text").keyword().sort().build();
+		new FieldBuilder(builder, "geneExpressionAnnotation.expressionAnnotationSubject.taxon.name", "text").keyword().sortSmartAlpha().build();
+		new FieldBuilder(builder, "geneExpressionAnnotation.expressionAnnotationSubject.taxon.species.fullName", "text").keyword().sortSmartAlpha().build();
+		new FieldBuilder(builder, "geneExpressionAnnotation.whereExpressedStatement", "text").keyword().sortSmartAlpha().build();
+		new FieldBuilder(builder, "geneExpressionAnnotation.whenExpressedStageName", "text").keyword().sortSmartAlpha().build();
+		new FieldBuilder(builder, "geneExpressionAnnotation.expressionAssayUsed.name", "text").keyword().sortSmartAlpha().build();
 		new FieldBuilder(builder, "geneExpressionAnnotation.crossReferences.referencedCurie", "text").keyword().build();
 
 		// AlleleSummaryDocument: dynamic false on deep curation API objects
@@ -273,10 +273,10 @@ public class Mapping extends Builder {
 		new FieldBuilder(builder, "primaryExternalId", "text").keyword().build();
 		builder.endObject();
 		builder.endObject();
-		new FieldBuilder(builder, "allele.alleleSynonyms.displayText", "text").keyword().sort().build();
+		new FieldBuilder(builder, "allele.alleleSynonyms.displayText", "text").keyword().sortSmartAlpha().build();
 		new FieldBuilder(builder, "hasDisease", "boolean").build();
 		new FieldBuilder(builder, "hasPhenotype", "boolean").build();
-		new FieldBuilder(builder, "alterationTypeSortOrder", "integer").keyword().sort().build();
+		new FieldBuilder(builder, "alterationTypeSortOrder", "integer").keyword().sortSmartAlpha().build();
 
 		builder.startObject("alleleOfGene");
 		builder.field("dynamic", false);
@@ -290,9 +290,9 @@ public class Mapping extends Builder {
 		builder.field("type", "object");
 		builder.field("dynamic", false);
 		builder.endObject();
-		new FieldBuilder(builder, "variants.variantType.name", "text").keyword().sort().build();
-		new FieldBuilder(builder, "variants.curatedVariantGenomicLocations.predictedVariantConsequences.vepConsequences.name", "text").keyword().sort().build();
-		new FieldBuilder(builder, "variants.curatedVariantGenomicLocations.hgvs", "text").keyword().sort().build();
+		new FieldBuilder(builder, "variants.variantType.name", "text").keyword().sortSmartAlpha().build();
+		new FieldBuilder(builder, "variants.curatedVariantGenomicLocations.predictedVariantConsequences.vepConsequences.name", "text").keyword().sortSmartAlpha().build();
+		new FieldBuilder(builder, "variants.curatedVariantGenomicLocations.hgvs", "text").keyword().sortSmartAlpha().build();
 		builder.startObject("crossReference");
 		builder.field("type", "object");
 		builder.field("dynamic", false);
@@ -305,8 +305,8 @@ public class Mapping extends Builder {
 		builder.startObject("properties");
 		builder.endObject();
 		builder.endObject();
-		new FieldBuilder(builder, "variant.variantType.name", "text").keyword().sort().build();
-		new FieldBuilder(builder, "variant.curatedVariantGenomicLocations.hgvs", "text").keyword().sort().build();
+		new FieldBuilder(builder, "variant.variantType.name", "text").keyword().sortSmartAlpha().build();
+		new FieldBuilder(builder, "variant.curatedVariantGenomicLocations.hgvs", "text").keyword().sortSmartAlpha().build();
 		new FieldBuilder(builder, "variant.curatedVariantGenomicLocations.start", "integer").build();
 		new FieldBuilder(builder, "variant.curatedVariantGenomicLocations.end", "integer").build();
 		new FieldBuilder(builder, "variant.curatedVariantGenomicLocations.variantGenomicLocationAssociationObject.name", "text").keyword().build();
@@ -322,11 +322,11 @@ public class Mapping extends Builder {
 		new FieldBuilder(builder, "intronExonLocation", "text").keyword().build();
 		builder.endObject();
 		builder.endObject();
-		new FieldBuilder(builder, "consequence.vepImpact.name", "text").keyword().sort().build();
-		new FieldBuilder(builder, "consequence.vepConsequences.name", "text").keyword().sort().build();
+		new FieldBuilder(builder, "consequence.vepImpact.name", "text").keyword().sortSmartAlpha().build();
+		new FieldBuilder(builder, "consequence.vepConsequences.name", "text").keyword().sortSmartAlpha().build();
 		new FieldBuilder(builder, "consequence.siftPrediction.name", "text").keyword().build();
 		new FieldBuilder(builder, "consequence.polyphenPrediction.name", "text").keyword().build();
-		new FieldBuilder(builder, "consequence.variantTranscript.name", "text").keyword().sort().build();
+		new FieldBuilder(builder, "consequence.variantTranscript.name", "text").keyword().sortSmartAlpha().build();
 		new FieldBuilder(builder, "consequence.variantTranscript.transcriptType.name", "text").keyword().build();
 		new FieldBuilder(builder, "consequence.variantTranscript.transcriptGeneAssociations.transcriptGeneAssociationObject.geneSymbol.displayText", "text").keyword().build();
 
@@ -344,7 +344,8 @@ public class Mapping extends Builder {
 		boolean keyword;
 		boolean keywordAutocomplete;
 		boolean letterText;
-		boolean sort;
+		boolean sortSmartAlpha;
+		boolean sortLowercase;
 		boolean standardBigrams;
 		boolean standardText;
 		boolean symbol;
@@ -392,8 +393,13 @@ public class Mapping extends Builder {
 			return this;
 		}
 
-		public FieldBuilder sort() {
-			this.sort = true;
+		public FieldBuilder sortSmartAlpha() {
+			this.sortSmartAlpha = true;
+			return this;
+		}
+
+		public FieldBuilder sortLowercase() {
+			this.sortLowercase = true;
 			return this;
 		}
 
@@ -458,7 +464,7 @@ public class Mapping extends Builder {
 			if (analyzer != null) {
 				builder.field("analyzer", analyzer);
 			}
-			if (symbol || autocomplete || keyword || keywordAutocomplete || synonym || sort || standardText) {
+			if (symbol || autocomplete || keyword || keywordAutocomplete || synonym || sortSmartAlpha || sortLowercase || standardText) {
 				builder.startObject("fields");
 				if (keyword) {
 					buildProperty("keyword", "keyword");
@@ -481,9 +487,11 @@ public class Mapping extends Builder {
 				if (synonym) {
 					buildProperty("synonyms", "text", "generic_synonym", "autocomplete_search", null);
 				}
-				if (sort) {
-					//buildProperty("sort", "keyword", null, null, "lowercase");
+				if (sortSmartAlpha) {
 					buildProperty("sort", "keyword", null, null, "smart_alpha_sort");
+				}
+				if (sortLowercase) {
+					buildProperty("sort", "keyword", null, null, "lowercase");
 				}
 				if (htmlSmoosh) {
 					buildProperty("htmlSmoosh", "text", "html_smoosh");
