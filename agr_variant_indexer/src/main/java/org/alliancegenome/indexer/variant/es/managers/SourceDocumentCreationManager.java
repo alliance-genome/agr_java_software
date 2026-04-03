@@ -1,14 +1,13 @@
 package org.alliancegenome.indexer.variant.es.managers;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.List;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.filedownload.model.DownloadFileSet;
 import org.alliancegenome.core.filedownload.model.DownloadSource;
-import org.alliancegenome.core.variant.config.VariantConfigHelper;
 import org.alliancegenome.curation_api.interfaces.document.VariantDocumentInterface;
 import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.es.rest.RestConfig;
@@ -35,12 +34,10 @@ public class SourceDocumentCreationManager extends Thread {
 
 		try {
 
-			ExecutorService executor = Executors.newFixedThreadPool(VariantConfigHelper.getSourceDocumentCreatorThreads());
-
 			GeneIndexerRepository geneRepo = new GeneIndexerRepository();
 			GeneDocumentCache geneCache = geneRepo.getGeneCacheCrossReferencesSynonyms();
 			geneRepo.close();
-			
+
 			ObjectFileStorage<HashSet<String>> variantsCacheFileStorage = new ObjectFileStorage<>();
 
 			HashSet<String> variantsCache = null;
@@ -59,18 +56,18 @@ public class SourceDocumentCreationManager extends Thread {
 				e.printStackTrace();
 			}
 
+			List<SourceDocumentCreation> creators = new ArrayList<>();
 			for (DownloadSource source : downloadSet.getDownloadFileSources()) {
 				if (source.getActive()) {
 					SourceDocumentCreation creator = new SourceDocumentCreation(downloadSet.getDownloadPath(), source, geneCache, variantsCache);
-					executor.execute(creator);
+					creator.start();
+					creators.add(creator);
 				}
 			}
-			log.info("SourceDocumentCreationManager shutting down executor... ");
-			executor.shutdown();
-			while (!executor.isTerminated()) {
-				Thread.sleep(1000);
+			for (SourceDocumentCreation creator : creators) {
+				creator.join();
 			}
-			log.info("SourceDocumentCreationManager executor shut down: ");
+			log.info("SourceDocumentCreationManager all species finished");
 
 		} catch (Exception e) {
 			ExceptionCatcher.report(e);

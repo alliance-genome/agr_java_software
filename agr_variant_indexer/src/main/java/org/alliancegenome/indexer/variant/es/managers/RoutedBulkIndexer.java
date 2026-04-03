@@ -175,7 +175,15 @@ public class RoutedBulkIndexer extends Thread {
 
 		} catch (IOException e) {
 			totalRetries++;
-			log.warn(label + " Bulk request failed: " + e.getMessage() + ", splitting " + docs.size() + " items and requeueing");
+			log.warn(label + " Bulk request failed: " + e.getMessage() + ", reconnecting and splitting " + docs.size() + " items and requeueing");
+			try {
+				log.info(label + " Closing dead ES client: " + System.identityHashCode(client));
+				client.close();
+			} catch (IOException ce) {
+				log.warn(label + " Error closing dead client: " + ce.getMessage());
+			}
+			client = EsClientFactory.getMustCloseSearchClient();
+			log.info(label + " ES client reconnected: " + System.identityHashCode(client));
 			requeueSplit(docs);
 		}
 	}
