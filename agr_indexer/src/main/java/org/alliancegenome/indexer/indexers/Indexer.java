@@ -62,7 +62,8 @@ public abstract class Indexer extends Thread {
 		om.setSerializationInclusion(Include.NON_NULL);
 		om = customizeObjectMapper(om);
 
-		searchClient = EsClientFactory.getDefaultEsClient();
+		searchClient = EsClientFactory.getMustCloseSearchClient();
+		log.info(getClass().getSimpleName() + " ES client created: " + System.identityHashCode(searchClient));
 
 		BulkProcessor.Listener listener = new BulkProcessor.Listener() {
 			@Override
@@ -117,6 +118,8 @@ public abstract class Indexer extends Thread {
 			log.error(e.getMessage());
 			ExceptionCatcher.report(e);
 			System.exit(-1);
+		} finally {
+			closeSearchClient();
 		}
 	}
 
@@ -139,6 +142,19 @@ public abstract class Indexer extends Thread {
 			log.error(e.getMessage());
 			ExceptionCatcher.report(e);
 			System.exit(-1);
+		} finally {
+			closeSearchClient();
+		}
+	}
+
+	private void closeSearchClient() {
+		if (searchClient != null) {
+			try {
+				log.info(getClass().getSimpleName() + " closing ES client: " + System.identityHashCode(searchClient));
+				searchClient.close();
+			} catch (IOException e) {
+				log.warn(getClass().getSimpleName() + " error closing ES client: " + e.getMessage());
+			}
 		}
 	}
 
