@@ -36,7 +36,7 @@ public class Main {
 		Indexer.indexName = im.startSiteIndex();
 
 		Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
-			log.error("Thread: " + t.getId() + " has uncaught exceptions");
+			log.error("Thread: " + t.threadId() + " has uncaught exceptions");
 			e.printStackTrace();
 			System.exit(-1);
 		});

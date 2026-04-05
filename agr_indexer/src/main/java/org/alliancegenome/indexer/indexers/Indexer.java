@@ -1,5 +1,6 @@
 package org.alliancegenome.indexer.indexers;
 
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.time.Duration;
 import java.time.Instant;

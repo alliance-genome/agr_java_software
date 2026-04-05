@@ -198,7 +198,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 
 							// create distinct list of basedOn Genes
 							Set<Gene> basedOnGenes = diseaseAnnotations1.stream().map(DiseaseAnnotation::getWith).flatMap(Collection::stream).collect(Collectors.toSet());
-							List<String> ids = basedOnGenes.stream().map(SubmittedObject::getIdentifier).toList();
+							//List<String> ids = basedOnGenes.stream().map(SubmittedObject::getIdentifier).toList();
 							gdad.setBasedOnGenes(new ArrayList<>(basedOnGenes));
 							Reference evidenceItem = (Reference) diseaseAnnotation.getEvidenceItem();
 							gdad.addReference(evidenceItem);
