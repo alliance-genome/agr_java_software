@@ -50,7 +50,6 @@ public class LiteratureIndexer extends Indexer {
 
 	@Override
 	protected void startSingleThread(LinkedBlockingDeque<String> queue) {
-		ObjectMapper mapper = new ObjectMapper();
 		while (!queue.isEmpty()) {
 			String page = null;
 			try {
