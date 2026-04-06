@@ -10,7 +10,7 @@ import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.config.IndexerConfig;
-import org.alliancegenome.indexer.indexers.curation.interfaces.ElasticSearchInterface;
+import org.alliancegenome.es.util.ElasticSearchInterface;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 

@@ -5,14 +5,18 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.LinkedBlockingDeque;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.filedownload.model.DownloadFileSet;
 import org.alliancegenome.core.filedownload.model.DownloadSource;
+import org.alliancegenome.core.variant.config.VariantConfigHelper;
 import org.alliancegenome.curation_api.interfaces.crud.ontology.SoTermCrudInterface;
 import org.alliancegenome.curation_api.interfaces.document.VariantDocumentInterface;
 import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.es.rest.RestConfig;
+import org.alliancegenome.es.util.ElasticSearchInterface;
+import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.neo4j.repository.indexer.GeneIndexerRepository;
 
@@ -62,17 +66,56 @@ public class SourceDocumentCreationManager extends Thread {
 			log.info("Fetching SO term severity ranking from curation API...");
 			Map<String, Integer> severityRanking = soTermApi.getSeverityRanking();
 			log.info("Fetched severity ranking for {} SO terms", severityRanking.size());
+
+			// Count active species and create shared jsonQueue
+			long activeCount = downloadSet.getDownloadFileSources().stream().filter(DownloadSource::getActive).count();
+			LinkedBlockingDeque<List<byte[]>> jsonQueue = new LinkedBlockingDeque<>((int) (250 * activeCount));
+
+			// Query cluster CPU count and create shared bulk indexer pool
+			int totalCpus = getClusterCpuCount();
+			int poolSize = totalCpus * 2;
+			log.info("ES cluster total CPUs: {}, RoutedBulkIndexer pool size: {}, active species: {}, jsonQueue capacity: {}", totalCpus, poolSize, activeCount, 250 * activeCount);
+
+			// Start shared RoutedBulkIndexer pool
+			ProcessDisplayHelper phPool = new ProcessDisplayHelper(VariantConfigHelper.getDisplayInterval());
+			phPool.startProcess("SharedRoutedBulkIndexers");
+			ArrayList<RoutedBulkIndexer> indexers = new ArrayList<>();
+			for (int i = 0; i < poolSize; i++) {
+				RoutedBulkIndexer indexer = new RoutedBulkIndexer(jsonQueue, SourceDocumentCreation.indexName, "SharedBP(" + (i + 1) + ")", phPool);
+				indexer.start();
+				indexers.add(indexer);
+			}
+
+			// Build and start active species creators
 			List<SourceDocumentCreation> creators = new ArrayList<>();
 			for (DownloadSource source : downloadSet.getDownloadFileSources()) {
 				if (source.getActive()) {
-					SourceDocumentCreation creator = new SourceDocumentCreation(downloadSet.getDownloadPath(), source, geneCache, variantsCache, severityRanking);
+					SourceDocumentCreation creator = new SourceDocumentCreation(downloadSet.getDownloadPath(), source, geneCache, variantsCache, severityRanking, jsonQueue);
 					creator.start();
 					creators.add(creator);
 				}
 			}
+
+			// Wait for all species threads to complete
 			for (SourceDocumentCreation creator : creators) {
 				creator.join();
 			}
+
+			// Wait for shared jsonQueue to drain
+			log.info("All species threads finished, waiting for jsonQueue to drain");
+			while (!jsonQueue.isEmpty()) {
+				Thread.sleep(1000);
+			}
+
+			// Shut down shared bulk indexer pool
+			log.info("Shutting down shared RoutedBulkIndexer pool");
+			for (RoutedBulkIndexer indexer : indexers) {
+				indexer.interrupt();
+				indexer.join();
+			}
+			phPool.finishProcess();
+			log.info("Shared RoutedBulkIndexer pool shutdown");
+
 			log.info("SourceDocumentCreationManager all species finished");
 
 		} catch (Exception e) {
@@ -80,5 +123,39 @@ public class SourceDocumentCreationManager extends Thread {
 			e.printStackTrace();
 			System.exit(-1);
 		}
+	}
+
+	private int getClusterCpuCount() {
+		int defaultCpus = VariantConfigHelper.getIndexerShards() / 2;
+		try {
+			String firstHost = ConfigHelper.getEsHost().split(",")[0];
+			String esHost;
+			String esPort;
+			if (firstHost.contains(":")) {
+				esHost = firstHost.split(":")[0];
+				esPort = firstHost.split(":")[1];
+			} else {
+				esHost = firstHost;
+				esPort = String.valueOf(ConfigHelper.getEsPort());
+			}
+			String esUrl = "http://" + esHost + ":" + esPort;
+			ElasticSearchInterface esApi = RestProxyFactory.createProxy(ElasticSearchInterface.class, esUrl);
+			Map<String, Object> response = esApi.getNodesOs();
+			Map<String, Object> nodes = (Map<String, Object>) response.get("nodes");
+			int totalCpus = 0;
+			for (Object nodeObj : nodes.values()) {
+				Map<String, Object> node = (Map<String, Object>) nodeObj;
+				Map<String, Object> os = (Map<String, Object>) node.get("os");
+				if (os != null && os.containsKey("available_processors")) {
+					totalCpus += ((Number) os.get("available_processors")).intValue();
+				}
+			}
+			if (totalCpus > 0) {
+				return totalCpus;
+			}
+		} catch (Exception e) {
+			log.warn("Failed to query ES cluster CPU count, using default: {}", defaultCpus, e);
+		}
+		return defaultCpus;
 	}
 }

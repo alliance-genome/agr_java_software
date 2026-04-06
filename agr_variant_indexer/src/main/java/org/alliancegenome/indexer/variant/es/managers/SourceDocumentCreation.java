@@ -54,7 +54,6 @@ public class SourceDocumentCreation extends Thread {
 	private ProcessDisplayHelper ph1 = new ProcessDisplayHelper(VariantConfigHelper.getDisplayInterval());
 	private ProcessDisplayHelper ph2 = new ProcessDisplayHelper(VariantConfigHelper.getDisplayInterval());
 	private ProcessDisplayHelper ph3 = new ProcessDisplayHelper(VariantConfigHelper.getDisplayInterval());
-	private ProcessDisplayHelper ph4 = new ProcessDisplayHelper(VariantConfigHelper.getDisplayInterval());
 
 	private VariantSummaryConverter variantSummaryConverter;
 	private SequenceSummaryConverter sequenceSummaryConverter;
@@ -62,19 +61,19 @@ public class SourceDocumentCreation extends Thread {
 
 	private String messageHeader = "";
 
-	public SourceDocumentCreation(String downloadPath, DownloadSource source, GeneDocumentCache geneCache, HashSet<String> variantsCache, Map<String, Integer> severityRanking) {
+	public SourceDocumentCreation(String downloadPath, DownloadSource source, GeneDocumentCache geneCache, HashSet<String> variantsCache, Map<String, Integer> severityRanking, LinkedBlockingDeque<List<byte[]>> jsonQueue) {
 		this.downloadPath = downloadPath;
 		this.source = source;
 		this.geneCache = geneCache;
 		this.variantsCache = variantsCache;
 		this.severityRanking = severityRanking;
+		this.jsonQueue = jsonQueue;
 		speciesType = SpeciesType.getTypeByID(source.getTaxonId());
 		messageHeader = speciesType.getModName() + " ";
 		int vcQueueSize = source.getVcQueueSize() != null ? source.getVcQueueSize() : VariantConfigHelper.getSourceDocumentCreatorVCQueueSize();
 		int objectQueueSize = source.getObjectQueueSize() != null ? source.getObjectQueueSize() : VariantConfigHelper.getSourceDocumentCreatorObjectQueueSize();
 		vcQueue = new LinkedBlockingDeque<>(vcQueueSize);
 		objectQueue = new LinkedBlockingDeque<>(objectQueueSize);
-		jsonQueue = new LinkedBlockingDeque<>(250);
 	}
 
 	@Override
@@ -111,16 +110,6 @@ public class SourceDocumentCreation extends Thread {
 			JSONProducer producer = new JSONProducer();
 			producer.start();
 			producers.add(producer);
-		}
-
-		int shardCount = VariantConfigHelper.getIndexerShards();
-
-		ph4.startProcess(messageHeader + "RoutedBulkIndexers");
-		ArrayList<RoutedBulkIndexer> indexers = new ArrayList<>();
-		for (int i = 0; i < shardCount * 4; i++) {
-			RoutedBulkIndexer indexer = new RoutedBulkIndexer(jsonQueue, indexName, messageHeader + "BP(" + (i + 1) + ")", ph4);
-			indexer.start();
-			indexers.add(indexer);
 		}
 
 		try {
@@ -161,25 +150,10 @@ public class SourceDocumentCreation extends Thread {
 			log.info(messageHeader + "JSONProducers shutdown");
 			ph3.finishProcess();
 
-			log.info(messageHeader + "Waiting for jsonQueues to empty");
-			while (!jsonQueue.isEmpty()) {
-				Thread.sleep(1000);
-			}
-
-			log.info(messageHeader + "Shutting down bulk indexers");
-			for (RoutedBulkIndexer indexer : indexers) {
-				indexer.interrupt();
-				indexer.join();
-			}
-			ph4.finishProcess();
-			log.info(messageHeader + "Bulk Indexers shutdown");
-			
 		} catch (Exception e) {
 			ExceptionCatcher.report(e);
 			e.printStackTrace();
 		}
-
-		log.info(messageHeader + "Bulk Processors finished");
 	}
 
 	private class VCFReader extends Thread {
@@ -303,6 +277,8 @@ public class SourceDocumentCreation extends Thread {
 
 	private class JSONProducer extends Thread {
 
+		private final long workBucketMaxBytes = VariantConfigHelper.getSourceDocumentCreatorJsonQueueBucketSize();
+
 		private ObjectMapper mapper = RestConfig.createSmileObjectMapper();
 		private ObjectWriter cachedWriter;
 		private ObjectWriter sequenceWriter;
@@ -314,24 +290,23 @@ public class SourceDocumentCreation extends Thread {
 			searchWriter = mapper.writerWithView(CurationView.VariantSearchResultDocument.class);
 			cachedWriter = mapper.writerWithView(CurationView.VariantSummaryDocument.class);
 			sequenceWriter = mapper.writerWithView(CurationView.SequenceSummaryDocument.class);
+
+			List<byte[]> workBucket = new ArrayList<>();
+			long workBucketBytes = 0;
+
 			while (!(Thread.currentThread().isInterrupted())) {
 				try {
 					List<ESDocument> docList = objectQueue.take();
-
-					List<byte[]> workBucket = new ArrayList<>();
 
 					if (!docList.isEmpty()) {
 						for (ESDocument doc : docList) {
 							try {
 								byte[] smileDoc = null;
 								if (doc instanceof SequenceSummaryDocument ssd) {
-									//jsonDoc = sequenceWriter.writeValueAsString(ssd);
 									smileDoc = sequenceWriter.writeValueAsBytes(ssd);
 								} else if (doc instanceof VariantSummaryDocument vsd) {
-									//jsonDoc = cachedWriter.writeValueAsString(vsd);
 									smileDoc = cachedWriter.writeValueAsBytes(vsd);
 								} else if (doc instanceof VariantSearchResultDocument vsrd) {
-									//jsonDoc = searchWriter.writeValueAsString(vsrd);
 									smileDoc = searchWriter.writeValueAsBytes(vsrd);
 								} else {
 									log.error("Unexpected ESDocument type: " + doc.getClass().getName());
@@ -339,20 +314,14 @@ public class SourceDocumentCreation extends Thread {
 								}
 
 								workBucket.add(smileDoc);
+								workBucketBytes += smileDoc.length;
 
-								// Left here for debugging purposes
-//								ph5.progressProcess("M: " + (int) mean + " SD: " + (int) sd + " SK: " + skew
-//									//+ " lw: " + lowerWidth + " uw: " + upperWidth + " t1: " + t1 + " t2: " + t2 + " t3: " + t3 + " t4: " + t4 + " t5: " + t5 + " t6: " + t6 + " t7: " + t7
-//									+ " jsonQueue1(" + jqs[0][0] + "," + jqs[0][1] + "," + jqs[0][2] + "): " + jsonQueue1.size()
-//									+ " jsonQueue2(" + jqs[1][0] + "," + jqs[1][1] + "," + jqs[1][2] + "): " + jsonQueue2.size()
-//									+ " jsonQueue3(" + jqs[2][0] + "," + jqs[2][1] + "," + jqs[2][2] + "): " + jsonQueue3.size()
-//									+ " jsonQueue4(" + jqs[3][0] + "," + jqs[3][1] + "," + jqs[3][2] + "): " + jsonQueue4.size()
-//									+ " jsonQueue5(" + jqs[4][0] + "," + jqs[4][1] + "," + jqs[4][2] + "): " + jsonQueue5.size()
-//									+ " jsonQueue6(" + jqs[5][0] + "," + jqs[5][1] + "," + jqs[5][2] + "): " + jsonQueue6.size()
-//									+ " jsonQueue7(" + jqs[6][0] + "," + jqs[6][1] + "," + jqs[6][2] + "): " + jsonQueue7.size()
-//									+ " jsonQueue8(" + jqs[7][0] + "," + jqs[7][1] + "," + jqs[7][2] + "): " + jsonQueue8.size()
-//								);
-								
+								if (workBucketBytes >= workBucketMaxBytes) {
+									jsonQueue.put(workBucket);
+									workBucket = new ArrayList<>();
+									workBucketBytes = 0;
+								}
+
 								ph3.progressProcess();
 
 							} catch (Exception e) {
@@ -360,21 +329,19 @@ public class SourceDocumentCreation extends Thread {
 								e.printStackTrace();
 							}
 						}
-
-						try {
-							if (workBucket.size() > 0) {
-								jsonQueue.put(workBucket);
-							}
-							
-						} catch (InterruptedException e) {
-							ExceptionCatcher.report(e);
-							e.printStackTrace();
-						}
 					}
 				} catch (InterruptedException e) {
 					Thread.currentThread().interrupt();
 				}
+			}
 
+			// Flush remaining docs
+			try {
+				if (!workBucket.isEmpty()) {
+					jsonQueue.put(workBucket);
+				}
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
 			}
 		}
 	}
