@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.alliancegenome.es.model.search.AggDocCount;
 import org.alliancegenome.es.model.search.AggResult;
 import org.alliancegenome.es.model.search.Category;
 import org.elasticsearch.action.search.SearchResponse;
@@ -96,6 +95,7 @@ public class SearchHelper {
 					add("alterationType");
 					add("variantType");
 					add("molecularConsequence");
+					add("diseasesAgrSlim");
 					add("genes");
 				}
 			});
@@ -338,7 +338,6 @@ public class SearchHelper {
 			Terms aggs = res.getAggregations().get("categories");
 			Set<String> acceptableKeys = new HashSet<>(categoryFilters.keySet());
 			AggResult ares = new AggResult("category", aggs, acceptableKeys);
-			mergeAlleleVariantBuckets(ares);
 			orderCategoryBuckets(ares);
 			ret.add(ares);
 		} else {
@@ -352,24 +351,6 @@ public class SearchHelper {
 		}
 
 		return ret;
-	}
-
-	/**
-	 * Merge the "allele_search_results" and "variant_search_results" aggregation buckets into a single "allele_search_results" bucket.
-	 */
-	private void mergeAlleleVariantBuckets(AggResult aggResult) {
-		long combinedCount = 0;
-		List<AggDocCount> toRemove = new ArrayList<>();
-		for (AggDocCount bucket : aggResult.getValues()) {
-			if (bucket.getKey().equals(Category.ALLELE.getName()) || bucket.getKey().equals(Category.VARIANT.getName())) {
-				combinedCount += bucket.getTotal();
-				toRemove.add(bucket);
-			}
-		}
-		aggResult.getValues().removeAll(toRemove);
-		if (combinedCount > 0) {
-			aggResult.getValues().add(new AggDocCount(Category.ALLELE.getName(), combinedCount));
-		}
 	}
 
 	private void orderCategoryBuckets(AggResult aggResult) {

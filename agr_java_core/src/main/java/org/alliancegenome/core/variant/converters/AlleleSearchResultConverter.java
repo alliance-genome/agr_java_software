@@ -79,6 +79,10 @@ public class AlleleSearchResultConverter {
 				searchDoc.setGenes(List.of(geneSymbol));
 			}
 
+			if (doc.getGeneSynonyms() != null && !doc.getGeneSynonyms().isEmpty()) {
+				searchDoc.setGeneSynonyms(doc.getGeneSynonyms());
+			}
+
 			if (doc.getCrossReference() != null && doc.getCrossReference().getReferencedCurie() != null) {
 				searchDoc.setModCrossRefCompleteUrl(doc.getCrossReference().getReferencedCurie());
 			}
