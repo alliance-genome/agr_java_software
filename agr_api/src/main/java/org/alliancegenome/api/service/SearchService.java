@@ -7,7 +7,6 @@ import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.multiMatchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
-import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -242,12 +241,7 @@ public class SearchService {
 
 		// apply filters if a category has been set
 		if (StringUtils.isNotEmpty(category)) {
-			if (Category.ALLELE.getName().equals(category)) {
-				bool.filter(termsQuery("category", Category.ALLELE.getName(), Category.VARIANT.getName()));
-			} else {
-				bool.filter(new TermQueryBuilder("category", category));
-			}
-
+			bool.filter(new TermQueryBuilder("category", category));
 			// expand the map of lists and add each key,value pair as filters
 			filters.entrySet().stream().forEach(entry -> entry.getValue().stream().forEach(value -> {
 				if (value.charAt(0) == '-') {
@@ -338,7 +332,7 @@ public class SearchService {
 			links.add(getRelatedDataLink(Category.GENE.getName(), "diseasesWithParents", nameKey));
 			links.add(getRelatedDataLink(Category.ALLELE.getName(), "diseasesWithParents", nameKey));
 			links.add(getRelatedDataLink(Category.MODEL.getName(), "diseasesWithParents", nameKey));
-		} else if (StringUtils.equals(category, Category.ALLELE.getName()) && StringUtils.equals((String) result.get("alterationType"), "allele")) {
+		} else if (StringUtils.equals(category, Category.ALLELE.getName())) {
 			links.add(getRelatedDataLink(Category.DISEASE.getName(), "alleles", nameKey));
 			links.add(getRelatedDataLink(Category.GENE.getName(), "alleles", nameKey));
 			links.add(getRelatedDataLink(Category.MODEL.getName(), "alleles", nameKey));
