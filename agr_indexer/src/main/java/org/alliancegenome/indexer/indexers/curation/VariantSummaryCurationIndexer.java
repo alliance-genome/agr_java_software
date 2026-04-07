@@ -1,12 +1,15 @@
 package org.alliancegenome.indexer.indexers.curation;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.core.variant.converters.VariantSearchResultConverter;
 import org.alliancegenome.curation_api.interfaces.document.VariantDocumentInterface;
 import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
 import org.alliancegenome.curation_api.response.SearchResponse;
+import org.alliancegenome.es.model.VariantSearchResultDocument;
 import org.alliancegenome.es.rest.RestConfig;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;
@@ -23,6 +26,8 @@ public class VariantSummaryCurationIndexer extends Indexer {
 
 	private final VariantDocumentInterface variantApi = RestProxyFactory.createProxy(VariantDocumentInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 
+	private VariantSearchResultConverter variantSearchResultConverter = new VariantSearchResultConverter();
+	
 	private final HashMap<String, Object> params = new HashMap<>() {
 		{
 			put("internal", false);
@@ -66,8 +71,11 @@ public class VariantSummaryCurationIndexer extends Indexer {
 				String page = queue.takeFirst();
 				
 				SearchResponse<VariantSummaryDocument> response = variantApi.findDocuments(Integer.valueOf(page), indexerConfig.getBufferSize(), params);
-				
 				indexDocuments(response.getResults());
+				
+				List<VariantSearchResultDocument> vsrd = variantSearchResultConverter.convertToVariantSearchDocument(response.getResults());
+				indexDocuments(vsrd);
+				
 			} catch (Exception e) {
 				log.error("Error while indexing...", e);
 				ExceptionCatcher.report(e);
