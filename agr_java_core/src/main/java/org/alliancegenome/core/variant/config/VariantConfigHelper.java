@@ -21,6 +21,7 @@ import static org.alliancegenome.core.config.Constants.VARIANT_SOURCE_DOCUMENT_C
 import static org.alliancegenome.core.config.Constants.VARIANT_SOURCE_DOCUMENT_CREATOR_THREADS;
 import static org.alliancegenome.core.config.Constants.VARIANT_SOURCE_DOCUMENT_CREATOR_VCQUEUE_BUCKET_SIZE;
 import static org.alliancegenome.core.config.Constants.VARIANT_SOURCE_DOCUMENT_CREATOR_VCQUEUE_SIZE;
+import static org.alliancegenome.core.config.Constants.VARIANT_SOURCE_DOCUMENT_CREATOR_JSON_QUEUE_BUCKET_SIZE;
 import static org.alliancegenome.core.config.Constants.VARIANT_TRANSFORMER_THREADS;
 
 import java.util.HashMap;
@@ -82,8 +83,8 @@ public class VariantConfigHelper {
 		defaults.put(VARIANT_SOURCE_DOCUMENT_CREATOR_VCQUEUE_BUCKET_SIZE, "25");
 		defaults.put(VARIANT_SOURCE_DOCUMENT_CREATOR_OBJECT_QUEUE_SIZE, "125");
 		defaults.put(VARIANT_SOURCE_DOCUMENT_CREATOR_OBJECT_QUEUE_BUCKET_SIZE, "120");
-		
-		
+		defaults.put(VARIANT_SOURCE_DOCUMENT_CREATOR_JSON_QUEUE_BUCKET_SIZE, String.valueOf(1 * 1024 * 1024));
+
 		defaults.put(VARIANT_PRODUCER_THREADS, "32");
 		defaults.put(VARIANT_TRANSFORMER_THREADS, "12");
 		
@@ -335,6 +336,17 @@ public class VariantConfigHelper {
 		}
 	}
 	
+	public static long getSourceDocumentCreatorJsonQueueBucketSize() {
+		if (!init) {
+			init();
+		}
+		try {
+			return Long.parseLong(config.get(VARIANT_SOURCE_DOCUMENT_CREATOR_JSON_QUEUE_BUCKET_SIZE));
+		} catch (NumberFormatException e) {
+			return 1024 * 1024;
+		}
+	}
+
 	public static int getIndexerBulkProcessorThreads() {
 		if (!init) {
 			init();

@@ -1,4 +1,4 @@
-package org.alliancegenome.indexer.indexers.curation.interfaces;
+package org.alliancegenome.es.util;
 
 import java.util.Map;
 
@@ -21,4 +21,8 @@ public interface ElasticSearchInterface {
 	@GET
 	@Path("/{index}/_count")
 	Map<String, Object> count(@PathParam("index") String index);
+
+	@GET
+	@Path("/_nodes/os")
+	Map<String, Object> getNodesOs();
 }
