@@ -126,11 +126,15 @@ public class AlleleSearchResultConverter {
 				}
 
 				Set<String> consequences = new HashSet<>();
+				Set<String> variantHgvs = new HashSet<>();
 				for (var variant : doc.getVariants()) {
 					if (variant.getCuratedVariantGenomicLocations() == null) {
 						continue;
 					}
 					for (var location : variant.getCuratedVariantGenomicLocations()) {
+						if (location.getHgvs() != null) {
+							variantHgvs.add(location.getHgvs());
+						}
 						if (location.getPredictedVariantConsequences() == null) {
 							continue;
 						}
@@ -148,6 +152,9 @@ public class AlleleSearchResultConverter {
 				}
 				if (!consequences.isEmpty()) {
 					searchDoc.setMolecularConsequence(consequences);
+				}
+				if (!variantHgvs.isEmpty()) {
+					searchDoc.setVariantHgvs(variantHgvs);
 				}
 			}
 

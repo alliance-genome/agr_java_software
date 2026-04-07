@@ -27,6 +27,7 @@ public class AlleleSearchResultDocument extends ESDocument {
 	private String alterationType;
 	private List<String> variantType;
 	private Set<String> molecularConsequence;
+	private Set<String> variantHgvs;
 	private Set<String> constructExpressedComponent;
 	private Set<String> constructRegulatoryRegion;
 	private Set<String> constructKnockdownComponent;
