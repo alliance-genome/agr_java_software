@@ -17,7 +17,7 @@ public class AlleleSequenceSummaryConverter {
 		List<SequenceSummaryDocument> result = new ArrayList<>();
 
 		for (AlleleSummaryDocument doc : alleleDocs) {
-			if (CollectionUtils.isEmpty(doc.getVariants())) {
+			if (CollectionUtils.isEmpty(doc.getVariantList())) {
 				continue;
 			}
 
@@ -26,7 +26,7 @@ public class AlleleSequenceSummaryConverter {
 				geneIds.add(doc.getAlleleOfGene().getPrimaryExternalId());
 			}
 
-			for (Variant variant : doc.getVariants()) {
+			for (Variant variant : doc.getVariantList()) {
 				if (CollectionUtils.isEmpty(variant.getCuratedVariantGenomicLocations())) {
 					continue;
 				}

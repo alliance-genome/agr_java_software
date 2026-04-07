@@ -115,8 +115,8 @@ public class AlleleSearchResultConverter {
 				searchDoc.setConstructKnockdownComponent(doc.getConstructKnockdownComponents());
 			}
 
-			if (CollectionUtils.isNotEmpty(doc.getVariants())) {
-				List<String> variantTypes = doc.getVariants().stream()
+			if (CollectionUtils.isNotEmpty(doc.getVariantList())) {
+				List<String> variantTypes = doc.getVariantList().stream()
 					.filter(v -> v.getVariantType() != null && v.getVariantType().getName() != null)
 					.map(v -> v.getVariantType().getName())
 					.distinct()
@@ -127,7 +127,7 @@ public class AlleleSearchResultConverter {
 
 				Set<String> consequences = new HashSet<>();
 				Set<String> variantHgvs = new HashSet<>();
-				for (var variant : doc.getVariants()) {
+				for (var variant : doc.getVariantList()) {
 					if (variant.getCuratedVariantGenomicLocations() == null) {
 						continue;
 					}
@@ -154,7 +154,7 @@ public class AlleleSearchResultConverter {
 					searchDoc.setMolecularConsequence(consequences);
 				}
 				if (!variantHgvs.isEmpty()) {
-					searchDoc.setVariantSynonym(variantHgvs);
+					searchDoc.setVariants(variantHgvs);
 				}
 			}
 

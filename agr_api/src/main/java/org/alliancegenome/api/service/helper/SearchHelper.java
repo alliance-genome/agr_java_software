@@ -216,8 +216,6 @@ public class SearchHelper {
 			add("variants");
 			add("variants.keyword");
 			add("variants.standardText");
-			add("variantSynonym");
-			add("variantSynonym.keyword");
 			add("variantSynonyms");
 			add("variantSynonyms.keyword");
 			add("variantSynonyms.standardText");

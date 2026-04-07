@@ -275,7 +275,7 @@ public class VariantSummaryConverter {
 			variantWrapper.setTaxon(taxon);
 			variantWrapper.setCuratedVariantGenomicLocations(List.of(cvgla));
 			variantWrapper.setCrossReferences(variant.getCrossReferences());
-			doc.setVariants(List.of(variantWrapper));
+			doc.setVariantList(List.of(variantWrapper));
 			doc.setGeneIds(resultPair.getRight());
 			returnDocuments.add(doc);
 		}
