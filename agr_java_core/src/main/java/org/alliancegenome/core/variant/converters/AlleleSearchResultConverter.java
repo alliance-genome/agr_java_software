@@ -154,7 +154,7 @@ public class AlleleSearchResultConverter {
 					searchDoc.setMolecularConsequence(consequences);
 				}
 				if (!variantHgvs.isEmpty()) {
-					searchDoc.setVariantHgvs(variantHgvs);
+					searchDoc.setVariantSynonym(variantHgvs);
 				}
 			}
 

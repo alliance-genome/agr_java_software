@@ -99,7 +99,7 @@ public class Mapping extends Builder {
 		new FieldBuilder(builder, "symbolText", "text").keyword().standardText().build(); // allele
 
 		//new FieldBuilder(builder, "variants", "text").keyword().standardText().build(); // allele
-		new FieldBuilder(builder, "variantHgvs", "text").keyword().build(); // allele - HGVS notation for searchability
+		new FieldBuilder(builder, "variantSynonym", "text").keyword().build(); // allele - HGVS notation for searchability
 		new FieldBuilder(builder, "variantType", "text").keyword().build(); // variant search result
 		//new FieldBuilder(builder, "variantSynonyms", "text").keyword().standardText().build(); // allele
 
