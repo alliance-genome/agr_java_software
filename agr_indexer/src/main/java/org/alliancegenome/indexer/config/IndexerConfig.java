@@ -21,7 +21,6 @@ import org.alliancegenome.indexer.indexers.curation.PhenotypeAnnotationCurationI
 import org.alliancegenome.indexer.indexers.curation.ReleaseInfoIndexer;
 import org.alliancegenome.indexer.indexers.curation.SiteMapAccessionCurationIndexer;
 import org.alliancegenome.indexer.indexers.curation.TransgenicAlleleCurationIndexer;
-import org.alliancegenome.indexer.indexers.curation.VariantSummaryCurationIndexer;
 
 public enum IndexerConfig {
 
@@ -39,7 +38,7 @@ public enum IndexerConfig {
 	AffectedGenomicModelAnnotationIndexer("agmAnnotation", AGMAnnotationCurationIndexer.class, 4, 1500, 1500, 8, 1, true),
 	GeneSearchResultCurationIndexer("geneSearchResult", GeneSearchResultCurationIndexer.class, 4, 1000, 1500, 4, 1, true),
 	GeneSummaryIndexer("geneSummary", GeneSummaryCurationIndexer.class, 4, 1500, 1500, 4, 1, true),
-	VariantSummaryIndexer("variantSummary", VariantSummaryCurationIndexer.class, 1, 3000, 1500, 8, 1, true),
+	//VariantSummaryIndexer("variantSummary", VariantSummaryCurationIndexer.class, 1, 3000, 1500, 8, 1, true),
 	GeneGeneticInteractionIndexers("geneGeneticInteraction", GeneGeneticInteractionCurationIndexer.class, 4, 1500, 1500, 2, 1, true),
 	HTPDatasetSearchResultCurationIndexer("htpDatasetSearchResult", HTPDatasetSearchResultCurationIndexer.class, 4, 1500, 1500, 4, 1, true),
 	LiteratureIndexer("literature", LiteratureIndexer.class, 4, 5000, 5000, 1, 1, true),

@@ -38,7 +38,7 @@ public class VariantMapping extends Mapping {
 			builder.endObject();
 			builder.endObject();
 
-			builder.startObject("variants");
+			builder.startObject("variantList");
 			builder.field("dynamic", false);
 			builder.startObject("properties");
 			new FieldBuilder(builder, "variantType.name", "text").keyword().sortLowercase().build();

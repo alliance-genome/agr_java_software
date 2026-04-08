@@ -64,8 +64,8 @@ public class AlleleToTdfTranslator {
 
 	private List<Variant> getVariants(AVSParentDocument doc) {
 		return switch (doc) {
-			case AlleleSummaryDocument asd -> asd.getVariants();
-			case VariantSummaryDocument vsd -> vsd.getVariants();
+			case AlleleSummaryDocument asd -> asd.getVariantList();
+			case VariantSummaryDocument vsd -> vsd.getVariantList();
 			default -> null;
 		};
 	}
@@ -252,7 +252,7 @@ public class AlleleToTdfTranslator {
 
 	private VariantDownloadRow getBaseDownloadVariantRow(VariantSummaryDocument annotation) {
 		VariantDownloadRow row = new VariantDownloadRow();
-		Variant rootVariant = annotation.getVariants().getFirst();
+		Variant rootVariant = annotation.getVariantList().getFirst();
 		CuratedVariantGenomicLocationAssociation variant = rootVariant.getCuratedVariantGenomicLocations().getFirst();
 		if (variant == null) {
 			return row;

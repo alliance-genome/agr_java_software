@@ -87,6 +87,13 @@ public class AlleleSearchResultConverter {
 				searchDoc.setModCrossRefCompleteUrl(doc.getCrossReference().getReferencedCurie());
 			}
 
+			Set<String> crossRefs = new HashSet<>();
+			crossRefs.add(allele.getPrimaryExternalId());
+			if (doc.getAlleleOfGene() != null && doc.getAlleleOfGene().getPrimaryExternalId() != null) {
+				crossRefs.add(doc.getAlleleOfGene().getPrimaryExternalId());
+			}
+			searchDoc.setCrossReferences(crossRefs);
+
 			if (allele.getPopularity() != null) {
 				searchDoc.setPopularity(allele.getPopularity());
 			} else {
@@ -103,6 +110,10 @@ public class AlleleSearchResultConverter {
 				searchDoc.setDiseasesWithParents(new ArrayList<>(doc.getDiseasesWithParents()));
 			}
 
+			if (doc.getPhenotypeStatements() != null && !doc.getPhenotypeStatements().isEmpty()) {
+				searchDoc.setPhenotypeStatements(new ArrayList<>(doc.getPhenotypeStatements()));
+			}
+
 			if (doc.getConstructExpressedComponents() != null && !doc.getConstructExpressedComponents().isEmpty()) {
 				searchDoc.setConstructExpressedComponent(doc.getConstructExpressedComponents());
 			}
@@ -115,8 +126,8 @@ public class AlleleSearchResultConverter {
 				searchDoc.setConstructKnockdownComponent(doc.getConstructKnockdownComponents());
 			}
 
-			if (CollectionUtils.isNotEmpty(doc.getVariants())) {
-				List<String> variantTypes = doc.getVariants().stream()
+			if (CollectionUtils.isNotEmpty(doc.getVariantList())) {
+				List<String> variantTypes = doc.getVariantList().stream()
 					.filter(v -> v.getVariantType() != null && v.getVariantType().getName() != null)
 					.map(v -> v.getVariantType().getName())
 					.distinct()
@@ -126,11 +137,15 @@ public class AlleleSearchResultConverter {
 				}
 
 				Set<String> consequences = new HashSet<>();
-				for (var variant : doc.getVariants()) {
+				Set<String> variantHgvs = new HashSet<>();
+				for (var variant : doc.getVariantList()) {
 					if (variant.getCuratedVariantGenomicLocations() == null) {
 						continue;
 					}
 					for (var location : variant.getCuratedVariantGenomicLocations()) {
+						if (location.getHgvs() != null) {
+							variantHgvs.add(location.getHgvs());
+						}
 						if (location.getPredictedVariantConsequences() == null) {
 							continue;
 						}
@@ -148,6 +163,9 @@ public class AlleleSearchResultConverter {
 				}
 				if (!consequences.isEmpty()) {
 					searchDoc.setMolecularConsequence(consequences);
+				}
+				if (!variantHgvs.isEmpty()) {
+					searchDoc.setVariants(variantHgvs);
 				}
 			}
 

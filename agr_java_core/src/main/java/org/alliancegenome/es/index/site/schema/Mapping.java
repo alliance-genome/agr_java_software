@@ -98,9 +98,8 @@ public class Mapping extends Builder {
 		new FieldBuilder(builder, "molecularConsequence", "text").keyword().build(); // allele
 		new FieldBuilder(builder, "symbolText", "text").keyword().standardText().build(); // allele
 
-		//new FieldBuilder(builder, "variants", "text").keyword().standardText().build(); // allele
+		new FieldBuilder(builder, "variants", "text").keyword().standardText().build(); // allele - HGVS notation
 		new FieldBuilder(builder, "variantType", "text").keyword().build(); // variant search result
-		//new FieldBuilder(builder, "variantSynonyms", "text").keyword().standardText().build(); // allele
 
 		// Gene Only Fields
 		new FieldBuilder(builder, "biologicalProcessAgrSlim", "text").keyword().build(); // gene
@@ -286,13 +285,13 @@ public class Mapping extends Builder {
 		builder.endObject();
 
 		new FieldBuilder(builder, "geneIds", "keyword").build();
-		builder.startObject("variants");
+		builder.startObject("variantList");
 		builder.field("type", "object");
 		builder.field("dynamic", false);
 		builder.endObject();
-		new FieldBuilder(builder, "variants.variantType.name", "text").keyword().sortSmartAlpha().build();
-		new FieldBuilder(builder, "variants.curatedVariantGenomicLocations.predictedVariantConsequences.vepConsequences.name", "text").keyword().sortSmartAlpha().build();
-		new FieldBuilder(builder, "variants.curatedVariantGenomicLocations.hgvs", "text").keyword().sortSmartAlpha().build();
+		new FieldBuilder(builder, "variantList.variantType.name", "text").keyword().sortSmartAlpha().build();
+		new FieldBuilder(builder, "variantList.curatedVariantGenomicLocations.predictedVariantConsequences.vepConsequences.name", "text").keyword().sortSmartAlpha().build();
+		new FieldBuilder(builder, "variantList.curatedVariantGenomicLocations.hgvs", "text").keyword().sortSmartAlpha().build();
 		builder.startObject("crossReference");
 		builder.field("type", "object");
 		builder.field("dynamic", false);

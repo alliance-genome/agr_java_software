@@ -37,9 +37,9 @@ public class TestSynonyms {
 		System.out.println("=== Step 1: AlleleSummaryDocument from API ===");
 		for (AlleleSummaryDocument doc : response.getResults()) {
 			System.out.println("Allele symbol: " + (doc.getAllele() != null && doc.getAllele().getAlleleSymbol() != null ? doc.getAllele().getAlleleSymbol().getDisplayText() : "null"));
-			System.out.println("Variants: " + (doc.getVariants() != null ? doc.getVariants().size() : "null"));
-			if (doc.getVariants() != null) {
-				for (Variant v : doc.getVariants()) {
+			System.out.println("Variants: " + (doc.getVariantList() != null ? doc.getVariantList().size() : "null"));
+			if (doc.getVariantList() != null) {
+				for (Variant v : doc.getVariantList()) {
 					System.out.println("  Variant type: " + (v.getVariantType() != null ? v.getVariantType().getName() : "null"));
 					if (v.getCuratedVariantGenomicLocations() != null) {
 						for (CuratedVariantGenomicLocationAssociation loc : v.getCuratedVariantGenomicLocations()) {
