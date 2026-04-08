@@ -143,7 +143,7 @@ public class VariantESDAO extends ESDAO {
 
 		BoolQueryBuilder bool = boolQuery();
 		bool.filter(new TermQueryBuilder("category", "variant_summary"));
-		bool.must(new TermQueryBuilder("variants.curatedVariantGenomicLocations.hgvs.keyword", id));
+		bool.must(new TermQueryBuilder("variantList.curatedVariantGenomicLocations.hgvs.keyword", id));
 
 		SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
 		searchSourceBuilder.query(bool);
@@ -167,7 +167,7 @@ public class VariantESDAO extends ESDAO {
 		for (SearchHit hit : searchHits) {
 			try {
 				VariantSummaryDocument summaryDoc = mapper.readValue(hit.getSourceAsString(), VariantSummaryDocument.class);
-				if (summaryDoc != null && summaryDoc.getVariantList() != null && !summaryDoc.getVariantList().isEmpty()) {
+				if (summaryDoc != null && summaryDoc.getVariants() != null && !summaryDoc.getVariants().isEmpty()) {
 					return summaryDoc;
 				}
 			} catch (IOException e) {

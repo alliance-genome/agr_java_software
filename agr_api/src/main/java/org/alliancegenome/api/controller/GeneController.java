@@ -105,12 +105,12 @@ public class GeneController implements GeneRESTInterface {
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
 		pagination.addFilterOption("symbol", symbol);
 		pagination.addFilterOption("allele.alleleSynonyms.displayText", synonym);
-		pagination.addFilterOption("variants.curatedVariantGenomicLocations.hgvs", variant);
+		pagination.addFilterOption("variantList.curatedVariantGenomicLocations.hgvs", variant);
 		pagination.addFilterOption("alterationType.keyword", category);
-		pagination.addFilterOption("variants.variantType.name.keyword", variantType);
+		pagination.addFilterOption("variantList.variantType.name.keyword", variantType);
 		pagination.addFilterOption("hasDisease", hasDisease);
 		pagination.addFilterOption("hasPhenotype", hasPhenotype);
-		pagination.addFilterOption("variants.curatedVariantGenomicLocations.predictedVariantConsequences.vepConsequences.name.keyword", molecularConsequence);
+		pagination.addFilterOption("variantList.curatedVariantGenomicLocations.predictedVariantConsequences.vepConsequences.name.keyword", molecularConsequence);
 
 		if (pagination.hasErrors()) {
 			RestErrorMessage message = new RestErrorMessage();

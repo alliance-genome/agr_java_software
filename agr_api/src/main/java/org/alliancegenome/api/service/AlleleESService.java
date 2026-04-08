@@ -41,13 +41,13 @@ public class AlleleESService extends ESService {
 	}};
 
 	LinkedHashMap<String, SortOrder> variantTypeSortMap = new LinkedHashMap<>() {{
-		put("variants.variantType.name.sort", SortOrder.ASC);
+		put("variantList.variantType.name.sort", SortOrder.ASC);
 		put("symbol.sort", SortOrder.ASC);
 	}};
 
 	LinkedHashMap<String, SortOrder> molecualarConsequenceSortMap = new LinkedHashMap<>() {{
-		put("variants.curatedVariantGenomicLocations.predictedVariantConsequences.vepConsequences.name.sort", SortOrder.ASC);
-		put("variants.variantType.name.sort", SortOrder.ASC);
+		put("variantList.curatedVariantGenomicLocations.predictedVariantConsequences.vepConsequences.name.sort", SortOrder.ASC);
+		put("variantList.variantType.name.sort", SortOrder.ASC);
 		put("symbol.sort", SortOrder.ASC);
 	}};
 
@@ -171,8 +171,8 @@ public class AlleleESService extends ESService {
 
 		Map<String, String> aggregationFields = new HashMap<>();
 		aggregationFields.put("alterationType.keyword", "alleleCategory");
-		aggregationFields.put("variants.variantType.name.keyword", "variantType");
-		aggregationFields.put("variants.curatedVariantGenomicLocations.predictedVariantConsequences.vepConsequences.name.keyword", "molecularConsequence");
+		aggregationFields.put("variantList.variantType.name.keyword", "variantType");
+		aggregationFields.put("variantList.curatedVariantGenomicLocations.predictedVariantConsequences.vepConsequences.name.keyword", "molecularConsequence");
 
 		Map<String, List<String>> distinctFieldValueMap = getAggregations(unfilteredQuery, aggregationFields, null, false, false);
 		Map<String, Object> supplementalData = new LinkedHashMap<>();
