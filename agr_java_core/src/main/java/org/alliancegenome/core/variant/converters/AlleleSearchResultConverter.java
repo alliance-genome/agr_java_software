@@ -87,6 +87,13 @@ public class AlleleSearchResultConverter {
 				searchDoc.setModCrossRefCompleteUrl(doc.getCrossReference().getReferencedCurie());
 			}
 
+			Set<String> crossRefs = new HashSet<>();
+			crossRefs.add(allele.getPrimaryExternalId());
+			if (doc.getAlleleOfGene() != null && doc.getAlleleOfGene().getPrimaryExternalId() != null) {
+				crossRefs.add(doc.getAlleleOfGene().getPrimaryExternalId());
+			}
+			searchDoc.setCrossReferences(crossRefs);
+
 			if (allele.getPopularity() != null) {
 				searchDoc.setPopularity(allele.getPopularity());
 			} else {
@@ -101,6 +108,10 @@ public class AlleleSearchResultConverter {
 			}
 			if (doc.getDiseasesWithParents() != null && !doc.getDiseasesWithParents().isEmpty()) {
 				searchDoc.setDiseasesWithParents(new ArrayList<>(doc.getDiseasesWithParents()));
+			}
+
+			if (doc.getPhenotypeStatements() != null && !doc.getPhenotypeStatements().isEmpty()) {
+				searchDoc.setPhenotypeStatements(new ArrayList<>(doc.getPhenotypeStatements()));
 			}
 
 			if (doc.getConstructExpressedComponents() != null && !doc.getConstructExpressedComponents().isEmpty()) {
