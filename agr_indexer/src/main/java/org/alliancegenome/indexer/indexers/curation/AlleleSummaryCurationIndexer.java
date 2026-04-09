@@ -6,9 +6,11 @@ import java.util.concurrent.LinkedBlockingDeque;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.variant.converters.AlleleSearchResultConverter;
 import org.alliancegenome.core.variant.converters.AlleleSequenceSummaryConverter;
+import org.alliancegenome.core.variant.converters.AlleleToVariantSummaryConverter;
 import org.alliancegenome.curation_api.interfaces.document.AlleleDocumentInterface;
 import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
 import org.alliancegenome.curation_api.model.document.es.SequenceSummaryDocument;
+import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
 import org.alliancegenome.es.model.AlleleSearchResultDocument;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.curation_api.view.CurationView;
@@ -30,6 +32,7 @@ public class AlleleSummaryCurationIndexer extends Indexer {
 	private final AlleleDocumentInterface alleleApi = RestProxyFactory.createProxy(AlleleDocumentInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 	private final AlleleSequenceSummaryConverter sequenceSummaryConverter = new AlleleSequenceSummaryConverter();
 	private final AlleleSearchResultConverter alleleSearchResultConverter = new AlleleSearchResultConverter();
+	private final AlleleToVariantSummaryConverter variantSummaryConverter = new AlleleToVariantSummaryConverter();
 
 	private List<List<Long>> idBatches;
 
@@ -79,6 +82,7 @@ public class AlleleSummaryCurationIndexer extends Indexer {
 				// Convert to derived documents first (consumes transport-only fields)
 				List<SequenceSummaryDocument> sequenceDocs = sequenceSummaryConverter.convert(response.getResults());
 				List<AlleleSearchResultDocument> searchDocs = alleleSearchResultConverter.convert(response.getResults());
+				List<VariantSummaryDocument> variantDocs = variantSummaryConverter.convert(response.getResults());
 
 				// Strip fields only needed by derived documents before indexing to ES
 				response.getResults().forEach(AlleleSummaryDocument::removeTransportFields);
@@ -87,6 +91,7 @@ public class AlleleSummaryCurationIndexer extends Indexer {
 				indexDocuments(response.getResults());
 				indexDocuments(sequenceDocs, CurationView.SequenceSummaryDocument.class);
 				indexDocuments(searchDocs);
+				indexDocuments(variantDocs);
 			} catch (Exception e) {
 				log.error("Error while indexing...", e);
 				ExceptionCatcher.report(e);
