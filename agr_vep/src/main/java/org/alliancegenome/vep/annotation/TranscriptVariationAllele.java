@@ -312,6 +312,15 @@ public class TranscriptVariationAllele {
 					vepShift3Prime(n, "del", noStop);
 				}
 
+				// VEP _get_hgvs_peptides line 2072: alt="-" → alt="del"
+				if ("-".equals(n.alt)) n.alt = "del";
+
+				// VEP _get_hgvs_peptides line 2075-2078: start_lost overrides
+				if (result.getConsequence() != null && result.getConsequence().contains("start_lost")) {
+					n.alt = "?";
+					n.type = "";
+				}
+
 				// Set HGVSp results from notation
 				result.setHgvsProteinPosition(n.start);
 				result.setHgvsProteinEnd(n.end);
@@ -633,35 +642,25 @@ public class TranscriptVariationAllele {
 				ap = ac != null && ac.length() > 0 ? translateCds(ac) : "-";
 			}
 
+			// VEP pep_allele_string (line 610-622)
 			if (rp != null) {
 				String rpStr = rp.isEmpty() ? "-" : rp;
-				String apStr = ap.isEmpty() ? "-" : ap;
-				result.setAminoAcids(rpStr.equals(apStr) ? rpStr : rpStr + "/" + apStr);
+				String apStr = (ap == null || ap.isEmpty()) ? "-" : ap;
+				result.setAminoAcids(pepAlleleString(rpStr, apStr));
 			}
 
-			// Display codons
-			String refDisplay, altDisplay;
-			if ("-".equals(rc)) {
-				refDisplay = "-";
-			} else if (isDeletion && rc != null) {
-				int codonPos = (cdsStart - 1) % 3;
-				refDisplay = formatDisplayCodon(rc, codonPos, indelLength);
-			} else if (rc != null) {
-				refDisplay = rc.toLowerCase();
-			} else {
-				refDisplay = "-";
-			}
-
-			if (ac == null || ac.isEmpty()) {
-				altDisplay = "-";
-			} else if (isDeletion) {
-				altDisplay = ac.toLowerCase();
-			} else {
-				// Use VEP-normalized CDS position (higher of the two for insertions)
-				int codonPos = (trStartCds - 1) % 3;
-				altDisplay = formatDisplayCodon(ac, codonPos, indelLength);
-			}
-			result.setCodons(refDisplay + "/" + altDisplay);
+			// VEP display_codon (line 884-915) + display_codon_allele_string (line 658-673)
+			// Exact port: codon_position is 1-based within the codon
+			int codonPosition1 = ((trStartCds - 1) % 3) + 1;
+			// VEP $ref_tva->feature_seq: for ref allele of insertion = "-", otherwise ref bases
+			String refFeatureSeq = "-".equals(refAllele) ? "-" : refAllele;
+			// VEP $self->feature_seq: for alt allele of deletion = "-", otherwise alt bases
+			String altFeatureSeq = "-".equals(vepAllele) ? "-" : vepAllele;
+			String refDisplay = displayCodon(rc, refFeatureSeq, codonPosition1);
+			String altDisplay = displayCodon(ac, altFeatureSeq, codonPosition1);
+			if (refDisplay == null) refDisplay = "-";
+			if (altDisplay == null) altDisplay = "-";
+			result.setCodons(displayCodonAlleleString(refDisplay, altDisplay));
 		}
 
 		// Sort by VEP rank (most severe first) to match VEP output order
@@ -1852,29 +1851,39 @@ public class TranscriptVariationAllele {
 	}
 
 	/**
-	 * VEP display_codon — line 884-915.
-	 * Lowercase codon with uppercase variant bases.
-	 * For insertions (feature_seq = '-'), return all lowercase.
+	 * VEP display_codon — TranscriptVariationAllele.pm line 884-915.
+	 * Exact port. Lowercase codon, then uppercase the variant bases.
 	 *
-	 * @param codon The codon string
-	 * @param codonPos 0-based position within the codon where the variant starts
-	 * @param featureSeqLen Length of the variant allele (0 for deletions)
-	 * @param isRef True for reference allele (deletion case: feature_seq = '-')
+	 * @param codon The codon string from codon()
+	 * @param featureSeq The allele's feature_seq (variant bases, or "-" for indel)
+	 * @param codonPosition 1-based position within the codon (transcript_variation->codon_position)
+	 * @return Display codon string, or null
 	 */
-	public static String displayCodon(String codon, int codonPos, int featureSeqLen, boolean isRef) {
-		if (codon == null || "-".equals(codon)) return codon;
-		String display = codon.toLowerCase();
-		// Line 899: if this allele is an indel then just return all lowercase
-		// For reference allele of insertion or alt allele of deletion: feature_seq = '-'
-		if (featureSeqLen <= 0) return display;
+	public static String displayCodon(String codon, String featureSeq, int codonPosition) {
+		if (codon == null || "-".equals(codon)) return null;
 
-		// Line 902-906: uppercase the variant bases
-		StringBuilder sb = new StringBuilder(display);
-		int end = Math.min(codonPos + featureSeqLen, sb.length());
-		for (int i = codonPos; i < end; i++) {
-			sb.setCharAt(i, Character.toUpperCase(sb.charAt(i)));
+		// Line 894
+		String displayCodon = codon.toLowerCase();
+
+		// Line 896
+		if (codonPosition > 0) {
+			// Line 899: if this allele is an indel then just return all lowercase
+			if (featureSeq != null && !"-".equals(featureSeq) && !featureSeq.isEmpty()) {
+				// Line 902: codon_position is 1-based
+				int pos = codonPosition - 1;
+				// Line 904
+				int len = featureSeq.length();
+				// Line 906: substr($display_codon, $pos, $len) = uc substr(...)
+				StringBuilder sb = new StringBuilder(displayCodon);
+				int end = Math.min(pos + len, sb.length());
+				for (int i = pos; i < end; i++) {
+					sb.setCharAt(i, Character.toUpperCase(sb.charAt(i)));
+				}
+				displayCodon = sb.toString();
+			}
 		}
-		return sb.toString();
+
+		return displayCodon;
 	}
 
 	/**

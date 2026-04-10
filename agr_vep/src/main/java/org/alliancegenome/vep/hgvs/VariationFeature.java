@@ -1,8 +1,14 @@
 package org.alliancegenome.vep.hgvs;
 
+import org.alliancegenome.vep.bio.Sequence;
 import org.alliancegenome.vep.reference.ContigAccessionMap;
 import org.alliancegenome.vep.reference.ReferenceGenome;
 
+/**
+ * Port of Bio::EnsEMBL::Variation::VariationFeature — HGVSg generation.
+ * Uses Sequence.hgvsVariantNotation() and Sequence.formatHgvsString()
+ * matching VEP's hgvs_genomic() line 1852-2000.
+ */
 public class VariationFeature {
 
 	private final ContigAccessionMap contigMap;
@@ -17,95 +23,143 @@ public class VariationFeature {
 		this.reference = reference;
 	}
 
+	/**
+	 * VEP hgvs_genomic() line 1852-2000.
+	 * Generates HGVSg notation for a variant.
+	 */
 	public String generate(String chr, int start, int end, String ref, String alt) {
 		String accession = contigMap.getAccession(chr);
 		if (accession == null) return null;
 
-		// VEP _clip_alleles (VariationFeature.pm line 2003-2061):
-		// Trim common prefix then suffix from ref/alt for HGVS notation.
-		// Only called when initial type is 'delins' (both non-empty).
-		String clipRef = ref;
-		String clipAlt = alt;
-		int clipStart = start;
-		int clipEnd = end;
-		boolean wasClipped = false;
-		if (!"-".equals(clipRef) && !"-".equals(clipAlt)) {
-			wasClipped = true;
-			// Prefix trim
-			while (clipRef.length() > 0 && clipAlt.length() > 0
-					&& clipRef.charAt(0) == clipAlt.charAt(0)) {
-				clipRef = clipRef.substring(1);
-				clipAlt = clipAlt.substring(1);
-				clipStart++;
-			}
-			// Suffix trim
-			while (clipRef.length() > 0 && clipAlt.length() > 0
-					&& clipRef.charAt(clipRef.length() - 1) == clipAlt.charAt(clipAlt.length() - 1)) {
-				clipRef = clipRef.substring(0, clipRef.length() - 1);
-				clipAlt = clipAlt.substring(0, clipAlt.length() - 1);
-				clipEnd--;
-			}
-			if (clipRef.isEmpty()) clipRef = "-";
-			if (clipAlt.isEmpty()) clipAlt = "-";
-		}
+		// VEP line 1901-1902: get flank sequence for dup checking
+		// We use the reference genome directly instead of a flank substring
+		String refSequence = null;
+		if (reference != null) {
+			try {
+				// Get enough flanking sequence for dup detection
+				int flankStart = Math.max(1, start - 100);
+				int flankEnd = end + 100;
+				refSequence = reference.getSequence(chr, flankStart, flankEnd);
+				// Adjust coordinates relative to flank
+				int refStart = start - flankStart + 1;
+				int refEnd = end - flankStart + 1;
 
-		// VEP _clip_alleles type determination (line 2028-2048):
-		// After clipping, checks 1-char substitution BEFORE deletion.
-		// "-" counts as 1 char, so clipped G/"" → G/"-" matches the ">" type.
-		String notation;
-		if ("-".equals(clipRef)) {
-			// Insertion: check for duplication (VEP Sequence.pm line 570-588)
-			if (isDuplication(chr, clipEnd, clipAlt)) {
-				int dupLen = clipAlt.length();
-				if (dupLen == 1) {
-					notation = clipEnd + "dup";
-				} else {
-					notation = (clipEnd - dupLen + 1) + "_" + clipEnd + "dup";
+				// VEP line 1972-1980: hgvs_variant_notation
+				String checkAllele = "-".equals(alt) ? "" : alt;
+				int refLength = "-".equals(ref) ? 0 : ref.length();
+
+				Sequence.HgvsNotation notation = Sequence.hgvsVariantNotation(
+					checkAllele,    // alt allele
+					refSequence,    // reference sequence (flank)
+					refStart,       // start in ref sequence
+					refEnd,         // end in ref sequence
+					start,          // display start (chromosomal)
+					end,            // display end (chromosomal)
+					-1              // dup lookup direction (preceding)
+				);
+
+				if (notation == null) return null;
+
+				// VEP line 1986: _clip_alleles if type is delins
+				if ("delins".equals(notation.type)) {
+					notation = clipAlleles(notation);
 				}
-			} else {
-				notation = clipEnd + "_" + clipStart + "ins" + clipAlt;
-			}
-		} else if (wasClipped && clipRef.length() == 1 && clipAlt.length() == 1
-				&& !clipRef.equals(clipAlt)) {
-			// VEP _clip_alleles line 2033-2038: after clipping, 1-char substitution.
-			// "-" is 1 char, so clipped single-base deletions get ref>- notation.
-			notation = clipStart + clipRef + ">" + clipAlt;
-		} else if ("-".equals(clipAlt)) {
-			// Deletion (pure deletion or multi-base from clipping)
-			if (clipStart == clipEnd) {
-				notation = clipStart + "del";
-			} else {
-				notation = clipStart + "_" + clipEnd + "del";
-			}
-		} else if (clipRef.length() == 1 && clipAlt.length() == 1) {
-			// Regular SNP
-			notation = clipStart + clipRef + ">" + clipAlt;
-		} else {
-			// Complex / delins
-			if (clipStart == clipEnd) {
-				notation = clipStart + "delins" + clipAlt;
-			} else {
-				notation = clipStart + "_" + clipEnd + "delins" + clipAlt;
+
+				// VEP line 1994: format_hgvs_string
+				return Sequence.formatHgvsString(accession, "g", notation);
+
+			} catch (Exception e) {
+				// Fall through to simple generation
 			}
 		}
 
-		return accession + ":g." + notation;
+		// Fallback: simple generation without reference sequence
+		return generateSimple(accession, start, end, ref, alt);
 	}
 
 	/**
-	 * VEP Sequence.pm line 570-588: check if inserted sequence matches
-	 * the preceding reference bases (duplication detection).
+	 * VEP _clip_alleles — VariationFeature.pm line 2003-2061.
+	 * Clips common prefix/suffix from ref/alt for HGVS notation.
+	 * Type determination matches VEP exactly (> check before del).
 	 */
-	private boolean isDuplication(String chr, int precedingPos, String insertedSeq) {
-		if (reference == null) return false;
-		try {
-			int dupLen = insertedSeq.length();
-			int refStart = precedingPos - dupLen + 1;
-			if (refStart < 1) return false;
-			String precedingRef = reference.getSequence(chr, refStart, precedingPos);
-			return insertedSeq.equalsIgnoreCase(precedingRef);
-		} catch (Exception e) {
-			return false;
+	private Sequence.HgvsNotation clipAlleles(Sequence.HgvsNotation n) {
+		String checkRef = n.ref;
+		String checkAlt = n.alt;
+		int checkStart = n.start;
+		int checkEnd = n.end;
+		String preseq = "";
+
+		// Line 2009-2015: prefix trim
+		while (checkRef.length() > 0 && checkAlt.length() > 0
+				&& checkRef.charAt(0) == checkAlt.charAt(0)) {
+			preseq += checkRef.charAt(0);
+			checkRef = checkRef.substring(1);
+			checkAlt = checkAlt.substring(1);
+			checkStart++;
 		}
+
+		// Line 2018-2023: suffix trim
+		while (checkRef.length() > 0 && checkAlt.length() > 0
+				&& checkRef.charAt(checkRef.length() - 1) == checkAlt.charAt(checkAlt.length() - 1)) {
+			checkRef = checkRef.substring(0, checkRef.length() - 1);
+			checkAlt = checkAlt.substring(0, checkAlt.length() - 1);
+			checkEnd--;
+		}
+
+		// Line 2026-2027: empty to dash
+		if (checkRef.isEmpty()) checkRef = "-";
+		if (checkAlt.isEmpty()) checkAlt = "-";
+
+		n.ref = checkRef;
+		n.alt = checkAlt;
+		n.start = checkStart;
+		n.end = checkEnd;
+
+		// Line 2029-2058: type determination
+		if (checkRef.equals(checkAlt)) {
+			n.type = "=";
+		}
+		// Line 2033-2038: 1-char substitution (includes ref>- for clipped deletions)
+		else if (!checkRef.equals("-") && checkRef.length() == 1 && checkAlt.length() == 1
+				&& !checkAlt.equals(checkRef)) {
+			n.type = ">";
+		}
+		// Line 2041-2053: insertion from clipping
+		else if (checkRef.equals("-") && checkAlt.length() >= 1) {
+			String prevStr = preseq.length() >= checkAlt.length()
+				? preseq.substring(preseq.length() - checkAlt.length()) : "";
+			if (prevStr.equals(checkAlt)) {
+				n.type = "dup";
+				n.start -= checkAlt.length();
+			} else {
+				n.type = "ins";
+				n.start--;
+				n.end = n.start + 1;
+			}
+		}
+		// Line 2056-2058: deletion
+		else if (checkRef.length() >= 1 && checkAlt.equals("-")) {
+			n.type = "del";
+		}
+
+		return n;
+	}
+
+	/**
+	 * Simple HGVSg generation without reference sequence lookup.
+	 * Used when reference genome is not available.
+	 */
+	private String generateSimple(String accession, int start, int end, String ref, String alt) {
+		String notation;
+		if ("-".equals(alt)) {
+			notation = (start == end) ? start + "del" : start + "_" + end + "del";
+		} else if ("-".equals(ref)) {
+			notation = end + "_" + start + "ins" + alt;
+		} else if (ref.length() == 1 && alt.length() == 1) {
+			notation = start + ref + ">" + alt;
+		} else {
+			notation = (start == end) ? start + "delins" + alt : start + "_" + end + "delins" + alt;
+		}
+		return accession + ":g." + notation;
 	}
 }
