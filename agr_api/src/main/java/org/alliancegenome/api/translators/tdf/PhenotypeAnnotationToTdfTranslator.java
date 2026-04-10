@@ -1,5 +1,6 @@
 package org.alliancegenome.api.translators.tdf;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -9,6 +10,7 @@ import org.alliancegenome.core.translators.tdf.DownloadHeader;
 import org.alliancegenome.core.translators.tdf.PhenotypeDownloadRow;
 import org.alliancegenome.curation_api.model.entities.AGMPhenotypeAnnotation;
 import org.alliancegenome.curation_api.model.entities.AllelePhenotypeAnnotation;
+import org.alliancegenome.curation_api.model.entities.ConditionRelation;
 import org.alliancegenome.curation_api.model.entities.GenePhenotypeAnnotation;
 import org.alliancegenome.curation_api.model.entities.PhenotypeAnnotation;
 import org.apache.commons.collections.CollectionUtils;
@@ -24,6 +26,8 @@ public class PhenotypeAnnotationToTdfTranslator extends BaseToTdfTranslator {
 			new DownloadHeader<>("Genetic Entity ID", PhenotypeDownloadRow::getGeneticEntityID),
 			new DownloadHeader<>("Genetic Entity Name", PhenotypeDownloadRow::getGeneticEntityName),
 			new DownloadHeader<>("Genetic Entity Type", PhenotypeDownloadRow::getGeneticEntityType),
+			new DownloadHeader<>("Experimental Condition", PhenotypeDownloadRow::getExperimentalCondition),
+			new DownloadHeader<>("Condition Modifier", PhenotypeDownloadRow::getConditionModifier),
 			new DownloadHeader<>("Source", PhenotypeDownloadRow::getSource),
 			new DownloadHeader<>("Reference", PhenotypeDownloadRow::getReference)
 		);
@@ -35,10 +39,10 @@ public class PhenotypeAnnotationToTdfTranslator extends BaseToTdfTranslator {
 		return phenotypeAnnotations.stream()
 			.filter(annotation -> CollectionUtils.isNotEmpty(annotation.getPrimaryAnnotations()))
 			.map(annotation -> annotation.getPrimaryAnnotations().stream()
-				.map(this::getPhenotypeDownloadRow).toList()).flatMap(Collection::stream).collect(Collectors.toList());
+				.map(pa -> getPhenotypeDownloadRow(pa, annotation)).toList()).flatMap(Collection::stream).collect(Collectors.toList());
 	}
 
-	private PhenotypeDownloadRow getPhenotypeDownloadRow(PhenotypeAnnotation annotation) {
+	private PhenotypeDownloadRow getPhenotypeDownloadRow(PhenotypeAnnotation annotation, PhenotypeAnnotationDocument document) {
 		PhenotypeDownloadRow row = getBaseDownloadRow(annotation);
 
 		row.setPhenotype(annotation.getPhenotypeAnnotationObject());
@@ -57,6 +61,36 @@ public class PhenotypeAnnotationToTdfTranslator extends BaseToTdfTranslator {
 			row.setGeneticEntityName(annot.getPhenotypeAnnotationSubject().getGeneSymbol().getDisplayText());
 			row.setGeneticEntityType("gene");
 		}
+
+		// Experimental conditions from the primary annotation
+		if (CollectionUtils.isNotEmpty(annotation.getConditionRelations())) {
+			List<ConditionRelation> conditions = annotation.getConditionRelations().stream()
+				.filter(cr -> cr.getConditionRelationType() != null)
+				.filter(cr -> cr.getConditionRelationType().getName().contains("has_condition")
+					|| cr.getConditionRelationType().getName().contains("induced")
+					|| cr.getConditionRelationType().getName().contains("ameliorated")
+					|| cr.getConditionRelationType().getName().contains("exacerbated"))
+				.toList();
+			List<String> components = new ArrayList<>();
+			conditions.forEach(cr -> {
+				List<String> parts = new ArrayList<>();
+				parts.add(cr.getConditionRelationType().getName());
+				cr.getConditions().forEach(ec -> parts.add(ec.getConditionSummary()));
+				components.add(String.join(": ", parts));
+			});
+			if (!components.isEmpty()) {
+				row.setExperimentalCondition(String.join(" | ", components));
+			}
+		}
+
+		// Fallback to document-level aggregated conditions
+		if (row.getExperimentalCondition() == null && document.getExperimentalConditionsAggregated() != null) {
+			row.setExperimentalCondition(document.getExperimentalConditionsAggregated());
+		}
+		if (document.getConditionModifierAggregated() != null) {
+			row.setConditionModifier(document.getConditionModifierAggregated());
+		}
+
 		return row;
 	}
 
