@@ -1542,4 +1542,98 @@ public class CodingAnnotator {
 			}
 		}
 	}
+
+	/**
+	 * VEP _get_del_peptides — TranscriptVariationAllele.pm line 2453-2478.
+	 * For deletions: translates full alt CDS from translation_start, clips
+	 * the ref/alt FULL translations, and produces the clipped peptides.
+	 */
+	private void vepGetDelPeptides(HgvsNotation n, String cdsSequence, String altCds,
+			int translationStart) {
+		if (altCds == null) return;
+
+		// Line 2463-2464: translate alt CDS from translation_start
+		String altTrans = translateCds(altCds);
+		int start0 = translationStart - 1;
+		String altFromStart = (start0 < altTrans.length()) ? altTrans.substring(start0) : "";
+		// Line 2465: split on stop, take before stop
+		int stopIdx = altFromStart.indexOf('*');
+		n.alt = (stopIdx >= 0) ? altFromStart.substring(0, stopIdx) : altFromStart;
+
+		// Line 2468: ref from full translation from translation_start
+		String refTrans = translateCds(cdsSequence);
+		n.ref = (start0 < refTrans.length()) ? refTrans.substring(start0) : "";
+
+		// Line 2470: reset start
+		n.start = translationStart;
+
+		// Line 2472: re-clip the FULL peptides (not short ones)
+		HgvsNotation reclipped = vepClipAlleles(n.ref, n.alt, n.start, n.start + n.ref.length() - 1);
+		n.ref = reclipped.ref;
+		n.alt = reclipped.alt;
+		n.start = reclipped.start;
+		n.end = reclipped.end;
+		n.preseq = reclipped.preseq;
+		// Type from reclip
+		if (reclipped.type != null) n.type = reclipped.type;
+	}
+
+	/**
+	 * VEP _get_surrounding_peptides — TranscriptVariationAllele.pm line 2276-2299.
+	 * Gets ref peptides flanking an insertion position.
+	 *
+	 * @param refPep Full reference peptide (from _peptide(), may need stop appended)
+	 * @param pos 1-based position
+	 * @param originalRef Original ref before clipping (for stop handling)
+	 * @param length Number of AAs to return
+	 */
+	private String vepGetSurroundingPeptides(String refPep, int pos, String originalRef, int length) {
+		// Line 2284-2285: append original_ref if it starts with *
+		String ref = refPep;
+		if (originalRef != null && originalRef.startsWith("*")) {
+			ref += originalRef;
+		}
+		// Line 2288: guard
+		if (ref.length() <= pos) return null;
+		// Line 2291-2296
+		return ref.substring(pos - 1, Math.min(pos - 1 + length, ref.length()));
+	}
+
+	/**
+	 * VEP _stop_loss_extra_AA — TranscriptVariationAllele.pm line 2386-2435.
+	 * Counts AAs from variant position to next stop in alt translation.
+	 *
+	 * @param altCds Alt CDS sequence
+	 * @param refPep Ref peptide (from _peptide())
+	 * @param refVarPos 0-based first affected AA position
+	 * @param test "fs" for frameshifts, null/other for non-fs
+	 */
+	private String vepStopLossExtraAA(String altCds, String refPep, int refVarPos, String test) {
+		if (refVarPos <= 0) return null;
+		if (altCds == null) return null;
+
+		// Line 2401: translate alt CDS
+		String altTrans = translateCds(altCds);
+		// Line 2403-2404: ref length
+		int refLen = (refPep != null) ? refPep.length() : 0;
+
+		// Line 2412: find stop in alt translation
+		int stopPos = altTrans.indexOf('*');
+		if (stopPos < 0) return null; // no stop found
+
+		int extraAA;
+		if ("fs".equals(test)) {
+			// Line 2416-2417: frameshift — count from first AA to stop
+			extraAA = (stopPos + 1) - refVarPos; // $+[0] is 1-based position of char after match
+		} else {
+			// Line 2422: non-fs — count from ref stop to new stop
+			extraAA = stopPos - refLen; // $+[0] - 1 - refLen
+		}
+
+		// Line 2428-2433
+		if (extraAA > 0) {
+			return String.valueOf(extraAA);
+		}
+		return null;
+	}
 }
