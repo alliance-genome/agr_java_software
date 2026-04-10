@@ -658,29 +658,28 @@ public class TranscriptVariationAllele {
 				result.setAminoAcids(pepAlleleString(rpStr, apStr));
 			}
 
-			// VEP display_codon (line 884-915) + display_codon_allele_string (line 658-673)
-			// VEP codon_position uses cdna_start, not cds_start
-			// cdna_start = cds_start + (cdna_coding_start - 1) = cds + UTR offset
-			int cdnaStart = trStartCds + (transcript.getCdnaCodingStart() > 0 ? transcript.getCdnaCodingStart() - 1 : 0);
-			int codonPosition1 = vepCodonPosition(cdnaStart, transcript);
-			// VEP $ref_tva->feature_seq: for ref allele of insertion = "-", otherwise ref bases
-			String refFeatureSeq = "-".equals(refAllele) ? "-" : refAllele;
-			// VEP $self->feature_seq: for alt allele of deletion = "-", otherwise alt bases
-			String altFeatureSeq = "-".equals(vepAllele) ? "-" : vepAllele;
-			// VEP display_codon_allele_string: ref from $ref_tva->display_codon, alt from $self->display_codon
-			// For between-codon insertions (rc="-"), the REF TVA has the existing codon, not "-"
-			String displayRc = rc;
-			if ("-".equals(rc) && translationStart > 0 && cdsSequence != null) {
-				// VEP ref_tva->codon() returns the codon at translation_start
-				int refCs = (translationStart - 1) * 3;
-				displayRc = safeSubstring(cdsSequence, refCs, refCs + 3);
-				if (displayRc == null) displayRc = "-";
+			// Display codons — VEP display_codon (line 884) + display_codon_allele_string (line 658)
+			String refDisplay, altDisplay;
+			if ("-".equals(rc)) {
+				refDisplay = "-";
+			} else if (isDeletion && rc != null) {
+				int codonPos = (cdsStart - 1) % 3;
+				refDisplay = formatDisplayCodon(rc, codonPos, indelLength);
+			} else if (rc != null) {
+				refDisplay = rc.toLowerCase();
+			} else {
+				refDisplay = "-";
 			}
-			String refDisplay = displayCodon(displayRc, refFeatureSeq, codonPosition1);
-			String altDisplay = displayCodon(ac, altFeatureSeq, codonPosition1);
-			if (refDisplay == null) refDisplay = "-";
-			if (altDisplay == null) altDisplay = "-";
-			result.setCodons(displayCodonAlleleString(refDisplay, altDisplay));
+
+			if (ac == null || ac.isEmpty()) {
+				altDisplay = "-"; // VEP line 861-862: empty codon → '-'
+			} else if (isDeletion) {
+				altDisplay = ac.toLowerCase();
+			} else {
+				int codonPos = (trStartCds - 1) % 3;
+				altDisplay = formatDisplayCodon(ac, codonPos, indelLength);
+			}
+			result.setCodons(refDisplay + "/" + altDisplay);
 		}
 
 		// Sort by VEP rank (most severe first) to match VEP output order
@@ -763,7 +762,14 @@ public class TranscriptVariationAllele {
 		return new String[]{ref, alt};
 	}
 
-	// formatDisplayCodon removed — replaced by displayCodon() exact Perl port
+	private String formatDisplayCodon(String codon, int codonPos, int variantLen) {
+		StringBuilder sb = new StringBuilder(codon.toLowerCase());
+		int end = Math.min(codonPos + variantLen, sb.length());
+		for (int i = codonPos; i < end; i++) {
+			sb.setCharAt(i, Character.toUpperCase(sb.charAt(i)));
+		}
+		return sb.toString();
+	}
 
 	private String safeSubstring(String s, int start, int end) {
 		if (s == null || start < 0 || start >= s.length()) return null;
