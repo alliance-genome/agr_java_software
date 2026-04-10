@@ -1,21 +1,17 @@
 package org.alliancegenome.indexer.indexers.curation;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.interfaces.document.GeneExpressionDocumentInterface;
 import org.alliancegenome.curation_api.model.document.es.GeneExpressionDocument;
-import org.alliancegenome.curation_api.model.entities.Species;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.es.rest.RestConfig;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
-import org.alliancegenome.indexer.indexers.curation.interfaces.SpeciesInterface;
 import org.apache.commons.collections.CollectionUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,12 +23,8 @@ import si.mazi.rescu.RestProxyFactory;
 public class GeneExpressionAnnotationIndexer extends Indexer {
 
 	private final GeneExpressionDocumentInterface geneExpressionApi = RestProxyFactory.createProxy(GeneExpressionDocumentInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
-	private final SpeciesInterface speciesApi = RestProxyFactory.createProxy(SpeciesInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 
 	private List<List<String>> idBatches;
-
-	// taxonIdPart (e.g. "9606") -> phylogeneticOrder
-	private Map<String, Integer> speciesOrderLookup;
 
 	public GeneExpressionAnnotationIndexer(IndexerConfig indexerConfig) {
 		super(indexerConfig);
@@ -41,16 +33,6 @@ public class GeneExpressionAnnotationIndexer extends Indexer {
 	@Override
 	protected void index(ProcessDisplayHelper display) {
 		try {
-			speciesOrderLookup = new HashMap<>();
-			List<Species> allSpecies = speciesApi.findForPublic(0, 100, "FieldsOnly", new HashMap<>()).getResults();
-			for (Species species : allSpecies) {
-				if (species.getTaxon() != null && species.getPhylogeneticOrder() != null) {
-					String taxonIdPart = species.getTaxon().getCurie().replace("NCBITaxon:", "");
-					speciesOrderLookup.put(taxonIdPart, species.getPhylogeneticOrder());
-				}
-			}
-			log.info("Loaded {} species for speciesOrder lookup", speciesOrderLookup.size());
-
 			log.info("Fetching all gene IDs...");
 			SearchResponse<String> idsResponse = geneExpressionApi.getGeneIds();
 
@@ -101,16 +83,6 @@ public class GeneExpressionAnnotationIndexer extends Indexer {
 				return;
 			}
 		}
-	}
-
-	private HashMap<String, Integer> buildSpeciesOrder(String taxonCurie) {
-		HashMap<String, Integer> order = new HashMap<>();
-		String subjectTaxonIdPart = taxonCurie.replace("NCBITaxon:", "");
-		for (Map.Entry<String, Integer> entry : speciesOrderLookup.entrySet()) {
-			order.put(entry.getKey(), entry.getValue());
-		}
-		order.put(subjectTaxonIdPart, 0);
-		return order;
 	}
 
 	@Override
