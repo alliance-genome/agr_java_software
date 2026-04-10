@@ -11,12 +11,18 @@ import java.util.Map;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
+import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.util.StatsCollector;
 import org.alliancegenome.curation_api.model.document.es.ESDocument;
+import org.alliancegenome.curation_api.model.entities.Species;
+import org.alliancegenome.es.rest.RestConfig;
 import org.alliancegenome.es.util.EsClientFactory;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.config.IndexerConfig;
+import org.alliancegenome.indexer.indexers.curation.interfaces.SpeciesInterface;
+
+import si.mazi.rescu.RestProxyFactory;
 import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.bulk.BackoffPolicy;
 import org.elasticsearch.action.bulk.BulkProcessor;
@@ -43,6 +49,10 @@ public abstract class Indexer extends Thread {
 	public static String indexName;
 	protected IndexerConfig indexerConfig;
 	private RestHighLevelClient searchClient;
+
+	private final SpeciesInterface speciesApi = RestProxyFactory.createProxy(SpeciesInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
+	// taxonIdPart (e.g. "9606") -> phylogeneticOrder
+	protected Map<String, Integer> speciesOrderLookup;
 	protected Runtime runtime = Runtime.getRuntime();
 	protected DecimalFormat df = new DecimalFormat("#");
 	protected ObjectMapper om = new ObjectMapper();
@@ -228,6 +238,51 @@ public abstract class Indexer extends Thread {
 			}
 		}
 		return parts;
+	}
+
+	protected void loadSpeciesOrderLookup() {
+		speciesOrderLookup = new HashMap<>();
+		List<Species> allSpecies = speciesApi.findForPublic(0, 100, "FieldsOnly", new HashMap<>()).getResults();
+		for (Species species : allSpecies) {
+			if (species.getTaxon() != null && species.getPhylogeneticOrder() != null) {
+				String taxonIdPart = species.getTaxon().getCurie().replace("NCBITaxon:", "");
+				speciesOrderLookup.put(taxonIdPart, species.getPhylogeneticOrder());
+			}
+		}
+		log.info("Loaded " + speciesOrderLookup.size() + " species for speciesOrder lookup");
+	}
+
+	/**
+	 * Builds a speciesOrder map for an ES document based on its subject's taxon.
+	 *
+	 * The returned map has one entry per species, keyed by NCBI taxon ID part (e.g. "9606").
+	 * The subject's own species is set to 0; all other species are set to the subject's
+	 * phylogenetic order value. This allows the API to sort by speciesOrder.<focusTaxonId>
+	 * and get the focus species first (0), with all other species sorted by their own
+	 * phylogenetic position — because each species' documents carry that species' own
+	 * phylogenetic order as the non-self value.
+	 *
+	 * Example for a Rat document (phylogeneticOrder=20):
+	 *   { "9606": 20, "10116": 0, "10090": 20, "7955": 20, ... }
+	 *
+	 * Example for a Human document (phylogeneticOrder=10):
+	 *   { "9606": 0, "10116": 10, "10090": 10, "7955": 10, ... }
+	 *
+	 * When the API sorts by speciesOrder.10090 (mouse gene page), documents sort as:
+	 *   Mouse=0, Human=10, Rat=20, Zebrafish=40, ... (each species has a unique value)
+	 */
+	protected HashMap<String, Integer> buildSpeciesOrder(String taxonCurie) {
+		if (speciesOrderLookup == null) {
+			loadSpeciesOrderLookup();
+		}
+		HashMap<String, Integer> order = new HashMap<>();
+		String subjectTaxonIdPart = taxonCurie.replace("NCBITaxon:", "");
+		Integer subjectOrder = speciesOrderLookup.getOrDefault(subjectTaxonIdPart, 0);
+		for (String key : speciesOrderLookup.keySet()) {
+			order.put(key, subjectOrder);
+		}
+		order.put(subjectTaxonIdPart, 0);
+		return order;
 	}
 
 	protected abstract void index(ProcessDisplayHelper display);

@@ -57,8 +57,9 @@ public class TestSpeciesOrder {
 	private static HashMap<String, Integer> buildSpeciesOrder(Map<String, Integer> speciesOrderLookup, String taxonCurie) {
 		HashMap<String, Integer> order = new HashMap<>();
 		String subjectTaxonIdPart = taxonCurie.replace("NCBITaxon:", "");
-		for (Map.Entry<String, Integer> entry : speciesOrderLookup.entrySet()) {
-			order.put(entry.getKey(), entry.getValue());
+		Integer subjectOrder = speciesOrderLookup.getOrDefault(subjectTaxonIdPart, 0);
+		for (String key : speciesOrderLookup.keySet()) {
+			order.put(key, subjectOrder);
 		}
 		order.put(subjectTaxonIdPart, 0);
 		return order;
