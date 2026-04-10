@@ -1,5 +1,8 @@
 package org.alliancegenome.vep.annotation;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.alliancegenome.vep.model.TranscriptModel;
 
 /**
@@ -209,5 +212,112 @@ public class VariationEffect {
 	public static boolean proteinAlteringVariant(String refPep, String altPep) {
 		if (refPep == null || altPep == null) return false;
 		return !refPep.equals(altPep) && refPep.length() != altPep.length();
+	}
+
+	// ===================================================================
+	// Splice predicates — merged from SpliceAnnotator.java
+	// VEP VariationEffect.pm: donor_splice_site (696), acceptor_splice_site (718),
+	// splice_donor_5th_base_variant (744), splice_donor_region_variant (774),
+	// splice_polypyrimidine_tract_variant (808), splice_region (833)
+	// VEP BaseTranscriptVariationAllele.pm: _intron_effects (line 100+)
+	// ===================================================================
+
+	/** Result of splice classification. */
+	public static class SpliceResult {
+		private final List<String> spliceTerms;
+		private final boolean intronic;
+
+		public SpliceResult(List<String> spliceTerms, boolean intronic) {
+			this.spliceTerms = spliceTerms;
+			this.intronic = intronic;
+		}
+
+		public List<String> getSpliceTerms() { return spliceTerms; }
+		public boolean isIntronic() { return intronic; }
+	}
+
+	/**
+	 * VEP _intron_effects (BaseTranscriptVariationAllele.pm) + splice predicates (VariationEffect.pm).
+	 * Classifies splice consequences for a variant against a transcript.
+	 */
+	public static SpliceResult classifySplice(TranscriptModel transcript, int variantStart, int variantEnd) {
+		List<String> spliceTerms = new ArrayList<>();
+		boolean intronic = false;
+		boolean positiveStrand = transcript.isPositiveStrand();
+
+		boolean hasDonor = false;
+		boolean hasAcceptor = false;
+		boolean hasFifthBase = false;
+		boolean hasDonorRegion = false;
+		boolean hasPolypyrimidine = false;
+		boolean hasSpliceRegion = false;
+
+		for (int[] intron : transcript.getIntronIntervals()) {
+			int intronStart = intron[0];
+			int intronEnd = intron[1];
+
+			// VEP skips frameshift introns (≤ 12bp)
+			int intronLength = intronEnd - intronStart + 1;
+			if (intronLength <= 12 && overlap(variantStart, variantEnd, intronStart, intronEnd)) {
+				continue;
+			}
+
+			// VEP _intron_effects: intronic = overlap with intron interior (+3 to end-2)
+			boolean insertion = variantStart == variantEnd + 1;
+			if (overlap(variantStart, variantEnd, intronStart + 2, intronEnd - 2)
+				|| (insertion && (variantStart == intronStart + 2 || variantEnd == intronEnd - 2))) {
+				intronic = true;
+			}
+
+			// Donor/acceptor splice sites: first/last 2 bases of intron
+			boolean startSpliceSite = overlap(variantStart, variantEnd, intronStart, intronStart + 1);
+			boolean endSpliceSite = overlap(variantStart, variantEnd, intronEnd - 1, intronEnd);
+			boolean isDonor = positiveStrand ? startSpliceSite : endSpliceSite;
+			boolean isAcceptor = positiveStrand ? endSpliceSite : startSpliceSite;
+
+			if (isDonor) hasDonor = true;
+			if (isAcceptor) hasAcceptor = true;
+
+			// 5th base: position +5 from donor end
+			boolean fifthBase = positiveStrand
+				? overlap(variantStart, variantEnd, intronStart + 4, intronStart + 4)
+				: overlap(variantStart, variantEnd, intronEnd - 4, intronEnd - 4);
+			if (fifthBase) hasFifthBase = true;
+
+			// Donor region: positions +3 to +6
+			boolean donorRegion = positiveStrand
+				? overlap(variantStart, variantEnd, intronStart + 2, intronStart + 5)
+				: overlap(variantStart, variantEnd, intronEnd - 5, intronEnd - 2);
+			if (donorRegion) hasDonorRegion = true;
+
+			// Polypyrimidine tract: 15 bases upstream of acceptor (-17 to -3)
+			boolean polypyrimidine = positiveStrand
+				? overlap(variantStart, variantEnd, intronEnd - 16, intronEnd - 2)
+				: overlap(variantStart, variantEnd, intronStart + 2, intronStart + 16);
+			if (polypyrimidine) hasPolypyrimidine = true;
+
+			// Splice region: 3-8 bases into intron OR 1-3 bases of exon
+			if (!isDonor && !isAcceptor) {
+				boolean spliceRegion =
+					overlap(variantStart, variantEnd, intronStart + 2, intronStart + 7) ||
+					overlap(variantStart, variantEnd, intronEnd - 7, intronEnd - 2) ||
+					overlap(variantStart, variantEnd, intronStart - 3, intronStart - 1) ||
+					overlap(variantStart, variantEnd, intronEnd + 1, intronEnd + 3) ||
+					(insertion && (variantStart == intronStart || variantEnd == intronEnd
+						|| variantStart == intronStart + 2 || variantEnd == intronEnd - 2));
+				if (spliceRegion) hasSpliceRegion = true;
+			}
+		}
+
+		if (hasAcceptor) spliceTerms.add("splice_acceptor_variant");
+		if (hasDonor) spliceTerms.add("splice_donor_variant");
+		if (hasFifthBase) spliceTerms.add("splice_donor_5th_base_variant");
+		if (hasDonorRegion && !hasFifthBase) spliceTerms.add("splice_donor_region_variant");
+		if (hasPolypyrimidine) spliceTerms.add("splice_polypyrimidine_tract_variant");
+		if (hasSpliceRegion && !hasDonor && !hasAcceptor && !hasFifthBase && !hasDonorRegion) {
+			spliceTerms.add("splice_region_variant");
+		}
+
+		return new SpliceResult(spliceTerms, intronic);
 	}
 }

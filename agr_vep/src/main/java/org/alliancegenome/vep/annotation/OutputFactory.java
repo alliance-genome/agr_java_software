@@ -9,7 +9,7 @@ import java.util.Map;
 import org.alliancegenome.vep.bio.CodonTable;
 import org.alliancegenome.vep.csq.CsqEntry;
 import org.alliancegenome.vep.annotation.TranscriptVariationAllele.CodingResult;
-import org.alliancegenome.vep.annotation.SpliceAnnotator.SpliceResult;
+import org.alliancegenome.vep.annotation.VariationEffect.SpliceResult;
 import org.alliancegenome.vep.model.CdsSegment;
 import org.alliancegenome.vep.model.ExonModel;
 import org.alliancegenome.vep.model.GeneModel;
@@ -28,7 +28,7 @@ public class OutputFactory {
 	private final GeneModel geneModel;
 	private final TranscriptVariationAllele codingAnnotator;
 	private final org.alliancegenome.vep.hgvs.VariationFeature hgvsGenomic;
-	private final SpliceAnnotator spliceAnnotator;
+	
 	private final String mod;
 	private final PredictionLookup siftLookup;
 	private final PredictionLookup polyPhenLookup;
@@ -44,7 +44,7 @@ public class OutputFactory {
 		this.geneModel = geneModel;
 		this.codingAnnotator = new TranscriptVariationAllele(reference);
 		this.hgvsGenomic = new org.alliancegenome.vep.hgvs.VariationFeature(contigMap, reference);
-		this.spliceAnnotator = new SpliceAnnotator();
+		
 		this.mod = mod;
 		this.siftLookup = siftLookup;
 		this.polyPhenLookup = polyPhenLookup;
@@ -393,7 +393,7 @@ public class OutputFactory {
 		}
 
 		// Step 2: Collect splice consequences and intronic flag
-		SpliceResult spliceResult = spliceAnnotator.classifySplice(transcript, variantStart, variantEnd);
+		SpliceResult spliceResult = VariationEffect.classifySplice(transcript, variantStart, variantEnd);
 		List<String> spliceTerms = new ArrayList<>(spliceResult.getSpliceTerms());
 		boolean isIntronic = spliceResult.isIntronic();
 
