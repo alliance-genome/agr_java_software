@@ -134,31 +134,12 @@ public class TranscriptVariationAllele {
 	private CodingResult annotateIndel(TranscriptModel transcript, String chr, int variantStart, int variantEnd,
 			String vepAllele, String refAllele, boolean isDeletion) {
 
-		// VEP tracks both cds_start and cds_end (BaseTranscriptVariation.pm line 252-290).
-		// genomic2cds returns coords in transcript order (5'→3').
-		// cds_start = first.start (lower CDS value), cds_end = last.end (higher CDS value).
-		// For minus strand: higher genomic → lower CDS (5' end).
-		int cdsStart, cdsEnd;
-		if (isDeletion) {
-			int cdsA = genomicToCdsPosition(transcript, variantStart);
-			int cdsB = genomicToCdsPosition(transcript, variantEnd);
-			if (cdsA < 0 && cdsB < 0) return null;
-			if (cdsA < 0) cdsA = cdsB;
-			if (cdsB < 0) cdsB = cdsA;
-			cdsStart = Math.min(cdsA, cdsB);
-			cdsEnd = Math.max(cdsA, cdsB);
-		} else {
-			// Insertion: map both positions. VEP's cds_start from variantStart, cds_end from variantEnd.
-			cdsStart = genomicToCdsPosition(transcript, variantStart);
-			cdsEnd = genomicToCdsPosition(transcript, variantEnd);
-			// If variantStart doesn't map (at CDS boundary), try variantEnd
-			if (cdsStart < 0 && cdsEnd >= 0) {
-				cdsStart = cdsEnd + 1;
-			} else if (cdsEnd < 0 && cdsStart >= 0) {
-				cdsEnd = cdsStart - 1;
-			}
-			if (cdsStart < 0 && cdsEnd < 0) return null;
-		}
+		// VEP BaseTranscriptVariation — compute all coordinate mappings
+		BaseTranscriptVariation tv = new BaseTranscriptVariation(transcript, variantStart, variantEnd, this);
+		if (tv.cdsStart() < 0 && tv.cdsEnd() < 0) return null;
+
+		int cdsStart = tv.cdsStart();
+		int cdsEnd = tv.cdsEnd();
 
 		String cdsSequence = buildCdsSequence(transcript, chr);
 		if (cdsSequence == null) return null;
@@ -233,21 +214,15 @@ public class TranscriptVariationAllele {
 
 		// === VEP hgvs_protein() lines 1686-1741: exact method port ===
 
-		// VEP codon() line 805, 818-820: translation positions
-		// VEP: for insertions, tv_tr_start > tv_tr_end (mapper convention)
-		// This makes codon_len = 0 for between-codon insertions
-		int trStartCds = isDeletion ? cdsStart : Math.max(cdsStart, cdsEnd);
-		int trEndCds = isDeletion ? cdsEnd : Math.min(cdsStart, cdsEnd);
-		// VEP line 805: translation_start and translation_end
-		// For insertions: start = ceil(cds_start/3), end = ceil(cds_end/3)
-		// VEP cds_start is the HIGHER value for insertions → translationStart is higher
-		int translationStart = (trStartCds - 1) / 3 + 1;
-		int translationEnd = (trEndCds - 1) / 3 + 1;
+		// VEP codon() line 805, 818-820: uses tv->translation_start/end
+		int translationStart = tv.translationStart();
+		int translationEnd = tv.translationEnd();
 		// VEP line 818-820: codon boundaries
-		int codonCdsStart0 = (translationStart - 1) * 3; // = translationStart * 3 - 3 (0-based)
-		int codonCdsEnd0 = translationEnd * 3 - 1;        // = translationEnd * 3 - 1 (0-based inclusive)
+		// codon_cds_start = tv_tr_start * 3 - 2 = (translationStart - 1) * 3 (0-based)
+		// codon_cds_end = tv_tr_end * 3 = translationEnd * 3 - 1 (0-based inclusive)
+		int codonCdsStart0 = (translationStart - 1) * 3;
+		int codonCdsEnd0 = translationEnd * 3 - 1;
 		// VEP line 820: codon_len = codon_cds_end - codon_cds_start + 1
-		// For between-codon insertions: this can be 0 or negative
 		int codonLen0 = codonCdsEnd0 - codonCdsStart0 + 1;
 		// VEP line 828
 		int altCodonLen0 = codonLen0 + (alleleLen - vfNtLen);
@@ -659,10 +634,8 @@ public class TranscriptVariationAllele {
 			}
 
 			// VEP display_codon (line 884-915) + display_codon_allele_string (line 658-673)
-			// VEP codon_position (TranscriptVariation.pm line 292-302):
-			// Uses cdna_start = ALWAYS the lower cDNA position regardless of variant type
-			int codonPosCds = Math.min(cdsStart, cdsEnd);
-			int codonPosition1 = ((codonPosCds - 1) % 3) + 1;
+			// VEP codon_position from BaseTranscriptVariation (line 287-307)
+			int codonPosition1 = tv.codonPosition();
 			// VEP feature_seq: ref TVA gets refAllele, alt TVA gets vepAllele
 			// For deletions: ref feature_seq = deleted bases, alt feature_seq = "-"
 			// For insertions: ref feature_seq = "-", alt feature_seq = inserted bases
