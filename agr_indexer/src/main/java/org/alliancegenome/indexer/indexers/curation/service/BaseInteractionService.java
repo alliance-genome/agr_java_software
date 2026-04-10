@@ -38,20 +38,6 @@ public class BaseInteractionService extends BaseService {
 		return hasNoExcludedEntities(entitiesToBeValidated);
 	}
 
-	protected <E extends GeneInteraction> boolean hasInteractingGenesInNeo(E interaction) {
-		if (interaction.getGeneAssociationSubject() != null) {
-			if (!isValidNeoEntity(getAllNeoGeneIDs(), interaction.getGeneAssociationSubject().getIdentifier())) {
-				return false;
-			}
-		}
-		if (interaction.getGeneGeneAssociationObject() != null) {
-			if (!isValidNeoEntity(getAllNeoGeneIDs(), interaction.getGeneGeneAssociationObject().getIdentifier())) {
-				return false;
-			}
-		}
-		return true;
-	}
-
 	protected <E extends GeneInteraction> E reverseInteraction(E forwardInteraction, E reverseInteraction) {
 		if (forwardInteraction.getGeneAssociationSubject() == null || forwardInteraction.getGeneGeneAssociationObject() == null) {
 			return null;

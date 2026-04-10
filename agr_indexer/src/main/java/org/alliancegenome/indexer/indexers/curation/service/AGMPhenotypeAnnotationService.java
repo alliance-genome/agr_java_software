@@ -109,9 +109,7 @@ public class AGMPhenotypeAnnotationService extends BaseDiseaseAnnotationService 
 
 					SearchResponse<AGMPhenotypeAnnotation> response = agmApi.findForPublic(page, bufferSize, params);
 					for (AGMPhenotypeAnnotation pa : response.getResults()) {
-						if (isValidNeoEntity(getAllNeoModelIDs(), pa.getPhenotypeAnnotationSubject().getIdentifier())) {
-							fullList.offer(pa);
-						}
+						fullList.offer(pa);
 						display.progressProcess();
 					}
 

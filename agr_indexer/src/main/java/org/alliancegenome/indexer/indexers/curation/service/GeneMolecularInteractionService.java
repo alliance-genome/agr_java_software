@@ -13,17 +13,15 @@ public class GeneMolecularInteractionService extends BaseInteractionService {
 		List<GeneMolecularInteraction> validInteractions = new ArrayList<>();
 		
 		for (GeneMolecularInteraction interaction: forwardInteractions) {
-			if (hasInteractingGenesInNeo(interaction)) {
-				if (hasNoObsoletedOrInternalEntities(interaction)) {
-					validInteractions.add(interaction);
-					try {
-						GeneMolecularInteraction reverseInteraction = generateReverseInteraction(interaction);
-						if (reverseInteraction != null) {
-							validInteractions.add(reverseInteraction);
-						}
-					} catch (IOException e) {
-						e.printStackTrace();
+			if (hasNoObsoletedOrInternalEntities(interaction)) {
+				validInteractions.add(interaction);
+				try {
+					GeneMolecularInteraction reverseInteraction = generateReverseInteraction(interaction);
+					if (reverseInteraction != null) {
+						validInteractions.add(reverseInteraction);
 					}
+				} catch (IOException e) {
+					e.printStackTrace();
 				}
 			}
 		}
