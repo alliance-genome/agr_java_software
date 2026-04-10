@@ -13,7 +13,7 @@ import java.util.Map;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
 import org.alliancegenome.curation_api.model.document.es.ESDocument;
-import org.alliancegenome.curation_api.model.document.es.TransgenicAlleleDocument;
+import org.alliancegenome.api.entity.TransgenicAlleleSummaryDocument;
 import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
 import org.alliancegenome.es.model.query.Pagination;
 import org.elasticsearch.action.search.SearchResponse;
@@ -64,23 +64,23 @@ public class AlleleESService extends ESService {
 		put(null, defaultSortMap);
 	}};
 
-	public JsonResultResponse<TransgenicAlleleDocument> getTransgenicAlleles(String alleleId) {
+	public JsonResultResponse<TransgenicAlleleSummaryDocument> getTransgenicAlleles(String alleleId) {
 		BoolQueryBuilder bool = boolQuery();
 		BoolQueryBuilder bool2 = boolQuery();
 		bool.must(bool2);
 		// ToDo: Change this class such that the category is public
-		// TransgenicAlleleDocument.category
+		// TransgenicAlleleSummaryDocument.category
 		bool.filter(new TermQueryBuilder("category", "transgenic_allele_summary"));
 		bool2.should(new MatchQueryBuilder("allele.primaryExternalId.keyword", alleleId));
 
-		JsonResultResponse<TransgenicAlleleDocument> ret = new JsonResultResponse<>();
+		JsonResultResponse<TransgenicAlleleSummaryDocument> ret = new JsonResultResponse<>();
 
 		SearchResponse searchResponse = getSearchResponse(bool, new Pagination(), null, false);
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
-		List<TransgenicAlleleDocument> list = new ArrayList<>();
+		List<TransgenicAlleleSummaryDocument> list = new ArrayList<>();
 		Arrays.stream(searchResponse.getHits().getHits()).forEach(searchHit -> {
 			try {
-				TransgenicAlleleDocument object = mapper.readValue(searchHit.getSourceAsString(), TransgenicAlleleDocument.class);
+				TransgenicAlleleSummaryDocument object = mapper.readValue(searchHit.getSourceAsString(), TransgenicAlleleSummaryDocument.class);
 				list.add(object);
 			} catch (Exception e) {
 				e.printStackTrace();

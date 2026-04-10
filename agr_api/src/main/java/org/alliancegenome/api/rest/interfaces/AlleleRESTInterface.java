@@ -4,7 +4,7 @@ import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.AllelePhenotypeAnnotationDocument;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
-import org.alliancegenome.curation_api.model.document.es.TransgenicAlleleDocument;
+import org.alliancegenome.api.entity.TransgenicAlleleSummaryDocument;
 import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
 import org.alliancegenome.neo4j.view.PublicView;
 import org.apache.commons.lang3.ObjectUtils.Null;
@@ -48,7 +48,7 @@ public interface AlleleRESTInterface {
 	@Operation(description = "Searches for transgenic alleles", summary = "Transgenic Alleles")
 	@APIResponses(value = {@APIResponse(responseCode = "404", description = "Missing transgenic alleles", content = @Content(mediaType = "text/plain")),
 		@APIResponse(responseCode = "200", description = "Search for alleles.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class)))})
-	TransgenicAlleleDocument getAlleleConstructs(@Parameter(in = ParameterIn.PATH, name = "id", description = "Search for constructs for a given Allele by ID", required = true, schema = @Schema(type = SchemaType.STRING)) @PathParam("id") String id);
+	TransgenicAlleleSummaryDocument getAlleleConstructs(@Parameter(in = ParameterIn.PATH, name = "id", description = "Search for constructs for a given Allele by ID", required = true, schema = @Schema(type = SchemaType.STRING)) @PathParam("id") String id);
 
 	@GET
 	@Path("/{id}/variants")
