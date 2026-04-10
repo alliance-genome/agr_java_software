@@ -658,28 +658,19 @@ public class TranscriptVariationAllele {
 				result.setAminoAcids(pepAlleleString(rpStr, apStr));
 			}
 
-			// Display codons — VEP display_codon (line 884) + display_codon_allele_string (line 658)
-			String refDisplay, altDisplay;
-			if ("-".equals(rc)) {
-				refDisplay = "-";
-			} else if (isDeletion && rc != null) {
-				int codonPos = (cdsStart - 1) % 3;
-				refDisplay = formatDisplayCodon(rc, codonPos, indelLength);
-			} else if (rc != null) {
-				refDisplay = rc.toLowerCase();
-			} else {
-				refDisplay = "-";
-			}
-
-			if (ac == null || ac.isEmpty()) {
-				altDisplay = "-"; // VEP line 861-862: empty codon → '-'
-			} else if (isDeletion) {
-				altDisplay = ac.toLowerCase();
-			} else {
-				int codonPos = (trStartCds - 1) % 3;
-				altDisplay = formatDisplayCodon(ac, codonPos, indelLength);
-			}
-			result.setCodons(refDisplay + "/" + altDisplay);
+			// VEP display_codon (line 884-915) + display_codon_allele_string (line 658-673)
+			// Exact Perl port: codon_position is 1-based (TranscriptVariation.pm line 302)
+			int codonPosition1 = ((trStartCds - 1) % 3) + 1;
+			// VEP feature_seq: ref TVA gets refAllele, alt TVA gets vepAllele
+			// For deletions: ref feature_seq = deleted bases, alt feature_seq = "-"
+			// For insertions: ref feature_seq = "-", alt feature_seq = inserted bases
+			String refFeatureSeq = "-".equals(refAllele) ? "-" : refAllele;
+			String altFeatureSeq = "-".equals(vepAllele) ? "-" : vepAllele;
+			String refDisplay = displayCodon(rc, refFeatureSeq, codonPosition1);
+			String altDisplay = displayCodon(ac, altFeatureSeq, codonPosition1);
+			if (refDisplay == null) refDisplay = "-";
+			if (altDisplay == null) altDisplay = "-";
+			result.setCodons(displayCodonAlleleString(refDisplay, altDisplay));
 		}
 
 		// Sort by VEP rank (most severe first) to match VEP output order
