@@ -21,8 +21,8 @@ public class OutputFactory {
 
 	private final GeneModel geneModel;
 	private final TranscriptVariationAllele codingAnnotator;
-	private final TranscriptAnnotator transcriptAnnotator;
 	private final org.alliancegenome.vep.hgvs.VariationFeature hgvsGenomic;
+	private final TranscriptAnnotator transcriptAnnotator;
 	private final String mod;
 	private final PredictionLookup siftLookup;
 	private final PredictionLookup polyPhenLookup;
@@ -90,6 +90,7 @@ public class OutputFactory {
 				overlapping.sort((a, b) -> a.getTranscriptId().compareTo(b.getTranscriptId()));
 				List<CsqEntry> alleleEntries = new ArrayList<>();
 				for (TranscriptModel transcript : overlapping) {
+					// VEP TranscriptVariationAllele_to_output_hash (OutputFactory.pm line 1630)
 					CsqEntry entry = transcriptAnnotator.annotate(
 						transcript, chr, variantStart, variantEnd, vepAllele, vepRef, mod);
 					if (entry != null) {
