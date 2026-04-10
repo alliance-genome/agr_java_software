@@ -107,9 +107,7 @@ public class AllelePhenotypeAnnotationService extends BaseDiseaseAnnotationServi
 
 					SearchResponse<AllelePhenotypeAnnotation> response = alleleApi.findForPublic(page, bufferSize, params);
 					for (AllelePhenotypeAnnotation pa : response.getResults()) {
-						if (isValidNeoEntity(getAllNeoAlleleIDs(), pa.getPhenotypeAnnotationSubject().getIdentifier())) {
-							fullList.offer(pa);
-						}
+						fullList.offer(pa);
 						display.progressProcess();
 					}
 

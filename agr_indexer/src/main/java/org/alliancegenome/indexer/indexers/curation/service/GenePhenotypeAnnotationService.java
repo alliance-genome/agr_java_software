@@ -108,9 +108,7 @@ public class GenePhenotypeAnnotationService extends BaseDiseaseAnnotationService
 
 					SearchResponse<GenePhenotypeAnnotation> response = geneApi.findForPublic(page, bufferSize, "PhenotypeAnnotationView", params);
 					for (GenePhenotypeAnnotation pa : response.getResults()) {
-						if (isValidNeoEntity(getAllNeoGeneIDs(), pa.getPhenotypeAnnotationSubject().getIdentifier())) {
-							fullList.offer(pa);
-						}
+						fullList.offer(pa);
 						display.progressProcess();
 					}
 
