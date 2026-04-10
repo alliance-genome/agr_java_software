@@ -77,4 +77,40 @@ public class BaseTranscriptVariation {
 	public int translationEnd() { return translationEnd; }
 	public int codonPosition() { return codonPosition; }
 	public TranscriptModel transcript() { return transcript; }
+
+	/**
+	 * VEP genomic2cds for a single position.
+	 * Equivalent of the old genomicToCdsPosition helper.
+	 * Returns CDS position (1-based) or -1 if not in CDS.
+	 */
+	public static int genomicToCds(TranscriptModel transcript, int genomicPos) {
+		TranscriptMapper mapper = new TranscriptMapper(transcript);
+		int strand = transcript.isPositiveStrand() ? 1 : -1;
+		List<Mapper.Result> results = mapper.genomic2cds(genomicPos, genomicPos, strand);
+		int exonPhase = transcript.getStartExonPhase();
+		int phaseOffset = exonPhase > 0 ? exonPhase : 0;
+		for (Mapper.Result r : results) {
+			if (r.isCoordinate()) {
+				return r.coordinate.start + phaseOffset;
+			}
+		}
+		return -1;
+	}
+
+	/**
+	 * VEP genomic2cdna for a single position.
+	 * Equivalent of the old computeCdnaPosition helper.
+	 * Returns cDNA position (1-based) or -1 if not in cDNA.
+	 */
+	public static int genomicToCdna(TranscriptModel transcript, int genomicPos) {
+		TranscriptMapper mapper = new TranscriptMapper(transcript);
+		int strand = transcript.isPositiveStrand() ? 1 : -1;
+		List<Mapper.Result> results = mapper.genomic2cdna(genomicPos, genomicPos, strand);
+		for (Mapper.Result r : results) {
+			if (r.isCoordinate()) {
+				return r.coordinate.start;
+			}
+		}
+		return -1;
+	}
 }

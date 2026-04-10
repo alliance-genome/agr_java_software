@@ -7,6 +7,8 @@ import org.alliancegenome.vep.bio.CodonTable;
 import org.alliancegenome.vep.bio.Sequence;
 import org.alliancegenome.vep.model.CdsSegment;
 import org.alliancegenome.vep.model.ExonModel;
+import org.alliancegenome.vep.model.Mapper;
+import org.alliancegenome.vep.model.TranscriptMapper;
 import org.alliancegenome.vep.model.TranscriptModel;
 import org.alliancegenome.vep.reference.ReferenceGenome;
 
@@ -82,7 +84,9 @@ public class TranscriptVariationAllele {
 	}
 
 	private CodingResult annotateSNP(TranscriptModel transcript, String chr, int pos, String altBase) {
-		int cdsPos = genomicToCdsPosition(transcript, pos);
+		// Use BaseTranscriptVariation for coordinate mapping (matching VEP)
+		BaseTranscriptVariation tv = new BaseTranscriptVariation(transcript, pos, pos, this);
+		int cdsPos = tv.cdsStart();
 		if (cdsPos < 0) return null;
 
 		int codonIndex = (cdsPos - 1) / 3;
@@ -106,12 +110,12 @@ public class TranscriptVariationAllele {
 
 		CodingResult result = new CodingResult();
 		result.setCdsPosition(cdsPos);
-		result.setProteinPosition(codonIndex + 1);
+		result.setProteinPosition(tv.translationStart());
 		result.setRefAA(refAA);
 		result.setAltAA(altAA);
 		result.setRefCodon(formatCodon(refCodon, posInCodon));
 		result.setAltCodon(formatCodon(altCodon, posInCodon));
-		result.setCdnaPosition(computeCdnaPosition(transcript, pos));
+		result.setCdnaPosition(tv.cdnaStart());
 
 		// Classify
 		if (cdsPos <= 3 && !transcript.isCdsStartNF() && CodonTable.isStart(refCodon) && !CodonTable.isStart(altCodon)) {
@@ -160,16 +164,16 @@ public class TranscriptVariationAllele {
 		// Used for CDS position calculations and codon extraction
 		int indelLength = isDeletion ? vfNtLen : alleleLen;
 
-		// Use cdsStart for position (VEP uses cds_start for CDS_position output)
+		// Use BaseTranscriptVariation coordinates for all position fields
 		int cdsPos = cdsStart;
 		CodingResult result = new CodingResult();
-		result.setCdsPosition(cdsPos);
-		result.setCdsEnd(cdsEnd);
-		result.setProteinPosition((cdsPos - 1) / 3 + 1);
-		result.setCdnaPosition(computeCdnaPosition(transcript, variantStart));
+		result.setCdsPosition(tv.cdsStart());
+		result.setCdsEnd(tv.cdsEnd());
+		result.setProteinPosition(tv.translationStart());
+		result.setCdnaPosition(tv.cdnaStart());
 		if (!isDeletion) {
-			// Also store cdna for variantEnd for insertion range
-			result.setCdnaEnd(computeCdnaPosition(transcript, variantEnd));
+			// Also store cdna end from BaseTranscriptVariation
+			result.setCdnaEnd(tv.cdnaEnd());
 		}
 
 		// VEP partial_codon guard (VariationEffect.pm line 1389-1414):
@@ -877,26 +881,17 @@ public class TranscriptVariationAllele {
 	 * The variant start may be in UTR/intron but the range still overlaps CDS.
 	 */
 	private int findFirstCdsPositionInRange(TranscriptModel transcript, int variantStart, int variantEnd) {
-		// First try the exact start position
-		int pos = genomicToCdsPosition(transcript, variantStart);
-		if (pos >= 0) return pos;
+		// VEP uses genomic2cds which maps the range and takes the first Coordinate
+		TranscriptMapper mapper = new TranscriptMapper(transcript);
+		int strand = transcript.isPositiveStrand() ? 1 : -1;
+		List<Mapper.Result> cdsCoords = mapper.genomic2cds(variantStart, variantEnd, strand);
 
-		// Start not in CDS — find the first CDS segment that overlaps the range
-		List<CdsSegment> segments = transcript.getCdsSegments();
-		if (transcript.isPositiveStrand()) {
-			for (CdsSegment seg : segments) {
-				if (seg.getEnd() >= variantStart && seg.getStart() <= variantEnd) {
-					int firstBase = Math.max(seg.getStart(), variantStart);
-					return genomicToCdsPosition(transcript, firstBase);
-				}
-			}
-		} else {
-			for (int i = segments.size() - 1; i >= 0; i--) {
-				CdsSegment seg = segments.get(i);
-				if (seg.getEnd() >= variantStart && seg.getStart() <= variantEnd) {
-					int firstBase = Math.min(seg.getEnd(), variantEnd);
-					return genomicToCdsPosition(transcript, firstBase);
-				}
+		// Find first non-gap result
+		int exonPhase = transcript.getStartExonPhase();
+		int phaseOffset = exonPhase > 0 ? exonPhase : 0;
+		for (Mapper.Result r : cdsCoords) {
+			if (r.isCoordinate()) {
+				return r.coordinate.start + phaseOffset;
 			}
 		}
 		return -1;
