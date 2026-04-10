@@ -1,6 +1,5 @@
 package org.alliancegenome.indexer.indexers.curation;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +17,6 @@ import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
-import org.alliancegenome.indexer.indexers.curation.service.BaseService;
 import org.apache.commons.collections4.CollectionUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -33,7 +31,6 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 	private final GeneExpressionAnnotationCrudInterface geneExpressionApi = RestProxyFactory.createProxy(GeneExpressionAnnotationCrudInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 	private final GeneDiseaseAnnotationCrudInterface geneDiseaseApi = RestProxyFactory.createProxy(GeneDiseaseAnnotationCrudInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 
-	private Set<String> allNeoGeneIDs;
 	private Set<String> geneExpressionSet;
 	private Set<String> geneAnnotationSet;
 
@@ -45,8 +42,6 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 
 	@Override
 	public void index(ProcessDisplayHelper display) {
-		BaseService baseService = new BaseService();
-		allNeoGeneIDs = baseService.getAllNeoGeneIDs();
 		geneExpressionSet = new HashSet<>(geneExpressionApi.annotatedGeneList().getEntities());
 		geneAnnotationSet = new HashSet<>(geneDiseaseApi.annotatedGeneList().getEntities());
 
@@ -99,8 +94,7 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 					}
 				}
 
-				List<GeneToGeneOrthologyDocument> filteredResults = filterValidResults(results);
-				indexDocuments(filteredResults);
+				indexDocuments(results);
 			} catch (Exception e) {
 				log.error("Error while indexing...", e);
 				ExceptionCatcher.report(e);
@@ -115,14 +109,4 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 		return RestConfig.config.getJacksonObjectMapperFactory().createObjectMapper();
 	}
 
-	private List<GeneToGeneOrthologyDocument> filterValidResults(List<GeneToGeneOrthologyDocument> docs) {
-		List<GeneToGeneOrthologyDocument> result = new ArrayList<>();
-		for (GeneToGeneOrthologyDocument doc : docs) {
-			String curie = doc.getGeneToGeneOrthologyGenerated().getObjectGene().getIdentifier();
-			if (allNeoGeneIDs.contains(curie)) {
-				result.add(doc);
-			}
-		}
-		return result;
-	}
 }

@@ -12,7 +12,6 @@ import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
-import org.alliancegenome.indexer.indexers.curation.service.BaseService;
 import org.alliancegenome.indexer.indexers.document.SiteMapIdDocument;
 
 import si.mazi.rescu.RestProxyFactory;
@@ -33,10 +32,6 @@ public class SiteMapAccessionCurationIndexer extends Indexer {
 
 			Map<String, List<String>> map = document.getIdsByType();
 
-			BaseService base = new BaseService();
-
-			map.get("allele").retainAll(base.getAllNeoAlleleIDs());
-
 			List<List<String>> alleleIdLists = partition(map.get("allele"), 15000);
 
 			for (int i = 0; i < alleleIdLists.size(); i++) {
@@ -48,8 +43,6 @@ public class SiteMapAccessionCurationIndexer extends Indexer {
 				doc.setSiteMapIds(alleleIdLists.get(i));
 				indexDocument(doc);
 			}
-
-			map.get("gene").retainAll(base.getAllNeoGeneIDs());
 
 			List<List<String>> geneIdLists = partition(map.get("gene"), 15000);
 

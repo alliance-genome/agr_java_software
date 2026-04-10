@@ -13,38 +13,20 @@ public class GeneGeneticInteractionService extends BaseInteractionService {
 		List<GeneGeneticInteraction> validInteractions = new ArrayList<>();
 		
 		for (GeneGeneticInteraction interaction: forwardInteractions) {
-			if (hasPerturbatingAllelesInNeo(interaction)) {
-				if (hasInteractingGenesInNeo(interaction)) {
-					if (hasNoObsoletedOrInternalEntities(interaction)) {
-						validInteractions.add(interaction);
-						try {
-							GeneGeneticInteraction reverseInteraction = generateReverseInteraction(interaction);
-							if (reverseInteraction != null) {
-								validInteractions.add(reverseInteraction);
-							}
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
+			if (hasNoObsoletedOrInternalEntities(interaction)) {
+				validInteractions.add(interaction);
+				try {
+					GeneGeneticInteraction reverseInteraction = generateReverseInteraction(interaction);
+					if (reverseInteraction != null) {
+						validInteractions.add(reverseInteraction);
 					}
+				} catch (IOException e) {
+					e.printStackTrace();
 				}
 			}
 		}
 
 		return validInteractions;
-	}
-
-	private boolean hasPerturbatingAllelesInNeo(GeneGeneticInteraction interaction) {
-		if (interaction.getInteractorAGeneticPerturbation() != null) {
-			if (!isValidNeoEntity(getAllNeoAlleleIDs(), interaction.getInteractorAGeneticPerturbation().getIdentifier())) {
-				return false;
-			}
-		}
-		if (interaction.getInteractorBGeneticPerturbation() != null) {
-			if (!isValidNeoEntity(getAllNeoAlleleIDs(), interaction.getInteractorBGeneticPerturbation().getIdentifier())) {
-				return false;
-			}
-		}
-		return true;
 	}
 
 	private GeneGeneticInteraction generateReverseInteraction(GeneGeneticInteraction forwardInteraction) throws IOException {
