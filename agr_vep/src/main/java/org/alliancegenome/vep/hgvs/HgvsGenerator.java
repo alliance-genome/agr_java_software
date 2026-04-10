@@ -1,6 +1,8 @@
 package org.alliancegenome.vep.hgvs;
 
+import org.alliancegenome.vep.annotation.TranscriptVariationAllele;
 import org.alliancegenome.vep.annotation.TranscriptVariationAllele.CodingResult;
+import org.alliancegenome.vep.annotation.TranscriptVariationAllele.HgvsNotation;
 import org.alliancegenome.vep.model.TranscriptModel;
 import org.alliancegenome.vep.reference.ContigAccessionMap;
 import org.alliancegenome.vep.reference.ReferenceGenome;
@@ -32,10 +34,33 @@ public class HgvsGenerator {
 	}
 
 	public String generateHgvsp(TranscriptModel transcript, CodingResult codingResult) {
+		return generateHgvsp(transcript, codingResult, null, null);
+	}
+
+	public String generateHgvsp(TranscriptModel transcript, CodingResult codingResult,
+			String altCds, String cdsSequence) {
 		if (codingResult == null) return null;
 		if (codingResult.getProteinPosition() <= 0) return null;
 
 		String proteinId = transcript.getProteinId();
+
+		// Use VEP's notation-based formatter when available (from TranscriptVariationAllele)
+		HgvsNotation n = codingResult.getHgvsNotation();
+		if (n != null && n.type != null && codingAnnotator != null) {
+			String consequence = codingResult.getConsequence();
+			boolean isStopLost = consequence != null && consequence.contains("stop_lost");
+			boolean isStartLost = consequence != null && consequence.contains("start_lost");
+			return codingAnnotator.vepGetHgvsProteinFormat(n, proteinId, isStopLost, isStartLost,
+				altCds, cdsSequence);
+		}
+
+		// Fallback to consequence-based formatter
 		return protein.generate(proteinId, codingResult);
 	}
+
+	public void setCodingAnnotator(TranscriptVariationAllele codingAnnotator) {
+		this.codingAnnotator = codingAnnotator;
+	}
+
+	private TranscriptVariationAllele codingAnnotator;
 }

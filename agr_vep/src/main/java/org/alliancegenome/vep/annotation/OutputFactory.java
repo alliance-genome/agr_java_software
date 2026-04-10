@@ -39,6 +39,7 @@ public class OutputFactory {
 		this.codingAnnotator = new TranscriptVariationAllele(reference);
 		this.transcriptAnnotator = new TranscriptAnnotator(codingAnnotator, hgvsGenerator);
 		this.hgvsGenerator = hgvsGenerator;
+		hgvsGenerator.setCodingAnnotator(codingAnnotator);
 		this.mod = mod;
 		this.siftLookup = siftLookup;
 		this.polyPhenLookup = polyPhenLookup;

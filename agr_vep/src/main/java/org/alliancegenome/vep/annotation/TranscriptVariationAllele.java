@@ -347,6 +347,9 @@ public class TranscriptVariationAllele {
 						}
 					}
 				}
+				// Store notation for _get_hgvs_protein_format (called after consequence determination)
+				n.type = hgvsType;
+				result.setHgvsNotation(n);
 			}
 		}
 
@@ -1260,6 +1263,9 @@ public class TranscriptVariationAllele {
 
 		private String aminoAcids;
 		private String codons;
+		private HgvsNotation hgvsNotation;
+		public HgvsNotation getHgvsNotation() { return hgvsNotation; }
+		public void setHgvsNotation(HgvsNotation v) { this.hgvsNotation = v; }
 
 		public String getAminoAcids() {
 			if (aminoAcids != null) return aminoAcids;
@@ -1284,14 +1290,14 @@ public class TranscriptVariationAllele {
 	// ===================================================================
 
 	/** Intermediate state for _clip_alleles, passed between VEP methods. */
-	static class HgvsNotation {
-		String ref;
-		String alt;
-		String preseq;
-		String originalRef;
-		int start;
-		int end;
-		String type;
+	public static class HgvsNotation {
+		public String ref;
+		public String alt;
+		public String preseq;
+		public String originalRef;
+		public int start;
+		public int end;
+		public String type;
 	}
 
 	/**
@@ -1635,5 +1641,152 @@ public class TranscriptVariationAllele {
 			return String.valueOf(extraAA);
 		}
 		return null;
+	}
+
+	/**
+	 * VEP _get_hgvs_protein_format — TranscriptVariationAllele.pm line 1818-1958.
+	 * Formats the final HGVSp string from the notation hash.
+	 * Switches on notation TYPE (=, >, fs, del, ins, delins, dup), NOT consequence type.
+	 *
+	 * @param n The HgvsNotation with type, ref, alt, start, end set
+	 * @param proteinId The protein accession (e.g. UniProtKB:P39712)
+	 * @param isStopLost Whether consequence includes stop_lost
+	 * @param altCds Alt CDS for _stop_loss_extra_AA
+	 * @param cdsSequence Ref CDS for _stop_loss_extra_AA
+	 * @return The formatted HGVSp string, or null
+	 */
+	public String vepGetHgvsProteinFormat(HgvsNotation n, String proteinId, boolean isStopLost,
+			boolean isStartLost, String altCds, String cdsSequence) {
+
+		if (n == null || n.type == null) return null;
+
+		String prefix = (proteinId != null ? proteinId : "") + ":p.";
+
+		// Convert ref/alt to 3-letter code (VEP line 2067-2071)
+		String ref3 = to3Letter(n.ref);
+		String alt3 = to3Letter(n.alt);
+
+		// VEP line 2072: alt = "del" if alt == "-"
+		if ("-".equals(n.alt) || n.alt.isEmpty()) alt3 = "del";
+
+		// VEP line 2075-2078: start_lost overrides everything
+		if (isStartLost) {
+			alt3 = "?";
+			// type becomes "" — just output ref + start + alt
+			return prefix + ref3 + n.start + alt3;
+		}
+
+		// Line 1831-1833: synonymous (ref == alt, not fs, not ins)
+		if (ref3.equals(alt3) && !"fs".equals(n.type) && !"ins".equals(n.type)) {
+			return prefix + ref3 + n.start + "=";
+		}
+
+		// Line 1836-1857: stop_lost with del or >
+		if (isStopLost && ("del".equals(n.type) || ">".equals(n.type))) {
+			String firstAlt = alt3.length() >= 3 ? alt3.substring(0, 3) : alt3;
+			String aaTilStop = vepStopLossExtraAA(altCds, cdsSequence != null ? translateCds(cdsSequence) : null, n.start - 1, null);
+			if (aaTilStop == null) aaTilStop = "?";
+			String extPart = firstAlt + "extTer" + aaTilStop;
+
+			if (ref3.length() > 3 && "del".equals(n.type)) {
+				String refFirst = ref3.substring(0, 3);
+				String refLast = ref3.substring(ref3.length() - 3);
+				return prefix + refFirst + n.start + "_" + refLast + n.end + extPart;
+			} else {
+				return prefix + ref3 + n.start + extPart;
+			}
+		}
+
+		// Line 1859-1871: dup
+		if ("dup".equals(n.type)) {
+			if (n.start < n.end) {
+				String altFirst = alt3.length() >= 3 ? alt3.substring(0, 3) : alt3;
+				String altLast = alt3.length() >= 3 ? alt3.substring(alt3.length() - 3) : alt3;
+				return prefix + altFirst + n.start + "_" + altLast + n.end + "dup";
+			} else {
+				return prefix + alt3 + n.start + "dup";
+			}
+		}
+
+		// Line 1873-1876: substitution >
+		if (">".equals(n.type)) {
+			return prefix + ref3 + n.start + alt3;
+		}
+
+		// Line 1878-1913: delins or ins
+		if ("delins".equals(n.type) || "ins".equals(n.type)) {
+			// Line 1881: truncate alt after Ter
+			alt3 = alt3.replaceAll("Ter\\w+", "Ter");
+
+			// Line 1883-1891: first and last ref
+			String refFirst = ref3.length() >= 3 ? ref3.substring(0, 3) : ref3;
+			String refLast;
+			if (ref3.endsWith("X") || ref3.endsWith("Ter")) {
+				refLast = "Ter";
+			} else {
+				refLast = ref3.length() >= 3 ? ref3.substring(ref3.length() - 3) : ref3;
+			}
+
+			// Line 1893-1899: stop in ref → add extTer
+			if (n.ref != null && n.ref.endsWith("X")) {
+				String aaTilStop = vepStopLossExtraAA(altCds, cdsSequence != null ? translateCds(cdsSequence) : null, n.start - 1, "loss");
+				if (aaTilStop != null) {
+					alt3 += "extTer" + aaTilStop;
+				}
+			}
+
+			// Line 1902-1912: format
+			if (n.start == n.end && "delins".equals(n.type)) {
+				return prefix + refFirst + n.start + n.type + alt3;
+			} else {
+				int s = Math.min(n.start, n.end);
+				int e = Math.max(n.start, n.end);
+				return prefix + refFirst + s + "_" + refLast + e + n.type + alt3;
+			}
+		}
+
+		// Line 1915-1930: frameshift
+		if ("fs".equals(n.type)) {
+			if ("Ter".equals(alt3)) {
+				// Line 1917-1919: stop gained immediately
+				return prefix + ref3 + n.start + alt3;
+			} else {
+				// Line 1921-1929: count AA until next stop
+				String refPep = (cdsSequence != null) ? translateCds(cdsSequence) : null;
+				String aaTilStop = vepStopLossExtraAA(altCds, refPep, n.start - 1, "fs");
+				if (aaTilStop == null) aaTilStop = "?";
+				return prefix + ref3 + n.start + alt3 + "fsTer" + aaTilStop;
+			}
+		}
+
+		// Line 1932-1942: del
+		if ("del".equals(n.type)) {
+			if (ref3.length() > 3) {
+				String refFirst = ref3.substring(0, 3);
+				String refLast = ref3.substring(ref3.length() - 3);
+				return prefix + refFirst + n.start + "_" + refLast + n.end + "del";
+			} else {
+				return prefix + ref3 + n.start + "del";
+			}
+		}
+
+		// Line 1944-1946: start != end
+		if (n.start != n.end) {
+			return prefix + ref3 + n.start + "_" + alt3 + n.end;
+		}
+
+		// Line 1948-1951: default substitution
+		return prefix + ref3 + n.start + alt3;
+	}
+
+	/** Convert 1-letter peptide to 3-letter code. Handles multi-AA strings. */
+	private String to3Letter(String oneLetterPep) {
+		if (oneLetterPep == null || oneLetterPep.isEmpty() || "-".equals(oneLetterPep)) return oneLetterPep;
+		if ("del".equals(oneLetterPep)) return "del";
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < oneLetterPep.length(); i++) {
+			sb.append(org.alliancegenome.vep.bio.AminoAcid.threeLetterCode(oneLetterPep.charAt(i)));
+		}
+		return sb.toString();
 	}
 }
