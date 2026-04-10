@@ -1817,4 +1817,117 @@ public class TranscriptVariationAllele {
 		}
 		return sb.toString();
 	}
+
+	// ===================================================================
+	// Additional method ports from TranscriptVariationAllele.pm
+	// ===================================================================
+
+	/**
+	 * VEP affects_peptide — line 594-597.
+	 * Check if this variant changes the resultant peptide sequence.
+	 */
+	public static boolean affectsPeptide(String consequence) {
+		if (consequence == null) return false;
+		return consequence.contains("stop") || consequence.contains("missense")
+			|| consequence.contains("frameshift") || consequence.contains("inframe")
+			|| consequence.contains("initiator") || consequence.contains("start_lost");
+	}
+
+	/**
+	 * VEP pep_allele_string — line 610-622.
+	 * Return ref_pep/alt_pep or single pep if synonymous.
+	 */
+	public static String pepAlleleString(String refPep, String altPep) {
+		if (refPep == null || altPep == null) return null;
+		return refPep.equals(altPep) ? refPep : refPep + "/" + altPep;
+	}
+
+	/**
+	 * VEP codon_allele_string — line 634-644.
+	 * Return ref_codon/alt_codon.
+	 */
+	public static String codonAlleleString(String refCodon, String altCodon) {
+		if (refCodon == null || altCodon == null) return null;
+		return refCodon + "/" + altCodon;
+	}
+
+	/**
+	 * VEP display_codon — line 884-915.
+	 * Lowercase codon with uppercase variant bases.
+	 * For insertions (feature_seq = '-'), return all lowercase.
+	 *
+	 * @param codon The codon string
+	 * @param codonPos 0-based position within the codon where the variant starts
+	 * @param featureSeqLen Length of the variant allele (0 for deletions)
+	 * @param isRef True for reference allele (deletion case: feature_seq = '-')
+	 */
+	public static String displayCodon(String codon, int codonPos, int featureSeqLen, boolean isRef) {
+		if (codon == null || "-".equals(codon)) return codon;
+		String display = codon.toLowerCase();
+		// Line 899: if this allele is an indel then just return all lowercase
+		// For reference allele of insertion or alt allele of deletion: feature_seq = '-'
+		if (featureSeqLen <= 0) return display;
+
+		// Line 902-906: uppercase the variant bases
+		StringBuilder sb = new StringBuilder(display);
+		int end = Math.min(codonPos + featureSeqLen, sb.length());
+		for (int i = codonPos; i < end; i++) {
+			sb.setCharAt(i, Character.toUpperCase(sb.charAt(i)));
+		}
+		return sb.toString();
+	}
+
+	/**
+	 * VEP display_codon_allele_string — line 658-673.
+	 * Return ref_display_codon/alt_display_codon.
+	 */
+	public static String displayCodonAlleleString(String refDisplayCodon, String altDisplayCodon) {
+		if (refDisplayCodon == null || altDisplayCodon == null) return null;
+		return refDisplayCodon + "/" + altDisplayCodon;
+	}
+
+	/**
+	 * VEP _get_alternate_cds — TranscriptVariationAllele.pm line 2302-2348.
+	 * Build alternate CDS by splicing the alt allele into the ref CDS.
+	 * This is equivalent to our existing applyIndelToCds method.
+	 *
+	 * @param cdsSequence Reference CDS (_translateable_seq)
+	 * @param cdsStart CDS position of variant start (1-based)
+	 * @param cdsEnd CDS position of variant end (1-based)
+	 * @param altAllele Alt allele in CDS strand orientation (empty for deletion)
+	 * @param utr3 3' UTR sequence to append
+	 * @return Alt CDS + UTR sequence
+	 */
+	public static String getAlternateCds(String cdsSequence, int cdsStart, int cdsEnd,
+			String altAllele, String utr3) {
+		if (cdsSequence == null) return null;
+		// Line 2318-2319: upstream and downstream
+		String upstream = (cdsStart > 1) ? cdsSequence.substring(0, cdsStart - 1) : "";
+		String downstream = (cdsEnd <= cdsSequence.length()) ? cdsSequence.substring(cdsEnd) : "";
+		// Line 2324: fix alt allele
+		String alt = (altAllele != null) ? altAllele.replace("-", "") : "";
+		// Line 2330: build alternate
+		String alternateCds = upstream + alt + downstream;
+		// Line 2331: trim incomplete codon
+		int fullLen = (alternateCds.length() / 3) * 3;
+		if (fullLen < alternateCds.length()) {
+			alternateCds = alternateCds.substring(0, fullLen);
+		}
+		// Line 2337-2342: append UTR
+		if (utr3 != null && !utr3.isEmpty()) {
+			alternateCds += utr3;
+		}
+		return alternateCds;
+	}
+
+	/**
+	 * VEP _trim_incomplete_codon — line 2438-2449.
+	 * Trim trailing bases that don't form a complete codon.
+	 */
+	public static String trimIncompleteCodon(String seq) {
+		if (seq == null) return null;
+		int fullLen = seq.length() - (seq.length() % 3);
+		if (fullLen == seq.length()) return seq;
+		return seq.substring(0, fullLen);
+	}
 }
