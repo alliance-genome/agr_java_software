@@ -1,24 +1,24 @@
 package org.alliancegenome.vep.hgvs;
 
-import org.alliancegenome.vep.annotation.CodingAnnotator.CodingResult;
+import org.alliancegenome.vep.annotation.TranscriptVariationAllele.CodingResult;
 import org.alliancegenome.vep.model.TranscriptModel;
 import org.alliancegenome.vep.reference.ContigAccessionMap;
 import org.alliancegenome.vep.reference.ReferenceGenome;
 
 public class HgvsGenerator {
 
-	private final HgvsGenomicNotation genomic;
+	private final VariationFeature genomic;
 	private final HgvsCodingNotation coding;
-	private final HgvsProteinNotation protein;
+	private final TranscriptVariationAlleleFormat protein;
 
 	public HgvsGenerator(ContigAccessionMap contigMap) {
 		this(contigMap, null);
 	}
 
 	public HgvsGenerator(ContigAccessionMap contigMap, ReferenceGenome reference) {
-		this.genomic = new HgvsGenomicNotation(contigMap, reference);
+		this.genomic = new VariationFeature(contigMap, reference);
 		this.coding = new HgvsCodingNotation(reference);
-		this.protein = new HgvsProteinNotation();
+		this.protein = new TranscriptVariationAlleleFormat();
 	}
 
 	public String generateHgvsg(String chr, int start, int end, String vepRef, String vepAlt) {

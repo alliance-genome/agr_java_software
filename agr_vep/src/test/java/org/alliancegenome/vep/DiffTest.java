@@ -6,7 +6,7 @@ import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import org.alliancegenome.vep.annotation.VariantAnnotator;
+import org.alliancegenome.vep.annotation.OutputFactory;
 import org.alliancegenome.vep.csq.CsqEntry;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -36,7 +36,7 @@ public class DiffTest {
 		"transcript_name", "Genomic_end_position", "Genomic_start_position", "GFF_SOURCE"
 	};
 
-	private static Map<String, VariantAnnotator> annotators = new HashMap<>();
+	private static Map<String, OutputFactory> annotators = new HashMap<>();
 
 	private static final String[] DIFF_MODS = {"SGD", "WB", "ZFIN"};
 
@@ -73,7 +73,7 @@ public class DiffTest {
 			return;
 		}
 
-		VariantAnnotator annotator = annotators.get(mod);
+		OutputFactory annotator = annotators.get(mod);
 		assertNotNull("No annotator for " + mod, annotator);
 
 		// Load expected CSQ entries keyed by chr:pos:ref:alts:feature:allele

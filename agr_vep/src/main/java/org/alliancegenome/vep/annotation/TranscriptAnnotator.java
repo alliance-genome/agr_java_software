@@ -5,7 +5,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.alliancegenome.vep.annotation.CodingAnnotator.CodingResult;
+import org.alliancegenome.vep.annotation.TranscriptVariationAllele.CodingResult;
 import org.alliancegenome.vep.annotation.SpliceAnnotator.SpliceResult;
 import org.alliancegenome.vep.csq.CsqEntry;
 import org.alliancegenome.vep.hgvs.HgvsGenerator;
@@ -22,11 +22,11 @@ import org.alliancegenome.vep.model.TranscriptModel;
  */
 public class TranscriptAnnotator {
 
-	private final CodingAnnotator codingAnnotator;
+	private final TranscriptVariationAllele codingAnnotator;
 	private final HgvsGenerator hgvsGenerator;
 	private final SpliceAnnotator spliceAnnotator;
 
-	public TranscriptAnnotator(CodingAnnotator codingAnnotator, HgvsGenerator hgvsGenerator) {
+	public TranscriptAnnotator(TranscriptVariationAllele codingAnnotator, HgvsGenerator hgvsGenerator) {
 		this.codingAnnotator = codingAnnotator;
 		this.hgvsGenerator = hgvsGenerator;
 		this.spliceAnnotator = new SpliceAnnotator();
@@ -108,7 +108,7 @@ public class TranscriptAnnotator {
 				// Exonic positions (CDS or UTR) → Coordinate → defined.
 				// Intronic positions → Gap → undef → peptide cascade fails → coding_sequence_variant.
 				//
-				// For deletions/SNPs: run CodingAnnotator when BOTH endpoints are in exons.
+				// For deletions/SNPs: run TranscriptVariationAllele when BOTH endpoints are in exons.
 				// For insertions: VEP maps the insertion point to CDS even when one flanking
 				// position is in an intron. Run when EITHER endpoint is in an exon.
 				boolean startInExon = transcript.isInExon(rangeStart);
@@ -123,10 +123,10 @@ public class TranscriptAnnotator {
 					// so frameshift/inframe predicates all return 0. The normal coding path
 					// (peptides, codons) also fails. VEP uses _ins_del_stop_altered fallback
 					// which operates on CDS+UTR sequence (letting UTR bases fill in after edit).
-					// CodingAnnotator's stop_lost uses CDS-only which gives wrong results here.
+					// TranscriptVariationAllele's stop_lost uses CDS-only which gives wrong results here.
 					// Null out and let the fallback handle stop/start determination.
 					if (codingResult != null && (overlaps5utr || overlaps3utr)) {
-						// Keep only start_lost from CodingAnnotator (5'UTR case)
+						// Keep only start_lost from TranscriptVariationAllele (5'UTR case)
 						String cons = codingResult.getConsequence();
 						List<String> kept = new ArrayList<>();
 						for (String term : cons.split("&")) {

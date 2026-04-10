@@ -1,9 +1,9 @@
 package org.alliancegenome.vep.hgvs;
 
-import org.alliancegenome.vep.annotation.CodingAnnotator.CodingResult;
+import org.alliancegenome.vep.annotation.TranscriptVariationAllele.CodingResult;
 import org.alliancegenome.vep.bio.AminoAcid;
 
-public class HgvsProteinNotation {
+public class TranscriptVariationAlleleFormat {
 
 	public String generate(String proteinId, CodingResult result) {
 		int proteinPos = result.getHgvsProteinPosition();

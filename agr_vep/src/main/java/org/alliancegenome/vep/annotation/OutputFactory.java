@@ -17,26 +17,26 @@ import org.alliancegenome.vep.reference.ReferenceGenome;
 import htsjdk.variant.variantcontext.Allele;
 import htsjdk.variant.variantcontext.VariantContext;
 
-public class VariantAnnotator {
+public class OutputFactory {
 
 	private final GeneModel geneModel;
-	private final CodingAnnotator codingAnnotator;
+	private final TranscriptVariationAllele codingAnnotator;
 	private final TranscriptAnnotator transcriptAnnotator;
 	private final HgvsGenerator hgvsGenerator;
 	private final String mod;
 	private final PredictionLookup siftLookup;
 	private final PredictionLookup polyPhenLookup;
 
-	public VariantAnnotator(GeneModel geneModel, ReferenceGenome reference,
+	public OutputFactory(GeneModel geneModel, ReferenceGenome reference,
 			HgvsGenerator hgvsGenerator, String mod) {
 		this(geneModel, reference, hgvsGenerator, mod, null, null);
 	}
 
-	public VariantAnnotator(GeneModel geneModel, ReferenceGenome reference,
+	public OutputFactory(GeneModel geneModel, ReferenceGenome reference,
 			HgvsGenerator hgvsGenerator, String mod,
 			PredictionLookup siftLookup, PredictionLookup polyPhenLookup) {
 		this.geneModel = geneModel;
-		this.codingAnnotator = new CodingAnnotator(reference);
+		this.codingAnnotator = new TranscriptVariationAllele(reference);
 		this.transcriptAnnotator = new TranscriptAnnotator(codingAnnotator, hgvsGenerator);
 		this.hgvsGenerator = hgvsGenerator;
 		this.mod = mod;
@@ -122,7 +122,7 @@ public class VariantAnnotator {
 	private void computeGeneLevelConsequence(List<CsqEntry> entries) {
 		// ProcessOutput.pm lines 49-63:
 		// 1. VEP --flag_pick_allele_gene picks ONE transcript per allele+gene
-		//    (pick_order: mane_select > canonical > appris > tsl > biotype > ccds > rank > length)
+		//	  (pick_order: mane_select > canonical > appris > tsl > biotype > ccds > rank > length)
 		// 2. For each PICKED entry, store its consequence keyed by ALLELE (last PICK per allele wins)
 		// 3. All entries get the stored consequence for their allele
 

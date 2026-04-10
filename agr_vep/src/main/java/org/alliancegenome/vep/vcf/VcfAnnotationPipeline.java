@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
-import org.alliancegenome.vep.annotation.VariantAnnotator;
+import org.alliancegenome.vep.annotation.OutputFactory;
 import org.alliancegenome.vep.csq.CsqEntry;
 import org.alliancegenome.vep.csq.CsqHeaderWriter;
 import org.alliancegenome.vep.gff.Gff3GeneModelBuilder;
@@ -91,7 +91,7 @@ public class VcfAnnotationPipeline {
 				}
 			}
 
-			VariantAnnotator annotator = new VariantAnnotator(geneModel, reference, hgvsGenerator, mod,
+			OutputFactory annotator = new OutputFactory(geneModel, reference, hgvsGenerator, mod,
 				siftLookup, polyPhenLookup);
 
 			try (VCFFileReader reader = new VCFFileReader(vcfFile, false)) {

@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.alliancegenome.vep.annotation.ConsequenceSeverity;
-import org.alliancegenome.vep.annotation.VariantAnnotator;
+import org.alliancegenome.vep.annotation.OutputFactory;
 import org.alliancegenome.vep.csq.CsqEntry;
 import org.alliancegenome.vep.model.GeneModel;
 import org.junit.BeforeClass;
@@ -18,8 +18,8 @@ import htsjdk.variant.variantcontext.VariantContextBuilder;
 
 public class VepAnnotationTest {
 
-	private static VariantAnnotator sgdAnnotator;
-	private static VariantAnnotator wbAnnotator;
+	private static OutputFactory sgdAnnotator;
+	private static OutputFactory wbAnnotator;
 	private static GeneModel sgdGeneModel;
 	private static GeneModel wbGeneModel;
 

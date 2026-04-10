@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.alliancegenome.vep.annotation.VariantAnnotator;
+import org.alliancegenome.vep.annotation.OutputFactory;
 import org.alliancegenome.vep.csq.CsqEntry;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -30,7 +30,7 @@ public class ConsequenceTest {
 	private static final String[] MODS = {"SGD", "WB", "ZFIN", "RGD", "FB"};
 	private static final String[] IGNORED_MODS = {"MGI", "HUMAN"};
 
-	private static Map<String, VariantAnnotator> annotators = new HashMap<>();
+	private static Map<String, OutputFactory> annotators = new HashMap<>();
 
 	private final String mod;
 	private final String consequence;
@@ -87,7 +87,7 @@ public class ConsequenceTest {
 			}
 		}
 
-		VariantAnnotator annotator = annotators.get(mod);
+		OutputFactory annotator = annotators.get(mod);
 		assertNotNull("No annotator for " + mod, annotator);
 
 		int total = 0, matched = 0;

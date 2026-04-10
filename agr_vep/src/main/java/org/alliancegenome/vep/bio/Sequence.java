@@ -1,6 +1,6 @@
 package org.alliancegenome.vep.bio;
 
-public class SequenceUtils {
+public class Sequence {
 
 	private static final char[] COMPLEMENT = new char[128];
 
@@ -21,6 +21,6 @@ public class SequenceUtils {
 		return new String(rc);
 	}
 
-	private SequenceUtils() {
+	private Sequence() {
 	}
 }

@@ -2,7 +2,7 @@ package org.alliancegenome.vep.hgvs;
 
 import java.util.List;
 
-import org.alliancegenome.vep.bio.SequenceUtils;
+import org.alliancegenome.vep.bio.Sequence;
 import org.alliancegenome.vep.model.CdsSegment;
 import org.alliancegenome.vep.model.ExonModel;
 import org.alliancegenome.vep.model.TranscriptModel;
@@ -66,8 +66,8 @@ public class HgvsCodingNotation {
 		}
 
 		// Get strand-aware ref/alt
-		String hgvsRef = transcript.isPositiveStrand() ? refAllele : SequenceUtils.reverseComplement(refAllele);
-		String hgvsAlt = transcript.isPositiveStrand() ? vepAllele : SequenceUtils.reverseComplement(vepAllele);
+		String hgvsRef = transcript.isPositiveStrand() ? refAllele : Sequence.reverseComplement(refAllele);
+		String hgvsAlt = transcript.isPositiveStrand() ? vepAllele : Sequence.reverseComplement(vepAllele);
 
 		// Determine variant type and format notation
 		String notation;
@@ -83,8 +83,8 @@ public class HgvsCodingNotation {
 			// VEP compares on the transcript SLICE. The slice is reverse-complemented for
 			// minus strand. dup_lookup_direction: -1=backward (+ strand), +1=forward (- strand).
 			// In both cases this checks the PRECEDING genomic bases (lower positions):
-			//   +strand: backward in slice = backward in genome = preceding
-			//   -strand: forward in slice = backward in genome = preceding
+			//	 +strand: backward in slice = backward in genome = preceding
+			//	 -strand: forward in slice = backward in genome = preceding
 			// Compare the GENOMIC vepAllele against preceding GENOMIC reference bases.
 			boolean isDup = false;
 			int altLen = vepAllele.length();
@@ -308,7 +308,7 @@ public class HgvsCodingNotation {
 		// Handle 3'UTR positions (start with *)
 		boolean star1 = pos1.startsWith("*");
 		boolean star2 = pos2.startsWith("*");
-		if (star1 && !star2) return 1;  // * positions are always after non-*
+		if (star1 && !star2) return 1;	// * positions are always after non-*
 		if (!star1 && star2) return -1;
 
 		String p1 = star1 ? pos1.substring(1) : pos1;

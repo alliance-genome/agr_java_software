@@ -3,16 +3,16 @@ package org.alliancegenome.vep.hgvs;
 import org.alliancegenome.vep.reference.ContigAccessionMap;
 import org.alliancegenome.vep.reference.ReferenceGenome;
 
-public class HgvsGenomicNotation {
+public class VariationFeature {
 
 	private final ContigAccessionMap contigMap;
 	private final ReferenceGenome reference;
 
-	public HgvsGenomicNotation(ContigAccessionMap contigMap) {
+	public VariationFeature(ContigAccessionMap contigMap) {
 		this(contigMap, null);
 	}
 
-	public HgvsGenomicNotation(ContigAccessionMap contigMap, ReferenceGenome reference) {
+	public VariationFeature(ContigAccessionMap contigMap, ReferenceGenome reference) {
 		this.contigMap = contigMap;
 		this.reference = reference;
 	}

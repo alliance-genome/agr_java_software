@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.alliancegenome.vep.bio.CodonTable;
-import org.alliancegenome.vep.bio.SequenceUtils;
+import org.alliancegenome.vep.bio.Sequence;
 import org.alliancegenome.vep.model.CdsSegment;
 import org.alliancegenome.vep.model.ExonModel;
 import org.alliancegenome.vep.model.TranscriptModel;
@@ -13,11 +13,11 @@ import org.alliancegenome.vep.reference.ReferenceGenome;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
-public class CodingAnnotator {
+public class TranscriptVariationAllele {
 
 	private final ReferenceGenome reference;
 
-	public CodingAnnotator(ReferenceGenome reference) {
+	public TranscriptVariationAllele(ReferenceGenome reference) {
 		this.reference = reference;
 	}
 
@@ -97,7 +97,7 @@ public class CodingAnnotator {
 		String refCodon = cdsSequence.substring(codonStart, codonStart + 3);
 		char[] altCodonChars = refCodon.toCharArray();
 
-		String effectiveAlt = transcript.isPositiveStrand() ? altBase : SequenceUtils.reverseComplement(altBase);
+		String effectiveAlt = transcript.isPositiveStrand() ? altBase : Sequence.reverseComplement(altBase);
 		altCodonChars[posInCodon] = effectiveAlt.charAt(0);
 		String altCodon = new String(altCodonChars);
 
@@ -993,7 +993,7 @@ public class CodingAnnotator {
 				if (exon.getEnd() <= cdsEnd) break;
 				int utrStart = Math.max(exon.getStart(), cdsEnd + 1);
 				String seq = reference.getSequence(chr, utrStart, exon.getEnd());
-				utr.append(SequenceUtils.reverseComplement(seq.toUpperCase()));
+				utr.append(Sequence.reverseComplement(seq.toUpperCase()));
 			}
 		}
 		return utr.toString();
@@ -1020,7 +1020,7 @@ public class CodingAnnotator {
 				if (exon.getStart() >= cdsStart) continue;
 				int utrEnd = Math.min(exon.getEnd(), cdsStart - 1);
 				String seq = reference.getSequence(chr, exon.getStart(), utrEnd);
-				utr.append(SequenceUtils.reverseComplement(seq.toUpperCase()));
+				utr.append(Sequence.reverseComplement(seq.toUpperCase()));
 			}
 		}
 		return utr.toString();
@@ -1071,7 +1071,7 @@ public class CodingAnnotator {
 				// For pure deletion (vepAllele="-"): allele_seq is empty
 				// For complex variant (vepAllele="G"): allele_seq replaces the deleted region
 				String replaceSeq = "-".equals(vepAllele) ? "" :
-					(transcript.isPositiveStrand() ? vepAllele : SequenceUtils.reverseComplement(vepAllele));
+					(transcript.isPositiveStrand() ? vepAllele : Sequence.reverseComplement(vepAllele));
 				return seq.substring(0, delStart) + replaceSeq + seq.substring(delStart + delLen);
 			} else {
 				int insPos;
@@ -1080,7 +1080,7 @@ public class CodingAnnotator {
 				} else {
 					insPos = cdsPos;
 				}
-				String insertSeq = transcript.isPositiveStrand() ? vepAllele : SequenceUtils.reverseComplement(vepAllele);
+				String insertSeq = transcript.isPositiveStrand() ? vepAllele : Sequence.reverseComplement(vepAllele);
 				if (insPos < 0) insPos = 0;
 				if (insPos > seq.length()) insPos = seq.length();
 				return seq.substring(0, insPos) + insertSeq + seq.substring(insPos);
@@ -1143,7 +1143,7 @@ public class CodingAnnotator {
 			for (int i = segments.size() - 1; i >= 0; i--) {
 				CdsSegment seg = segments.get(i);
 				String seq = reference.getSequence(chr, seg.getStart(), seg.getEnd());
-				cds.append(SequenceUtils.reverseComplement(seq.toUpperCase()));
+				cds.append(Sequence.reverseComplement(seq.toUpperCase()));
 			}
 		}
 
