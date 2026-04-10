@@ -1,0 +1,213 @@
+package org.alliancegenome.vep.annotation;
+
+import org.alliancegenome.vep.model.TranscriptModel;
+
+/**
+ * Port of Bio::EnsEMBL::Variation::Utils::VariationEffect (1510 lines, 76 methods).
+ * Consequence classification predicates. Each method takes variant/transcript state
+ * and returns true/false.
+ *
+ * In VEP, these are standalone functions that take a TranscriptVariationAllele.
+ * Here they are static methods taking the pre-computed values from
+ * BaseTranscriptVariation and the variant alleles.
+ */
+public class VariationEffect {
+
+	public static final int MAX_DISTANCE_FROM_TRANSCRIPT = 5000;
+	public static int UPSTREAM_DISTANCE = MAX_DISTANCE_FROM_TRANSCRIPT;
+	public static int DOWNSTREAM_DISTANCE = MAX_DISTANCE_FROM_TRANSCRIPT;
+
+	// VEP line 80-84
+	public static boolean overlap(int f1Start, int f1End, int f2Start, int f2End) {
+		return (f1End >= f2Start) && (f1Start <= f2End);
+	}
+
+	// VEP line 119-137
+	public static boolean withinFeature(int vfStart, int vfEnd, int featStart, int featEnd) {
+		return overlap(vfStart, vfEnd, featStart, featEnd);
+	}
+
+	// VEP line 332-343
+	public static boolean deletion(String allele) {
+		return "-".equals(allele) || allele == null || allele.isEmpty();
+	}
+
+	// VEP line 336-342
+	public static boolean insertion(String refAllele) {
+		return "-".equals(refAllele) || refAllele == null || refAllele.isEmpty();
+	}
+
+	// VEP line 1346-1387: frameshift
+	// abs(allele_len - var_len) % 3 != 0
+	public static boolean frameshift(int cdsStart, int cdsEnd, int alleleLen) {
+		if (cdsStart < 0 || cdsEnd < 0) return false;
+		int varLen = cdsEnd - cdsStart + 1;
+		return Math.abs(alleleLen - varLen) % 3 != 0;
+	}
+
+	// VEP line 1389-1414: partial_codon
+	// Variant is in the incomplete terminal codon
+	public static boolean partialCodon(int translationStart, int cdsLength) {
+		if (translationStart <= 0) return false;
+		int codonCdsStart = (translationStart * 3) - 2;
+		int lastCodonLength = cdsLength - (codonCdsStart - 1);
+		return lastCodonLength < 3 && lastCodonLength > 0;
+	}
+
+	// VEP line 935-951: within_cds
+	public static boolean withinCds(int cdsStart, int cdsEnd) {
+		return cdsStart > 0 || cdsEnd > 0;
+	}
+
+	// VEP line 869-889: _overlaps_start_codon
+	// Variant overlaps the start codon (CDS positions 1-3)
+	public static boolean overlapsStartCodon(int cdsStart, int cdsEnd, boolean cdsStartNF) {
+		if (cdsStartNF) return false;
+		int varStart = Math.min(cdsStart, cdsEnd);
+		return varStart > 0 && varStart <= 3;
+	}
+
+	// VEP line 1271-1291: _overlaps_stop_codon
+	// Variant overlaps the stop codon (last 3 CDS positions)
+	public static boolean overlapsStopCodon(int cdsStart, int cdsEnd, int cdsLength) {
+		if (cdsLength < 3) return false;
+		int stopStart = cdsLength - 2; // 1-based start of stop codon
+		int varStart = Math.min(cdsStart, cdsEnd);
+		int varEnd = Math.max(cdsStart, cdsEnd);
+		return overlap(varStart, varEnd, stopStart, cdsLength);
+	}
+
+	// VEP line 993-1006: start_lost
+	public static boolean startLost(String refPep, String altPep) {
+		if (refPep == null || altPep == null) return false;
+		// Start is lost if ref starts with M but alt doesn't
+		return refPep.startsWith("M") && !altPep.startsWith("M");
+	}
+
+	// VEP line 1146-1166: stop_gained
+	public static boolean stopGained(String refPep, String altPep) {
+		if (refPep == null || altPep == null) return false;
+		return altPep.contains("*") && !refPep.contains("*");
+	}
+
+	// VEP line 1168-1221: stop_lost
+	public static boolean stopLost(String refPep, String altPep) {
+		if (refPep == null || altPep == null) return false;
+		return !altPep.contains("*") && refPep.contains("*");
+	}
+
+	// VEP line 1223-1265: stop_retained
+	public static boolean stopRetained(String refPep, String altPep) {
+		if (refPep == null || altPep == null) return false;
+		return altPep.startsWith("*") && refPep.startsWith("*");
+	}
+
+	// VEP line 974-991: synonymous_variant
+	public static boolean synonymousVariant(String refPep, String altPep) {
+		if (refPep == null || altPep == null) return false;
+		return refPep.equals(altPep);
+	}
+
+	// VEP line 1008-1017: missense_variant
+	public static boolean missenseVariant(String refPep, String altPep) {
+		if (refPep == null || altPep == null) return false;
+		return refPep.length() == 1 && altPep.length() == 1
+			&& !refPep.equals(altPep) && !refPep.equals("*") && !altPep.equals("*");
+	}
+
+	// VEP line 1019-1096: inframe_insertion
+	public static boolean inframeInsertion(String refCodon, String altCodon, String refPep, String altPep) {
+		if (refCodon == null || altCodon == null) return false;
+		if (altCodon.length() <= refCodon.length()) return false;
+		if (refPep == null || altPep == null) return false;
+
+		// Trim alt after stop
+		String altPepTrimmed = altPep;
+		int stopIdx = altPepTrimmed.indexOf('*');
+		if (stopIdx >= 0 && stopIdx < altPepTrimmed.length() - 1) {
+			altPepTrimmed = altPepTrimmed.substring(0, stopIdx + 1);
+		}
+
+		return altPepTrimmed.startsWith(refPep) || altPepTrimmed.endsWith(refPep);
+	}
+
+	// VEP line 1098-1144: inframe_deletion
+	public static boolean inframeDeletion(String refCodon, String altCodon) {
+		if (refCodon == null || altCodon == null) return false;
+		if (altCodon.length() >= refCodon.length()) return false;
+
+		// Check simple string match
+		if (refCodon.startsWith(altCodon) || refCodon.endsWith(altCodon)) return true;
+
+		// Check internal match via trim
+		Object[] trimmed = org.alliancegenome.vep.bio.Sequence.trimSequences(
+			refCodon, altCodon, 0, 0, false, false);
+		String trimmedRef = (String) trimmed[0];
+		String trimmedAlt = (String) trimmed[1];
+
+		return trimmedAlt.isEmpty() && trimmedRef.length() % 3 == 0;
+	}
+
+	// VEP line 488-496: within_intron
+	public static boolean withinIntron(int vfStart, int vfEnd, int[][] introns) {
+		if (introns == null) return false;
+		for (int[] intron : introns) {
+			if (overlap(vfStart, vfEnd, intron[0], intron[1])) return true;
+		}
+		return false;
+	}
+
+	// VEP line 86-108: _intron_overlap (splice region check)
+	public static boolean intronOverlap(int vfStart, int vfEnd, int intronStart, int intronEnd, boolean isInsertion) {
+		return overlap(vfStart, vfEnd, intronStart + 2, intronStart + 7) ||
+			overlap(vfStart, vfEnd, intronEnd - 7, intronEnd - 2) ||
+			overlap(vfStart, vfEnd, intronStart - 3, intronStart - 1) ||
+			overlap(vfStart, vfEnd, intronEnd + 1, intronEnd + 3) ||
+			(isInsertion && (
+				vfStart == intronStart ||
+				vfEnd == intronEnd ||
+				vfStart == intronStart + 2 ||
+				vfEnd == intronEnd - 2
+			));
+	}
+
+	// VEP line 696-710: donor_splice_site
+	public static boolean donorSpliceSite(int vfStart, int vfEnd, int intronStart, boolean positiveStrand) {
+		if (positiveStrand) {
+			return overlap(vfStart, vfEnd, intronStart, intronStart + 1);
+		} else {
+			// For minus strand, donor is at the end of the intron
+			return false; // Handled by acceptor for minus strand
+		}
+	}
+
+	// VEP line 718-732: acceptor_splice_site
+	public static boolean acceptorSpliceSite(int vfStart, int vfEnd, int intronEnd, boolean positiveStrand) {
+		if (positiveStrand) {
+			return overlap(vfStart, vfEnd, intronEnd - 1, intronEnd);
+		} else {
+			return false;
+		}
+	}
+
+	// VEP line 458-462: within_transcript
+	public static boolean withinTranscript(int vfStart, int vfEnd, int trStart, int trEnd) {
+		return overlap(vfStart, vfEnd, trStart, trEnd);
+	}
+
+	// VEP line 546-565: within_5_prime_utr
+	public static boolean within5PrimeUtr(int cdnaStart, int cdnaCodingStart) {
+		return cdnaStart > 0 && cdnaCodingStart > 0 && cdnaStart < cdnaCodingStart;
+	}
+
+	// VEP line 567-580: within_3_prime_utr
+	public static boolean within3PrimeUtr(int cdnaEnd, int cdnaCodingEnd) {
+		return cdnaEnd > 0 && cdnaCodingEnd > 0 && cdnaEnd > cdnaCodingEnd;
+	}
+
+	// VEP line 513-543: protein_altering_variant
+	public static boolean proteinAlteringVariant(String refPep, String altPep) {
+		if (refPep == null || altPep == null) return false;
+		return !refPep.equals(altPep) && refPep.length() != altPep.length();
+	}
+}

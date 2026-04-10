@@ -1,7 +1,10 @@
 package org.alliancegenome.vep.annotation;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.alliancegenome.vep.bio.Sequence;
+import org.alliancegenome.vep.model.ExonModel;
 import org.alliancegenome.vep.model.Mapper;
 import org.alliancegenome.vep.model.TranscriptMapper;
 import org.alliancegenome.vep.model.TranscriptModel;
@@ -77,6 +80,85 @@ public class BaseTranscriptVariation {
 	public int translationEnd() { return translationEnd; }
 	public int codonPosition() { return codonPosition; }
 	public TranscriptModel transcript() { return transcript; }
+
+	/**
+	 * VEP BaseTranscriptVariation::exon_number (line 679-713).
+	 * Returns "N/total" string or null if not in an exon.
+	 */
+	public String exonNumber() {
+		List<ExonModel> exons = transcript.getExons();
+		int total = exons.size();
+		int gStart = Math.min(genomicStart, genomicEnd);
+		int gEnd = Math.max(genomicStart, genomicEnd);
+
+		List<Integer> numbers = new ArrayList<>();
+		for (int i = 0; i < exons.size(); i++) {
+			ExonModel exon = exons.get(i);
+			if (gEnd >= exon.getStart() && gStart <= exon.getEnd()) {
+				numbers.add(exon.getOrdinal());
+			}
+		}
+		if (numbers.isEmpty()) return null;
+		java.util.Collections.sort(numbers);
+		String num = numbers.size() > 1
+			? numbers.get(0) + "-" + numbers.get(numbers.size() - 1)
+			: String.valueOf(numbers.get(0));
+		return num + "/" + total;
+	}
+
+	/**
+	 * VEP BaseTranscriptVariation::intron_number (line 727-758).
+	 * Returns "N/total" string or null if not in an intron.
+	 */
+	public String intronNumber() {
+		List<int[]> introns = transcript.getIntronIntervals();
+		if (introns == null || introns.isEmpty()) return null;
+		int total = introns.size();
+		int gStart = Math.min(genomicStart, genomicEnd);
+		int gEnd = Math.max(genomicStart, genomicEnd);
+
+		List<Integer> numbers = new ArrayList<>();
+		for (int i = 0; i < introns.size(); i++) {
+			int[] intron = introns.get(i);
+			if (gEnd >= intron[0] && gStart <= intron[1]) {
+				numbers.add(i + 1);
+			}
+		}
+		if (numbers.isEmpty()) return null;
+		java.util.Collections.sort(numbers);
+		String num = numbers.size() > 1
+			? numbers.get(0) + "-" + numbers.get(numbers.size() - 1)
+			: String.valueOf(numbers.get(0));
+		return num + "/" + total;
+	}
+
+	/**
+	 * VEP BaseTranscriptVariation::distance_to_transcript (line 582-612).
+	 */
+	public int distanceToTranscript() {
+		int tStart = transcript.getStart();
+		int tEnd = transcript.getEnd();
+		int gStart = Math.min(genomicStart, genomicEnd);
+		int gEnd = Math.max(genomicStart, genomicEnd);
+
+		if (gEnd < tStart) return tStart - gEnd;
+		if (gStart > tEnd) return gStart - tEnd;
+		return 0;
+	}
+
+	/**
+	 * VEP VariationFeatureOverlapAllele::feature_seq (line 246-264).
+	 * Returns the allele sequence in the transcript strand orientation.
+	 * If VF strand != transcript strand, reverse complement.
+	 */
+	public static String featureSeq(String allele, boolean variantPositiveStrand,
+			boolean transcriptPositiveStrand) {
+		if (allele == null || "-".equals(allele) || allele.isEmpty()) return allele;
+		if (variantPositiveStrand != transcriptPositiveStrand) {
+			return Sequence.reverseComplement(allele);
+		}
+		return allele;
+	}
 
 	/**
 	 * VEP genomic2cds for a single position.

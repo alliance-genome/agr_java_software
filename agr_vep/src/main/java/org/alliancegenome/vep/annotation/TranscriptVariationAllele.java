@@ -732,14 +732,7 @@ public class TranscriptVariationAllele {
 		return new String[]{ref, alt};
 	}
 
-	private String formatDisplayCodon(String codon, int codonPos, int variantLen) {
-		StringBuilder sb = new StringBuilder(codon.toLowerCase());
-		int end = Math.min(codonPos + variantLen, sb.length());
-		for (int i = codonPos; i < end; i++) {
-			sb.setCharAt(i, Character.toUpperCase(sb.charAt(i)));
-		}
-		return sb.toString();
-	}
+	// formatDisplayCodon removed — replaced by displayCodon() Perl port
 
 	private String safeSubstring(String s, int start, int end) {
 		if (s == null || start < 0 || start >= s.length()) return null;
@@ -1086,33 +1079,7 @@ public class TranscriptVariationAllele {
 		}
 	}
 
-	int genomicToCdsPosition(TranscriptModel transcript, int genomicPos) {
-		List<CdsSegment> segments = transcript.getCdsSegments();
-		int cdsPos = 0;
-
-		if (transcript.isPositiveStrand()) {
-			// Apply phase offset from first CDS segment
-			cdsPos -= segments.get(0).getPhase();
-			for (CdsSegment seg : segments) {
-				if (genomicPos >= seg.getStart() && genomicPos <= seg.getEnd()) {
-					return cdsPos + (genomicPos - seg.getStart()) + 1;
-				}
-				cdsPos += seg.getLength();
-			}
-		} else {
-			// Minus strand: CDS is read in reverse genomic order
-			cdsPos -= segments.get(segments.size() - 1).getPhase();
-			for (int i = segments.size() - 1; i >= 0; i--) {
-				CdsSegment seg = segments.get(i);
-				if (genomicPos >= seg.getStart() && genomicPos <= seg.getEnd()) {
-					return cdsPos + (seg.getEnd() - genomicPos) + 1;
-				}
-				cdsPos += seg.getLength();
-			}
-		}
-
-		return -1;
-	}
+	// genomicToCdsPosition removed — replaced by BaseTranscriptVariation.genomicToCds()
 
 	/**
 	 * VEP partial_codon (VariationEffect.pm line 1389-1414):
@@ -1157,26 +1124,7 @@ public class TranscriptVariationAllele {
 		return cds.toString();
 	}
 
-	int computeCdnaPosition(TranscriptModel transcript, int genomicPos) {
-		int cdnaPos = 0;
-		if (transcript.isPositiveStrand()) {
-			for (var exon : transcript.getExons()) {
-				if (genomicPos >= exon.getStart() && genomicPos <= exon.getEnd()) {
-					return cdnaPos + (genomicPos - exon.getStart()) + 1;
-				}
-				cdnaPos += (exon.getEnd() - exon.getStart() + 1);
-			}
-		} else {
-			for (int i = transcript.getExons().size() - 1; i >= 0; i--) {
-				var exon = transcript.getExons().get(i);
-				if (genomicPos >= exon.getStart() && genomicPos <= exon.getEnd()) {
-					return cdnaPos + (exon.getEnd() - genomicPos) + 1;
-				}
-				cdnaPos += (exon.getEnd() - exon.getStart() + 1);
-			}
-		}
-		return -1;
-	}
+	// computeCdnaPosition removed — replaced by BaseTranscriptVariation.genomicToCdna()
 
 	private static String formatCodon(String codon, int variantPos) {
 		StringBuilder sb = new StringBuilder(3);
