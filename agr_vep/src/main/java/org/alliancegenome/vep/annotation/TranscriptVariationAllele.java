@@ -659,8 +659,10 @@ public class TranscriptVariationAllele {
 			}
 
 			// VEP display_codon (line 884-915) + display_codon_allele_string (line 658-673)
-			// Exact Perl port: codon_position is 1-based (TranscriptVariation.pm line 302)
-			int codonPosition1 = ((trStartCds - 1) % 3) + 1;
+			// VEP codon_position (TranscriptVariation.pm line 292-302):
+			// Uses cdna_start = ALWAYS the lower cDNA position regardless of variant type
+			int codonPosCds = Math.min(cdsStart, cdsEnd);
+			int codonPosition1 = ((codonPosCds - 1) % 3) + 1;
 			// VEP feature_seq: ref TVA gets refAllele, alt TVA gets vepAllele
 			// For deletions: ref feature_seq = deleted bases, alt feature_seq = "-"
 			// For insertions: ref feature_seq = "-", alt feature_seq = inserted bases
