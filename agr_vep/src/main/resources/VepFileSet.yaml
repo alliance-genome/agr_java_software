@@ -1,0 +1,73 @@
+rootPath: "/Users/olinblodgett/Desktop/FMS/HTP"
+outputPath: "OUTPUT"
+gffPath: "GFF/original"
+inputPath: "INPUT"
+fastaPath: "FASTA"
+bamPath: "BAM"
+mmapPath: "MMAP"
+synonymsPath: "SYNONYMS"
+tmapPath: "TMAP"
+
+modSources:
+  - mod: FB
+    active: true
+    vcfFile: "FB.vcf.gz"
+    gffFile: "FB_0.gff.gz"
+    fastaFile: "FB_R627.fa"
+    bamFile: ""
+    synonymsFile: "FB_chr_synonyms.txt"
+    transcriptMapFile: "FB_transcript_map.tsv"
+
+  - mod: HUMAN
+    active: true
+    vcfFile: "HUMAN.vcf.gz"
+    gffFile: "HUMAN_0.gff.gz"
+    fastaFile: "HUMAN.fa"
+    bamFile: ""
+    synonymsFile: "HUMAN_chr_synonyms.txt"
+    transcriptMapFile: "HUMAN_transcript_map.tsv"
+
+  - mod: MGI
+    active: true
+    vcfFile: "MGI.vcf.gz"
+    gffFile: "MGI_2.gff.gz"
+    fastaFile: "MGI_GRCm39.fa"
+    bamFile: ""
+    synonymsFile: "MGI_chr_synonyms.txt"
+    transcriptMapFile: "MGI_transcript_map.tsv"
+
+  - mod: RGD
+    active: true
+    vcfFile: "RGD.vcf.gz"
+    gffFile: "RGD_0.gff.gz"
+    fastaFile: "RGD_mRatBN7.2.fa"
+    bamFile: ""
+    synonymsFile: "RGD_chr_synonyms.txt"
+    transcriptMapFile: "RGD_transcript_map.tsv"
+
+  - mod: SGD
+    active: true
+    vcfFile: "SGD.vcf.gz"
+    gffFile: "SGD_0.gff.gz"
+    fastaFile: "SGD_SGDr64.fa"
+    bamFile: ""
+    synonymsFile: "SGD_chr_synonyms.txt"
+    transcriptMapFile: "SGD_transcript_map.tsv"
+
+  - mod: WB
+    active: true
+    vcfFile: "WB.vcf.gz"
+    gffFile: "WB_4.gff.gz"
+    fastaFile: "WB_WBcel235.fa"
+    bamFile: ""
+    synonymsFile: "WB_chr_synonyms.txt"
+    transcriptMapFile: "WB_transcript_map.tsv"
+
+  - mod: ZFIN
+    active: true
+    vcfFile: "ZFIN.vcf.gz"
+    gffFile: "ZFIN_0.gff.gz"
+    fastaFile: "ZFIN_GRCz11.fa"
+    bamFile: ""
+    synonymsFile: "ZFIN_chr_synonyms.txt"
+    transcriptMapFile: "ZFIN_transcript_map.tsv"

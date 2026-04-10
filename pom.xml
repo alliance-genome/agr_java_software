@@ -16,6 +16,7 @@
 		<module>agr_intermine_data_extractor</module>
 		<module>agr_variant_indexer</module>
 		<module>agr_file_generator</module>
+		<module>agr_vep</module>
 	</modules>
 	<properties>
 		<maven.compiler.source>21</maven.compiler.source>

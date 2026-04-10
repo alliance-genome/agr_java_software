@@ -1,0 +1,1269 @@
+package org.alliancegenome.vep.annotation;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.alliancegenome.vep.bio.CodonTable;
+import org.alliancegenome.vep.bio.SequenceUtils;
+import org.alliancegenome.vep.model.CdsSegment;
+import org.alliancegenome.vep.model.ExonModel;
+import org.alliancegenome.vep.model.TranscriptModel;
+import org.alliancegenome.vep.reference.ReferenceGenome;
+
+import lombok.extern.log4j.Log4j2;
+
+@Log4j2
+public class CodingAnnotator {
+
+	private final ReferenceGenome reference;
+
+	public CodingAnnotator(ReferenceGenome reference) {
+		this.reference = reference;
+	}
+
+	public CodingResult annotate(TranscriptModel transcript, String chr, int variantStart, int variantEnd,
+			String vepAllele, String refAllele) {
+
+		try {
+			return annotateInternal(transcript, chr, variantStart, variantEnd, vepAllele, refAllele);
+		} catch (Exception e) {
+			log.debug("Failed to annotate coding variant at {}:{} for {}: {}",
+				chr, variantStart, transcript.getTranscriptId(), e.getMessage());
+			return null;
+		}
+	}
+
+	private CodingResult annotateInternal(TranscriptModel transcript, String chr, int variantStart, int variantEnd,
+			String vepAllele, String refAllele) {
+
+		// VEP seq_is_unambiguous_dna: allele must contain only A,C,G,T,-
+		// Ambiguous bases (N, R, Y, etc.) produce X in peptide → coding_sequence_variant
+		if (!isUnambiguousDna(vepAllele) || !isUnambiguousDna(refAllele)) {
+			return null;
+		}
+
+		boolean isDeletion = "-".equals(vepAllele);
+		boolean isInsertion = "-".equals(refAllele);
+
+		// For indels, classify by frame
+		if (isDeletion || isInsertion) {
+			return annotateIndel(transcript, chr, variantStart, variantEnd, vepAllele, refAllele, isDeletion);
+		}
+
+		// Complex variant (different length ref/alt, neither is "-"):
+		// VEP processes these the same as indels. The _get_alternate_cds builds
+		// upstream[0..cds_start-2] + alt_allele + downstream[cds_end..]
+		// replacing the full ref region with the alt allele.
+		// vf_nt_len = cds_end - cds_start + 1, allele_len = length(alt)
+		// frameshift if abs(allele_len - vf_nt_len) % 3 != 0
+		if (vepAllele.length() != refAllele.length()) {
+			// Determine if net effect is a deletion or insertion
+			boolean netDeletion = vepAllele.length() < refAllele.length();
+			return annotateIndel(transcript, chr, variantStart, variantEnd, vepAllele, refAllele, netDeletion);
+		}
+
+		// SNP in CDS
+		if (vepAllele.length() == 1) {
+			return annotateSNP(transcript, chr, variantStart, vepAllele);
+		}
+
+		// Multi-base substitution (MNV, equal length): treat as SNP at first position
+		return annotateSNP(transcript, chr, variantStart, vepAllele.substring(0, 1));
+	}
+
+	private static boolean isUnambiguousDna(String seq) {
+		for (int i = 0; i < seq.length(); i++) {
+			char c = Character.toUpperCase(seq.charAt(i));
+			if (c != 'A' && c != 'C' && c != 'G' && c != 'T' && c != '-') {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private CodingResult annotateSNP(TranscriptModel transcript, String chr, int pos, String altBase) {
+		int cdsPos = genomicToCdsPosition(transcript, pos);
+		if (cdsPos < 0) return null;
+
+		int codonIndex = (cdsPos - 1) / 3;
+		int posInCodon = (cdsPos - 1) % 3;
+
+		String cdsSequence = buildCdsSequence(transcript, chr);
+		if (cdsSequence == null || cdsPos > cdsSequence.length()) return null;
+
+		int codonStart = codonIndex * 3;
+		if (codonStart + 3 > cdsSequence.length()) return null;
+
+		String refCodon = cdsSequence.substring(codonStart, codonStart + 3);
+		char[] altCodonChars = refCodon.toCharArray();
+
+		String effectiveAlt = transcript.isPositiveStrand() ? altBase : SequenceUtils.reverseComplement(altBase);
+		altCodonChars[posInCodon] = effectiveAlt.charAt(0);
+		String altCodon = new String(altCodonChars);
+
+		char refAA = CodonTable.translate(refCodon);
+		char altAA = CodonTable.translate(altCodon);
+
+		CodingResult result = new CodingResult();
+		result.setCdsPosition(cdsPos);
+		result.setProteinPosition(codonIndex + 1);
+		result.setRefAA(refAA);
+		result.setAltAA(altAA);
+		result.setRefCodon(formatCodon(refCodon, posInCodon));
+		result.setAltCodon(formatCodon(altCodon, posInCodon));
+		result.setCdnaPosition(computeCdnaPosition(transcript, pos));
+
+		// Classify
+		if (cdsPos <= 3 && !transcript.isCdsStartNF() && CodonTable.isStart(refCodon) && !CodonTable.isStart(altCodon)) {
+			result.setConsequence("start_lost");
+		} else if (refAA == '*' && altAA == '*') {
+			result.setConsequence("stop_retained_variant");
+		} else if (refAA == '*' && altAA != '*') {
+			result.setConsequence("stop_lost");
+		} else if (altAA == '*') {
+			result.setConsequence("stop_gained");
+		} else if (refAA == altAA) {
+			result.setConsequence("synonymous_variant");
+		} else {
+			result.setConsequence("missense_variant");
+		}
+
+		return result;
+	}
+
+	private CodingResult annotateIndel(TranscriptModel transcript, String chr, int variantStart, int variantEnd,
+			String vepAllele, String refAllele, boolean isDeletion) {
+
+		// VEP tracks both cds_start and cds_end (BaseTranscriptVariation.pm line 252-290).
+		// genomic2cds returns coords in transcript order (5'→3').
+		// cds_start = first.start (lower CDS value), cds_end = last.end (higher CDS value).
+		// For minus strand: higher genomic → lower CDS (5' end).
+		int cdsStart, cdsEnd;
+		if (isDeletion) {
+			int cdsA = genomicToCdsPosition(transcript, variantStart);
+			int cdsB = genomicToCdsPosition(transcript, variantEnd);
+			if (cdsA < 0 && cdsB < 0) return null;
+			if (cdsA < 0) cdsA = cdsB;
+			if (cdsB < 0) cdsB = cdsA;
+			cdsStart = Math.min(cdsA, cdsB);
+			cdsEnd = Math.max(cdsA, cdsB);
+		} else {
+			// Insertion: map both positions. VEP's cds_start from variantStart, cds_end from variantEnd.
+			cdsStart = genomicToCdsPosition(transcript, variantStart);
+			cdsEnd = genomicToCdsPosition(transcript, variantEnd);
+			// If variantStart doesn't map (at CDS boundary), try variantEnd
+			if (cdsStart < 0 && cdsEnd >= 0) {
+				cdsStart = cdsEnd + 1;
+			} else if (cdsEnd < 0 && cdsStart >= 0) {
+				cdsEnd = cdsStart - 1;
+			}
+			if (cdsStart < 0 && cdsEnd < 0) return null;
+		}
+
+		String cdsSequence = buildCdsSequence(transcript, chr);
+		if (cdsSequence == null) return null;
+
+		// VEP: vf_nt_len = cds_end - cds_start + 1 (ref CDS span)
+		// VEP: allele_len = length(alt allele) (0 for pure deletions)
+		int vfNtLen; // ref CDS span
+		int alleleLen; // alt allele length
+		if (isDeletion) {
+			vfNtLen = Math.abs(cdsEnd - cdsStart) + 1;
+			if (vfNtLen <= 0) return null;
+			alleleLen = "-".equals(vepAllele) ? 0 : vepAllele.length();
+		} else {
+			vfNtLen = "-".equals(refAllele) ? 0 : Math.abs(cdsEnd - cdsStart) + 1;
+			alleleLen = vepAllele.length();
+		}
+		// indelLength = the ref span for deletions, alt length for insertions
+		// Used for CDS position calculations and codon extraction
+		int indelLength = isDeletion ? vfNtLen : alleleLen;
+
+		// Use cdsStart for position (VEP uses cds_start for CDS_position output)
+		int cdsPos = cdsStart;
+		CodingResult result = new CodingResult();
+		result.setCdsPosition(cdsPos);
+		result.setCdsEnd(cdsEnd);
+		result.setProteinPosition((cdsPos - 1) / 3 + 1);
+		result.setCdnaPosition(computeCdnaPosition(transcript, variantStart));
+		if (!isDeletion) {
+			// Also store cdna for variantEnd for insertion range
+			result.setCdnaEnd(computeCdnaPosition(transcript, variantEnd));
+		}
+
+		// VEP partial_codon guard (VariationEffect.pm line 1389-1414):
+		// Checked BEFORE frameshift/inframe — blocks those if variant is in incomplete terminal codon.
+		// VEP checks translation_start is defined (must map to CDS) and variant falls
+		// entirely within the last incomplete codon. For deletions spanning past CDS end,
+		// the fallback path handles stop_lost etc.
+		if (isPartialCodon(transcript, cdsPos, cdsSequence.length())
+				&& (!isDeletion || cdsEnd <= cdsSequence.length())) {
+			result.setConsequence("incomplete_terminal_codon_variant");
+			return result;
+		}
+
+		// VEP frameshift check (VariationEffect.pm line 1346-1387):
+		// abs(allele_len - vf_nt_len) % 3 != 0
+		boolean isFrameshift = Math.abs(alleleLen - vfNtLen) % 3 != 0;
+
+		// Get the affected codon region peptides (like VEP's _get_peptide_alleles)
+		int codonStart = ((cdsPos - 1) / 3) * 3;
+		String refCodonRegion = safeSubstring(cdsSequence, codonStart, codonStart + 3);
+		String refLocalPep = refCodonRegion != null ? String.valueOf(CodonTable.translate(refCodonRegion)) : null;
+
+		// Check if variant overlaps stop codon (VEP: _overlaps_stop_codon, line 1358-1380)
+		// Must check the full extent of the variant, not just the start position
+		int cdsLen = cdsSequence.length();
+		int stopCodonStart = cdsLen - 2; // 1-based: last 3 positions
+		int varCdsStart = cdsPos;
+		// Use CDS-relative length for CDS end position
+		int varCdsEnd = isDeletion ? Math.max(cdsStart, cdsEnd) : cdsPos;
+		boolean overlapsStop = varCdsEnd >= stopCodonStart || varCdsStart >= stopCodonStart;
+
+		// Check if variant overlaps start codon (VEP: _overlaps_start_codon, line 965-986)
+		// Start codon = CDS positions 1-3. VEP guards: return 0 if cds_start_NF (line 959)
+		boolean overlapsStart = !transcript.isCdsStartNF() && (varCdsStart <= 3 || (isDeletion && varCdsStart <= 3));
+
+		// Apply indel and get local alt peptide
+		// VEP _get_alternate_cds appends 3'UTR so reading frame can extend into UTR for frameshifts
+		String utr3 = build3PrimeUtr(transcript, chr);
+		String altCdsWithUtr = applyIndelToCds(cdsSequence, cdsPos, vepAllele, refAllele, isDeletion, transcript, indelLength, utr3);
+		// Also keep a CDS-only version for position-sensitive checks
+		String altCds = applyIndelToCds(cdsSequence, cdsPos, vepAllele, refAllele, isDeletion, transcript, indelLength);
+
+		// VEP _clip_alleles (TranscriptVariationAllele.pm line 2102-2203):
+		// Strips matching leading AND trailing AAs from ref and alt peptides.
+		int clipCdsPos = isDeletion ? cdsPos : Math.max(cdsStart, cdsEnd);
+		int clipCodonStart = ((clipCdsPos - 1) / 3) * 3;
+
+		// Translation positions for codon block reuse
+		int trStartCds = isDeletion ? cdsStart : Math.max(cdsStart, cdsEnd);
+		int trEndCds = isDeletion ? cdsEnd : Math.min(cdsStart, cdsEnd);
+		int translationStart = (trStartCds - 1) / 3 + 1;
+		int translationEnd = (trEndCds - 1) / 3 + 1;
+		int codonCdsStart0 = (translationStart - 1) * 3;
+		int codonCdsEnd0 = translationEnd * 3 - 1;
+		int codonLen0 = codonCdsEnd0 - codonCdsStart0 + 1;
+		int altCodonLen0 = codonLen0 + (alleleLen - vfNtLen);
+
+		if (refLocalPep != null && refLocalPep.length() > 0 && altCdsWithUtr != null) {
+			// Translate from variant codon position to end of CDS+UTR
+			String refFromPos = safeSubstring(cdsSequence, clipCodonStart, cdsSequence.length());
+			String altFromPos = safeSubstring(altCdsWithUtr, clipCodonStart, altCdsWithUtr.length());
+			String refPepStr = refFromPos != null ? translateCds(refFromPos) : "";
+			String altPepStr = altFromPos != null ? translateCds(altFromPos) : "";
+
+			// Clip matching prefix (VEP _clip_alleles line 2118-2138)
+			int prefixClip = 0;
+			int minLen = Math.min(refPepStr.length(), altPepStr.length());
+			while (prefixClip < minLen && refPepStr.charAt(prefixClip) == altPepStr.charAt(prefixClip)) {
+				if (prefixClip == 0 && refPepStr.charAt(0) == '*' && altPepStr.charAt(0) == '*') {
+					break;
+				}
+				prefixClip++;
+			}
+
+			String clippedRef = refPepStr.substring(prefixClip);
+			String clippedAlt = altPepStr.substring(prefixClip);
+
+			// Clip matching suffix (VEP _clip_alleles line 2144-2155)
+			int suffixClip = 0;
+			int suffixMinLen = Math.min(clippedRef.length(), clippedAlt.length());
+			while (suffixClip < suffixMinLen
+					&& clippedRef.charAt(clippedRef.length() - 1 - suffixClip) == clippedAlt.charAt(clippedAlt.length() - 1 - suffixClip)) {
+				suffixClip++;
+			}
+			if (suffixClip > 0) {
+				clippedRef = clippedRef.substring(0, clippedRef.length() - suffixClip);
+				clippedAlt = clippedAlt.substring(0, clippedAlt.length() - suffixClip);
+			}
+
+			int hgvsProtPos = (clipCdsPos - 1) / 3 + 1 + prefixClip;
+			int hgvsProtEnd = hgvsProtPos + clippedRef.length() - 1;
+			result.setHgvsProteinPosition(hgvsProtPos);
+			result.setHgvsProteinEnd(hgvsProtEnd);
+			result.setClippedRefPeptide(clippedRef);
+			result.setClippedAltPeptide(clippedAlt);
+
+			// Set ref/alt AA at the first differing position
+			if (prefixClip < refPepStr.length()) {
+				result.setRefAA(refPepStr.charAt(prefixClip));
+			} else {
+				result.setRefAA(refLocalPep.charAt(0));
+			}
+			if (prefixClip < altPepStr.length()) {
+				result.setAltAA(altPepStr.charAt(prefixClip));
+			}
+
+			// Reclassify HGVS type (VEP _clip_alleles line 2167-2198)
+			String fullRefPep = translateCds(safeSubstring(cdsSequence, 0, cdsSequence.length()));
+			if (clippedRef.equals(clippedAlt)) {
+				result.setHgvsType("=");
+			} else if (clippedRef.isEmpty() && !clippedAlt.isEmpty()) {
+				// Check for duplication: does alt match preceding ref peptide?
+				if (fullRefPep != null) {
+					int dupCheckStart = hgvsProtPos - 1 - clippedAlt.length();
+					if (dupCheckStart >= 0 && dupCheckStart + clippedAlt.length() <= fullRefPep.length()) {
+						String preceding = fullRefPep.substring(dupCheckStart, dupCheckStart + clippedAlt.length());
+						if (preceding.equals(clippedAlt)) {
+							result.setHgvsType("dup");
+							result.setHgvsProteinPosition(hgvsProtPos - clippedAlt.length());
+							result.setHgvsProteinEnd(hgvsProtPos - 1);
+						} else {
+							result.setHgvsType("ins");
+						}
+					} else {
+						result.setHgvsType("ins");
+					}
+				} else {
+					result.setHgvsType("ins");
+				}
+			} else if (!clippedRef.isEmpty() && clippedAlt.isEmpty()) {
+				result.setHgvsType("del");
+			} else if (clippedRef.length() == 1 && clippedAlt.length() == 1) {
+				result.setHgvsType(">");
+			} else {
+				result.setHgvsType("delins");
+			}
+
+			// Store flanking AAs for insertion HGVSp (VEP _get_surrounding_peptides)
+			if ("ins".equals(result.getHgvsType()) || "dup".equals(result.getHgvsType())) {
+				if (fullRefPep != null) {
+					int insProtPos = (cdsPos - 1) / 3 + 1 + prefixClip;
+					if (insProtPos >= 2 && insProtPos <= fullRefPep.length()) {
+						result.setFlankLeftAA(fullRefPep.charAt(insProtPos - 2));
+						result.setFlankRightAA(fullRefPep.charAt(insProtPos - 1));
+					}
+				}
+			}
+		}
+
+		// VEP _ins_del_stop_altered (line 1423): checks the codon at the ORIGINAL stop position
+		// in the modified CDS: substr($utr_and_translateable, length($translateable) - 3, 3)
+		int stopIdx0 = cdsLen - 3; // 0-based index of stop codon start
+		String refStopCodon = safeSubstring(cdsSequence, stopIdx0, stopIdx0 + 3);
+		boolean refHasStop = refStopCodon != null && CodonTable.isStop(refStopCodon);
+
+		// In alt CDS, check the same position (original CDS length - 3)
+		String altStopRegion = altCds != null ? safeSubstring(altCds, stopIdx0, stopIdx0 + 3) : null;
+		boolean altHasStopAtSamePos = altStopRegion != null && altStopRegion.length() == 3 && CodonTable.isStop(altStopRegion);
+
+		List<String> consequences = new ArrayList<>();
+
+		if (isFrameshift) {
+			consequences.add("frameshift_variant");
+
+			if (overlapsStop && refHasStop && !altHasStopAtSamePos) {
+				consequences.add("stop_lost");
+			}
+			if (overlapsStart) {
+				// VEP has TWO independent paths for start codon consequences:
+				//
+				// 1. _ins_del_start_altered (line 998-1014): checks if ATG codon is
+				//    physically changed by the indel. If NOT altered → start_retained_variant.
+				//    If altered → start_lost (line 862).
+				//
+				// 2. Peptide check (line 864-873): checks if the translated protein differs.
+				//    For frameshifts, the protein always differs → start_lost fires via this path
+				//    EVEN WHEN _ins_del_start_altered is false (ATG preserved).
+				//
+				// Result: frameshift at start codon with preserved ATG produces BOTH
+				// start_lost (peptide changed) AND start_retained_variant (ATG preserved).
+				boolean startAltered = true;
+				if (altCds != null && cdsSequence != null) {
+					if (altCds.length() >= cdsSequence.length()) {
+						String tail = altCds.substring(altCds.length() - cdsSequence.length());
+						startAltered = !tail.equals(cdsSequence);
+					}
+				}
+				if (startAltered) {
+					consequences.add("start_lost");
+				} else {
+					// ATG preserved — start_retained fires
+					consequences.add("start_retained_variant");
+					// But for frameshifts, VEP's peptide check also fires start_lost
+					// because the protein IS different (reading frame shifted)
+					consequences.add("start_lost");
+				}
+			}
+			if (overlapsStop && refHasStop && altHasStopAtSamePos) {
+				consequences.add("stop_retained_variant");
+			}
+
+			// VEP stop_gained (VariationEffect.pm line 1146-1166):
+			// Checks _get_peptide_alleles: alt_pep =~ /\*/ and ref_pep !~ /\*/
+			// For frameshifts, translates the "codon" region from the modified CDS.
+			// The codon region starts at the affected codon and has length = codonLen + (indelDiff)
+			// This checks if the frameshift introduces a premature stop codon.
+			if (altCds != null && !consequences.contains("stop_lost")) {
+				int codonStart0 = ((cdsPos - 1) / 3) * 3; // 0-based
+				int protStart = codonStart0 / 3 + 1;
+				int protEnd = protStart;
+				if (isDeletion) {
+					int cdsEndPos = cdsPos + indelLength - 1;
+					protEnd = (cdsEndPos - 1) / 3 + 1;
+				}
+				int clipCodonS0 = (protStart - 1) * 3;
+				int clipCodonE0 = protEnd * 3 - 1;
+				int codonLen = clipCodonE0 - clipCodonS0 + 1;
+				int diff = isDeletion ? -indelLength : indelLength;
+				int altRegionLen = codonLen + diff;
+
+				if (altRegionLen > 0) {
+					String refRegion = safeSubstring(cdsSequence, clipCodonS0, clipCodonS0 + codonLen);
+					String altRegion = safeSubstring(altCds, clipCodonS0, clipCodonS0 + altRegionLen);
+
+					if (refRegion != null && altRegion != null) {
+						String refPep = translateCds(refRegion);
+						String altPep = translateCds(altRegion);
+						if (altPep.contains("*") && !refPep.contains("*")) {
+							consequences.add("stop_gained");
+						}
+					}
+				}
+			}
+		} else {
+			// In-frame indel
+			// Get local codon alleles matching VEP's _get_codon_alleles logic
+			// (TranscriptVariationAllele.pm line 841-877)
+			int protStart = (cdsPos - 1) / 3 + 1;
+			int protEnd = protStart;
+			if (isDeletion) {
+				protEnd = (Math.max(cdsStart, cdsEnd) - 1) / 3 + 1;
+			}
+			int codonCdsStart = protStart * 3 - 2;
+			int codonCdsEnd = protEnd * 3;
+			int codonLen = codonCdsEnd - codonCdsStart + 1;
+
+			String refCodon = safeSubstring(cdsSequence, codonCdsStart - 1, codonCdsStart - 1 + codonLen);
+			int altCodonLen = codonLen + (isDeletion ? -indelLength : indelLength);
+			String altCodon = altCds != null ? safeSubstring(altCds, codonCdsStart - 1,
+				codonCdsStart - 1 + Math.max(0, altCodonLen)) : null;
+
+			String refPep = refCodon != null ? translateCds(refCodon) : null;
+			String altPep = altCodon != null ? translateCds(altCodon) : null;
+
+			// Trim alt_pep after first stop (VEP inframe_insertion line 1124)
+			String altPepTrimmed = altPep;
+			if (altPepTrimmed != null) {
+				int stopIdx = altPepTrimmed.indexOf('*');
+				if (stopIdx >= 0 && stopIdx < altPepTrimmed.length() - 1) {
+					altPepTrimmed = altPepTrimmed.substring(0, stopIdx + 1);
+				}
+			}
+
+			// VEP checks predicates independently. For deletions:
+			// 1. stop_lost: overlaps stop codon AND ref has stop AND alt doesn't
+			// 2. start_lost: overlaps start codon
+			// 3. inframe_deletion: check codon sequences (line 1175)
+			// 4. stop_gained: local ref_pep has no stop AND local alt_pep has stop (line 1224)
+			// 5. protein_altering: catches remaining in-frame that don't match simple patterns
+			if (isDeletion) {
+				// First determine the base consequence
+				// VEP stop_lost: alt peptide doesn't contain '*' AND ref does.
+				// When altPep is null/empty (deletion removes entire codon region),
+				// the stop codon is also lost — treat as stop_lost.
+				boolean altHasNoStop = altPep == null || altPep.isEmpty() || !altPep.contains("*");
+				if (overlapsStop && refHasStop && altHasNoStop) {
+					consequences.add("stop_lost");
+					consequences.add("inframe_deletion");
+				} else if (overlapsStart) {
+					// VEP start_lost line 862: for inframe deletions, the
+					// _ins_del_start_altered path is BLOCKED (!(inframe_deletion) = false).
+					// start_lost fires via peptide check (line 864-873).
+					// start_retained fires when _ins_del_start_altered is false.
+					boolean startAltered = true;
+					if (altCds != null && cdsSequence != null && altCds.length() >= cdsSequence.length()) {
+						String tail = altCds.substring(altCds.length() - cdsSequence.length());
+						startAltered = !tail.equals(cdsSequence);
+					}
+					boolean pepRetainsStart = false;
+					if (refPep != null && altPep != null) {
+						String altPepTr = altPep;
+						int si = altPepTr.indexOf('*');
+						if (si >= 0 && si < altPepTr.length() - 1) altPepTr = altPepTr.substring(0, si + 1);
+						pepRetainsStart = altPepTr.startsWith(refPep) || altPepTr.endsWith(refPep);
+					}
+					if (!pepRetainsStart) {
+						consequences.add("start_lost");
+					}
+					if (!startAltered) {
+						consequences.add("start_retained_variant");
+					}
+					consequences.add("inframe_deletion");
+				} else {
+					// Check inframe_deletion vs protein_altering (VEP line 1167-1182)
+					boolean isInframeDel = false;
+					if (refCodon != null && altCodon != null) {
+						if (refCodon.startsWith(altCodon) || refCodon.endsWith(altCodon)) {
+							isInframeDel = true;
+						} else {
+							String[] trimmed = trimSequences(refCodon, altCodon);
+							if (trimmed[1].isEmpty() && trimmed[0].length() % 3 == 0) {
+								isInframeDel = true;
+							}
+						}
+					}
+					if (isInframeDel) {
+						consequences.add("inframe_deletion");
+					} else if (refPep != null && altPep != null
+						&& refPep.length() != altPep.length()
+						&& !refPep.startsWith("*") && !altPep.startsWith("*")) {
+						consequences.add("protein_altering_variant");
+					} else {
+						consequences.add("inframe_deletion");
+					}
+
+					// VEP stop_gained (VariationEffect.pm line 1146-1166):
+					// Checks if alt peptide contains '*' and ref peptide doesn't
+					if (altPep != null && refPep != null
+						&& altPep.contains("*") && !refPep.contains("*")) {
+						consequences.add("stop_gained");
+					}
+				}
+			} else {
+				// Insertion
+				if (overlapsStart) {
+					// VEP start_lost line 862: for inframe insertions, the
+					// _ins_del_start_altered path is BLOCKED (!(inframe_insertion) = false).
+					// start_lost can only fire via peptide check (line 864-873):
+					// alt_pep must NOT start or end with ref_pep.
+					// start_retained_variant fires when _ins_del_start_altered is false.
+					boolean startAltered = true;
+					if (altCds != null && cdsSequence != null && altCds.length() >= cdsSequence.length()) {
+						String tail = altCds.substring(altCds.length() - cdsSequence.length());
+						startAltered = !tail.equals(cdsSequence);
+					}
+
+					// VEP peptide check for start_lost (line 869-873)
+					boolean pepRetainsStart = false;
+					if (refPep != null && altPepTrimmed != null) {
+						pepRetainsStart = altPepTrimmed.startsWith(refPep) || altPepTrimmed.endsWith(refPep);
+					}
+
+					if (!pepRetainsStart) {
+						consequences.add("start_lost");
+					}
+					if (!startAltered) {
+						consequences.add("start_retained_variant");
+					}
+					if (consequences.isEmpty()) {
+						consequences.add("inframe_insertion");
+					}
+				} else {
+					// VEP inframe_insertion: check PEPTIDES (line 1113-1126)
+					// VEP uses $bvfoa->peptide and _get_ref_pep which return the
+					// translated codons at the variant position
+					// For a 3bp insertion: ref = 1 AA, alt = 2 AAs (the codon gets extended)
+					// The check is: alt_pep starts or ends with ref_pep
+					//
+					// Default to inframe_insertion, then check if protein_altering applies
+					boolean isProteinAltering = false;
+
+					if (refPep != null && altPepTrimmed != null && refPep.length() > 0) {
+						// VEP trims stops: $alt_pep =~ s/\*.+/\*/
+						// Then checks: ($alt_pep =~ /^\Q$ref_pep\E/) || ($alt_pep =~ /\Q$ref_pep\E$/)
+						boolean pepMatch = altPepTrimmed.startsWith(refPep) || altPepTrimmed.endsWith(refPep);
+
+						if (!pepMatch && refPep.length() != altPep.length()
+							&& !refPep.startsWith("*") && !altPep.startsWith("*")) {
+							isProteinAltering = true;
+							log.debug("protein_altering: cdsPos={} refCodon=[{}] altCodon=[{}] refPep=[{}] altPep=[{}] altPepTrimmed=[{}]",
+								cdsPos, refCodon, altCodon, refPep, altPep, altPepTrimmed);
+						}
+					}
+
+					if (isProteinAltering) {
+						consequences.add("protein_altering_variant");
+					} else {
+						consequences.add("inframe_insertion");
+						if (overlapsStop && refHasStop && altPep != null && altPep.contains("*")) {
+							consequences.add("stop_retained_variant");
+						}
+					}
+					// VEP stop_gained (line 1162): alt_pep contains '*' anywhere AND ref_pep doesn't.
+					// Evaluated independently — can coexist with protein_altering or inframe_insertion.
+					if (altPep != null && altPep.contains("*") && (refPep == null || !refPep.contains("*"))) {
+						consequences.add("stop_gained");
+					}
+				}
+			}
+		}
+
+		// Populate amino acids and codons for indels matching VEP's model exactly.
+		// VEP codon() (TranscriptVariationAllele.pm line 790-868):
+		//   codon_len = codon_cds_end - codon_cds_start + 1
+		//   For insertions between codons: cds_start > cds_end → codon_len = 0 → codon = '-', peptide = '-'
+		// VEP display_codon (line 884): all lowercase, uppercase variant bases
+		//   Alt of deletion / ref of insertion: feature_seq = '-' → all lowercase
+		// VEP pep_allele_string (line 610): ref_pep/alt_pep
+		{
+			// Reuse translationStart/End, codonCdsStart0/End0, codonLen0, altCodonLen0
+			// computed earlier for SHORT peptide clipping (same formulas).
+
+			String rc, ac, rp, ap;
+			if (codonLen0 <= 0) {
+				// Between-codon insertion: VEP sets codon='-', peptide='-' (line 861-863)
+				rc = "-";
+				rp = "-";
+				// Alt codon from alt CDS
+				ac = altCds != null ? safeSubstring(altCds, codonCdsStart0, codonCdsStart0 + Math.max(0, altCodonLen0)) : null;
+				ap = ac != null && ac.length() > 0 ? translateCds(ac) : "-";
+			} else {
+				rc = safeSubstring(cdsSequence, codonCdsStart0, codonCdsStart0 + codonLen0);
+				ac = altCds != null ? safeSubstring(altCds, codonCdsStart0, codonCdsStart0 + Math.max(0, altCodonLen0)) : null;
+				rp = rc != null ? translateCds(rc) : null;
+				ap = ac != null && ac.length() > 0 ? translateCds(ac) : "-";
+			}
+
+			if (rp != null) {
+				String rpStr = rp.isEmpty() ? "-" : rp;
+				String apStr = ap.isEmpty() ? "-" : ap;
+				result.setAminoAcids(rpStr.equals(apStr) ? rpStr : rpStr + "/" + apStr);
+			}
+
+			// Display codons
+			String refDisplay, altDisplay;
+			if ("-".equals(rc)) {
+				refDisplay = "-";
+			} else if (isDeletion && rc != null) {
+				int codonPos = (cdsStart - 1) % 3;
+				refDisplay = formatDisplayCodon(rc, codonPos, indelLength);
+			} else if (rc != null) {
+				refDisplay = rc.toLowerCase();
+			} else {
+				refDisplay = "-";
+			}
+
+			if (ac == null || ac.isEmpty()) {
+				altDisplay = "-";
+			} else if (isDeletion) {
+				altDisplay = ac.toLowerCase();
+			} else {
+				// Use VEP-normalized CDS position (higher of the two for insertions)
+				int codonPos = (trStartCds - 1) % 3;
+				altDisplay = formatDisplayCodon(ac, codonPos, indelLength);
+			}
+			result.setCodons(refDisplay + "/" + altDisplay);
+		}
+
+		// Sort by VEP rank (most severe first) to match VEP output order
+		consequences.sort((a, b) -> Integer.compare(
+			ConsequenceSeverity.getRank(a), ConsequenceSeverity.getRank(b)));
+		result.setConsequence(String.join("&", consequences));
+
+		// Compute fsTer/extTer count (VEP _stop_loss_extra_AA, line 2386-2435)
+		if (altCdsWithUtr != null) {
+			if (consequences.contains("frameshift_variant") && !consequences.contains("stop_gained")) {
+				result.setFsTerCount(computeTerCount(altCdsWithUtr, result.getHgvsProteinPosition(), cdsSequence.length()));
+			}
+			if (consequences.contains("stop_lost")) {
+				int origStopProtPos = cdsSequence.length() / 3;
+				result.setExtTerCount(computeExtTerCount(altCdsWithUtr, origStopProtPos));
+			}
+		}
+
+		return result;
+	}
+
+	/**
+	 * VEP _stop_loss_extra_AA for frameshifts (line 2415-2418):
+	 * Translates alt CDS+UTR from variant position, finds first stop, returns count.
+	 */
+	private String computeTerCount(String altCdsWithUtr, int fromProtPos, int origCdsLength) {
+		// Translate from the variant protein position to end
+		int startBase0 = (fromProtPos - 1) * 3;
+		if (startBase0 < 0) startBase0 = 0;
+		String region = safeSubstring(altCdsWithUtr, startBase0, altCdsWithUtr.length());
+		if (region == null || region.isEmpty()) return "?";
+		String pep = translateCds(region);
+		int stopIdx = pep.indexOf('*');
+		if (stopIdx >= 0) {
+			return String.valueOf(stopIdx + 1);
+		}
+		return "?";
+	}
+
+	/**
+	 * VEP _stop_loss_extra_AA for stop_lost (non-frameshift, line 2405-2412):
+	 * Count = position_of_new_stop - original_stop_position
+	 */
+	private String computeExtTerCount(String altCdsWithUtr, int origStopProtPos) {
+		// Translate from just past the original stop position
+		int startBase0 = (origStopProtPos - 1) * 3;
+		if (startBase0 < 0) startBase0 = 0;
+		String region = safeSubstring(altCdsWithUtr, startBase0, altCdsWithUtr.length());
+		if (region == null || region.isEmpty()) return "?";
+		String pep = translateCds(region);
+		int stopIdx = pep.indexOf('*');
+		if (stopIdx >= 0) {
+			return String.valueOf(stopIdx + 1);
+		}
+		return "?";
+	}
+
+	/**
+	 * Trim common prefix and suffix from two sequences.
+	 * Matches VEP's Bio::EnsEMBL::Variation::Utils::Sequence::trim_sequences
+	 */
+	private String[] trimSequences(String ref, String alt) {
+		int prefixLen = 0;
+		int minLen = Math.min(ref.length(), alt.length());
+		while (prefixLen < minLen && ref.charAt(prefixLen) == alt.charAt(prefixLen)) {
+			prefixLen++;
+		}
+		ref = ref.substring(prefixLen);
+		alt = alt.substring(prefixLen);
+
+		int suffixLen = 0;
+		minLen = Math.min(ref.length(), alt.length());
+		while (suffixLen < minLen && ref.charAt(ref.length() - 1 - suffixLen) == alt.charAt(alt.length() - 1 - suffixLen)) {
+			suffixLen++;
+		}
+		if (suffixLen > 0) {
+			ref = ref.substring(0, ref.length() - suffixLen);
+			alt = alt.substring(0, alt.length() - suffixLen);
+		}
+		return new String[]{ref, alt};
+	}
+
+	/**
+	 * VEP display_codon (line 884-915): lowercase everything, then uppercase
+	 * the variant bases at the codon_position.
+	 */
+	private String formatDisplayCodon(String codon, int codonPos, int variantLen) {
+		StringBuilder sb = new StringBuilder(codon.toLowerCase());
+		int end = Math.min(codonPos + variantLen, sb.length());
+		for (int i = codonPos; i < end; i++) {
+			sb.setCharAt(i, Character.toUpperCase(sb.charAt(i)));
+		}
+		return sb.toString();
+	}
+
+	private String safeSubstring(String s, int start, int end) {
+		if (s == null || start < 0 || start >= s.length()) return null;
+		return s.substring(start, Math.min(end, s.length()));
+	}
+
+	private String translateCds(String cds) {
+		StringBuilder pep = new StringBuilder();
+		int wholeLen = (cds.length() / 3) * 3;
+		for (int i = 0; i < wholeLen; i += 3) {
+			char aa = CodonTable.translate(cds.substring(i, i + 3));
+			pep.append(aa);
+			// VEP peptide() does NOT break at stop — translates full codon region
+		}
+		// VEP peptide() line 766-768: partial trailing codon → append 'X'
+		if (cds.length() % 3 != 0 && (pep.length() == 0 || pep.charAt(pep.length() - 1) != '*')) {
+			pep.append('X');
+		}
+		return pep.toString();
+	}
+
+	/** Count the number of CDS bases within a genomic range.
+	 * VEP's coordinate mapper splices out introns; this is the equivalent. */
+	private int computeCdsDeletionLength(TranscriptModel transcript, int genomicStart, int genomicEnd) {
+		int total = 0;
+		for (CdsSegment seg : transcript.getCdsSegments()) {
+			int ovStart = Math.max(genomicStart, seg.getStart());
+			int ovEnd = Math.min(genomicEnd, seg.getEnd());
+			if (ovStart <= ovEnd) {
+				total += ovEnd - ovStart + 1;
+			}
+		}
+		return total;
+	}
+
+	/**
+	 * VEP _ins_del_stop_altered (VariationEffect.pm line 1292-1344):
+	 * Checks if a deletion alters the stop codon. Used as fallback when
+	 * cds_end is undef (variant extends into UTR/intron).
+	 */
+	/**
+	 * VEP _ins_del_stop_altered (VariationEffect.pm line 1292-1344):
+	 * Checks if a deletion alters the stop codon. Builds CDS+3'UTR sequence,
+	 * applies the edit, and checks if the codon at the original stop position
+	 * is still a stop codon.
+	 */
+	/**
+	 * VEP _ins_del_stop_altered (VariationEffect.pm line 1292-1344):
+	 * Checks if a deletion alters the stop codon by building CDS+3'UTR,
+	 * applying the edit, and checking if the codon at the original stop
+	 * position is still a stop codon.
+	 *
+	 * VEP guards (line 1312): return 0 unless $cdna_start && $cdna_end && $cds_start
+	 * - cdna_start/end = both endpoints must be in exons (genomic2cdna gives Coordinate, not Gap)
+	 * - cds_start = the FIRST CDS base in the mapped range (not the variant start)
+	 *
+	 * VEP edit (line 1325): substr($cds_and_utr, $cds_start - 1, cdna_span) = alt_seq
+	 * - cds_start = CDS position of first CDS base in range
+	 * - cdna_span = cdna_end - cdna_start + 1 (full exonic span including UTR)
+	 */
+	public boolean isStopAltered(TranscriptModel transcript, String chr, int variantStart, int variantEnd) {
+		try {
+			// 1. Check overlap with stop codon (genomic)
+			int stopLow, stopHigh;
+			if (transcript.isPositiveStrand()) {
+				stopHigh = transcript.getCdsEnd();
+				stopLow = stopHigh - 2;
+			} else {
+				stopLow = transcript.getCdsStart();
+				stopHigh = stopLow + 2;
+			}
+			if (variantStart > stopHigh || variantEnd < stopLow) return false;
+
+			// 2. Build CDS and verify stop codon
+			String cds = buildCdsSequence(transcript, chr);
+			if (cds == null || cds.length() < 3) return false;
+			if (!CodonTable.isStop(cds.substring(cds.length() - 3))) return false;
+
+			// 3. Build 3' UTR sequence
+			String utr3 = build3PrimeUtr(transcript, chr);
+			String cdsAndUtr = cds + utr3;
+
+			// 4. Find the FIRST CDS position in the variant range
+			// VEP uses genomic2cds which maps the range and takes the first Coordinate.
+			// The variant start may be in UTR or intron, but the range still overlaps CDS.
+			int cdsPos = findFirstCdsPositionInRange(transcript, variantStart, variantEnd);
+			if (cdsPos < 0) return false;
+
+			// 5. Compute exonic edit length (= cDNA span, VEP line 1324)
+			int editLen = 0;
+			for (ExonModel exon : transcript.getExons()) {
+				int ovStart = Math.max(variantStart, exon.getStart());
+				int ovEnd = Math.min(variantEnd, exon.getEnd());
+				if (ovStart <= ovEnd) {
+					editLen += ovEnd - ovStart + 1;
+				}
+			}
+			if (editLen <= 0) return false;
+
+			// 6. Apply edit to CDS+UTR (VEP line 1325)
+			int delStart = cdsPos - 1;
+			if (delStart < 0) delStart = 0;
+			if (delStart + editLen > cdsAndUtr.length()) editLen = cdsAndUtr.length() - delStart;
+			if (editLen <= 0) return false;
+			String modified = cdsAndUtr.substring(0, delStart) + cdsAndUtr.substring(delStart + editLen);
+
+			// 7. VEP line 1328: if shorter than translateable → altered
+			if (modified.length() < cds.length()) return true;
+
+			// 8. VEP line 1332-1340: check codon at original stop position
+			int stopIdx = cds.length() - 3;
+			if (stopIdx + 3 > modified.length()) return true;
+			String newStop = modified.substring(stopIdx, stopIdx + 3);
+			return !CodonTable.isStop(newStop);
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
+	/**
+	 * Find the CDS position of the first CDS base within a genomic range.
+	 * VEP's genomic2cds maps the entire range and takes the first Coordinate.
+	 * The variant start may be in UTR/intron but the range still overlaps CDS.
+	 */
+	private int findFirstCdsPositionInRange(TranscriptModel transcript, int variantStart, int variantEnd) {
+		// First try the exact start position
+		int pos = genomicToCdsPosition(transcript, variantStart);
+		if (pos >= 0) return pos;
+
+		// Start not in CDS — find the first CDS segment that overlaps the range
+		List<CdsSegment> segments = transcript.getCdsSegments();
+		if (transcript.isPositiveStrand()) {
+			for (CdsSegment seg : segments) {
+				if (seg.getEnd() >= variantStart && seg.getStart() <= variantEnd) {
+					int firstBase = Math.max(seg.getStart(), variantStart);
+					return genomicToCdsPosition(transcript, firstBase);
+				}
+			}
+		} else {
+			for (int i = segments.size() - 1; i >= 0; i--) {
+				CdsSegment seg = segments.get(i);
+				if (seg.getEnd() >= variantStart && seg.getStart() <= variantEnd) {
+					int firstBase = Math.min(seg.getEnd(), variantEnd);
+					return genomicToCdsPosition(transcript, firstBase);
+				}
+			}
+		}
+		return -1;
+	}
+
+	/**
+	 * VEP _ins_del_start_altered (VariationEffect.pm line 976-1015):
+	 * Checks if a deletion alters the start codon by building 5'UTR+CDS,
+	 * applying the edit, and checking if the CDS portion is preserved.
+	 */
+	public boolean isStartAltered(TranscriptModel transcript, String chr, int variantStart, int variantEnd) {
+		try {
+			// 1. Check overlap with start codon (genomic)
+			int startLow, startHigh;
+			if (transcript.isPositiveStrand()) {
+				startLow = transcript.getCdsStart();
+				startHigh = startLow + 2;
+			} else {
+				startHigh = transcript.getCdsEnd();
+				startLow = startHigh - 2;
+			}
+			if (variantStart > startHigh || variantEnd < startLow) return false;
+
+			// 2. Build CDS and verify start codon
+			String cds = buildCdsSequence(transcript, chr);
+			if (cds == null || cds.length() < 3) return false;
+
+			// 3. Build 5' UTR sequence and concatenate
+			String utr5 = build5PrimeUtr(transcript, chr);
+			String utrAndCds = utr5 + cds;
+
+			// 4. Compute cDNA position of variant start (exonic offset from 5' end)
+			int cdnaStart = computeCdnaPosition(transcript, variantStart);
+			if (cdnaStart < 0) {
+				// Variant start might be in intron — find first exonic position in range
+				for (ExonModel exon : transcript.getExons()) {
+					int firstExonic = transcript.isPositiveStrand()
+						? Math.max(variantStart, exon.getStart())
+						: Math.min(variantEnd, exon.getEnd());
+					if (firstExonic >= exon.getStart() && firstExonic <= exon.getEnd()) {
+						cdnaStart = computeCdnaPosition(transcript, firstExonic);
+						if (cdnaStart >= 0) break;
+					}
+				}
+			}
+			if (cdnaStart < 0) return false;
+
+			// 5. Compute exonic edit length
+			int editLen = 0;
+			for (ExonModel exon : transcript.getExons()) {
+				int ovStart = Math.max(variantStart, exon.getStart());
+				int ovEnd = Math.min(variantEnd, exon.getEnd());
+				if (ovStart <= ovEnd) {
+					editLen += ovEnd - ovStart + 1;
+				}
+			}
+			if (editLen <= 0) return false;
+
+			// 6. Apply edit to 5'UTR+CDS (VEP line 1006)
+			int delStart = cdnaStart - 1;
+			if (delStart < 0) delStart = 0;
+			if (delStart + editLen > utrAndCds.length()) editLen = utrAndCds.length() - delStart;
+			if (editLen <= 0) return false;
+			String modified = utrAndCds.substring(0, delStart) + utrAndCds.substring(delStart + editLen);
+
+			// 7. VEP line 1009: if shorter than CDS → altered
+			if (modified.length() < cds.length()) return true;
+
+			// 8. VEP line 1011: check if CDS portion is preserved at the END of modified
+			String tail = modified.substring(modified.length() - cds.length());
+			return !tail.equals(cds);
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
+	/** Build the 5' UTR sequence from FASTA for this transcript. */
+	private String build5PrimeUtr(TranscriptModel transcript, String chr) {
+		StringBuilder utr = new StringBuilder();
+		int cdsEnd = transcript.getCdsEnd();
+		int cdsStart = transcript.getCdsStart();
+
+		if (transcript.isPositiveStrand()) {
+			// 5'UTR: exonic regions before CDS start
+			for (ExonModel exon : transcript.getExons()) {
+				if (exon.getStart() >= cdsStart) break;
+				int utrEnd = Math.min(exon.getEnd(), cdsStart - 1);
+				String seq = reference.getSequence(chr, exon.getStart(), utrEnd);
+				utr.append(seq.toUpperCase());
+			}
+		} else {
+			// 5'UTR on - strand: exonic regions after CDS end (reverse complement)
+			for (int i = transcript.getExons().size() - 1; i >= 0; i--) {
+				ExonModel exon = transcript.getExons().get(i);
+				if (exon.getEnd() <= cdsEnd) break;
+				int utrStart = Math.max(exon.getStart(), cdsEnd + 1);
+				String seq = reference.getSequence(chr, utrStart, exon.getEnd());
+				utr.append(SequenceUtils.reverseComplement(seq.toUpperCase()));
+			}
+		}
+		return utr.toString();
+	}
+
+	/** Build the 3' UTR sequence from FASTA for this transcript. */
+	private String build3PrimeUtr(TranscriptModel transcript, String chr) {
+		StringBuilder utr = new StringBuilder();
+		int cdsEnd = transcript.getCdsEnd();
+		int cdsStart = transcript.getCdsStart();
+
+		if (transcript.isPositiveStrand()) {
+			// 3'UTR: exonic regions after CDS end
+			for (ExonModel exon : transcript.getExons()) {
+				if (exon.getEnd() <= cdsEnd) continue;
+				int utrStart = Math.max(exon.getStart(), cdsEnd + 1);
+				String seq = reference.getSequence(chr, utrStart, exon.getEnd());
+				utr.append(seq.toUpperCase());
+			}
+		} else {
+			// 3'UTR on - strand: exonic regions before CDS start (reverse complement)
+			for (int i = transcript.getExons().size() - 1; i >= 0; i--) {
+				ExonModel exon = transcript.getExons().get(i);
+				if (exon.getStart() >= cdsStart) continue;
+				int utrEnd = Math.min(exon.getEnd(), cdsStart - 1);
+				String seq = reference.getSequence(chr, exon.getStart(), utrEnd);
+				utr.append(SequenceUtils.reverseComplement(seq.toUpperCase()));
+			}
+		}
+		return utr.toString();
+	}
+
+	/**
+	 * Check if stop codon is overlapped but NOT altered (stop_retained).
+	 */
+	public boolean isStopRetained(TranscriptModel transcript, String chr, int variantStart, int variantEnd) {
+		try {
+			int stopLow, stopHigh;
+			if (transcript.isPositiveStrand()) {
+				stopHigh = transcript.getCdsEnd();
+				stopLow = stopHigh - 2;
+			} else {
+				stopLow = transcript.getCdsStart();
+				stopHigh = stopLow + 2;
+			}
+			if (variantStart > stopHigh || variantEnd < stopLow) return false;
+			String cds = buildCdsSequence(transcript, chr);
+			if (cds == null || cds.length() < 3) return false;
+			if (!CodonTable.isStop(cds.substring(cds.length() - 3))) return false;
+			return !isStopAltered(transcript, chr, variantStart, variantEnd);
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
+	private String applyIndelToCds(String cds, int cdsPos, String vepAllele, String refAllele,
+			boolean isDeletion, TranscriptModel transcript, int indelLength) {
+		return applyIndelToCds(cds, cdsPos, vepAllele, refAllele, isDeletion, transcript, indelLength, null);
+	}
+
+	/**
+	 * Apply indel to CDS, optionally appending 3'UTR.
+	 * VEP _get_alternate_cds (TranscriptVariationAllele.pm line 2303-2348) builds
+	 * upstream + allele + downstream where downstream extends through 3'UTR.
+	 */
+	private String applyIndelToCds(String cds, int cdsPos, String vepAllele, String refAllele,
+			boolean isDeletion, TranscriptModel transcript, int indelLength, String utr3) {
+		try {
+			String seq = (utr3 != null) ? cds + utr3 : cds;
+			if (isDeletion) {
+				int delStart = cdsPos - 1;
+				int delLen = indelLength;
+				if (delStart + delLen > seq.length()) delLen = seq.length() - delStart;
+				// VEP _get_alternate_cds: upstream + allele_seq + downstream
+				// For pure deletion (vepAllele="-"): allele_seq is empty
+				// For complex variant (vepAllele="G"): allele_seq replaces the deleted region
+				String replaceSeq = "-".equals(vepAllele) ? "" :
+					(transcript.isPositiveStrand() ? vepAllele : SequenceUtils.reverseComplement(vepAllele));
+				return seq.substring(0, delStart) + replaceSeq + seq.substring(delStart + delLen);
+			} else {
+				int insPos;
+				if (transcript.isPositiveStrand()) {
+					insPos = cdsPos - 1;
+				} else {
+					insPos = cdsPos;
+				}
+				String insertSeq = transcript.isPositiveStrand() ? vepAllele : SequenceUtils.reverseComplement(vepAllele);
+				if (insPos < 0) insPos = 0;
+				if (insPos > seq.length()) insPos = seq.length();
+				return seq.substring(0, insPos) + insertSeq + seq.substring(insPos);
+			}
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	int genomicToCdsPosition(TranscriptModel transcript, int genomicPos) {
+		List<CdsSegment> segments = transcript.getCdsSegments();
+		int cdsPos = 0;
+
+		if (transcript.isPositiveStrand()) {
+			// Apply phase offset from first CDS segment
+			cdsPos -= segments.get(0).getPhase();
+			for (CdsSegment seg : segments) {
+				if (genomicPos >= seg.getStart() && genomicPos <= seg.getEnd()) {
+					return cdsPos + (genomicPos - seg.getStart()) + 1;
+				}
+				cdsPos += seg.getLength();
+			}
+		} else {
+			// Minus strand: CDS is read in reverse genomic order
+			cdsPos -= segments.get(segments.size() - 1).getPhase();
+			for (int i = segments.size() - 1; i >= 0; i--) {
+				CdsSegment seg = segments.get(i);
+				if (genomicPos >= seg.getStart() && genomicPos <= seg.getEnd()) {
+					return cdsPos + (seg.getEnd() - genomicPos) + 1;
+				}
+				cdsPos += seg.getLength();
+			}
+		}
+
+		return -1;
+	}
+
+	/**
+	 * VEP partial_codon (VariationEffect.pm line 1389-1414):
+	 * Returns true if the variant falls in an incomplete terminal codon.
+	 */
+	private boolean isPartialCodon(TranscriptModel transcript, int cdsPos, int cdsLength) {
+		int remainder = cdsLength % 3;
+		if (remainder == 0) return false;
+		int codonCdsStart = ((cdsPos - 1) / 3) * 3 + 1;
+		int lastCodonLength = cdsLength - (codonCdsStart - 1);
+		return lastCodonLength < 3 && lastCodonLength > 0;
+	}
+
+	String buildCdsSequence(TranscriptModel transcript, String chr) {
+		StringBuilder cds = new StringBuilder();
+
+		if (transcript.isPositiveStrand()) {
+			for (CdsSegment seg : transcript.getCdsSegments()) {
+				String seq = reference.getSequence(chr, seg.getStart(), seg.getEnd());
+				cds.append(seq.toUpperCase());
+			}
+		} else {
+			List<CdsSegment> segments = transcript.getCdsSegments();
+			for (int i = segments.size() - 1; i >= 0; i--) {
+				CdsSegment seg = segments.get(i);
+				String seq = reference.getSequence(chr, seg.getStart(), seg.getEnd());
+				cds.append(SequenceUtils.reverseComplement(seq.toUpperCase()));
+			}
+		}
+
+		// Apply phase offset
+		int phase;
+		if (transcript.isPositiveStrand()) {
+			phase = transcript.getCdsSegments().get(0).getPhase();
+		} else {
+			phase = transcript.getCdsSegments().get(transcript.getCdsSegments().size() - 1).getPhase();
+		}
+		if (phase > 0 && phase < cds.length()) {
+			return cds.substring(phase);
+		}
+
+		return cds.toString();
+	}
+
+	int computeCdnaPosition(TranscriptModel transcript, int genomicPos) {
+		int cdnaPos = 0;
+		if (transcript.isPositiveStrand()) {
+			for (var exon : transcript.getExons()) {
+				if (genomicPos >= exon.getStart() && genomicPos <= exon.getEnd()) {
+					return cdnaPos + (genomicPos - exon.getStart()) + 1;
+				}
+				cdnaPos += (exon.getEnd() - exon.getStart() + 1);
+			}
+		} else {
+			for (int i = transcript.getExons().size() - 1; i >= 0; i--) {
+				var exon = transcript.getExons().get(i);
+				if (genomicPos >= exon.getStart() && genomicPos <= exon.getEnd()) {
+					return cdnaPos + (exon.getEnd() - genomicPos) + 1;
+				}
+				cdnaPos += (exon.getEnd() - exon.getStart() + 1);
+			}
+		}
+		return -1;
+	}
+
+	private static String formatCodon(String codon, int variantPos) {
+		StringBuilder sb = new StringBuilder(3);
+		for (int i = 0; i < 3; i++) {
+			char c = codon.charAt(i);
+			if (i == variantPos) {
+				sb.append(Character.toUpperCase(c));
+			} else {
+				sb.append(Character.toLowerCase(c));
+			}
+		}
+		return sb.toString();
+	}
+
+	public static class CodingResult {
+		private String consequence;
+		private int cdsPosition;
+		private int cdsEnd;
+		private int proteinPosition;
+		private int cdnaPosition;
+		private int cdnaEnd;
+		private char refAA;
+		private char altAA;
+		private String refCodon;
+		private String altCodon;
+
+		public String getConsequence() { return consequence; }
+		public void setConsequence(String consequence) { this.consequence = consequence; }
+		public int getCdsPosition() { return cdsPosition; }
+		public void setCdsPosition(int cdsPosition) { this.cdsPosition = cdsPosition; }
+		public int getCdsEnd() { return cdsEnd; }
+		public void setCdsEnd(int cdsEnd) { this.cdsEnd = cdsEnd; }
+		public int getProteinPosition() { return proteinPosition; }
+		public void setProteinPosition(int proteinPosition) { this.proteinPosition = proteinPosition; }
+		public int getCdnaPosition() { return cdnaPosition; }
+		public void setCdnaPosition(int cdnaPosition) { this.cdnaPosition = cdnaPosition; }
+		public int getCdnaEnd() { return cdnaEnd; }
+		public void setCdnaEnd(int cdnaEnd) { this.cdnaEnd = cdnaEnd; }
+		private int hgvsProteinPosition;
+		public int getHgvsProteinPosition() { return hgvsProteinPosition > 0 ? hgvsProteinPosition : proteinPosition; }
+		public void setHgvsProteinPosition(int pos) { this.hgvsProteinPosition = pos; }
+		public char getRefAA() { return refAA; }
+		public void setRefAA(char refAA) { this.refAA = refAA; }
+		public char getAltAA() { return altAA; }
+		public void setAltAA(char altAA) { this.altAA = altAA; }
+		public String getRefCodon() { return refCodon; }
+		public void setRefCodon(String refCodon) { this.refCodon = refCodon; }
+		public String getAltCodon() { return altCodon; }
+		public void setAltCodon(String altCodon) { this.altCodon = altCodon; }
+
+		// HGVSp clip_alleles results
+		private String clippedRefPeptide;
+		private String clippedAltPeptide;
+		private String hgvsType; // "=", ">", "fs", "del", "ins", "dup", "delins"
+		private int hgvsProteinEnd;
+		private String fsTerCount; // number or "?"
+		private String extTerCount; // number or "?"
+		private char flankLeftAA;
+		private char flankRightAA;
+
+		public String getClippedRefPeptide() { return clippedRefPeptide; }
+		public void setClippedRefPeptide(String v) { this.clippedRefPeptide = v; }
+		public String getClippedAltPeptide() { return clippedAltPeptide; }
+		public void setClippedAltPeptide(String v) { this.clippedAltPeptide = v; }
+		public String getHgvsType() { return hgvsType; }
+		public void setHgvsType(String v) { this.hgvsType = v; }
+		public int getHgvsProteinEnd() { return hgvsProteinEnd; }
+		public void setHgvsProteinEnd(int v) { this.hgvsProteinEnd = v; }
+		public String getFsTerCount() { return fsTerCount; }
+		public void setFsTerCount(String v) { this.fsTerCount = v; }
+		public String getExtTerCount() { return extTerCount; }
+		public void setExtTerCount(String v) { this.extTerCount = v; }
+		public char getFlankLeftAA() { return flankLeftAA; }
+		public void setFlankLeftAA(char v) { this.flankLeftAA = v; }
+		public char getFlankRightAA() { return flankRightAA; }
+		public void setFlankRightAA(char v) { this.flankRightAA = v; }
+
+		private String aminoAcids;
+		private String codons;
+
+		public String getAminoAcids() {
+			if (aminoAcids != null) return aminoAcids;
+			if (refAA == 0 && altAA == 0) return null;
+			if (refAA == altAA) {
+				return String.valueOf(refAA);
+			}
+			return String.valueOf(refAA) + "/" + String.valueOf(altAA);
+		}
+		public void setAminoAcids(String aminoAcids) { this.aminoAcids = aminoAcids; }
+
+		public String getCodons() {
+			if (codons != null) return codons;
+			if (refCodon == null || altCodon == null) return null;
+			return refCodon + "/" + altCodon;
+		}
+		public void setCodons(String codons) { this.codons = codons; }
+	}
+}
