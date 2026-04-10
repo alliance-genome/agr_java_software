@@ -231,12 +231,9 @@ public class CodingAnnotator {
 		// Also keep a CDS-only version for position-sensitive checks
 		String altCds = applyIndelToCds(cdsSequence, cdsPos, vepAllele, refAllele, isDeletion, transcript, indelLength);
 
-		// VEP _clip_alleles (TranscriptVariationAllele.pm line 2102-2203):
-		// Strips matching leading AND trailing AAs from ref and alt peptides.
-		int clipCdsPos = isDeletion ? cdsPos : Math.max(cdsStart, cdsEnd);
-		int clipCodonStart = ((clipCdsPos - 1) / 3) * 3;
+		// === VEP hgvs_protein() lines 1686-1741: exact method port ===
 
-		// Translation positions for codon block reuse
+		// VEP translation positions (line 1686-1687, 818-820)
 		int trStartCds = isDeletion ? cdsStart : Math.max(cdsStart, cdsEnd);
 		int trEndCds = isDeletion ? cdsEnd : Math.min(cdsStart, cdsEnd);
 		int translationStart = (trStartCds - 1) / 3 + 1;
@@ -247,92 +244,107 @@ public class CodingAnnotator {
 		int altCodonLen0 = codonLen0 + (alleleLen - vfNtLen);
 
 		if (refLocalPep != null && refLocalPep.length() > 0 && altCdsWithUtr != null) {
-			// Translate from variant codon position to end of CDS+UTR
-			String refFromPos = safeSubstring(cdsSequence, clipCodonStart, cdsSequence.length());
-			String altFromPos = safeSubstring(altCdsWithUtr, clipCodonStart, altCdsWithUtr.length());
-			String refPepStr = refFromPos != null ? translateCds(refFromPos) : "";
-			String altPepStr = altFromPos != null ? translateCds(altFromPos) : "";
+			// VEP codon() line 859: extract codon from ref and alt CDS
+			String refCodonStr = vepCodon(cdsSequence, codonCdsStart0, codonLen0);
+			String altCodonStr = vepCodon(altCds, codonCdsStart0, Math.max(0, altCodonLen0));
 
-			// Clip matching prefix (VEP _clip_alleles line 2118-2138)
-			int prefixClip = 0;
-			int minLen = Math.min(refPepStr.length(), altPepStr.length());
-			while (prefixClip < minLen && refPepStr.charAt(prefixClip) == altPepStr.charAt(prefixClip)) {
-				if (prefixClip == 0 && refPepStr.charAt(0) == '*' && altPepStr.charAt(0) == '*') {
-					break;
-				}
-				prefixClip++;
-			}
+			// VEP peptide() line 684-778: translate codon to SHORT peptide
+			String shortRefPep = vepPeptide(refCodonStr);
+			String shortAltPep = vepPeptide(altCodonStr);
 
-			String clippedRef = refPepStr.substring(prefixClip);
-			String clippedAlt = altPepStr.substring(prefixClip);
+			// VEP line 1720-1726: guard — must have ref peptide, and ref != alt
+			if (refLocalPep != null && refLocalPep.length() > 0 && altCdsWithUtr != null
+					&& !shortRefPep.equals(shortAltPep)) {
 
-			// Clip matching suffix (VEP _clip_alleles line 2144-2155)
-			int suffixClip = 0;
-			int suffixMinLen = Math.min(clippedRef.length(), clippedAlt.length());
-			while (suffixClip < suffixMinLen
-					&& clippedRef.charAt(clippedRef.length() - 1 - suffixClip) == clippedAlt.charAt(clippedAlt.length() - 1 - suffixClip)) {
-				suffixClip++;
-			}
-			if (suffixClip > 0) {
-				clippedRef = clippedRef.substring(0, clippedRef.length() - suffixClip);
-				clippedAlt = clippedAlt.substring(0, clippedAlt.length() - suffixClip);
-			}
+				// VEP _clip_alleles (line 1725) on SHORT peptides
+				HgvsNotation n = vepClipAlleles(shortRefPep, shortAltPep,
+					translationStart, translationEnd);
 
-			int hgvsProtPos = (clipCdsPos - 1) / 3 + 1 + prefixClip;
-			int hgvsProtEnd = hgvsProtPos + clippedRef.length() - 1;
-			result.setHgvsProteinPosition(hgvsProtPos);
-			result.setHgvsProteinEnd(hgvsProtEnd);
-			result.setClippedRefPeptide(clippedRef);
-			result.setClippedAltPeptide(clippedAlt);
+				// VEP _get_hgvs_protein_type (line 1729)
+				String hgvsType = vepGetHgvsProteinType(n, isFrameshift);
 
-			// Set ref/alt AA at the first differing position
-			if (prefixClip < refPepStr.length()) {
-				result.setRefAA(refPepStr.charAt(prefixClip));
-			} else {
-				result.setRefAA(refLocalPep.charAt(0));
-			}
-			if (prefixClip < altPepStr.length()) {
-				result.setAltAA(altPepStr.charAt(prefixClip));
-			}
+				// VEP _get_hgvs_peptides (line 1734)
+				String fullRefPep = translateCds(safeSubstring(cdsSequence, 0, cdsSequence.length()));
 
-			// Reclassify HGVS type (VEP _clip_alleles line 2167-2198)
-			String fullRefPep = translateCds(safeSubstring(cdsSequence, 0, cdsSequence.length()));
-			if (clippedRef.equals(clippedAlt)) {
-				result.setHgvsType("=");
-			} else if (clippedRef.isEmpty() && !clippedAlt.isEmpty()) {
-				// Check for duplication: does alt match preceding ref peptide?
-				if (fullRefPep != null) {
-					int dupCheckStart = hgvsProtPos - 1 - clippedAlt.length();
-					if (dupCheckStart >= 0 && dupCheckStart + clippedAlt.length() <= fullRefPep.length()) {
-						String preceding = fullRefPep.substring(dupCheckStart, dupCheckStart + clippedAlt.length());
-						if (preceding.equals(clippedAlt)) {
-							result.setHgvsType("dup");
-							result.setHgvsProteinPosition(hgvsProtPos - clippedAlt.length());
-							result.setHgvsProteinEnd(hgvsProtPos - 1);
-						} else {
-							result.setHgvsType("ins");
-						}
-					} else {
-						result.setHgvsType("ins");
+				// Line 2033-2037: for frameshifts, walk full alt translation
+				if ("fs".equals(hgvsType)) {
+					HgvsNotation fsResult = vepGetFsPeptides(n, cdsSequence, altCds, translationStart);
+					if (fsResult == null) {
+						// _get_fs_peptides returned undef — skip HGVSp
+					} else if ("del".equals(fsResult.type) || "=".equals(fsResult.type)) {
+						hgvsType = fsResult.type;
 					}
-				} else {
-					result.setHgvsType("ins");
+					// fsResult updates n.start, n.ref, n.alt in place
 				}
-			} else if (!clippedRef.isEmpty() && clippedAlt.isEmpty()) {
-				result.setHgvsType("del");
-			} else if (clippedRef.length() == 1 && clippedAlt.length() == 1) {
-				result.setHgvsType(">");
-			} else {
-				result.setHgvsType("delins");
-			}
 
-			// Store flanking AAs for insertion HGVSp (VEP _get_surrounding_peptides)
-			if ("ins".equals(result.getHgvsType()) || "dup".equals(result.getHgvsType())) {
+				String noStop = null;
 				if (fullRefPep != null) {
-					int insProtPos = (cdsPos - 1) / 3 + 1 + prefixClip;
-					if (insProtPos >= 2 && insProtPos <= fullRefPep.length()) {
-						result.setFlankLeftAA(fullRefPep.charAt(insProtPos - 2));
-						result.setFlankRightAA(fullRefPep.charAt(insProtPos - 1));
+					noStop = fullRefPep.endsWith("*")
+						? fullRefPep.substring(0, fullRefPep.length() - 1) : fullRefPep;
+				}
+
+				// VEP _get_hgvs_peptides line 2038-2061: "ins" type
+				if ("ins".equals(hgvsType) && noStop != null) {
+					// Line 2041: _check_peptides_post_var → _shift_3prime
+					vepShift3Prime(n, "ins", noStop);
+
+					// Line 2044: _check_for_peptide_duplication
+					if (!n.alt.contains("*")) {
+						vepCheckForPeptideDuplication(n, noStop);
+					}
+					if ("dup".equals(n.type)) hgvsType = "dup";
+
+					// Line 2047-2060: set ref to surrounding peptides for ins notation
+					if ("ins".equals(hgvsType) && noStop != null) {
+						int minPos = Math.min(n.start, n.end);
+						if (minPos >= 1 && minPos + 1 <= noStop.length()) {
+							// _get_surrounding_peptides(min, original_ref, 2) → 2 chars from min
+							String surr = noStop.substring(minPos - 1, Math.min(minPos + 1, noStop.length()));
+							if (surr.length() == 2) {
+								n.ref = surr;
+							}
+						}
+					}
+				}
+				// VEP _get_hgvs_peptides line 2062-2064: "del" type
+				else if ("del".equals(hgvsType) && noStop != null) {
+					// Line 2064: _check_peptides_post_var for deletions too
+					vepShift3Prime(n, "del", noStop);
+				}
+
+				// Set HGVSp results from notation
+				result.setHgvsProteinPosition(n.start);
+				result.setHgvsProteinEnd(n.end);
+				result.setClippedRefPeptide(n.ref);
+				result.setClippedAltPeptide(n.alt);
+				result.setHgvsType(hgvsType);
+
+				// ref/alt AA at first differing position
+				if ("fs".equals(hgvsType) && n.ref != null && n.ref.length() == 1
+						&& n.alt != null && n.alt.length() == 1) {
+					// _get_fs_peptides set ref/alt to the first differing AA
+					result.setRefAA(n.ref.charAt(0));
+					result.setAltAA(n.alt.charAt(0));
+				} else {
+					int prefixLen = n.preseq != null ? n.preseq.length() : 0;
+					if (prefixLen < shortRefPep.length()) {
+						result.setRefAA(shortRefPep.charAt(prefixLen));
+					} else if (!shortRefPep.isEmpty()) {
+						result.setRefAA(shortRefPep.charAt(0));
+					}
+					if (prefixLen < shortAltPep.length()) {
+						result.setAltAA(shortAltPep.charAt(prefixLen));
+					}
+				}
+
+				// Flanking AAs for insertion HGVSp (VEP _get_surrounding_peptides)
+				if ("ins".equals(hgvsType) || "dup".equals(hgvsType)) {
+					if (fullRefPep != null) {
+						int insProtPos = "dup".equals(hgvsType) ? n.end + 1 : n.start;
+						if (insProtPos >= 2 && insProtPos <= fullRefPep.length()) {
+							result.setFlankLeftAA(fullRefPep.charAt(insProtPos - 2));
+							result.setFlankRightAA(fullRefPep.charAt(insProtPos - 1));
+						}
 					}
 				}
 			}
@@ -360,12 +372,12 @@ public class CodingAnnotator {
 				// VEP has TWO independent paths for start codon consequences:
 				//
 				// 1. _ins_del_start_altered (line 998-1014): checks if ATG codon is
-				//    physically changed by the indel. If NOT altered → start_retained_variant.
-				//    If altered → start_lost (line 862).
+				//	  physically changed by the indel. If NOT altered → start_retained_variant.
+				//	  If altered → start_lost (line 862).
 				//
 				// 2. Peptide check (line 864-873): checks if the translated protein differs.
-				//    For frameshifts, the protein always differs → start_lost fires via this path
-				//    EVEN WHEN _ins_del_start_altered is false (ATG preserved).
+				//	  For frameshifts, the protein always differs → start_lost fires via this path
+				//	  EVEN WHEN _ins_del_start_altered is false (ATG preserved).
 				//
 				// Result: frameshift at start codon with preserved ATG produces BOTH
 				// start_lost (peptide changed) AND start_retained_variant (ATG preserved).
@@ -592,10 +604,10 @@ public class CodingAnnotator {
 
 		// Populate amino acids and codons for indels matching VEP's model exactly.
 		// VEP codon() (TranscriptVariationAllele.pm line 790-868):
-		//   codon_len = codon_cds_end - codon_cds_start + 1
-		//   For insertions between codons: cds_start > cds_end → codon_len = 0 → codon = '-', peptide = '-'
+		//	 codon_len = codon_cds_end - codon_cds_start + 1
+		//	 For insertions between codons: cds_start > cds_end → codon_len = 0 → codon = '-', peptide = '-'
 		// VEP display_codon (line 884): all lowercase, uppercase variant bases
-		//   Alt of deletion / ref of insertion: feature_seq = '-' → all lowercase
+		//	 Alt of deletion / ref of insertion: feature_seq = '-' → all lowercase
 		// VEP pep_allele_string (line 610): ref_pep/alt_pep
 		{
 			// Reuse translationStart/End, codonCdsStart0/End0, codonLen0, altCodonLen0
@@ -1265,5 +1277,269 @@ public class CodingAnnotator {
 			return refCodon + "/" + altCodon;
 		}
 		public void setCodons(String codons) { this.codons = codons; }
+	}
+
+	// ===================================================================
+	// VEP HGVSp method ports — each matches a specific Perl subroutine
+	// ===================================================================
+
+	/** Intermediate state for _clip_alleles, passed between VEP methods. */
+	static class HgvsNotation {
+		String ref;
+		String alt;
+		String preseq;
+		String originalRef;
+		int start;
+		int end;
+		String type;
+	}
+
+	/**
+	 * VEP codon() — TranscriptVariationAllele.pm line 790-868.
+	 * Extracts the codon string from the CDS at translation_start..translation_end,
+	 * adjusted for the indel length.
+	 *
+	 * @param cds The full CDS sequence (ref or alt)
+	 * @param codonCdsStart0 0-based CDS start of the codon range
+	 * @param extractLen Number of bases to extract
+	 * @return The codon string, or "-" if empty
+	 */
+	private String vepCodon(String cds, int codonCdsStart0, int extractLen) {
+		if (cds == null || extractLen <= 0 || codonCdsStart0 < 0) return "-";
+		String codon = safeSubstring(cds, codonCdsStart0, codonCdsStart0 + extractLen);
+		return (codon == null || codon.isEmpty()) ? "-" : codon;
+	}
+
+	/**
+	 * VEP peptide() — TranscriptVariationAllele.pm line 684-778.
+	 * Translates a codon string to its peptide. Handles partial codons (→ X).
+	 */
+	private String vepPeptide(String codon) {
+		if (codon == null || codon.equals("-") || codon.isEmpty()) return "-";
+		return translateCds(codon);
+	}
+
+	/**
+	 * VEP _clip_alleles — TranscriptVariationAllele.pm line 2102-2203.
+	 * Strips matching leading and trailing AAs from ref and alt peptides.
+	 * Prefix clip bounded by length(ref). Suffix clip bounded by remaining ref after prefix.
+	 * Detects dup/ins/del/>/delins type from clipped result.
+	 */
+	private HgvsNotation vepClipAlleles(String ref, String alt, int start, int end) {
+		HgvsNotation n = new HgvsNotation();
+		n.originalRef = ref;
+		n.preseq = "";
+		String checkRef = ref;
+		String checkAlt = alt;
+		int checkStart = start;
+		int checkEnd = end;
+
+		// Line 2118-2139: prefix clip, bounded by length(ref)
+		for (int p = 0; p < ref.length(); p++) {
+			if (checkRef.isEmpty() || checkAlt.isEmpty()) break;
+			char nextRef = checkRef.charAt(0);
+			char nextAlt = checkAlt.charAt(0);
+			// Line 2122-2128: both start with '*' → synonymous
+			if (p == 0 && nextRef == '*' && nextAlt == '*') {
+				n.type = "=";
+				n.ref = checkRef; n.alt = checkAlt;
+				n.start = checkStart; n.end = checkEnd;
+				return n;
+			}
+			if (nextRef == nextAlt) {
+				checkStart++;
+				n.preseq += nextRef;
+				checkRef = checkRef.substring(1);
+				checkAlt = checkAlt.substring(1);
+			} else {
+				break;
+			}
+		}
+
+		// Line 2141-2155: suffix clip, bounded by length(check_ref)
+		int suffLen = checkRef.length();
+		for (int q = 0; q < suffLen; q++) {
+			if (checkRef.isEmpty() || checkAlt.isEmpty()) break;
+			if (checkRef.charAt(checkRef.length() - 1) == checkAlt.charAt(checkAlt.length() - 1)) {
+				checkRef = checkRef.substring(0, checkRef.length() - 1);
+				checkAlt = checkAlt.substring(0, checkAlt.length() - 1);
+				checkEnd--;
+			} else {
+				break;
+			}
+		}
+
+		// Line 2157-2162: write back
+		n.ref = checkRef;
+		n.alt = checkAlt;
+		n.start = checkStart;
+		n.end = checkEnd;
+
+		// Line 2164-2199: type determination
+		if (checkRef.equals(checkAlt)) {
+			n.type = "=";
+		} else if (!checkRef.equals("-") && checkRef.length() == 1 && checkAlt.length() == 1
+				&& !checkAlt.equals(checkRef)) {
+			n.type = ">";
+		} else if (checkRef.isEmpty() && checkAlt.length() >= 1) {
+			// Line 2182-2194: insertion or dup
+			String prevStr = (n.preseq.length() >= checkAlt.length())
+				? n.preseq.substring(n.preseq.length() - checkAlt.length()) : "";
+			if (prevStr.equals(checkAlt)) {
+				n.type = "dup";
+				n.start -= checkAlt.length(); // Line 2187
+			} else {
+				n.type = "ins";
+			}
+		} else if (checkRef.length() >= 1 && checkAlt.isEmpty()) {
+			n.type = "del";
+		} else {
+			n.type = "delins";
+		}
+
+		return n;
+	}
+
+	/**
+	 * VEP _get_hgvs_protein_type — TranscriptVariationAllele.pm line 1961-1995.
+	 * Overrides the type from _clip_alleles based on peptide content.
+	 * Frameshift always wins. Then checks ref/alt for ins/del/>/delins.
+	 */
+	private String vepGetHgvsProteinType(HgvsNotation n, boolean isFrameshift) {
+		// Line 1967-1970
+		if (isFrameshift) return "fs";
+
+		// Line 1972-1995: check peptides
+		String ref = n.ref.replace("*", "X");
+		String alt = n.alt.replace("*", "X");
+
+		if (ref.equals("-") || ref.isEmpty()) return "ins";
+		if (alt.isEmpty() || alt.equals("-")) return "del";
+		if (ref.length() == 1 && alt.length() == 1) return ">";
+		if ((ref.length() != alt.length()) || (ref.length() > 1 && alt.length() > 1)) return "delins";
+		return ">";
+	}
+
+	/**
+	 * VEP _get_fs_peptides — TranscriptVariationAllele.pm line 2229-2274.
+	 * For frameshifts: resets start to translation_start, translates FULL alt CDS,
+	 * walks ref vs alt translation to find first differing AA.
+	 * May change type to "del" (stop deletion) or "=" (stop maintained).
+	 */
+	private HgvsNotation vepGetFsPeptides(HgvsNotation n, String cdsSequence, String altCds,
+			int translationStart) {
+		if (altCds == null) return null;
+
+		// Line 2242: translate full alt CDS
+		String altTrans = translateCds(altCds);
+
+		// Line 2245-2247: get full ref peptide + appended stop
+		String refTrans = translateCds(cdsSequence) + "*";
+
+		// Line 2249: reset start to translation_start
+		n.start = translationStart;
+
+		// Line 2251-2254: deletion of stop, no further AA in alt seq
+		if (n.start > altTrans.length()) {
+			n.alt = "del";
+			n.type = "del";
+			return n;
+		}
+
+		// Line 2257-2271: walk from start, find first differing position
+		while (n.start <= altTrans.length()) {
+			char refAA = (n.start - 1 < refTrans.length()) ? refTrans.charAt(n.start - 1) : '?';
+			char altAA = altTrans.charAt(n.start - 1);
+			n.ref = String.valueOf(refAA);
+			n.alt = String.valueOf(altAA);
+
+			// Line 2263-2266: both stop → synonymous
+			if (refAA == '*' && altAA == '*') {
+				n.type = "=";
+				return n;
+			}
+
+			// Line 2269: stop when they differ
+			if (refAA != altAA) break;
+			n.start++;
+		}
+
+		return n;
+	}
+
+	/**
+	 * VEP _check_peptides_post_var + _shift_3prime — line 2482-2553.
+	 * Shifts a variant 3' along the peptide if the variant sequence matches downstream ref.
+	 * For "ins": checks alt against downstream. For "del": checks ref against downstream.
+	 * Uses _peptide() (excludes stop) for bounds check.
+	 *
+	 * @param n The notation (must have type set to "ins" or "del")
+	 * @param hgvsType The HGVS type ("ins" or "del")
+	 * @param refPepNoStop Full ref peptide excluding stop codon
+	 */
+	private void vepShift3Prime(HgvsNotation n, String hgvsType, String refPepNoStop) {
+		// Line 2487-2491: get post-variant peptide
+		int postPos = n.end + 1; // 1-based
+		// Line 2288: guard — return if position past peptide end
+		if (postPos <= 0 || postPos > refPepNoStop.length()) return;
+
+		String postSeq = refPepNoStop.substring(postPos - 1);
+
+		// Line 2509-2518: select sequence to check based on type
+		String seqToCheck;
+		if ("ins".equals(hgvsType)) {
+			seqToCheck = n.alt;     // Line 2511
+		} else if ("del".equals(hgvsType)) {
+			seqToCheck = n.ref;     // Line 2514
+		} else {
+			return;                  // Line 2516-2518
+		}
+		if (seqToCheck == null || seqToCheck.isEmpty()) return;
+
+		// Line 2528-2547: shift loop
+		for (int nn = 0; nn + seqToCheck.length() <= postSeq.length(); nn++) {
+			if (seqToCheck.charAt(0) == postSeq.charAt(nn)) {
+				n.start++;
+				n.end++;
+				// Line 2541-2542: rotate — remove start, append to end
+				seqToCheck = seqToCheck.substring(1) + seqToCheck.charAt(0);
+			} else {
+				break;
+			}
+		}
+		// Line 2549-2550: write back to correct field
+		if ("ins".equals(hgvsType)) {
+			n.alt = seqToCheck;
+		} else if ("del".equals(hgvsType)) {
+			n.ref = seqToCheck;
+		}
+	}
+
+	/**
+	 * VEP _check_for_peptide_duplication — TranscriptVariationAllele.pm line 2350-2383.
+	 * Checks if inserted peptide matches the upstream ref at the current position.
+	 * Uses full reference translation + preseq for the upstream check.
+	 */
+	private void vepCheckForPeptideDuplication(HgvsNotation n, String refPepNoStop) {
+		// Line 2361-2362: build upstream
+		int upLen = Math.min(n.start - 1, refPepNoStop.length());
+		String upstream = refPepNoStop.substring(0, upLen);
+		// Line 2365: append preseq
+		if (n.preseq != null && !n.preseq.isEmpty()) {
+			upstream += n.preseq;
+		}
+
+		// Line 2368
+		int testNewStart = n.start - n.alt.length() - 1; // 0-based index
+
+		// Line 2370-2380
+		if (testNewStart >= 0 && testNewStart + n.alt.length() <= upstream.length()) {
+			String testSeq = upstream.substring(testNewStart, testNewStart + n.alt.length());
+			if (testSeq.equals(n.alt)) {
+				n.type = "dup";
+				n.end = n.start - 1;              // Line 2375
+				n.start -= n.alt.length();          // Line 2376
+			}
+		}
 	}
 }
