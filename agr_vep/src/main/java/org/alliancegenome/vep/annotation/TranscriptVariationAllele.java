@@ -923,8 +923,8 @@ public class TranscriptVariationAllele {
 			String utr5 = build5PrimeUtr(transcript, chr);
 			String utrAndCds = utr5 + cds;
 
-			// 4. Compute cDNA position of variant start (exonic offset from 5' end)
-			int cdnaStart = computeCdnaPosition(transcript, variantStart);
+			// 4. Compute cDNA position via BaseTranscriptVariation.genomicToCdna
+			int cdnaStart = BaseTranscriptVariation.genomicToCdna(transcript, variantStart);
 			if (cdnaStart < 0) {
 				// Variant start might be in intron — find first exonic position in range
 				for (ExonModel exon : transcript.getExons()) {
@@ -932,7 +932,7 @@ public class TranscriptVariationAllele {
 						? Math.max(variantStart, exon.getStart())
 						: Math.min(variantEnd, exon.getEnd());
 					if (firstExonic >= exon.getStart() && firstExonic <= exon.getEnd()) {
-						cdnaStart = computeCdnaPosition(transcript, firstExonic);
+						cdnaStart = BaseTranscriptVariation.genomicToCdna(transcript, firstExonic);
 						if (cdnaStart >= 0) break;
 					}
 				}

@@ -172,7 +172,7 @@ public class TranscriptAnnotator {
 							int cdnaS = codingResult.getCdnaPosition();
 							if (cdsE > 0 && cdsE != cdsS) {
 								// VEP maps both genomic endpoints independently through genomic2cdna
-								int cdnaE = codingAnnotator.computeCdnaPosition(transcript, rangeEnd);
+								int cdnaE = BaseTranscriptVariation.genomicToCdna(transcript, rangeEnd);
 								if (cdnaE <= 0) cdnaE = cdnaS + (cdsE - cdsS); // fallback
 								entry.setCdnaPosition(formatCoords(Math.min(cdnaS, cdnaE), Math.max(cdnaS, cdnaE)));
 							} else {
@@ -307,17 +307,17 @@ public class TranscriptAnnotator {
 		// cDNA position for non-coding exon variants and UTR variants without coding result
 		// VEP populates cdna_position for ANY variant in an exon (within_cdna)
 		if (entry.getCdnaPosition() == null && overlapsExon && !consequence.contains("intergenic_variant")) {
-			int cdnaPos = codingAnnotator.computeCdnaPosition(transcript, isInsertion ? variantEnd : variantStart);
+			int cdnaPos = BaseTranscriptVariation.genomicToCdna(transcript, isInsertion ? variantEnd : variantStart);
 			if (cdnaPos > 0) {
 				if (isInsertion) {
-					int cdnaEnd = codingAnnotator.computeCdnaPosition(transcript, variantStart);
+					int cdnaEnd = BaseTranscriptVariation.genomicToCdna(transcript, variantStart);
 					if (cdnaEnd > 0) {
 						entry.setCdnaPosition(formatCoords(Math.min(cdnaPos, cdnaEnd), Math.max(cdnaPos, cdnaEnd)));
 					} else {
 						entry.setCdnaPosition(String.valueOf(cdnaPos));
 					}
 				} else if (variantStart != variantEnd) {
-					int cdnaEnd = codingAnnotator.computeCdnaPosition(transcript, variantEnd);
+					int cdnaEnd = BaseTranscriptVariation.genomicToCdna(transcript, variantEnd);
 					if (cdnaEnd > 0) {
 						entry.setCdnaPosition(formatCoords(Math.min(cdnaPos, cdnaEnd), Math.max(cdnaPos, cdnaEnd)));
 					} else {
@@ -506,10 +506,10 @@ public class TranscriptAnnotator {
 		// VEP: codon_cds_start = (translation_start * 3) - 2
 		// translation_start = protein position = (cds_start - 1) / 3 + 1
 		// We need the variant's CDS position to check if it falls in the last partial codon
-		int cdsPos = codingAnnotator.genomicToCdsPosition(transcript, isInsertion ? variantStart - 1 : rangeStart);
+		int cdsPos = BaseTranscriptVariation.genomicToCds(transcript, isInsertion ? variantStart - 1 : rangeStart);
 		if (cdsPos < 0) {
 			// Try the end position
-			cdsPos = codingAnnotator.genomicToCdsPosition(transcript, rangeEnd);
+			cdsPos = BaseTranscriptVariation.genomicToCds(transcript, rangeEnd);
 		}
 		if (cdsPos < 0) return false;
 
