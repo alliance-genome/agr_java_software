@@ -8,7 +8,7 @@ import java.util.Set;
 import org.alliancegenome.vep.annotation.TranscriptVariationAllele.CodingResult;
 import org.alliancegenome.vep.annotation.SpliceAnnotator.SpliceResult;
 import org.alliancegenome.vep.csq.CsqEntry;
-import org.alliancegenome.vep.hgvs.HgvsGenerator;
+// HgvsGenerator removed — HGVSc/p now called directly on TranscriptVariationAllele
 import org.alliancegenome.vep.model.CdsSegment;
 import org.alliancegenome.vep.model.ExonModel;
 import org.alliancegenome.vep.model.TranscriptModel;
@@ -23,12 +23,13 @@ import org.alliancegenome.vep.model.TranscriptModel;
 public class TranscriptAnnotator {
 
 	private final TranscriptVariationAllele codingAnnotator;
-	private final HgvsGenerator hgvsGenerator;
+	private final org.alliancegenome.vep.hgvs.VariationFeature hgvsGenomic;
 	private final SpliceAnnotator spliceAnnotator;
 
-	public TranscriptAnnotator(TranscriptVariationAllele codingAnnotator, HgvsGenerator hgvsGenerator) {
+	public TranscriptAnnotator(TranscriptVariationAllele codingAnnotator,
+			org.alliancegenome.vep.hgvs.VariationFeature hgvsGenomic) {
 		this.codingAnnotator = codingAnnotator;
-		this.hgvsGenerator = hgvsGenerator;
+		this.hgvsGenomic = hgvsGenomic;
 		this.spliceAnnotator = new SpliceAnnotator();
 	}
 
@@ -72,7 +73,7 @@ public class TranscriptAnnotator {
 			entry.setImpact("HIGH");
 			entry.setGenomicStartPosition(String.valueOf(variantStart));
 			entry.setGenomicEndPosition(String.valueOf(variantEnd));
-			String hgvsg = hgvsGenerator.generateHgvsg(chr, variantStart, variantEnd, refAllele, vepAllele);
+			String hgvsg = hgvsGenomic.generate(chr, variantStart, variantEnd, refAllele, vepAllele);
 			if (hgvsg != null) entry.setHgvsg(hgvsg);
 			return entry;
 		}
@@ -337,20 +338,30 @@ public class TranscriptAnnotator {
 				? (isInsertion ? Math.max(codingResult.getCdsPosition(), codingResult.getCdsEnd())
 				              : codingResult.getCdsPosition())
 				: -1;
-			String hgvsc = hgvsGenerator.generateHgvsc(transcript, variantStart, variantEnd,
-				vepAllele, refAllele, cdsPos);
+			String hgvsc = codingAnnotator.hgvsTranscript(transcript, chr, variantStart, variantEnd,
+				vepAllele, refAllele, cdsPos, transcript.isCoding());
 			if (hgvsc != null) {
 				entry.setHgvsc(hgvsc);
 			}
 		}
 
-		String hgvsg = hgvsGenerator.generateHgvsg(chr, variantStart, variantEnd, refAllele, vepAllele);
+		String hgvsg = hgvsGenomic.generate(chr, variantStart, variantEnd, refAllele, vepAllele);
 		if (hgvsg != null) {
 			entry.setHgvsg(hgvsg);
 		}
 
 		if (codingResult != null) {
-			String hgvsp = hgvsGenerator.generateHgvsp(transcript, codingResult);
+			// VEP hgvs_protein() — use notation-based formatter
+			TranscriptVariationAllele.HgvsNotation n = codingResult.getHgvsNotation();
+			String hgvsp = null;
+			if (n != null && n.type != null) {
+				String csq = codingResult.getConsequence();
+				boolean isStopLost = csq != null && csq.contains("stop_lost");
+				boolean isStartLost = csq != null && csq.contains("start_lost");
+				hgvsp = codingAnnotator.vepGetHgvsProteinFormat(n, transcript.getProteinId(),
+					isStopLost, isStartLost,
+					codingResult.getAltCdsSequence(), codingResult.getCdsSequence());
+			}
 			if (hgvsp != null) {
 				entry.setHgvsp(hgvsp);
 			}

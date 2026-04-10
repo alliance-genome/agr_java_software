@@ -8,7 +8,7 @@ import java.util.Map;
 
 import org.alliancegenome.vep.bio.CodonTable;
 import org.alliancegenome.vep.csq.CsqEntry;
-import org.alliancegenome.vep.hgvs.HgvsGenerator;
+
 import org.alliancegenome.vep.model.GeneModel;
 import org.alliancegenome.vep.model.TranscriptModel;
 import org.alliancegenome.vep.plugin.PredictionLookup;
@@ -22,24 +22,23 @@ public class OutputFactory {
 	private final GeneModel geneModel;
 	private final TranscriptVariationAllele codingAnnotator;
 	private final TranscriptAnnotator transcriptAnnotator;
-	private final HgvsGenerator hgvsGenerator;
+	private final org.alliancegenome.vep.hgvs.VariationFeature hgvsGenomic;
 	private final String mod;
 	private final PredictionLookup siftLookup;
 	private final PredictionLookup polyPhenLookup;
 
 	public OutputFactory(GeneModel geneModel, ReferenceGenome reference,
-			HgvsGenerator hgvsGenerator, String mod) {
-		this(geneModel, reference, hgvsGenerator, mod, null, null);
+			org.alliancegenome.vep.reference.ContigAccessionMap contigMap, String mod) {
+		this(geneModel, reference, contigMap, mod, null, null);
 	}
 
 	public OutputFactory(GeneModel geneModel, ReferenceGenome reference,
-			HgvsGenerator hgvsGenerator, String mod,
+			org.alliancegenome.vep.reference.ContigAccessionMap contigMap, String mod,
 			PredictionLookup siftLookup, PredictionLookup polyPhenLookup) {
 		this.geneModel = geneModel;
 		this.codingAnnotator = new TranscriptVariationAllele(reference);
-		this.transcriptAnnotator = new TranscriptAnnotator(codingAnnotator, hgvsGenerator);
-		this.hgvsGenerator = hgvsGenerator;
-		hgvsGenerator.setCodingAnnotator(codingAnnotator);
+		this.hgvsGenomic = new org.alliancegenome.vep.hgvs.VariationFeature(contigMap, reference);
+		this.transcriptAnnotator = new TranscriptAnnotator(codingAnnotator, hgvsGenomic);
 		this.mod = mod;
 		this.siftLookup = siftLookup;
 		this.polyPhenLookup = polyPhenLookup;
@@ -185,7 +184,7 @@ public class OutputFactory {
 		entry.setGenomicStartPosition(String.valueOf(start));
 		entry.setGenomicEndPosition(String.valueOf(end));
 
-		String hgvsg = hgvsGenerator.generateHgvsg(chr, start, end, refAllele, vepAllele);
+		String hgvsg = hgvsGenomic.generate(chr, start, end, refAllele, vepAllele);
 		if (hgvsg != null) {
 			entry.setHgvsg(hgvsg);
 		}

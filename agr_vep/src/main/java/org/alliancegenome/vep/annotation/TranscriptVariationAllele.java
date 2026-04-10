@@ -1817,4 +1817,252 @@ public class TranscriptVariationAllele {
 		if (fullLen == seq.length()) return seq;
 		return seq.substring(0, fullLen);
 	}
+
+	// ===================================================================
+	// VEP hgvs_transcript() — ported from TranscriptVariationAllele.pm line 1281-1485
+	// Previously in HgvsCodingNotation/HgvsTranscript as a separate class.
+	// ===================================================================
+
+	/**
+	 * VEP hgvs_transcript() — generates HGVSc notation.
+	 * Matches TranscriptVariationAllele.pm lines 1294-1486.
+	 */
+	public String hgvsTranscript(TranscriptModel transcript, String chr, int variantStart, int variantEnd,
+			String vepAllele, String refAllele, int cdsPosition, boolean isCoding) {
+
+		String prefix = isCoding ? "c." : "n.";
+		String transcriptRef = transcript.getTranscriptId();
+		if (transcriptRef == null) return null;
+
+		// VEP line 1425-1426: append version
+		if (!transcriptRef.matches(".*\\.\\d+$")) {
+			transcriptRef = transcriptRef + ".1";
+		}
+
+		// VEP line 1445-1446: map BOTH positions through _get_cDNA_position
+		String startPos = getCdnaPosition(transcript, variantStart, isCoding);
+		String endPos = getCdnaPosition(transcript, variantEnd, isCoding);
+
+		if (startPos == null && endPos == null) return null;
+		if (startPos == null) startPos = endPos;
+		if (endPos == null) endPos = startPos;
+
+		// VEP line 1456-1459: ensure ascending order
+		if (compareHgvsPositions(startPos, endPos) > 0) {
+			String tmp = startPos; startPos = endPos; endPos = tmp;
+		}
+
+		// Strand-aware ref/alt
+		String hgvsRef = transcript.isPositiveStrand() ? refAllele : Sequence.reverseComplement(refAllele);
+		String hgvsAlt = transcript.isPositiveStrand() ? vepAllele : Sequence.reverseComplement(vepAllele);
+
+		String notation;
+		if ("-".equals(vepAllele)) {
+			// Deletion
+			notation = startPos.equals(endPos) ? startPos + "del" : startPos + "_" + endPos + "del";
+		} else if ("-".equals(refAllele)) {
+			// Insertion: check for dup
+			boolean isDup = false;
+			int altLen = vepAllele.length();
+			if (reference != null && chr != null) {
+				try {
+					int refEnd = Math.min(variantStart, variantEnd);
+					int refStart = refEnd - altLen + 1;
+					if (refStart >= 1) {
+						String preceding = reference.getSequence(chr, refStart, refEnd);
+						isDup = vepAllele.equalsIgnoreCase(preceding);
+					}
+				} catch (Exception e) { /* ignore */ }
+			}
+			if (isDup) {
+				int gEnd = Math.min(variantStart, variantEnd);
+				int gStart = gEnd - altLen + 1;
+				String dupStart = getCdnaPosition(transcript, gStart, isCoding);
+				String dupEnd = getCdnaPosition(transcript, gEnd, isCoding);
+				if (dupStart != null && dupEnd != null) {
+					if (compareHgvsPositions(dupStart, dupEnd) > 0) {
+						String tmp = dupStart; dupStart = dupEnd; dupEnd = tmp;
+					}
+					notation = dupStart.equals(dupEnd) ? dupStart + "dup" : dupStart + "_" + dupEnd + "dup";
+				} else {
+					notation = startPos + "_" + endPos + "ins" + hgvsAlt;
+				}
+			} else {
+				notation = startPos + "_" + endPos + "ins" + hgvsAlt;
+			}
+		} else if (hgvsRef.length() == 1 && hgvsAlt.length() == 1) {
+			notation = startPos + hgvsRef + ">" + hgvsAlt;
+		} else {
+			// Complex: VEP _clip_alleles (line 1418)
+			int clipStartInt = parseHgvsPos(startPos);
+			int clipEndInt = parseHgvsPos(endPos);
+			if (clipEndInt == 0) clipEndInt = clipStartInt;
+
+			HgvsNotation clipped = vepClipAlleles(hgvsRef, hgvsAlt, clipStartInt, clipEndInt);
+
+			if (clipped.preseq != null && !clipped.preseq.isEmpty()) {
+				int prefixLen = clipped.preseq.length();
+				int newStartGenomic = transcript.isPositiveStrand()
+					? variantStart + prefixLen : variantEnd - prefixLen;
+				startPos = getCdnaPosition(transcript, newStartGenomic, isCoding);
+				if (startPos == null) startPos = String.valueOf(clipped.start);
+			}
+
+			String clippedRef = clipped.ref;
+			String clippedAlt = clipped.alt;
+
+			if ("=".equals(clipped.type)) {
+				notation = startPos + "=";
+			} else if ("ins".equals(clipped.type) || (clippedRef.isEmpty() && !clippedAlt.isEmpty())) {
+				notation = endPos + "_" + startPos + "ins" + clippedAlt;
+			} else if ("del".equals(clipped.type) || (!clippedRef.isEmpty() && clippedAlt.isEmpty())) {
+				notation = startPos.equals(endPos) ? startPos + "del" : startPos + "_" + endPos + "del";
+			} else if (">".equals(clipped.type) || (clippedRef.length() == 1 && clippedAlt.length() == 1)) {
+				notation = startPos + clippedRef + ">" + clippedAlt;
+			} else if ("dup".equals(clipped.type)) {
+				notation = startPos.equals(endPos) ? startPos + "dup" : startPos + "_" + endPos + "dup";
+			} else {
+				notation = startPos.equals(endPos)
+					? startPos + "delins" + clippedAlt
+					: startPos + "_" + endPos + "delins" + clippedAlt;
+			}
+		}
+
+		return transcriptRef + ":" + prefix + notation;
+	}
+
+	/**
+	 * VEP _get_cDNA_position (TranscriptVariationAllele.pm line 2662-2784).
+	 */
+	String getCdnaPosition(TranscriptModel transcript, int genomicPos, boolean isCoding) {
+		java.util.List<ExonModel> exons = transcript.getExons();
+		boolean positiveStrand = transcript.isPositiveStrand();
+
+		int[] exCdnaStart = new int[exons.size()];
+		int[] exCdnaEnd = new int[exons.size()];
+		if (positiveStrand) {
+			int running = 0;
+			for (int i = 0; i < exons.size(); i++) {
+				int len = exons.get(i).getEnd() - exons.get(i).getStart() + 1;
+				exCdnaStart[i] = running + 1;
+				exCdnaEnd[i] = running + len;
+				running += len;
+			}
+		} else {
+			int running = 0;
+			for (int i = exons.size() - 1; i >= 0; i--) {
+				int len = exons.get(i).getEnd() - exons.get(i).getStart() + 1;
+				exCdnaStart[i] = running + 1;
+				exCdnaEnd[i] = running + len;
+				running += len;
+			}
+		}
+
+		Integer cdnaPosition = null;
+		String intronOffset = null;
+
+		for (int i = 0; i < exons.size(); i++) {
+			ExonModel exon = exons.get(i);
+			if (genomicPos > exon.getEnd()) continue;
+			if (genomicPos >= exon.getStart()) {
+				cdnaPosition = exCdnaStart[i] + (
+					positiveStrand ? (genomicPos - exon.getStart()) : (exon.getEnd() - genomicPos)
+				);
+				break;
+			}
+			if (i > 0) {
+				ExonModel prevExon = exons.get(i - 1);
+				int updist = Math.abs(genomicPos - prevExon.getEnd());
+				int downdist = Math.abs(exon.getStart() - genomicPos);
+				if (updist < downdist || (updist == downdist && positiveStrand)) {
+					cdnaPosition = positiveStrand ? exCdnaEnd[i-1] : exCdnaStart[i-1];
+					intronOffset = (positiveStrand ? "+" : "-") + updist;
+				} else {
+					cdnaPosition = positiveStrand ? exCdnaStart[i] : exCdnaEnd[i];
+					intronOffset = (positiveStrand ? "-" : "+") + downdist;
+				}
+				break;
+			}
+			break;
+		}
+
+		if (cdnaPosition == null) return null;
+
+		if (isCoding) {
+			int cdnaCodingStart = transcript.getCdnaCodingStart();
+			int cdnaCodingEnd = computeCdnaCodingEnd(transcript);
+
+			if (cdnaCodingEnd > 0 && cdnaPosition > cdnaCodingEnd) {
+				cdnaPosition -= cdnaCodingEnd;
+				return "*" + cdnaPosition + (intronOffset != null ? intronOffset : "");
+			}
+			if (cdnaCodingEnd > 0 && cdnaPosition == cdnaCodingEnd && intronOffset != null) {
+				return "*" + intronOffset.replace("+", "");
+			}
+			if (cdnaCodingStart > 0) {
+				if (cdnaPosition >= cdnaCodingStart) cdnaPosition++;
+				cdnaPosition -= cdnaCodingStart;
+			}
+		}
+
+		return cdnaPosition + (intronOffset != null ? intronOffset : "");
+	}
+
+	private int computeCdnaCodingEnd(TranscriptModel transcript) {
+		if (!transcript.isCoding()) return 0;
+		int cdsGenomicEnd = transcript.isPositiveStrand()
+			? transcript.getCdsEnd() : transcript.getCdsStart();
+		int cdnaPos = 0;
+		if (transcript.isPositiveStrand()) {
+			for (ExonModel exon : transcript.getExons()) {
+				if (cdsGenomicEnd >= exon.getStart() && cdsGenomicEnd <= exon.getEnd()) {
+					return cdnaPos + (cdsGenomicEnd - exon.getStart()) + 1;
+				}
+				cdnaPos += exon.getEnd() - exon.getStart() + 1;
+			}
+		} else {
+			for (int i = transcript.getExons().size() - 1; i >= 0; i--) {
+				ExonModel exon = transcript.getExons().get(i);
+				if (cdsGenomicEnd >= exon.getStart() && cdsGenomicEnd <= exon.getEnd()) {
+					return cdnaPos + (exon.getEnd() - cdsGenomicEnd) + 1;
+				}
+				cdnaPos += exon.getEnd() - exon.getStart() + 1;
+			}
+		}
+		return 0;
+	}
+
+	private int compareHgvsPositions(String pos1, String pos2) {
+		if (pos1 == null || pos2 == null) return 0;
+		boolean star1 = pos1.startsWith("*");
+		boolean star2 = pos2.startsWith("*");
+		if (star1 && !star2) return 1;
+		if (!star1 && star2) return -1;
+		String p1 = star1 ? pos1.substring(1) : pos1;
+		String p2 = star2 ? pos2.substring(1) : pos2;
+		int[] parsed1 = parseHgvsPosition(p1);
+		int[] parsed2 = parseHgvsPosition(p2);
+		int cmp = Integer.compare(parsed1[0], parsed2[0]);
+		return cmp != 0 ? cmp : Integer.compare(parsed1[1], parsed2[1]);
+	}
+
+	private int parseHgvsPos(String pos) {
+		if (pos == null || pos.isEmpty()) return 0;
+		try { return parseHgvsPosition(pos)[0]; }
+		catch (Exception e) { return 0; }
+	}
+
+	private int[] parseHgvsPosition(String pos) {
+		int plusIdx = pos.indexOf('+');
+		int minusIdx = pos.lastIndexOf('-');
+		if (minusIdx == 0) minusIdx = -1;
+		if (plusIdx > 0) {
+			return new int[]{Integer.parseInt(pos.substring(0, plusIdx)),
+				Integer.parseInt(pos.substring(plusIdx + 1))};
+		} else if (minusIdx > 0) {
+			return new int[]{Integer.parseInt(pos.substring(0, minusIdx)),
+				-Integer.parseInt(pos.substring(minusIdx + 1))};
+		}
+		return new int[]{Integer.parseInt(pos), 0};
+	}
 }

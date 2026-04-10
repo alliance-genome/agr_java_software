@@ -8,7 +8,6 @@ import org.alliancegenome.vep.annotation.OutputFactory;
 import org.alliancegenome.vep.config.VepFileSet;
 import org.alliancegenome.vep.config.VepFileSet.ModSource;
 import org.alliancegenome.vep.gff.Gff3GeneModelBuilder;
-import org.alliancegenome.vep.hgvs.HgvsGenerator;
 import org.alliancegenome.vep.model.GeneModel;
 import org.alliancegenome.vep.plugin.PredictionLookup;
 import org.alliancegenome.vep.reference.ContigAccessionMap;
@@ -59,7 +58,7 @@ public class TestHelper {
 			try { siftLookup = new PredictionLookup(mmapDir, modName, "sift"); } catch (Exception e) { /* skip */ }
 			try { polyPhenLookup = new PredictionLookup(mmapDir, modName, "pph"); } catch (Exception e) { /* skip */ }
 		}
-		return new OutputFactory(geneModel, reference, new HgvsGenerator(contigMap, reference), modName,
+		return new OutputFactory(geneModel, reference, contigMap, modName,
 			siftLookup, polyPhenLookup);
 	}
 

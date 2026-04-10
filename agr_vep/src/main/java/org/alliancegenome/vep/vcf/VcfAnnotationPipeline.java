@@ -14,7 +14,6 @@ import org.alliancegenome.vep.annotation.OutputFactory;
 import org.alliancegenome.vep.csq.CsqEntry;
 import org.alliancegenome.vep.csq.CsqHeaderWriter;
 import org.alliancegenome.vep.gff.Gff3GeneModelBuilder;
-import org.alliancegenome.vep.hgvs.HgvsGenerator;
 import org.alliancegenome.vep.model.GeneModel;
 import org.alliancegenome.vep.plugin.PredictionLookup;
 import org.alliancegenome.vep.reference.ContigAccessionMap;
@@ -71,7 +70,6 @@ public class VcfAnnotationPipeline {
 		try (ReferenceGenome reference = new ReferenceGenome(fastaPath)) {
 
 			ContigAccessionMap contigMap = ContigAccessionMap.fromFasta(fastaPath, synonymsPath);
-			HgvsGenerator hgvsGenerator = new HgvsGenerator(contigMap, reference);
 
 			PredictionLookup siftLookup = null;
 			PredictionLookup polyPhenLookup = null;
@@ -91,7 +89,7 @@ public class VcfAnnotationPipeline {
 				}
 			}
 
-			OutputFactory annotator = new OutputFactory(geneModel, reference, hgvsGenerator, mod,
+			OutputFactory annotator = new OutputFactory(geneModel, reference, contigMap, mod,
 				siftLookup, polyPhenLookup);
 
 			try (VCFFileReader reader = new VCFFileReader(vcfFile, false)) {
