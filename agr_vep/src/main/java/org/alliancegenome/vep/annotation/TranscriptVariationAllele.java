@@ -18,6 +18,7 @@ import lombok.extern.log4j.Log4j2;
 public class TranscriptVariationAllele {
 
 	private final ReferenceGenome reference;
+	public ReferenceGenome getReference() { return reference; }
 
 	public TranscriptVariationAllele(ReferenceGenome reference) {
 		this.reference = reference;
@@ -92,7 +93,7 @@ public class TranscriptVariationAllele {
 		int codonIndex = (cdsPos - 1) / 3;
 		int posInCodon = (cdsPos - 1) % 3;
 
-		String cdsSequence = buildCdsSequence(transcript, chr);
+		String cdsSequence = BaseTranscriptVariation.translateableSeq(transcript, reference);
 		if (cdsSequence == null || cdsPos > cdsSequence.length()) return null;
 
 		int codonStart = codonIndex * 3;
@@ -145,7 +146,7 @@ public class TranscriptVariationAllele {
 		int cdsStart = tv.cdsStart();
 		int cdsEnd = tv.cdsEnd();
 
-		String cdsSequence = buildCdsSequence(transcript, chr);
+		String cdsSequence = BaseTranscriptVariation.translateableSeq(transcript, reference);
 		if (cdsSequence == null) return null;
 
 		// VEP: vf_nt_len = cds_end - cds_start + 1 (ref CDS span)
@@ -211,7 +212,7 @@ public class TranscriptVariationAllele {
 
 		// Apply indel and get local alt peptide
 		// VEP _get_alternate_cds appends 3'UTR so reading frame can extend into UTR for frameshifts
-		String utr3 = build3PrimeUtr(transcript, chr);
+		String utr3 = BaseTranscriptVariation.threePrimeUtr(transcript, reference);
 		String altCdsWithUtr = applyIndelToCds(cdsSequence, cdsPos, vepAllele, refAllele, isDeletion, transcript, indelLength, utr3);
 		// Also keep a CDS-only version for position-sensitive checks
 		String altCds = applyIndelToCds(cdsSequence, cdsPos, vepAllele, refAllele, isDeletion, transcript, indelLength);
@@ -823,12 +824,12 @@ public class TranscriptVariationAllele {
 			if (variantStart > stopHigh || variantEnd < stopLow) return false;
 
 			// 2. Build CDS and verify stop codon
-			String cds = buildCdsSequence(transcript, chr);
+			String cds = BaseTranscriptVariation.translateableSeq(transcript, reference);
 			if (cds == null || cds.length() < 3) return false;
 			if (!CodonTable.isStop(cds.substring(cds.length() - 3))) return false;
 
 			// 3. Build 3' UTR sequence
-			String utr3 = build3PrimeUtr(transcript, chr);
+			String utr3 = BaseTranscriptVariation.threePrimeUtr(transcript, reference);
 			String cdsAndUtr = cds + utr3;
 
 			// 4. Find the FIRST CDS position in the variant range
@@ -909,11 +910,11 @@ public class TranscriptVariationAllele {
 			if (variantStart > startHigh || variantEnd < startLow) return false;
 
 			// 2. Build CDS and verify start codon
-			String cds = buildCdsSequence(transcript, chr);
+			String cds = BaseTranscriptVariation.translateableSeq(transcript, reference);
 			if (cds == null || cds.length() < 3) return false;
 
 			// 3. Build 5' UTR sequence and concatenate
-			String utr5 = build5PrimeUtr(transcript, chr);
+			String utr5 = BaseTranscriptVariation.fivePrimeUtr(transcript, reference);
 			String utrAndCds = utr5 + cds;
 
 			// 4. Compute cDNA position via BaseTranscriptVariation.genomicToCdna
@@ -962,58 +963,8 @@ public class TranscriptVariationAllele {
 	}
 
 	/** Build the 5' UTR sequence from FASTA for this transcript. */
-	private String build5PrimeUtr(TranscriptModel transcript, String chr) {
-		StringBuilder utr = new StringBuilder();
-		int cdsEnd = transcript.getCdsEnd();
-		int cdsStart = transcript.getCdsStart();
-
-		if (transcript.isPositiveStrand()) {
-			// 5'UTR: exonic regions before CDS start
-			for (ExonModel exon : transcript.getExons()) {
-				if (exon.getStart() >= cdsStart) break;
-				int utrEnd = Math.min(exon.getEnd(), cdsStart - 1);
-				String seq = reference.getSequence(chr, exon.getStart(), utrEnd);
-				utr.append(seq.toUpperCase());
-			}
-		} else {
-			// 5'UTR on - strand: exonic regions after CDS end (reverse complement)
-			for (int i = transcript.getExons().size() - 1; i >= 0; i--) {
-				ExonModel exon = transcript.getExons().get(i);
-				if (exon.getEnd() <= cdsEnd) break;
-				int utrStart = Math.max(exon.getStart(), cdsEnd + 1);
-				String seq = reference.getSequence(chr, utrStart, exon.getEnd());
-				utr.append(Sequence.reverseComplement(seq.toUpperCase()));
-			}
-		}
-		return utr.toString();
-	}
-
-	/** Build the 3' UTR sequence from FASTA for this transcript. */
-	private String build3PrimeUtr(TranscriptModel transcript, String chr) {
-		StringBuilder utr = new StringBuilder();
-		int cdsEnd = transcript.getCdsEnd();
-		int cdsStart = transcript.getCdsStart();
-
-		if (transcript.isPositiveStrand()) {
-			// 3'UTR: exonic regions after CDS end
-			for (ExonModel exon : transcript.getExons()) {
-				if (exon.getEnd() <= cdsEnd) continue;
-				int utrStart = Math.max(exon.getStart(), cdsEnd + 1);
-				String seq = reference.getSequence(chr, utrStart, exon.getEnd());
-				utr.append(seq.toUpperCase());
-			}
-		} else {
-			// 3'UTR on - strand: exonic regions before CDS start (reverse complement)
-			for (int i = transcript.getExons().size() - 1; i >= 0; i--) {
-				ExonModel exon = transcript.getExons().get(i);
-				if (exon.getStart() >= cdsStart) continue;
-				int utrEnd = Math.min(exon.getEnd(), cdsStart - 1);
-				String seq = reference.getSequence(chr, exon.getStart(), utrEnd);
-				utr.append(Sequence.reverseComplement(seq.toUpperCase()));
-			}
-		}
-		return utr.toString();
-	}
+	// build5PrimeUtr removed — replaced by BaseTranscriptVariation.fivePrimeUtr()
+	// build3PrimeUtr removed — replaced by BaseTranscriptVariation.threePrimeUtr()
 
 	/**
 	 * Check if stop codon is overlapped but NOT altered (stop_retained).
@@ -1029,7 +980,7 @@ public class TranscriptVariationAllele {
 				stopHigh = stopLow + 2;
 			}
 			if (variantStart > stopHigh || variantEnd < stopLow) return false;
-			String cds = buildCdsSequence(transcript, chr);
+			String cds = BaseTranscriptVariation.translateableSeq(transcript, reference);
 			if (cds == null || cds.length() < 3) return false;
 			if (!CodonTable.isStop(cds.substring(cds.length() - 3))) return false;
 			return !isStopAltered(transcript, chr, variantStart, variantEnd);
@@ -1093,36 +1044,7 @@ public class TranscriptVariationAllele {
 		return lastCodonLength < 3 && lastCodonLength > 0;
 	}
 
-	String buildCdsSequence(TranscriptModel transcript, String chr) {
-		StringBuilder cds = new StringBuilder();
-
-		if (transcript.isPositiveStrand()) {
-			for (CdsSegment seg : transcript.getCdsSegments()) {
-				String seq = reference.getSequence(chr, seg.getStart(), seg.getEnd());
-				cds.append(seq.toUpperCase());
-			}
-		} else {
-			List<CdsSegment> segments = transcript.getCdsSegments();
-			for (int i = segments.size() - 1; i >= 0; i--) {
-				CdsSegment seg = segments.get(i);
-				String seq = reference.getSequence(chr, seg.getStart(), seg.getEnd());
-				cds.append(Sequence.reverseComplement(seq.toUpperCase()));
-			}
-		}
-
-		// Apply phase offset
-		int phase;
-		if (transcript.isPositiveStrand()) {
-			phase = transcript.getCdsSegments().get(0).getPhase();
-		} else {
-			phase = transcript.getCdsSegments().get(transcript.getCdsSegments().size() - 1).getPhase();
-		}
-		if (phase > 0 && phase < cds.length()) {
-			return cds.substring(phase);
-		}
-
-		return cds.toString();
-	}
+	// buildCdsSequence removed — replaced by BaseTranscriptVariation.translateableSeq()
 
 	// computeCdnaPosition removed — replaced by BaseTranscriptVariation.genomicToCdna()
 

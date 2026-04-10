@@ -258,7 +258,7 @@ public class OutputFactory {
 
 	private String computePeptideMd5(TranscriptModel transcript) {
 		if (!transcript.isCoding()) return null;
-		String cds = codingAnnotator.buildCdsSequence(transcript, transcript.getChr());
+		String cds = BaseTranscriptVariation.translateableSeq(transcript, codingAnnotator.getReference());
 		if (cds == null || cds.length() < 3) return null;
 		StringBuilder peptide = new StringBuilder();
 		for (int i = 0; i + 2 < cds.length(); i += 3) {

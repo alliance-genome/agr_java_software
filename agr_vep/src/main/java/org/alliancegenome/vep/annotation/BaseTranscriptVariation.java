@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.alliancegenome.vep.bio.Sequence;
+import org.alliancegenome.vep.model.CdsSegment;
 import org.alliancegenome.vep.model.ExonModel;
 import org.alliancegenome.vep.model.Mapper;
 import org.alliancegenome.vep.model.TranscriptMapper;
 import org.alliancegenome.vep.model.TranscriptModel;
+import org.alliancegenome.vep.reference.ReferenceGenome;
 
 /**
  * Port of Bio::EnsEMBL::Variation::BaseTranscriptVariation.
@@ -158,6 +160,131 @@ public class BaseTranscriptVariation {
 			return Sequence.reverseComplement(allele);
 		}
 		return allele;
+	}
+
+	/**
+	 * VEP BaseTranscriptVariation::_translateable_seq (line 1083-1091).
+	 * Builds the CDS sequence from transcript CDS segments.
+	 * Equivalent of the old buildCdsSequence.
+	 */
+	public static String translateableSeq(TranscriptModel transcript, ReferenceGenome reference) {
+		String chr = transcript.getChr();
+		StringBuilder cds = new StringBuilder();
+
+		if (transcript.isPositiveStrand()) {
+			for (CdsSegment seg : transcript.getCdsSegments()) {
+				String seq = reference.getSequence(chr, seg.getStart(), seg.getEnd());
+				cds.append(seq.toUpperCase());
+			}
+		} else {
+			List<CdsSegment> segments = transcript.getCdsSegments();
+			for (int i = segments.size() - 1; i >= 0; i--) {
+				CdsSegment seg = segments.get(i);
+				String seq = reference.getSequence(chr, seg.getStart(), seg.getEnd());
+				cds.append(Sequence.reverseComplement(seq.toUpperCase()));
+			}
+		}
+
+		// Apply phase offset
+		int phase;
+		if (transcript.isPositiveStrand()) {
+			phase = transcript.getCdsSegments().get(0).getPhase();
+		} else {
+			phase = transcript.getCdsSegments().get(transcript.getCdsSegments().size() - 1).getPhase();
+		}
+		if (phase > 0 && phase < cds.length()) {
+			return cds.substring(phase);
+		}
+
+		return cds.toString();
+	}
+
+	/**
+	 * VEP BaseTranscriptVariation::_three_prime_utr (line 1097-1099).
+	 * Builds the 3' UTR sequence.
+	 */
+	public static String threePrimeUtr(TranscriptModel transcript, ReferenceGenome reference) {
+		String chr = transcript.getChr();
+		List<ExonModel> exons = transcript.getExons();
+		List<CdsSegment> cdsSegments = transcript.getCdsSegments();
+		if (exons.isEmpty() || cdsSegments.isEmpty()) return "";
+
+		int cdsEnd;
+		if (transcript.isPositiveStrand()) {
+			cdsEnd = cdsSegments.get(cdsSegments.size() - 1).getEnd();
+		} else {
+			cdsEnd = cdsSegments.get(0).getStart();
+		}
+
+		StringBuilder utr = new StringBuilder();
+		if (transcript.isPositiveStrand()) {
+			for (ExonModel exon : exons) {
+				if (exon.getStart() > cdsEnd) {
+					String seq = reference.getSequence(chr, exon.getStart(), exon.getEnd());
+					utr.append(seq.toUpperCase());
+				} else if (exon.getEnd() > cdsEnd) {
+					String seq = reference.getSequence(chr, cdsEnd + 1, exon.getEnd());
+					utr.append(seq.toUpperCase());
+				}
+			}
+		} else {
+			for (int i = exons.size() - 1; i >= 0; i--) {
+				ExonModel exon = exons.get(i);
+				if (exon.getEnd() < cdsEnd) {
+					String seq = reference.getSequence(chr, exon.getStart(), exon.getEnd());
+					utr.append(Sequence.reverseComplement(seq.toUpperCase()));
+				} else if (exon.getStart() < cdsEnd) {
+					String seq = reference.getSequence(chr, exon.getStart(), cdsEnd - 1);
+					utr.append(Sequence.reverseComplement(seq.toUpperCase()));
+				}
+			}
+		}
+
+		return utr.toString();
+	}
+
+	/**
+	 * VEP BaseTranscriptVariation::_five_prime_utr (line 1093-1095).
+	 * Builds the 5' UTR sequence.
+	 */
+	public static String fivePrimeUtr(TranscriptModel transcript, ReferenceGenome reference) {
+		String chr = transcript.getChr();
+		List<ExonModel> exons = transcript.getExons();
+		List<CdsSegment> cdsSegments = transcript.getCdsSegments();
+		if (exons.isEmpty() || cdsSegments.isEmpty()) return "";
+
+		int cdsStart;
+		if (transcript.isPositiveStrand()) {
+			cdsStart = cdsSegments.get(0).getStart();
+		} else {
+			cdsStart = cdsSegments.get(cdsSegments.size() - 1).getEnd();
+		}
+
+		StringBuilder utr = new StringBuilder();
+		if (transcript.isPositiveStrand()) {
+			for (ExonModel exon : exons) {
+				if (exon.getEnd() < cdsStart) {
+					String seq = reference.getSequence(chr, exon.getStart(), exon.getEnd());
+					utr.append(seq.toUpperCase());
+				} else if (exon.getStart() < cdsStart) {
+					String seq = reference.getSequence(chr, exon.getStart(), cdsStart - 1);
+					utr.append(seq.toUpperCase());
+				}
+			}
+		} else {
+			for (int i = exons.size() - 1; i >= 0; i--) {
+				ExonModel exon = exons.get(i);
+				if (exon.getStart() > cdsStart) {
+					String seq = reference.getSequence(chr, exon.getStart(), exon.getEnd());
+					utr.append(Sequence.reverseComplement(seq.toUpperCase()));
+				} else if (exon.getEnd() > cdsStart) {
+					String seq = reference.getSequence(chr, cdsStart + 1, exon.getEnd());
+					utr.append(Sequence.reverseComplement(seq.toUpperCase()));
+				}
+			}
+		}
+
+		return utr.toString();
 	}
 
 	/**
