@@ -19,7 +19,7 @@ import org.alliancegenome.core.exceptions.RestErrorException;
 import org.alliancegenome.core.exceptions.RestErrorMessage;
 import org.alliancegenome.core.translators.tdf.AlleleToTdfTranslator;
 import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
-import org.alliancegenome.curation_api.model.document.es.TransgenicAlleleDocument;
+import org.alliancegenome.api.entity.TransgenicAlleleSummaryDocument;
 import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
@@ -67,8 +67,8 @@ public class AlleleController implements AlleleRESTInterface {
 	}
 
 	@Override
-	public TransgenicAlleleDocument getAlleleConstructs(String alleleId) {
-		JsonResultResponse<TransgenicAlleleDocument> transgenicAlleles = alleleEsService.getTransgenicAlleles(alleleId);
+	public TransgenicAlleleSummaryDocument getAlleleConstructs(String alleleId) {
+		JsonResultResponse<TransgenicAlleleSummaryDocument> transgenicAlleles = alleleEsService.getTransgenicAlleles(alleleId);
 		if (transgenicAlleles == null) {
 			return null;
 		}

@@ -262,6 +262,15 @@ public class VariantSummaryConverter {
 			allele.setTaxon(taxon);
 			// If we want to show
 
+			// Sort PVCs by most severe consequence
+			consequences.sort(Comparator.comparingInt(pvc -> {
+				if (pvc.getVepConsequences() == null || pvc.getVepConsequences().isEmpty()) {
+					return Integer.MAX_VALUE;
+				}
+				return pvc.getVepConsequences().stream()
+					.mapToInt(c -> c.getSeverityOrder() != null ? c.getSeverityOrder() : Integer.MAX_VALUE)
+					.min().orElse(Integer.MAX_VALUE);
+			}));
 			cvgla.setPredictedVariantConsequences(consequences);
 			// Create the document for each consequence (full flattening)
 			VariantSummaryDocument doc = new VariantSummaryDocument();
