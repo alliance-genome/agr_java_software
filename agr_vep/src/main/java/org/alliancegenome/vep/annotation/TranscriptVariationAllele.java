@@ -650,8 +650,10 @@ public class TranscriptVariationAllele {
 			}
 
 			// VEP display_codon (line 884-915) + display_codon_allele_string (line 658-673)
-			// Exact port: codon_position is 1-based within the codon
-			int codonPosition1 = ((trStartCds - 1) % 3) + 1;
+			// VEP codon_position uses cdna_start, not cds_start
+			// cdna_start = cds_start + (cdna_coding_start - 1) = cds + UTR offset
+			int cdnaStart = trStartCds + (transcript.getCdnaCodingStart() > 0 ? transcript.getCdnaCodingStart() - 1 : 0);
+			int codonPosition1 = vepCodonPosition(cdnaStart, transcript);
 			// VEP $ref_tva->feature_seq: for ref allele of insertion = "-", otherwise ref bases
 			String refFeatureSeq = "-".equals(refAllele) ? "-" : refAllele;
 			// VEP $self->feature_seq: for alt allele of deletion = "-", otherwise alt bases
@@ -743,18 +745,7 @@ public class TranscriptVariationAllele {
 		return new String[]{ref, alt};
 	}
 
-	/**
-	 * VEP display_codon (line 884-915): lowercase everything, then uppercase
-	 * the variant bases at the codon_position.
-	 */
-	private String formatDisplayCodon(String codon, int codonPos, int variantLen) {
-		StringBuilder sb = new StringBuilder(codon.toLowerCase());
-		int end = Math.min(codonPos + variantLen, sb.length());
-		for (int i = codonPos; i < end; i++) {
-			sb.setCharAt(i, Character.toUpperCase(sb.charAt(i)));
-		}
-		return sb.toString();
-	}
+	// formatDisplayCodon removed — replaced by displayCodon() exact Perl port
 
 	private String safeSubstring(String s, int start, int end) {
 		if (s == null || start < 0 || start >= s.length()) return null;
@@ -1806,6 +1797,36 @@ public class TranscriptVariationAllele {
 		return prefix + ref3 + n.start + alt3;
 	}
 
+	/**
+	 * VEP TranscriptVariation::codon_position — TranscriptVariation.pm line 287-307.
+	 * Returns 1-based position within the codon.
+	 * Formula: ((cdna_start - tran_cdna_start + phase_offset) % 3) + 1
+	 *
+	 * @param cdsPosition 1-based CDS position of the variant
+	 * @param transcript The transcript model
+	 * @return 1-based codon position (1, 2, or 3)
+	 */
+	/**
+	 * VEP TranscriptVariation::codon_position — TranscriptVariation.pm line 287-307.
+	 * Exact port: ((cdna_start - tran_cdna_start + phase_offset) % 3) + 1
+	 *
+	 * @param cdnaStart cDNA position of the variant (1-based, from transcript start)
+	 * @param transcript The transcript model
+	 * @return 1-based codon position (1, 2, or 3), or 0 if undefined
+	 */
+	public static int vepCodonPosition(int cdnaStart, org.alliancegenome.vep.model.TranscriptModel transcript) {
+		// VEP line 294: tran_cdna_start = transcript->cdna_coding_start
+		int tranCdnaStart = transcript.getCdnaCodingStart();
+		if (tranCdnaStart <= 0) tranCdnaStart = 1; // fallback
+
+		// VEP line 297-299: exon_phase = transcript->start_Exon->phase
+		int exonPhase = transcript.getStartExonPhase();
+		int phaseOffset = exonPhase > 0 ? exonPhase : 0;
+
+		// VEP line 302
+		return ((cdnaStart - tranCdnaStart + phaseOffset) % 3) + 1;
+	}
+
 	/** Convert 1-letter peptide to 3-letter code. Handles multi-AA strings. */
 	private String to3Letter(String oneLetterPep) {
 		if (oneLetterPep == null || oneLetterPep.isEmpty() || "-".equals(oneLetterPep)) return oneLetterPep;
@@ -1860,7 +1881,8 @@ public class TranscriptVariationAllele {
 	 * @return Display codon string, or null
 	 */
 	public static String displayCodon(String codon, String featureSeq, int codonPosition) {
-		if (codon == null || "-".equals(codon)) return null;
+		if (codon == null) return null;
+		if ("-".equals(codon)) return "-"; // VEP line 862: codon = '-' for between-codon insertions
 
 		// Line 894
 		String displayCodon = codon.toLowerCase();

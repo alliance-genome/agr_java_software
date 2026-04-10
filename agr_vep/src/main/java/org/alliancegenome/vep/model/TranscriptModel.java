@@ -31,6 +31,10 @@ public class TranscriptModel implements Locatable {
 	private int codonTable = 1; // 1=standard, 2=vertebrate mitochondrial
 	private int loadOrder; // GFF3 file order for stable transcript sorting
 
+	// VEP Transcript fields for codon_position (TranscriptVariation.pm line 292-302)
+	private int cdnaCodingStart; // cDNA position where coding begins (1-based, after 5'UTR)
+	private int startExonPhase;  // phase of the first coding exon (0, 1, or 2)
+
 	private List<ExonModel> exons = new ArrayList<>();
 	private List<CdsSegment> cdsSegments = new ArrayList<>();
 

@@ -153,6 +153,35 @@ public class Gff3GeneModelBuilder {
 
 				tm.sortAndIndex();
 				tm.setLoadOrder(transcriptCount);
+
+				// VEP Transcript fields: cdna_coding_start and start_Exon->phase
+				// cdna_coding_start = cDNA position where coding begins (after 5'UTR)
+				if (!tm.getCdsSegments().isEmpty() && !tm.getExons().isEmpty()) {
+					int cdsGenomicStart = tm.isPositiveStrand()
+						? tm.getCdsSegments().get(0).getStart()
+						: tm.getCdsSegments().get(tm.getCdsSegments().size() - 1).getEnd();
+					// Count cDNA bases from transcript start to CDS start
+					int cdnaBases = 0;
+					for (ExonModel exon : tm.getExons()) {
+						if (tm.isPositiveStrand()) {
+							if (exon.getEnd() < cdsGenomicStart) {
+								cdnaBases += exon.getEnd() - exon.getStart() + 1;
+							} else {
+								cdnaBases += cdsGenomicStart - exon.getStart() + 1;
+								break;
+							}
+						} else {
+							if (exon.getStart() > cdsGenomicStart) {
+								cdnaBases += exon.getEnd() - exon.getStart() + 1;
+							} else {
+								cdnaBases += exon.getEnd() - cdsGenomicStart + 1;
+								break;
+							}
+						}
+					}
+					tm.setCdnaCodingStart(cdnaBases);
+					tm.setStartExonPhase(tm.getCdsSegments().get(0).getPhase());
+				}
 				model.addTranscript(tm);
 				transcriptCount++;
 			}
