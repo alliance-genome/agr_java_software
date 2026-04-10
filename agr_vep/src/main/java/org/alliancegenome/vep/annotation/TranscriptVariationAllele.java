@@ -777,6 +777,22 @@ public class TranscriptVariationAllele {
 		return pep.toString();
 	}
 
+	/**
+	 * BioPerl translate() — only translates COMPLETE codons, ignores partial trailing codons.
+	 * Used by VEP's _get_fs_peptides and _stop_loss_extra_AA which call
+	 * $alt_cds->translate()->seq() (BioPerl, not VEP's peptide() method).
+	 */
+	private String translateCdsWholeOnly(String cds) {
+		if (cds == null) return "";
+		StringBuilder pep = new StringBuilder();
+		int wholeLen = (cds.length() / 3) * 3;
+		for (int i = 0; i < wholeLen; i += 3) {
+			char aa = CodonTable.translate(cds.substring(i, i + 3));
+			pep.append(aa);
+		}
+		return pep.toString();
+	}
+
 	/** Count the number of CDS bases within a genomic range.
 	 * VEP's coordinate mapper splices out introns; this is the equivalent. */
 	private int computeCdsDeletionLength(TranscriptModel transcript, int genomicStart, int genomicEnd) {
@@ -1447,10 +1463,12 @@ public class TranscriptVariationAllele {
 		if (altCds == null) return null;
 
 		// Line 2242: translate full alt CDS
-		String altTrans = translateCds(altCds);
+		// VEP uses BioPerl translate() which only translates COMPLETE codons (no X for partials)
+		String altTrans = translateCdsWholeOnly(altCds);
 
 		// Line 2245-2247: get full ref peptide + appended stop
-		String refTrans = translateCds(cdsSequence) + "*";
+		// VEP uses _peptide() which also uses BioPerl translate (complete codons only)
+		String refTrans = translateCdsWholeOnly(cdsSequence) + "*";
 
 		// Line 2249: reset start to translation_start
 		n.start = translationStart;
@@ -1628,8 +1646,8 @@ public class TranscriptVariationAllele {
 		if (refVarPos <= 0) return null;
 		if (altCds == null) return null;
 
-		// Line 2401: translate alt CDS
-		String altTrans = translateCds(altCds);
+		// Line 2401: translate alt CDS (BioPerl translate — whole codons only)
+		String altTrans = translateCdsWholeOnly(altCds);
 		// Line 2403-2404: ref length
 		int refLen = (refPep != null) ? refPep.length() : 0;
 
