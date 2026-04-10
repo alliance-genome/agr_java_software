@@ -117,6 +117,7 @@ public class VariantSummaryConverter {
 			taxon.setName(speciesType.getName());
 			taxon.setCurie(speciesType.getTaxonID());
 			Species species = new Species();
+			species.setFullName(speciesType.getName());
 			species.setAbbreviation(speciesType.getAbbreviation());
 			taxon.setSpecies(species);
 		}
