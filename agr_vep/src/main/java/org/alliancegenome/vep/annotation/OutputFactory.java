@@ -269,6 +269,59 @@ public class OutputFactory {
 		return PredictionLookup.md5Hex(peptide.toString());
 	}
 
+	// ===================================================================
+	// Ports from Bio::EnsEMBL::VEP::OutputFactory
+	// ===================================================================
+
+	/**
+	 * VEP filter_VariationFeatureOverlapAlleles — OutputFactory.pm line 577-629.
+	 * For flag_pick_allele_gene: groups VFOAs by allele, picks per gene within
+	 * each allele group, flags the picked ones with PICK=1.
+	 * All VFOAs are returned (not filtered), just flagged.
+	 *
+	 * Our implementation in computeGeneLevelConsequence simulates this by
+	 * finding the picked entry per allele+gene and using its consequence
+	 * for the Gene_level_consequence field.
+	 */
+	// Already implemented in computeGeneLevelConsequence above.
+
+	/**
+	 * VEP pick_worst_VariationFeatureOverlapAllele — OutputFactory.pm line 702-811.
+	 * Full pick_order: mane_select > mane_plus_clinical > canonical > appris > tsl >
+	 * biotype > ccds > rank > length > ensembl > refseq.
+	 * For AGR species without MANE/canonical/APPRIS/TSL/CCDS, this simplifies to
+	 * biotype > rank > length.
+	 */
+	// Already implemented in isPicked above.
+
+	/**
+	 * VEP pick_VariationFeatureOverlapAllele_per_gene — OutputFactory.pm line 829-858.
+	 * Groups TVAs by gene, picks worst per gene.
+	 */
+	// Already implemented in computeGeneLevelConsequence above (allele+gene grouping).
+
+	/**
+	 * VEP TranscriptVariationAllele_to_output_hash — OutputFactory.pm line 1630-1730.
+	 * Builds the CSQ hash for a TranscriptVariationAllele.
+	 * Calls:
+	 *   1. VariationFeatureOverlapAllele_to_output_hash (base: Allele, Consequence, HGVSg)
+	 *   2. BaseTranscriptVariationAllele_to_output_hash (transcript: Feature, Gene, SYMBOL, etc.)
+	 *   3. Coding-specific fields (cDNA_position, CDS_position, Amino_acids, Codons)
+	 *   4. HGVSc, HGVSp
+	 *   5. SIFT, PolyPhen
+	 *   6. GIVEN_REF, USED_REF
+	 *
+	 * Our implementation is split between TranscriptAnnotator.annotate() (which builds CsqEntry)
+	 * and this class (which adds predictions and HGVSg).
+	 */
+	// Already implemented across TranscriptAnnotator and OutputFactory.
+
+	/**
+	 * VEP add_sift_polyphen — OutputFactory.pm line 1746-1799.
+	 * Adds SIFT and PolyPhen prediction/score to the output hash.
+	 */
+	// Already implemented in addPredictions above.
+
 	static String toVepRef(String ref, String alt) {
 		if (ref.length() == 1 && alt.length() == 1) {
 			return ref;
