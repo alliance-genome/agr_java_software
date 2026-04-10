@@ -1347,7 +1347,7 @@ public class TranscriptVariationAllele {
 	 * Prefix clip bounded by length(ref). Suffix clip bounded by remaining ref after prefix.
 	 * Detects dup/ins/del/>/delins type from clipped result.
 	 */
-	private HgvsNotation vepClipAlleles(String ref, String alt, int start, int end) {
+	public static HgvsNotation vepClipAlleles(String ref, String alt, int start, int end) {
 		HgvsNotation n = new HgvsNotation();
 		n.originalRef = ref;
 		n.preseq = "";

@@ -126,36 +126,54 @@ public class HgvsCodingNotation {
 			// SNP
 			notation = startPos + hgvsRef + ">" + hgvsAlt;
 		} else {
-			// Complex: VEP _clip_alleles trims common suffix
-			int suffixClip = 0;
-			int minLen = Math.min(hgvsRef.length(), hgvsAlt.length());
-			while (suffixClip < minLen
-					&& hgvsRef.charAt(hgvsRef.length() - 1 - suffixClip) == hgvsAlt.charAt(hgvsAlt.length() - 1 - suffixClip)) {
-				suffixClip++;
-			}
-			String clippedRef = hgvsRef.substring(0, hgvsRef.length() - suffixClip);
-			String clippedAlt = hgvsAlt.substring(0, hgvsAlt.length() - suffixClip);
+			// VEP hgvs_transcript line 1418: _clip_alleles unless type is 'dup'
+			// Uses TranscriptVariationAllele._clip_alleles (line 2102) which does
+			// BOTH prefix AND suffix trimming, adjusting start/end.
+			// Parse startPos/endPos to integers for clipping
+			int clipStartInt = parseHgvsPos(startPos);
+			int clipEndInt = parseHgvsPos(endPos);
+			if (clipEndInt == 0) clipEndInt = clipStartInt;
 
-			// Recompute end position after suffix clipping
-			if (suffixClip > 0) {
-				int newEndGenomic = transcript.isPositiveStrand()
-					? variantStart + clippedRef.length() - 1
-					: variantEnd + suffixClip;
-				endPos = getCdnaPosition(transcript, newEndGenomic, isCoding);
-				if (endPos == null) endPos = startPos;
+			org.alliancegenome.vep.annotation.TranscriptVariationAllele.HgvsNotation clipped =
+				org.alliancegenome.vep.annotation.TranscriptVariationAllele.vepClipAlleles(
+					hgvsRef, hgvsAlt, clipStartInt, clipEndInt);
+
+			// Recompute cDNA positions from the clipped genomic positions
+			// VEP _clip_alleles adjusts start/end integers directly
+			if (clipped.preseq != null && !clipped.preseq.isEmpty()) {
+				// Prefix was clipped — recompute start position
+				int prefixLen = clipped.preseq.length();
+				int newStartGenomic = transcript.isPositiveStrand()
+					? variantStart + prefixLen : variantEnd - prefixLen;
+				startPos = getCdnaPosition(transcript, newStartGenomic, isCoding);
+				if (startPos == null) startPos = String.valueOf(clipped.start);
 			}
 
-			if (clippedRef.isEmpty() && !clippedAlt.isEmpty()) {
-				notation = startPos + "_" + endPos + "ins" + clippedAlt;
-			} else if (!clippedRef.isEmpty() && clippedAlt.isEmpty()) {
+			String clippedRef = clipped.ref;
+			String clippedAlt = clipped.alt;
+
+			// Format using Sequence.formatHgvsString-style logic
+			if ("=".equals(clipped.type)) {
+				notation = startPos + "=";
+			} else if ("ins".equals(clipped.type) || (clippedRef.isEmpty() && !clippedAlt.isEmpty())) {
+				// For insertion after prefix clip: end_start (swapped)
+				notation = endPos + "_" + startPos + "ins" + clippedAlt;
+			} else if ("del".equals(clipped.type) || (!clippedRef.isEmpty() && clippedAlt.isEmpty())) {
 				if (startPos.equals(endPos)) {
 					notation = startPos + "del";
 				} else {
 					notation = startPos + "_" + endPos + "del";
 				}
-			} else if (clippedRef.length() == 1 && clippedAlt.length() == 1) {
+			} else if (">".equals(clipped.type) || (clippedRef.length() == 1 && clippedAlt.length() == 1)) {
 				notation = startPos + clippedRef + ">" + clippedAlt;
+			} else if ("dup".equals(clipped.type)) {
+				if (startPos.equals(endPos)) {
+					notation = startPos + "dup";
+				} else {
+					notation = startPos + "_" + endPos + "dup";
+				}
 			} else {
+				// delins
 				if (startPos.equals(endPos)) {
 					notation = startPos + "delins" + clippedAlt;
 				} else {
@@ -326,6 +344,16 @@ public class HgvsCodingNotation {
 	/**
 	 * Parse a position string like "567+195" or "567-45" or "567" into [exonCoord, intronOffset].
 	 */
+	/** Extract the base integer from an HGVS position string (strips +/- offset). */
+	private int parseHgvsPos(String pos) {
+		if (pos == null || pos.isEmpty()) return 0;
+		try {
+			return parseHgvsPosition(pos)[0];
+		} catch (Exception e) {
+			return 0;
+		}
+	}
+
 	private int[] parseHgvsPosition(String pos) {
 		int exonCoord = 0;
 		int intronOffset = 0;
