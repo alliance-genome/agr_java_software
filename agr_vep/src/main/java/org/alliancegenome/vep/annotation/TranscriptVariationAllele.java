@@ -233,14 +233,23 @@ public class TranscriptVariationAllele {
 
 		// === VEP hgvs_protein() lines 1686-1741: exact method port ===
 
-		// VEP translation positions (line 1686-1687, 818-820)
+		// VEP codon() line 805, 818-820: translation positions
+		// VEP: for insertions, tv_tr_start > tv_tr_end (mapper convention)
+		// This makes codon_len = 0 for between-codon insertions
 		int trStartCds = isDeletion ? cdsStart : Math.max(cdsStart, cdsEnd);
 		int trEndCds = isDeletion ? cdsEnd : Math.min(cdsStart, cdsEnd);
+		// VEP line 805: translation_start and translation_end
+		// For insertions: start = ceil(cds_start/3), end = ceil(cds_end/3)
+		// VEP cds_start is the HIGHER value for insertions → translationStart is higher
 		int translationStart = (trStartCds - 1) / 3 + 1;
 		int translationEnd = (trEndCds - 1) / 3 + 1;
-		int codonCdsStart0 = (translationStart - 1) * 3;
-		int codonCdsEnd0 = translationEnd * 3 - 1;
+		// VEP line 818-820: codon boundaries
+		int codonCdsStart0 = (translationStart - 1) * 3; // = translationStart * 3 - 3 (0-based)
+		int codonCdsEnd0 = translationEnd * 3 - 1;        // = translationEnd * 3 - 1 (0-based inclusive)
+		// VEP line 820: codon_len = codon_cds_end - codon_cds_start + 1
+		// For between-codon insertions: this can be 0 or negative
 		int codonLen0 = codonCdsEnd0 - codonCdsStart0 + 1;
+		// VEP line 828
 		int altCodonLen0 = codonLen0 + (alleleLen - vfNtLen);
 
 		if (refLocalPep != null && refLocalPep.length() > 0 && altCdsWithUtr != null) {
@@ -629,7 +638,7 @@ public class TranscriptVariationAllele {
 
 			String rc, ac, rp, ap;
 			if (codonLen0 <= 0) {
-				// Between-codon insertion: VEP sets codon='-', peptide='-' (line 861-863)
+				// Between-codon insertion: VEP alt TVA sets codon='-', peptide='-' (line 861-863)
 				rc = "-";
 				rp = "-";
 				// Alt codon from alt CDS
@@ -658,7 +667,16 @@ public class TranscriptVariationAllele {
 			String refFeatureSeq = "-".equals(refAllele) ? "-" : refAllele;
 			// VEP $self->feature_seq: for alt allele of deletion = "-", otherwise alt bases
 			String altFeatureSeq = "-".equals(vepAllele) ? "-" : vepAllele;
-			String refDisplay = displayCodon(rc, refFeatureSeq, codonPosition1);
+			// VEP display_codon_allele_string: ref from $ref_tva->display_codon, alt from $self->display_codon
+			// For between-codon insertions (rc="-"), the REF TVA has the existing codon, not "-"
+			String displayRc = rc;
+			if ("-".equals(rc) && translationStart > 0 && cdsSequence != null) {
+				// VEP ref_tva->codon() returns the codon at translation_start
+				int refCs = (translationStart - 1) * 3;
+				displayRc = safeSubstring(cdsSequence, refCs, refCs + 3);
+				if (displayRc == null) displayRc = "-";
+			}
+			String refDisplay = displayCodon(displayRc, refFeatureSeq, codonPosition1);
 			String altDisplay = displayCodon(ac, altFeatureSeq, codonPosition1);
 			if (refDisplay == null) refDisplay = "-";
 			if (altDisplay == null) altDisplay = "-";
@@ -1882,7 +1900,8 @@ public class TranscriptVariationAllele {
 	 */
 	public static String displayCodon(String codon, String featureSeq, int codonPosition) {
 		if (codon == null) return null;
-		if ("-".equals(codon)) return "-"; // VEP line 862: codon = '-' for between-codon insertions
+		// VEP line 861-862: if length($codon) < 1 → codon = '-'
+		if (codon.isEmpty() || "-".equals(codon)) return "-";
 
 		// Line 894
 		String displayCodon = codon.toLowerCase();
