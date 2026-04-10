@@ -34,24 +34,19 @@ public class HgvsGenerator {
 	}
 
 	public String generateHgvsp(TranscriptModel transcript, CodingResult codingResult) {
-		return generateHgvsp(transcript, codingResult, null, null);
-	}
-
-	public String generateHgvsp(TranscriptModel transcript, CodingResult codingResult,
-			String altCds, String cdsSequence) {
 		if (codingResult == null) return null;
 		if (codingResult.getProteinPosition() <= 0) return null;
 
 		String proteinId = transcript.getProteinId();
 
-		// Use VEP's notation-based formatter when available (from TranscriptVariationAllele)
+		// VEP hgvs_protein() — use notation-based formatter matching Perl exactly
 		HgvsNotation n = codingResult.getHgvsNotation();
 		if (n != null && n.type != null && codingAnnotator != null) {
 			String consequence = codingResult.getConsequence();
 			boolean isStopLost = consequence != null && consequence.contains("stop_lost");
 			boolean isStartLost = consequence != null && consequence.contains("start_lost");
 			return codingAnnotator.vepGetHgvsProteinFormat(n, proteinId, isStopLost, isStartLost,
-				altCds, cdsSequence);
+				codingResult.getAltCdsSequence(), codingResult.getCdsSequence());
 		}
 
 		// Fallback to consequence-based formatter

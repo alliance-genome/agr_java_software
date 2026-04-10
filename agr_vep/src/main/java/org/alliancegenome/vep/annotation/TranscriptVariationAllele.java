@@ -347,9 +347,11 @@ public class TranscriptVariationAllele {
 						}
 					}
 				}
-				// Store notation for _get_hgvs_protein_format (called after consequence determination)
+				// Store notation + CDS sequences for _get_hgvs_protein_format
 				n.type = hgvsType;
 				result.setHgvsNotation(n);
+				result.setCdsSequence(cdsSequence);
+				result.setAltCdsSequence(altCds);
 			}
 		}
 
@@ -1209,6 +1211,14 @@ public class TranscriptVariationAllele {
 		private char altAA;
 		private String refCodon;
 		private String altCodon;
+
+		// VEP _translateable_seq and _get_alternate_cds — needed for _stop_loss_extra_AA
+		private String cdsSequence;     // ref CDS (_translateable_seq)
+		private String altCdsSequence;  // alt CDS (_get_alternate_cds)
+		public String getCdsSequence() { return cdsSequence; }
+		public void setCdsSequence(String v) { this.cdsSequence = v; }
+		public String getAltCdsSequence() { return altCdsSequence; }
+		public void setAltCdsSequence(String v) { this.altCdsSequence = v; }
 
 		public String getConsequence() { return consequence; }
 		public void setConsequence(String consequence) { this.consequence = consequence; }
