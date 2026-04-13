@@ -18,5 +18,4 @@ public class PhenotypeDownloadRow {
 	private String reference;
 	private String source;
 	private String experimentalCondition;
-	private String conditionModifier;
 }
