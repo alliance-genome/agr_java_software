@@ -153,11 +153,16 @@ public class OutputFactory {
 		}
 
 		// Step 2: ProcessOutput.pm line 57-59:
-		// For each PICKED entry, store consequence keyed by allele (last one wins)
+		// For each PICKED entry, store consequence keyed by allele (last one wins).
+		// Perl's iteration order is the ORIGINAL CSQ order, so iterate `entries`
+		// (not pickedPerAlleleGene.values() — that iterates by gene-insertion order
+		// which can overwrite with a LESS severe pick from a later-inserted gene).
+		Set<CsqEntry> pickedSet = new java.util.HashSet<>(pickedPerAlleleGene.values());
 		Map<String, String> glcPerAllele = new HashMap<>();
-		for (CsqEntry picked : pickedPerAlleleGene.values()) {
-			String allele = picked.getAllele() != null ? picked.getAllele() : "";
-			glcPerAllele.put(allele, picked.getConsequence());
+		for (CsqEntry entry : entries) {
+			if (!pickedSet.contains(entry)) continue;
+			String allele = entry.getAllele() != null ? entry.getAllele() : "";
+			glcPerAllele.put(allele, entry.getConsequence());
 		}
 
 		// Step 3: ProcessOutput.pm line 63:
