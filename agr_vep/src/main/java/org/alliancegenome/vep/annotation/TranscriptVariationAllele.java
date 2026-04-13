@@ -6,6 +6,7 @@ import java.util.List;
 import org.alliancegenome.vep.bio.AminoAcid;
 import org.alliancegenome.vep.bio.CodonTable;
 import org.alliancegenome.vep.bio.Sequence;
+import org.alliancegenome.vep.debug.Trace;
 import org.alliancegenome.vep.model.CdsSegment;
 import org.alliancegenome.vep.model.ExonModel;
 import org.alliancegenome.vep.model.Mapper;
@@ -1157,29 +1158,20 @@ public class TranscriptVariationAllele {
 			boolean isDeletion, TranscriptModel transcript, int indelLength, String utr3) {
 		try {
 			String seq = (utr3 != null) ? cds + utr3 : cds;
-			if (isDeletion) {
-				int delStart = cdsPos - 1;
-				int delLen = indelLength;
-				if (delStart + delLen > seq.length()) delLen = seq.length() - delStart;
-				// VEP _get_alternate_cds: upstream + allele_seq + downstream
-				// For pure deletion (vepAllele="-"): allele_seq is empty
-				// For complex variant (vepAllele="G"): allele_seq replaces the deleted region
-				String replaceSeq = "-".equals(vepAllele) ? "" :
-					(transcript.isPositiveStrand() ? vepAllele : Sequence.reverseComplement(vepAllele));
-				return seq.substring(0, delStart) + replaceSeq + seq.substring(delStart + delLen);
-			} else {
-				// VEP _get_alternate_cds (line 2331-2343):
-				//   upstream = substr(cds, 0, cds_start - 1)
-				//   alternate = upstream + alt_allele + substr(cds, cds_end)
-				// cdsPos here is cds_start (1-based). 0-based insertion position = cds_start - 1.
-				// For both strands: insert at cdsPos - 1.
-				// Strand difference is in the allele sequence (RC for minus strand).
-				int insPos = cdsPos - 1;
-				String insertSeq = transcript.isPositiveStrand() ? vepAllele : Sequence.reverseComplement(vepAllele);
-				if (insPos < 0) insPos = 0;
-				if (insPos > seq.length()) insPos = seq.length();
-				return seq.substring(0, insPos) + insertSeq + seq.substring(insPos);
-			}
+			// VEP _get_alternate_cds (line 2347-2360):
+			//   upstream   = substr(reference_cds_seq, 0, cds_start - 1)
+			//   downstream = substr(reference_cds_seq, cds_end)
+			//   alternate  = upstream + alt_allele + downstream
+			// cdsPos is cds_start (1-based). this.cdsEnd is cds_end (1-based).
+			// - Pure insertion:      cds_start > cds_end → downstream starts at cds_end = cds_start-1
+			//                        → no ref bases are replaced.
+			// - Pure/net deletion:   cds_start <= cds_end, alt empty or shorter.
+			// - Delins (net ins):    cds_start <= cds_end, alt longer than ref region.
+			int upEnd = Math.max(0, Math.min(cdsPos - 1, seq.length()));
+			int downStart = Math.max(upEnd, Math.min(this.cdsEnd, seq.length()));
+			String replaceSeq = "-".equals(vepAllele) ? "" :
+				(transcript.isPositiveStrand() ? vepAllele : Sequence.reverseComplement(vepAllele));
+			return seq.substring(0, upEnd) + replaceSeq + seq.substring(downStart);
 		} catch (Exception e) {
 			return null;
 		}
