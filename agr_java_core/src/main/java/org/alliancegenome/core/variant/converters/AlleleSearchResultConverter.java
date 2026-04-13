@@ -114,6 +114,10 @@ public class AlleleSearchResultConverter {
 				searchDoc.setPhenotypeStatements(new ArrayList<>(doc.getPhenotypeStatements()));
 			}
 
+			if (doc.getConstructs() != null && !doc.getConstructs().isEmpty()) {
+				searchDoc.setConstructs(doc.getConstructs());
+			}
+
 			if (doc.getConstructExpressedComponents() != null && !doc.getConstructExpressedComponents().isEmpty()) {
 				searchDoc.setConstructExpressedComponent(doc.getConstructExpressedComponents());
 			}
