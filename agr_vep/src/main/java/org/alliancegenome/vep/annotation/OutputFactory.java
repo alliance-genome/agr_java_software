@@ -685,28 +685,14 @@ public class OutputFactory {
 		}
 
 		// cDNA position for non-coding exon variants and UTR variants without coding
-		// result
-		// VEP populates cdna_position for ANY variant in an exon (within_cdna)
+		// result. VEP populates cdna_position for ANY variant in an exon (within_cdna).
+		// Use BVT's cdna_start/end (via the Mapper's genomic2cdna) so variants that
+		// partially extend past a cDNA boundary get "?-N" / "N-?" notation matching Perl.
 		if (entry.getCdnaPosition() == null && overlapsExon && !consequence.contains("intergenic_variant")) {
-			int cdnaPos = BaseTranscriptVariation.genomicToCdna(transcript, isInsertion ? variantEnd : variantStart);
-			if (cdnaPos > 0) {
-				if (isInsertion) {
-					int cdnaEnd = BaseTranscriptVariation.genomicToCdna(transcript, variantStart);
-					if (cdnaEnd > 0) {
-						entry.setCdnaPosition(formatCoords(Math.min(cdnaPos, cdnaEnd), Math.max(cdnaPos, cdnaEnd)));
-					} else {
-						entry.setCdnaPosition(String.valueOf(cdnaPos));
-					}
-				} else if (variantStart != variantEnd) {
-					int cdnaEnd = BaseTranscriptVariation.genomicToCdna(transcript, variantEnd);
-					if (cdnaEnd > 0) {
-						entry.setCdnaPosition(formatCoords(Math.min(cdnaPos, cdnaEnd), Math.max(cdnaPos, cdnaEnd)));
-					} else {
-						entry.setCdnaPosition(String.valueOf(cdnaPos));
-					}
-				} else {
-					entry.setCdnaPosition(String.valueOf(cdnaPos));
-				}
+			int cdnaS = bvt.cdnaStart();
+			int cdnaE = bvt.cdnaEnd();
+			if (cdnaS > 0 || cdnaE > 0) {
+				entry.setCdnaPosition(formatCoords(cdnaS, cdnaE));
 			}
 		}
 
