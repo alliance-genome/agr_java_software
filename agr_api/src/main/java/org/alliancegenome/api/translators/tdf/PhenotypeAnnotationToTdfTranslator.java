@@ -27,7 +27,6 @@ public class PhenotypeAnnotationToTdfTranslator extends BaseToTdfTranslator {
 			new DownloadHeader<>("Genetic Entity Name", PhenotypeDownloadRow::getGeneticEntityName),
 			new DownloadHeader<>("Genetic Entity Type", PhenotypeDownloadRow::getGeneticEntityType),
 			new DownloadHeader<>("Experimental Condition", PhenotypeDownloadRow::getExperimentalCondition),
-			new DownloadHeader<>("Condition Modifier", PhenotypeDownloadRow::getConditionModifier),
 			new DownloadHeader<>("Source", PhenotypeDownloadRow::getSource),
 			new DownloadHeader<>("Reference", PhenotypeDownloadRow::getReference)
 		);
@@ -86,9 +85,6 @@ public class PhenotypeAnnotationToTdfTranslator extends BaseToTdfTranslator {
 		// Fallback to document-level aggregated conditions
 		if (row.getExperimentalCondition() == null && document.getExperimentalConditionsAggregated() != null) {
 			row.setExperimentalCondition(document.getExperimentalConditionsAggregated());
-		}
-		if (document.getConditionModifierAggregated() != null) {
-			row.setConditionModifier(document.getConditionModifierAggregated());
 		}
 
 		return row;
