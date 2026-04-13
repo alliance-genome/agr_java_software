@@ -374,13 +374,28 @@ public class TranscriptVariationAllele {
 			String shortRefPep = vepPeptide(refCodonStr);
 			String shortAltPep = vepPeptide(altCodonStr);
 
-			// VEP line 1720-1726: guard — must have ref peptide, and ref != alt
-			if (refLocalPep != null && refLocalPep.length() > 0 && altCdsWithUtr != null
-					&& !shortRefPep.equals(shortAltPep)) {
+			// VEP line 1720-1726: guard — must have ref peptide. Perl only skips
+			// _clip_alleles when ref==alt (line 1729), but still runs _get_hgvs_protein_type
+			// and _get_hgvs_peptides, which via _get_fs_peptides detects stop_retained
+			// frameshift insertions (ref='*' alt='*') and emits p.TerNNN=.
+			if (refLocalPep != null && refLocalPep.length() > 0 && altCdsWithUtr != null) {
 
-				// VEP _clip_alleles (line 1725) on SHORT peptides
-				HgvsNotation n = vepClipAlleles(shortRefPep, shortAltPep,
-					translationStart, translationEnd);
+				// VEP _clip_alleles (line 1729) — only called when ref != alt in Perl.
+				// When ref==alt, skip clip and start with an empty notation at
+				// translation_start/end. _get_hgvs_protein_type will still route through
+				// the frameshift branch (→ _get_fs_peptides) if this is a frameshift.
+				HgvsNotation n;
+				if (shortRefPep.equals(shortAltPep)) {
+					n = new HgvsNotation();
+					n.ref = shortRefPep;
+					n.alt = shortAltPep;
+					n.start = translationStart;
+					n.end = translationEnd;
+					n.preseq = "";
+				} else {
+					n = vepClipAlleles(shortRefPep, shortAltPep,
+						translationStart, translationEnd);
+				}
 
 				// VEP _get_hgvs_protein_type (line 1729).
 				// Perl mutates $hgvs_notation->{type} in-place — it OVERRIDES whatever
