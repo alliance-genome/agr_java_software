@@ -176,17 +176,18 @@ public class OutputFactory {
 	 * then length.
 	 */
 	private boolean isPicked(CsqEntry candidate, CsqEntry current) {
+		// VEP pick_order (OutputFactory.pm line 680-793): mane_select, mane_plus_clinical,
+		// canonical, tsl, appris, biotype, ccds, rank, length, ensembl, refseq.
+		// We approximate with biotype > rank > length — the categories we have.
+		// Biotype: protein_coding=0, other=1 (lower is better).
+		int bCand = "protein_coding".equals(candidate.getBiotype()) ? 0 : 1;
+		int bCurr = "protein_coding".equals(current.getBiotype()) ? 0 : 1;
+		if (bCand != bCurr) return bCand < bCurr;
 		// Rank: lower = more severe = better
 		int rankCand = ConsequenceSeverity.getMostSevereRank(candidate.getConsequence());
 		int rankCurr = ConsequenceSeverity.getMostSevereRank(current.getConsequence());
-		if (rankCand < rankCurr) {
-			return true;
-		}
-		if (rankCand > rankCurr) {
-			return false;
-		}
-		// Equal rank: longer transcript is better (we don't have length, so keep
-		// current)
+		if (rankCand != rankCurr) return rankCand < rankCurr;
+		// Equal rank: longer transcript is better (we don't have length, so keep current)
 		return false;
 	}
 
