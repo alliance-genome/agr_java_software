@@ -1,0 +1,13 @@
+##fileformat=VCFv4.1
+##contig=<ID=chrIV,length=1531933>
+##contig=<ID=chrIII,length=316620>
+##contig=<ID=chrVI,length=270161>
+##VEP="v111" time="2026-04-13 15:56:16"
+##INFO=<ID=CSQ,Number=.,Type=String,Description="Consequence annotations from Ensembl VEP. Format: Allele|Consequence|IMPACT|SYMBOL|Gene|Feature_type|Feature|BIOTYPE|EXON|INTRON|HGVSc|HGVSp|cDNA_position|CDS_position|Protein_position|Amino_acids|Codons|Existing_variation|DISTANCE|STRAND|FLAGS|PICK|SYMBOL_SOURCE|HGNC_ID|SOURCE|HGVS_OFFSET|HGVSg|SGD_0.gff.gz">
+##INFO=<ID=SGD_0.gff.gz,Number=.,Type=String,Description="[PATH]/SGD_0.gff.gz">
+##VEP-command-line='vep --database 0 --distance 0 --fasta [PATH]/SGD_SGDr64.fa --flag_pick_allele_gene --force_overwrite --format vcf --gff [PATH]/SGD_0.gff.gz --hgvs --hgvsg --input_file [PATH]/sample.vcf --no_stats --numbers --output_file [PATH]/perl.vcf --remove_hgvsp_version --safe --shift_hgvs 0 --symbol --vcf'
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
+chrIV	1524929	.	GCCA	G	.	PASS	CSQ=-|start_lost&inframe_deletion|HIGH|YDR543C|SGD:S000002951|Transcript|YDR543C_mRNA|protein_coding|1/1||YDR543C_mRNA.1:c.2_4del|UniProtKB:Q03051:p.MetAla1_?2|2-4|2-4|1-2|MA/T|aTGGcc/acc|||-1||1|||SGD_0.gff.gz||chrIV:g.1524930_1524932del|
+chrIV	1525401	.	T	TGTG	.	PASS	CSQ=GTG|inframe_insertion|MODERATE|YDR544C|SGD:S000002952|Transcript|YDR544C_mRNA|protein_coding|1/1||YDR544C_mRNA.1:c.122_123insCAC|UniProtKB:Q03057:p.Thr41_Pro41insThr|122-123|122-123|41|T/TT|aca/acCACa|||-1||1|||SGD_0.gff.gz||chrIV:g.1525401_1525402insGTG|
+chrIII	14115	.	A	ATAG	.	PASS	CSQ=TAG|inframe_insertion|MODERATE|YCL065W|SGD:S000000570|Transcript|YCL065W_mRNA|protein_coding|1/1||YCL065W_mRNA.1:c.365_366insTAG||365-366|365-366|122|H/HS|cat/caTAGt|||1||1|||SGD_0.gff.gz||chrIII:g.14115_14116insTAG|
+chrVI	92736	.	ATG	A	.	PASS	CSQ=-|stop_gained&frameshift_variant|HIGH|BUD27|SGD:S000001871|Transcript|SGD:S000289148|protein_coding|1/1||SGD:S000289148.1:c.1752_1753del|UniProtKB:P43573:p.Tyr584Ter|1752-1753|1752-1753|584-585|YD/*|taTGat/taat|||1||1|||SGD_0.gff.gz||chrVI:g.92737_92738del|,-|stop_gained&frameshift_variant|HIGH|BUD27|SGD:S000001871|Transcript|SGD:S000294085|protein_coding|1/1||SGD:S000294085.1:c.1752_1753del|UniProtKB:P43573:p.Tyr584Ter|1752-1753|1752-1753|584-585|YD/*|taTGat/taat|||1|||||SGD_0.gff.gz||chrVI:g.92737_92738del|

@@ -1,0 +1,230 @@
+WARNING: Ignoring non-supported 'chromosome' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'ARS' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'ARS_consensus_sequence' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'noncoding_exon' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'tRNA_gene' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'long_terminal_repeat' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'intron' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'LTR_retrotransposon' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'transposable_element' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'transposable_element_gene' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'plus_1_translational_frameshift' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'matrix_attachment_site' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'region' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'uORF' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'telomere' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'X_element' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'X_element_combinatorial_repeat' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'telomeric_repeat' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'Y_prime_element' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Parent entries with the following IDs were not found or skipped due to invalid types: YNCD0028W, YNCD0027C, YNCD0022C, YDR316W-A_transposable_element, YNCD0025W, YNCD0021C, YDR365W-B_transposable_element, YNCD0031C, YNCD0026W, YDR365W-A_transposable_element, YNCD0024C, YDR316W-B_transposable_element, YNCD0023C, YNCD0029C
+[TRACE] Mapper.map_coordinates id=genome start=1524930 end=1524932 strand=-1 type=genomic from=cdna to=genomic
+[TRACE]   -> Coord id=cdna start=2 end=4 strand=1
+[TRACE] Mapper.map_coordinates id=genome start=1524930 end=1524932 strand=-1 type=genomic from=cdna to=genomic
+[TRACE]   -> Coord id=cdna start=2 end=4 strand=1
+[TRACE] BTV.translation_start tr=YDR543C_mRNA vf=1524930:1524932 translation_start=1 translation_end=2
+[TRACE] BTV.cds_start tr=YDR543C_mRNA vf=1524930:1524932 exon_phase=0 cds_start=2 cds_end=4
+[TRACE] TVA.codon tr=YDR543C_mRNA allele=- codon=ACC
+[TRACE] TVA.peptide tr=YDR543C_mRNA allele=- peptide=T
+[TRACE] TVA.peptide tr=YDR543C_mRNA allele=- peptide=T
+[TRACE] TVA.codon tr=YDR543C_mRNA allele=CCA codon=ATGGCC
+[TRACE] TVA.peptide tr=YDR543C_mRNA allele=CCA peptide=MA
+[TRACE] TVA.peptide tr=YDR543C_mRNA allele=- peptide=T
+[TRACE] TVA.codon tr=YDR543C_mRNA allele=- codon=ACC
+[TRACE] TVA.codon tr=YDR543C_mRNA allele=CCA codon=ATGGCC
+[TRACE] Mapper.map_coordinates id=genome start=1524930 end=1524932 strand=-1 type=genomic from=cdna to=genomic
+[TRACE]   -> Coord id=cdna start=2 end=4 strand=1
+[TRACE] BTV.cdna_start tr=YDR543C_mRNA vf=1524930:1524932 cdna_start=2 cdna_end=4
+[TRACE] TVA.codon tr=YDR543C_mRNA allele=- codon=ACC
+[TRACE] TVA.codon tr=YDR543C_mRNA allele=CCA codon=ATGGCC
+[TRACE] TVA.codon tr=YDR543C_mRNA allele=- codon=ACC
+[TRACE] TVA.codon tr=YDR543C_mRNA allele=CCA codon=ATGGCC
+[TRACE] TVA.codon tr=YDR543C_mRNA allele=- codon=ACC
+[TRACE] TVA.codon tr=YDR543C_mRNA allele=CCA codon=ATGGCC
+[TRACE] TVA.peptide tr=YDR543C_mRNA allele=- peptide=T
+[TRACE] TVA.peptide tr=YDR543C_mRNA allele=- peptide=T
+[TRACE] TVA.peptide tr=YDR543C_mRNA allele=- peptide=T
+[TRACE] TVA.peptide tr=YDR543C_mRNA allele=CCA peptide=MA
+[TRACE] TVA.codon tr=YDR543C_mRNA allele=- codon=ACC
+[TRACE] TVA.codon tr=YDR543C_mRNA allele=- codon=ACC
+[TRACE] TVA.codon tr=YDR543C_mRNA allele=CCA codon=ATGGCC
+[TRACE] TVA.codon tr=YDR543C_mRNA allele=CCA codon=ATGGCC
+[TRACE] Mapper.map_coordinates id=genome start=1524634 end=1524933 strand=-1 type=genomic from=cdna to=genomic
+[TRACE]   -> Coord id=cdna start=1 end=300 strand=1
+[TRACE] TVA.peptide tr=YDR543C_mRNA allele=- peptide=T
+[TRACE] TVA.peptide tr=YDR543C_mRNA allele=CCA peptide=MA
+[TRACE] _get_hgvs_protein_type before-strip: ref=MA alt=T
+[TRACE] _get_hgvs_protein_type after-strip: ref=MA alt=T
+[TRACE] _get_hgvs_peptides before-seq3: ref=MA alt=T type=delins
+[TRACE] _get_hgvs_peptides after-seq3: ref=MetAla alt=Thr
+[TRACE] TVA.hgvs_protein tr=YDR543C_mRNA allele=- result=UniProtKB:Q03051:p.MetAla1_?2
+[TRACE] Mapper.map_coordinates id=genome start=1525402 end=1525401 strand=-1 type=genomic from=cdna to=genomic
+[TRACE] Mapper.map_coordinates id=genome start=1525401 end=1525402 strand=-1 type=genomic from=cdna to=genomic
+[TRACE]   -> Coord id=cdna start=122 end=123 strand=1
+[TRACE] Mapper.map_coordinates id=genome start=1525402 end=1525401 strand=-1 type=genomic from=cdna to=genomic
+[TRACE] Mapper.map_coordinates id=genome start=1525401 end=1525402 strand=-1 type=genomic from=cdna to=genomic
+[TRACE]   -> Coord id=cdna start=122 end=123 strand=1
+[TRACE] BTV.translation_start tr=YDR544C_mRNA vf=1525402:1525401 translation_start=41 translation_end=41
+[TRACE] BTV.cds_start tr=YDR544C_mRNA vf=1525402:1525401 exon_phase=0 cds_start=123 cds_end=122
+[TRACE] TVA.codon tr=YDR544C_mRNA allele=GTG codon=ACCACA
+[TRACE] TVA.peptide tr=YDR544C_mRNA allele=GTG peptide=TT
+[TRACE] TVA.peptide tr=YDR544C_mRNA allele=GTG peptide=TT
+[TRACE] TVA.codon tr=YDR544C_mRNA allele=- codon=ACA
+[TRACE] TVA.peptide tr=YDR544C_mRNA allele=- peptide=T
+[TRACE] TVA.peptide tr=YDR544C_mRNA allele=GTG peptide=TT
+[TRACE] Mapper.map_coordinates id=genome start=1525402 end=1525401 strand=-1 type=genomic from=cdna to=genomic
+[TRACE] Mapper.map_coordinates id=genome start=1525401 end=1525402 strand=-1 type=genomic from=cdna to=genomic
+[TRACE]   -> Coord id=cdna start=122 end=123 strand=1
+[TRACE] TVA.codon tr=YDR544C_mRNA allele=GTG codon=ACCACA
+[TRACE] TVA.codon tr=YDR544C_mRNA allele=- codon=ACA
+[TRACE] TVA.peptide tr=YDR544C_mRNA allele=GTG peptide=TT
+[TRACE] TVA.peptide tr=YDR544C_mRNA allele=GTG peptide=TT
+[TRACE] BTV.cdna_start tr=YDR544C_mRNA vf=1525402:1525401 cdna_start=123 cdna_end=122
+[TRACE] TVA.peptide tr=YDR544C_mRNA allele=GTG peptide=TT
+[TRACE] TVA.peptide tr=YDR544C_mRNA allele=- peptide=T
+[TRACE] TVA.codon tr=YDR544C_mRNA allele=GTG codon=ACCACA
+[TRACE] TVA.codon tr=YDR544C_mRNA allele=GTG codon=ACCACA
+[TRACE] TVA.codon tr=YDR544C_mRNA allele=- codon=ACA
+[TRACE] TVA.codon tr=YDR544C_mRNA allele=- codon=ACA
+[TRACE] Mapper.map_coordinates id=genome start=1525095 end=1525523 strand=-1 type=genomic from=cdna to=genomic
+[TRACE]   -> Coord id=cdna start=1 end=429 strand=1
+[TRACE] TVA.peptide tr=YDR544C_mRNA allele=GTG peptide=TT
+[TRACE] TVA.peptide tr=YDR544C_mRNA allele=- peptide=T
+[TRACE] _get_hgvs_protein_type before-strip: ref= alt=T
+[TRACE] _get_hgvs_protein_type after-strip: ref= alt=T
+[TRACE] _get_hgvs_peptides INS entry: start=41 end=41 ref=[] alt=[T] orig_ref=[T]
+[TRACE] _get_surrounding_peptides enter: ref_pos=42 orig_ref=[T] length=undef ref_trans_len=142 ref_trans=[MSLRPCLTPSSMQYSDIYIHTTPHPHTPHHTHHTHTTPTPTPHPHTHTPTPERSLSLRLRQAKPDQPVSQITLHYPTSPLVTLTHSTIPPQPPSISLCTTTNRPSTITVTLQLPISNSTTTYPTISHLLLTILLFYPPLLKR]
+[TRACE] _get_surrounding_peptides: returning ref_string=[PHPHTHTPTPERSLSLRLRQAKPDQPVSQITLHYPTSPLVTLTHSTIPPQPPSISLCTTTNRPSTITVTLQLPISNSTTTYPTISHLLLTILLFYPPLLKR]
+[TRACE] _get_hgvs_peptides INS after-post-var: start=41 end=41 type=ins
+[TRACE] _check_for_peptide_duplication enter: ref_trans_len=143 ref_trans=[MSLRPCLTPSSMQYSDIYIHTTPHPHTPHHTHHTHTTPTPTPHPHTHTPTPERSLSLRLRQAKPDQPVSQITLHYPTSPLVTLTHSTIPPQPPSISLCTTTNRPSTITVTLQLPISNSTTTYPTISHLLLTILLFYPPLLKR*] alt=[T] start=41 preseq=[T]
+[TRACE] _check_for_peptide_duplication compute: upstream_trans=[MSLRPCLTPSSMQYSDIYIHTTPHPHTPHHTHHTHTTPTPT] test_new_start=39 alt_len=1
+[TRACE] _check_for_peptide_duplication test: test_seq=[P] alt=[T] match=NO
+[TRACE] _get_hgvs_peptides INS after-dup-check: type=ins start=41 end=41 alt=[T]
+[TRACE] _get_surrounding_peptides enter: ref_pos=41 orig_ref=[T] length=2 ref_trans_len=142 ref_trans=[MSLRPCLTPSSMQYSDIYIHTTPHPHTPHHTHHTHTTPTPTPHPHTHTPTPERSLSLRLRQAKPDQPVSQITLHYPTSPLVTLTHSTIPPQPPSISLCTTTNRPSTITVTLQLPISNSTTTYPTISHLLLTILLFYPPLLKR]
+[TRACE] _get_surrounding_peptides: returning ref_string=[TP]
+[TRACE] _get_hgvs_peptides INS after-surrounding: min=41 ref=[TP]
+[TRACE] _get_hgvs_peptides before-seq3: ref=TP alt=T type=ins
+[TRACE] _get_hgvs_peptides after-seq3: ref=ThrPro alt=Thr
+[TRACE] TVA.hgvs_protein tr=YDR544C_mRNA allele=GTG result=UniProtKB:Q03057:p.Thr41_Pro41insThr
+WARNING: Ignoring non-supported 'silent_mating_type_cassette_array' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'W_region' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'X_region' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'Y_region' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'Z1_region' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'Z2_region' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'recombination_enhancer' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'centromere' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'centromere_DNA_Element_I' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'centromere_DNA_Element_II' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'centromere_DNA_Element_III' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'mating_type_region' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'ncRNA_gene' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Parent entries with the following IDs were not found or skipped due to invalid types: YNCC0005W, YNCC0007C, YNCC0002W, YCL020W_transposable_element, YNCC0008W, YNCC0010C, YNCC0015W, YNCC0013W, YNCC0009C, YNCC0014W, YNCC0001C, YNCC0004C, YCL019W_transposable_element
+[TRACE] Mapper.map_coordinates id=genome start=14116 end=14115 strand=1 type=genomic from=cdna to=genomic
+[TRACE] Mapper.map_coordinates id=genome start=14115 end=14116 strand=1 type=genomic from=cdna to=genomic
+[TRACE]   -> Coord id=cdna start=365 end=366 strand=1
+[TRACE] Mapper.map_coordinates id=genome start=14116 end=14115 strand=1 type=genomic from=cdna to=genomic
+[TRACE] Mapper.map_coordinates id=genome start=14115 end=14116 strand=1 type=genomic from=cdna to=genomic
+[TRACE]   -> Coord id=cdna start=365 end=366 strand=1
+[TRACE] BTV.translation_start tr=YCL065W_mRNA vf=14116:14115 translation_start=122 translation_end=122
+[TRACE] BTV.cds_start tr=YCL065W_mRNA vf=14116:14115 exon_phase=0 cds_start=366 cds_end=365
+[TRACE] TVA.codon tr=YCL065W_mRNA allele=TAG codon=CATAGT
+[TRACE] TVA.peptide tr=YCL065W_mRNA allele=TAG peptide=HS
+[TRACE] TVA.peptide tr=YCL065W_mRNA allele=TAG peptide=HS
+[TRACE] TVA.codon tr=YCL065W_mRNA allele=- codon=CAT
+[TRACE] TVA.peptide tr=YCL065W_mRNA allele=- peptide=H
+[TRACE] TVA.peptide tr=YCL065W_mRNA allele=TAG peptide=HS
+[TRACE] Mapper.map_coordinates id=genome start=14116 end=14115 strand=1 type=genomic from=cdna to=genomic
+[TRACE] Mapper.map_coordinates id=genome start=14115 end=14116 strand=1 type=genomic from=cdna to=genomic
+[TRACE]   -> Coord id=cdna start=365 end=366 strand=1
+[TRACE] TVA.codon tr=YCL065W_mRNA allele=TAG codon=CATAGT
+[TRACE] TVA.codon tr=YCL065W_mRNA allele=- codon=CAT
+[TRACE] TVA.peptide tr=YCL065W_mRNA allele=TAG peptide=HS
+[TRACE] TVA.peptide tr=YCL065W_mRNA allele=TAG peptide=HS
+[TRACE] BTV.cdna_start tr=YCL065W_mRNA vf=14116:14115 cdna_start=366 cdna_end=365
+[TRACE] TVA.peptide tr=YCL065W_mRNA allele=TAG peptide=HS
+[TRACE] TVA.peptide tr=YCL065W_mRNA allele=- peptide=H
+[TRACE] TVA.codon tr=YCL065W_mRNA allele=TAG codon=CATAGT
+[TRACE] TVA.codon tr=YCL065W_mRNA allele=TAG codon=CATAGT
+[TRACE] TVA.codon tr=YCL065W_mRNA allele=- codon=CAT
+[TRACE] TVA.codon tr=YCL065W_mRNA allele=- codon=CAT
+[TRACE] Mapper.map_coordinates id=genome start=13751 end=14119 strand=1 type=genomic from=cdna to=genomic
+[TRACE]   -> Coord id=cdna start=1 end=369 strand=1
+[TRACE] TVA.peptide tr=YCL065W_mRNA allele=TAG peptide=HS
+[TRACE] TVA.peptide tr=YCL065W_mRNA allele=- peptide=H
+[TRACE] _get_hgvs_protein_type before-strip: ref= alt=S
+[TRACE] _get_hgvs_protein_type after-strip: ref= alt=S
+[TRACE] _get_hgvs_peptides INS entry: start=123 end=122 ref=[] alt=[S] orig_ref=[H]
+[TRACE] _get_surrounding_peptides enter: ref_pos=123 orig_ref=[H] length=undef ref_trans_len=122 ref_trans=[MLKYVVTDIGKMCLYIWPYRVWSWRRLFIFRVLNVVSIAILFETPHRLALVPNVCLYTHMAIPLSTCLFCLCLCICIKYDITQTQANNQRNLSLLFSVFHLVFSTIALSIYCIYQILILVKH]
+[TRACE] _get_surrounding_peptides: returning undef because length(ref_trans)=122 <= ref_pos=123
+[TRACE] _get_hgvs_peptides INS after-post-var: start=123 end=122 type=ins
+[TRACE] _check_for_peptide_duplication enter: ref_trans_len=123 ref_trans=[MLKYVVTDIGKMCLYIWPYRVWSWRRLFIFRVLNVVSIAILFETPHRLALVPNVCLYTHMAIPLSTCLFCLCLCICIKYDITQTQANNQRNLSLLFSVFHLVFSTIALSIYCIYQILILVKH*] alt=[S] start=123 preseq=[H]
+[TRACE] _check_for_peptide_duplication compute: upstream_trans=[MLKYVVTDIGKMCLYIWPYRVWSWRRLFIFRVLNVVSIAILFETPHRLALVPNVCLYTHMAIPLSTCLFCLCLCICIKYDITQTQANNQRNLSLLFSVFHLVFSTIALSIYCIYQILILVKHH] test_new_start=121 alt_len=1
+[TRACE] _check_for_peptide_duplication test: test_seq=[H] alt=[S] match=NO
+[TRACE] _get_hgvs_peptides INS after-dup-check: type=ins start=123 end=122 alt=[S]
+[TRACE] _get_surrounding_peptides enter: ref_pos=122 orig_ref=[H] length=2 ref_trans_len=122 ref_trans=[MLKYVVTDIGKMCLYIWPYRVWSWRRLFIFRVLNVVSIAILFETPHRLALVPNVCLYTHMAIPLSTCLFCLCLCICIKYDITQTQANNQRNLSLLFSVFHLVFSTIALSIYCIYQILILVKH]
+[TRACE] _get_surrounding_peptides: returning undef because length(ref_trans)=122 <= ref_pos=122
+[TRACE] _get_hgvs_peptides INS after-surrounding: min=122 ref=[undef]
+[TRACE] TVA.hgvs_protein tr=YCL065W_mRNA allele=TAG result=undef reason=no_peptides
+WARNING: Ignoring non-supported 'five_prime_UTR_intron' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Parent entries with the following IDs were not found or skipped due to invalid types: YNCF0011C, YNCF0013W, YNCF0009C, YNCF0014C, YNCF0003C, YNCF0006W, YNCF0001C, YNCF0004C, YFL002W-A_transposable_element, YNCF0008C, YNCF0002W, YNCF0007W, YNCF0005C, YNCF0012C, YFL002W-B_transposable_element, YNCF0010C
+[TRACE] Mapper.map_coordinates id=genome start=92737 end=92738 strand=1 type=genomic from=cdna to=genomic
+[TRACE]   -> Coord id=cdna start=1752 end=1753 strand=1
+[TRACE] Mapper.map_coordinates id=genome start=92737 end=92738 strand=1 type=genomic from=cdna to=genomic
+[TRACE]   -> Coord id=cdna start=1752 end=1753 strand=1
+[TRACE] BTV.translation_start tr=SGD:S000289148 vf=92737:92738 translation_start=584 translation_end=585
+[TRACE] BTV.cds_start tr=SGD:S000289148 vf=92737:92738 exon_phase=0 cds_start=1752 cds_end=1753
+[TRACE] TVA.codon tr=SGD:S000289148 allele=- codon=TAAT
+[TRACE] TVA.peptide tr=SGD:S000289148 allele=- peptide=*
+[TRACE] TVA.peptide tr=SGD:S000289148 allele=- peptide=*
+[TRACE] TVA.codon tr=SGD:S000289148 allele=TG codon=TATGAT
+[TRACE] TVA.peptide tr=SGD:S000289148 allele=TG peptide=YD
+[TRACE] TVA.peptide tr=SGD:S000289148 allele=- peptide=*
+[TRACE] Mapper.map_coordinates id=genome start=92737 end=92738 strand=1 type=genomic from=cdna to=genomic
+[TRACE]   -> Coord id=cdna start=1752 end=1753 strand=1
+[TRACE] TVA.peptide tr=SGD:S000289148 allele=- peptide=*
+[TRACE] TVA.peptide tr=SGD:S000289148 allele=- peptide=*
+[TRACE] Mapper.map_coordinates id=genome start=92737 end=92738 strand=1 type=genomic from=cdna to=genomic
+[TRACE]   -> Coord id=cdna start=1752 end=1753 strand=1
+[TRACE] Mapper.map_coordinates id=genome start=92737 end=92738 strand=1 type=genomic from=cdna to=genomic
+[TRACE]   -> Coord id=cdna start=1752 end=1753 strand=1
+[TRACE] BTV.translation_start tr=SGD:S000294085 vf=92737:92738 translation_start=584 translation_end=585
+[TRACE] BTV.cds_start tr=SGD:S000294085 vf=92737:92738 exon_phase=0 cds_start=1752 cds_end=1753
+[TRACE] TVA.codon tr=SGD:S000294085 allele=- codon=TAAT
+[TRACE] TVA.peptide tr=SGD:S000294085 allele=- peptide=*
+[TRACE] TVA.peptide tr=SGD:S000294085 allele=- peptide=*
+[TRACE] TVA.codon tr=SGD:S000294085 allele=TG codon=TATGAT
+[TRACE] TVA.peptide tr=SGD:S000294085 allele=TG peptide=YD
+[TRACE] TVA.peptide tr=SGD:S000294085 allele=- peptide=*
+[TRACE] Mapper.map_coordinates id=genome start=92737 end=92738 strand=1 type=genomic from=cdna to=genomic
+[TRACE]   -> Coord id=cdna start=1752 end=1753 strand=1
+[TRACE] TVA.peptide tr=SGD:S000294085 allele=- peptide=*
+[TRACE] TVA.peptide tr=SGD:S000294085 allele=- peptide=*
+[TRACE] BTV.cdna_start tr=SGD:S000289148 vf=92737:92738 cdna_start=1752 cdna_end=1753
+[TRACE] TVA.peptide tr=SGD:S000289148 allele=- peptide=*
+[TRACE] TVA.peptide tr=SGD:S000289148 allele=TG peptide=YD
+[TRACE] TVA.codon tr=SGD:S000289148 allele=- codon=TAAT
+[TRACE] TVA.codon tr=SGD:S000289148 allele=- codon=TAAT
+[TRACE] TVA.codon tr=SGD:S000289148 allele=TG codon=TATGAT
+[TRACE] TVA.codon tr=SGD:S000289148 allele=TG codon=TATGAT
+[TRACE] Mapper.map_coordinates id=genome start=90986 end=93376 strand=1 type=genomic from=cdna to=genomic
+[TRACE]   -> Coord id=cdna start=1 end=2391 strand=1
+[TRACE] TVA.peptide tr=SGD:S000289148 allele=- peptide=*
+[TRACE] TVA.peptide tr=SGD:S000289148 allele=TG peptide=YD
+[TRACE] _get_hgvs_peptides before-seq3: ref=Y alt=* type=fs
+[TRACE] _get_hgvs_peptides after-seq3: ref=Tyr alt=Ter
+[TRACE] TVA.hgvs_protein tr=SGD:S000289148 allele=- result=UniProtKB:P43573:p.Tyr584Ter
+[TRACE] BTV.cdna_start tr=SGD:S000294085 vf=92737:92738 cdna_start=1752 cdna_end=1753
+[TRACE] TVA.peptide tr=SGD:S000294085 allele=- peptide=*
+[TRACE] TVA.peptide tr=SGD:S000294085 allele=TG peptide=YD
+[TRACE] TVA.codon tr=SGD:S000294085 allele=- codon=TAAT
+[TRACE] TVA.codon tr=SGD:S000294085 allele=- codon=TAAT
+[TRACE] TVA.codon tr=SGD:S000294085 allele=TG codon=TATGAT
+[TRACE] TVA.codon tr=SGD:S000294085 allele=TG codon=TATGAT
+[TRACE] Mapper.map_coordinates id=genome start=90986 end=93376 strand=1 type=genomic from=cdna to=genomic
+[TRACE]   -> Coord id=cdna start=1 end=2391 strand=1
+[TRACE] TVA.peptide tr=SGD:S000294085 allele=- peptide=*
+[TRACE] TVA.peptide tr=SGD:S000294085 allele=TG peptide=YD
+[TRACE] _get_hgvs_peptides before-seq3: ref=Y alt=* type=fs
+[TRACE] _get_hgvs_peptides after-seq3: ref=Tyr alt=Ter
+[TRACE] TVA.hgvs_protein tr=SGD:S000294085 allele=- result=UniProtKB:P43573:p.Tyr584Ter

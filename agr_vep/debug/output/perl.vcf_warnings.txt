@@ -1,0 +1,36 @@
+WARNING: Ignoring non-supported 'chromosome' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'ARS' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'ARS_consensus_sequence' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'noncoding_exon' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'tRNA_gene' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'long_terminal_repeat' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'intron' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'LTR_retrotransposon' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'transposable_element' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'transposable_element_gene' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'plus_1_translational_frameshift' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'matrix_attachment_site' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'region' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'uORF' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'telomere' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'X_element' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'X_element_combinatorial_repeat' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'telomeric_repeat' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'Y_prime_element' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Parent entries with the following IDs were not found or skipped due to invalid types: YNCD0028W, YNCD0027C, YNCD0022C, YDR316W-A_transposable_element, YNCD0025W, YNCD0021C, YDR365W-B_transposable_element, YNCD0031C, YNCD0026W, YDR365W-A_transposable_element, YNCD0024C, YDR316W-B_transposable_element, YNCD0023C, YNCD0029C
+WARNING: Ignoring non-supported 'silent_mating_type_cassette_array' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'W_region' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'X_region' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'Y_region' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'Z1_region' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'Z2_region' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'recombination_enhancer' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'centromere' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'centromere_DNA_Element_I' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'centromere_DNA_Element_II' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'centromere_DNA_Element_III' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'mating_type_region' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Ignoring non-supported 'ncRNA_gene' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Parent entries with the following IDs were not found or skipped due to invalid types: YNCC0005W, YNCC0007C, YNCC0002W, YCL020W_transposable_element, YNCC0008W, YNCC0010C, YNCC0015W, YNCC0013W, YNCC0009C, YNCC0014W, YNCC0001C, YNCC0004C, YCL019W_transposable_element
+WARNING: Ignoring non-supported 'five_prime_UTR_intron' feature_type from /Users/olinblodgett/Desktop/FMS/HTP/GFF/SGD_0.gff.gz
+WARNING: Parent entries with the following IDs were not found or skipped due to invalid types: YNCF0011C, YNCF0013W, YNCF0009C, YNCF0014C, YNCF0003C, YNCF0006W, YNCF0001C, YNCF0004C, YFL002W-A_transposable_element, YNCF0008C, YNCF0002W, YNCF0007W, YNCF0005C, YNCF0012C, YFL002W-B_transposable_element, YNCF0010C
