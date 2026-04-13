@@ -390,7 +390,10 @@ public class OutputFactory {
 		// but the underlying DB returns a name for every transcript equal to its GFF
 		// Name attribute. Emit transcript_name whenever tm.name is set (TMAP override
 		// or GFF Name) — matches Perl's DB behavior.
+		// Exception: transcripts whose stable_id is "Pseudogene:..." are not in the DB
+		// (they lack a MOD-prefixed transcript_id), so Perl returns empty.
 		if (featureId != null && featureId.contains(":")
+				&& !featureId.startsWith("Pseudogene:")
 				&& transcript.getName() != null) {
 			entry.setTranscriptName(transcript.getName());
 		}
