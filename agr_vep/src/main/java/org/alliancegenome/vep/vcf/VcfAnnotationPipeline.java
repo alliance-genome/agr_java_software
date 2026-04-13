@@ -121,6 +121,14 @@ public class VcfAnnotationPipeline {
 				while (iterator.hasNext()) {
 					VariantContext vc = iterator.next();
 
+					// Normalize contig to GFF/FASTA canonical case (e.g., VCF chrMt → GFF chrmt).
+					// Perl VEP does this via --fasta loading; match its behavior so downstream
+					// diffs and index joins align on chromosome.
+					String canonical = geneModel.normalizeContig(vc.getContig());
+					if (!canonical.equals(vc.getContig())) {
+						vc = new VariantContextBuilder(vc).chr(canonical).make();
+					}
+
 					List<CsqEntry> csqEntries = annotator.annotate(vc);
 					VariantContext annotated = addCsq(vc, csqEntries);
 

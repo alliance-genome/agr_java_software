@@ -335,14 +335,16 @@ public class TranscriptVariationAllele {
 		// Must check the full extent of the variant, not just the start position
 		int cdsLen = cdsSequence.length();
 		int stopCodonStart = cdsLen - 2; // 1-based: last 3 positions
-		int varCdsStart = cdsPos;
-		// Use CDS-relative length for CDS end position
-		int varCdsEnd = isDeletion ? Math.max(cdsStart, cdsEnd) : cdsPos;
-		boolean overlapsStop = varCdsEnd >= stopCodonStart || varCdsStart >= stopCodonStart;
+		// VEP overlap formula (Utils.pm): overlap(a, b, c, d) = (b >= c) && (a <= d)
+		// where a=cds_start, b=cds_end, c=feat_start, d=feat_end. Works correctly for
+		// pure insertions (cds_start > cds_end) AND for deletions/delins (cds_start <= cds_end).
+		boolean overlapsStop = cdsEnd >= stopCodonStart && cdsStart <= cdsLen;
 
 		// Check if variant overlaps start codon (VEP: _overlaps_start_codon, line 965-986)
 		// Start codon = CDS positions 1-3. VEP guards: return 0 if cds_start_NF (line 959)
-		boolean overlapsStart = !transcript.isCdsStartNF() && (varCdsStart <= 3 || (isDeletion && varCdsStart <= 3));
+		boolean overlapsStart = !transcript.isCdsStartNF() && cdsEnd >= 1 && cdsStart <= 3;
+		int varCdsStart = cdsStart;
+		int varCdsEnd = Math.max(cdsStart, cdsEnd);
 
 		// Apply indel and get local alt peptide
 		// VEP _get_alternate_cds appends 3'UTR so reading frame can extend into UTR for frameshifts
@@ -903,8 +905,10 @@ public class TranscriptVariationAllele {
 			pep.append(aa);
 			// VEP peptide() does NOT break at stop — translates full codon region
 		}
-		// VEP peptide() line 766-768: partial trailing codon → append 'X'
-		if (cds.length() % 3 != 0 && (pep.length() == 0 || pep.charAt(pep.length() - 1) != '*')) {
+		// VEP peptide() line 766-768: partial trailing codon → append 'X' unless
+		// $pep eq '*' (whole string equals '*', not just ends with it). So peptide
+		// "C*" with a partial codon still gets X → "C*X".
+		if (cds.length() % 3 != 0 && !pep.toString().equals("*")) {
 			pep.append('X');
 		}
 		return pep.toString();
