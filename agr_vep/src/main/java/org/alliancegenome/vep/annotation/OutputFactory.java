@@ -192,7 +192,10 @@ public class OutputFactory {
 		int rankCand = ConsequenceSeverity.getMostSevereRank(candidate.getConsequence());
 		int rankCurr = ConsequenceSeverity.getMostSevereRank(current.getConsequence());
 		if (rankCand != rankCurr) return rankCand < rankCurr;
-		// Equal rank: longer transcript is better (we don't have length, so keep current)
+		// Length: longer is better (VEP line 740-744 inverts to make lowest = longest)
+		if (candidate.getTranscriptLength() != current.getTranscriptLength()) {
+			return candidate.getTranscriptLength() > current.getTranscriptLength();
+		}
 		return false;
 	}
 
@@ -388,6 +391,20 @@ public class OutputFactory {
 		entry.setBiotype(transcript.getBiotype());
 		entry.setStrand(transcript.isPositiveStrand() ? "1" : "-1");
 		entry.setSource(mod + "_GFF.refseq.gff.gz");
+		// Transcript length for pick_order tiebreaker — VEP OutputFactory.pm line
+		// 740-744 uses translateable_seq length when a translation exists (coding),
+		// otherwise transcript length (sum of exon lengths).
+		int trLen = 0;
+		if (transcript.isCoding()) {
+			for (org.alliancegenome.vep.model.CdsSegment cs : transcript.getCdsSegments()) {
+				trLen += cs.getEnd() - cs.getStart() + 1;
+			}
+		} else {
+			for (org.alliancegenome.vep.model.ExonModel ex : transcript.getExons()) {
+				trLen += ex.getEnd() - ex.getStart() + 1;
+			}
+		}
+		entry.setTranscriptLength(trLen);
 		String featureId = transcript.getTranscriptId();
 		// Perl's ProtFuncTranscriptNameHTP plugin queries the AGR transcript_map DB;
 		// for transcripts not in the DB, it falls back to the GFF Name. Our TMAP TSV

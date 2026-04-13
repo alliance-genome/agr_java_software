@@ -46,6 +46,11 @@ public class CsqEntry {
 	private String genomicStartPosition; // 36
 	private String gffSource;            // 37
 
+	// Internal (not emitted): used by pick_order tiebreaker (VEP OutputFactory.pm
+	// line 740-744 length tiebreaker, longer wins → we store it positive and pick
+	// the largest).
+	private int transcriptLength;
+
 	public String toVcfString() {
 		// VEP OutputFactory/VCF.pm line 397: $data = '' if $data eq '-'
 		// for all fields EXCEPT Allele
