@@ -1,8 +1,12 @@
 package org.alliancegenome.vep.annotation;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.alliancegenome.vep.bio.CodonTable;
+import org.alliancegenome.vep.bio.Sequence;
 import org.alliancegenome.vep.model.TranscriptModel;
 
 /**
@@ -143,7 +147,7 @@ public class VariationEffect {
 		if (refCodon.startsWith(altCodon) || refCodon.endsWith(altCodon)) return true;
 
 		// Check internal match via trim
-		Object[] trimmed = org.alliancegenome.vep.bio.Sequence.trimSequences(
+		Object[] trimmed = Sequence.trimSequences(
 			refCodon, altCodon, 0, 0, false, false);
 		String trimmedRef = (String) trimmed[0];
 		String trimmedAlt = (String) trimmed[1];
@@ -212,6 +216,447 @@ public class VariationEffect {
 	public static boolean proteinAlteringVariant(String refPep, String altPep) {
 		if (refPep == null || altPep == null) return false;
 		return !refPep.equals(altPep) && refPep.length() != altPep.length();
+	}
+
+	// ===================================================================
+	// Context class and Context-based predicates matching Perl VariationEffect.pm
+	// ===================================================================
+
+	/** Holds pre-computed state for Context-based predicate evaluation. */
+	public static class Context {
+		public String refPep, altPep;
+		public String refCodon, altCodon;
+		public String refAllele = "", altAllele = "";
+		public int cdsStart, cdsEnd;
+		public int cdnaStart, cdnaEnd;
+		public int translationStart;
+		public boolean positiveStrand;
+		public int cdnaCodingStart, cdnaCodingEnd;
+		public boolean cdsStartNF, cdsEndNF;
+		public int codonTable = 1;
+		public String translateableSeq, fivePrimeUtr, threePrimeUtr;
+		public String featureSeq;
+		public int alleleLen;
+		public boolean increaseLength, decreaseLength;
+		public int vfStart, vfEnd, trStart, trEnd;
+		public int codingRegionStart, codingRegionEnd;
+		public boolean withinCdna, withinCds;
+		public String fullPeptide;
+		public int[][] introns;
+		public List<String> spliceTerms;
+		public boolean intronic;
+		private final Map<String, Boolean> cache = new HashMap<>();
+
+		public Boolean getCached(String key) { return cache.get(key); }
+		public void putCache(String key, boolean value) { cache.put(key, value); }
+		public boolean hasCached(String key) { return cache.containsKey(key); }
+	}
+
+	// --- Context-based predicates ---
+
+	public static boolean withinFeature(Context ctx) {
+		return overlap(ctx.vfStart, ctx.vfEnd, ctx.trStart, ctx.trEnd);
+	}
+
+	public static boolean partialOverlapFeature(Context ctx) {
+		return (ctx.vfStart < ctx.trStart || ctx.vfEnd > ctx.trEnd)
+			&& overlap(ctx.vfStart, ctx.vfEnd, ctx.trStart, ctx.trEnd);
+	}
+
+	public static boolean completeWithinFeature(Context ctx) {
+		return ctx.vfStart >= ctx.trStart && ctx.vfEnd <= ctx.trEnd;
+	}
+
+	public static boolean completeOverlapFeature(Context ctx) {
+		return ctx.vfStart <= ctx.trStart && ctx.vfEnd >= ctx.trEnd;
+	}
+
+	public static boolean deletion(Context ctx) {
+		return ctx.altAllele.isEmpty();
+	}
+
+	public static boolean insertion(Context ctx) {
+		return ctx.refAllele.isEmpty();
+	}
+
+	private static boolean beforeStart(Context ctx) {
+		if (ctx.positiveStrand) {
+			return ctx.vfEnd < ctx.trStart;
+		} else {
+			return ctx.vfStart > ctx.trEnd;
+		}
+	}
+
+	private static boolean afterEnd(Context ctx) {
+		if (ctx.positiveStrand) {
+			return ctx.vfStart > ctx.trEnd;
+		} else {
+			return ctx.vfEnd < ctx.trStart;
+		}
+	}
+
+	public static boolean upstream(Context ctx) {
+		if (!beforeStart(ctx)) return false;
+		int dist = ctx.positiveStrand
+			? ctx.trStart - ctx.vfEnd
+			: ctx.vfStart - ctx.trEnd;
+		return dist <= UPSTREAM_DISTANCE;
+	}
+
+	public static boolean downstream(Context ctx) {
+		if (!afterEnd(ctx)) return false;
+		int dist = ctx.positiveStrand
+			? ctx.vfStart - ctx.trEnd
+			: ctx.trStart - ctx.vfEnd;
+		return dist <= DOWNSTREAM_DISTANCE;
+	}
+
+	public static boolean affectsTranscript(Context ctx) {
+		return withinFeature(ctx) || upstream(ctx) || downstream(ctx);
+	}
+
+	public static boolean withinTranscript(Context ctx) {
+		return overlap(ctx.vfStart, ctx.vfEnd, ctx.trStart, ctx.trEnd);
+	}
+
+	public static boolean withinIntron(Context ctx) {
+		if (ctx.introns == null) return false;
+		for (int[] intron : ctx.introns) {
+			if (overlap(ctx.vfStart, ctx.vfEnd, intron[0], intron[1])) return true;
+		}
+		return false;
+	}
+
+	public static boolean withinCds(Context ctx) {
+		return ctx.withinCds;
+	}
+
+	public static boolean withinCdna(Context ctx) {
+		return ctx.withinCdna;
+	}
+
+	private static boolean beforeCoding(Context ctx) {
+		if (ctx.codingRegionStart <= 0) return false;
+		if (ctx.positiveStrand) {
+			return overlap(ctx.vfStart, ctx.vfEnd, ctx.trStart, ctx.codingRegionStart - 1);
+		} else {
+			return overlap(ctx.vfStart, ctx.vfEnd, ctx.codingRegionEnd + 1, ctx.trEnd);
+		}
+	}
+
+	private static boolean afterCoding(Context ctx) {
+		if (ctx.codingRegionEnd <= 0) return false;
+		if (ctx.positiveStrand) {
+			return overlap(ctx.vfStart, ctx.vfEnd, ctx.codingRegionEnd + 1, ctx.trEnd);
+		} else {
+			return overlap(ctx.vfStart, ctx.vfEnd, ctx.trStart, ctx.codingRegionStart - 1);
+		}
+	}
+
+	public static boolean within5PrimeUtr(Context ctx) {
+		return beforeCoding(ctx) && withinCdna(ctx);
+	}
+
+	public static boolean within3PrimeUtr(Context ctx) {
+		return afterCoding(ctx) && withinCdna(ctx);
+	}
+
+	public static boolean overlapsStartCodon(Context ctx) {
+		if (ctx.cdsStartNF) return false;
+		if (ctx.cdnaCodingStart <= 0 || ctx.cdnaStart <= 0) return false;
+		return overlap(ctx.cdnaStart, ctx.cdnaEnd > 0 ? ctx.cdnaEnd : ctx.cdnaStart,
+			ctx.cdnaCodingStart, ctx.cdnaCodingStart + 2);
+	}
+
+	public static boolean overlapsStopCodon(Context ctx) {
+		if (ctx.cdnaCodingEnd <= 0 || ctx.cdnaStart <= 0) return false;
+		return overlap(ctx.cdnaStart, ctx.cdnaEnd > 0 ? ctx.cdnaEnd : ctx.cdnaStart,
+			ctx.cdnaCodingEnd - 2, ctx.cdnaCodingEnd);
+	}
+
+	public static boolean insDelStartAltered(Context ctx) {
+		if (!overlapsStartCodon(ctx)) return false;
+		if (ctx.translateableSeq == null || ctx.fivePrimeUtr == null) return false;
+		String utrAndCds = ctx.fivePrimeUtr + ctx.translateableSeq;
+		int editPos = ctx.cdnaStart - 1;
+		if (editPos < 0) editPos = 0;
+		String modified;
+		if (ctx.decreaseLength) {
+			int delLen = ctx.refAllele.length();
+			if (editPos + delLen > utrAndCds.length()) delLen = utrAndCds.length() - editPos;
+			modified = utrAndCds.substring(0, editPos)
+				+ (ctx.altAllele.isEmpty() ? "" : ctx.featureSeq != null ? ctx.featureSeq : ctx.altAllele)
+				+ utrAndCds.substring(editPos + delLen);
+		} else {
+			String insSeq = ctx.featureSeq != null ? ctx.featureSeq : ctx.altAllele;
+			modified = utrAndCds.substring(0, editPos) + insSeq + utrAndCds.substring(editPos);
+		}
+		if (modified.length() < ctx.translateableSeq.length()) return true;
+		String tail = modified.substring(modified.length() - ctx.translateableSeq.length());
+		return !tail.equals(ctx.translateableSeq);
+	}
+
+	public static boolean invStartAltered(Context ctx) {
+		if (!overlapsStartCodon(ctx)) return false;
+		if (ctx.refPep == null || ctx.altPep == null) return false;
+		return ctx.refPep.startsWith("M") && !ctx.altPep.startsWith("M");
+	}
+
+	public static boolean insDelStopAltered(Context ctx) {
+		if (!overlapsStopCodon(ctx)) return false;
+		if (ctx.translateableSeq == null || ctx.threePrimeUtr == null) return false;
+		String cdsAndUtr = ctx.translateableSeq + ctx.threePrimeUtr;
+		int editPos = ctx.cdsStart - 1;
+		if (editPos < 0) editPos = 0;
+		String modified;
+		if (ctx.decreaseLength) {
+			int delLen = ctx.refAllele.length();
+			if (editPos + delLen > cdsAndUtr.length()) delLen = cdsAndUtr.length() - editPos;
+			modified = cdsAndUtr.substring(0, editPos)
+				+ (ctx.altAllele.isEmpty() ? "" : ctx.featureSeq != null ? ctx.featureSeq : ctx.altAllele)
+				+ cdsAndUtr.substring(editPos + delLen);
+		} else {
+			String insSeq = ctx.featureSeq != null ? ctx.featureSeq : ctx.altAllele;
+			modified = cdsAndUtr.substring(0, editPos) + insSeq + cdsAndUtr.substring(editPos);
+		}
+		if (modified.length() < ctx.translateableSeq.length()) return true;
+		int stopIdx = ctx.translateableSeq.length() - 3;
+		if (stopIdx + 3 > modified.length()) return true;
+		String newStop = modified.substring(stopIdx, stopIdx + 3);
+		return !CodonTable.isStop(newStop);
+	}
+
+	public static boolean frameshift(Context ctx) {
+		if (ctx.hasCached("frameshift")) return ctx.getCached("frameshift");
+		ctx.putCache("frameshift", false);
+		if (ctx.cdsStart <= 0 && ctx.cdsEnd <= 0) return false;
+		int varLen = Math.abs(ctx.cdsEnd - ctx.cdsStart) + 1;
+		if (varLen <= 0) varLen = 0;
+		boolean result = Math.abs(ctx.alleleLen - varLen) % 3 != 0;
+		ctx.putCache("frameshift", result);
+		return result;
+	}
+
+	public static boolean partialCodon(Context ctx) {
+		if (ctx.translationStart <= 0) return false;
+		if (ctx.translateableSeq == null) return false;
+		int cdsLength = ctx.translateableSeq.length();
+		int remainder = cdsLength % 3;
+		if (remainder == 0) return false;
+		int codonCdsStart = (ctx.translationStart * 3) - 2;
+		int lastCodonLength = cdsLength - (codonCdsStart - 1);
+		return lastCodonLength < 3 && lastCodonLength > 0;
+	}
+
+	public static boolean startLost(Context ctx) {
+		if (ctx.hasCached("startLost")) return ctx.getCached("startLost");
+		ctx.putCache("startLost", false);
+		if (!overlapsStartCodon(ctx)) return false;
+
+		// Path 1: insDelStartAltered for indels (non-SNV)
+		if (ctx.increaseLength || ctx.decreaseLength) {
+			if (insDelStartAltered(ctx)) {
+				ctx.putCache("startLost", true);
+				return true;
+			}
+			// Path 2: peptide check — ref starts with M, alt doesn't
+			if (invStartAltered(ctx)) {
+				ctx.putCache("startLost", true);
+				return true;
+			}
+			// Path 3: for inframe indels blocked from insDelStartAltered,
+			// check inframeInsertion/inframeDeletion calling startLost is handled by cache
+			return false;
+		}
+
+		// SNV path: simple peptide check
+		boolean result = invStartAltered(ctx);
+		ctx.putCache("startLost", result);
+		return result;
+	}
+
+	public static boolean startRetainedVariant(Context ctx) {
+		if (!overlapsStartCodon(ctx)) return false;
+		if (ctx.increaseLength || ctx.decreaseLength) {
+			return !insDelStartAltered(ctx);
+		}
+		// SNV: ref and alt both start with M
+		return ctx.refPep != null && ctx.altPep != null
+			&& ctx.refPep.startsWith("M") && ctx.altPep.startsWith("M");
+	}
+
+	public static boolean synonymousVariant(Context ctx) {
+		if (ctx.refPep == null || ctx.altPep == null) return false;
+		if (ctx.refPep.equals(ctx.altPep)) {
+			// Exclude stop_retained and X
+			if (ctx.refPep.contains("*")) return false;
+			if (ctx.refPep.contains("X")) return false;
+			return true;
+		}
+		return false;
+	}
+
+	public static boolean missenseVariant(Context ctx) {
+		if (ctx.hasCached("missenseVariant")) return ctx.getCached("missenseVariant");
+		ctx.putCache("missenseVariant", false);
+		if (ctx.refPep == null || ctx.altPep == null) return false;
+		if (startLost(ctx)) return false;
+		if (stopLost(ctx)) return false;
+		if (stopGained(ctx)) return false;
+		if (partialCodon(ctx)) return false;
+		if (ctx.refPep.length() != 1 || ctx.altPep.length() != 1) return false;
+		boolean result = !ctx.refPep.equals(ctx.altPep)
+			&& !"*".equals(ctx.refPep) && !"*".equals(ctx.altPep);
+		ctx.putCache("missenseVariant", result);
+		return result;
+	}
+
+	public static boolean inframeInsertion(Context ctx) {
+		if (ctx.hasCached("inframeInsertion")) return ctx.getCached("inframeInsertion");
+		ctx.putCache("inframeInsertion", false);
+		if (frameshift(ctx)) return false;
+		if (!ctx.increaseLength) return false;
+		if (startLost(ctx)) return false;
+		if (ctx.refCodon == null || ctx.altCodon == null) return false;
+		if (ctx.altCodon.length() <= ctx.refCodon.length()) return false;
+		if (ctx.refPep == null || ctx.altPep == null) return false;
+
+		// Check start_retained
+		if (startRetainedVariant(ctx)) {
+			ctx.putCache("inframeInsertion", true);
+			return true;
+		}
+
+		// Trim alt after stop
+		String altPepTrimmed = ctx.altPep;
+		int stopIdx = altPepTrimmed.indexOf('*');
+		if (stopIdx >= 0 && stopIdx < altPepTrimmed.length() - 1) {
+			altPepTrimmed = altPepTrimmed.substring(0, stopIdx + 1);
+		}
+
+		boolean result = altPepTrimmed.startsWith(ctx.refPep) || altPepTrimmed.endsWith(ctx.refPep);
+		ctx.putCache("inframeInsertion", result);
+		return result;
+	}
+
+	public static boolean inframeDeletion(Context ctx) {
+		if (ctx.hasCached("inframeDeletion")) return ctx.getCached("inframeDeletion");
+		ctx.putCache("inframeDeletion", false);
+		if (frameshift(ctx)) return false;
+		if (!ctx.decreaseLength) return false;
+		if (partialCodon(ctx)) return false;
+		if (ctx.refCodon == null || ctx.altCodon == null) return false;
+		if (ctx.altCodon.length() >= ctx.refCodon.length()) return false;
+
+		// Check simple string match
+		if (ctx.refCodon.startsWith(ctx.altCodon) || ctx.refCodon.endsWith(ctx.altCodon)) {
+			ctx.putCache("inframeDeletion", true);
+			return true;
+		}
+
+		// Check internal match via trim
+		Object[] trimmed = Sequence.trimSequences(ctx.refCodon, ctx.altCodon, 0, 0, false, false);
+		String trimmedRef = (String) trimmed[0];
+		String trimmedAlt = (String) trimmed[1];
+
+		boolean result = trimmedAlt.isEmpty() && trimmedRef.length() % 3 == 0;
+		ctx.putCache("inframeDeletion", result);
+		return result;
+	}
+
+	public static boolean stopGained(Context ctx) {
+		if (ctx.hasCached("stopGained")) return ctx.getCached("stopGained");
+		ctx.putCache("stopGained", false);
+		if (ctx.refPep == null || ctx.altPep == null) return false;
+		// Check stopRetained first — if both have stop at start, it's retained not gained
+		if (stopRetained(ctx)) return false;
+		boolean result = ctx.altPep.contains("*") && !ctx.refPep.contains("*");
+		ctx.putCache("stopGained", result);
+		return result;
+	}
+
+	public static boolean stopLost(Context ctx) {
+		if (ctx.hasCached("stopLost")) return ctx.getCached("stopLost");
+		ctx.putCache("stopLost", false);
+		if (ctx.refPep == null || ctx.altPep == null) {
+			// Fallback to insDelStopAltered
+			if (ctx.increaseLength || ctx.decreaseLength) {
+				boolean result = insDelStopAltered(ctx);
+				ctx.putCache("stopLost", result);
+				return result;
+			}
+			return false;
+		}
+		if (!ctx.altPep.contains("*") && ctx.refPep.contains("*")) {
+			ctx.putCache("stopLost", true);
+			return true;
+		}
+		// Fallback for indels
+		if (ctx.increaseLength || ctx.decreaseLength) {
+			boolean result = insDelStopAltered(ctx);
+			ctx.putCache("stopLost", result);
+			return result;
+		}
+		return false;
+	}
+
+	public static boolean stopRetained(Context ctx) {
+		if (ctx.hasCached("stopRetained")) return ctx.getCached("stopRetained");
+		ctx.putCache("stopRetained", false);
+		if (ctx.refPep != null && ctx.altPep != null) {
+			if (ctx.altPep.startsWith("*") && ctx.refPep.startsWith("*")) {
+				ctx.putCache("stopRetained", true);
+				return true;
+			}
+		}
+		// Fallback: check fullPeptide for stop at same position
+		if (ctx.fullPeptide != null && overlapsStopCodon(ctx)) {
+			if (ctx.increaseLength || ctx.decreaseLength) {
+				boolean notAltered = !insDelStopAltered(ctx);
+				ctx.putCache("stopRetained", notAltered);
+				return notAltered;
+			}
+		}
+		return false;
+	}
+
+	public static boolean proteinAlteringVariant(Context ctx) {
+		if (ctx.hasCached("proteinAlteringVariant")) return ctx.getCached("proteinAlteringVariant");
+		ctx.putCache("proteinAlteringVariant", false);
+		if (ctx.refPep == null || ctx.altPep == null) return false;
+		if (ctx.refPep.equals(ctx.altPep)) return false;
+		if (inframeDeletion(ctx)) return false;
+		if (inframeInsertion(ctx)) return false;
+		if (startLost(ctx)) return false;
+		if (frameshift(ctx)) return false;
+		boolean result = ctx.refPep.length() != ctx.altPep.length();
+		ctx.putCache("proteinAlteringVariant", result);
+		return result;
+	}
+
+	public static boolean complexIndel(Context ctx) {
+		return (ctx.increaseLength || ctx.decreaseLength)
+			&& !frameshift(ctx) && !inframeInsertion(ctx) && !inframeDeletion(ctx);
+	}
+
+	public static boolean codingUnknown(Context ctx) {
+		if (ctx.cdsStart <= 0 && ctx.cdsEnd <= 0) return false;
+		if (ctx.refPep == null || ctx.altPep == null) return true;
+		if ("X".equals(ctx.refPep) || "X".equals(ctx.altPep)) return true;
+		return false;
+	}
+
+	// Splice predicates reading from ctx.spliceTerms
+	public static boolean spliceDonor(Context ctx) {
+		return ctx.spliceTerms != null && ctx.spliceTerms.contains("splice_donor_variant");
+	}
+
+	public static boolean spliceAcceptor(Context ctx) {
+		return ctx.spliceTerms != null && ctx.spliceTerms.contains("splice_acceptor_variant");
+	}
+
+	public static boolean spliceRegion(Context ctx) {
+		return ctx.spliceTerms != null && ctx.spliceTerms.contains("splice_region_variant");
 	}
 
 	// ===================================================================

@@ -49,13 +49,13 @@ public class VariationFeature {
 				int refLength = "-".equals(ref) ? 0 : ref.length();
 
 				Sequence.HgvsNotation notation = Sequence.hgvsVariantNotation(
-					checkAllele,    // alt allele
-					refSequence,    // reference sequence (flank)
-					refStart,       // start in ref sequence
-					refEnd,         // end in ref sequence
-					start,          // display start (chromosomal)
-					end,            // display end (chromosomal)
-					-1              // dup lookup direction (preceding)
+					checkAllele,	// alt allele
+					refSequence,	// reference sequence (flank)
+					refStart,		// start in ref sequence
+					refEnd,			// end in ref sequence
+					start,			// display start (chromosomal)
+					end,			// display end (chromosomal)
+					-1				// dup lookup direction (preceding)
 				);
 
 				if (notation == null) return null;

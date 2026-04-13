@@ -2,8 +2,8 @@ package org.alliancegenome.vep;
 
 import java.io.File;
 import java.io.InputStream;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.alliancegenome.vep.config.VepFileSet;
 import org.alliancegenome.vep.config.VepFileSet.ModSource;
@@ -27,12 +27,12 @@ public class Main {
 			VepFileSet fileSet;
 
 			String configPath = null;
-			Set<String> onlyMods = null;
+			List<String> onlyMods = null;
 			for (int i = 0; i < args.length; i++) {
 				if ("--config".equals(args[i]) && i + 1 < args.length) {
 					configPath = args[++i];
 				} else if ("--mod".equals(args[i]) && i + 1 < args.length) {
-					onlyMods = new HashSet<>();
+					onlyMods = new ArrayList<>();
 					for (String m : args[++i].split(",")) {
 						onlyMods.add(m.trim().toUpperCase());
 					}
@@ -80,10 +80,7 @@ public class Main {
 				}
 				log.info("  Output: {}", mod.getOutputFilePath());
 
-				VcfAnnotationPipeline pipeline = new VcfAnnotationPipeline(
-					mod.getVcfFilePath(), mod.getGffFilePath(), mod.getFastaFilePath(),
-					mod.getBamFilePath(), mod.getOutputFilePath(), mod.getMod(), mod.getMmapPath(),
-					mod.getSynonymsFilePath());
+				VcfAnnotationPipeline pipeline = new VcfAnnotationPipeline(mod.getVcfFilePath(), mod.getGffFilePath(), mod.getFastaFilePath(), mod.getBamFilePath(), mod.getOutputFilePath(), mod.getMod(), mod.getMmapPath(), mod.getSynonymsFilePath(), mod.getTranscriptMapFilePath());
 				pipeline.run();
 
 				log.info("Completed MOD: {}", mod.getMod());

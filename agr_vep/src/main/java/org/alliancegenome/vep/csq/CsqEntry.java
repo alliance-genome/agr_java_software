@@ -61,7 +61,8 @@ public class CsqEntry {
 			vcf(exon),
 			vcf(intron),
 			vcf(hgvsc),
-			vcf(hgvsp),
+			// VEP OutputFactory.pm line 1662-1663: URL-encode "=" in HGVSp for VCF
+			vcf(hgvsp != null ? hgvsp.replace("=", "%3D") : null),
 			vcf(cdnaPosition),
 			vcf(cdsPosition),
 			vcf(proteinPosition),

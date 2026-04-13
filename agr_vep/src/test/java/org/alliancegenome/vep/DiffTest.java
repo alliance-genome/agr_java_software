@@ -88,8 +88,15 @@ public class DiffTest {
 		int entryCountMismatch = 0;
 		List<String> sampleErrors = new ArrayList<>();
 
+		// Limit number of input VCF lines processed.
+		// Override with -Ddifftest.limit=N (use 0 or negative for no limit).
+		int limit = Integer.getInteger("difftest.limit", 100);
+		int processed = 0;
+
 		try (VCFFileReader reader = new VCFFileReader(inputFile, false)) {
 			for (VariantContext vc : reader) {
+				if (limit > 0 && processed >= limit) break;
+				processed++;
 				List<CsqEntry> entries = annotator.annotate(vc);
 				String chr = vc.getContig();
 				int pos = vc.getStart();
@@ -136,7 +143,8 @@ public class DiffTest {
 						if (!safe(actual[i]).equals(safe(exp[i]))) {
 							fieldMismatch[i]++;
 							allMatch = false;
-							if (sampleErrors.size() < 20) {
+							int sampleLimit = Integer.getInteger("difftest.samples", 20);
+							if (sampleLimit == 0 || sampleErrors.size() < sampleLimit) {
 								sampleErrors.add(chr + ":" + pos + " " + FIELD_NAMES[i] +
 									": java=" + safe(actual[i]) + " perl=" + safe(exp[i]));
 							}
@@ -149,8 +157,9 @@ public class DiffTest {
 
 		// Report
 		StringBuilder report = new StringBuilder();
-		report.append(String.format("%s: %d/%d entries match (%.1f%%)\n",
-			mod, matchedEntries, totalEntries, 100.0 * matchedEntries / Math.max(1, totalEntries)));
+		report.append(String.format("%s: %d/%d entries match (%.1f%%) [processed %d input lines%s]\n",
+			mod, matchedEntries, totalEntries, 100.0 * matchedEntries / Math.max(1, totalEntries),
+			processed, limit > 0 ? " (limit=" + limit + ", -Ddifftest.limit=N to override)" : ""));
 		report.append(String.format("Entry count mismatches: %d\n", entryCountMismatch));
 		int totalFieldMismatches = 0;
 		for (int i = 0; i < FIELD_NAMES.length; i++) {

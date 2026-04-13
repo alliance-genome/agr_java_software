@@ -3,6 +3,7 @@ package org.alliancegenome.vep.annotation;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.alliancegenome.vep.bio.AminoAcid;
 import org.alliancegenome.vep.bio.CodonTable;
 import org.alliancegenome.vep.bio.Sequence;
 import org.alliancegenome.vep.model.CdsSegment;
@@ -20,58 +21,178 @@ public class TranscriptVariationAllele {
 	private final ReferenceGenome reference;
 	public ReferenceGenome getReference() { return reference; }
 
+	// Per-allele state fields (matching Perl's $bvfoa pattern)
+	private BaseTranscriptVariation bvt;
+	private TranscriptModel transcript;
+	private String chr;
+	private int variantStart;
+	private int variantEnd;
+	private String vepAllele;
+	private String refAllele;
+
+	// Lazy computation flag
+	private boolean computed = false;
+
+	// Fields promoted from CodingResult
+	private String consequence;
+	private int cdsPosition;
+	private int cdsEnd;
+	private int proteinPosition;
+	private int cdnaPosition;
+	private int cdnaEnd;
+	private char refAA;
+	private char altAA;
+	private String refCodon;
+	private String altCodon;
+	private String rawRefCodon;
+	private String rawAltCodon;
+	private String cdsSequence;
+	private String altCdsSequence;
+	private int hgvsProteinPosition;
+	private String clippedRefPeptide;
+	private String clippedAltPeptide;
+	private String hgvsType;
+	private int hgvsProteinEnd;
+	private String fsTerCount;
+	private String extTerCount;
+	private char flankLeftAA;
+	private char flankRightAA;
+	private String aminoAcids;
+	private String codons;
+	private HgvsNotation hgvsNotation;
+
+	/** Shared-instance constructor (for hgvsTranscript, vepGetHgvsProteinFormat, etc.) */
 	public TranscriptVariationAllele(ReferenceGenome reference) {
 		this.reference = reference;
 	}
 
-	public CodingResult annotate(TranscriptModel transcript, String chr, int variantStart, int variantEnd,
+	/** Per-allele constructor matching Perl's $bvfoa creation pattern. */
+	public TranscriptVariationAllele(TranscriptModel transcript,
+			ReferenceGenome reference, String chr, int variantStart, int variantEnd,
 			String vepAllele, String refAllele) {
+		this.reference = reference;
+		this.transcript = transcript;
+		this.chr = chr;
+		this.variantStart = variantStart;
+		this.variantEnd = variantEnd;
+		this.vepAllele = vepAllele;
+		this.refAllele = refAllele;
+	}
 
-		try {
-			return annotateInternal(transcript, chr, variantStart, variantEnd, vepAllele, refAllele);
-		} catch (Exception e) {
-			log.debug("Failed to annotate coding variant at {}:{} for {}: {}",
-				chr, variantStart, transcript.getTranscriptId(), e.getMessage());
-			return null;
+	/** Per-allele constructor accepting a pre-computed BaseTranscriptVariation. */
+	public TranscriptVariationAllele(BaseTranscriptVariation bvt, TranscriptModel transcript,
+			ReferenceGenome reference, String chr, int variantStart, int variantEnd,
+			String vepAllele, String refAllele) {
+		this.reference = reference;
+		this.bvt = bvt;
+		this.transcript = transcript;
+		this.chr = chr;
+		this.variantStart = variantStart;
+		this.variantEnd = variantEnd;
+		this.vepAllele = vepAllele;
+		this.refAllele = refAllele;
+	}
+
+	public BaseTranscriptVariation getBvt() {
+		ensureComputed();
+		return bvt;
+	}
+
+	// --- Lazy computation ---
+
+	private void ensureComputed() {
+		if (!computed) {
+			try {
+				computeInternal();
+			} catch (Exception e) {
+				log.debug("Failed to compute TVA: {}", e.getMessage());
+			}
+			computed = true;
 		}
 	}
 
-	private CodingResult annotateInternal(TranscriptModel transcript, String chr, int variantStart, int variantEnd,
+	private void computeInternal() {
+		if (bvt == null) {
+			bvt = new BaseTranscriptVariation(transcript, variantStart, variantEnd);
+		}
+		annotateInternal(transcript, chr, variantStart, variantEnd, vepAllele, refAllele);
+	}
+
+	// --- Public getters (lazy-computed) ---
+
+	public String getConsequence() { ensureComputed(); return consequence; }
+	public int getCdsPosition() { ensureComputed(); return cdsPosition; }
+	public int getCdsEnd() { ensureComputed(); return cdsEnd; }
+	public int getProteinPosition() { ensureComputed(); return proteinPosition; }
+	public int getCdnaPosition() { ensureComputed(); return cdnaPosition; }
+	public int getCdnaEnd() { ensureComputed(); return cdnaEnd; }
+	public char getRefAA() { ensureComputed(); return refAA; }
+	public char getAltAA() { ensureComputed(); return altAA; }
+	public String getRefCodon() { ensureComputed(); return refCodon; }
+	public String getAltCodon() { ensureComputed(); return altCodon; }
+	public String getRawRefCodon() { ensureComputed(); return rawRefCodon; }
+	public String getRawAltCodon() { ensureComputed(); return rawAltCodon; }
+	public String getCdsSequence() { ensureComputed(); return cdsSequence; }
+	public String getAltCdsSequence() { ensureComputed(); return altCdsSequence; }
+	public String getClippedRefPeptide() { ensureComputed(); return clippedRefPeptide; }
+	public String getClippedAltPeptide() { ensureComputed(); return clippedAltPeptide; }
+	public String getHgvsType() { ensureComputed(); return hgvsType; }
+	public int getHgvsProteinEnd() { ensureComputed(); return hgvsProteinEnd; }
+	public String getFsTerCount() { ensureComputed(); return fsTerCount; }
+	public String getExtTerCount() { ensureComputed(); return extTerCount; }
+	public char getFlankLeftAA() { ensureComputed(); return flankLeftAA; }
+	public char getFlankRightAA() { ensureComputed(); return flankRightAA; }
+	public HgvsNotation getHgvsNotation() { ensureComputed(); return hgvsNotation; }
+
+	public int getHgvsProteinPosition() {
+		ensureComputed();
+		return hgvsProteinPosition > 0 ? hgvsProteinPosition : proteinPosition;
+	}
+
+	public String getAminoAcids() {
+		ensureComputed();
+		if (aminoAcids != null) return aminoAcids;
+		if (refAA == 0 && altAA == 0) return null;
+		if (refAA == altAA) {
+			return String.valueOf(refAA);
+		}
+		return String.valueOf(refAA) + "/" + String.valueOf(altAA);
+	}
+
+	public String getCodons() {
+		ensureComputed();
+		if (codons != null) return codons;
+		if (refCodon == null || altCodon == null) return null;
+		return refCodon + "/" + altCodon;
+	}
+
+	private void annotateInternal(TranscriptModel transcript, String chr, int variantStart, int variantEnd,
 			String vepAllele, String refAllele) {
 
-		// VEP seq_is_unambiguous_dna: allele must contain only A,C,G,T,-
-		// Ambiguous bases (N, R, Y, etc.) produce X in peptide → coding_sequence_variant
 		if (!isUnambiguousDna(vepAllele) || !isUnambiguousDna(refAllele)) {
-			return null;
+			return;
 		}
 
 		boolean isDeletion = "-".equals(vepAllele);
 		boolean isInsertion = "-".equals(refAllele);
 
-		// For indels, classify by frame
 		if (isDeletion || isInsertion) {
-			return annotateIndel(transcript, chr, variantStart, variantEnd, vepAllele, refAllele, isDeletion);
+			annotateIndel(transcript, chr, variantStart, variantEnd, vepAllele, refAllele, isDeletion);
+			return;
 		}
 
-		// Complex variant (different length ref/alt, neither is "-"):
-		// VEP processes these the same as indels. The _get_alternate_cds builds
-		// upstream[0..cds_start-2] + alt_allele + downstream[cds_end..]
-		// replacing the full ref region with the alt allele.
-		// vf_nt_len = cds_end - cds_start + 1, allele_len = length(alt)
-		// frameshift if abs(allele_len - vf_nt_len) % 3 != 0
 		if (vepAllele.length() != refAllele.length()) {
-			// Determine if net effect is a deletion or insertion
 			boolean netDeletion = vepAllele.length() < refAllele.length();
-			return annotateIndel(transcript, chr, variantStart, variantEnd, vepAllele, refAllele, netDeletion);
+			annotateIndel(transcript, chr, variantStart, variantEnd, vepAllele, refAllele, netDeletion);
+			return;
 		}
 
-		// SNP in CDS
 		if (vepAllele.length() == 1) {
-			return annotateSNP(transcript, chr, variantStart, vepAllele);
+			annotateSNP(transcript, chr, variantStart, vepAllele);
+			return;
 		}
 
-		// Multi-base substitution (MNV, equal length): treat as SNP at first position
-		return annotateSNP(transcript, chr, variantStart, vepAllele.substring(0, 1));
+		annotateSNP(transcript, chr, variantStart, vepAllele.substring(0, 1));
 	}
 
 	private static boolean isUnambiguousDna(String seq) {
@@ -84,70 +205,82 @@ public class TranscriptVariationAllele {
 		return true;
 	}
 
-	private CodingResult annotateSNP(TranscriptModel transcript, String chr, int pos, String altBase) {
-		// Use BaseTranscriptVariation for coordinate mapping (matching VEP)
-		BaseTranscriptVariation tv = new BaseTranscriptVariation(transcript, pos, pos, this);
-		int cdsPos = tv.cdsStart();
-		if (cdsPos < 0) return null;
+	private void annotateSNP(TranscriptModel transcript, String chr, int pos, String altBase) {
+		int cdsPos = bvt.cdsStart();
+		if (cdsPos < 0) return;
 
 		int codonIndex = (cdsPos - 1) / 3;
 		int posInCodon = (cdsPos - 1) % 3;
 
-		String cdsSequence = BaseTranscriptVariation.translateableSeq(transcript, reference);
-		if (cdsSequence == null || cdsPos > cdsSequence.length()) return null;
+		String cdsSeq = BaseTranscriptVariation.translateableSeq(transcript, reference);
+		if (cdsSeq == null || cdsPos > cdsSeq.length()) return;
 
 		int codonStart = codonIndex * 3;
-		if (codonStart + 3 > cdsSequence.length()) return null;
+		if (codonStart + 3 > cdsSeq.length()) return;
 
-		String refCodon = cdsSequence.substring(codonStart, codonStart + 3);
-		char[] altCodonChars = refCodon.toCharArray();
+		String refCdn = cdsSeq.substring(codonStart, codonStart + 3);
+		char[] altCodonChars = refCdn.toCharArray();
 
 		String effectiveAlt = transcript.isPositiveStrand() ? altBase : Sequence.reverseComplement(altBase);
 		altCodonChars[posInCodon] = effectiveAlt.charAt(0);
-		String altCodon = new String(altCodonChars);
+		String altCdn = new String(altCodonChars);
 
-		char refAA = CodonTable.translate(refCodon);
-		char altAA = CodonTable.translate(altCodon);
+		char rAA = CodonTable.translate(refCdn);
+		char aAA = CodonTable.translate(altCdn);
 
-		CodingResult result = new CodingResult();
-		result.setCdsPosition(cdsPos);
-		result.setProteinPosition(tv.translationStart());
-		result.setRefAA(refAA);
-		result.setAltAA(altAA);
-		result.setRefCodon(formatCodon(refCodon, posInCodon));
-		result.setAltCodon(formatCodon(altCodon, posInCodon));
-		result.setCdnaPosition(tv.cdnaStart());
+		this.cdsPosition = cdsPos;
+		this.proteinPosition = bvt.translationStart();
+		this.refAA = rAA;
+		this.altAA = aAA;
+		this.refCodon = formatCodon(refCdn, posInCodon);
+		this.altCodon = formatCodon(altCdn, posInCodon);
+		this.rawRefCodon = refCdn.toUpperCase();
+		this.rawAltCodon = altCdn.toUpperCase();
+		this.cdnaPosition = bvt.cdnaStart();
+		this.cdnaEnd = bvt.cdnaEnd();
+		this.cdsSequence = cdsSeq;
 
-		// Classify
-		if (cdsPos <= 3 && !transcript.isCdsStartNF() && CodonTable.isStart(refCodon) && !CodonTable.isStart(altCodon)) {
-			result.setConsequence("start_lost");
-		} else if (refAA == '*' && altAA == '*') {
-			result.setConsequence("stop_retained_variant");
-		} else if (refAA == '*' && altAA != '*') {
-			result.setConsequence("stop_lost");
-		} else if (altAA == '*') {
-			result.setConsequence("stop_gained");
-		} else if (refAA == altAA) {
-			result.setConsequence("synonymous_variant");
+		if (cdsPos <= 3 && !transcript.isCdsStartNF() && CodonTable.isStart(refCdn) && !CodonTable.isStart(altCdn)) {
+			this.consequence = "start_lost";
+		} else if (rAA == '*' && aAA == '*') {
+			this.consequence = "stop_retained_variant";
+		} else if (rAA == '*' && aAA != '*') {
+			this.consequence = "stop_lost";
+		} else if (aAA == '*') {
+			this.consequence = "stop_gained";
+		} else if (rAA == aAA) {
+			this.consequence = "synonymous_variant";
 		} else {
-			result.setConsequence("missense_variant");
+			this.consequence = "missense_variant";
 		}
 
-		return result;
+		// Build HgvsNotation for SNP — matches Perl hgvs_protein() lines 1689-1735.
+		// VEP guard (line 1657-1664): no HGVSp unless coding AND translation_start AND translation_end.
+		if (bvt.translationStart() > 0 && bvt.translationEnd() > 0) {
+			HgvsNotation n = new HgvsNotation();
+			n.start = bvt.translationStart();
+			n.end = bvt.translationStart();
+			// translate * to X (Perl line 1987-1988)
+			n.ref = String.valueOf(rAA == '*' ? 'X' : rAA);
+			n.alt = String.valueOf(aAA == '*' ? 'X' : aAA);
+			// VEP _get_hgvs_protein_type (line 1996-1997): both length 1 → ">"
+			n.type = ">";
+			this.hgvsNotation = n;
+			this.cdsSequence = cdsSeq;
+		}
 	}
 
-	private CodingResult annotateIndel(TranscriptModel transcript, String chr, int variantStart, int variantEnd,
+	private void annotateIndel(TranscriptModel transcript, String chr, int variantStart, int variantEnd,
 			String vepAllele, String refAllele, boolean isDeletion) {
 
-		// VEP BaseTranscriptVariation — compute all coordinate mappings
-		BaseTranscriptVariation tv = new BaseTranscriptVariation(transcript, variantStart, variantEnd, this);
-		if (tv.cdsStart() < 0 && tv.cdsEnd() < 0) return null;
+		if (bvt.cdsStart() < 0 && bvt.cdsEnd() < 0) return;
+		BaseTranscriptVariation tv = bvt;
 
 		int cdsStart = tv.cdsStart();
 		int cdsEnd = tv.cdsEnd();
 
 		String cdsSequence = BaseTranscriptVariation.translateableSeq(transcript, reference);
-		if (cdsSequence == null) return null;
+		if (cdsSequence == null) return;
 
 		// VEP: vf_nt_len = cds_end - cds_start + 1 (ref CDS span)
 		// VEP: allele_len = length(alt allele) (0 for pure deletions)
@@ -155,7 +288,7 @@ public class TranscriptVariationAllele {
 		int alleleLen; // alt allele length
 		if (isDeletion) {
 			vfNtLen = Math.abs(cdsEnd - cdsStart) + 1;
-			if (vfNtLen <= 0) return null;
+			if (vfNtLen <= 0) return;
 			alleleLen = "-".equals(vepAllele) ? 0 : vepAllele.length();
 		} else {
 			vfNtLen = "-".equals(refAllele) ? 0 : Math.abs(cdsEnd - cdsStart) + 1;
@@ -167,14 +300,14 @@ public class TranscriptVariationAllele {
 
 		// Use BaseTranscriptVariation coordinates for all position fields
 		int cdsPos = cdsStart;
-		CodingResult result = new CodingResult();
-		result.setCdsPosition(tv.cdsStart());
-		result.setCdsEnd(tv.cdsEnd());
-		result.setProteinPosition(tv.translationStart());
-		result.setCdnaPosition(tv.cdnaStart());
+		this.cdsPosition = tv.cdsStart();
+		this.cdsEnd = tv.cdsEnd();
+		this.proteinPosition = tv.translationStart();
+		this.cdnaPosition = tv.cdnaStart();
+		this.cdnaEnd = tv.cdnaEnd();
 		if (!isDeletion) {
 			// Also store cdna end from BaseTranscriptVariation
-			result.setCdnaEnd(tv.cdnaEnd());
+			this.cdnaEnd = tv.cdnaEnd();
 		}
 
 		// VEP partial_codon guard (VariationEffect.pm line 1389-1414):
@@ -184,8 +317,8 @@ public class TranscriptVariationAllele {
 		// the fallback path handles stop_lost etc.
 		if (isPartialCodon(transcript, cdsPos, cdsSequence.length())
 				&& (!isDeletion || cdsEnd <= cdsSequence.length())) {
-			result.setConsequence("incomplete_terminal_codon_variant");
-			return result;
+			this.consequence = ("incomplete_terminal_codon_variant");
+			return;
 		}
 
 		// VEP frameshift check (VariationEffect.pm line 1346-1387):
@@ -249,8 +382,14 @@ public class TranscriptVariationAllele {
 				HgvsNotation n = vepClipAlleles(shortRefPep, shortAltPep,
 					translationStart, translationEnd);
 
-				// VEP _get_hgvs_protein_type (line 1729)
+				// VEP _get_hgvs_protein_type (line 1729).
+				// Perl mutates $hgvs_notation->{type} in-place — it OVERRIDES whatever
+				// _clip_alleles set (e.g., clip sees an "ins with matching preseq" and
+				// sets type=dup, but protein_type sees ref="" and resets type=ins).
+				// Mirror that: write hgvsType back into n.type so downstream checks see
+				// the protein_type view, not the clip view.
 				String hgvsType = vepGetHgvsProteinType(n, isFrameshift);
+				n.type = hgvsType;
 
 				// VEP _get_hgvs_peptides (line 1734)
 				String fullRefPep = translateCds(safeSubstring(cdsSequence, 0, cdsSequence.length()));
@@ -273,6 +412,7 @@ public class TranscriptVariationAllele {
 				}
 
 				// VEP _get_hgvs_peptides line 2038-2061: "ins" type
+				boolean insNoSurrounding = false;
 				if ("ins".equals(hgvsType) && noStop != null) {
 					// Line 2041: _check_peptides_post_var → _shift_3prime
 					vepShift3Prime(n, "ins", noStop);
@@ -283,15 +423,24 @@ public class TranscriptVariationAllele {
 					}
 					if ("dup".equals(n.type)) hgvsType = "dup";
 
-					// Line 2047-2060: set ref to surrounding peptides for ins notation
-					if ("ins".equals(hgvsType) && noStop != null) {
+					// Line 2047-2060: set ref to surrounding peptides for ins notation.
+					// VEP _get_surrounding_peptides returns undef when min >= len(peptide)
+					// (where peptide excludes the stop codon). In that case, the whole
+					// _get_hgvs_peptides returns undef (line 2077) and hgvs_protein returns
+					// undef with reason=no_peptides. C-terminal insertions (insertion
+					// between last coding AA and stop) hit this path.
+					if ("ins".equals(hgvsType)) {
 						int minPos = Math.min(n.start, n.end);
 						if (minPos >= 1 && minPos + 1 <= noStop.length()) {
-							// _get_surrounding_peptides(min, original_ref, 2) → 2 chars from min
+							// 2 chars from min
 							String surr = noStop.substring(minPos - 1, Math.min(minPos + 1, noStop.length()));
 							if (surr.length() == 2) {
 								n.ref = surr;
+							} else {
+								insNoSurrounding = true;
 							}
+						} else {
+							insNoSurrounding = true;
 						}
 					}
 				}
@@ -305,33 +454,33 @@ public class TranscriptVariationAllele {
 				if ("-".equals(n.alt)) n.alt = "del";
 
 				// VEP _get_hgvs_peptides line 2075-2078: start_lost overrides
-				if (result.getConsequence() != null && result.getConsequence().contains("start_lost")) {
+				if (this.consequence != null && this.consequence.contains("start_lost")) {
 					n.alt = "?";
 					n.type = "";
 				}
 
 				// Set HGVSp results from notation
-				result.setHgvsProteinPosition(n.start);
-				result.setHgvsProteinEnd(n.end);
-				result.setClippedRefPeptide(n.ref);
-				result.setClippedAltPeptide(n.alt);
-				result.setHgvsType(hgvsType);
+				this.hgvsProteinPosition = (n.start);
+				this.hgvsProteinEnd = (n.end);
+				this.clippedRefPeptide = (n.ref);
+				this.clippedAltPeptide = (n.alt);
+				this.hgvsType = (hgvsType);
 
 				// ref/alt AA at first differing position
 				if ("fs".equals(hgvsType) && n.ref != null && n.ref.length() == 1
 						&& n.alt != null && n.alt.length() == 1) {
 					// _get_fs_peptides set ref/alt to the first differing AA
-					result.setRefAA(n.ref.charAt(0));
-					result.setAltAA(n.alt.charAt(0));
+					this.refAA = (n.ref.charAt(0));
+					this.altAA = (n.alt.charAt(0));
 				} else {
 					int prefixLen = n.preseq != null ? n.preseq.length() : 0;
 					if (prefixLen < shortRefPep.length()) {
-						result.setRefAA(shortRefPep.charAt(prefixLen));
+						this.refAA = (shortRefPep.charAt(prefixLen));
 					} else if (!shortRefPep.isEmpty()) {
-						result.setRefAA(shortRefPep.charAt(0));
+						this.refAA = (shortRefPep.charAt(0));
 					}
 					if (prefixLen < shortAltPep.length()) {
-						result.setAltAA(shortAltPep.charAt(prefixLen));
+						this.altAA = (shortAltPep.charAt(prefixLen));
 					}
 				}
 
@@ -340,16 +489,20 @@ public class TranscriptVariationAllele {
 					if (fullRefPep != null) {
 						int insProtPos = "dup".equals(hgvsType) ? n.end + 1 : n.start;
 						if (insProtPos >= 2 && insProtPos <= fullRefPep.length()) {
-							result.setFlankLeftAA(fullRefPep.charAt(insProtPos - 2));
-							result.setFlankRightAA(fullRefPep.charAt(insProtPos - 1));
+							this.flankLeftAA = (fullRefPep.charAt(insProtPos - 2));
+							this.flankRightAA = (fullRefPep.charAt(insProtPos - 1));
 						}
 					}
 				}
-				// Store notation + CDS sequences for _get_hgvs_protein_format
-				n.type = hgvsType;
-				result.setHgvsNotation(n);
-				result.setCdsSequence(cdsSequence);
-				result.setAltCdsSequence(altCds);
+				// Store notation + CDS sequences for _get_hgvs_protein_format.
+				// Skip when Perl's _get_surrounding_peptides would have returned undef
+				// (C-terminal insertions — see insNoSurrounding guard above).
+				if (!insNoSurrounding) {
+					n.type = hgvsType;
+					this.hgvsNotation = (n);
+					this.cdsSequence = cdsSequence;
+					this.altCdsSequence = altCds;
+				}
 			}
 		}
 
@@ -405,47 +558,34 @@ public class TranscriptVariationAllele {
 				consequences.add("stop_retained_variant");
 			}
 
-			// VEP stop_gained (VariationEffect.pm line 1146-1166):
-			// Checks _get_peptide_alleles: alt_pep =~ /\*/ and ref_pep !~ /\*/
-			// For frameshifts, translates the "codon" region from the modified CDS.
-			// The codon region starts at the affected codon and has length = codonLen + (indelDiff)
-			// This checks if the frameshift introduces a premature stop codon.
-			if (altCds != null && !consequences.contains("stop_lost")) {
-				int codonStart0 = ((cdsPos - 1) / 3) * 3; // 0-based
-				int protStart = codonStart0 / 3 + 1;
-				int protEnd = protStart;
-				if (isDeletion) {
-					int cdsEndPos = cdsPos + indelLength - 1;
-					protEnd = (cdsEndPos - 1) / 3 + 1;
-				}
-				int clipCodonS0 = (protStart - 1) * 3;
-				int clipCodonE0 = protEnd * 3 - 1;
-				int codonLen = clipCodonE0 - clipCodonS0 + 1;
-				int diff = isDeletion ? -indelLength : indelLength;
-				int altRegionLen = codonLen + diff;
-
-				if (altRegionLen > 0) {
-					String refRegion = safeSubstring(cdsSequence, clipCodonS0, clipCodonS0 + codonLen);
-					String altRegion = safeSubstring(altCds, clipCodonS0, clipCodonS0 + altRegionLen);
-
-					if (refRegion != null && altRegion != null) {
-						String refPep = translateCds(refRegion);
-						String altPep = translateCds(altRegion);
-						if (altPep.contains("*") && !refPep.contains("*")) {
-							consequences.add("stop_gained");
-						}
+			// VEP stop_gained (VariationEffect.pm line 1146-1166): fires when alt peptide
+			// contains '*' AND ref peptide does not. Perl's peptide() for a frameshift
+			// extracts codon_len + (allele_len - vf_nt_len) bases from the alt CDS starting
+			// at codon_cds_start (= (tv_tr_start-1)*3), translates whole codons, and appends
+			// 'X' for any partial trailing codon (TranscriptVariationAllele.pm line 684-778).
+			// If the resulting alt peptide contains '*' while the ref peptide does not,
+			// stop_gained fires alongside frameshift_variant.
+			if (altCds != null && codonCdsStart0 >= 0 && codonLen0 > 0) {
+				int altExtractLen = codonLen0 + (alleleLen - vfNtLen);
+				if (altExtractLen > 0) {
+					String altCodonStr = vepCodon(altCds, codonCdsStart0, altExtractLen);
+					String altPep = vepPeptide(altCodonStr);
+					String refCodonStr = vepCodon(cdsSequence, codonCdsStart0, codonLen0);
+					String refPep = vepPeptide(refCodonStr);
+					if (altPep != null && altPep.contains("*")
+							&& (refPep == null || !refPep.contains("*"))) {
+						consequences.add("stop_gained");
 					}
 				}
 			}
 		} else {
 			// In-frame indel
 			// Get local codon alleles matching VEP's _get_codon_alleles logic
-			// (TranscriptVariationAllele.pm line 841-877)
-			int protStart = (cdsPos - 1) / 3 + 1;
-			int protEnd = protStart;
-			if (isDeletion) {
-				protEnd = (Math.max(cdsStart, cdsEnd) - 1) / 3 + 1;
-			}
+			// (TranscriptVariationAllele.pm line 808: tv_tr_start = translation_start, tv_tr_end = translation_end)
+			// For insertions, VEP convention: cds_start > cds_end → translation_start > translation_end
+			//   → codon_len = end-start+1 may be negative or zero
+			int protStart = (cdsStart - 1) / 3 + 1;
+			int protEnd = (cdsEnd - 1) / 3 + 1;
 			int codonCdsStart = protStart * 3 - 2;
 			int codonCdsEnd = protEnd * 3;
 			int codonLen = codonCdsEnd - codonCdsStart + 1;
@@ -635,7 +775,7 @@ public class TranscriptVariationAllele {
 			if (rp != null) {
 				String rpStr = rp.isEmpty() ? "-" : rp;
 				String apStr = (ap == null || ap.isEmpty()) ? "-" : ap;
-				result.setAminoAcids(pepAlleleString(rpStr, apStr));
+				this.aminoAcids = (pepAlleleString(rpStr, apStr));
 			}
 
 			// VEP display_codon (line 884-915) + display_codon_allele_string (line 658-673)
@@ -650,26 +790,25 @@ public class TranscriptVariationAllele {
 			String altDisplay = displayCodon(ac, altFeatureSeq, codonPosition1);
 			if (refDisplay == null) refDisplay = "-";
 			if (altDisplay == null) altDisplay = "-";
-			result.setCodons(displayCodonAlleleString(refDisplay, altDisplay));
+			this.codons = (displayCodonAlleleString(refDisplay, altDisplay));
 		}
 
 		// Sort by VEP rank (most severe first) to match VEP output order
 		consequences.sort((a, b) -> Integer.compare(
 			ConsequenceSeverity.getRank(a), ConsequenceSeverity.getRank(b)));
-		result.setConsequence(String.join("&", consequences));
+		this.consequence = (String.join("&", consequences));
 
 		// Compute fsTer/extTer count (VEP _stop_loss_extra_AA, line 2386-2435)
 		if (altCdsWithUtr != null) {
 			if (consequences.contains("frameshift_variant") && !consequences.contains("stop_gained")) {
-				result.setFsTerCount(computeTerCount(altCdsWithUtr, result.getHgvsProteinPosition(), cdsSequence.length()));
+				this.fsTerCount = (computeTerCount(altCdsWithUtr, hgvsProteinPosition > 0 ? hgvsProteinPosition : proteinPosition, cdsSequence.length()));
 			}
 			if (consequences.contains("stop_lost")) {
 				int origStopProtPos = cdsSequence.length() / 3;
-				result.setExtTerCount(computeExtTerCount(altCdsWithUtr, origStopProtPos));
+				this.extTerCount = (computeExtTerCount(altCdsWithUtr, origStopProtPos));
 			}
 		}
 
-		return result;
 	}
 
 	/**
@@ -1014,12 +1153,13 @@ public class TranscriptVariationAllele {
 					(transcript.isPositiveStrand() ? vepAllele : Sequence.reverseComplement(vepAllele));
 				return seq.substring(0, delStart) + replaceSeq + seq.substring(delStart + delLen);
 			} else {
-				int insPos;
-				if (transcript.isPositiveStrand()) {
-					insPos = cdsPos - 1;
-				} else {
-					insPos = cdsPos;
-				}
+				// VEP _get_alternate_cds (line 2331-2343):
+				//   upstream = substr(cds, 0, cds_start - 1)
+				//   alternate = upstream + alt_allele + substr(cds, cds_end)
+				// cdsPos here is cds_start (1-based). 0-based insertion position = cds_start - 1.
+				// For both strands: insert at cdsPos - 1.
+				// Strand difference is in the allele sequence (RC for minus strand).
+				int insPos = cdsPos - 1;
 				String insertSeq = transcript.isPositiveStrand() ? vepAllele : Sequence.reverseComplement(vepAllele);
 				if (insPos < 0) insPos = 0;
 				if (insPos > seq.length()) insPos = seq.length();
@@ -1059,101 +1199,6 @@ public class TranscriptVariationAllele {
 			}
 		}
 		return sb.toString();
-	}
-
-	public static class CodingResult {
-		private String consequence;
-		private int cdsPosition;
-		private int cdsEnd;
-		private int proteinPosition;
-		private int cdnaPosition;
-		private int cdnaEnd;
-		private char refAA;
-		private char altAA;
-		private String refCodon;
-		private String altCodon;
-
-		// VEP _translateable_seq and _get_alternate_cds — needed for _stop_loss_extra_AA
-		private String cdsSequence;     // ref CDS (_translateable_seq)
-		private String altCdsSequence;  // alt CDS (_get_alternate_cds)
-		public String getCdsSequence() { return cdsSequence; }
-		public void setCdsSequence(String v) { this.cdsSequence = v; }
-		public String getAltCdsSequence() { return altCdsSequence; }
-		public void setAltCdsSequence(String v) { this.altCdsSequence = v; }
-
-		public String getConsequence() { return consequence; }
-		public void setConsequence(String consequence) { this.consequence = consequence; }
-		public int getCdsPosition() { return cdsPosition; }
-		public void setCdsPosition(int cdsPosition) { this.cdsPosition = cdsPosition; }
-		public int getCdsEnd() { return cdsEnd; }
-		public void setCdsEnd(int cdsEnd) { this.cdsEnd = cdsEnd; }
-		public int getProteinPosition() { return proteinPosition; }
-		public void setProteinPosition(int proteinPosition) { this.proteinPosition = proteinPosition; }
-		public int getCdnaPosition() { return cdnaPosition; }
-		public void setCdnaPosition(int cdnaPosition) { this.cdnaPosition = cdnaPosition; }
-		public int getCdnaEnd() { return cdnaEnd; }
-		public void setCdnaEnd(int cdnaEnd) { this.cdnaEnd = cdnaEnd; }
-		private int hgvsProteinPosition;
-		public int getHgvsProteinPosition() { return hgvsProteinPosition > 0 ? hgvsProteinPosition : proteinPosition; }
-		public void setHgvsProteinPosition(int pos) { this.hgvsProteinPosition = pos; }
-		public char getRefAA() { return refAA; }
-		public void setRefAA(char refAA) { this.refAA = refAA; }
-		public char getAltAA() { return altAA; }
-		public void setAltAA(char altAA) { this.altAA = altAA; }
-		public String getRefCodon() { return refCodon; }
-		public void setRefCodon(String refCodon) { this.refCodon = refCodon; }
-		public String getAltCodon() { return altCodon; }
-		public void setAltCodon(String altCodon) { this.altCodon = altCodon; }
-
-		// HGVSp clip_alleles results
-		private String clippedRefPeptide;
-		private String clippedAltPeptide;
-		private String hgvsType; // "=", ">", "fs", "del", "ins", "dup", "delins"
-		private int hgvsProteinEnd;
-		private String fsTerCount; // number or "?"
-		private String extTerCount; // number or "?"
-		private char flankLeftAA;
-		private char flankRightAA;
-
-		public String getClippedRefPeptide() { return clippedRefPeptide; }
-		public void setClippedRefPeptide(String v) { this.clippedRefPeptide = v; }
-		public String getClippedAltPeptide() { return clippedAltPeptide; }
-		public void setClippedAltPeptide(String v) { this.clippedAltPeptide = v; }
-		public String getHgvsType() { return hgvsType; }
-		public void setHgvsType(String v) { this.hgvsType = v; }
-		public int getHgvsProteinEnd() { return hgvsProteinEnd; }
-		public void setHgvsProteinEnd(int v) { this.hgvsProteinEnd = v; }
-		public String getFsTerCount() { return fsTerCount; }
-		public void setFsTerCount(String v) { this.fsTerCount = v; }
-		public String getExtTerCount() { return extTerCount; }
-		public void setExtTerCount(String v) { this.extTerCount = v; }
-		public char getFlankLeftAA() { return flankLeftAA; }
-		public void setFlankLeftAA(char v) { this.flankLeftAA = v; }
-		public char getFlankRightAA() { return flankRightAA; }
-		public void setFlankRightAA(char v) { this.flankRightAA = v; }
-
-		private String aminoAcids;
-		private String codons;
-		private HgvsNotation hgvsNotation;
-		public HgvsNotation getHgvsNotation() { return hgvsNotation; }
-		public void setHgvsNotation(HgvsNotation v) { this.hgvsNotation = v; }
-
-		public String getAminoAcids() {
-			if (aminoAcids != null) return aminoAcids;
-			if (refAA == 0 && altAA == 0) return null;
-			if (refAA == altAA) {
-				return String.valueOf(refAA);
-			}
-			return String.valueOf(refAA) + "/" + String.valueOf(altAA);
-		}
-		public void setAminoAcids(String aminoAcids) { this.aminoAcids = aminoAcids; }
-
-		public String getCodons() {
-			if (codons != null) return codons;
-			if (refCodon == null || altCodon == null) return null;
-			return refCodon + "/" + altCodon;
-		}
-		public void setCodons(String codons) { this.codons = codons; }
 	}
 
 	// ===================================================================
@@ -1200,7 +1245,7 @@ public class TranscriptVariationAllele {
 	 * VEP _clip_alleles — TranscriptVariationAllele.pm line 2102-2203.
 	 * Strips matching leading and trailing AAs from ref and alt peptides.
 	 * Prefix clip bounded by length(ref). Suffix clip bounded by remaining ref after prefix.
-	 * Detects dup/ins/del/>/delins type from clipped result.
+	 * Detects dup/ins/del/>/delins type from clipped this.
 	 */
 	public static HgvsNotation vepClipAlleles(String ref, String alt, int start, int end) {
 		HgvsNotation n = new HgvsNotation();
@@ -1367,11 +1412,11 @@ public class TranscriptVariationAllele {
 		// Line 2509-2518: select sequence to check based on type
 		String seqToCheck;
 		if ("ins".equals(hgvsType)) {
-			seqToCheck = n.alt;     // Line 2511
+			seqToCheck = n.alt;		// Line 2511
 		} else if ("del".equals(hgvsType)) {
-			seqToCheck = n.ref;     // Line 2514
+			seqToCheck = n.ref;		// Line 2514
 		} else {
-			return;                  // Line 2516-2518
+			return;					 // Line 2516-2518
 		}
 		if (seqToCheck == null || seqToCheck.isEmpty()) return;
 
@@ -1416,8 +1461,8 @@ public class TranscriptVariationAllele {
 			String testSeq = upstream.substring(testNewStart, testNewStart + n.alt.length());
 			if (testSeq.equals(n.alt)) {
 				n.type = "dup";
-				n.end = n.start - 1;              // Line 2375
-				n.start -= n.alt.length();          // Line 2376
+				n.end = n.start - 1;			  // Line 2375
+				n.start -= n.alt.length();			// Line 2376
 			}
 		}
 	}
@@ -1533,6 +1578,8 @@ public class TranscriptVariationAllele {
 
 		if (n == null || n.type == null) return null;
 
+		// AGR production pipeline (RunVep.pm) uses --remove_hgvsp_version
+		// so HGVSp does NOT include the .{version} suffix on protein IDs.
 		String prefix = (proteinId != null ? proteinId : "") + ":p.";
 
 		// Convert ref/alt to 3-letter code (VEP line 2067-2071)
@@ -1542,10 +1589,15 @@ public class TranscriptVariationAllele {
 		// VEP line 2072: alt = "del" if alt == "-"
 		if ("-".equals(n.alt) || n.alt.isEmpty()) alt3 = "del";
 
-		// VEP line 2075-2078: start_lost overrides everything
+		// VEP line 2075-2078: start_lost sets alt="?" and type="".
+		// Then _get_hgvs_protein_format line 1959-1960 formats as
+		// "ref + start + '_' + alt + end" when start != end (multi-AA ref),
+		// otherwise "ref + start + alt" (single-AA ref).
 		if (isStartLost) {
 			alt3 = "?";
-			// type becomes "" — just output ref + start + alt
+			if (n.start != n.end) {
+				return prefix + ref3 + n.start + "_" + alt3 + n.end;
+			}
 			return prefix + ref3 + n.start + alt3;
 		}
 
@@ -1669,7 +1721,7 @@ public class TranscriptVariationAllele {
 	 * @param transcript The transcript model
 	 * @return 1-based codon position (1, 2, or 3), or 0 if undefined
 	 */
-	public static int vepCodonPosition(int cdnaStart, org.alliancegenome.vep.model.TranscriptModel transcript) {
+	public static int vepCodonPosition(int cdnaStart, TranscriptModel transcript) {
 		// VEP line 294: tran_cdna_start = transcript->cdna_coding_start
 		int tranCdnaStart = transcript.getCdnaCodingStart();
 		if (tranCdnaStart <= 0) tranCdnaStart = 1; // fallback
@@ -1688,7 +1740,15 @@ public class TranscriptVariationAllele {
 		if ("del".equals(oneLetterPep)) return "del";
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < oneLetterPep.length(); i++) {
-			sb.append(org.alliancegenome.vep.bio.AminoAcid.threeLetterCode(oneLetterPep.charAt(i)));
+			char c = oneLetterPep.charAt(i);
+			// VEP _get_hgvs_protein_type (line 1987-1988) replaces '*' with 'X' before 3-letter conversion,
+			// then VEP _get_hgvs_peptides (line 2114-2115) substitutes 'Xaa' → 'Ter' as the recommended
+			// HGVS stop notation. Emit Ter directly for '*' / 'X' to match.
+			if (c == '*' || c == 'X') {
+				sb.append("Ter");
+			} else {
+				sb.append(AminoAcid.threeLetterCode(c));
+			}
 		}
 		return sb.toString();
 	}
@@ -1906,6 +1966,16 @@ public class TranscriptVariationAllele {
 					? variantStart + prefixLen : variantEnd - prefixLen;
 				startPos = getCdnaPosition(transcript, newStartGenomic, isCoding);
 				if (startPos == null) startPos = String.valueOf(clipped.start);
+			}
+			// VEP _clip_alleles also strips matching suffix bases — when checkEnd
+			// was decremented, recompute endPos from the new genomic end position.
+			if (clipped.end < clipEndInt) {
+				int suffixLen = clipEndInt - clipped.end;
+				int newEndGenomic = transcript.isPositiveStrand()
+					? variantEnd - suffixLen : variantStart + suffixLen;
+				String newEndPos = getCdnaPosition(transcript, newEndGenomic, isCoding);
+				if (newEndPos != null) endPos = newEndPos;
+				else endPos = String.valueOf(clipped.end);
 			}
 
 			String clippedRef = clipped.ref;

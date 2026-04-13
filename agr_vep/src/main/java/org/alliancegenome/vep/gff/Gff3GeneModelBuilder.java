@@ -7,7 +7,10 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -68,7 +71,7 @@ public class Gff3GeneModelBuilder {
 				ph.progressProcess();
 				if (GENE_TYPES.contains(type)) {
 					String geneId = feature.getID();
-					String symbol = feature.getName();
+					String symbol = reencodeGffValue(feature.getName());
 					String curie = getAttr(feature, "gene_id").orElse(getAttr(feature, "curie").orElse(null));
 					if (geneId != null) {
 						geneSymbols.put(geneId, symbol);
@@ -112,11 +115,15 @@ public class Gff3GeneModelBuilder {
 					tm.setTranscriptId(feature.getID());
 				}
 
-				tm.setName(feature.getName());
+				tm.setName(reencodeGffValue(feature.getName()));
 				getAttr(feature, "protein_id").ifPresent(tm::setProteinId);
 				// VEP VariationEffect.pm line 959: skip start_lost for cds_start_NF transcripts
 				if (getAttr(feature, "cds_start_NF").isPresent()) {
 					tm.setCdsStartNF(true);
+				}
+				// VEP VariationEffect.pm line 1278: skip stop codon overlap for cds_end_NF transcripts
+				if (getAttr(feature, "cds_end_NF").isPresent()) {
+					tm.setCdsEndNF(true);
 				}
 
 				for (Gff3Feature parent : feature.getParents()) {
@@ -155,14 +162,20 @@ public class Gff3GeneModelBuilder {
 				tm.setLoadOrder(transcriptCount);
 
 				// VEP Transcript fields: cdna_coding_start and start_Exon->phase
-				// cdna_coding_start = cDNA position where coding begins (after 5'UTR)
+				// cdna_coding_start = cDNA position where coding begins (after 5'UTR).
+				// Must iterate exons in TRANSCRIPTION order (5' → 3'):
+				//   + strand: ascending genomic order
+				//   - strand: descending genomic order
 				if (!tm.getCdsSegments().isEmpty() && !tm.getExons().isEmpty()) {
 					int cdsGenomicStart = tm.isPositiveStrand()
 						? tm.getCdsSegments().get(0).getStart()
 						: tm.getCdsSegments().get(tm.getCdsSegments().size() - 1).getEnd();
-					// Count cDNA bases from transcript start to CDS start
+					List<ExonModel> txOrderExons = new ArrayList<>(tm.getExons());
+					if (!tm.isPositiveStrand()) {
+						Collections.reverse(txOrderExons);
+					}
 					int cdnaBases = 0;
-					for (ExonModel exon : tm.getExons()) {
+					for (ExonModel exon : txOrderExons) {
 						if (tm.isPositiveStrand()) {
 							if (exon.getEnd() < cdsGenomicStart) {
 								cdnaBases += exon.getEnd() - exon.getStart() + 1;
@@ -180,7 +193,13 @@ public class Gff3GeneModelBuilder {
 						}
 					}
 					tm.setCdnaCodingStart(cdnaBases);
-					tm.setStartExonPhase(tm.getCdsSegments().get(0).getPhase());
+					// VEP start_Exon->phase: phase of the first CDS segment in transcription order.
+					// On + strand: first CDS segment (lowest genomic start)
+					// On - strand: last CDS segment (highest genomic end = 5' in transcription)
+					int startPhase = tm.isPositiveStrand()
+						? tm.getCdsSegments().get(0).getPhase()
+						: tm.getCdsSegments().get(tm.getCdsSegments().size() - 1).getPhase();
+					tm.setStartExonPhase(startPhase);
 				}
 				model.addTranscript(tm);
 				transcriptCount++;
@@ -383,6 +402,30 @@ public class Gff3GeneModelBuilder {
 			default:
 				return getAttr(feature, "gbkey").orElse(null);
 		}
+	}
+
+	/**
+	 * htsjdk's Gff3Codec URL-decodes attribute values (e.g., "MF%28ALPHA%292" → "MF(ALPHA)2").
+	 * Perl VEP reads GFF attributes raw, so the URL-encoded form passes straight through to
+	 * the CSQ output. Re-encode the common chars Perl preserves so downstream field output
+	 * matches Perl exactly.
+	 */
+	private String reencodeGffValue(String v) {
+		if (v == null) return null;
+		StringBuilder sb = new StringBuilder(v.length() + 8);
+		for (int i = 0; i < v.length(); i++) {
+			char c = v.charAt(i);
+			switch (c) {
+				case '(': sb.append("%28"); break;
+				case ')': sb.append("%29"); break;
+				case ',': sb.append("%2C"); break;
+				case ';': sb.append("%3B"); break;
+				case '=': sb.append("%3D"); break;
+				case '&': sb.append("%26"); break;
+				default: sb.append(c); break;
+			}
+		}
+		return sb.toString();
 	}
 
 	private Optional<String> getAttr(Gff3Feature feature, String key) {

@@ -1,6 +1,7 @@
 package org.alliancegenome.vep.model;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -20,9 +21,14 @@ public class TranscriptMapper {
 	 * VEP TranscriptMapper::new (line 96-123) + _load_mapper (line 139-234).
 	 */
 	public TranscriptMapper(TranscriptModel transcript) {
-		// VEP line 108-113: start_phase
+		// VEP line 108-113: start_phase — phase of the first exon in transcription order.
+		// On + strand: first CDS segment (lowest genomic start)
+		// On - strand: last CDS segment (highest genomic end = 5' in transcription)
 		if (!transcript.getCdsSegments().isEmpty()) {
-			int phase = transcript.getCdsSegments().get(0).getPhase();
+			int idx = transcript.isPositiveStrand()
+				? 0
+				: transcript.getCdsSegments().size() - 1;
+			int phase = transcript.getCdsSegments().get(idx).getPhase();
 			this.startPhase = phase >= 0 ? phase : -1;
 		} else {
 			this.startPhase = -1;
@@ -38,16 +44,22 @@ public class TranscriptMapper {
 		}
 		this.cdnaCodingEnd = cdnaCodingStart > 0 ? cdnaCodingStart + cdsLen - 1 : 0;
 
-		// VEP _load_mapper (line 139-234): build cdna↔genomic mapper from exons
+		// VEP _load_mapper (line 139-234): build cdna↔genomic mapper from exons.
+		// Exons must be iterated in TRANSCRIPTION order (5' to 3'), not genomic order.
+		// VEP BaseGXF.pm sorts exons by descending start for minus strand.
 		// Simplified: no SeqEdits (VEP line 147-222)
 		this.exonCoordMapper = new Mapper("cdna", "genomic");
+		int strand = transcript.isPositiveStrand() ? 1 : -1;
+		List<ExonModel> txOrder = new ArrayList<>(transcript.getExons());
+		if (!transcript.isPositiveStrand()) {
+			Collections.reverse(txOrder);
+		}
 		int cdnaEnd = 0;
-		for (ExonModel exon : transcript.getExons()) {
+		for (ExonModel exon : txOrder) {
 			int genStart = exon.getStart();
 			int genEnd = exon.getEnd();
 			int cdnaStart = cdnaEnd + 1;
 			cdnaEnd = cdnaStart + (genEnd - genStart);
-			int strand = transcript.isPositiveStrand() ? 1 : -1;
 
 			// VEP line 228-229: add_map_coordinates('cdna', cdnaStart, cdnaEnd, strand, 'genome', genStart, genEnd)
 			exonCoordMapper.addMapCoordinates("cdna", cdnaStart, cdnaEnd, strand,

@@ -1,24 +1,27 @@
 package org.alliancegenome.vep.annotation;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import org.alliancegenome.vep.annotation.VariationEffect.Context;
+import org.alliancegenome.vep.annotation.VariationEffect.SpliceResult;
 import org.alliancegenome.vep.bio.CodonTable;
 import org.alliancegenome.vep.csq.CsqEntry;
-import org.alliancegenome.vep.annotation.TranscriptVariationAllele.CodingResult;
-import org.alliancegenome.vep.annotation.VariationEffect.SpliceResult;
+import org.alliancegenome.vep.debug.Trace;
+import org.alliancegenome.vep.hgvs.VariationFeature;
 import org.alliancegenome.vep.model.CdsSegment;
 import org.alliancegenome.vep.model.ExonModel;
 import org.alliancegenome.vep.model.GeneModel;
 import org.alliancegenome.vep.model.TranscriptModel;
 import org.alliancegenome.vep.plugin.PredictionLookup;
+import org.alliancegenome.vep.reference.ContigAccessionMap;
 import org.alliancegenome.vep.reference.ReferenceGenome;
-
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 import htsjdk.variant.variantcontext.Allele;
 import htsjdk.variant.variantcontext.VariantContext;
@@ -27,24 +30,21 @@ public class OutputFactory {
 
 	private final GeneModel geneModel;
 	private final TranscriptVariationAllele codingAnnotator;
-	private final org.alliancegenome.vep.hgvs.VariationFeature hgvsGenomic;
-	
+	private final VariationFeature hgvsGenomic;
+
 	private final String mod;
 	private final PredictionLookup siftLookup;
 	private final PredictionLookup polyPhenLookup;
 
-	public OutputFactory(GeneModel geneModel, ReferenceGenome reference,
-			org.alliancegenome.vep.reference.ContigAccessionMap contigMap, String mod) {
+	public OutputFactory(GeneModel geneModel, ReferenceGenome reference, ContigAccessionMap contigMap, String mod) {
 		this(geneModel, reference, contigMap, mod, null, null);
 	}
 
-	public OutputFactory(GeneModel geneModel, ReferenceGenome reference,
-			org.alliancegenome.vep.reference.ContigAccessionMap contigMap, String mod,
-			PredictionLookup siftLookup, PredictionLookup polyPhenLookup) {
+	public OutputFactory(GeneModel geneModel, ReferenceGenome reference, ContigAccessionMap contigMap, String mod, PredictionLookup siftLookup, PredictionLookup polyPhenLookup) {
 		this.geneModel = geneModel;
 		this.codingAnnotator = new TranscriptVariationAllele(reference);
-		this.hgvsGenomic = new org.alliancegenome.vep.hgvs.VariationFeature(contigMap, reference);
-		
+		this.hgvsGenomic = new VariationFeature(contigMap, reference);
+
 		this.mod = mod;
 		this.siftLookup = siftLookup;
 		this.polyPhenLookup = polyPhenLookup;
@@ -69,8 +69,7 @@ public class OutputFactory {
 			// NOT per-allele longest-common-prefix — just 1 char, always.
 			// No --minimal flag, so no split_variants/suffix trimming.
 			boolean isIndel = ref.length() != alt.length();
-			if (isIndel && ref.length() > 0 && alt.length() > 0
-					&& ref.charAt(0) == alt.charAt(0)) {
+			if (isIndel && ref.length() > 0 && alt.length() > 0 && ref.charAt(0) == alt.charAt(0)) {
 				String refTrimmed = ref.substring(1);
 				String altTrimmed = alt.substring(1);
 				vepAllele = altTrimmed.isEmpty() ? "-" : altTrimmed;
@@ -97,8 +96,7 @@ public class OutputFactory {
 				List<CsqEntry> alleleEntries = new ArrayList<>();
 				for (TranscriptModel transcript : overlapping) {
 					// VEP TranscriptVariationAllele_to_output_hash (OutputFactory.pm line 1630)
-					CsqEntry entry = transcriptVariationAlleleToOutputHash(
-						transcript, chr, variantStart, variantEnd, vepAllele, vepRef);
+					CsqEntry entry = transcriptVariationAlleleToOutputHash(transcript, chr, variantStart, variantEnd, vepAllele, vepRef);
 					if (entry != null) {
 						addPredictions(entry, transcript);
 						alleleEntries.add(entry);
@@ -117,11 +115,11 @@ public class OutputFactory {
 		// operating on the full set of CSQ entries for the VCF line.
 		computeGeneLevelConsequence(allEntries);
 
-		// VEP outputs CSQ entries in transcript-major order (OutputFactory.pm line 513):
+		// VEP outputs CSQ entries in transcript-major order (OutputFactory.pm line
+		// 513):
 		// for each transcript (sorted by stable ID), for each allele (VCF order).
 		// Our loop is allele-major; stable-sort by Feature to match VEP ordering.
-		allEntries.sort(java.util.Comparator.comparing(
-			(CsqEntry e) -> e.getFeature() != null ? e.getFeature() : ""));
+		allEntries.sort(Comparator.comparing((CsqEntry e) -> e.getFeature() != null ? e.getFeature() : ""));
 
 		return allEntries;
 	}
@@ -129,16 +127,20 @@ public class OutputFactory {
 	private void computeGeneLevelConsequence(List<CsqEntry> entries) {
 		// ProcessOutput.pm lines 49-63:
 		// 1. VEP --flag_pick_allele_gene picks ONE transcript per allele+gene
-		//	  (pick_order: mane_select > canonical > appris > tsl > biotype > ccds > rank > length)
-		// 2. For each PICKED entry, store its consequence keyed by ALLELE (last PICK per allele wins)
+		// (pick_order: mane_select > canonical > appris > tsl > biotype > ccds > rank >
+		// length)
+		// 2. For each PICKED entry, store its consequence keyed by ALLELE (last PICK
+		// per allele wins)
 		// 3. All entries get the stored consequence for their allele
 
 		// Step 1: Determine which entries would have PICK flag set.
 		// VEP flag_pick_allele_gene (OutputFactory.pm lines 622-626, 829-858):
 		// Groups by allele, then within each allele groups by gene,
 		// picks worst (most severe) transcript per gene.
-		// We simulate this: for each allele+gene, pick the entry with the most severe consequence
-		// (then longest transcript as tiebreaker — matching VEP pick_order after biotype/rank).
+		// We simulate this: for each allele+gene, pick the entry with the most severe
+		// consequence
+		// (then longest transcript as tiebreaker — matching VEP pick_order after
+		// biotype/rank).
 		Map<String, CsqEntry> pickedPerAlleleGene = new LinkedHashMap<>();
 		for (CsqEntry entry : entries) {
 			String allele = entry.getAllele() != null ? entry.getAllele() : "";
@@ -167,18 +169,24 @@ public class OutputFactory {
 	}
 
 	/**
-	 * VEP pick_worst_VariationFeatureOverlapAllele (OutputFactory.pm lines 702-811):
-	 * Returns true if candidate should be picked over current.
-	 * Pick order: mane_select > canonical > appris > tsl > biotype > ccds > rank > length
-	 * For AGR species (no MANE/canonical/APPRIS/TSL/CCDS): falls to rank then length.
+	 * VEP pick_worst_VariationFeatureOverlapAllele (OutputFactory.pm lines
+	 * 702-811): Returns true if candidate should be picked over current. Pick
+	 * order: mane_select > canonical > appris > tsl > biotype > ccds > rank >
+	 * length For AGR species (no MANE/canonical/APPRIS/TSL/CCDS): falls to rank
+	 * then length.
 	 */
 	private boolean isPicked(CsqEntry candidate, CsqEntry current) {
 		// Rank: lower = more severe = better
 		int rankCand = ConsequenceSeverity.getMostSevereRank(candidate.getConsequence());
 		int rankCurr = ConsequenceSeverity.getMostSevereRank(current.getConsequence());
-		if (rankCand < rankCurr) return true;
-		if (rankCand > rankCurr) return false;
-		// Equal rank: longer transcript is better (we don't have length, so keep current)
+		if (rankCand < rankCurr) {
+			return true;
+		}
+		if (rankCand > rankCurr) {
+			return false;
+		}
+		// Equal rank: longer transcript is better (we don't have length, so keep
+		// current)
 		return false;
 	}
 
@@ -204,34 +212,44 @@ public class OutputFactory {
 			return alt;
 		}
 		int prefixLen = 0;
-		while (prefixLen < ref.length() && prefixLen < alt.length()
-				&& ref.charAt(prefixLen) == alt.charAt(prefixLen)) {
+		while (prefixLen < ref.length() && prefixLen < alt.length() && ref.charAt(prefixLen) == alt.charAt(prefixLen)) {
 			prefixLen++;
 		}
 		String altTrimmed = alt.substring(prefixLen);
 		String refTrimmed = ref.substring(prefixLen);
 
-		if (altTrimmed.isEmpty()) return "-";
-		if (refTrimmed.isEmpty()) return altTrimmed;
+		if (altTrimmed.isEmpty()) {
+			return "-";
+		}
+		if (refTrimmed.isEmpty()) {
+			return altTrimmed;
+		}
 		return altTrimmed;
 	}
 
 	/**
-	 * Add SIFT/PolyPhen predictions to a CSQ entry.
-	 * VEP only looks up predictions for single amino acid substitutions
-	 * (pep_allele_string =~ /^[A-Z]\/[A-Z]$/).
+	 * Add SIFT/PolyPhen predictions to a CSQ entry. VEP only looks up predictions
+	 * for single amino acid substitutions (pep_allele_string =~ /^[A-Z]\/[A-Z]$/).
 	 */
 	private void addPredictions(CsqEntry entry, TranscriptModel transcript) {
-		if (siftLookup == null && polyPhenLookup == null) return;
+		if (siftLookup == null && polyPhenLookup == null) {
+			return;
+		}
 
 		String aminoAcids = entry.getAminoAcids();
-		if (aminoAcids == null || aminoAcids.length() != 3 || aminoAcids.charAt(1) != '/') return;
+		if (aminoAcids == null || aminoAcids.length() != 3 || aminoAcids.charAt(1) != '/') {
+			return;
+		}
 		char refAA = aminoAcids.charAt(0);
 		char altAA = aminoAcids.charAt(2);
-		if (refAA == altAA || refAA == '*' || altAA == '*' || refAA == 'X' || altAA == 'X') return;
+		if (refAA == altAA || refAA == '*' || altAA == '*' || refAA == 'X' || altAA == 'X') {
+			return;
+		}
 
 		String protPos = entry.getProteinPosition();
-		if (protPos == null) return;
+		if (protPos == null) {
+			return;
+		}
 		int position;
 		try {
 			position = Integer.parseInt(protPos);
@@ -244,7 +262,9 @@ public class OutputFactory {
 			md5 = computePeptideMd5(transcript);
 			transcript.setPeptideMd5(md5);
 		}
-		if (md5 == null) return;
+		if (md5 == null) {
+			return;
+		}
 
 		if (siftLookup != null) {
 			String[] result = siftLookup.getPrediction(md5, position, altAA);
@@ -263,13 +283,19 @@ public class OutputFactory {
 	}
 
 	private String computePeptideMd5(TranscriptModel transcript) {
-		if (!transcript.isCoding()) return null;
+		if (!transcript.isCoding()) {
+			return null;
+		}
 		String cds = BaseTranscriptVariation.translateableSeq(transcript, codingAnnotator.getReference());
-		if (cds == null || cds.length() < 3) return null;
+		if (cds == null || cds.length() < 3) {
+			return null;
+		}
 		StringBuilder peptide = new StringBuilder();
 		for (int i = 0; i + 2 < cds.length(); i += 3) {
 			char aa = CodonTable.translate(cds.substring(i, i + 3));
-			if (aa == '*') break; // VEP's translate->seq excludes terminal stop
+			if (aa == '*') {
+				break; // VEP's translate->seq excludes terminal stop
+			}
 			peptide.append(aa);
 		}
 		return PredictionLookup.md5Hex(peptide.toString());
@@ -281,50 +307,47 @@ public class OutputFactory {
 
 	/**
 	 * VEP filter_VariationFeatureOverlapAlleles — OutputFactory.pm line 577-629.
-	 * For flag_pick_allele_gene: groups VFOAs by allele, picks per gene within
-	 * each allele group, flags the picked ones with PICK=1.
-	 * All VFOAs are returned (not filtered), just flagged.
+	 * For flag_pick_allele_gene: groups VFOAs by allele, picks per gene within each
+	 * allele group, flags the picked ones with PICK=1. All VFOAs are returned (not
+	 * filtered), just flagged.
 	 *
-	 * Our implementation in computeGeneLevelConsequence simulates this by
-	 * finding the picked entry per allele+gene and using its consequence
-	 * for the Gene_level_consequence field.
+	 * Our implementation in computeGeneLevelConsequence simulates this by finding
+	 * the picked entry per allele+gene and using its consequence for the
+	 * Gene_level_consequence field.
 	 */
 	// Already implemented in computeGeneLevelConsequence above.
 
 	/**
 	 * VEP pick_worst_VariationFeatureOverlapAllele — OutputFactory.pm line 702-811.
-	 * Full pick_order: mane_select > mane_plus_clinical > canonical > appris > tsl >
-	 * biotype > ccds > rank > length > ensembl > refseq.
-	 * For AGR species without MANE/canonical/APPRIS/TSL/CCDS, this simplifies to
-	 * biotype > rank > length.
+	 * Full pick_order: mane_select > mane_plus_clinical > canonical > appris > tsl
+	 * > biotype > ccds > rank > length > ensembl > refseq. For AGR species without
+	 * MANE/canonical/APPRIS/TSL/CCDS, this simplifies to biotype > rank > length.
 	 */
 	// Already implemented in isPicked above.
 
 	/**
-	 * VEP pick_VariationFeatureOverlapAllele_per_gene — OutputFactory.pm line 829-858.
-	 * Groups TVAs by gene, picks worst per gene.
+	 * VEP pick_VariationFeatureOverlapAllele_per_gene — OutputFactory.pm line
+	 * 829-858. Groups TVAs by gene, picks worst per gene.
 	 */
-	// Already implemented in computeGeneLevelConsequence above (allele+gene grouping).
+	// Already implemented in computeGeneLevelConsequence above (allele+gene
+	// grouping).
 
 	/**
-	 * VEP TranscriptVariationAllele_to_output_hash — OutputFactory.pm line 1630-1730.
-	 * Builds the CSQ hash for a TranscriptVariationAllele.
-	 * Calls:
-	 *   1. VariationFeatureOverlapAllele_to_output_hash (base: Allele, Consequence, HGVSg)
-	 *   2. BaseTranscriptVariationAllele_to_output_hash (transcript: Feature, Gene, SYMBOL, etc.)
-	 *   3. Coding-specific fields (cDNA_position, CDS_position, Amino_acids, Codons)
-	 *   4. HGVSc, HGVSp
-	 *   5. SIFT, PolyPhen
-	 *   6. GIVEN_REF, USED_REF
+	 * VEP TranscriptVariationAllele_to_output_hash — OutputFactory.pm line
+	 * 1630-1730. Builds the CSQ hash for a TranscriptVariationAllele. Calls: 1.
+	 * VariationFeatureOverlapAllele_to_output_hash (base: Allele, Consequence,
+	 * HGVSg) 2. BaseTranscriptVariationAllele_to_output_hash (transcript: Feature,
+	 * Gene, SYMBOL, etc.) 3. Coding-specific fields (cDNA_position, CDS_position,
+	 * Amino_acids, Codons) 4. HGVSc, HGVSp 5. SIFT, PolyPhen 6. GIVEN_REF, USED_REF
 	 *
-	 * Our implementation is split between TranscriptAnnotator.annotate() (which builds CsqEntry)
-	 * and this class (which adds predictions and HGVSg).
+	 * Our implementation is split between TranscriptAnnotator.annotate() (which
+	 * builds CsqEntry) and this class (which adds predictions and HGVSg).
 	 */
 	// Already implemented across TranscriptAnnotator and OutputFactory.
 
 	/**
-	 * VEP add_sift_polyphen — OutputFactory.pm line 1746-1799.
-	 * Adds SIFT and PolyPhen prediction/score to the output hash.
+	 * VEP add_sift_polyphen — OutputFactory.pm line 1746-1799. Adds SIFT and
+	 * PolyPhen prediction/score to the output hash.
 	 */
 	// Already implemented in addPredictions above.
 
@@ -333,12 +356,13 @@ public class OutputFactory {
 			return ref;
 		}
 		int prefixLen = 0;
-		while (prefixLen < ref.length() && prefixLen < alt.length()
-				&& ref.charAt(prefixLen) == alt.charAt(prefixLen)) {
+		while (prefixLen < ref.length() && prefixLen < alt.length() && ref.charAt(prefixLen) == alt.charAt(prefixLen)) {
 			prefixLen++;
 		}
 		String refTrimmed = ref.substring(prefixLen);
-		if (refTrimmed.isEmpty()) return "-";
+		if (refTrimmed.isEmpty()) {
+			return "-";
+		}
 		return refTrimmed;
 	}
 
@@ -347,8 +371,7 @@ public class OutputFactory {
 	// Merged from TranscriptAnnotator.java
 	// ===================================================================
 
-	private CsqEntry transcriptVariationAlleleToOutputHash(TranscriptModel transcript, String chr, int variantStart, int variantEnd,
-			String vepAllele, String refAllele) {
+	private CsqEntry transcriptVariationAlleleToOutputHash(TranscriptModel transcript, String chr, int variantStart, int variantEnd, String vepAllele, String refAllele) {
 
 		CsqEntry entry = new CsqEntry();
 		entry.setAllele(vepAllele);
@@ -360,7 +383,14 @@ public class OutputFactory {
 		entry.setStrand(transcript.isPositiveStrand() ? "1" : "-1");
 		entry.setSource(mod + "_GFF.refseq.gff.gz");
 		String featureId = transcript.getTranscriptId();
-		if (featureId != null && featureId.contains(":") && transcript.getName() != null) {
+		// Perl's ProtFuncTranscriptNameHTP plugin queries the AGR transcript_map DB;
+		// for transcripts not in the DB, it falls back to the GFF Name. Our TMAP TSV
+		// is a partial export (missing rows for some transcripts like WB:R06C1.1.2),
+		// but the underlying DB returns a name for every transcript equal to its GFF
+		// Name attribute. Emit transcript_name whenever tm.name is set (TMAP override
+		// or GFF Name) — matches Perl's DB behavior.
+		if (featureId != null && featureId.contains(":")
+				&& transcript.getName() != null) {
 			entry.setTranscriptName(transcript.getName());
 		}
 		entry.setGenomicStartPosition(String.valueOf(variantStart));
@@ -388,7 +418,9 @@ public class OutputFactory {
 			entry.setGenomicStartPosition(String.valueOf(variantStart));
 			entry.setGenomicEndPosition(String.valueOf(variantEnd));
 			String hgvsg = hgvsGenomic.generate(chr, variantStart, variantEnd, refAllele, vepAllele);
-			if (hgvsg != null) entry.setHgvsg(hgvsg);
+			if (hgvsg != null) {
+				entry.setHgvsg(hgvsg);
+			}
 			return entry;
 		}
 
@@ -401,16 +433,18 @@ public class OutputFactory {
 		// requires { exon => 0, intron => 1 } — excluded when variant overlaps any exon
 		// VEP uses overlap(bvf.start, bvf.end, exon.start, exon.end) where insertions
 		// have start > end. An insertion at an exon boundary does NOT overlap the exon.
-		boolean overlapsExon = isInsertion
-			? overlapsAnyExonVep(transcript, variantStart, variantEnd)
-			: overlapsAnyExon(transcript, rangeStart, rangeEnd);
+		boolean overlapsExon = isInsertion ? overlapsAnyExonVep(transcript, variantStart, variantEnd) : overlapsAnyExon(transcript, rangeStart, rangeEnd);
 		if (overlapsExon) {
 			spliceTerms.remove("splice_polypyrimidine_tract_variant");
 		}
 
-		// Step 3: Collect location-based consequences (VEP evaluates each independently)
+		// Step 3: Collect location-based consequences (VEP evaluates each
+		// independently)
 		List<String> locationTerms = new ArrayList<>();
-		CodingResult codingResult = null;
+		TranscriptVariationAllele tva = null;
+		// VEP always creates BVT for any variant overlapping a transcript (coding or not).
+		// Used for exon_number/intron_number ranges and (when coding) coordinate mapping.
+		BaseTranscriptVariation bvt = new BaseTranscriptVariation(transcript, variantStart, variantEnd);
 
 		if (transcript.isCoding()) {
 			// Check CDS overlap → coding consequence or coding_sequence_variant
@@ -421,91 +455,82 @@ public class OutputFactory {
 			if (overlapsCds) {
 				// VEP's cds_start/cds_end come from FIRST and LAST elements of cds_coords.
 				// Exonic positions (CDS or UTR) → Coordinate → defined.
-				// Intronic positions → Gap → undef → peptide cascade fails → coding_sequence_variant.
+				// Intronic positions → Gap → undef → peptide cascade fails →
+				// coding_sequence_variant.
 				//
-				// For deletions/SNPs: run TranscriptVariationAllele when BOTH endpoints are in exons.
+				// For deletions/SNPs: run TranscriptVariationAllele when BOTH endpoints are in
+				// exons.
 				// For insertions: VEP maps the insertion point to CDS even when one flanking
 				// position is in an intron. Run when EITHER endpoint is in an exon.
 				boolean startInExon = transcript.isInExon(rangeStart);
 				boolean endInExon = transcript.isInExon(rangeEnd);
-				boolean canRunCoding = isInsertion
-					? (startInExon || endInExon)
-					: (startInExon && endInExon);
+				boolean canRunCoding = isInsertion ? (startInExon || endInExon) : (startInExon && endInExon);
 
 				if (canRunCoding) {
-					codingResult = codingAnnotator.annotate(transcript, chr, variantStart, variantEnd, vepAllele, refAllele);
+					// Create TVA with BVT (Perl: TranscriptVariationAllele created per allele)
+					tva = new TranscriptVariationAllele(bvt, transcript, codingAnnotator.getReference(), chr, variantStart, variantEnd, vepAllele, refAllele);
 					// For CDS+UTR: VEP's cds_end is undef (UTR → Gap in genomic2cds),
 					// so frameshift/inframe predicates all return 0. The normal coding path
 					// (peptides, codons) also fails. VEP uses _ins_del_stop_altered fallback
 					// which operates on CDS+UTR sequence (letting UTR bases fill in after edit).
-					// TranscriptVariationAllele's stop_lost uses CDS-only which gives wrong results here.
+					// TranscriptVariationAllele's stop_lost uses CDS-only which gives wrong results
+					// here.
 					// Null out and let the fallback handle stop/start determination.
-					if (codingResult != null && (overlaps5utr || overlaps3utr)) {
+					if (tva.getConsequence() != null && (overlaps5utr || overlaps3utr)) {
 						// Keep only start_lost from TranscriptVariationAllele (5'UTR case)
-						String cons = codingResult.getConsequence();
-						List<String> kept = new ArrayList<>();
+						String cons = tva.getConsequence();
+						boolean hasStartLost = false;
 						for (String term : cons.split("&")) {
 							if (term.equals("start_lost")) {
-								kept.add(term);
+								hasStartLost = true;
+								break;
 							}
 						}
-						if (kept.isEmpty()) {
-							codingResult = null;
-						} else {
-							codingResult.setConsequence(String.join("&", kept));
+						if (!hasStartLost) {
+							tva = null;
 						}
 					}
 				}
-				if (codingResult != null) {
-					for (String term : codingResult.getConsequence().split("&")) {
+				// VEP OutputFactory.pm line 1685-1689: format_coords(cds_start, cds_end)
+				// Always populate from BVT (matches Perl: $tv->cds_start owns positions),
+				// regardless of whether TVA inline consequence is kept.
+				if (bvt != null) {
+					int cdsS = bvt.cdsStart();
+					int cdsE = bvt.cdsEnd();
+					if (cdsS > 0 || cdsE > 0) {
+						entry.setCdsPosition(formatCoords(cdsS, cdsE));
+					}
+					int protS = bvt.translationStart();
+					int protE = bvt.translationEnd();
+					if (protS > 0 || protE > 0) {
+						entry.setProteinPosition(formatCoords(protS, protE));
+					}
+					int cdnaS = bvt.cdnaStart();
+					int cdnaE = bvt.cdnaEnd();
+					if (cdnaS > 0 || cdnaE > 0) {
+						entry.setCdnaPosition(formatCoords(cdnaS, cdnaE));
+					}
+				}
+				if (tva != null && tva.getConsequence() != null) {
+					for (String term : tva.getConsequence().split("&")) {
+						// For CDS+UTR overlap, only keep start_lost
+						if ((overlaps5utr || overlaps3utr) && !term.equals("start_lost")) {
+							continue;
+						}
 						locationTerms.add(term);
 					}
-					if (isInsertion) {
-						// VEP format_coords(start, end): when start > end → "end-start"
-						int cdsStart = codingResult.getCdsPosition();
-						int cdsEnd = codingResult.getCdsEnd();
-						if (cdsEnd == 0) cdsEnd = cdsStart - 1; // fallback
-						entry.setCdsPosition(formatCoords(cdsStart, cdsEnd));
-						int protStart = (cdsStart - 1) / 3 + 1;
-						int protEnd = (cdsEnd - 1) / 3 + 1;
-						entry.setProteinPosition(formatCoords(protStart, protEnd));
-						int cdnaStart = codingResult.getCdnaPosition();
-						int cdnaEnd = codingResult.getCdnaEnd();
-						if (cdnaEnd == 0 && cdnaStart > 0) cdnaEnd = cdnaStart - 1;
-						if (cdnaStart > 0) {
-							entry.setCdnaPosition(formatCoords(cdnaStart, cdnaEnd));
-						}
-					} else {
-						// VEP format_coords for all variants including deletions
-						int cdsS = codingResult.getCdsPosition();
-						int cdsE = codingResult.getCdsEnd();
-						entry.setCdsPosition(cdsE > 0 ? formatCoords(cdsS, cdsE) : String.valueOf(cdsS));
-						int protS = codingResult.getProteinPosition();
-						int protE = cdsE > 0 ? (cdsE - 1) / 3 + 1 : protS;
-						entry.setProteinPosition(formatCoords(protS, protE));
-						if (codingResult.getCdnaPosition() > 0) {
-							int cdnaS = codingResult.getCdnaPosition();
-							if (cdsE > 0 && cdsE != cdsS) {
-								// VEP maps both genomic endpoints independently through genomic2cdna
-								int cdnaE = BaseTranscriptVariation.genomicToCdna(transcript, rangeEnd);
-								if (cdnaE <= 0) cdnaE = cdnaS + (cdsE - cdsS); // fallback
-								entry.setCdnaPosition(formatCoords(Math.min(cdnaS, cdnaE), Math.max(cdnaS, cdnaE)));
-							} else {
-								entry.setCdnaPosition(String.valueOf(cdnaS));
-							}
-						}
+					if (tva.getAminoAcids() != null) {
+						entry.setAminoAcids(tva.getAminoAcids());
 					}
-					if (codingResult.getAminoAcids() != null) {
-						entry.setAminoAcids(codingResult.getAminoAcids());
-					}
-					if (codingResult.getCodons() != null) {
-						entry.setCodons(codingResult.getCodons());
+					if (tva.getCodons() != null) {
+						entry.setCodons(tva.getCodons());
 					}
 				} else {
 					// VEP _ins_del_stop_altered fallback (VariationEffect.pm line 1292-1344):
 					// When normal coding annotation fails (cds_end undef → peptides undef),
 					// VEP checks if the deletion alters the stop codon by building CDS+3'UTR
-					// and applying the edit. Guards (line 1312): cdna_start && cdna_end && cds_start
+					// and applying the edit. Guards (line 1312): cdna_start && cdna_end &&
+					// cds_start
 					// = both endpoints in exons AND range overlaps CDS.
 					boolean fallbackFired = false;
 					if (overlaps3utr && startInExon && endInExon) {
@@ -538,11 +563,11 @@ public class OutputFactory {
 			}
 
 			// VEP start_retained_variant (line 936-948): evaluated independently.
-			// Fires when indel overlaps start codon AND _ins_del_start_altered returns false.
-			// Can coexist with start_lost (via peptide path) when ATG preserved but frame shifts.
-			if (overlaps5utr && overlapsCds && !isInsertion
-					&& transcript.isInExon(rangeStart) && transcript.isInExon(rangeEnd)
-					&& !codingAnnotator.isStartAltered(transcript, chr, variantStart, variantEnd)) {
+			// Fires when indel overlaps start codon AND _ins_del_start_altered returns
+			// false.
+			// Can coexist with start_lost (via peptide path) when ATG preserved but frame
+			// shifts.
+			if (overlaps5utr && overlapsCds && !isInsertion && transcript.isInExon(rangeStart) && transcript.isInExon(rangeEnd) && !codingAnnotator.isStartAltered(transcript, chr, variantStart, variantEnd)) {
 				locationTerms.add("start_retained_variant");
 			}
 
@@ -570,9 +595,11 @@ public class OutputFactory {
 			locationTerms.add("intron_variant");
 		}
 
-		// If no location terms and no splice terms, use VEP's DEFAULT_OVERLAP_CONSEQUENCE
+		// If no location terms and no splice terms, use VEP's
+		// DEFAULT_OVERLAP_CONSEQUENCE
 		// VEP Constants.pm: DEFAULT_OVERLAP_CONSEQUENCE = intergenic_variant
-		// This happens when a variant is within transcript bounds but outside any specific region
+		// This happens when a variant is within transcript bounds but outside any
+		// specific region
 		if (locationTerms.isEmpty() && spliceTerms.isEmpty()) {
 			locationTerms.add("intergenic_variant");
 		}
@@ -582,15 +609,20 @@ public class OutputFactory {
 		allTerms.addAll(spliceTerms);
 		allTerms.addAll(locationTerms);
 
-		// For non-coding intron: splice terms replace intron_variant base but intron_variant stays
-		// For coding: splice_donor/acceptor can coexist with coding_sequence_variant and intron_variant
+		// For non-coding intron: splice terms replace intron_variant base but
+		// intron_variant stays
+		// For coding: splice_donor/acceptor can coexist with coding_sequence_variant
+		// and intron_variant
 		// VEP just collects all matching predicates, so we just combine and sort
 
-		// Handle special case: if we have splice_donor or splice_acceptor but no intron or location terms,
-		// the splice is the only consequence (e.g., SNP at +1/+2 without intron interior overlap)
+		// Handle special case: if we have splice_donor or splice_acceptor but no intron
+		// or location terms,
+		// the splice is the only consequence (e.g., SNP at +1/+2 without intron
+		// interior overlap)
 		// But if we have intron_variant separately, it stays
 
-		// For non-coding transcript: if we have splice terms and the variant is in an intron,
+		// For non-coding transcript: if we have splice terms and the variant is in an
+		// intron,
 		// add non_coding_transcript_variant if not already present and no exon overlap
 		if (!transcript.isCoding() && !spliceTerms.isEmpty() && !locationTerms.contains("non_coding_transcript_exon_variant")) {
 			if (isIntronic || isInAnyIntron(transcript, rangeStart, rangeEnd)) {
@@ -601,25 +633,33 @@ public class OutputFactory {
 		}
 
 		List<String> sortedTerms = new ArrayList<>(allTerms);
-		sortedTerms.sort((a, b) -> Integer.compare(
-			ConsequenceSeverity.getRank(a), ConsequenceSeverity.getRank(b)));
+		sortedTerms.sort((a, b) -> Integer.compare(ConsequenceSeverity.getRank(a), ConsequenceSeverity.getRank(b)));
 
 		String consequence = String.join("&", sortedTerms);
 		entry.setConsequence(consequence);
 		entry.setImpact(ConsequenceSeverity.getImpact(consequence));
 
-		// Exon/intron numbers (use start position for lookup)
-		int checkPos = isInsertion ? variantEnd : variantStart;
-		String exonNum = transcript.getExonNumber(checkPos);
+		// Exon/intron numbers — VEP iterates ALL overlapping exons/introns and
+		// produces a range like "7-8/8". Use BVT.exonNumber/intronNumber which does
+		// this iteration. Fall back to single-position lookup when BVT not available.
+		String exonNum, intronNum;
+		if (bvt != null) {
+			exonNum = bvt.exonNumber();
+			intronNum = bvt.intronNumber();
+		} else {
+			int checkPos = isInsertion ? variantEnd : variantStart;
+			exonNum = transcript.getExonNumber(checkPos);
+			intronNum = transcript.getIntronNumber(checkPos);
+		}
 		if (exonNum != null) {
 			entry.setExon(exonNum);
 		}
-		String intronNum = transcript.getIntronNumber(checkPos);
 		if (intronNum != null) {
 			entry.setIntron(intronNum);
 		}
 
-		// cDNA position for non-coding exon variants and UTR variants without coding result
+		// cDNA position for non-coding exon variants and UTR variants without coding
+		// result
 		// VEP populates cdna_position for ANY variant in an exon (within_cdna)
 		if (entry.getCdnaPosition() == null && overlapsExon && !consequence.contains("intergenic_variant")) {
 			int cdnaPos = BaseTranscriptVariation.genomicToCdna(transcript, isInsertion ? variantEnd : variantStart);
@@ -644,16 +684,27 @@ public class OutputFactory {
 			}
 		}
 
-		// HGVS — VEP does not generate HGVSc for intergenic entries
-		if (!consequence.contains("intergenic_variant")) {
+		// HGVS — VEP does not generate HGVSc for intergenic entries.
+		// Also suppress HGVSc when the variant partially extends past a CDS/cDNA
+		// boundary: Perl's hgvs_transcript can't produce a notation when one
+		// endpoint maps to a Gap. Detected via BVT cdna_start/end one being undef.
+		boolean partialBoundary = bvt != null
+			&& ((bvt.cdnaStart() <= 0) != (bvt.cdnaEnd() <= 0));
+		if (!consequence.contains("intergenic_variant") && !partialBoundary) {
 			// For insertions, VEP uses cds_start (higher value) for HGVSc position.
 			// For minus-strand insertions, cdsStart < cdsEnd, so use max.
-			int cdsPos = codingResult != null
-				? (isInsertion ? Math.max(codingResult.getCdsPosition(), codingResult.getCdsEnd())
-				              : codingResult.getCdsPosition())
-				: -1;
-			String hgvsc = codingAnnotator.hgvsTranscript(transcript, chr, variantStart, variantEnd,
-				vepAllele, refAllele, cdsPos, transcript.isCoding());
+			// Prefer BVT coordinates when available (matches Perl: BVT owns positions).
+			int cdsPos;
+			if (bvt != null && (bvt.cdsStart() > 0 || bvt.cdsEnd() > 0)) {
+				cdsPos = isInsertion ? Math.max(bvt.cdsStart(), bvt.cdsEnd()) : bvt.cdsStart();
+			} else if (tva != null) {
+				cdsPos = isInsertion ? Math.max(tva.getCdsPosition(), tva.getCdsEnd()) : tva.getCdsPosition();
+			} else {
+				cdsPos = -1;
+			}
+			// Use tva for HGVSc if available, otherwise fall back to shared codingAnnotator
+			TranscriptVariationAllele hgvsAnnotator = tva != null ? tva : codingAnnotator;
+			String hgvsc = hgvsAnnotator.hgvsTranscript(transcript, chr, variantStart, variantEnd, vepAllele, refAllele, cdsPos, transcript.isCoding());
 			if (hgvsc != null) {
 				entry.setHgvsc(hgvsc);
 			}
@@ -664,18 +715,18 @@ public class OutputFactory {
 			entry.setHgvsg(hgvsg);
 		}
 
-		if (codingResult != null) {
+		if (tva != null) {
 			// VEP hgvs_protein() — use notation-based formatter
-			TranscriptVariationAllele.HgvsNotation n = codingResult.getHgvsNotation();
+			TranscriptVariationAllele.HgvsNotation n = tva.getHgvsNotation();
 			String hgvsp = null;
 			if (n != null && n.type != null) {
-				String csq = codingResult.getConsequence();
+				// Use entry consequence (combined terms) for stop/start flags
+				String csq = entry.getConsequence();
 				boolean isStopLost = csq != null && csq.contains("stop_lost");
 				boolean isStartLost = csq != null && csq.contains("start_lost");
-				hgvsp = codingAnnotator.vepGetHgvsProteinFormat(n, transcript.getProteinId(),
-					isStopLost, isStartLost,
-					codingResult.getAltCdsSequence(), codingResult.getCdsSequence());
+				hgvsp = tva.vepGetHgvsProteinFormat(n, transcript.getProteinId(), isStopLost, isStartLost, tva.getAltCdsSequence(), tva.getCdsSequence());
 			}
+			Trace.log("TVA.hgvs_protein", "tr=%s allele=%s result=%s reason=%s", transcript.getTranscriptId(), vepAllele, Trace.undef(hgvsp), n == null ? "null_notation" : (n.type == null ? "null_type" : "ok"));
 			if (hgvsp != null) {
 				entry.setHgvsp(hgvsp);
 			}
@@ -684,22 +735,23 @@ public class OutputFactory {
 		return entry;
 	}
 
-	/** Check if the variant range overlaps any CDS segment */
-	private boolean overlapsAnyCds(TranscriptModel transcript, int rangeStart, int rangeEnd,
-			boolean isInsertion, int variantStart, int variantEnd) {
+	/**
+	 * Check if the variant overlaps any CDS segment using VEP's overlap formula:
+	 *   (bvf_end >= feat_start) AND (bvf_start <= feat_end).
+	 * For insertions (variantStart > variantEnd), this correctly excludes
+	 * boundary insertions where the inserted bases fall outside the feature.
+	 */
+	private boolean overlapsAnyCds(TranscriptModel transcript, int rangeStart, int rangeEnd, boolean isInsertion, int variantStart, int variantEnd) {
 		for (CdsSegment cds : transcript.getCdsSegments()) {
-			if (rangeStart <= cds.getEnd() && rangeEnd >= cds.getStart()) {
+			// VEP overlap: (bvf_end >= feat_start) AND (bvf_start <= feat_end)
+			if (variantEnd >= cds.getStart() && variantStart <= cds.getEnd()) {
 				return true;
 			}
-		}
-		// For insertions, also check the flanking positions
-		if (isInsertion) {
-			return transcript.isInCds(variantEnd) || transcript.isInCds(variantStart);
 		}
 		return false;
 	}
 
-	/** Check if the variant range overlaps any exon */
+	/** Check if the variant range overlaps any exon (for deletions/SNPs). */
 	private boolean overlapsAnyExon(TranscriptModel transcript, int rangeStart, int rangeEnd) {
 		for (ExonModel exon : transcript.getExons()) {
 			if (rangeStart <= exon.getEnd() && rangeEnd >= exon.getStart()) {
@@ -710,9 +762,10 @@ public class OutputFactory {
 	}
 
 	/**
-	 * VEP-compatible exon overlap for insertions (VariationEffect.pm non_coding_exon_variant line 505).
-	 * VEP uses overlap(bvf.start, bvf.end, exon.start, exon.end) where insertions have start > end.
-	 * This means an insertion at an exon boundary does NOT overlap the exon.
+	 * VEP-compatible exon overlap for insertions (VariationEffect.pm
+	 * non_coding_exon_variant line 505). VEP uses overlap(bvf.start, bvf.end,
+	 * exon.start, exon.end) where insertions have start > end. This means an
+	 * insertion at an exon boundary does NOT overlap the exon.
 	 */
 	private boolean overlapsAnyExonVep(TranscriptModel transcript, int vepStart, int vepEnd) {
 		for (ExonModel exon : transcript.getExons()) {
@@ -724,84 +777,116 @@ public class OutputFactory {
 	}
 
 	/**
-	 * VEP within_5_prime_utr (VariationEffect.pm line 722-734):
-	 *   _before_coding: overlap(varStart, varEnd, transcript_start, cds_start-1)
-	 *   AND within_cdna: variant overlaps any exon
-	 * On - strand: uses _after_coding (overlap with cds_end+1 to transcript_end)
+	 * VEP within_5_prime_utr (VariationEffect.pm line 722-734): _before_coding:
+	 * overlap(varStart, varEnd, transcript_start, cds_start-1) AND within_cdna:
+	 * variant overlaps any exon On - strand: uses _after_coding (overlap with
+	 * cds_end+1 to transcript_end)
 	 */
 	private boolean overlaps5PrimeUtr(TranscriptModel transcript, int rangeStart, int rangeEnd) {
 		return overlaps5PrimeUtr(transcript, rangeStart, rangeEnd, false, 0, 0);
 	}
 
-	private boolean overlaps5PrimeUtr(TranscriptModel transcript, int rangeStart, int rangeEnd,
-			boolean isInsertion, int variantStart, int variantEnd) {
-		if (!transcript.isCoding()) return false;
+	private boolean overlaps5PrimeUtr(TranscriptModel transcript, int rangeStart, int rangeEnd, boolean isInsertion, int variantStart, int variantEnd) {
+		if (!transcript.isCoding()) {
+			return false;
+		}
 
 		boolean beforeCoding;
 		if (transcript.isPositiveStrand()) {
 			// _before_coding: overlap(var_s, var_e, tran_start, cds_start - 1)
-			beforeCoding = rangeStart <= transcript.getCdsStart() - 1
-				&& rangeEnd >= transcript.getStart();
+			beforeCoding = rangeStart <= transcript.getCdsStart() - 1 && rangeEnd >= transcript.getStart();
 			// VEP _before_coding line 698-699: insertion at CDS start returns true
 			if (!beforeCoding && isInsertion && variantStart == transcript.getCdsStart()) {
 				beforeCoding = true;
 			}
 		} else {
 			// _after_coding: overlap(var_s, var_e, cds_end + 1, tran_end)
-			beforeCoding = rangeStart <= transcript.getEnd()
-				&& rangeEnd >= transcript.getCdsEnd() + 1;
+			beforeCoding = rangeStart <= transcript.getEnd() && rangeEnd >= transcript.getCdsEnd() + 1;
 			if (!beforeCoding && isInsertion && variantEnd == transcript.getCdsEnd()) {
 				beforeCoding = true;
 			}
 		}
 
-		// within_cdna: variant overlaps any exon (not just UTR exons)
-		return beforeCoding && overlapsAnyExon(transcript, rangeStart, rangeEnd);
+		// within_cdna: variant overlaps any exon. For insertions use VEP overlap
+		// formula so boundary insertions don't falsely match.
+		boolean overlapsExonCheck;
+		if (isInsertion) {
+			overlapsExonCheck = overlapsAnyExonVep(transcript, variantStart, variantEnd);
+		} else {
+			overlapsExonCheck = overlapsAnyExon(transcript, rangeStart, rangeEnd);
+		}
+		return beforeCoding && overlapsExonCheck;
 	}
 
 	/**
-	 * VEP within_3_prime_utr (VariationEffect.pm line 736-748):
-	 *   _after_coding: overlap(varStart, varEnd, cds_end+1, transcript_end)
-	 *   AND within_cdna: variant overlaps any exon
-	 * On - strand: uses _before_coding (overlap with transcript_start to cds_start-1)
+	 * VEP within_3_prime_utr (VariationEffect.pm line 736-748): _after_coding:
+	 * overlap(varStart, varEnd, cds_end+1, transcript_end) AND within_cdna: variant
+	 * overlaps any exon On - strand: uses _before_coding (overlap with
+	 * transcript_start to cds_start-1)
 	 */
-	/** VEP format_coords (Utils.pm line 141): start > end → "end-start", equal → "start" */
+	/**
+	 * VEP format_coords (Utils.pm line 141): start > end → "end-start", equal →
+	 * "start"
+	 */
+	/**
+	 * VEP Utils.pm format_coords (line 141-166).
+	 * undef → "?". Both undef → "-". Otherwise normal range/point format.
+	 * In our Java port, -1 is the "undef" sentinel for unset coordinates.
+	 */
 	private String formatCoords(int start, int end) {
-		if (start > end) return end + "-" + start;
-		if (start == end) return String.valueOf(start);
-		return start + "-" + end;
+		boolean hasStart = start > 0;
+		boolean hasEnd = end > 0;
+		if (hasStart && hasEnd) {
+			if (start > end) return end + "-" + start;
+			if (start == end) return String.valueOf(start);
+			return start + "-" + end;
+		}
+		if (hasStart) return start + "-?";
+		if (hasEnd) return "?-" + end;
+		return "-";
 	}
 
 	private boolean overlaps3PrimeUtr(TranscriptModel transcript, int rangeStart, int rangeEnd) {
 		return overlaps3PrimeUtr(transcript, rangeStart, rangeEnd, false, 0, 0);
 	}
 
-	private boolean overlaps3PrimeUtr(TranscriptModel transcript, int rangeStart, int rangeEnd,
-			boolean isInsertion, int variantStart, int variantEnd) {
-		if (!transcript.isCoding()) return false;
+	private boolean overlaps3PrimeUtr(TranscriptModel transcript, int rangeStart, int rangeEnd, boolean isInsertion, int variantStart, int variantEnd) {
+		if (!transcript.isCoding()) {
+			return false;
+		}
 
 		boolean afterCoding;
 		if (transcript.isPositiveStrand()) {
 			// _after_coding: overlap(var_s, var_e, cds_end + 1, tran_end)
-			afterCoding = rangeStart <= transcript.getEnd()
-				&& rangeEnd >= transcript.getCdsEnd() + 1;
+			afterCoding = rangeStart <= transcript.getEnd() && rangeEnd >= transcript.getCdsEnd() + 1;
 			// VEP _after_coding line 715-716: insertion at CDS end returns true
 			if (!afterCoding && isInsertion && variantEnd == transcript.getCdsEnd()) {
 				afterCoding = true;
 			}
 		} else {
 			// _before_coding: overlap(var_s, var_e, tran_start, cds_start - 1)
-			afterCoding = rangeStart <= transcript.getCdsStart() - 1
-				&& rangeEnd >= transcript.getStart();
+			afterCoding = rangeStart <= transcript.getCdsStart() - 1 && rangeEnd >= transcript.getStart();
 			if (!afterCoding && isInsertion && variantStart == transcript.getCdsStart()) {
 				afterCoding = true;
 			}
 		}
 
-		return afterCoding && overlapsAnyExon(transcript, rangeStart, rangeEnd);
+		// Also must be within_cdna (overlap an exon). For insertions use VEP's
+		// overlap formula (bvf_end >= feat_start AND bvf_start <= feat_end) so
+		// boundary insertions don't falsely match.
+		boolean overlapsExonCheck;
+		if (isInsertion) {
+			overlapsExonCheck = overlapsAnyExonVep(transcript, variantStart, variantEnd);
+		} else {
+			overlapsExonCheck = overlapsAnyExon(transcript, rangeStart, rangeEnd);
+		}
+		return afterCoding && overlapsExonCheck;
 	}
 
-	/** Check if any part of the range falls within any intron (full intron, not just interior) */
+	/**
+	 * Check if any part of the range falls within any intron (full intron, not just
+	 * interior)
+	 */
 	private boolean isInAnyIntron(TranscriptModel transcript, int rangeStart, int rangeEnd) {
 		for (int[] intron : transcript.getIntronIntervals()) {
 			if (rangeStart <= intron[1] && rangeEnd >= intron[0]) {
@@ -812,13 +897,14 @@ public class OutputFactory {
 	}
 
 	/**
-	 * VEP partial_codon (VariationEffect.pm line 1389-1414):
-	 * Returns true if the variant falls in an incomplete terminal codon
-	 * (CDS length not divisible by 3, variant in the last 1-2 bases).
+	 * VEP partial_codon (VariationEffect.pm line 1389-1414): Returns true if the
+	 * variant falls in an incomplete terminal codon (CDS length not divisible by 3,
+	 * variant in the last 1-2 bases).
 	 */
-	private boolean isPartialCodon(TranscriptModel transcript, int rangeStart, int rangeEnd,
-			boolean isInsertion, int variantStart) {
-		if (!transcript.isCoding()) return false;
+	private boolean isPartialCodon(TranscriptModel transcript, int rangeStart, int rangeEnd, boolean isInsertion, int variantStart) {
+		if (!transcript.isCoding()) {
+			return false;
+		}
 
 		// Compute CDS length
 		int cdsLength = 0;
@@ -826,21 +912,157 @@ public class OutputFactory {
 			cdsLength += seg.getLength();
 		}
 		int remainder = cdsLength % 3;
-		if (remainder == 0) return false; // CDS is complete, no partial codon
+		if (remainder == 0) {
+			return false; // CDS is complete, no partial codon
+		}
 
 		// VEP: codon_cds_start = (translation_start * 3) - 2
 		// translation_start = protein position = (cds_start - 1) / 3 + 1
-		// We need the variant's CDS position to check if it falls in the last partial codon
+		// We need the variant's CDS position to check if it falls in the last partial
+		// codon
 		int cdsPos = BaseTranscriptVariation.genomicToCds(transcript, isInsertion ? variantStart - 1 : rangeStart);
 		if (cdsPos < 0) {
 			// Try the end position
 			cdsPos = BaseTranscriptVariation.genomicToCds(transcript, rangeEnd);
 		}
-		if (cdsPos < 0) return false;
+		if (cdsPos < 0) {
+			return false;
+		}
 
 		// VEP: last_codon_length = cds_length - (codon_cds_start - 1)
 		int codonCdsStart = ((cdsPos - 1) / 3) * 3 + 1;
 		int lastCodonLength = cdsLength - (codonCdsStart - 1);
 		return lastCodonLength < 3 && lastCodonLength > 0;
+	}
+
+	/**
+	 * Build a VariationEffect.Context from BVT (coordinates) + TVA (peptide/codon)
+	 * + transcript geometry.
+	 */
+	private Context buildContext(TranscriptModel transcript, int variantStart, int variantEnd, String vepAllele, String refAllele, BaseTranscriptVariation bvt, TranscriptVariationAllele tva, SpliceResult spliceResult, boolean overlapsExon, boolean overlapsCds) {
+		Context ctx = new Context();
+		// Raw alleles
+		ctx.refAllele = "-".equals(refAllele) ? "" : refAllele;
+		ctx.altAllele = "-".equals(vepAllele) ? "" : vepAllele;
+		// Transcript geometry
+		ctx.positiveStrand = transcript.isPositiveStrand();
+		ctx.trStart = transcript.getStart();
+		ctx.trEnd = transcript.getEnd();
+		ctx.vfStart = variantStart;
+		ctx.vfEnd = variantEnd;
+		List<int[]> intronList = transcript.getIntronIntervals();
+		ctx.introns = intronList.toArray(new int[0][]);
+		// Coding region
+		if (transcript.isCoding()) {
+			ctx.codingRegionStart = transcript.getCdsStart();
+			ctx.codingRegionEnd = transcript.getCdsEnd();
+			ctx.cdnaCodingStart = transcript.getCdnaCodingStart();
+			int cdsLength = 0;
+			for (CdsSegment seg : transcript.getCdsSegments()) {
+				cdsLength += seg.getLength();
+			}
+			ctx.cdnaCodingEnd = ctx.cdnaCodingStart > 0 ? ctx.cdnaCodingStart + cdsLength - 1 : 0;
+			ctx.cdsStartNF = transcript.isCdsStartNF();
+			ctx.cdsEndNF = transcript.isCdsEndNF();
+			ctx.codonTable = transcript.getCodonTable();
+		}
+		// Splice
+		ctx.spliceTerms = spliceResult != null ? spliceResult.getSpliceTerms() : new ArrayList<>();
+		ctx.intronic = spliceResult != null && spliceResult.isIntronic();
+		// Flags
+		ctx.withinCdna = overlapsExon;
+		ctx.withinCds = overlapsCds;
+		ctx.increaseLength = ctx.altAllele.length() > ctx.refAllele.length();
+		ctx.decreaseLength = ctx.altAllele.length() < ctx.refAllele.length();
+		ctx.alleleLen = ctx.altAllele.length();
+		ctx.featureSeq = BaseTranscriptVariation.featureSeq(vepAllele, true, transcript.isPositiveStrand());
+		// Coordinates from BVT
+		if (bvt != null) {
+			ctx.cdsStart = bvt.cdsStart();
+			ctx.cdsEnd = bvt.cdsEnd();
+			ctx.cdnaStart = bvt.cdnaStart();
+			ctx.cdnaEnd = bvt.cdnaEnd();
+			ctx.translationStart = bvt.translationStart();
+		}
+		// Peptide/codon from TVA
+		if (tva != null) {
+			ctx.refCodon = tva.getRawRefCodon();
+			ctx.altCodon = tva.getRawAltCodon();
+			// Parse peptides from amino acids string
+			String aa = tva.getAminoAcids();
+			if (aa != null && aa.contains("/")) {
+				String[] parts = aa.split("/", -1);
+				ctx.refPep = "-".equals(parts[0]) ? "" : parts[0];
+				ctx.altPep = parts.length > 1 ? ("-".equals(parts[1]) ? "" : parts[1]) : "";
+			} else if (tva.getRefAA() != 0) {
+				ctx.refPep = String.valueOf(tva.getRefAA());
+				ctx.altPep = String.valueOf(tva.getAltAA());
+			}
+			ctx.translateableSeq = tva.getCdsSequence();
+		}
+		// UTR sequences
+		if (transcript.isCoding()) {
+			if (ctx.translateableSeq == null) {
+				ctx.translateableSeq = BaseTranscriptVariation.translateableSeq(transcript, codingAnnotator.getReference());
+			}
+			ctx.fivePrimeUtr = BaseTranscriptVariation.fivePrimeUtr(transcript, codingAnnotator.getReference());
+			ctx.threePrimeUtr = BaseTranscriptVariation.threePrimeUtr(transcript, codingAnnotator.getReference());
+		}
+		return ctx;
+	}
+
+	/**
+	 * Evaluate coding consequence predicates from VariationEffect.Context. Returns
+	 * SO terms for all matching predicates.
+	 */
+	private List<String> evaluateCodingConsequences(Context ctx) {
+		List<String> terms = new ArrayList<>();
+		if (!ctx.withinCds) {
+			return terms;
+		}
+		// Evaluate ALL predicates independently (Perl OverlapConsequence evaluation)
+		if (VariationEffect.frameshift(ctx)) {
+			terms.add("frameshift_variant");
+		}
+		if (VariationEffect.stopGained(ctx)) {
+			terms.add("stop_gained");
+		}
+		if (VariationEffect.stopLost(ctx)) {
+			terms.add("stop_lost");
+		}
+		if (VariationEffect.startLost(ctx)) {
+			terms.add("start_lost");
+		}
+		if (VariationEffect.inframeInsertion(ctx)) {
+			terms.add("inframe_insertion");
+		}
+		if (VariationEffect.inframeDeletion(ctx)) {
+			terms.add("inframe_deletion");
+		}
+		if (VariationEffect.missenseVariant(ctx)) {
+			terms.add("missense_variant");
+		}
+		if (VariationEffect.proteinAlteringVariant(ctx)) {
+			terms.add("protein_altering_variant");
+		}
+		if (VariationEffect.partialCodon(ctx)) {
+			terms.add("incomplete_terminal_codon_variant");
+		}
+		if (VariationEffect.startRetainedVariant(ctx)) {
+			terms.add("start_retained_variant");
+		}
+		if (VariationEffect.stopRetained(ctx)) {
+			terms.add("stop_retained_variant");
+		}
+		if (VariationEffect.synonymousVariant(ctx)) {
+			terms.add("synonymous_variant");
+		}
+		if (VariationEffect.codingUnknown(ctx)) {
+			terms.add("coding_sequence_variant");
+		}
+		if (terms.isEmpty()) {
+			terms.add("coding_sequence_variant");
+		}
+		return terms;
 	}
 }

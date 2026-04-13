@@ -27,7 +27,10 @@ public class TranscriptModel implements Locatable {
 	private String source;
 
 	private String peptideMd5;
+	/** True if `name` was populated from the TMAP file (not GFF Name attribute). */
+	private boolean nameFromTmap;
 	private boolean cdsStartNF;
+	private boolean cdsEndNF;
 	private int codonTable = 1; // 1=standard, 2=vertebrate mitochondrial
 	private int loadOrder; // GFF3 file order for stable transcript sorting
 
@@ -43,8 +46,13 @@ public class TranscriptModel implements Locatable {
 	public void sortAndIndex() {
 		Collections.sort(exons);
 		Collections.sort(cdsSegments);
-		for (int i = 0; i < exons.size(); i++) {
-			exons.get(i).setOrdinal(i + 1);
+		// Ordinal numbering follows transcription order (matches Perl VEP):
+		//   + strand: ascending genomic order (ordinal 1 = lowest start)
+		//   - strand: descending genomic order (ordinal 1 = highest end = 5' first)
+		int n = exons.size();
+		for (int i = 0; i < n; i++) {
+			int ordinal = positiveStrand ? i + 1 : n - i;
+			exons.get(i).setOrdinal(ordinal);
 		}
 		intronIntervals = null;
 	}
@@ -70,11 +78,8 @@ public class TranscriptModel implements Locatable {
 	public String getExonNumber(int pos) {
 		for (ExonModel exon : exons) {
 			if (exon.contains(pos)) {
-				if (positiveStrand) {
-					return exon.getOrdinal() + "/" + exons.size();
-				} else {
-					return (exons.size() - exon.getOrdinal() + 1) + "/" + exons.size();
-				}
+				// Ordinal is already in transcription order (set by sortAndIndex).
+				return exon.getOrdinal() + "/" + exons.size();
 			}
 		}
 		return null;
@@ -82,13 +87,12 @@ public class TranscriptModel implements Locatable {
 
 	public String getIntronNumber(int pos) {
 		List<int[]> introns = getIntronIntervals();
+		int total = introns.size();
 		for (int i = 0; i < introns.size(); i++) {
 			if (pos >= introns.get(i)[0] && pos <= introns.get(i)[1]) {
-				if (positiveStrand) {
-					return (i + 1) + "/" + introns.size();
-				} else {
-					return (introns.size() - i) + "/" + introns.size();
-				}
+				// Introns stored in genomic order; reverse for minus strand transcription order.
+				int ordinal = positiveStrand ? i + 1 : total - i;
+				return ordinal + "/" + total;
 			}
 		}
 		return null;

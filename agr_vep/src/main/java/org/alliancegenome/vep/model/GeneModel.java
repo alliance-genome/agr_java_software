@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.alliancegenome.vep.debug.Trace;
+
 import htsjdk.samtools.util.Interval;
 import htsjdk.samtools.util.OverlapDetector;
 import lombok.extern.log4j.Log4j2;
@@ -60,12 +62,24 @@ public class GeneModel {
 		if (detector == null) {
 			return List.of();
 		}
-		// For insertions, start > end. OverlapDetector needs start <= end.
+		// For insertions, start > end. OverlapDetector needs start <= end,
+		// so query with normalized range, then re-filter using VEP's overlap formula
+		// (overlap = end >= featStart AND start <= featEnd).
+		// For insertions (start > end), this excludes transcripts where the insertion
+		// boundary is exactly at the transcript edge (matches Perl behavior).
 		int queryStart = Math.min(start, end);
 		int queryEnd = Math.max(start, end);
 		Interval query = new Interval(chr, queryStart, queryEnd);
 		Set<TranscriptModel> overlaps = detector.getOverlaps(query);
-		return new ArrayList<>(overlaps);
+		List<TranscriptModel> result = new ArrayList<>();
+		for (TranscriptModel tm : overlaps) {
+			// VEP overlap (VariationEffect.pm line 80-84):
+			//   ($f1_end >= $f2_start) and ($f1_start <= $f2_end)
+			if (end >= tm.getStart() && start <= tm.getEnd()) {
+				result.add(tm);
+			}
+		}
+		return result;
 	}
 
 	public String getGeneSymbol(String geneId) {
@@ -116,17 +130,35 @@ public class GeneModel {
 			log.warn("Failed to load transcript name map: {}", e.getMessage());
 			return;
 		}
-		// Apply to all transcripts
+		// Apply to all transcripts. Mark nameFromTmap so OutputFactory knows the
+		// source (transcript_name is only emitted when the name came from TMAP,
+		// matching Perl's ProtFuncTranscriptNameHTP plugin which queries the DB).
 		int applied = 0;
+		int visited = 0;
+		int sampleMiss = 0;
+		int sampleHit = 0;
 		for (OverlapDetector<TranscriptModel> detector : perChromosomeDetectors.values()) {
 			for (TranscriptModel tm : detector.getAll()) {
+				visited++;
 				String override = nameMap.get(tm.getTranscriptId());
-				if (override != null && !override.equals(tm.getName())) {
+				if (override != null) {
 					tm.setName(override);
+					tm.setNameFromTmap(true);
 					applied++;
+					if (sampleHit < 3) {
+						Trace.log("TMAP.hit",
+							"tid=%s name=%s", tm.getTranscriptId(), override);
+						sampleHit++;
+					}
+				} else if (sampleMiss < 5) {
+					Trace.log("TMAP.miss",
+						"tid=%s gff_name=%s", tm.getTranscriptId(), tm.getName());
+					sampleMiss++;
 				}
 			}
 		}
+		log.info("Transcript name map: visited={} applied={} (first 3 hits + 5 misses traced if -Dvep.trace=true)",
+			visited, applied);
 		log.info("Transcript name map: {} mappings loaded, {} names overridden", lineCount, applied);
 	}
 

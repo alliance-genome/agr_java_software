@@ -42,14 +42,20 @@ public class VcfAnnotationPipeline {
 	private final String mod;
 	private final String mMapPath;
 	private final String synonymsPath;
+	private final String tmapPath;
 
 	public VcfAnnotationPipeline(String vcfPath, String gffPath, String fastaPath,
 			String bamPath, String outputPath, String mod, String mMapPath) {
-		this(vcfPath, gffPath, fastaPath, bamPath, outputPath, mod, mMapPath, null);
+		this(vcfPath, gffPath, fastaPath, bamPath, outputPath, mod, mMapPath, null, null);
 	}
 
 	public VcfAnnotationPipeline(String vcfPath, String gffPath, String fastaPath,
 			String bamPath, String outputPath, String mod, String mMapPath, String synonymsPath) {
+		this(vcfPath, gffPath, fastaPath, bamPath, outputPath, mod, mMapPath, synonymsPath, null);
+	}
+
+	public VcfAnnotationPipeline(String vcfPath, String gffPath, String fastaPath,
+			String bamPath, String outputPath, String mod, String mMapPath, String synonymsPath, String tmapPath) {
 		this.vcfPath = vcfPath;
 		this.gffPath = gffPath;
 		this.fastaPath = fastaPath;
@@ -58,6 +64,7 @@ public class VcfAnnotationPipeline {
 		this.mod = mod;
 		this.mMapPath = mMapPath;
 		this.synonymsPath = synonymsPath;
+		this.tmapPath = tmapPath;
 	}
 
 	public void run() throws Exception {
@@ -66,6 +73,9 @@ public class VcfAnnotationPipeline {
 
 		Gff3GeneModelBuilder gffBuilder = new Gff3GeneModelBuilder();
 		GeneModel geneModel = gffBuilder.build(gffPath);
+		if (tmapPath != null) {
+			geneModel.applyTranscriptNameMap(tmapPath);
+		}
 
 		try (ReferenceGenome reference = new ReferenceGenome(fastaPath)) {
 

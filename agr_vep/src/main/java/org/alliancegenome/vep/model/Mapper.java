@@ -1,15 +1,23 @@
 package org.alliancegenome.vep.model;
 
 import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+
+import org.alliancegenome.vep.debug.Trace;
 
 /**
  * Port of Bio::EnsEMBL::Mapper (1257 lines).
  * Generic coordinate mapping between two coordinate systems.
  *
- * Stores pairs of coordinates (from↔to) and maps positions between them.
+ * Stores pairs of coordinates (from/to) and maps positions between them.
  * Handles both normal mappings and insertions (start = end + 1).
+ *
+ * Uses dual-direction per-ID hash maps matching Perl's _pair_$from and _pair_$to
+ * for O(1) lookup by ID in either direction.
  */
 public class Mapper {
 
@@ -56,7 +64,7 @@ public class Mapper {
 	}
 
 	/** A coordinate pair (one from each coordinate system). */
-	private static class Pair {
+	static class Pair {
 		CoordRange from;
 		CoordRange to;
 		int ori; // relative orientation: 1 or -1
@@ -68,7 +76,7 @@ public class Mapper {
 		}
 	}
 
-	private static class CoordRange {
+	static class CoordRange {
 		String id;
 		int start;
 		int end;
@@ -82,7 +90,8 @@ public class Mapper {
 
 	private final String fromName;
 	private final String toName;
-	private final List<Pair> pairs = new ArrayList<>();
+	private final Map<String, List<Pair>> fromPairs = new HashMap<>();
+	private final Map<String, List<Pair>> toPairs = new HashMap<>();
 	private boolean sorted = false;
 
 	public Mapper(String from, String to) {
@@ -93,13 +102,18 @@ public class Mapper {
 	/**
 	 * VEP Mapper::add_map_coordinates (line 665-720).
 	 * Add a coordinate pair mapping.
+	 * The "from" side is contigId/contigStart/contigEnd,
+	 * the "to" side is chrName/chrStart/chrEnd.
 	 */
-	public void addMapCoordinates(String fromId, int fromStart, int fromEnd, int strand,
-			String toId, int toStart, int toEnd) {
-		CoordRange from = new CoordRange(fromId, fromStart, fromEnd);
-		CoordRange to = new CoordRange(toId, toStart, toEnd);
+	public void addMapCoordinates(String contigId, int contigStart, int contigEnd, int strand,
+			String chrName, int chrStart, int chrEnd) {
+		CoordRange from = new CoordRange(contigId, contigStart, contigEnd);
+		CoordRange to = new CoordRange(chrName, chrStart, chrEnd);
 		int ori = strand; // +1 or -1
-		pairs.add(new Pair(from, to, ori));
+		Pair pair = new Pair(from, to, ori);
+		// Perl line 717-718: store in both direction maps
+		fromPairs.computeIfAbsent(contigId.toUpperCase(), k -> new ArrayList<>()).add(pair);
+		toPairs.computeIfAbsent(chrName.toUpperCase(), k -> new ArrayList<>()).add(pair);
 		sorted = false;
 	}
 
@@ -115,9 +129,15 @@ public class Mapper {
 	 * @return List of Result objects (Coordinate or Gap)
 	 */
 	public List<Result> mapCoordinates(String id, int start, int end, int strand, String type) {
+		Trace.log("Mapper.map_coordinates",
+			"id=%s start=%d end=%d strand=%d type=%s from=%s to=%s",
+			id, start, end, strand, type, fromName, toName);
+
 		// VEP line 267-269: special case for insertions (start = end + 1)
 		if (start == end + 1) {
-			return mapInsert(id, start, end, strand, type);
+			List<Result> r = mapInsert(id, start, end, strand, type);
+			traceResults(r);
+			return r;
 		}
 
 		if (!sorted) sort();
@@ -173,10 +193,25 @@ public class Mapper {
 
 		// VEP line 446-448: reverse if negative strand
 		if (strand == -1) {
-			java.util.Collections.reverse(results);
+			Collections.reverse(results);
 		}
 
+		traceResults(results);
 		return results;
+	}
+
+	private static void traceResults(List<Result> results) {
+		if (!Trace.enabled()) return;
+		for (Result r : results) {
+			if (r.isCoordinate()) {
+				Trace.log("  -> Coord",
+					"id=%s start=%d end=%d strand=%d",
+					r.coordinate.id, r.coordinate.start, r.coordinate.end, r.coordinate.strand);
+			} else {
+				Trace.log("  -> Gap",
+					"start=%d end=%d", r.gap.start, r.gap.end);
+			}
+		}
 	}
 
 	/**
@@ -244,20 +279,108 @@ public class Mapper {
 		return coords;
 	}
 
+	/**
+	 * Perl line 1095-1115: look up relevant pairs by ID from the correct direction map.
+	 */
 	private List<Pair> getRelevantPairs(String id, boolean isFromTo) {
-		List<Pair> relevant = new ArrayList<>();
-		for (Pair pair : pairs) {
-			CoordRange cr = isFromTo ? pair.from : pair.to;
-			if (cr.id.equalsIgnoreCase(id)) {
-				relevant.add(pair);
-			}
-		}
-		return relevant;
+		Map<String, List<Pair>> hash = isFromTo ? fromPairs : toPairs;
+		List<Pair> pairs = hash.get(id.toUpperCase());
+		return pairs != null ? pairs : new ArrayList<>();
 	}
 
+	/**
+	 * Perl line 1095-1115: sort each map by its own coordinate system.
+	 * From-pairs sorted by from.start, to-pairs sorted by to.start.
+	 */
 	private void sort() {
-		// Sort pairs by 'from' start for both directions
-		pairs.sort(Comparator.comparingInt(p -> p.from.start));
+		for (List<Pair> list : fromPairs.values()) {
+			list.sort((a, b) -> Integer.compare(a.from.start, b.from.start));
+		}
+		for (List<Pair> list : toPairs.values()) {
+			list.sort((a, b) -> Integer.compare(a.to.start, b.to.start));
+		}
+		mergePairs();
 		sorted = true;
+	}
+
+	/**
+	 * Perl _merge_pairs (line 1118-1200).
+	 * Merge adjacent pairs with same from.id, same ori, and contiguous to coordinates.
+	 * Also handles duplicates (same to.start, same from.id, same from.start).
+	 */
+	private void mergePairs() {
+		for (Map.Entry<String, List<Pair>> entry : toPairs.entrySet()) {
+			List<Pair> list = entry.getValue();
+			if (list.size() < 2) continue;
+
+			int i = 0;
+			while (i < list.size() - 1) {
+				Pair current = list.get(i);
+				Pair next = list.get(i + 1);
+
+				// Skip if different from.id or different orientation
+				if (!current.from.id.equalsIgnoreCase(next.from.id) || current.ori != next.ori) {
+					i++;
+					continue;
+				}
+
+				// Check for duplicate: same to.start, same from.start
+				if (current.to.start == next.to.start
+						&& current.from.start == next.from.start) {
+					// Remove duplicate from both maps
+					list.remove(i + 1);
+					removeFromMap(fromPairs, next);
+					continue;
+				}
+
+				// Check if contiguous in 'to' coordinates
+				if (next.to.start - 1 != current.to.end) {
+					i++;
+					continue;
+				}
+
+				// Check if contiguous in 'from' coordinates based on orientation
+				boolean contiguous;
+				if (current.ori == 1) {
+					// Forward strand: next.from.start - 1 == current.from.end
+					contiguous = next.from.start - 1 == current.from.end;
+				} else {
+					// Reverse strand: next.from.end + 1 == current.from.start
+					contiguous = next.from.end + 1 == current.from.start;
+				}
+
+				if (contiguous) {
+					// Merge: extend current pair's ranges
+					current.to.end = next.to.end;
+					if (current.ori == 1) {
+						current.from.end = next.from.end;
+					} else {
+						current.from.start = next.from.start;
+					}
+					// Remove next from both maps
+					list.remove(i + 1);
+					removeFromMap(fromPairs, next);
+				} else {
+					i++;
+				}
+			}
+		}
+	}
+
+	/**
+	 * Remove a specific Pair instance from a direction map.
+	 */
+	private void removeFromMap(Map<String, List<Pair>> map, Pair pair) {
+		String key = pair.from.id.toUpperCase();
+		List<Pair> list = map.get(key);
+		if (list != null) {
+			Iterator<Pair> it = list.iterator();
+			while (it.hasNext()) {
+				if (it.next() == pair) {
+					it.remove();
+					break;
+				}
+			}
+		}
 	}
 }
