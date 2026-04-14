@@ -26,7 +26,7 @@ esac
 cd "$DEBUG_DIR/../.."
 
 echo "Compiling..."
-mvn -pl agr_vep compile -am -q 2>&1 | tail -3
+mvn -pl agr_vep clean compile -am -q 2>&1 | tail -3
 
 CP_FILE=/tmp/agr_vep_cp.txt
 mvn -pl agr_vep dependency:build-classpath -am -q -Dmdep.outputFile=$CP_FILE 2>/dev/null

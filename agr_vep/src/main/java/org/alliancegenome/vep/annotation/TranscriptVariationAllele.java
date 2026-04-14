@@ -255,6 +255,16 @@ public class TranscriptVariationAllele {
 			this.consequence = "missense_variant";
 		}
 
+		// Build alt CDS+UTR for SNP stop_lost/frameshift — matches Perl _get_alternate_cds.
+		// VEP: upstream + alt_allele + downstream + 3'UTR
+		if ("stop_lost".equals(this.consequence) || "frameshift_variant".equals(this.consequence)) {
+			char[] altCdsChars = cdsSeq.toCharArray();
+			altCdsChars[cdsPos - 1] = effectiveAlt.charAt(0);
+			String altCds = new String(altCdsChars);
+			String utr3 = BaseTranscriptVariation.threePrimeUtr(transcript, reference);
+			this.altCdsSequence = altCds + (utr3 != null ? utr3 : "");
+		}
+
 		// Build HgvsNotation for SNP — matches Perl hgvs_protein() lines 1689-1735.
 		// VEP guard (line 1657-1664): no HGVSp unless coding AND translation_start AND translation_end.
 		if (bvt.translationStart() > 0 && bvt.translationEnd() > 0) {
@@ -1544,16 +1554,25 @@ public class TranscriptVariationAllele {
 	 * @param test "fs" for frameshifts, null/other for non-fs
 	 */
 	private String vepStopLossExtraAA(String altCds, String refPep, int refVarPos, String test) {
+		Trace.log("vepStopLossExtraAA.entry", "test=%s refVarPos=%d altCds=%s refPep=%s",
+			test, refVarPos, altCds != null ? "len=" + altCds.length() : "null", refPep != null ? "len=" + refPep.length() : "null");
 		if (refVarPos <= 0) return null;
 		if (altCds == null) return null;
 
 		// Line 2401: translate alt CDS (BioPerl translate — whole codons only)
 		String altTrans = translateCdsWholeOnly(altCds);
-		// Line 2403-2404: ref length
+		// Line 2403-2404: ref length — Perl _peptide() excludes trailing stop codon
+		// Ensembl Transcript::translate removes the final stop codon before translating.
 		int refLen = (refPep != null) ? refPep.length() : 0;
+		if (refPep != null && refLen > 0 && refPep.charAt(refLen - 1) == '*') refLen--;
+		Trace.log("vepStopLossExtraAA.refLen", "refPepLen=%d refLen=%d lastChar=%s",
+			refPep != null ? refPep.length() : 0, refLen,
+			refPep != null && refPep.length() > 0 ? String.valueOf(refPep.charAt(refPep.length()-1)) : "empty");
 
 		// Line 2412: find stop in alt translation
 		int stopPos = altTrans.indexOf('*');
+		Trace.log("vepStopLossExtraAA", "test=%s refVarPos=%d refLen=%d stopPos=%d altTransLen=%d altCdsLen=%d",
+			test, refVarPos, refLen, stopPos, altTrans.length(), altCds.length());
 		if (stopPos < 0) return null; // no stop found
 
 		int extraAA;

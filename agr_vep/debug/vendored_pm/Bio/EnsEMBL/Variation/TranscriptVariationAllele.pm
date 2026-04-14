@@ -2437,25 +2437,26 @@ sub _stop_loss_extra_AA{
 
   my $ref_temp  =  $self->transcript_variation->_peptide();
   my $ref_len = length($ref_temp);
-  
-  if($DEBUG==1){ 
+  warn "[TRACE] _stop_loss_extra_AA test=" . (defined $test ? $test : 'undef') . " ref_var_pos=$ref_var_pos ref_len=$ref_len alt_trans_len=" . length($alt_trans->seq()) . " alt_cds_len=" . length($alt_cds->seq()) . "\n";
+
+  if($DEBUG==1){
     print "alt translated:\n" . $alt_trans->seq() . "\n";
     print "ref translated:\n$ref_temp\n";;
   }
-  
+
   #### Find the number of residues that are translated until a termination codon is encountered
   if ($alt_trans->seq() =~ m/\*/) {
     if($DEBUG==1){print "Got $+[0] aa before stop, var event at $ref_var_pos \n";}
-  
+
     if(defined $test && $test eq "fs" ){
       ### frame shift - count from first AA effected by variant to stop
       $extra_aa = $+[0] - $ref_var_pos;
       if($DEBUG==1){ print "Stop change ($test): found $extra_aa amino acids before fs stop [ $+[0] - peptide ref_start: $ref_var_pos )]\n";}
     }
-  
+
     else{
       $extra_aa = $+[0]  - 1 - $ref_len;
-      if($DEBUG==1){ print "Stop change (non-fs): found $extra_aa amino acids before next stop [ $+[0] - 1 -normal stop $ref_len)]\n";}        
+      warn "[TRACE] _stop_loss_extra_AA non-fs: stopMatchEnd=$+[0] refLen=$ref_len extra_aa=$extra_aa\n";
     }
   }
   
