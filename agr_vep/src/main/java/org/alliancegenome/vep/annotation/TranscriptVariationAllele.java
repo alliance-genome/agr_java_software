@@ -335,6 +335,8 @@ public class TranscriptVariationAllele {
 		// VEP frameshift check (VariationEffect.pm line 1346-1387):
 		// abs(allele_len - vf_nt_len) % 3 != 0
 		boolean isFrameshift = Math.abs(alleleLen - vfNtLen) % 3 != 0;
+		Trace.log("annotateIndel.entry", "tr=%s cdsPos=%d cdsEnd=%d alleleLen=%d vfNtLen=%d isFrameshift=%b cdsLen=%d",
+			transcript.getTranscriptId(), cdsPos, this.cdsEnd, alleleLen, vfNtLen, isFrameshift, cdsSequence.length());
 
 		// Get the affected codon region peptides (like VEP's _get_peptide_alleles)
 		int codonStart = ((cdsPos - 1) / 3) * 3;
@@ -363,6 +365,20 @@ public class TranscriptVariationAllele {
 		// Also keep a CDS-only version for position-sensitive checks
 		String altCds = applyIndelToCds(cdsSequence, cdsPos, vepAllele, refAllele, isDeletion, transcript, indelLength);
 
+		// VEP codon() line 837-848: for the REF allele when allele_len != vf_nt_len
+		// (variant spans introns), Perl calls _get_alternate_cds with the REF allele
+		// (genomic sequence including intron bases), producing a chimeric CDS.
+		// This ref CDS is used for both codon display and consequence predicates.
+		int refAlleleLen = "-".equals(refAllele) ? 0 : refAllele.length();
+		String refCds = cdsSequence; // default: use original CDS
+		if (isDeletion && refAlleleLen != vfNtLen && refAlleleLen > 0) {
+			String refAlleleSeq = transcript.isPositiveStrand() ? refAllele
+				: Sequence.reverseComplement(refAllele);
+			refCds = safeSubstring(cdsSequence, 0, cdsPos - 1)
+				+ refAlleleSeq
+				+ safeSubstring(cdsSequence, this.cdsEnd, cdsSequence.length());
+		}
+
 		// === VEP hgvs_protein() lines 1686-1741: exact method port ===
 
 		// VEP codon() line 805, 818-820: uses tv->translation_start/end
@@ -382,6 +398,9 @@ public class TranscriptVariationAllele {
 			// VEP codon() line 859: extract codon from ref and alt CDS
 			String refCodonStr = vepCodon(cdsSequence, codonCdsStart0, codonLen0);
 			String altCodonStr = vepCodon(altCds, codonCdsStart0, Math.max(0, altCodonLen0));
+			Trace.log("TVA.codon_extract", "tr=%s codonCdsStart0=%d codonLen0=%d alleleLen=%d vfNtLen=%d cds_len=%d cds_at_510=%s",
+				transcript.getTranscriptId(), codonCdsStart0, codonLen0, alleleLen, vfNtLen,
+				cdsSequence.length(), cdsSequence.length() > 520 ? cdsSequence.substring(509, 529) : "short");
 
 			// VEP peptide() line 684-778: translate codon to SHORT peptide
 			String shortRefPep = vepPeptide(refCodonStr);
@@ -630,7 +649,11 @@ public class TranscriptVariationAllele {
 			int codonCdsEnd = protEnd * 3;
 			int codonLen = codonCdsEnd - codonCdsStart + 1;
 
-			String refCodon = safeSubstring(cdsSequence, codonCdsStart - 1, codonCdsStart - 1 + codonLen);
+			// VEP codon() line 837-848: when allele_len != vf_nt_len, Perl builds CDS
+			// via _get_alternate_cds with the allele. Use refCds for ref codon extraction
+			// (matches Perl's behavior for multi-exon variants where genomic ref includes introns).
+			int refCodonExtractLen = codonLen + (refAlleleLen > 0 ? refAlleleLen - vfNtLen : 0);
+			String refCodon = safeSubstring(refCds, codonCdsStart - 1, codonCdsStart - 1 + refCodonExtractLen);
 			int altCodonLen = codonLen + (isDeletion ? -indelLength : indelLength);
 			String altCodon = altCds != null ? safeSubstring(altCds, codonCdsStart - 1,
 				codonCdsStart - 1 + Math.max(0, altCodonLen)) : null;
@@ -654,12 +677,16 @@ public class TranscriptVariationAllele {
 			// 4. stop_gained: local ref_pep has no stop AND local alt_pep has stop (line 1224)
 			// 5. protein_altering: catches remaining in-frame that don't match simple patterns
 			if (isDeletion) {
-				// First determine the base consequence
-				// VEP stop_lost: alt peptide doesn't contain '*' AND ref does.
-				// When altPep is null/empty (deletion removes entire codon region),
-				// the stop codon is also lost — treat as stop_lost.
-				boolean altHasNoStop = altPep == null || altPep.isEmpty() || !altPep.contains("*");
-				if (overlapsStop && refHasStop && altHasNoStop) {
+				// VEP stop_lost (VariationEffect.pm line 1190-1193):
+				// Uses _get_peptide_alleles (local peptides from codon()):
+				// ($alt_pep !~ /\*/) and ($ref_pep =~ /\*/)
+				boolean localRefHasStop = refPep != null && refPep.contains("*");
+				boolean localAltHasNoStop = altPep == null || altPep.isEmpty() || !altPep.contains("*");
+				Trace.log("del.stop_lost_check", "tr=%s localRefHasStop=%b localAltHasNoStop=%b overlapsStop=%b refHasStop=%b refPepLen=%d altPepLen=%d refPep_first10=%s",
+					transcript.getTranscriptId(), localRefHasStop, localAltHasNoStop, overlapsStop, refHasStop,
+					refPep != null ? refPep.length() : 0, altPep != null ? altPep.length() : 0,
+					refPep != null && refPep.length() > 0 ? refPep.substring(0, Math.min(10, refPep.length())) : "null");
+				if (localRefHasStop && localAltHasNoStop) {
 					consequences.add("stop_lost");
 					consequences.add("inframe_deletion");
 				} else if (overlapsStart) {
@@ -813,7 +840,10 @@ public class TranscriptVariationAllele {
 				ac = altCds != null ? safeSubstring(altCds, codonCdsStart0, codonCdsStart0 + Math.max(0, altCodonLen0)) : null;
 				ap = ac != null && ac.length() > 0 ? translateCds(ac) : "-";
 			} else {
-				rc = safeSubstring(cdsSequence, codonCdsStart0, codonCdsStart0 + codonLen0);
+				// Use refCds (built earlier via _get_alternate_cds with REF allele)
+				// for ref codon extraction — matches Perl's codon() line 837-848.
+				int refCodonExtractLen2 = codonLen0 + (refAlleleLen > 0 && refAlleleLen != vfNtLen ? refAlleleLen - vfNtLen : 0);
+				rc = safeSubstring(refCds, codonCdsStart0, codonCdsStart0 + refCodonExtractLen2);
 				ac = altCds != null ? safeSubstring(altCds, codonCdsStart0, codonCdsStart0 + Math.max(0, altCodonLen0)) : null;
 				rp = rc != null ? translateCds(rc) : null;
 				ap = ac != null && ac.length() > 0 ? translateCds(ac) : "-";

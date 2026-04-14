@@ -860,6 +860,7 @@ sub codon {
 
     # and extract the codon sequence
     my $codon = substr($cds, $codon_cds_start-1, $codon_len + ($allele_len - $vf_nt_len));
+    warn "[TRACE] TVA.codon_extract codon_cds_start=$codon_cds_start codon_len=$codon_len allele_len=$allele_len vf_nt_len=$vf_nt_len extract_len=" . ($codon_len + ($allele_len - $vf_nt_len)) . " cds_len=" . length($cds) . " cds_at_510=" . substr($cds, 509, 20) . "\n";
     
     if (length($codon) < 1) {
       $self->{codon}   = '-';
