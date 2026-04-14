@@ -106,7 +106,10 @@ public class TranscriptVariationAllele {
 			try {
 				computeInternal();
 			} catch (Exception e) {
+				Trace.log("SILENT_CATCH_1", "error=%s at %s", e.toString(), e.getStackTrace().length > 0 ? e.getStackTrace()[0].toString() : "?");
 				log.debug("Failed to compute TVA: {}", e.getMessage());
+				Trace.log("ensureComputed.EXCEPTION", "error=%s at %s", e.toString(),
+					e.getStackTrace().length > 0 ? e.getStackTrace()[0].toString() : "?");
 			}
 			computed = true;
 		}
@@ -394,13 +397,18 @@ public class TranscriptVariationAllele {
 		// VEP line 828
 		int altCodonLen0 = codonLen0 + (alleleLen - vfNtLen);
 
+		Trace.log("annotateIndel.preHgvsp", "tr=%s refLocalPep=%s altCdsWithUtr=%s altCds=%s codonLen0=%d",
+			transcript.getTranscriptId(),
+			refLocalPep != null ? refLocalPep : "null",
+			altCdsWithUtr != null ? "len=" + altCdsWithUtr.length() : "null",
+			altCds != null ? "len=" + altCds.length() : "null",
+			codonLen0);
 		if (refLocalPep != null && refLocalPep.length() > 0 && altCdsWithUtr != null) {
 			// VEP codon() line 859: extract codon from ref and alt CDS
 			String refCodonStr = vepCodon(cdsSequence, codonCdsStart0, codonLen0);
 			String altCodonStr = vepCodon(altCds, codonCdsStart0, Math.max(0, altCodonLen0));
-			Trace.log("TVA.codon_extract", "tr=%s codonCdsStart0=%d codonLen0=%d alleleLen=%d vfNtLen=%d cds_len=%d cds_at_510=%s",
-				transcript.getTranscriptId(), codonCdsStart0, codonLen0, alleleLen, vfNtLen,
-				cdsSequence.length(), cdsSequence.length() > 520 ? cdsSequence.substring(509, 529) : "short");
+			Trace.log("TVA.codon_extract", "tr=%s codonCdsStart0=%d codonLen0=%d alleleLen=%d vfNtLen=%d cds_len=%d",
+				transcript.getTranscriptId(), codonCdsStart0, codonLen0, alleleLen, vfNtLen, cdsSequence.length());
 
 			// VEP peptide() line 684-778: translate codon to SHORT peptide
 			String shortRefPep = vepPeptide(refCodonStr);
@@ -887,6 +895,8 @@ public class TranscriptVariationAllele {
 		consequences.sort((a, b) -> Integer.compare(
 			ConsequenceSeverity.getRank(a), ConsequenceSeverity.getRank(b)));
 		this.consequence = (String.join("&", consequences));
+		Trace.log("annotateIndel.consequence", "tr=%s consequence=%s size=%d",
+			transcript.getTranscriptId(), this.consequence, consequences.size());
 
 		// Compute fsTer/extTer count (VEP _stop_loss_extra_AA, line 2386-2435)
 		if (altCdsWithUtr != null) {
@@ -1096,6 +1106,7 @@ public class TranscriptVariationAllele {
 			String newStop = modified.substring(stopIdx, stopIdx + 3);
 			return !CodonTable.isStop(newStop);
 		} catch (Exception e) {
+			Trace.log("SILENT_CATCH_2", "error=%s at %s", e.toString(), e.getStackTrace().length > 0 ? e.getStackTrace()[0].toString() : "?");
 			return false;
 		}
 	}
@@ -1189,6 +1200,7 @@ public class TranscriptVariationAllele {
 			String tail = modified.substring(modified.length() - cds.length());
 			return !tail.equals(cds);
 		} catch (Exception e) {
+			Trace.log("SILENT_CATCH_3", "error=%s at %s", e.toString(), e.getStackTrace().length > 0 ? e.getStackTrace()[0].toString() : "?");
 			return false;
 		}
 	}
@@ -1216,6 +1228,7 @@ public class TranscriptVariationAllele {
 			if (!CodonTable.isStop(cds.substring(cds.length() - 3))) return false;
 			return !isStopAltered(transcript, chr, variantStart, variantEnd);
 		} catch (Exception e) {
+			Trace.log("SILENT_CATCH_4", "error=%s at %s", e.toString(), e.getStackTrace().length > 0 ? e.getStackTrace()[0].toString() : "?");
 			return false;
 		}
 	}
@@ -1249,6 +1262,7 @@ public class TranscriptVariationAllele {
 				(transcript.isPositiveStrand() ? vepAllele : Sequence.reverseComplement(vepAllele));
 			return seq.substring(0, upEnd) + replaceSeq + seq.substring(downStart);
 		} catch (Exception e) {
+			Trace.log("SILENT_CATCH_5", "error=%s at %s", e.toString(), e.getStackTrace().length > 0 ? e.getStackTrace()[0].toString() : "?");
 			return null;
 		}
 	}
@@ -2037,7 +2051,9 @@ public class TranscriptVariationAllele {
 						Trace.log("hgvsTranscript.dup", "varStart=%d varEnd=%d refStart=%d refEnd=%d preceding=%s vepAllele=%s isDup=%b",
 							variantStart, variantEnd, refStart, refEnd, preceding, vepAllele, isDup);
 					}
-				} catch (Exception e) { /* ignore */ }
+				} catch (Exception e) {
+					Trace.log("SILENT_CATCH_6", "error=%s at %s", e.toString(), e.getStackTrace().length > 0 ? e.getStackTrace()[0].toString() : "?");
+				}
 			}
 			if (isDup) {
 				int gEnd = Math.min(variantStart, variantEnd);

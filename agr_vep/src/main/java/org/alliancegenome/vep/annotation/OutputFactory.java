@@ -278,6 +278,8 @@ public class OutputFactory {
 		if (siftLookup != null) {
 			String[] result = siftLookup.getPrediction(md5, position, altAA);
 			if (result != null) {
+				Trace.log("addPredictions.sift", "tr=%s md5=%s pos=%d alt=%c pred=%s score=%s",
+					transcript.getTranscriptId(), md5, position, altAA, result[0], result[1]);
 				entry.setSiftPrediction(result[0].replace(' ', '_'));
 				entry.setSiftScore(result[1]);
 			}
@@ -285,6 +287,8 @@ public class OutputFactory {
 		if (polyPhenLookup != null) {
 			String[] result = polyPhenLookup.getPrediction(md5, position, altAA);
 			if (result != null) {
+				Trace.log("addPredictions.polyphen", "tr=%s md5=%s pos=%d alt=%c pred=%s score=%s",
+					transcript.getTranscriptId(), md5, position, altAA, result[0], result[1]);
 				entry.setPolyPhenPrediction(result[0].replace(' ', '_'));
 				entry.setPolyPhenScore(result[1]);
 			}
