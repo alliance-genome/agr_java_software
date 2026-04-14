@@ -548,7 +548,8 @@ public class TranscriptVariationAllele {
 					n.type = hgvsType;
 					this.hgvsNotation = (n);
 					this.cdsSequence = cdsSequence;
-					this.altCdsSequence = altCds;
+					// Perl _get_alternate_cds always appends 3'UTR
+					this.altCdsSequence = altCdsWithUtr != null ? altCdsWithUtr : altCds;
 				}
 			}
 		}
