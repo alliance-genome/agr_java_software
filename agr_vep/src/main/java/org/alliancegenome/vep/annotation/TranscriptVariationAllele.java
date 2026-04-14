@@ -593,17 +593,29 @@ public class TranscriptVariationAllele {
 			// 'X' for any partial trailing codon (TranscriptVariationAllele.pm line 684-778).
 			// If the resulting alt peptide contains '*' while the ref peptide does not,
 			// stop_gained fires alongside frameshift_variant.
-			if (altCds != null && codonCdsStart0 >= 0 && codonLen0 > 0) {
-				int altExtractLen = codonLen0 + (alleleLen - vfNtLen);
-				if (altExtractLen > 0) {
-					String altCodonStr = vepCodon(altCds, codonCdsStart0, altExtractLen);
-					String altPep = vepPeptide(altCodonStr);
+			// VEP stop_gained (VariationEffect.pm line 1146-1166):
+			// alt_pep contains '*' AND ref_pep doesn't.
+			// VEP's _get_peptide_alleles returns codon/peptide from $bvfoa->peptide().
+			// For between-codon insertions (codonLen0 <= 0): ref="-", alt=translated insertion.
+			if (altCds != null && codonCdsStart0 >= 0) {
+				String refPep;
+				String altPep;
+				if (codonLen0 > 0) {
+					int altExtractLen = codonLen0 + (alleleLen - vfNtLen);
+					String altCodonStr = altExtractLen > 0 ? vepCodon(altCds, codonCdsStart0, altExtractLen) : null;
+					altPep = altCodonStr != null ? vepPeptide(altCodonStr) : null;
 					String refCodonStr = vepCodon(cdsSequence, codonCdsStart0, codonLen0);
-					String refPep = vepPeptide(refCodonStr);
-					if (altPep != null && altPep.contains("*")
-							&& (refPep == null || !refPep.contains("*"))) {
-						consequences.add("stop_gained");
-					}
+					refPep = refCodonStr != null ? vepPeptide(refCodonStr) : null;
+				} else {
+					// Between-codon insertion: Perl peptide() returns "-" for ref, translated insertion for alt
+					refPep = "-";
+					String insSeq = transcript.isPositiveStrand() ? vepAllele : Sequence.reverseComplement(vepAllele);
+					if ("-".equals(insSeq)) insSeq = "";
+					altPep = insSeq.isEmpty() ? "-" : vepPeptide(insSeq);
+				}
+				if (altPep != null && altPep.contains("*")
+						&& (refPep == null || !refPep.contains("*"))) {
+					consequences.add("stop_gained");
 				}
 			}
 		} else {
