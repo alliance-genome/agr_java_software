@@ -162,6 +162,8 @@ public class OutputFactory {
 		for (CsqEntry entry : entries) {
 			if (!pickedSet.contains(entry)) continue;
 			String allele = entry.getAllele() != null ? entry.getAllele() : "";
+			Trace.log("GLC.iterate", "allele=%s gene=%s feat=%s csq=%s prev_glc=%s",
+				allele, entry.getGene(), entry.getFeature(), entry.getConsequence(), glcPerAllele.get(allele));
 			glcPerAllele.put(allele, entry.getConsequence());
 		}
 
