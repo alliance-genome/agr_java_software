@@ -1641,10 +1641,6 @@ public class TranscriptVariationAllele {
 		// Ensembl Transcript::translate removes the final stop codon before translating.
 		int refLen = (refPep != null) ? refPep.length() : 0;
 		if (refPep != null && refLen > 0 && refPep.charAt(refLen - 1) == '*') refLen--;
-		Trace.log("vepStopLossExtraAA.refLen", "refPepLen=%d refLen=%d lastChar=%s",
-			refPep != null ? refPep.length() : 0, refLen,
-			refPep != null && refPep.length() > 0 ? String.valueOf(refPep.charAt(refPep.length()-1)) : "empty");
-
 		// Line 2412: find stop in alt translation
 		int stopPos = altTrans.indexOf('*');
 		Trace.log("vepStopLossExtraAA", "test=%s refVarPos=%d refLen=%d stopPos=%d altTransLen=%d altCdsLen=%d",

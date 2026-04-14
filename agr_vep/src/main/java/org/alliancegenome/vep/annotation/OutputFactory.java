@@ -305,12 +305,20 @@ public class OutputFactory {
 		if (cds == null || cds.length() < 3) {
 			return null;
 		}
-		StringBuilder peptide = new StringBuilder();
-		for (int i = 0; i + 2 < cds.length(); i += 3) {
-			char aa = CodonTable.translate(cds.substring(i, i + 3));
-			if (aa == '*') {
-				break; // VEP's translate->seq excludes terminal stop
+		// Perl's Transcript::translate removes the terminal stop codon from
+		// the mRNA ONLY when length % 3 == 0, then translates ALL remaining
+		// codons (internal stops become '*' in the peptide).
+		int wholeLen = (cds.length() / 3) * 3;
+		int translateLen = wholeLen;
+		if (cds.length() % 3 == 0) {
+			String lastCodon = cds.substring(wholeLen - 3, wholeLen);
+			if (CodonTable.translate(lastCodon) == '*') {
+				translateLen = wholeLen - 3;
 			}
+		}
+		StringBuilder peptide = new StringBuilder();
+		for (int i = 0; i < translateLen; i += 3) {
+			char aa = CodonTable.translate(cds.substring(i, i + 3));
 			peptide.append(aa);
 		}
 		return PredictionLookup.md5Hex(peptide.toString());

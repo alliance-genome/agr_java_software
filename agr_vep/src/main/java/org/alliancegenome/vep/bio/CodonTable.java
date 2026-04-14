@@ -48,10 +48,11 @@ public class CodonTable {
 	}
 
 	public static char translate(String codon, int table) {
-		if (codon == null || codon.length() != 3) return '?';
+		if (codon == null || codon.length() != 3) return 'X';
 		Map<String, Character> map = (table == 2) ? MITO_CODON_TO_AA : CODON_TO_AA;
 		Character aa = map.get(codon.toUpperCase());
-		return aa != null ? aa : '?';
+		// BioPerl returns 'X' for ambiguous/unknown codons (e.g., NNN from phase padding)
+		return aa != null ? aa : 'X';
 	}
 
 	public static boolean isStop(String codon) {

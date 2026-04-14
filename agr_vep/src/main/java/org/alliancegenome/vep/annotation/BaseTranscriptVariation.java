@@ -256,9 +256,10 @@ public class BaseTranscriptVariation {
 		} else {
 			result = cds.toString();
 		}
-		Trace.log("BTV._translateable_seq", "tr=%s phase=%d len=%d first30=%s",
+		Trace.log("BTV._translateable_seq", "tr=%s phase=%d len=%d first30=%s last30=%s",
 			transcript.getTranscriptId(), phase, result.length(),
-			result.length() >= 30 ? result.substring(0, 30) : result);
+			result.length() >= 30 ? result.substring(0, 30) : result,
+			result.length() >= 30 ? result.substring(result.length() - 30) : result);
 		return result;
 	}
 
