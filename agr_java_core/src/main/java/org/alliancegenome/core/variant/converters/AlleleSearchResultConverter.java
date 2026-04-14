@@ -92,6 +92,9 @@ public class AlleleSearchResultConverter {
 			if (doc.getAlleleOfGene() != null && doc.getAlleleOfGene().getPrimaryExternalId() != null) {
 				crossRefs.add(doc.getAlleleOfGene().getPrimaryExternalId());
 			}
+			if (doc.getGeneCrossReferences() != null) {
+				crossRefs.addAll(doc.getGeneCrossReferences());
+			}
 			searchDoc.setCrossReferences(crossRefs);
 
 			if (allele.getPopularity() != null) {

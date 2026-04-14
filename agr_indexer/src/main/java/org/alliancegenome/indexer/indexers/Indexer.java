@@ -57,7 +57,7 @@ public abstract class Indexer extends Thread {
 	protected DecimalFormat df = new DecimalFormat("#");
 	protected ObjectMapper om = new ObjectMapper();
 
-	private ProcessDisplayHelper display = new ProcessDisplayHelper();
+	protected ProcessDisplayHelper display = new ProcessDisplayHelper();
 	private StatsCollector stats = new StatsCollector();
 
 	protected Map<String, Double> popularityScore = new HashMap<>();
@@ -184,6 +184,20 @@ public abstract class Indexer extends Thread {
 	}
 
 	public <D extends ESDocument> void indexDocument(D doc, Class<?> view) {
+		indexDocumentInternal(doc, view, true);
+	}
+
+	public <D extends ESDocument> void indexDocumentsQuietly(Iterable<D> docs) {
+		indexDocumentsQuietly(docs, null);
+	}
+
+	public <D extends ESDocument> void indexDocumentsQuietly(Iterable<D> docs, Class<?> view) {
+		for (D doc : docs) {
+			indexDocumentInternal(doc, view, false);
+		}
+	}
+
+	private <D extends ESDocument> void indexDocumentInternal(D doc, Class<?> view, boolean trackProgress) {
 		try {
 			String json = "";
 			if (view != null) {
@@ -197,7 +211,9 @@ public abstract class Indexer extends Thread {
 			}
 			stats.addDocument(json);
 			bulkProcessor.add(new IndexRequest(indexName).source(json, XContentType.JSON));
-			display.progressProcess();
+			if (trackProgress) {
+				display.progressProcess();
+			}
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 			log.error(e.getMessage());
