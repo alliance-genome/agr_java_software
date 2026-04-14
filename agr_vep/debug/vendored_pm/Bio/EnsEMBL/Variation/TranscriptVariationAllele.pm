@@ -1418,10 +1418,12 @@ sub hgvs_transcript {
   unless($hgvs_notation->{'type'}){
     #warn "Error - not continuing; no HGVS annotation\n";
     return undef;
-  } 
+  }
+  warn "[TRACE] hgvs_transcript.notation tr=$tr_stable_id type=$hgvs_notation->{type} ref=$hgvs_notation->{ref} alt=$hgvs_notation->{alt} start=$hgvs_notation->{start} end=$hgvs_notation->{end} preseq=" . ($hgvs_notation->{preseq}//'') . "\n";
 
   ## check for the same bases in ref and alt strings before or after the variant
   $hgvs_notation = _clip_alleles($hgvs_notation) unless $hgvs_notation->{'type'} eq 'dup';
+  warn "[TRACE] hgvs_transcript.after_clip tr=$tr_stable_id type=$hgvs_notation->{type} ref=$hgvs_notation->{ref} alt=$hgvs_notation->{alt} start=$hgvs_notation->{start} end=$hgvs_notation->{end}\n";
 
   print "hgvs transcript type : " . $hgvs_notation->{'type'} . "\n" if $DEBUG == 1;    
   print "Got type: " . $hgvs_notation->{'type'} ." $hgvs_notation->{'ref'} -> $hgvs_notation->{'alt'}\n" if $DEBUG == 1;

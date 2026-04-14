@@ -1931,6 +1931,8 @@ public class TranscriptVariationAllele {
 		String prefix = isCoding ? "c." : "n.";
 		String transcriptRef = transcript.getTranscriptId();
 		if (transcriptRef == null) return null;
+		Trace.log("hgvsTranscript.entry", "tr=%s varStart=%d varEnd=%d vepAllele=%s refAllele=%s cdsPos=%d",
+			transcriptRef, variantStart, variantEnd, vepAllele, refAllele, cdsPosition);
 
 		// VEP line 1425-1426: append version
 		if (!transcriptRef.matches(".*\\.\\d+$")) {
@@ -1978,6 +1980,8 @@ public class TranscriptVariationAllele {
 					if (refStart >= 1) {
 						String preceding = reference.getSequence(chr, refStart, refEnd);
 						isDup = vepAllele.equalsIgnoreCase(preceding);
+						Trace.log("hgvsTranscript.dup", "varStart=%d varEnd=%d refStart=%d refEnd=%d preceding=%s vepAllele=%s isDup=%b",
+							variantStart, variantEnd, refStart, refEnd, preceding, vepAllele, isDup);
 					}
 				} catch (Exception e) { /* ignore */ }
 			}
@@ -2006,6 +2010,9 @@ public class TranscriptVariationAllele {
 			if (clipEndInt == 0) clipEndInt = clipStartInt;
 
 			HgvsNotation clipped = vepClipAlleles(hgvsRef, hgvsAlt, clipStartInt, clipEndInt);
+			Trace.log("hgvsTranscript.clip", "hgvsRef=%s hgvsAlt=%s startPos=%s endPos=%s type=%s clippedRef=%s clippedAlt=%s preseq=%s",
+				hgvsRef, hgvsAlt, startPos, endPos, clipped.type, clipped.ref, clipped.alt,
+				clipped.preseq != null ? clipped.preseq : "null");
 
 			if (clipped.preseq != null && !clipped.preseq.isEmpty()) {
 				int prefixLen = clipped.preseq.length();
@@ -2030,6 +2037,12 @@ public class TranscriptVariationAllele {
 
 			if ("=".equals(clipped.type)) {
 				notation = startPos + "=";
+			} else if ("dup".equals(clipped.type)) {
+				// Perl _clip_alleles: start -= length(alt) for dups.
+				// clipped.start/end are already adjusted CDS positions.
+				String ds = String.valueOf(clipped.start);
+				String de = String.valueOf(clipped.end);
+				notation = ds.equals(de) ? ds + "dup" : ds + "_" + de + "dup";
 			} else if ("ins".equals(clipped.type) || (clippedRef.isEmpty() && !clippedAlt.isEmpty())) {
 				notation = endPos + "_" + startPos + "ins" + clippedAlt;
 			} else if ("del".equals(clipped.type) || (!clippedRef.isEmpty() && clippedAlt.isEmpty())) {
@@ -2037,7 +2050,20 @@ public class TranscriptVariationAllele {
 			} else if (">".equals(clipped.type) || (clippedRef.length() == 1 && clippedAlt.length() == 1)) {
 				notation = startPos + clippedRef + ">" + clippedAlt;
 			} else if ("dup".equals(clipped.type)) {
-				notation = startPos.equals(endPos) ? startPos + "dup" : startPos + "_" + endPos + "dup";
+				// Perl _clip_alleles sets start -= length(alt) for dups.
+				// Recompute startPos from the adjusted genomic coordinate.
+				int dupLen = clippedAlt.length();
+				int prefixLen2 = clipped.preseq != null ? clipped.preseq.length() : 0;
+				int gDupStart = transcript.isPositiveStrand()
+					? variantStart + prefixLen2 - dupLen
+					: variantEnd - prefixLen2 + dupLen;
+				String dupStartPos = getCdnaPosition(transcript, gDupStart, isCoding);
+				if (dupStartPos == null) dupStartPos = startPos;
+				// endPos is already at the last base of the prefix (= last duplicated base)
+				if (compareHgvsPositions(dupStartPos, endPos) > 0) {
+					String tmp = dupStartPos; dupStartPos = endPos; endPos = tmp;
+				}
+				notation = dupStartPos.equals(endPos) ? dupStartPos + "dup" : dupStartPos + "_" + endPos + "dup";
 			} else {
 				notation = startPos.equals(endPos)
 					? startPos + "delins" + clippedAlt
