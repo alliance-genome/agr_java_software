@@ -9,7 +9,6 @@ import org.alliancegenome.core.variant.converters.AlleleSequenceSummaryConverter
 import org.alliancegenome.core.variant.converters.AlleleToVariantSummaryConverter;
 import org.alliancegenome.curation_api.interfaces.document.AlleleDocumentInterface;
 import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
-import org.alliancegenome.curation_api.model.document.es.ESDocument;
 import org.alliancegenome.curation_api.model.document.es.SequenceSummaryDocument;
 import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
 import org.alliancegenome.es.model.AlleleSearchResultDocument;
@@ -48,7 +47,6 @@ public class AlleleSummaryCurationIndexer extends Indexer {
 			SearchResponse<Long> idsResponse = alleleApi.getAllIds();
 			List<Long> allIds = idsResponse.getResults();
 			log.info("Fetched {} allele IDs", allIds.size());
-			display.startProcess(allIds.size());
 			idBatches = partition(allIds, indexerConfig.getBufferSize());
 			log.info("Partitioned into {} batches of up to {}", idBatches.size(), indexerConfig.getBufferSize());
 
@@ -89,13 +87,10 @@ public class AlleleSummaryCurationIndexer extends Indexer {
 				response.getResults().forEach(AlleleSummaryDocument::removeTransportFields);
 
 				// Index all document types
-				indexDocumentsQuietly(response.getResults());
-				indexDocumentsQuietly(sequenceDocs, CurationView.SequenceSummaryDocument.class);
-				indexDocumentsQuietly(searchDocs);
-				indexDocumentsQuietly(variantDocs);
-
-				// Track progress per allele batch
-				display.progressProcess(response.getResults().size());
+				indexDocuments(response.getResults());
+				indexDocuments(sequenceDocs, CurationView.SequenceSummaryDocument.class);
+				indexDocuments(searchDocs);
+				indexDocuments(variantDocs);
 			} catch (Exception e) {
 				log.error("Error while indexing...", e);
 				ExceptionCatcher.report(e);
