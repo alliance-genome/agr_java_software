@@ -751,8 +751,6 @@ public class TranscriptVariationAllele {
 						if (!pepMatch && refPep.length() != altPep.length()
 							&& !refPep.startsWith("*") && !altPep.startsWith("*")) {
 							isProteinAltering = true;
-							log.debug("protein_altering: cdsPos={} refCodon=[{}] altCodon=[{}] refPep=[{}] altPep=[{}] altPepTrimmed=[{}]",
-								cdsPos, refCodon, altCodon, refPep, altPep, altPepTrimmed);
 						}
 					}
 
@@ -763,6 +761,16 @@ public class TranscriptVariationAllele {
 						if (overlapsStop && refHasStop && altPep != null && altPep.contains("*")) {
 							consequences.add("stop_retained_variant");
 						}
+					}
+					// VEP stop_lost for insertions (VariationEffect.pm line 1168-1221):
+					// ($alt_pep !~ /\*/) and ($ref_pep =~ /\*/)
+					// Uses RAW alt peptide — if alt still has '*', stop is retained, not lost.
+					// When stop_lost fires, remove inframe_insertion (Perl's inframe_insertion
+					// predicate fails when ref is stop and alt doesn't contain ref).
+					if (overlapsStop && refPep != null && refPep.contains("*")
+							&& (altPep == null || !altPep.contains("*"))) {
+						consequences.add("stop_lost");
+						consequences.remove("inframe_insertion");
 					}
 					// VEP stop_gained (line 1162): alt_pep contains '*' anywhere AND ref_pep doesn't.
 					// Evaluated independently — can coexist with protein_altering or inframe_insertion.
