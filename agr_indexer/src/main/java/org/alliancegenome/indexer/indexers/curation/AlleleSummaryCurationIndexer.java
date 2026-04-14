@@ -47,6 +47,7 @@ public class AlleleSummaryCurationIndexer extends Indexer {
 			SearchResponse<Long> idsResponse = alleleApi.getAllIds();
 			List<Long> allIds = idsResponse.getResults();
 			log.info("Fetched {} allele IDs", allIds.size());
+			display.startProcess(allIds.size());
 			idBatches = partition(allIds, indexerConfig.getBufferSize());
 			log.info("Partitioned into {} batches of up to {}", idBatches.size(), indexerConfig.getBufferSize());
 
