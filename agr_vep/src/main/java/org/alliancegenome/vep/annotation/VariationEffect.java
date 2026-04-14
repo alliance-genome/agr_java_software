@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.alliancegenome.vep.bio.CodonTable;
 import org.alliancegenome.vep.bio.Sequence;
+import org.alliancegenome.vep.debug.Trace;
 import org.alliancegenome.vep.model.TranscriptModel;
 
 /**
@@ -736,9 +737,12 @@ public class VariationEffect {
 			if (donorRegion) hasDonorRegion = true;
 
 			// Polypyrimidine tract: 15 bases upstream of acceptor (-17 to -3)
+			// Perl normalizes insertion coords: ($start,$end) = ($end,$start) if $start > $end
+			int ppStart = Math.min(variantStart, variantEnd);
+			int ppEnd = Math.max(variantStart, variantEnd);
 			boolean polypyrimidine = positiveStrand
-				? overlap(variantStart, variantEnd, intronEnd - 16, intronEnd - 2)
-				: overlap(variantStart, variantEnd, intronStart + 2, intronStart + 16);
+				? overlap(ppStart, ppEnd, intronEnd - 16, intronEnd - 2)
+				: overlap(ppStart, ppEnd, intronStart + 2, intronStart + 16);
 			if (polypyrimidine) hasPolypyrimidine = true;
 
 			// Splice region: 3-8 bases into intron OR 1-3 bases of exon
@@ -762,7 +766,6 @@ public class VariationEffect {
 		if (hasSpliceRegion && !hasDonor && !hasAcceptor && !hasFifthBase && !hasDonorRegion) {
 			spliceTerms.add("splice_region_variant");
 		}
-
 		return new SpliceResult(spliceTerms, intronic);
 	}
 }
