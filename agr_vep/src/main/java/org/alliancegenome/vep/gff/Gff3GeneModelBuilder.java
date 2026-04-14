@@ -196,9 +196,14 @@ public class Gff3GeneModelBuilder {
 					// VEP start_Exon->phase: phase of the first CDS segment in transcription order.
 					// On + strand: first CDS segment (lowest genomic start)
 					// On - strand: last CDS segment (highest genomic end = 5' in transcription)
-					int startPhase = tm.isPositiveStrand()
+					int gffPhase = tm.isPositiveStrand()
 						? tm.getCdsSegments().get(0).getPhase()
 						: tm.getCdsSegments().get(tm.getCdsSegments().size() - 1).getPhase();
+					// VEP BaseGXF.pm _convert_phase: GFF3 phase 1↔2 swap for Ensembl phase.
+					// GFF3 phase = bases forward to next codon; Ensembl phase = bases of prior codon at start.
+					int startPhase = gffPhase;
+					if (startPhase == 1) startPhase = 2;
+					else if (startPhase == 2) startPhase = 1;
 					tm.setStartExonPhase(startPhase);
 				}
 				model.addTranscript(tm);

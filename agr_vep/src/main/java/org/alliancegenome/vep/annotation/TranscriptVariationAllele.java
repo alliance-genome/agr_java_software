@@ -601,7 +601,7 @@ public class TranscriptVariationAllele {
 			// Get local codon alleles matching VEP's _get_codon_alleles logic
 			// (TranscriptVariationAllele.pm line 808: tv_tr_start = translation_start, tv_tr_end = translation_end)
 			// For insertions, VEP convention: cds_start > cds_end → translation_start > translation_end
-			//   → codon_len = end-start+1 may be negative or zero
+			//	 → codon_len = end-start+1 may be negative or zero
 			int protStart = (cdsStart - 1) / 3 + 1;
 			int protEnd = (cdsEnd - 1) / 3 + 1;
 			int codonCdsStart = protStart * 3 - 2;
@@ -1163,14 +1163,14 @@ public class TranscriptVariationAllele {
 		try {
 			String seq = (utr3 != null) ? cds + utr3 : cds;
 			// VEP _get_alternate_cds (line 2347-2360):
-			//   upstream   = substr(reference_cds_seq, 0, cds_start - 1)
-			//   downstream = substr(reference_cds_seq, cds_end)
-			//   alternate  = upstream + alt_allele + downstream
+			//	 upstream	= substr(reference_cds_seq, 0, cds_start - 1)
+			//	 downstream = substr(reference_cds_seq, cds_end)
+			//	 alternate	= upstream + alt_allele + downstream
 			// cdsPos is cds_start (1-based). this.cdsEnd is cds_end (1-based).
-			// - Pure insertion:      cds_start > cds_end → downstream starts at cds_end = cds_start-1
-			//                        → no ref bases are replaced.
-			// - Pure/net deletion:   cds_start <= cds_end, alt empty or shorter.
-			// - Delins (net ins):    cds_start <= cds_end, alt longer than ref region.
+			// - Pure insertion:	  cds_start > cds_end → downstream starts at cds_end = cds_start-1
+			//						  → no ref bases are replaced.
+			// - Pure/net deletion:	  cds_start <= cds_end, alt empty or shorter.
+			// - Delins (net ins):	  cds_start <= cds_end, alt longer than ref region.
 			int upEnd = Math.max(0, Math.min(cdsPos - 1, seq.length()));
 			int downStart = Math.max(upEnd, Math.min(this.cdsEnd, seq.length()));
 			String replaceSeq = "-".equals(vepAllele) ? "" :
@@ -1910,9 +1910,18 @@ public class TranscriptVariationAllele {
 			transcriptRef = transcriptRef + ".1";
 		}
 
-		// VEP line 1445-1446: map BOTH positions through _get_cDNA_position
-		String startPos = getCdnaPosition(transcript, variantStart, isCoding);
-		String endPos = getCdnaPosition(transcript, variantEnd, isCoding);
+		// VEP line 1446-1448: for SNPs in exons, use cds_start directly (avoids _get_cDNA_position).
+		// Perl: if var_class eq 'SNP' && exon && defined cds_start/end
+		boolean isSNP = variantStart == variantEnd && refAllele.length() == 1 && vepAllele.length() == 1 && !"-".equals(refAllele);
+		String startPos;
+		String endPos;
+		if (isSNP && isCoding && cdsPosition > 0) {
+			startPos = String.valueOf(cdsPosition);
+			endPos = startPos;
+		} else {
+			startPos = getCdnaPosition(transcript, variantStart, isCoding);
+			endPos = getCdnaPosition(transcript, variantEnd, isCoding);
+		}
 
 		if (startPos == null && endPos == null) return null;
 		if (startPos == null) startPos = endPos;

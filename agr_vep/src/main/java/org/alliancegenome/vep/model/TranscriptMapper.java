@@ -22,13 +22,9 @@ public class TranscriptMapper {
 	 */
 	public TranscriptMapper(TranscriptModel transcript) {
 		// VEP line 108-113: start_phase — phase of the first exon in transcription order.
-		// On + strand: first CDS segment (lowest genomic start)
-		// On - strand: last CDS segment (highest genomic end = 5' in transcription)
+		// Use already-converted Ensembl phase (GFF3 1↔2 swap applied in Gff3GeneModelBuilder).
 		if (!transcript.getCdsSegments().isEmpty()) {
-			int idx = transcript.isPositiveStrand()
-				? 0
-				: transcript.getCdsSegments().size() - 1;
-			int phase = transcript.getCdsSegments().get(idx).getPhase();
+			int phase = transcript.getStartExonPhase();
 			this.startPhase = phase >= 0 ? phase : -1;
 		} else {
 			this.startPhase = -1;

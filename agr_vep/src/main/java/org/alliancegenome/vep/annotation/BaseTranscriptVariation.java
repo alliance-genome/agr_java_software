@@ -245,18 +245,21 @@ public class BaseTranscriptVariation {
 			}
 		}
 
-		// Apply phase offset
-		int phase;
-		if (transcript.isPositiveStrand()) {
-			phase = transcript.getCdsSegments().get(0).getPhase();
+		// Apply phase offset — Ensembl convention (phase = bases of prior codon at start).
+		int phase = transcript.getStartExonPhase();
+		String result;
+		if (phase > 0) {
+			StringBuilder out = new StringBuilder();
+			for (int i = 0; i < phase; i++) out.append('N');
+			out.append(cds);
+			result = out.toString();
 		} else {
-			phase = transcript.getCdsSegments().get(transcript.getCdsSegments().size() - 1).getPhase();
+			result = cds.toString();
 		}
-		if (phase > 0 && phase < cds.length()) {
-			return cds.substring(phase);
-		}
-
-		return cds.toString();
+		Trace.log("BTV._translateable_seq", "tr=%s phase=%d len=%d first30=%s",
+			transcript.getTranscriptId(), phase, result.length(),
+			result.length() >= 30 ? result.substring(0, 30) : result);
+		return result;
 	}
 
 	/**
