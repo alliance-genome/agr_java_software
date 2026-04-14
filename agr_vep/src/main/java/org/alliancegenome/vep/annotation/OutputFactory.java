@@ -697,11 +697,21 @@ public class OutputFactory {
 		}
 
 		// HGVS — VEP does not generate HGVSc for intergenic entries.
-		// Also suppress HGVSc when the variant partially extends past a CDS/cDNA
-		// boundary: Perl's hgvs_transcript can't produce a notation when one
-		// endpoint maps to a Gap. Detected via BVT cdna_start/end one being undef.
+		// Suppress when variant extends past the transcript's exon span.
+		// Perl's _get_cDNA_position handles intronic positions WITHIN the transcript
+		// (computes intron offsets), so allow partial boundary when both endpoints
+		// are within the transcript's genomic span.
 		boolean partialBoundary = bvt != null
 			&& ((bvt.cdnaStart() <= 0) != (bvt.cdnaEnd() <= 0));
+		if (partialBoundary && transcript.getExons() != null && !transcript.getExons().isEmpty()) {
+			int txStart = transcript.getExons().get(0).getStart();
+			int txEnd = transcript.getExons().get(transcript.getExons().size() - 1).getEnd();
+			int vMin = Math.min(variantStart, variantEnd);
+			int vMax = Math.max(variantStart, variantEnd);
+			if (vMin >= txStart && vMax <= txEnd) {
+				partialBoundary = false;
+			}
+		}
 		if (!consequence.contains("intergenic_variant") && !partialBoundary) {
 			// For insertions, VEP uses cds_start (higher value) for HGVSc position.
 			// For minus-strand insertions, cdsStart < cdsEnd, so use max.

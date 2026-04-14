@@ -688,7 +688,18 @@ public class TranscriptVariationAllele {
 					refPep != null && refPep.length() > 0 ? refPep.substring(0, Math.min(10, refPep.length())) : "null");
 				if (localRefHasStop && localAltHasNoStop) {
 					consequences.add("stop_lost");
-					consequences.add("inframe_deletion");
+					// VEP inframe_deletion: checks codon pattern (ref starts/ends with alt).
+					// If pattern fails → protein_altering_variant instead.
+					boolean isInframeDel = false;
+					if (refCodon != null && altCodon != null && altCodon.length() < refCodon.length()) {
+						isInframeDel = refCodon.startsWith(altCodon) || refCodon.endsWith(altCodon);
+						if (!isInframeDel) {
+							// Perl trim_sequences check: trim common prefix+suffix, check if alt is empty
+							String[] trimmed = trimSequences(refCodon, altCodon);
+							isInframeDel = trimmed[1].isEmpty() && trimmed[0].length() % 3 == 0;
+						}
+					}
+					consequences.add(isInframeDel ? "inframe_deletion" : "protein_altering_variant");
 				} else if (overlapsStart) {
 					// VEP start_lost line 862: for inframe deletions, the
 					// _ins_del_start_altered path is BLOCKED (!(inframe_deletion) = false).
