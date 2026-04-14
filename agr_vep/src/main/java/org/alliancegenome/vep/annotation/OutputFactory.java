@@ -565,6 +565,21 @@ public class OutputFactory {
 						}
 						locationTerms.add(term);
 					}
+					// VEP evaluates stop_lost independently of other predicates.
+					// Perl's stop_lost (VariationEffect.pm line 1168-1221): checks
+					// _get_peptide_alleles — if ref peptide has '*' but alt doesn't,
+					// it's stop_lost. For large frameshifts the ref AA often contains
+					// the original stop codon.
+					if (!locationTerms.contains("stop_lost")) {
+						String aa = tva.getAminoAcids();
+						if (aa != null && aa.contains("/")) {
+							String refAa = aa.substring(0, aa.indexOf('/'));
+							String altAa = aa.substring(aa.indexOf('/') + 1);
+							if (refAa.contains("*") && !altAa.contains("*")) {
+								locationTerms.add("stop_lost");
+							}
+						}
+					}
 					if (tva.getAminoAcids() != null) {
 						entry.setAminoAcids(tva.getAminoAcids());
 					}
