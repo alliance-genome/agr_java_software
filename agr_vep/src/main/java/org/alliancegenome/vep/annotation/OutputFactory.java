@@ -475,6 +475,12 @@ public class OutputFactory {
 		if (transcript.isCoding()) {
 			// Check CDS overlap → coding consequence or coding_sequence_variant
 			boolean overlapsCds = overlapsAnyCds(transcript, rangeStart, rangeEnd, isInsertion, variantStart, variantEnd);
+			// Perl within_cds: checks if ANY cds_coord maps to a Coordinate (not Gap).
+			// For insertions at exon-intron boundaries, the geometric overlap fails but
+			// BVT still maps one endpoint to CDS. Use BVT as fallback.
+			if (!overlapsCds && bvt != null && (bvt.cdsStart() > 0 || bvt.cdsEnd() > 0)) {
+				overlapsCds = true;
+			}
 			boolean overlaps5utr = overlaps5PrimeUtr(transcript, rangeStart, rangeEnd, isInsertion, variantStart, variantEnd);
 			boolean overlaps3utr = overlaps3PrimeUtr(transcript, rangeStart, rangeEnd, isInsertion, variantStart, variantEnd);
 
