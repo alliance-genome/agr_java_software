@@ -5,6 +5,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,8 +20,6 @@ import org.alliancegenome.vep.plugin.PredictionLookup;
 import org.alliancegenome.vep.reference.ContigAccessionMap;
 import org.alliancegenome.vep.reference.ReferenceGenome;
 
-import java.nio.file.Path;
-
 import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.variantcontext.VariantContextBuilder;
 import htsjdk.variant.variantcontext.writer.Options;
@@ -32,7 +31,7 @@ import lombok.extern.log4j.Log4j2;
 import net.nilosplace.process_display.ProcessDisplayHelper;
 
 @Log4j2
-public class VcfAnnotationPipeline {
+public class VcfAnnotationPipeline extends Thread {
 
 	private final String vcfPath;
 	private final String gffPath;
@@ -67,78 +66,83 @@ public class VcfAnnotationPipeline {
 		this.tmapPath = tmapPath;
 	}
 
-	public void run() throws Exception {
-		File vcfFile = preprocessVcf(new File(vcfPath));
-		File outputFile = new File(outputPath);
-
-		Gff3GeneModelBuilder gffBuilder = new Gff3GeneModelBuilder();
-		GeneModel geneModel = gffBuilder.build(gffPath);
-		if (tmapPath != null) {
-			geneModel.applyTranscriptNameMap(tmapPath);
-		}
-
-		try (ReferenceGenome reference = new ReferenceGenome(fastaPath)) {
-
-			ContigAccessionMap contigMap = ContigAccessionMap.fromFasta(fastaPath, synonymsPath);
-
-			PredictionLookup siftLookup = null;
-			PredictionLookup polyPhenLookup = null;
-			if (mMapPath != null) {
-				Path mMapDir = Path.of(mMapPath);
-				try {
-					siftLookup = new PredictionLookup(mMapDir, mod, "sift");
-					log.info("Loaded SIFT predictions from {}", mMapDir);
-				} catch (Exception e) {
-					log.info("No SIFT predictions available for {}: {}", mod, e.getMessage());
-				}
-				try {
-					polyPhenLookup = new PredictionLookup(mMapDir, mod, "pph");
-					log.info("Loaded PolyPhen predictions from {}", mMapDir);
-				} catch (Exception e) {
-					log.info("No PolyPhen predictions available for {}: {}", mod, e.getMessage());
-				}
+	@Override
+	public void run() {
+		try {
+			File vcfFile = preprocessVcf(new File(vcfPath));
+			File outputFile = new File(outputPath);
+	
+			Gff3GeneModelBuilder gffBuilder = new Gff3GeneModelBuilder();
+			GeneModel geneModel = gffBuilder.build(gffPath);
+			if (tmapPath != null) {
+				geneModel.applyTranscriptNameMap(tmapPath);
 			}
-
-			OutputFactory annotator = new OutputFactory(geneModel, reference, contigMap, mod,
-				siftLookup, polyPhenLookup);
-
-			try (VCFFileReader reader = new VCFFileReader(vcfFile, false)) {
-				VCFHeader header = reader.getFileHeader();
-				CsqHeaderWriter.addHeaders(header, mod);
-
-				ProcessDisplayHelper ph = new ProcessDisplayHelper(1000);
-
-				VariantContextWriter writer = new VariantContextWriterBuilder()
-					.setOutputFile(outputFile)
-					.setReferenceDictionary(header.getSequenceDictionary())
-					.unsetOption(Options.INDEX_ON_THE_FLY)
-					.build();
-
-				writer.writeHeader(header);
-
-				Iterator<VariantContext> iterator = reader.iterator();
-				ph.startProcess("VEP Annotation: " + mod);
-				while (iterator.hasNext()) {
-					VariantContext vc = iterator.next();
-
-					// Normalize contig to GFF/FASTA canonical case (e.g., VCF chrMt → GFF chrmt).
-					// Perl VEP does this via --fasta loading; match its behavior so downstream
-					// diffs and index joins align on chromosome.
-					String canonical = geneModel.normalizeContig(vc.getContig());
-					if (!canonical.equals(vc.getContig())) {
-						vc = new VariantContextBuilder(vc).chr(canonical).make();
+	
+			try (ReferenceGenome reference = new ReferenceGenome(fastaPath)) {
+	
+				ContigAccessionMap contigMap = ContigAccessionMap.fromFasta(fastaPath, synonymsPath);
+	
+				PredictionLookup siftLookup = null;
+				PredictionLookup polyPhenLookup = null;
+				if (mMapPath != null) {
+					Path mMapDir = Path.of(mMapPath);
+					try {
+						siftLookup = new PredictionLookup(mMapDir, mod, "sift");
+						log.info("Loaded SIFT predictions from {}", mMapDir);
+					} catch (Exception e) {
+						log.info("No SIFT predictions available for {}: {}", mod, e.getMessage());
 					}
-
-					List<CsqEntry> csqEntries = annotator.annotate(vc);
-					VariantContext annotated = addCsq(vc, csqEntries);
-
-					writer.add(annotated);
-					ph.progressProcess();
+					try {
+						polyPhenLookup = new PredictionLookup(mMapDir, mod, "pph");
+						log.info("Loaded PolyPhen predictions from {}", mMapDir);
+					} catch (Exception e) {
+						log.info("No PolyPhen predictions available for {}: {}", mod, e.getMessage());
+					}
 				}
-
-				writer.close();
-				ph.finishProcess();
+	
+				OutputFactory annotator = new OutputFactory(geneModel, reference, contigMap, mod,
+					siftLookup, polyPhenLookup);
+	
+				try (VCFFileReader reader = new VCFFileReader(vcfFile, false)) {
+					VCFHeader header = reader.getFileHeader();
+					CsqHeaderWriter.addHeaders(header, mod);
+	
+					ProcessDisplayHelper ph = new ProcessDisplayHelper(1000);
+	
+					VariantContextWriter writer = new VariantContextWriterBuilder()
+						.setOutputFile(outputFile)
+						.setReferenceDictionary(header.getSequenceDictionary())
+						.unsetOption(Options.INDEX_ON_THE_FLY)
+						.build();
+	
+					writer.writeHeader(header);
+	
+					Iterator<VariantContext> iterator = reader.iterator();
+					ph.startProcess("VEP Annotation: " + mod);
+					while (iterator.hasNext()) {
+						VariantContext vc = iterator.next();
+	
+						// Normalize contig to GFF/FASTA canonical case (e.g., VCF chrMt → GFF chrmt).
+						// Perl VEP does this via --fasta loading; match its behavior so downstream
+						// diffs and index joins align on chromosome.
+						String canonical = geneModel.normalizeContig(vc.getContig());
+						if (!canonical.equals(vc.getContig())) {
+							vc = new VariantContextBuilder(vc).chr(canonical).make();
+						}
+	
+						List<CsqEntry> csqEntries = annotator.annotate(vc);
+						VariantContext annotated = addCsq(vc, csqEntries);
+	
+						writer.add(annotated);
+						ph.progressProcess();
+					}
+	
+					writer.close();
+					ph.finishProcess();
+				}
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -166,7 +170,9 @@ public class VcfAnnotationPipeline {
 			}
 		}
 
-		if (!needsFix) return vcfFile;
+		if (!needsFix) {
+			return vcfFile;
+		}
 
 		log.info("Preprocessing VCF to fix invalid records: {}", vcfFile.getName());
 		File tempFile = File.createTempFile("vep_vcf_", ".vcf");
@@ -210,8 +216,12 @@ public class VcfAnnotationPipeline {
 		for (int i = 0; i < line.length(); i++) {
 			if (line.charAt(i) == '\t') {
 				tabs++;
-				if (tabs == 3) refStart = i + 1;
-				if (tabs == 4) return line.substring(refStart, i).indexOf(',') >= 0;
+				if (tabs == 3) {
+					refStart = i + 1;
+				}
+				if (tabs == 4) {
+					return line.substring(refStart, i).indexOf(',') >= 0;
+				}
 			}
 		}
 		return false;
