@@ -56,6 +56,18 @@ public class Gff3GeneModelBuilder {
 	// Java pass it through exactly the way Perl does.
 	private final Map<String, String> rawNameByFeatureId = new HashMap<>();
 
+	// transcript_id -> last-seen raw Name in GFF file order. Matches Perl
+	// SplitInput.pm (ModVep) which inserts one row per non-exon GFF line with a
+	// transcript_id attribute and the plugin's `while fetchrow` returns the LAST
+	// matching row. For transcripts that share a transcript_id (e.g. SGD paralogs
+	// with a shared RefSeq NM_... accession), this preserves Perl's last-wins
+	// semantics.
+	private final Map<String, String> gffTranscriptIdToName = new java.util.LinkedHashMap<>();
+
+	public Map<String, String> getGffTranscriptIdToName() {
+		return gffTranscriptIdToName;
+	}
+
 	public GeneModel build(String gffPath) throws Exception {
 		log.info("Loading GFF3 gene model from: {}", gffPath);
 
@@ -275,6 +287,10 @@ public class Gff3GeneModelBuilder {
 			log.info("Skipped {} transcripts with no exons", skippedNoExons);
 		}
 		log.info("GFF3 loaded: {} transcripts registered", transcriptCount);
+		// Hand off the GFF-order transcript_id->Name map (last-wins) so the TMAP
+		// hybrid apply step can mirror Perl's DB last-wins behavior. See the
+		// gffTranscriptIdToName field comment for rationale.
+		model.setGffTranscriptIdToName(gffTranscriptIdToName);
 		model.logSummary();
 		return model;
 	}
@@ -468,14 +484,17 @@ public class Gff3GeneModelBuilder {
 	}
 
 	/**
-	 * Walk the raw (pre-fix) attribute string, extract ID and Name values verbatim,
-	 * and store rawName keyed by URL-decoded ID. IDs are decoded to match what
-	 * htsjdk's Gff3Feature.getID() returns later; Name is stored raw because Perl
-	 * VEP emits it verbatim to CSQ.
+	 * Walk the raw (pre-fix) attribute string, extract ID, Name, and transcript_id
+	 * values verbatim, and store rawName keyed by URL-decoded ID. Also records the
+	 * Name by transcript_id in GFF file order (last-wins for duplicates — matches
+	 * Perl SplitInput.pm which inserts one row per line and the plugin's while-loop
+	 * keeps the last row). IDs are decoded to match what htsjdk's Gff3Feature.getID()
+	 * returns later; Name is stored raw because Perl VEP emits it verbatim to CSQ.
 	 */
 	private void captureRawName(String attrStr) {
 		String rawId = null;
 		String rawName = null;
+		String rawTranscriptId = null;
 		int n = attrStr.length();
 		int i = 0;
 		while (i < n) {
@@ -489,8 +508,10 @@ public class Gff3GeneModelBuilder {
 				rawId = value;
 			} else if ("Name".equals(key)) {
 				rawName = value;
+			} else if ("transcript_id".equals(key)) {
+				rawTranscriptId = value;
 			}
-			if (rawId != null && rawName != null) break;
+			if (rawId != null && rawName != null && rawTranscriptId != null) break;
 			i = semi + 1;
 		}
 		if (rawId != null && rawName != null) {
@@ -501,6 +522,13 @@ public class Gff3GeneModelBuilder {
 				decodedId = rawId;
 			}
 			rawNameByFeatureId.put(decodedId, rawName);
+		}
+		// Perl SplitInput.pm: `next unless $transcript_id;` — only rows that carry a
+		// transcript_id attribute end up in the transcript_map DB. Mirror that filter
+		// here, and use raw values (no URL-decode) since the plugin query key is the
+		// raw string from the GFF.
+		if (rawTranscriptId != null && rawName != null) {
+			gffTranscriptIdToName.put(rawTranscriptId, rawName); // last-wins via LinkedHashMap
 		}
 	}
 

@@ -20,8 +20,18 @@ public class GeneModel {
 	private final Map<String, String> geneIdToCurie = new HashMap<>();
 	private final Map<String, String> contigNormMap = new HashMap<>();
 
+	// Populated by Gff3GeneModelBuilder: transcript_id -> last-seen raw Name from
+	// GFF file order. Mirrors Perl's SplitInput.pm transcript_map table (one row
+	// per non-exon GFF line with a transcript_id) combined with the plugin's
+	// `while fetchrow_arrayref` last-wins iteration.
+	private Map<String, String> gffTranscriptIdToName = new HashMap<>();
+
 	private int transcriptCount = 0;
 	private int geneCount = 0;
+
+	public void setGffTranscriptIdToName(Map<String, String> map) {
+		this.gffTranscriptIdToName = map;
+	}
 
 	public void addGene(String geneId, String symbol, String curie) {
 		if (symbol != null) {
@@ -103,83 +113,97 @@ public class GeneModel {
 	}
 
 	/**
-	 * Apply transcript name overrides from the VEP ProtFuncTranscriptNameHTP plugin's
-	 * transcript_map table. Perl's pipeline regenerates that DB table from the current
-	 * GFF at the start of each run (agr_vep_pipeline/ModVep/SplitInput.pm), so in
-	 * practice the DB value equals the GFF Name attribute. A stale external TSV file
-	 * can drift from the GFF (e.g., the FB TMAP had 157 transcripts still using old
-	 * CG-number names while the GFF had current FlyBase symbols), so we use the GFF
-	 * Name (already captured during GFF load) as the authoritative source and only
-	 * fall back to the TSV file when the GFF did not provide a Name for a transcript.
-	 * For duplicate entries (same ID, multiple names), last entry wins (matching VEP's while loop).
+	 * Apply transcript_name overrides to every TranscriptModel, mirroring the Perl
+	 * ProtFuncTranscriptNameHTP plugin's DB lookup.
+	 *
+	 * Perl path: SplitInput.pm walks the current GFF and inserts one (transcript_id,
+	 * Name) row per non-exon line with a transcript_id attribute — no UNIQUE constraint
+	 * — then ProtFuncTranscriptNameHTP.pm does `SELECT transcript_name FROM transcript_map
+	 * WHERE transcript_id = ?` and keeps the LAST row seen. So when multiple GFF lines
+	 * share the same transcript_id (e.g., SGD paralogs sharing RefSeq:NM_001179345.3
+	 * across chrI and chrVIII, or FB transcripts that reference a shared RefSeq entry),
+	 * every TranscriptModel with that transcript_id resolves to the GFF's *last*
+	 * Name for that key — not the Name on its own GFF line.
+	 *
+	 * Java path:
+	 *   1. gffTranscriptIdToName (filled during GFF parse, LinkedHashMap with last-wins)
+	 *      holds the fresh per-transcript_id mapping.
+	 *   2. The external TSV fills in any transcript_ids the GFF doesn't carry (edge
+	 *      cases where the DB has entries not in the current GFF).
+	 *   3. Every TranscriptModel whose transcript_id is in the merged map gets
+	 *      tm.setName(mappedValue) — this may override the per-line Name that
+	 *      Gff3GeneModelBuilder set earlier, which is what Perl does.
+	 *
+	 * This fixes the FB stale-TMAP problem (GFF wins over drifted TSV like
+	 * CG33303-RB -> Ost1-RB) without breaking the SGD paralog case (both chrI and
+	 * chrVIII variants end up with the same last-wins name, matching Perl).
 	 */
 	public void applyTranscriptNameMap(String tsvFilePath) {
-		if (tsvFilePath == null) return;
-		java.io.File file = new java.io.File(tsvFilePath);
-		if (!file.exists()) {
-			log.warn("Transcript name map not found: {}", tsvFilePath);
-			return;
-		}
-		Map<String, String> nameMap = new HashMap<>();
-		int lineCount = 0;
-		try (java.io.BufferedReader br = new java.io.BufferedReader(new java.io.FileReader(file))) {
-			String line;
-			while ((line = br.readLine()) != null) {
-				String[] parts = line.split("\t", 2);
-				if (parts.length == 2 && !parts[0].isEmpty() && !parts[1].isEmpty()) {
-					nameMap.put(parts[0], parts[1]); // last entry wins for duplicates
-					lineCount++;
+		// Load the external TSV (may be null/missing — that's fine, GFF still wins).
+		Map<String, String> tsvMap = new HashMap<>();
+		int tsvLineCount = 0;
+		if (tsvFilePath != null) {
+			java.io.File file = new java.io.File(tsvFilePath);
+			if (file.exists()) {
+				try (java.io.BufferedReader br = new java.io.BufferedReader(new java.io.FileReader(file))) {
+					String line;
+					while ((line = br.readLine()) != null) {
+						String[] parts = line.split("\t", 2);
+						if (parts.length == 2 && !parts[0].isEmpty() && !parts[1].isEmpty()) {
+							tsvMap.put(parts[0], parts[1]); // last entry wins for duplicates
+							tsvLineCount++;
+						}
+					}
+				} catch (Exception e) {
+					log.warn("Failed to load transcript name map: {}", e.getMessage());
 				}
+			} else {
+				log.warn("Transcript name map not found: {}", tsvFilePath);
 			}
-		} catch (Exception e) {
-			log.warn("Failed to load transcript name map: {}", e.getMessage());
-			return;
 		}
-		// Hybrid apply:
-		//   - If GFF already set a Name for the transcript, keep it (authoritative,
-		//     matches what Perl's DB would return since SplitInput.pm rebuilds from GFF).
-		//   - Else, fall back to the TSV mapping (handles transcripts missing a GFF
-		//     Name but present in the TMAP, e.g. pseudogene entries the GFF omits).
-		//   In both cases, mark nameFromTmap so OutputFactory emits transcript_name.
-		int kept = 0;        // transcripts with GFF Name retained (no override applied)
-		int filled = 0;      // transcripts with no GFF Name, filled from TSV
-		int filledMissing = 0; // transcripts with no GFF Name and no TSV entry (still unset)
+
+		// Merge: start from TSV (fallback source), overlay with GFF (authoritative).
+		Map<String, String> merged = new HashMap<>(tsvMap);
+		merged.putAll(gffTranscriptIdToName);
+
 		int visited = 0;
+		int overriddenFromGff = 0;
+		int overriddenFromTsvOnly = 0;
+		int unset = 0;
 		int sampleHit = 0;
-		int sampleOverride = 0;
+		int sampleTsvOnly = 0;
 		for (OverlapDetector<TranscriptModel> detector : perChromosomeDetectors.values()) {
 			for (TranscriptModel tm : detector.getAll()) {
 				visited++;
-				String gffName = tm.getName();
-				if (gffName != null && !gffName.isEmpty()) {
-					// GFF wins. Mark as-if from TMAP so OutputFactory emits it.
-					tm.setNameFromTmap(true);
-					kept++;
-					if (sampleHit < 3) {
-						Trace.log("TMAP.gff_kept",
-							"tid=%s gff_name=%s tsv_value=%s",
-							tm.getTranscriptId(), gffName, nameMap.get(tm.getTranscriptId()));
-						sampleHit++;
-					}
+				String tid = tm.getTranscriptId();
+				String resolved = merged.get(tid);
+				if (resolved == null) {
+					unset++;
 					continue;
 				}
-				String override = nameMap.get(tm.getTranscriptId());
-				if (override != null) {
-					tm.setName(override);
-					tm.setNameFromTmap(true);
-					filled++;
-					if (sampleOverride < 3) {
-						Trace.log("TMAP.filled_from_tsv",
-							"tid=%s name=%s", tm.getTranscriptId(), override);
-						sampleOverride++;
+				tm.setName(resolved);
+				tm.setNameFromTmap(true);
+				boolean fromGff = gffTranscriptIdToName.containsKey(tid);
+				if (fromGff) {
+					overriddenFromGff++;
+					if (sampleHit < 3) {
+						Trace.log("TMAP.gff_applied",
+							"tid=%s name=%s tsv_value=%s",
+							tid, resolved, tsvMap.get(tid));
+						sampleHit++;
 					}
 				} else {
-					filledMissing++;
+					overriddenFromTsvOnly++;
+					if (sampleTsvOnly < 3) {
+						Trace.log("TMAP.tsv_only",
+							"tid=%s name=%s", tid, resolved);
+						sampleTsvOnly++;
+					}
 				}
 			}
 		}
-		log.info("Transcript name map: visited={} gff_kept={} filled_from_tsv={} unset={} ({} TSV rows loaded)",
-			visited, kept, filled, filledMissing, lineCount);
+		log.info("Transcript name map: visited={} gff_applied={} tsv_only={} unset={} ({} TSV rows, {} GFF entries)",
+			visited, overriddenFromGff, overriddenFromTsvOnly, unset, tsvLineCount, gffTranscriptIdToName.size());
 	}
 
 	public void logSummary() {
