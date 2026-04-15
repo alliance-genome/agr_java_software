@@ -28,7 +28,7 @@ public class DebugVep {
 
 	public static void main(String[] args) throws Exception {
 		if (args.length < 4) {
-			System.err.println("Usage: DebugVep <input.vcf> <gff.gz> <fasta> <output.vcf> [synonyms.txt]");
+			System.err.println("Usage: DebugVep <input.vcf> <gff.gz> <fasta> <output.vcf> [synonyms.txt] [tmap.tsv]");
 			System.exit(1);
 		}
 
@@ -37,10 +37,16 @@ public class DebugVep {
 		String fastaPath = args[2];
 		String outputVcf = args[3];
 		String synonymsPath = args.length > 4 ? args[4] : null;
+		String tmapPath = args.length > 5 ? args[5] : null;
 
 		System.err.println("[DEBUG] Loading GFF: " + gffPath);
 		Gff3GeneModelBuilder builder = new Gff3GeneModelBuilder();
 		GeneModel geneModel = builder.build(gffPath);
+
+		if (tmapPath != null) {
+			System.err.println("[DEBUG] Applying transcript name map: " + tmapPath);
+			geneModel.applyTranscriptNameMap(tmapPath);
+		}
 
 		System.err.println("[DEBUG] Loading FASTA: " + fastaPath);
 		ReferenceGenome reference = new ReferenceGenome(fastaPath);

@@ -104,8 +104,13 @@ public class GeneModel {
 
 	/**
 	 * Apply transcript name overrides from the VEP ProtFuncTranscriptNameHTP plugin's
-	 * transcript_map table. VEP looks up transcript_name by transcript stable_id from
-	 * a database; this overrides the GFF-based Name attribute to match.
+	 * transcript_map table. Perl's pipeline regenerates that DB table from the current
+	 * GFF at the start of each run (agr_vep_pipeline/ModVep/SplitInput.pm), so in
+	 * practice the DB value equals the GFF Name attribute. A stale external TSV file
+	 * can drift from the GFF (e.g., the FB TMAP had 157 transcripts still using old
+	 * CG-number names while the GFF had current FlyBase symbols), so we use the GFF
+	 * Name (already captured during GFF load) as the authoritative source and only
+	 * fall back to the TSV file when the GFF did not provide a Name for a transcript.
 	 * For duplicate entries (same ID, multiple names), last entry wins (matching VEP's while loop).
 	 */
 	public void applyTranscriptNameMap(String tsvFilePath) {
@@ -130,36 +135,51 @@ public class GeneModel {
 			log.warn("Failed to load transcript name map: {}", e.getMessage());
 			return;
 		}
-		// Apply to all transcripts. Mark nameFromTmap so OutputFactory knows the
-		// source (transcript_name is only emitted when the name came from TMAP,
-		// matching Perl's ProtFuncTranscriptNameHTP plugin which queries the DB).
-		int applied = 0;
+		// Hybrid apply:
+		//   - If GFF already set a Name for the transcript, keep it (authoritative,
+		//     matches what Perl's DB would return since SplitInput.pm rebuilds from GFF).
+		//   - Else, fall back to the TSV mapping (handles transcripts missing a GFF
+		//     Name but present in the TMAP, e.g. pseudogene entries the GFF omits).
+		//   In both cases, mark nameFromTmap so OutputFactory emits transcript_name.
+		int kept = 0;        // transcripts with GFF Name retained (no override applied)
+		int filled = 0;      // transcripts with no GFF Name, filled from TSV
+		int filledMissing = 0; // transcripts with no GFF Name and no TSV entry (still unset)
 		int visited = 0;
-		int sampleMiss = 0;
 		int sampleHit = 0;
+		int sampleOverride = 0;
 		for (OverlapDetector<TranscriptModel> detector : perChromosomeDetectors.values()) {
 			for (TranscriptModel tm : detector.getAll()) {
 				visited++;
+				String gffName = tm.getName();
+				if (gffName != null && !gffName.isEmpty()) {
+					// GFF wins. Mark as-if from TMAP so OutputFactory emits it.
+					tm.setNameFromTmap(true);
+					kept++;
+					if (sampleHit < 3) {
+						Trace.log("TMAP.gff_kept",
+							"tid=%s gff_name=%s tsv_value=%s",
+							tm.getTranscriptId(), gffName, nameMap.get(tm.getTranscriptId()));
+						sampleHit++;
+					}
+					continue;
+				}
 				String override = nameMap.get(tm.getTranscriptId());
 				if (override != null) {
 					tm.setName(override);
 					tm.setNameFromTmap(true);
-					applied++;
-					if (sampleHit < 3) {
-						Trace.log("TMAP.hit",
+					filled++;
+					if (sampleOverride < 3) {
+						Trace.log("TMAP.filled_from_tsv",
 							"tid=%s name=%s", tm.getTranscriptId(), override);
-						sampleHit++;
+						sampleOverride++;
 					}
-				} else if (sampleMiss < 5) {
-					Trace.log("TMAP.miss",
-						"tid=%s gff_name=%s", tm.getTranscriptId(), tm.getName());
-					sampleMiss++;
+				} else {
+					filledMissing++;
 				}
 			}
 		}
-		log.info("Transcript name map: visited={} applied={} (first 3 hits + 5 misses traced if -Dvep.trace=true)",
-			visited, applied);
-		log.info("Transcript name map: {} mappings loaded, {} names overridden", lineCount, applied);
+		log.info("Transcript name map: visited={} gff_kept={} filled_from_tsv={} unset={} ({} TSV rows loaded)",
+			visited, kept, filled, filledMissing, lineCount);
 	}
 
 	public void logSummary() {
