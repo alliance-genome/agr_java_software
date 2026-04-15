@@ -36,7 +36,14 @@ public class TranscriptModel implements Locatable {
 
 	// VEP Transcript fields for codon_position (TranscriptVariation.pm line 292-302)
 	private int cdnaCodingStart; // cDNA position where coding begins (1-based, after 5'UTR)
-	private int startExonPhase;  // phase of the first coding exon (0, 1, or 2)
+	// VEP $transcript->start_Exon->phase: phase of the FIRST EXON in transcript order
+	// (Transcript.pm line 2283-2286: get_all_Exons()->[0]). Used for cds_start offset.
+	// -1 if the first exon has no matching CDS (e.g., 5'UTR-only exon).
+	private int startExonPhase = -1;
+	// VEP $translation->start_Exon->phase: phase of the exon containing the
+	// translation start (the first matched CDS in transcript order). Used for
+	// translateable_seq N-padding and codon extraction.
+	private int translationStartExonPhase = -1;
 
 	private List<ExonModel> exons = new ArrayList<>();
 	private List<CdsSegment> cdsSegments = new ArrayList<>();

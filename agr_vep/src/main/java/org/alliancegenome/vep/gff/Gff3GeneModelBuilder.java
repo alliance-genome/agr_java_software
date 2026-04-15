@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -48,6 +49,13 @@ public class Gff3GeneModelBuilder {
 		"processed_transcript", "aberrant_processed_transcript"
 	);
 
+	// Raw (un-URL-decoded) Name attribute values, keyed by decoded ID. Populated
+	// during preprocessGff3. htsjdk's Gff3Codec URL-decodes all attribute values, but
+	// Perl VEP reads GFF attributes verbatim — so `Name=l(2)gl` stays `l(2)gl` and
+	// `Name=MF%28ALPHA%292` stays `MF%28ALPHA%292`. Capturing the raw string here lets
+	// Java pass it through exactly the way Perl does.
+	private final Map<String, String> rawNameByFeatureId = new HashMap<>();
+
 	public GeneModel build(String gffPath) throws Exception {
 		log.info("Loading GFF3 gene model from: {}", gffPath);
 
@@ -71,7 +79,7 @@ public class Gff3GeneModelBuilder {
 				ph.progressProcess();
 				if (GENE_TYPES.contains(type)) {
 					String geneId = feature.getID();
-					String symbol = reencodeGffValue(feature.getName());
+					String symbol = getRawName(feature);
 					String curie = getAttr(feature, "gene_id").orElse(getAttr(feature, "curie").orElse(null));
 					if (geneId != null) {
 						geneSymbols.put(geneId, symbol);
@@ -115,7 +123,7 @@ public class Gff3GeneModelBuilder {
 					tm.setTranscriptId(feature.getID());
 				}
 
-				tm.setName(reencodeGffValue(feature.getName()));
+				tm.setName(getRawName(feature));
 				getAttr(feature, "protein_id").ifPresent(tm::setProteinId);
 				// VEP VariationEffect.pm line 959: skip start_lost for cds_start_NF transcripts
 				if (getAttr(feature, "cds_start_NF").isPresent()) {
@@ -209,18 +217,44 @@ public class Gff3GeneModelBuilder {
 						}
 					}
 					tm.setCdnaCodingStart(cdnaBases);
-					// VEP start_Exon->phase: phase of the first CDS segment in transcription order.
-					// On + strand: first CDS segment (lowest genomic start)
-					// On - strand: last CDS segment (highest genomic end = 5' in transcription)
-					int gffPhase = tm.isPositiveStrand()
+					// VEP phases: two distinct values needed.
+					//
+					// $transcript->start_Exon->phase (Transcript.pm line 2283-2286) returns
+					// get_all_Exons()->[0].phase — the FIRST EXON IN TRANSCRIPT ORDER's phase.
+					// Its phase is set to the GFF phase of the CDS matching that exon (via
+					// BaseGXF.pm overlap check), or -1 if no CDS matches. Used for cds_start
+					// offset in BaseTranscriptVariation.pm line 263.
+					//
+					// $translation->start_Exon->phase is the phase of the exon containing
+					// the translation start = first matched CDS segment's phase. Used for
+					// translateable_seq N-padding in Transcript.pm line 917-920.
+					ExonModel firstExonTxOrder = tm.isPositiveStrand()
+						? tm.getExons().get(0)
+						: tm.getExons().get(tm.getExons().size() - 1);
+					int transcriptStartPhaseGff = -1;
+					for (CdsSegment cds : tm.getCdsSegments()) {
+						int cdsStart = cds.getStart();
+						if (firstExonTxOrder.getStart() <= cdsStart && cdsStart <= firstExonTxOrder.getEnd()) {
+							transcriptStartPhaseGff = cds.getPhase();
+							break;
+						}
+					}
+					// $translation->start_Exon: phase from first CDS segment in transcript order.
+					int translationStartPhaseGff = tm.isPositiveStrand()
 						? tm.getCdsSegments().get(0).getPhase()
 						: tm.getCdsSegments().get(tm.getCdsSegments().size() - 1).getPhase();
+
 					// VEP BaseGXF.pm _convert_phase: GFF3 phase 1↔2 swap for Ensembl phase.
 					// GFF3 phase = bases forward to next codon; Ensembl phase = bases of prior codon at start.
-					int startPhase = gffPhase;
-					if (startPhase == 1) startPhase = 2;
-					else if (startPhase == 2) startPhase = 1;
-					tm.setStartExonPhase(startPhase);
+					int transcriptStartPhase = transcriptStartPhaseGff;
+					if (transcriptStartPhase == 1) transcriptStartPhase = 2;
+					else if (transcriptStartPhase == 2) transcriptStartPhase = 1;
+					tm.setStartExonPhase(transcriptStartPhase);
+
+					int translationStartPhase = translationStartPhaseGff;
+					if (translationStartPhase == 1) translationStartPhase = 2;
+					else if (translationStartPhase == 2) translationStartPhase = 1;
+					tm.setTranslationStartExonPhase(translationStartPhase);
 				}
 				model.addTranscript(tm);
 				transcriptCount++;
@@ -281,6 +315,10 @@ public class Gff3GeneModelBuilder {
 					fixedLines++;
 					continue;
 				}
+
+				// Capture raw Name verbatim (before fixAttributes) so we can later emit
+				// Perl-identical SYMBOL/transcript_name without htsjdk's URL-decode round-trip.
+				captureRawName(attrStr);
 
 				String fixedAttrs = fixAttributes(attrStr);
 				if (!fixedAttrs.equals(attrStr)) {
@@ -426,27 +464,53 @@ public class Gff3GeneModelBuilder {
 	}
 
 	/**
-	 * htsjdk's Gff3Codec URL-decodes attribute values (e.g., "MF%28ALPHA%292" → "MF(ALPHA)2").
-	 * Perl VEP reads GFF attributes raw, so the URL-encoded form passes straight through to
-	 * the CSQ output. Re-encode the common chars Perl preserves so downstream field output
-	 * matches Perl exactly.
+	 * Walk the raw (pre-fix) attribute string, extract ID and Name values verbatim,
+	 * and store rawName keyed by URL-decoded ID. IDs are decoded to match what
+	 * htsjdk's Gff3Feature.getID() returns later; Name is stored raw because Perl
+	 * VEP emits it verbatim to CSQ.
 	 */
-	private String reencodeGffValue(String v) {
-		if (v == null) return null;
-		StringBuilder sb = new StringBuilder(v.length() + 8);
-		for (int i = 0; i < v.length(); i++) {
-			char c = v.charAt(i);
-			switch (c) {
-				case '(': sb.append("%28"); break;
-				case ')': sb.append("%29"); break;
-				case ',': sb.append("%2C"); break;
-				case ';': sb.append("%3B"); break;
-				case '=': sb.append("%3D"); break;
-				case '&': sb.append("%26"); break;
-				default: sb.append(c); break;
+	private void captureRawName(String attrStr) {
+		String rawId = null;
+		String rawName = null;
+		int n = attrStr.length();
+		int i = 0;
+		while (i < n) {
+			int eq = attrStr.indexOf('=', i);
+			if (eq < 0) break;
+			int semi = attrStr.indexOf(';', eq + 1);
+			if (semi < 0) semi = n;
+			String key = attrStr.substring(i, eq);
+			String value = attrStr.substring(eq + 1, semi);
+			if ("ID".equals(key)) {
+				rawId = value;
+			} else if ("Name".equals(key)) {
+				rawName = value;
 			}
+			if (rawId != null && rawName != null) break;
+			i = semi + 1;
 		}
-		return sb.toString();
+		if (rawId != null && rawName != null) {
+			String decodedId;
+			try {
+				decodedId = URLDecoder.decode(rawId, StandardCharsets.UTF_8);
+			} catch (IllegalArgumentException e) {
+				decodedId = rawId;
+			}
+			rawNameByFeatureId.put(decodedId, rawName);
+		}
+	}
+
+	/**
+	 * Look up the raw (un-URL-decoded) Name attribute for a feature by its htsjdk-decoded ID.
+	 * Falls back to htsjdk's decoded name if we didn't capture a raw value.
+	 */
+	private String getRawName(Gff3Feature feature) {
+		String id = feature.getID();
+		if (id != null) {
+			String raw = rawNameByFeatureId.get(id);
+			if (raw != null) return raw;
+		}
+		return feature.getName();
 	}
 
 	private Optional<String> getAttr(Gff3Feature feature, String key) {

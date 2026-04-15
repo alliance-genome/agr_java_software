@@ -192,11 +192,11 @@ public class TranscriptVariationAllele {
 		}
 
 		if (vepAllele.length() == 1) {
-			annotateSNP(transcript, chr, variantStart, vepAllele);
+			annotateSNP(transcript, chr, variantStart, refAllele, vepAllele);
 			return;
 		}
 
-		annotateSNP(transcript, chr, variantStart, vepAllele.substring(0, 1));
+		annotateSNP(transcript, chr, variantStart, refAllele.substring(0, 1), vepAllele.substring(0, 1));
 	}
 
 	private static boolean isUnambiguousDna(String seq) {
@@ -209,7 +209,7 @@ public class TranscriptVariationAllele {
 		return true;
 	}
 
-	private void annotateSNP(TranscriptModel transcript, String chr, int pos, String altBase) {
+	private void annotateSNP(TranscriptModel transcript, String chr, int pos, String refBase, String altBase) {
 		int cdsPos = bvt.cdsStart();
 		if (cdsPos < 0) return;
 
@@ -222,11 +222,24 @@ public class TranscriptVariationAllele {
 		int codonStart = codonIndex * 3;
 		if (codonStart + 3 > cdsSeq.length()) return;
 
-		String refCdn = cdsSeq.substring(codonStart, codonStart + 3);
-		char[] altCodonChars = refCdn.toCharArray();
+		String rawCodon = cdsSeq.substring(codonStart, codonStart + 3);
 
+		// VEP TranscriptVariationAllele::codon (line 793-885) splices the allele into
+		// the translateable_seq at cds_start-1 before extracting the codon. This is done
+		// for BOTH ref and alt alleles, each producing its own codon.
+		// When startExonPhase != translationStartExonPhase (e.g. FBtr0079971 where the
+		// transcript's first exon in tx order is different from the translation's start
+		// exon), cds_start is computed from the transcript's first exon phase but the
+		// translateable_seq is padded using the translation's start exon phase, causing
+		// an off-by-one splice. Java replicates this by splicing BOTH ref and alt at the
+		// same posInCodon (matching Perl's behavior exactly).
+		String effectiveRef = transcript.isPositiveStrand() ? refBase : Sequence.reverseComplement(refBase);
 		String effectiveAlt = transcript.isPositiveStrand() ? altBase : Sequence.reverseComplement(altBase);
+		char[] refCodonChars = rawCodon.toCharArray();
+		char[] altCodonChars = rawCodon.toCharArray();
+		refCodonChars[posInCodon] = effectiveRef.charAt(0);
 		altCodonChars[posInCodon] = effectiveAlt.charAt(0);
+		String refCdn = new String(refCodonChars);
 		String altCdn = new String(altCodonChars);
 
 		char rAA = CodonTable.translate(refCdn);

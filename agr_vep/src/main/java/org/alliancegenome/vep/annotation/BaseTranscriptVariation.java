@@ -246,7 +246,9 @@ public class BaseTranscriptVariation {
 		}
 
 		// Apply phase offset — Ensembl convention (phase = bases of prior codon at start).
-		int phase = transcript.getStartExonPhase();
+		// Use translation->start_Exon->phase (Transcript.pm line 917-920: start_phase
+		// comes from translation's start exon, not transcript's first exon).
+		int phase = transcript.getTranslationStartExonPhase();
 		String result;
 		if (phase > 0) {
 			StringBuilder out = new StringBuilder();
