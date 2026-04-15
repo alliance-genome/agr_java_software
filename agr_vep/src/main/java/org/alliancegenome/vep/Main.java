@@ -58,6 +58,8 @@ public class Main {
 			log.info("AGR VEP starting");
 			log.info("Root path: {}", fileSet.getRootPath());
 
+			ArrayList<VcfAnnotationPipeline> pipelines = new ArrayList<VcfAnnotationPipeline>();
+			
 			for (ModSource mod : fileSet.getModSources()) {
 				if (onlyMods != null && !onlyMods.contains(mod.getMod().toUpperCase())) {
 					continue;
@@ -81,9 +83,14 @@ public class Main {
 				log.info("  Output: {}", mod.getOutputFilePath());
 
 				VcfAnnotationPipeline pipeline = new VcfAnnotationPipeline(mod.getVcfFilePath(), mod.getGffFilePath(), mod.getFastaFilePath(), mod.getBamFilePath(), mod.getOutputFilePath(), mod.getMod(), mod.getMmapPath(), mod.getSynonymsFilePath(), mod.getTranscriptMapFilePath());
-				pipeline.run();
+				pipeline.start();
+				pipelines.add(pipeline);
 
 				log.info("Completed MOD: {}", mod.getMod());
+			}
+			
+			for(VcfAnnotationPipeline pipeline: pipelines) {
+				pipeline.join();
 			}
 
 			log.info("AGR VEP completed successfully");
