@@ -60,8 +60,15 @@ public class ContigAccessionMap {
 							nc = b; chr = a;
 						}
 						if (nc != null && chr != null) {
-							map.put(chr, nc); // synonyms override FASTA (may have versioned accessions)
-							synonymCount++;
+							// Prefer the VERSIONED accession (e.g. NT_033779.5 over NT_033779)
+							// VEP uses RefSeq_genomic synonyms which are typically versioned.
+							String existing = map.chrToAccession.get(chr);
+							boolean newHasVersion = nc.contains(".");
+							boolean existingHasVersion = existing != null && existing.contains(".");
+							if (existing == null || (newHasVersion && !existingHasVersion)) {
+								map.put(chr, nc);
+								synonymCount++;
+							}
 						}
 					}
 				}
