@@ -158,14 +158,30 @@ public class Gff3GeneModelBuilder {
 					continue;
 				}
 
+				// VEP BaseGXF.pm line 542: only include CDS segments whose start position
+				// falls within an exon (overlap($s, $e, $cds_start, $cds_start)).
+				// GFF files sometimes have CDS segments with boundaries that don't fit
+				// within exons (e.g., FB FBtr0303882 CDS 9999107-10001428 vs exon
+				// 9999110-10001433). Perl excludes these; without the exclusion, the
+				// cdna_coding_start computation is off by the excluded CDS length.
+				tm.getCdsSegments().removeIf(cds -> {
+					int cdsStart = cds.getStart();
+					for (ExonModel ex : tm.getExons()) {
+						if (ex.getStart() <= cdsStart && cdsStart <= ex.getEnd()) {
+							return false; // keep
+						}
+					}
+					return true; // exclude
+				});
+
 				tm.sortAndIndex();
 				tm.setLoadOrder(transcriptCount);
 
 				// VEP Transcript fields: cdna_coding_start and start_Exon->phase
 				// cdna_coding_start = cDNA position where coding begins (after 5'UTR).
 				// Must iterate exons in TRANSCRIPTION order (5' → 3'):
-				//   + strand: ascending genomic order
-				//   - strand: descending genomic order
+				//	 + strand: ascending genomic order
+				//	 - strand: descending genomic order
 				if (!tm.getCdsSegments().isEmpty() && !tm.getExons().isEmpty()) {
 					int cdsGenomicStart = tm.isPositiveStrand()
 						? tm.getCdsSegments().get(0).getStart()
