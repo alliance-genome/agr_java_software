@@ -497,6 +497,31 @@ public class OutputFactory {
 			}
 			boolean overlaps5utr = overlaps5PrimeUtr(transcript, rangeStart, rangeEnd, isInsertion, variantStart, variantEnd);
 			boolean overlaps3utr = overlaps3PrimeUtr(transcript, rangeStart, rangeEnd, isInsertion, variantStart, variantEnd);
+			// Perl's within_cdna uses cDNA coordinate mapping (not geometric exon overlap).
+			// For insertions at exon/intron boundaries, the mapper returns valid cDNA coords
+			// even though geometric overlap misses. Use BVT cDNA coords as within_cdna fallback,
+			// with Perl's exact guards: coord.end > 0 AND coord.start <= feat.length
+			if (bvt != null && isInsertion && !overlaps5utr && !overlaps3utr) {
+				int cdnaS = bvt.cdnaStart();
+				int cdnaE = bvt.cdnaEnd();
+				// Perl within_cdna: coord.end > 0 AND coord.start <= feat.length
+				int trCdnaLen = 0;
+				for (ExonModel ex : transcript.getExons()) trCdnaLen += ex.getEnd() - ex.getStart() + 1;
+				if (cdnaE > 0 && cdnaS <= trCdnaLen) {
+					// Valid cDNA mapping within transcript. Check _before/_after coding.
+					int trStart = transcript.getStart();
+					int trEnd = transcript.getEnd();
+					int cdsStart = transcript.getCdsStart();
+					int cdsEnd = transcript.getCdsEnd();
+					if (transcript.isPositiveStrand()) {
+						if (variantEnd >= trStart && variantStart <= cdsStart - 1) overlaps5utr = true;
+						if (variantEnd >= cdsEnd + 1 && variantStart <= trEnd) overlaps3utr = true;
+					} else {
+						if (variantEnd >= cdsEnd + 1 && variantStart <= trEnd) overlaps5utr = true;
+						if (variantEnd >= trStart && variantStart <= cdsStart - 1) overlaps3utr = true;
+					}
+				}
+			}
 
 			if (overlapsCds) {
 				// VEP's cds_start/cds_end come from FIRST and LAST elements of cds_coords.
@@ -794,7 +819,7 @@ public class OutputFactory {
 
 	/**
 	 * Check if the variant overlaps any CDS segment using VEP's overlap formula:
-	 *   (bvf_end >= feat_start) AND (bvf_start <= feat_end).
+	 *	 (bvf_end >= feat_start) AND (bvf_start <= feat_end).
 	 * For insertions (variantStart > variantEnd), this correctly excludes
 	 * boundary insertions where the inserted bases fall outside the feature.
 	 */

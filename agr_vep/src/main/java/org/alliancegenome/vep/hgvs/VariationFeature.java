@@ -30,6 +30,9 @@ public class VariationFeature {
 	public String generate(String chr, int start, int end, String ref, String alt) {
 		String accession = contigMap.getAccession(chr);
 		if (accession == null) return null;
+		// VEP VariationFeature.pm line 1915: skip alleles with non-ACGT characters
+		String checkAlt = alt != null ? alt.replace("-", "") : "";
+		if (!checkAlt.isEmpty() && !checkAlt.matches("[ACGTacgt]+")) return null;
 
 		// VEP line 1901-1902: get flank sequence for dup checking
 		// We use the reference genome directly instead of a flank substring
