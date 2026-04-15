@@ -754,11 +754,24 @@ public class OutputFactory {
 		// result. VEP populates cdna_position for ANY variant in an exon (within_cdna).
 		// Use BVT's cdna_start/end (via the Mapper's genomic2cdna) so variants that
 		// partially extend past a cDNA boundary get "?-N" / "N-?" notation matching Perl.
-		if (entry.getCdnaPosition() == null && overlapsExon && !consequence.contains("intergenic_variant")) {
+		// Perl's $pre->{exon} uses _overlapped_exons with SORTED (min,max) coords.
+		// For insertions (VEP start > end), Java's geometric overlap misses boundary
+		// positions. Use BVT cDNA coords as fallback for insertions only.
+		if (entry.getCdnaPosition() == null && !consequence.contains("intergenic_variant")) {
 			int cdnaS = bvt.cdnaStart();
 			int cdnaE = bvt.cdnaEnd();
-			if (cdnaS > 0 || cdnaE > 0) {
-				entry.setCdnaPosition(formatCoords(cdnaS, cdnaE));
+			if (overlapsExon) {
+				if (cdnaS > 0 || cdnaE > 0) {
+					entry.setCdnaPosition(formatCoords(cdnaS, cdnaE));
+				}
+			} else if (isInsertion) {
+				// Boundary insertion: geometric overlap fails but mapper succeeds.
+				// Apply Perl's within_cdna guard: coord.end > 0 AND coord.start <= feat.length
+				int trCdnaLen = 0;
+				for (ExonModel ex : transcript.getExons()) trCdnaLen += ex.getEnd() - ex.getStart() + 1;
+				if (cdnaE > 0 && cdnaS <= trCdnaLen) {
+					entry.setCdnaPosition(formatCoords(cdnaS, cdnaE));
+				}
 			}
 		}
 
