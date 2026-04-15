@@ -13,12 +13,11 @@ import org.alliancegenome.core.filedownload.model.DownloadSource;
 import org.alliancegenome.core.variant.config.VariantConfigHelper;
 import org.alliancegenome.curation_api.interfaces.crud.ontology.SoTermCrudInterface;
 import org.alliancegenome.curation_api.interfaces.document.VariantDocumentInterface;
-import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
+import org.alliancegenome.curation_api.model.entities.Gene;
 import org.alliancegenome.es.rest.RestConfig;
 import org.alliancegenome.es.util.ElasticSearchInterface;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;
-import org.alliancegenome.neo4j.repository.indexer.GeneIndexerRepository;
 
 import lombok.extern.slf4j.Slf4j;
 import net.nilosplace.process_display.util.ObjectFileStorage;
@@ -41,9 +40,8 @@ public class SourceDocumentCreationManager extends Thread {
 
 		try {
 
-			GeneIndexerRepository geneRepo = new GeneIndexerRepository();
-			GeneDocumentCache geneCache = geneRepo.getGeneCacheCrossReferencesSynonyms();
-			geneRepo.close();
+			GeneCacheService geneCacheService = new GeneCacheService();
+			Map<String, Gene> geneCacheMap = geneCacheService.loadGeneCache();
 
 			ObjectFileStorage<HashSet<String>> variantsCacheFileStorage = new ObjectFileStorage<>();
 
@@ -90,7 +88,7 @@ public class SourceDocumentCreationManager extends Thread {
 			List<SourceDocumentCreation> creators = new ArrayList<>();
 			for (DownloadSource source : downloadSet.getDownloadFileSources()) {
 				if (source.getActive()) {
-					SourceDocumentCreation creator = new SourceDocumentCreation(downloadSet.getDownloadPath(), source, geneCache, variantsCache, severityRanking, jsonQueue);
+					SourceDocumentCreation creator = new SourceDocumentCreation(downloadSet.getDownloadPath(), source, geneCacheMap, variantsCache, severityRanking, jsonQueue);
 					creator.start();
 					creators.add(creator);
 				}

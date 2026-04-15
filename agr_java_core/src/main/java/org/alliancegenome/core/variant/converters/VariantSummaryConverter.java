@@ -28,7 +28,6 @@ import org.alliancegenome.curation_api.model.entities.associations.TranscriptGen
 import org.alliancegenome.curation_api.model.entities.ontology.NCBITaxonTerm;
 import org.alliancegenome.curation_api.model.entities.ontology.SOTerm;
 import org.alliancegenome.curation_api.model.entities.slotAnnotations.GeneSymbolSlotAnnotation;
-import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -45,7 +44,7 @@ public class VariantSummaryConverter {
 
 	// Header index positions (initialized once per header)
 	private String[] header;
-	private GeneDocumentCache geneCache;
+	private Map<String, Gene> geneCache;
 	private Map<String, Integer> severityRanking;
 	private Map<String, SOTerm> soTermCache = new ConcurrentHashMap<>();
 	private Map<String, VocabularyTerm> vocabularyTermCache = new ConcurrentHashMap<>();
@@ -73,7 +72,7 @@ public class VariantSummaryConverter {
 	private int proteinPosIdx = -1;
 	private int hgvsgIdx = -1;
 
-	public VariantSummaryConverter(String[] header, GeneDocumentCache geneCache, Map<String, Integer> severityRanking) {
+	public VariantSummaryConverter(String[] header, Map<String, Gene> geneCache, Map<String, Integer> severityRanking) {
 		this.header = header;
 		this.geneCache = geneCache;
 		this.severityRanking = severityRanking;
@@ -387,20 +386,17 @@ public class VariantSummaryConverter {
 						geneSymbol.setDisplayText(infos[geneSymbolIdx]);
 						gene.setGeneSymbol(geneSymbol);
 						if (geneCache != null) {
-							// Set genome location from cache
-							org.alliancegenome.neo4j.entity.node.Gene cachedGene = geneCache.getGeneMap().get(gene.getCurie());
-							if (cachedGene != null && cachedGene.getGenomeLocations() != null && !cachedGene.getGenomeLocations().isEmpty()) {
-								List<GeneGenomicLocationAssociation> geneLocations = new ArrayList<>();
-								for (org.alliancegenome.neo4j.entity.relationship.GenomeLocation loc : cachedGene.getGenomeLocations()) {
-									GeneGenomicLocationAssociation geneLocation = new GeneGenomicLocationAssociation();
-									geneLocation.setStart(loc.getStart() != null ? loc.getStart().intValue() : null);
-									geneLocation.setEnd(loc.getEnd() != null ? loc.getEnd().intValue() : null);
-									AssemblyComponent geneChromosome = new AssemblyComponent();
-									geneChromosome.setName(loc.getChromosome());
-									geneLocation.setGeneGenomicLocationAssociationObject(geneChromosome);
-									geneLocations.add(geneLocation);
+							Gene cachedGene = geneCache.get(gene.getCurie());
+							if (cachedGene != null) {
+								if (cachedGene.getGeneGenomicLocationAssociations() != null) {
+									gene.setGeneGenomicLocationAssociations(cachedGene.getGeneGenomicLocationAssociations());
 								}
-								gene.setGeneGenomicLocationAssociations(geneLocations);
+								if (cachedGene.getGeneSynonyms() != null) {
+									gene.setGeneSynonyms(cachedGene.getGeneSynonyms());
+								}
+								if (cachedGene.getCrossReferences() != null) {
+									gene.setCrossReferences(cachedGene.getCrossReferences());
+								}
 							}
 						}
 					}
