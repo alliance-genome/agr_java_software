@@ -103,7 +103,11 @@ public class Gff3GeneModelBuilder {
 				tm.setChr(feature.getContig());
 				tm.setStart(feature.getStart());
 				tm.setEnd(feature.getEnd());
-				tm.setPositiveStrand(feature.getStrand() != Strand.NEGATIVE);
+				// Match Perl BaseGXF.pm line 526: `if ($tr_record->{strand} > 0)` — only
+				// strictly positive is "+". Anything else (NEGATIVE or NONE, e.g. FB
+				// trans-spliced transcripts like mod(mdg4) with strand='.') gets sorted
+				// descending by genomic start, matching minus-strand intron/exon ordering.
+				tm.setPositiveStrand(feature.getStrand() == Strand.POSITIVE);
 				tm.setSource(feature.getSource());
 				tm.setBiotype(biotype);
 				// Detect mitochondrial chromosomes for codon table selection
