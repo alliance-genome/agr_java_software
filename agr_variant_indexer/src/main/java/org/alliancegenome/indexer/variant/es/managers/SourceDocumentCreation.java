@@ -17,7 +17,7 @@ import org.alliancegenome.curation_api.model.document.es.ESDocument;
 import org.alliancegenome.curation_api.model.document.es.SequenceSummaryDocument;
 import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
 import org.alliancegenome.curation_api.view.CurationView;
-import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
+import org.alliancegenome.curation_api.model.entities.Gene;
 import org.alliancegenome.es.model.VariantSearchResultDocument;
 import org.alliancegenome.es.rest.RestConfig;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
@@ -37,7 +37,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SourceDocumentCreation extends Thread {
 
-	private final GeneDocumentCache geneCache;
+	private final Map<String, Gene> geneCache;
 	private final HashSet<String> variantsCache;
 	private final Map<String, Integer> severityRanking;
 	private String downloadPath;
@@ -61,7 +61,7 @@ public class SourceDocumentCreation extends Thread {
 
 	private String messageHeader = "";
 
-	public SourceDocumentCreation(String downloadPath, DownloadSource source, GeneDocumentCache geneCache, HashSet<String> variantsCache, Map<String, Integer> severityRanking, LinkedBlockingDeque<List<byte[]>> jsonQueue) {
+	public SourceDocumentCreation(String downloadPath, DownloadSource source, Map<String, Gene> geneCache, HashSet<String> variantsCache, Map<String, Integer> severityRanking, LinkedBlockingDeque<List<byte[]>> jsonQueue) {
 		this.downloadPath = downloadPath;
 		this.source = source;
 		this.geneCache = geneCache;
