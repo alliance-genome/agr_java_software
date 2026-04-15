@@ -1992,6 +1992,10 @@ public class TranscriptVariationAllele {
 	public String hgvsTranscript(TranscriptModel transcript, String chr, int variantStart, int variantEnd,
 			String vepAllele, String refAllele, int cdsPosition, boolean isCoding) {
 
+		// VEP TranscriptVariationAllele.pm line 1316: skip alleles with non-ACGT characters
+		String checkSeq = vepAllele != null ? vepAllele.replace("-", "") : "";
+		if (!checkSeq.isEmpty() && !checkSeq.matches("[ACGTacgt]+")) return null;
+
 		String prefix = isCoding ? "c." : "n.";
 		String transcriptRef = transcript.getTranscriptId();
 		if (transcriptRef == null) return null;
@@ -2017,6 +2021,10 @@ public class TranscriptVariationAllele {
 		}
 
 		if (startPos == null && endPos == null) return null;
+		// Perl returns undef if either position can't be mapped.
+		// For deletions, both endpoints must be resolved to form a valid range.
+		boolean isDeletion = "-".equals(vepAllele);
+		if (isDeletion && (startPos == null || endPos == null)) return null;
 		if (startPos == null) startPos = endPos;
 		if (endPos == null) endPos = startPos;
 
