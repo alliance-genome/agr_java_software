@@ -191,12 +191,19 @@ public class TranscriptVariationAllele {
 			return;
 		}
 
-		if (vepAllele.length() == 1) {
+		if (vepAllele.length() == 1 && refAllele.length() == 1) {
 			annotateSNP(transcript, chr, variantStart, refAllele, vepAllele);
 			return;
 		}
 
-		annotateSNP(transcript, chr, variantStart, refAllele.substring(0, 1), vepAllele.substring(0, 1));
+		// Same-length multi-base substitution (MNP / delins). Route to annotateIndel,
+		// which already extracts the full codon range via translation_start/end and
+		// splices the allele properly (matches Perl TranscriptVariationAllele::codon
+		// line 854-859 for the allele_len == vf_nt_len branch). Java previously
+		// truncated MNPs to their first base and called annotateSNP, which dropped
+		// the second affected codon entirely (e.g. GGC>AAT showed agC/agT instead
+		// of agGCCc/agATTc).
+		annotateIndel(transcript, chr, variantStart, variantEnd, vepAllele, refAllele, false);
 	}
 
 	private static boolean isUnambiguousDna(String seq) {
@@ -393,6 +400,20 @@ public class TranscriptVariationAllele {
 			refCds = safeSubstring(cdsSequence, 0, cdsPos - 1)
 				+ refAlleleSeq
 				+ safeSubstring(cdsSequence, this.cdsEnd, cdsSequence.length());
+		} else if (!isDeletion && refAlleleLen == vfNtLen && refAlleleLen > 0) {
+			// Same-length substitution (MNP / SNP-like). VEP codon() line 854-859
+			// branch (allele_len == vf_nt_len): splice the REF allele into
+			// _translateable_seq at cds_start-1 before extracting the codon. In the
+			// normal case this is a no-op (raw CDS already has the ref bases at
+			// cds_start), but when the transcript has a phase mismatch between
+			// start_Exon and translation->start_Exon (e.g. FBtr0079971), cds_start
+			// is off by one position and the splice overwrites a different raw byte.
+			// Java must replicate that splice so the displayed ref codon matches Perl.
+			String refAlleleSeq = transcript.isPositiveStrand() ? refAllele
+				: Sequence.reverseComplement(refAllele);
+			refCds = safeSubstring(cdsSequence, 0, cdsPos - 1)
+				+ refAlleleSeq
+				+ safeSubstring(cdsSequence, cdsPos - 1 + refAlleleLen, cdsSequence.length());
 		}
 
 		// === VEP hgvs_protein() lines 1686-1741: exact method port ===
@@ -417,8 +438,14 @@ public class TranscriptVariationAllele {
 			altCds != null ? "len=" + altCds.length() : "null",
 			codonLen0);
 		if (refLocalPep != null && refLocalPep.length() > 0 && altCdsWithUtr != null) {
-			// VEP codon() line 859: extract codon from ref and alt CDS
-			String refCodonStr = vepCodon(cdsSequence, codonCdsStart0, codonLen0);
+			// VEP codon() line 856-859: REF codon comes from the CDS with the REF allele
+			// SPLICED IN (Perl does this in the allele_len == vf_nt_len branch and via
+			// _get_alternate_cds in the allele_len != vf_nt_len branch). Using refCds here
+			// (built earlier with the ref allele spliced for same-length substitutions,
+			// otherwise equal to cdsSequence) ensures HGVSp sees the same ref peptide as
+			// the codon display path — previously this used raw cdsSequence, which gave
+			// "SA" instead of "RP" for MNPs on transcripts with a phase off-by-one.
+			String refCodonStr = vepCodon(refCds, codonCdsStart0, codonLen0);
 			String altCodonStr = vepCodon(altCds, codonCdsStart0, Math.max(0, altCodonLen0));
 			Trace.log("TVA.codon_extract", "tr=%s codonCdsStart0=%d codonLen0=%d alleleLen=%d vfNtLen=%d cds_len=%d",
 				transcript.getTranscriptId(), codonCdsStart0, codonLen0, alleleLen, vfNtLen, cdsSequence.length());
@@ -676,7 +703,14 @@ public class TranscriptVariationAllele {
 			// (matches Perl's behavior for multi-exon variants where genomic ref includes introns).
 			int refCodonExtractLen = codonLen + (refAlleleLen > 0 ? refAlleleLen - vfNtLen : 0);
 			String refCodon = safeSubstring(refCds, codonCdsStart - 1, codonCdsStart - 1 + refCodonExtractLen);
-			int altCodonLen = codonLen + (isDeletion ? -indelLength : indelLength);
+			// VEP line 828: codon_len + (allele_len - vf_nt_len). Works for ALL three cases:
+			//   insertion (alleleLen > vfNtLen)   → altCodonLen > codonLen
+			//   deletion  (alleleLen < vfNtLen)   → altCodonLen < codonLen
+			//   MNP       (alleleLen == vfNtLen)  → altCodonLen == codonLen (no change)
+			// Previously used codonLen ± indelLength which double-counted for same-length MNPs
+			// (altCodonLen came out 6+3=9 instead of 6, producing a 3-AA altPep from a 2-AA
+			// ref codon region and forcing protein_altering_variant instead of missense_variant).
+			int altCodonLen = codonLen + (alleleLen - vfNtLen);
 			String altCodon = altCds != null ? safeSubstring(altCds, codonCdsStart - 1,
 				codonCdsStart - 1 + Math.max(0, altCodonLen)) : null;
 
@@ -826,8 +860,30 @@ public class TranscriptVariationAllele {
 						}
 					}
 
-					if (isProteinAltering) {
+					// VEP missense_variant predicate (VariationEffect.pm):
+					// fires when ref_pep and alt_pep are non-empty, same length, and differ.
+					// For same-length multi-base substitutions (MNPs, delins) this is the
+					// correct classification — inframe_insertion/inframe_deletion require
+					// an actual length change in the peptide.
+					boolean isMissense = refPep != null && altPep != null
+						&& refPep.length() == altPep.length()
+						&& refPep.length() > 0
+						&& !refPep.equals(altPep)
+						&& !refPep.contains("*") && !altPep.contains("*");
+
+					if (isMissense) {
+						// Same-length peptide substitution (e.g. MNP spanning multiple codons,
+						// or a delins where both sides happen to produce equal-length peptides).
+						// VEP inframe_insertion / inframe_deletion predicates require a length
+						// change, so only missense_variant applies here.
+						consequences.add("missense_variant");
+					} else if (isProteinAltering) {
 						consequences.add("protein_altering_variant");
+					} else if (refPep != null && altPep != null
+						&& refPep.length() == altPep.length()
+						&& refPep.equals(altPep)) {
+						// Synonymous multi-base: both peptides equal.
+						consequences.add("synonymous_variant");
 					} else {
 						consequences.add("inframe_insertion");
 						if (overlapsStop && refHasStop && altPep != null && altPep.contains("*")) {
