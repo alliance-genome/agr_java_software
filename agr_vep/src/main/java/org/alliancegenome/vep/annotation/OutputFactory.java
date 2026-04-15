@@ -461,6 +461,12 @@ public class OutputFactory {
 			if (hgvsg != null) {
 				entry.setHgvsg(hgvsg);
 			}
+			// VEP populates EXON/INTRON even for transcript_ablation
+			BaseTranscriptVariation ablBvt = new BaseTranscriptVariation(transcript, variantStart, variantEnd);
+			String exonNum = ablBvt.exonNumber();
+			String intronNum = ablBvt.intronNumber();
+			if (exonNum != null) entry.setExon(exonNum);
+			if (intronNum != null) entry.setIntron(intronNum);
 			return entry;
 		}
 
