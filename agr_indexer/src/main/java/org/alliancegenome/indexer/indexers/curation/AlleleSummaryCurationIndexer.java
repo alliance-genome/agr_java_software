@@ -91,7 +91,7 @@ public class AlleleSummaryCurationIndexer extends Indexer {
 				indexDocuments(response.getResults());
 				indexDocuments(sequenceDocs, CurationView.SequenceSummaryDocument.class);
 				indexDocuments(searchDocs);
-				indexDocuments(variantDocs);
+				indexDocuments(variantDocs, CurationView.VariantSummaryDocument.class);
 			} catch (Exception e) {
 				log.error("Error while indexing...", e);
 				ExceptionCatcher.report(e);

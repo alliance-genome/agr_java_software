@@ -9,6 +9,7 @@ import org.alliancegenome.core.variant.converters.VariantSearchResultConverter;
 import org.alliancegenome.curation_api.interfaces.document.VariantDocumentInterface;
 import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
 import org.alliancegenome.curation_api.response.SearchResponse;
+import org.alliancegenome.curation_api.view.CurationView;
 import org.alliancegenome.es.model.VariantSearchResultDocument;
 import org.alliancegenome.es.rest.RestConfig;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
@@ -71,7 +72,7 @@ public class VariantSummaryCurationIndexer extends Indexer {
 				String page = queue.takeFirst();
 				
 				SearchResponse<VariantSummaryDocument> response = variantApi.findDocuments(Integer.valueOf(page), indexerConfig.getBufferSize(), params);
-				indexDocuments(response.getResults());
+				indexDocuments(response.getResults(), CurationView.VariantSummaryDocument.class);
 				
 				List<VariantSearchResultDocument> vsrd = variantSearchResultConverter.convertToVariantSearchDocument(response.getResults());
 				indexDocuments(vsrd);
