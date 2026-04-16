@@ -37,14 +37,14 @@ public class VariantSearchResultConverter {
 					vsd.setSpecies(variantLocation.getVariantAssociationSubject().getTaxon().getSpecies().getFullName());
 				}
 				if (variantLocation.getVariantAssociationSubject().getVariantType() != null && variantLocation.getVariantAssociationSubject().getVariantType().getName() != null) {
-					vsd.setVariantType(List.of(variantLocation.getVariantAssociationSubject().getVariantType().getName()));
+					vsd.setVariantType(Set.of(variantLocation.getVariantAssociationSubject().getVariantType().getName()));
 				}
 			}
 
 			vsd.setPopularity(0.0);
 
 			if (variantLocation.getPredictedVariantConsequences() != null) {
-				List<String> geneNames = variantLocation.getPredictedVariantConsequences().stream()
+				Set<String> geneNames = variantLocation.getPredictedVariantConsequences().stream()
 					.filter(pvc -> pvc.getVariantTranscript() != null && pvc.getVariantTranscript().getTranscriptGeneAssociations() != null)
 					.flatMap(pvc -> pvc.getVariantTranscript().getTranscriptGeneAssociations().stream())
 					.map(TranscriptGeneAssociation::getTranscriptGeneAssociationObject)
@@ -65,8 +65,7 @@ public class VariantSearchResultConverter {
 					})
 					.filter(Objects::nonNull)
 					.distinct()
-					.sorted()
-					.collect(Collectors.toList());
+					.collect(Collectors.toSet());
 				if (!geneNames.isEmpty()) {
 					vsd.setGenes(geneNames);
 				}

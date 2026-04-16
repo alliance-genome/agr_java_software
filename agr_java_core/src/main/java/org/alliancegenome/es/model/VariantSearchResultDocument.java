@@ -26,11 +26,12 @@ public class VariantSearchResultDocument extends ESDocument {
 	private String primaryKey;
 	private String species;
 	private Double popularity;
-	private List<String> alleles;
-	private List<String> genes;
-	private Set<String> geneSynonyms;
 	private String alterationType;
-	private List<String> variantType;
+	
+	private Set<String> alleles;
+	private Set<String> genes;
+	private Set<String> geneSynonyms;
+	private Set<String> variantType;
 	private Set<String> molecularConsequence;
 	private Set<String> crossReferences;
 
