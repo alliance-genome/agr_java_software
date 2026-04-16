@@ -2146,6 +2146,16 @@ public class TranscriptVariationAllele {
 			}
 		} else if (hgvsRef.length() == 1 && hgvsAlt.length() == 1) {
 			notation = startPos + hgvsRef + ">" + hgvsAlt;
+		} else if (hgvsRef.length() == hgvsAlt.length() && hgvsRef.length() > 1
+				&& hgvsAlt.equalsIgnoreCase(Sequence.reverseComplement(hgvsRef))) {
+			// Perl Utils/Sequence.pm line 557-563 (hgvs_variant_notation): when
+			// allele lengths are equal and the alt is reverse-complement of the ref,
+			// the type is 'inv'. Format per line 659-664 (format_hgvs_string):
+			// coord[_coord] + 'inv' with no alt allele shown (when ref length > 1).
+			// Perl does NOT run _clip_alleles for inv, so we skip it too.
+			notation = startPos.equals(endPos)
+				? startPos + "inv"
+				: startPos + "_" + endPos + "inv";
 		} else {
 			// Complex: VEP _clip_alleles (line 1418)
 			int clipStartInt = parseHgvsPos(startPos);
