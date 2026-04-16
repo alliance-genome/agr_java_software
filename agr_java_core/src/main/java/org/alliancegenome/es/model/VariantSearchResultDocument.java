@@ -1,6 +1,7 @@
 package org.alliancegenome.es.model;
 
 import java.util.List;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
@@ -27,9 +28,10 @@ public class VariantSearchResultDocument extends ESDocument {
 	private Double popularity;
 	private List<String> alleles;
 	private List<String> genes;
+	private Set<String> geneSynonyms;
 	private String alterationType;
 	private List<String> variantType;
-	private List<String> molecularConsequence;
-	private List<String> crossReferences;
+	private Set<String> molecularConsequence;
+	private Set<String> crossReferences;
 
 }

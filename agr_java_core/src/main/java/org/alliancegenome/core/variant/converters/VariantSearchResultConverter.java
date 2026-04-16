@@ -4,12 +4,14 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
 import org.alliancegenome.curation_api.model.entities.PredictedVariantConsequence;
 import org.alliancegenome.curation_api.model.entities.associations.CuratedVariantGenomicLocationAssociation;
 import org.alliancegenome.curation_api.model.entities.associations.TranscriptGeneAssociation;
+import org.alliancegenome.curation_api.model.entities.slotAnnotations.NameSlotAnnotation;
 import org.alliancegenome.es.model.VariantSearchResultDocument;
 
 public class VariantSearchResultConverter {
@@ -68,10 +70,24 @@ public class VariantSearchResultConverter {
 				if (!geneNames.isEmpty()) {
 					vsd.setGenes(geneNames);
 				}
+
+				Set<String> geneSynonyms = variantLocation.getPredictedVariantConsequences().stream()
+					.filter(pvc -> pvc.getVariantTranscript() != null && pvc.getVariantTranscript().getTranscriptGeneAssociations() != null)
+					.flatMap(pvc -> pvc.getVariantTranscript().getTranscriptGeneAssociations().stream())
+					.map(TranscriptGeneAssociation::getTranscriptGeneAssociationObject)
+					.filter(Objects::nonNull)
+					.filter(gene -> gene.getGeneSynonyms() != null)
+					.flatMap(gene -> gene.getGeneSynonyms().stream())
+					.map(NameSlotAnnotation::getFormatText)
+					.filter(Objects::nonNull)
+					.collect(Collectors.toSet());
+				if (!geneSynonyms.isEmpty()) {
+					vsd.setGeneSynonyms(geneSynonyms);
+				}
 			}
 
 			if (variantLocation.getVariantAssociationSubject() != null && variantLocation.getVariantAssociationSubject().getCrossReferences() != null) {
-				List<String> crossRefs = new ArrayList<>();
+				Set<String> crossRefs = new HashSet<>();
 				for (var xref : variantLocation.getVariantAssociationSubject().getCrossReferences()) {
 					crossRefs.add(xref.getDisplayName());
 				}
@@ -81,7 +97,7 @@ public class VariantSearchResultConverter {
 			}
 
 			if (variantLocation.getPredictedVariantConsequences() != null) {
-				HashSet<String> consequences = new HashSet<>();
+				Set<String> consequences = new HashSet<>();
 				for (PredictedVariantConsequence pvc : variantLocation.getPredictedVariantConsequences()) {
 					if (pvc.getVepConsequences() != null) {
 						for (var soTerm : pvc.getVepConsequences()) {
@@ -90,7 +106,7 @@ public class VariantSearchResultConverter {
 					}
 				}
 				if (!consequences.isEmpty()) {
-					vsd.setMolecularConsequence(new ArrayList<>(consequences));
+					vsd.setMolecularConsequence(consequences);
 				}
 			}
 
