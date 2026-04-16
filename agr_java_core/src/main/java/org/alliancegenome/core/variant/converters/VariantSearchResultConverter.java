@@ -83,6 +83,34 @@ public class VariantSearchResultConverter {
 				if (!geneSynonyms.isEmpty()) {
 					vsd.setGeneSynonyms(geneSynonyms);
 				}
+
+				Set<String> geneCrossRefs = variantLocation.getPredictedVariantConsequences().stream()
+					.filter(pvc -> pvc.getVariantTranscript() != null && pvc.getVariantTranscript().getTranscriptGeneAssociations() != null)
+					.flatMap(pvc -> pvc.getVariantTranscript().getTranscriptGeneAssociations().stream())
+					.map(TranscriptGeneAssociation::getTranscriptGeneAssociationObject)
+					.filter(Objects::nonNull)
+					.filter(gene -> gene.getCrossReferences() != null)
+					.flatMap(gene -> gene.getCrossReferences().stream())
+					.map(xref -> xref.getReferencedCurie())
+					.filter(Objects::nonNull)
+					.collect(Collectors.toSet());
+				if (!geneCrossRefs.isEmpty()) {
+					vsd.setGeneCrossReferences(geneCrossRefs);
+				}
+
+				Set<String> secondaryIds = variantLocation.getPredictedVariantConsequences().stream()
+					.filter(pvc -> pvc.getVariantTranscript() != null && pvc.getVariantTranscript().getTranscriptGeneAssociations() != null)
+					.flatMap(pvc -> pvc.getVariantTranscript().getTranscriptGeneAssociations().stream())
+					.map(TranscriptGeneAssociation::getTranscriptGeneAssociationObject)
+					.filter(Objects::nonNull)
+					.filter(gene -> gene.getGeneSecondaryIds() != null)
+					.flatMap(gene -> gene.getGeneSecondaryIds().stream())
+					.map(sid -> sid.getSecondaryId())
+					.filter(Objects::nonNull)
+					.collect(Collectors.toSet());
+				if (!secondaryIds.isEmpty()) {
+					vsd.setSecondaryIds(secondaryIds);
+				}
 			}
 
 			if (variantLocation.getVariantAssociationSubject() != null && variantLocation.getVariantAssociationSubject().getCrossReferences() != null) {
