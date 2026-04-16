@@ -23,7 +23,7 @@
 		<maven-checkstyle-plugin.version>3.3.1</maven-checkstyle-plugin.version>
 		<checkstyle.version>10.17.0</checkstyle.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<curation.version>v0.48.2</curation.version>
+		<curation.version>v0.48.3</curation.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
