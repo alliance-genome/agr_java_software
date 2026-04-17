@@ -264,13 +264,32 @@ public class TranscriptVariationAllele {
 		this.cdnaEnd = bvt.cdnaEnd();
 		this.cdsSequence = cdsSeq;
 
-		// Perl VariationEffect.pm start_lost (line 850-899): fires when
-		// _overlaps_start_codon (cds 1-3, not cds_start_NF) AND
-		// translation_start == 1 AND alt peptide doesn't match ref peptide.
-		// Perl does NOT check CodonTable.isStart — any change to the first
-		// amino acid is start_lost, even for non-ATG start codons (e.g. CTC).
-		if (cdsPos <= 3 && !transcript.isCdsStartNF()
-				&& bvt.translationStart() == 1 && rAA != aAA) {
+		// Perl VariationEffect.pm start_lost (line 850-899) fires via two paths:
+		// 1. _inv_start_altered (line 912-949): builds UTR+translateableSeq, splices
+		//    variant, checks if first 3 CDS chars != 'ATG'. For phase-padded
+		//    transcripts (translateableSeq starts with 'N'), the start is never ATG
+		//    → ANY variant at positions 1-3 fires start_lost.
+		// 2. Peptide check (line 876-880): translation_start==1 AND alt_pep differs.
+		//    Fires for non-padded transcripts where the AA changes (missense).
+		boolean isStartLost = false;
+		if (cdsPos <= 3 && !transcript.isCdsStartNF()) {
+			// Path 1: _inv_start_altered — check if start codon is ATG after splice
+			if (cdsSeq.length() >= 3) {
+				char[] startCodon = {cdsSeq.charAt(0), cdsSeq.charAt(1), cdsSeq.charAt(2)};
+				// Splice alt at the variant's position within the start codon
+				int posInStart = cdsPos - 1; // 0-based position in start codon
+				startCodon[posInStart] = effectiveAlt.charAt(0);
+				String altStart = new String(startCodon);
+				if (!"ATG".equalsIgnoreCase(altStart)) {
+					isStartLost = true;
+				}
+			}
+			// Path 2: peptide check — different AA at position 1
+			if (!isStartLost && bvt.translationStart() == 1 && rAA != aAA) {
+				isStartLost = true;
+			}
+		}
+		if (isStartLost) {
 			this.consequence = "start_lost";
 		} else if (rAA == '*' && aAA == '*') {
 			this.consequence = "stop_retained_variant";
