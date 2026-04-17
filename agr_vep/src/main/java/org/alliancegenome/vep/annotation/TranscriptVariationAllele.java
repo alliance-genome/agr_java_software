@@ -207,9 +207,13 @@ public class TranscriptVariationAllele {
 	}
 
 	private static boolean isUnambiguousDna(String seq) {
+		// Perl has no global DNA check — consequence predicates accept any sequence
+		// including N (unknown base). Only specific methods like _inv_start_altered
+		// guard on seq_is_unambiguous_dna. Allow N through so frameshift/inframe
+		// predicates fire correctly for N-containing alleles.
 		for (int i = 0; i < seq.length(); i++) {
 			char c = Character.toUpperCase(seq.charAt(i));
-			if (c != 'A' && c != 'C' && c != 'G' && c != 'T' && c != '-') {
+			if (c != 'A' && c != 'C' && c != 'G' && c != 'T' && c != 'N' && c != '-') {
 				return false;
 			}
 		}
@@ -273,18 +277,20 @@ public class TranscriptVariationAllele {
 		//	  Fires for non-padded transcripts where the AA changes (missense).
 		boolean isStartLost = false;
 		if (cdsPos <= 3 && !transcript.isCdsStartNF()) {
-			// Path 1: _inv_start_altered — check if start codon is ATG after splice
-			if (cdsSeq.length() >= 3) {
+			// Path 1: _inv_start_altered (Perl line 912-949): builds UTR+translateableSeq,
+			// splices variant, checks if first 3 CDS chars != 'ATG'.
+			// Perl guard (line 932): return 0 unless $utr — skips when no 5' UTR.
+			String utr5ForStartCheck = BaseTranscriptVariation.fivePrimeUtr(transcript, reference);
+			if (utr5ForStartCheck != null && !utr5ForStartCheck.isEmpty() && cdsSeq.length() >= 3) {
 				char[] startCodon = {cdsSeq.charAt(0), cdsSeq.charAt(1), cdsSeq.charAt(2)};
-				// Splice alt at the variant's position within the start codon
-				int posInStart = cdsPos - 1; // 0-based position in start codon
+				int posInStart = cdsPos - 1;
 				startCodon[posInStart] = effectiveAlt.charAt(0);
 				String altStart = new String(startCodon);
 				if (!"ATG".equalsIgnoreCase(altStart)) {
 					isStartLost = true;
 				}
 			}
-			// Path 2: peptide check — different AA at position 1
+			// Path 2: peptide check (Perl line 877-887) — different AA at position 1
 			if (!isStartLost && bvt.translationStart() == 1 && rAA != aAA) {
 				isStartLost = true;
 			}
