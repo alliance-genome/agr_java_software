@@ -395,20 +395,22 @@ public class TranscriptVariationAllele {
 		int refAlleleLen = "-".equals(refAllele) ? 0 : refAllele.length();
 		String refCds = cdsSequence; // default: use original CDS
 		if (isDeletion && refAlleleLen != vfNtLen && refAlleleLen > 0) {
+			// Multi-exon deletion: ref allele includes intron bases → splice ref into CDS
+			// (Perl codon() line 837-848, _get_alternate_cds with REF allele)
 			String refAlleleSeq = transcript.isPositiveStrand() ? refAllele
 				: Sequence.reverseComplement(refAllele);
 			refCds = safeSubstring(cdsSequence, 0, cdsPos - 1)
 				+ refAlleleSeq
 				+ safeSubstring(cdsSequence, this.cdsEnd, cdsSequence.length());
-		} else if (!isDeletion && refAlleleLen == vfNtLen && refAlleleLen > 0) {
-			// Same-length substitution (MNP / SNP-like). VEP codon() line 854-859
-			// branch (allele_len == vf_nt_len): splice the REF allele into
-			// _translateable_seq at cds_start-1 before extracting the codon. In the
-			// normal case this is a no-op (raw CDS already has the ref bases at
-			// cds_start), but when the transcript has a phase mismatch between
-			// start_Exon and translation->start_Exon (e.g. FBtr0079971), cds_start
-			// is off by one position and the splice overwrites a different raw byte.
-			// Java must replicate that splice so the displayed ref codon matches Perl.
+		} else if (refAlleleLen == vfNtLen && refAlleleLen > 0) {
+			// Same-length (allele_len == vf_nt_len) — applies to ALL variant types:
+			// deletions, MNPs, delins. Perl codon() line 854-859 always splices the
+			// REF allele into _translateable_seq at cds_start-1 in this case. Normally
+			// a no-op (raw CDS at that position already equals ref), but when the
+			// transcript has a phase mismatch between start_Exon and
+			// translation->start_Exon (e.g. FBtr0079971), cds_start is off by one
+			// and the splice overwrites a different raw byte. Java must replicate that
+			// splice so the displayed ref codon matches Perl.
 			String refAlleleSeq = transcript.isPositiveStrand() ? refAllele
 				: Sequence.reverseComplement(refAllele);
 			refCds = safeSubstring(cdsSequence, 0, cdsPos - 1)
