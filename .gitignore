@@ -15,3 +15,6 @@ target/
 .vscode/
 .factorypath
 .claude
+
+# VEP debug infrastructure (local only)
+agr_vep/debug/

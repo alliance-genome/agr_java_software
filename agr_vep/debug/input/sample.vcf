@@ -1,9 +1,0 @@
-##fileformat=VCFv4.1
-##contig=<ID=chrIV,length=1531933>
-##contig=<ID=chrIII,length=316620>
-##contig=<ID=chrVI,length=270161>
-#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
-chrIV	1524929	.	GCCA	G	.	PASS	.
-chrIV	1525401	.	T	TGTG	.	PASS	.
-chrIII	14115	.	A	ATAG	.	PASS	.
-chrVI	92736	.	ATG	A	.	PASS	.
