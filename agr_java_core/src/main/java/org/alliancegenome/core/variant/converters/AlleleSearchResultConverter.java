@@ -92,10 +92,11 @@ public class AlleleSearchResultConverter {
 			if (doc.getAlleleOfGene() != null && doc.getAlleleOfGene().getPrimaryExternalId() != null) {
 				crossRefs.add(doc.getAlleleOfGene().getPrimaryExternalId());
 			}
-			if (doc.getGeneCrossReferences() != null) {
-				crossRefs.addAll(doc.getGeneCrossReferences());
-			}
 			searchDoc.setCrossReferences(crossRefs);
+
+			if (doc.getGeneCrossReferences() != null && !doc.getGeneCrossReferences().isEmpty()) {
+				searchDoc.setGeneCrossReferences(doc.getGeneCrossReferences());
+			}
 
 			if (allele.getPopularity() != null) {
 				searchDoc.setPopularity(allele.getPopularity());

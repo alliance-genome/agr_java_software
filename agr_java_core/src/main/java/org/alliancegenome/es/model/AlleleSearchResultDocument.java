@@ -37,6 +37,7 @@ public class AlleleSearchResultDocument extends ESDocument {
 	private Set<String> constructRegulatoryRegion;
 	private Set<String> constructKnockdownComponent;
 	private Set<String> crossReferences;
+	private Set<String> geneCrossReferences;
 	private Set<String> synonyms;
 	private Set<String> geneSynonyms;
 	private Set<String> secondaryIds;
