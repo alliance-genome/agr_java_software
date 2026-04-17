@@ -41,7 +41,7 @@ public enum IndexerConfig {
 	//VariantSummaryIndexer("variantSummary", VariantSummaryCurationIndexer.class, 1, 3000, 1500, 8, 1, true),
 	GeneGeneticInteractionIndexers("geneGeneticInteraction", GeneGeneticInteractionCurationIndexer.class, 4, 1500, 1500, 2, 1, true),
 	HTPDatasetSearchResultCurationIndexer("htpDatasetSearchResult", HTPDatasetSearchResultCurationIndexer.class, 4, 1500, 1500, 4, 1, true),
-	LiteratureIndexer("literature", LiteratureIndexer.class, 4, 5000, 5000, 1, 1, true),
+	LiteratureIndexer("literature", LiteratureIndexer.class, 4, 7500, 7500, 4, 10, true),
 	GeneExpressionAnnotationIndexer("geneExpressionAnnotation", GeneExpressionAnnotationIndexer.class, 8, 125, 2000, 4, 1, true),
 	SiteMapAccessionCurationIndexer("sitemap", SiteMapAccessionCurationIndexer.class, 4, 1500, 1500, 8, 1, true),
 	DiseaseSummaryIndexer("diseaseSummary", DiseaseSummaryCurationIndexer.class, 4, 1500, 1500, 4, 1, true),
