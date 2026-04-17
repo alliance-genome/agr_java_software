@@ -39,9 +39,16 @@ public class VariationFeature {
 		String refSequence = null;
 		if (reference != null) {
 			try {
-				// Get enough flanking sequence for dup detection
-				int flankStart = Math.max(1, start - 100);
-				int flankEnd = end + 100;
+				// Perl _get_flank_seq (VariationFeature.pm:1780-1824):
+				// add_length = max(100, max_allele_len + 50). Checks BOTH ref and
+				// alt alleles so large insertions AND deletions get enough flank
+				// for dup detection and 3' shifting.
+				int refLen = (ref != null && !"-".equals(ref)) ? ref.length() : 0;
+				int altLen = (alt != null && !"-".equals(alt)) ? alt.length() : 0;
+				int maxAlleleLen = Math.max(refLen, altLen);
+				int flankSize = Math.max(100, maxAlleleLen + 50);
+				int flankStart = Math.max(1, start - flankSize);
+				int flankEnd = end + flankSize;
 				refSequence = reference.getSequence(chr, flankStart, flankEnd);
 				// Adjust coordinates relative to flank
 				int refStart = start - flankStart + 1;
