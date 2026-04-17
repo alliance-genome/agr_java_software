@@ -195,6 +195,7 @@ public class ESService {
 			TermsAggregationBuilder aggregationBuilder = AggregationBuilders.terms(fieldNameAgg);
 			aggregationBuilder.bucketCardinality();
 			aggregationBuilder.field(field);
+			aggregationBuilder.size(40);
 			aggBuilders.add(aggregationBuilder);
 		});
 
