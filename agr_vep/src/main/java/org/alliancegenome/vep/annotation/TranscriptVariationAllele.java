@@ -2312,51 +2312,9 @@ public class TranscriptVariationAllele {
 		return cdnaPosition + (intronOffset != null ? intronOffset : "");
 	}
 
-	/**
-	 * Matches Perl Transcript.pm cdna_coding_end (line 1027-1074).
-	 * Perl walks exons; when it hits translation->end_Exon, it adds
-	 * translation->end (= CDS-end offset relative to exon start), even when
-	 * that exceeds the exon length (e.g. FB FBtr0335486 where CDS extends 3bp
-	 * past its exon). Java doesn't store translation end_Exon directly, so we
-	 * identify the "end exon" as the last exon whose start overlaps the last
-	 * CDS segment (matching Perl's assignment at BaseGXF.pm line 568).
-	 */
+	/** Delegates to shared implementation in BaseTranscriptVariation. */
 	private int computeCdnaCodingEnd(TranscriptModel transcript) {
-		if (!transcript.isCoding()) return 0;
-		List<CdsSegment> cdsSegs = transcript.getCdsSegments();
-		if (cdsSegs.isEmpty()) return 0;
-
-		// Last CDS segment in genomic order: + strand → last, - strand → first
-		CdsSegment lastCds = transcript.isPositiveStrand()
-			? cdsSegs.get(cdsSegs.size() - 1) : cdsSegs.get(0);
-
-		// Find the exon that contains the last CDS segment's start — this is the
-		// translation end_Exon (Perl BaseGXF.pm line 568: $_->{_exon} = $exon).
-		// Then compute the offset of the CDS end relative to that exon's start
-		// (Perl line 723-728), which may exceed the exon length.
-		int cdnaPos = 0;
-		if (transcript.isPositiveStrand()) {
-			for (ExonModel exon : transcript.getExons()) {
-				if (lastCds.getStart() >= exon.getStart() && lastCds.getStart() <= exon.getEnd()) {
-					// This is the end exon. Perl: $end += $self->translation->end
-					// translation->end = (cds_end - exon_start) + 1
-					int translationEnd = (lastCds.getEnd() - exon.getStart()) + 1;
-					return cdnaPos + translationEnd;
-				}
-				cdnaPos += exon.getEnd() - exon.getStart() + 1;
-			}
-		} else {
-			for (int i = transcript.getExons().size() - 1; i >= 0; i--) {
-				ExonModel exon = transcript.getExons().get(i);
-				if (lastCds.getEnd() >= exon.getStart() && lastCds.getEnd() <= exon.getEnd()) {
-					// Minus strand: translation->end = (exon_end - cds_start) + 1
-					int translationEnd = (exon.getEnd() - lastCds.getStart()) + 1;
-					return cdnaPos + translationEnd;
-				}
-				cdnaPos += exon.getEnd() - exon.getStart() + 1;
-			}
-		}
-		return 0;
+		return BaseTranscriptVariation.computeCdnaCodingEnd(transcript);
 	}
 
 	private int compareHgvsPositions(String pos1, String pos2) {

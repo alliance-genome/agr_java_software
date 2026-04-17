@@ -223,31 +223,36 @@ public class BaseTranscriptVariation {
 	}
 
 	/**
-	 * VEP BaseTranscriptVariation::_translateable_seq (line 1083-1091). Builds the
-	 * CDS sequence from transcript CDS segments. Equivalent of the old
-	 * buildCdsSequence.
+	 * VEP Transcript::translateable_seq (Transcript.pm line 905-934).
+	 * Perl builds this from the spliced mRNA (exon-only sequence), not directly
+	 * from CDS genomic coordinates:
+	 *   $mrna = $self->spliced_seq();
+	 *   $mrna = substr($mrna, cdna_coding_start - 1, cdna_coding_end - cdna_coding_start + 1);
+	 *   $mrna = "N" x start_phase . $mrna   if start_phase > 0;
+	 *
+	 * This matters for the ~19 FB transcripts where a CDS segment extends past its
+	 * exon (e.g. FBtr0335486 CDS 7614843-7615447 vs exon 7614843-7615444). The old
+	 * Java code fetched CDS coords from the reference genome, including intron bases.
+	 * Perl's spliced_seq is purely exonic, so the overshoot wraps into the next exon.
+	 * Using spliced_seq produces the correct peptide (and MD5 for PolyPhen/SIFT).
 	 */
 	public static String translateableSeq(TranscriptModel transcript, ReferenceGenome reference) {
-		String chr = transcript.getChr();
-		StringBuilder cds = new StringBuilder();
+		if (transcript.getCdsSegments().isEmpty()) return null;
 
-		if (transcript.isPositiveStrand()) {
-			for (CdsSegment seg : transcript.getCdsSegments()) {
-				String seq = reference.getSequence(chr, seg.getStart(), seg.getEnd());
-				cds.append(seq.toUpperCase());
-			}
-		} else {
-			List<CdsSegment> segments = transcript.getCdsSegments();
-			for (int i = segments.size() - 1; i >= 0; i--) {
-				CdsSegment seg = segments.get(i);
-				String seq = reference.getSequence(chr, seg.getStart(), seg.getEnd());
-				cds.append(Sequence.reverseComplement(seq.toUpperCase()));
-			}
-		}
+		// Step 1: build spliced mRNA (Perl Transcript::spliced_seq)
+		String splicedSeq = buildSplicedSeq(transcript, reference);
+		if (splicedSeq == null || splicedSeq.isEmpty()) return null;
 
-		// Apply phase offset — Ensembl convention (phase = bases of prior codon at start).
-		// Use translation->start_Exon->phase (Transcript.pm line 917-920: start_phase
-		// comes from translation's start exon, not transcript's first exon).
+		// Step 2: extract CDS from spliced mRNA
+		int codingStart = transcript.getCdnaCodingStart(); // 1-based
+		int codingEnd = computeCdnaCodingEnd(transcript);  // 1-based
+		if (codingStart <= 0 || codingEnd <= 0) return null;
+		codingEnd = Math.min(codingEnd, splicedSeq.length());
+		if (codingStart > splicedSeq.length()) return null;
+
+		String cds = splicedSeq.substring(codingStart - 1, codingEnd);
+
+		// Step 3: phase padding (Transcript.pm line 929-931)
 		int phase = transcript.getTranslationStartExonPhase();
 		String result;
 		if (phase > 0) {
@@ -256,13 +261,74 @@ public class BaseTranscriptVariation {
 			out.append(cds);
 			result = out.toString();
 		} else {
-			result = cds.toString();
+			result = cds;
 		}
 		Trace.log("BTV._translateable_seq", "tr=%s phase=%d len=%d first30=%s last30=%s",
 			transcript.getTranscriptId(), phase, result.length(),
 			result.length() >= 30 ? result.substring(0, 30) : result,
 			result.length() >= 30 ? result.substring(result.length() - 30) : result);
 		return result;
+	}
+
+	/**
+	 * Perl Transcript::spliced_seq — concatenation of all exon sequences in
+	 * transcript order (5' to 3').
+	 */
+	public static String buildSplicedSeq(TranscriptModel transcript, ReferenceGenome reference) {
+		String chr = transcript.getChr();
+		List<ExonModel> exons = transcript.getExons();
+		StringBuilder mrna = new StringBuilder();
+		if (transcript.isPositiveStrand()) {
+			for (ExonModel exon : exons) {
+				String seq = reference.getSequence(chr, exon.getStart(), exon.getEnd());
+				mrna.append(seq.toUpperCase());
+			}
+		} else {
+			for (int i = exons.size() - 1; i >= 0; i--) {
+				ExonModel exon = exons.get(i);
+				String seq = reference.getSequence(chr, exon.getStart(), exon.getEnd());
+				mrna.append(Sequence.reverseComplement(seq.toUpperCase()));
+			}
+		}
+		return mrna.toString();
+	}
+
+	/**
+	 * Perl Transcript::cdna_coding_end (Transcript.pm line 1027-1074).
+	 * Walks exons in transcript order; at the translation end_Exon, adds
+	 * translation->end (CDS end offset relative to exon start, may exceed exon
+	 * length). Identifies end_Exon via CDS segment start overlap (matching Perl
+	 * BaseGXF.pm line 568 exon assignment).
+	 */
+	public static int computeCdnaCodingEnd(TranscriptModel transcript) {
+		if (!transcript.isCoding()) return 0;
+		List<CdsSegment> cdsSegs = transcript.getCdsSegments();
+		if (cdsSegs.isEmpty()) return 0;
+
+		CdsSegment lastCds = transcript.isPositiveStrand()
+			? cdsSegs.get(cdsSegs.size() - 1) : cdsSegs.get(0);
+
+		int cdnaPos = 0;
+		if (transcript.isPositiveStrand()) {
+			for (ExonModel exon : transcript.getExons()) {
+				if (lastCds.getStart() >= exon.getStart() && lastCds.getStart() <= exon.getEnd()) {
+					int translationEnd = (lastCds.getEnd() - exon.getStart()) + 1;
+					return cdnaPos + translationEnd;
+				}
+				cdnaPos += exon.getEnd() - exon.getStart() + 1;
+			}
+		} else {
+			List<ExonModel> exons = transcript.getExons();
+			for (int i = exons.size() - 1; i >= 0; i--) {
+				ExonModel exon = exons.get(i);
+				if (lastCds.getEnd() >= exon.getStart() && lastCds.getEnd() <= exon.getEnd()) {
+					int translationEnd = (exon.getEnd() - lastCds.getStart()) + 1;
+					return cdnaPos + translationEnd;
+				}
+				cdnaPos += exon.getEnd() - exon.getStart() + 1;
+			}
+		}
+		return 0;
 	}
 
 	/**
