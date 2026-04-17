@@ -25,7 +25,11 @@ public class AlleleSearchResultDocument extends ESDocument {
 	private String species;
 	private Double popularity;
 	private String alterationType;
-	private List<String> variantType;
+	private String globalId;
+	private String localId;
+	private String modCrossRefCompleteUrl;
+	
+	private Set<String> variantType;
 	private Set<String> molecularConsequence;
 	private Set<String> variants;
 	private Set<String> constructs;
@@ -33,16 +37,13 @@ public class AlleleSearchResultDocument extends ESDocument {
 	private Set<String> constructRegulatoryRegion;
 	private Set<String> constructKnockdownComponent;
 	private Set<String> crossReferences;
-	private List<String> synonyms;
+	private Set<String> synonyms;
 	private Set<String> geneSynonyms;
-	private List<String> secondaryIds;
-	private List<String> genes;
-	private List<String> diseases;
-	private List<String> diseasesAgrSlim;
-	private List<String> diseasesWithParents;
-	private List<String> phenotypeStatements;
-	private String globalId;
-	private String localId;
-	private String modCrossRefCompleteUrl;
+	private Set<String> secondaryIds;
+	private Set<String> genes;
+	private Set<String> diseases;
+	private Set<String> diseasesAgrSlim;
+	private Set<String> diseasesWithParents;
+	private Set<String> phenotypeStatements;
 
 }

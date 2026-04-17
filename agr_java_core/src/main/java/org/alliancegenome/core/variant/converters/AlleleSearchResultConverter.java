@@ -57,10 +57,10 @@ public class AlleleSearchResultConverter {
 			}
 
 			if (CollectionUtils.isNotEmpty(allele.getAlleleSynonyms())) {
-				List<String> synonyms = allele.getAlleleSynonyms().stream()
+				Set<String> synonyms = allele.getAlleleSynonyms().stream()
 					.map(NameSlotAnnotation::getDisplayText)
 					.filter(Objects::nonNull)
-					.collect(Collectors.toList());
+					.collect(Collectors.toSet());
 				if (!synonyms.isEmpty()) {
 					searchDoc.setSynonyms(synonyms);
 				}
@@ -76,7 +76,7 @@ public class AlleleSearchResultConverter {
 						geneSymbol = geneSymbol + " (" + taxon.getName() + ")";
 					}
 				}
-				searchDoc.setGenes(List.of(geneSymbol));
+				searchDoc.setGenes(Set.of(geneSymbol));
 			}
 
 			if (doc.getGeneSynonyms() != null && !doc.getGeneSynonyms().isEmpty()) {
@@ -104,17 +104,17 @@ public class AlleleSearchResultConverter {
 			}
 
 			if (doc.getDiseases() != null && !doc.getDiseases().isEmpty()) {
-				searchDoc.setDiseases(new ArrayList<>(doc.getDiseases()));
+				searchDoc.setDiseases(new HashSet<>(doc.getDiseases()));
 			}
 			if (doc.getDiseasesAgrSlim() != null && !doc.getDiseasesAgrSlim().isEmpty()) {
-				searchDoc.setDiseasesAgrSlim(new ArrayList<>(doc.getDiseasesAgrSlim()));
+				searchDoc.setDiseasesAgrSlim(new HashSet<>(doc.getDiseasesAgrSlim()));
 			}
 			if (doc.getDiseasesWithParents() != null && !doc.getDiseasesWithParents().isEmpty()) {
-				searchDoc.setDiseasesWithParents(new ArrayList<>(doc.getDiseasesWithParents()));
+				searchDoc.setDiseasesWithParents(new HashSet<>(doc.getDiseasesWithParents()));
 			}
 
 			if (doc.getPhenotypeStatements() != null && !doc.getPhenotypeStatements().isEmpty()) {
-				searchDoc.setPhenotypeStatements(new ArrayList<>(doc.getPhenotypeStatements()));
+				searchDoc.setPhenotypeStatements(new HashSet<>(doc.getPhenotypeStatements()));
 			}
 
 			if (doc.getConstructs() != null && !doc.getConstructs().isEmpty()) {
@@ -134,11 +134,11 @@ public class AlleleSearchResultConverter {
 			}
 
 			if (CollectionUtils.isNotEmpty(doc.getVariantList())) {
-				List<String> variantTypes = doc.getVariantList().stream()
+				Set<String> variantTypes = doc.getVariantList().stream()
 					.filter(v -> v.getVariantType() != null && v.getVariantType().getName() != null)
 					.map(v -> v.getVariantType().getName())
 					.distinct()
-					.toList();
+					.collect(Collectors.toSet());
 				if (!variantTypes.isEmpty()) {
 					searchDoc.setVariantType(variantTypes);
 				}
