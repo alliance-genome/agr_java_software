@@ -986,10 +986,22 @@ public class TranscriptVariationAllele {
 			}
 
 			// VEP pep_allele_string (line 610-622)
-			if (rp != null) {
+			// Perl's peptide() returns undef for N-containing alleles (the codon
+			// contains ambiguous bases), causing pep_allele_string to return undef
+			// → empty Amino_acids field. Java translates N-codons to X. Suppress
+			// amino acids when alt peptide contains X to match Perl.
+			// Perl's peptide() returns undef for N-containing alleles, causing
+			// pep_allele_string → undef → empty Amino_acids. Check the original
+			// allele for ambiguous bases (not the translated peptide, since X can
+			// also come from legitimate partial codons which Perl DOES output).
+			boolean alleleHasAmbiguous = vepAllele.matches(".*[^ACGTacgt-].*")
+				|| refAllele.matches(".*[^ACGTacgt-].*");
+			if (rp != null && !alleleHasAmbiguous) {
 				String rpStr = rp.isEmpty() ? "-" : rp;
 				String apStr = (ap == null || ap.isEmpty()) ? "-" : ap;
 				this.aminoAcids = (pepAlleleString(rpStr, apStr));
+			} else if (alleleHasAmbiguous) {
+				this.aminoAcids = "";
 			}
 
 			// VEP display_codon (line 884-915) + display_codon_allele_string (line 658-673)
