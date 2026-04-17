@@ -264,7 +264,13 @@ public class TranscriptVariationAllele {
 		this.cdnaEnd = bvt.cdnaEnd();
 		this.cdsSequence = cdsSeq;
 
-		if (cdsPos <= 3 && !transcript.isCdsStartNF() && CodonTable.isStart(refCdn) && !CodonTable.isStart(altCdn)) {
+		// Perl VariationEffect.pm start_lost (line 850-899): fires when
+		// _overlaps_start_codon (cds 1-3, not cds_start_NF) AND
+		// translation_start == 1 AND alt peptide doesn't match ref peptide.
+		// Perl does NOT check CodonTable.isStart — any change to the first
+		// amino acid is start_lost, even for non-ATG start codons (e.g. CTC).
+		if (cdsPos <= 3 && !transcript.isCdsStartNF()
+				&& bvt.translationStart() == 1 && rAA != aAA) {
 			this.consequence = "start_lost";
 		} else if (rAA == '*' && aAA == '*') {
 			this.consequence = "stop_retained_variant";
