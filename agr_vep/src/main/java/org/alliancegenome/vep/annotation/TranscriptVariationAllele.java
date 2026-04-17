@@ -266,11 +266,11 @@ public class TranscriptVariationAllele {
 
 		// Perl VariationEffect.pm start_lost (line 850-899) fires via two paths:
 		// 1. _inv_start_altered (line 912-949): builds UTR+translateableSeq, splices
-		//    variant, checks if first 3 CDS chars != 'ATG'. For phase-padded
-		//    transcripts (translateableSeq starts with 'N'), the start is never ATG
-		//    → ANY variant at positions 1-3 fires start_lost.
+		//	  variant, checks if first 3 CDS chars != 'ATG'. For phase-padded
+		//	  transcripts (translateableSeq starts with 'N'), the start is never ATG
+		//	  → ANY variant at positions 1-3 fires start_lost.
 		// 2. Peptide check (line 876-880): translation_start==1 AND alt_pep differs.
-		//    Fires for non-padded transcripts where the AA changes (missense).
+		//	  Fires for non-padded transcripts where the AA changes (missense).
 		boolean isStartLost = false;
 		if (cdsPos <= 3 && !transcript.isCdsStartNF()) {
 			// Path 1: _inv_start_altered — check if start codon is ATG after splice
@@ -289,23 +289,29 @@ public class TranscriptVariationAllele {
 				isStartLost = true;
 			}
 		}
-		if (isStartLost) {
-			this.consequence = "start_lost";
-		} else if (rAA == '*' && aAA == '*') {
-			this.consequence = "stop_retained_variant";
-		} else if (rAA == '*' && aAA != '*') {
-			this.consequence = "stop_lost";
-		} else if (aAA == '*') {
-			this.consequence = "stop_gained";
-		} else if (rAA == aAA) {
-			this.consequence = "synonymous_variant";
-		} else {
-			this.consequence = "missense_variant";
+		// Perl evaluates ALL consequence predicates independently (VariationEffect.pm).
+		List<String> snpConsequences = new ArrayList<>();
+		boolean isStopRetained = (rAA == '*' && aAA == '*');
+		boolean isStopLost = (rAA == '*' && aAA != '*');
+		boolean isStopGained = (!isStopRetained && aAA == '*' && rAA != '*');
+		if (isStartLost) snpConsequences.add("start_lost");
+		if (isStopRetained) snpConsequences.add("stop_retained_variant");
+		if (isStopLost) snpConsequences.add("stop_lost");
+		if (isStopGained) snpConsequences.add("stop_gained");
+		// Perl synonymous_variant (line 1032): NO guard on start_lost
+		if (rAA == aAA && !isStopRetained && rAA != 'X' && aAA != 'X') {
+			snpConsequences.add("synonymous_variant");
 		}
+		// Perl missense_variant (line 1040): guarded by start_lost, stop_lost, stop_gained
+		if (rAA != aAA && !isStartLost && !isStopLost && !isStopGained) {
+			snpConsequences.add("missense_variant");
+		}
+		snpConsequences.sort((a, b) -> Integer.compare(
+			ConsequenceSeverity.getRank(a), ConsequenceSeverity.getRank(b)));
+		this.consequence = String.join("&", snpConsequences);
 
-		// Build alt CDS+UTR for SNP stop_lost/frameshift — matches Perl _get_alternate_cds.
-		// VEP: upstream + alt_allele + downstream + 3'UTR
-		if ("stop_lost".equals(this.consequence) || "frameshift_variant".equals(this.consequence)) {
+		// Build alt CDS+UTR for SNP stop_lost — matches Perl _get_alternate_cds.
+		if (snpConsequences.contains("stop_lost")) {
 			char[] altCdsChars = cdsSeq.toCharArray();
 			altCdsChars[cdsPos - 1] = effectiveAlt.charAt(0);
 			String altCds = new String(altCdsChars);
@@ -708,8 +714,17 @@ public class TranscriptVariationAllele {
 					if ("-".equals(insSeq)) insSeq = "";
 					altPep = insSeq.isEmpty() ? "-" : vepPeptide(insSeq);
 				}
+				// Perl stop_retained (line 1238-1272): also fires when local
+				// peptides both start with *
+				if (refPep != null && altPep != null
+						&& altPep.startsWith("*") && refPep.startsWith("*")
+						&& !consequences.contains("stop_retained_variant")) {
+					consequences.add("stop_retained_variant");
+				}
+				// Perl stop_gained (line 1171): return 0 if stop_retained(@_)
 				if (altPep != null && altPep.contains("*")
-						&& (refPep == null || !refPep.contains("*"))) {
+						&& (refPep == null || !refPep.contains("*"))
+						&& !consequences.contains("stop_retained_variant")) {
 					consequences.add("stop_gained");
 				}
 			}
@@ -830,10 +845,17 @@ public class TranscriptVariationAllele {
 						consequences.add("inframe_deletion");
 					}
 
-					// VEP stop_gained (VariationEffect.pm line 1146-1166):
-					// Checks if alt peptide contains '*' and ref peptide doesn't
+					// Perl stop_retained_variant (line 1238-1272): fires when both
+					// local peptides start with *
+					if (refPep != null && altPep != null
+						&& altPep.startsWith("*") && refPep.startsWith("*")
+						&& !consequences.contains("stop_retained_variant")) {
+						consequences.add("stop_retained_variant");
+					}
+					// Perl stop_gained (line 1161): guarded by stop_retained
 					if (altPep != null && refPep != null
-						&& altPep.contains("*") && !refPep.contains("*")) {
+						&& altPep.contains("*") && !refPep.contains("*")
+						&& !consequences.contains("stop_retained_variant")) {
 						consequences.add("stop_gained");
 					}
 				}
@@ -873,25 +895,17 @@ public class TranscriptVariationAllele {
 					// For a 3bp insertion: ref = 1 AA, alt = 2 AAs (the codon gets extended)
 					// The check is: alt_pep starts or ends with ref_pep
 					//
-					// Default to inframe_insertion, then check if protein_altering applies
 					boolean isProteinAltering = false;
+					boolean pepMatch = false;
 
 					if (refPep != null && altPepTrimmed != null && refPep.length() > 0) {
-						// VEP trims stops: $alt_pep =~ s/\*.+/\*/
-						// Then checks: ($alt_pep =~ /^\Q$ref_pep\E/) || ($alt_pep =~ /\Q$ref_pep\E$/)
-						boolean pepMatch = altPepTrimmed.startsWith(refPep) || altPepTrimmed.endsWith(refPep);
-
+						pepMatch = altPepTrimmed.startsWith(refPep) || altPepTrimmed.endsWith(refPep);
 						if (!pepMatch && refPep.length() != altPep.length()
 							&& !refPep.startsWith("*") && !altPep.startsWith("*")) {
 							isProteinAltering = true;
 						}
 					}
 
-					// VEP missense_variant predicate (VariationEffect.pm):
-					// fires when ref_pep and alt_pep are non-empty, same length, and differ.
-					// For same-length multi-base substitutions (MNPs, delins) this is the
-					// correct classification — inframe_insertion/inframe_deletion require
-					// an actual length change in the peptide.
 					boolean isMissense = refPep != null && altPep != null
 						&& refPep.length() == altPep.length()
 						&& refPep.length() > 0
@@ -899,19 +913,19 @@ public class TranscriptVariationAllele {
 						&& !refPep.contains("*") && !altPep.contains("*");
 
 					if (isMissense) {
-						// Same-length peptide substitution (e.g. MNP spanning multiple codons,
-						// or a delins where both sides happen to produce equal-length peptides).
-						// VEP inframe_insertion / inframe_deletion predicates require a length
-						// change, so only missense_variant applies here.
 						consequences.add("missense_variant");
 					} else if (isProteinAltering) {
 						consequences.add("protein_altering_variant");
 					} else if (refPep != null && altPep != null
 						&& refPep.length() == altPep.length()
 						&& refPep.equals(altPep)) {
-						// Synonymous multi-base: both peptides equal.
 						consequences.add("synonymous_variant");
-					} else {
+					} else if (pepMatch || ((refPep == null || refPep.isEmpty()) && altPep != null && !altPep.isEmpty())) {
+						// Perl inframe_insertion (line 1053-1079): fires when trimmed
+						// alt_pep starts or ends with ref_pep. For between-codon
+						// insertions, Perl converts "-" to "" making /^\Q\E/ trivially
+						// match. When pepMatch fails with non-null/non-empty refPep
+						// (e.g. alt starts with *), only stop_gained fires.
 						consequences.add("inframe_insertion");
 						if (overlapsStop && refHasStop && altPep != null && altPep.contains("*")) {
 							consequences.add("stop_retained_variant");
