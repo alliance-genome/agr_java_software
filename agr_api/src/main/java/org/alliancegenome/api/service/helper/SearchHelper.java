@@ -256,6 +256,8 @@ public class SearchHelper {
 			add("cellularComponent");
 			add("crossReferences");
 			add("crossReferenceLinks");
+			add("geneCrossReferences");
+			add("geneSynonyms");
 			add("curie");
 			add("dataProvider");
 			add("definition");
