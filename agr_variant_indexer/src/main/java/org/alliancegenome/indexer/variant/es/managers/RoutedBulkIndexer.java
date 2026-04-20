@@ -1,31 +1,17 @@
 package org.alliancegenome.indexer.variant.es.managers;
 
 import java.io.IOException;
-import java.net.ConnectException;
-import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
-
-import org.apache.http.ConnectionClosedException;
-import org.apache.http.conn.ConnectTimeoutException;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.variant.config.VariantConfigHelper;
 import org.alliancegenome.es.util.EsClientFactory;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
-import org.elasticsearch.ElasticsearchStatusException;
-import org.elasticsearch.action.bulk.BulkItemResponse;
-import org.elasticsearch.action.bulk.BulkRequest;
-import org.elasticsearch.action.bulk.BulkResponse;
-import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.core.TimeValue;
-import org.elasticsearch.xcontent.XContentType;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -36,6 +22,7 @@ public class RoutedBulkIndexer extends Thread {
 	private final String indexName;
 	private final long maxBulkSizeBytes;
 	private final String label;
+	private final RetryWorker retryWorker;
 
 	private RestHighLevelClient client;
 	private ProcessDisplayHelper phGlobal;
@@ -55,13 +42,15 @@ public class RoutedBulkIndexer extends Thread {
 		LinkedBlockingDeque<List<byte[]>> jsonQueue,
 		String indexName,
 		String label,
-		ProcessDisplayHelper phGlobal
+		ProcessDisplayHelper phGlobal,
+		RetryWorker retryWorker
 	) {
 		this.jsonQueue = jsonQueue;
 		this.indexName = indexName;
 		this.maxBulkSizeBytes = ConfigHelper.getEsBulkSizeMB() * 1024 * 1024;
 		this.label = label;
 		this.phGlobal = phGlobal;
+		this.retryWorker = retryWorker;
 	}
 
 	@Override
@@ -150,78 +139,46 @@ public class RoutedBulkIndexer extends Thread {
 	}
 
 	private void submitBatch(List<byte[]> docs) {
+		if (!VariantConfigHelper.isIndexing()) {
+			return;
+		}
 		if (gatherStats) {
 			esBatchRequestStats.addValue(docs.size());
 		}
 		String routing = Integer.toString(ThreadLocalRandom.current().nextInt(Integer.MAX_VALUE));
-		submitWithRetry(docs, routing);
-	}
+		BulkSubmitResult result = BulkSubmitter.submitOnce(docs, client, routing, indexName);
 
-	private void submitWithRetry(List<byte[]> docs, String routing) {
-		if (!VariantConfigHelper.isIndexing()) {
-			return;
-		}
-		BulkRequest bulkRequest = new BulkRequest().timeout(TimeValue.timeValueHours(1));
-		for (byte[] smileDoc : docs) {
-			bulkRequest.add(new IndexRequest(indexName).source(smileDoc, XContentType.SMILE).routing(routing));
-		}
-
-		try {
-			BulkResponse response = client.bulk(bulkRequest, RequestOptions.DEFAULT);
-
-			if (response.hasFailures()) {
-				List<byte[]> failedDocs = new ArrayList<>();
-				for (BulkItemResponse item : response) {
-					if (item.isFailed()) {
-						failedDocs.add(docs.get(item.getItemId()));
+		switch (result.getStatus()) {
+			case SUCCESS:
+				return;
+			case PARTIAL_FAILURE:
+				totalRetries++;
+				log.warn(label + " " + result.getFailedDocs().size() + " failed items, handing to retry worker");
+				handOff(result.getFailedDocs());
+				return;
+			case FULL_FAILURE:
+				totalRetries++;
+				log.warn(label + " Bulk request failed (" + result.getReason() + "), size=" + docs.size() + (result.isReconnectNeeded() ? ", reconnecting" : "") + (result.isSleepNeeded() ? ", sleeping" : "") + ", handing to retry worker");
+				if (result.isSleepNeeded()) {
+					try {
+						Thread.sleep(1000 + ThreadLocalRandom.current().nextInt(2000));
+					} catch (InterruptedException ie) {
+						Thread.currentThread().interrupt();
 					}
 				}
-				if (!failedDocs.isEmpty()) {
-					totalRetries++;
-					log.warn(label + " " + failedDocs.size() + " failed items, splitting and requeueing");
-					requeueSplit(failedDocs);
+				if (result.isReconnectNeeded()) {
+					reconnectClient();
 				}
-			}
+				handOff(docs);
+				return;
+		}
+	}
 
-		} catch (ElasticsearchStatusException e) {
-			totalRetries++;
-			log.warn(label + " Bulk request rejected (HTTP " + e.status().getStatus() + "): " + e.getMessage() + ", sleeping and splitting " + docs.size() + " items and requeueing");
-			try {
-				Thread.sleep(1000 + ThreadLocalRandom.current().nextInt(2000));
-			} catch (InterruptedException ie) {
-				Thread.currentThread().interrupt();
-			}
-			requeueSplit(docs);
-		} catch (ConnectTimeoutException e) {
-			totalRetries++;
-			log.warn(label + " Bulk request ConnectTimeoutException: " + e.getMessage() + ", reconnecting and splitting " + docs.size() + " items and requeueing");
-			reconnectClient();
-			requeueSplit(docs);
-		} catch (SocketTimeoutException e) {
-			totalRetries++;
-			log.warn(label + " Bulk request SocketTimeoutException: " + e.getMessage() + ", reconnecting and splitting " + docs.size() + " items and requeueing");
-			reconnectClient();
-			requeueSplit(docs);
-		} catch (ConnectionClosedException e) {
-			totalRetries++;
-			log.warn(label + " Bulk request ConnectionClosedException: " + e.getMessage() + ", reconnecting and splitting " + docs.size() + " items and requeueing");
-			reconnectClient();
-			requeueSplit(docs);
-		} catch (ConnectException e) {
-			totalRetries++;
-			log.warn(label + " Bulk request ConnectException: " + e.getMessage() + ", reconnecting and splitting " + docs.size() + " items and requeueing");
-			reconnectClient();
-			requeueSplit(docs);
-		} catch (IOException e) {
-			totalRetries++;
-			log.warn(label + " Bulk request IOException: " + e.getMessage() + ", reconnecting and splitting " + docs.size() + " items and requeueing");
-			reconnectClient();
-			requeueSplit(docs);
-		} catch (RuntimeException e) {
-			totalRetries++;
-			log.warn(label + " Bulk request RuntimeException (" + e.getClass().getSimpleName() + "): " + e.getMessage() + ", reconnecting and splitting " + docs.size() + " items and requeueing");
-			reconnectClient();
-			requeueSplit(docs);
+	private void handOff(List<byte[]> docs) {
+		try {
+			retryWorker.submit(docs);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
 		}
 	}
 
@@ -234,20 +191,6 @@ public class RoutedBulkIndexer extends Thread {
 		}
 		client = EsClientFactory.getMustCloseSearchClient();
 		log.info(label + " ES client reconnected: " + System.identityHashCode(client));
-	}
-
-	private void requeueSplit(List<byte[]> docs) {
-		try {
-			if (docs.size() == 1) {
-				jsonQueue.put(docs);
-			} else {
-				int mid = docs.size() / 2;
-				jsonQueue.put(new ArrayList<>(docs.subList(0, mid)));
-				jsonQueue.put(new ArrayList<>(docs.subList(mid, docs.size())));
-			}
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-		}
 	}
 
 	private void logStats() {
