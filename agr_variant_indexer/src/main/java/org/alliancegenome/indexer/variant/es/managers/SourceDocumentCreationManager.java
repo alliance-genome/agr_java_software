@@ -74,12 +74,18 @@ public class SourceDocumentCreationManager extends Thread {
 			int poolSize = totalCpus * 2;
 			log.info("ES cluster total CPUs: {}, RoutedBulkIndexer pool size: {}, active species: {}, jsonQueue capacity: {}", totalCpus, poolSize, activeCount, 250 * activeCount);
 
+			// Start single-threaded retry worker with bounded queue (backpressure on producers)
+			int retryQueueCapacity = 100;
+			log.info("Starting RetryWorker with queue capacity: {}", retryQueueCapacity);
+			RetryWorker retryWorker = new RetryWorker(retryQueueCapacity, SourceDocumentCreation.indexName);
+			retryWorker.start();
+
 			// Start shared RoutedBulkIndexer pool
 			ProcessDisplayHelper phPool = new ProcessDisplayHelper(VariantConfigHelper.getDisplayInterval());
 			phPool.startProcess("SharedRoutedBulkIndexers");
 			ArrayList<RoutedBulkIndexer> indexers = new ArrayList<>();
 			for (int i = 0; i < poolSize; i++) {
-				RoutedBulkIndexer indexer = new RoutedBulkIndexer(jsonQueue, SourceDocumentCreation.indexName, "SharedBP(" + (i + 1) + ")", phPool);
+				RoutedBulkIndexer indexer = new RoutedBulkIndexer(jsonQueue, SourceDocumentCreation.indexName, "SharedBP(" + (i + 1) + ")", phPool, retryWorker);
 				indexer.start();
 				indexers.add(indexer);
 			}
@@ -113,6 +119,12 @@ public class SourceDocumentCreationManager extends Thread {
 			}
 			phPool.finishProcess();
 			log.info("Shared RoutedBulkIndexer pool shutdown");
+
+			// Shut down retry worker (finishes draining queue + internal deque before returning)
+			log.info("Shutting down RetryWorker");
+			retryWorker.shutdown();
+			retryWorker.join();
+			log.info("RetryWorker shutdown");
 
 			log.info("SourceDocumentCreationManager all species finished");
 
