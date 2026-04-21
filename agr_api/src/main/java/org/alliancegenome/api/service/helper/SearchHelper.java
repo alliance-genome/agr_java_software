@@ -125,7 +125,10 @@ public class SearchHelper {
 			put("name.autocomplete", 0.1F);
 			put("synonyms.keyword", 2.0F);
 			put("synonyms", 2.0F);
+			put("crossReferences", 2.0F);
 			put("genes", 0.5F);
+			put("geneCrossReferences", 0.1F);
+			put("geneSynonyms", 0.5F);
 		}
 	};
 
