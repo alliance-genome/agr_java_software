@@ -94,9 +94,6 @@ public class VariantSearchResultConverter {
 					.map(xref -> xref.getReferencedCurie())
 					.filter(Objects::nonNull)
 					.collect(Collectors.toSet());
-				if (!geneCrossRefs.isEmpty()) {
-					vsd.setGeneCrossReferences(geneCrossRefs);
-				}
 
 				Set<String> secondaryIds = variantLocation.getPredictedVariantConsequences().stream()
 					.filter(pvc -> pvc.getVariantTranscript() != null && pvc.getVariantTranscript().getTranscriptGeneAssociations() != null)
@@ -108,8 +105,12 @@ public class VariantSearchResultConverter {
 					.map(sid -> sid.getSecondaryId())
 					.filter(Objects::nonNull)
 					.collect(Collectors.toSet());
+				
 				if (!secondaryIds.isEmpty()) {
-					vsd.setSecondaryIds(secondaryIds);
+					geneCrossRefs.addAll(secondaryIds);
+				}
+				if (!geneCrossRefs.isEmpty()) {
+					vsd.setGeneCrossReferences(geneCrossRefs);
 				}
 			}
 
