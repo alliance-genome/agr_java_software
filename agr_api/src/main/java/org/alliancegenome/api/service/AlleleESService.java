@@ -175,6 +175,7 @@ public class AlleleESService extends ESService {
 		aggregationFields.put("variantList.curatedVariantGenomicLocations.predictedVariantConsequences.vepConsequences.name.keyword", "molecularConsequence");
 
 		Map<String, List<String>> distinctFieldValueMap = getAggregations(unfilteredQuery, aggregationFields, null, false, false);
+		distinctFieldValueMap.values().forEach(v -> v.sort(String.CASE_INSENSITIVE_ORDER));
 		Map<String, Object> supplementalData = new LinkedHashMap<>();
 		supplementalData.put(DISTINCT_FIELD_VALUES, distinctFieldValueMap);
 		return supplementalData;
