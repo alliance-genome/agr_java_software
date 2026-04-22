@@ -591,8 +591,9 @@ public class OutputFactory {
 						entry.setCdnaPosition(formatCoords(cdnaS, cdnaE));
 					}
 				}
-				if (tva != null && tva.getConsequence() != null) {
+				if (tva != null && tva.getConsequence() != null && !tva.getConsequence().isEmpty()) {
 					for (String term : tva.getConsequence().split("&")) {
+						if (term.isEmpty()) continue;
 						// For CDS+UTR overlap, only keep start_lost
 						if ((overlaps5utr || overlaps3utr) && !term.equals("start_lost")) {
 							continue;
