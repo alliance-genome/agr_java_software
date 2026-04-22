@@ -11,18 +11,18 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 /**
- * Fast, memory-mapped lookup of SIFT/PolyPhen prediction matrices.
+ * Fast lookup of SIFT/PolyPhen prediction matrices.
  *
  * Uses pre-built binary files (from build_mmap.py):
  *   {ORG}_{ANALYSIS}.idx - sorted index of MD5 -> offset/length
  *   {ORG}_{ANALYSIS}.dat - concatenated raw prediction matrices
  *
- * Lookup is O(log n) binary search on the index, then a direct
- * 2-byte read from the memory-mapped data file.
+ * Index is memory-mapped (always small). Data file uses RandomAccessFile
+ * to support files > 2GB (MappedByteBuffer has an int size limit).
  */
 public class PredictionLookup implements AutoCloseable {
 
-	private static final String AMINO_ACIDS = "ACDEFGHIKLMNPQRSTVWY";
+	private static final String[] AMINO_ACIDS_ORDER = "ACDEFGHIKLMNPQRSTVWY".split("");
 	private static final int NUM_AAS = 20;
 	private static final int BYTES_PER_PRED = 2;
 	private static final int NO_PREDICTION = 0xFFFF;
@@ -38,12 +38,13 @@ public class PredictionLookup implements AutoCloseable {
 		"probably damaging", "possibly damaging", "benign", "unknown"
 	};
 
+	private static final String AMINO_ACIDS = "ACDEFGHIKLMNPQRSTVWY";
 	private static final int IDX_HEADER = 4;
 	private static final int IDX_ENTRY_SIZE = 40;
 	private static final int IDX_MD5_LEN = 32;
 
-	private final MappedByteBuffer dataBuf;
 	private final MappedByteBuffer idxBuf;
+	private final RandomAccessFile dataRaf;
 	private final int entryCount;
 	private final String[] labels;
 
@@ -53,19 +54,15 @@ public class PredictionLookup implements AutoCloseable {
 
 		String base = organism + "_" + analysis;
 
-		try (RandomAccessFile idxRaf = new RandomAccessFile(
-					dir.resolve(base + ".idx").toFile(), "r");
-			 RandomAccessFile datRaf = new RandomAccessFile(
-					dir.resolve(base + ".dat").toFile(), "r")) {
+		RandomAccessFile idxRaf = new RandomAccessFile(
+			dir.resolve(base + ".idx").toFile(), "r");
+		idxBuf = idxRaf.getChannel().map(
+			FileChannel.MapMode.READ_ONLY, 0, idxRaf.length());
+		idxBuf.order(ByteOrder.LITTLE_ENDIAN);
+		idxRaf.close();
 
-			idxBuf = idxRaf.getChannel().map(
-				FileChannel.MapMode.READ_ONLY, 0, idxRaf.length());
-			idxBuf.order(ByteOrder.LITTLE_ENDIAN);
-
-			dataBuf = datRaf.getChannel().map(
-				FileChannel.MapMode.READ_ONLY, 0, datRaf.length());
-			dataBuf.order(ByteOrder.LITTLE_ENDIAN);
-		}
+		// Data file may exceed 2GB — use RandomAccessFile instead of mmap
+		dataRaf = new RandomAccessFile(dir.resolve(base + ".dat").toFile(), "r");
 
 		entryCount = idxBuf.getInt(0);
 	}
@@ -111,7 +108,7 @@ public class PredictionLookup implements AutoCloseable {
 
 	@Override
 	public void close() {
-		// MappedByteBuffers are unmapped when GC'd
+		try { dataRaf.close(); } catch (IOException e) { /* ignore */ }
 	}
 
 	private int compareMd5(int entryIndex, String targetMd5) {
@@ -126,26 +123,36 @@ public class PredictionLookup implements AutoCloseable {
 
 	private String[] readPrediction(int entryIndex, int position, int aaIndex) {
 		int entryPos = IDX_HEADER + entryIndex * IDX_ENTRY_SIZE;
-		int dataOffset = idxBuf.getInt(entryPos + IDX_MD5_LEN);
+		// Treat offset as unsigned 32-bit to support files > 2GB
+		long dataOffset = Integer.toUnsignedLong(idxBuf.getInt(entryPos + IDX_MD5_LEN));
 		int dataLength = idxBuf.getInt(entryPos + IDX_MD5_LEN + 4);
 
 		int peptideLength = dataLength / BYTES_PER_PRED / NUM_AAS;
 		if (position > peptideLength) return null;
 
-		int byteOffset = dataOffset
-			+ ((position - 1) * NUM_AAS + aaIndex) * BYTES_PER_PRED;
-		int val = dataBuf.getShort(byteOffset) & 0xFFFF;
+		long byteOffset = dataOffset
+			+ ((long)(position - 1) * NUM_AAS + aaIndex) * BYTES_PER_PRED;
 
-		if (val == NO_PREDICTION) return null;
+		try {
+			byte[] buf = new byte[2];
+			synchronized (dataRaf) {
+				dataRaf.seek(byteOffset);
+				dataRaf.readFully(buf);
+			}
+			int val = (buf[0] & 0xFF) | ((buf[1] & 0xFF) << 8); // little-endian
 
-		int predIndex = val >> PRED_SHIFT;
-		double score = (val & SCORE_MASK) / 1000.0;
-		String prediction = predIndex < labels.length ? labels[predIndex] : "unknown";
+			if (val == NO_PREDICTION) return null;
 
-		// VEP uses Perl's default float stringification which strips trailing zeros
-		String scoreStr = String.format("%.3f", score)
-			.replaceAll("0+$", "").replaceAll("\\.$", "");
-		return new String[]{ prediction, scoreStr };
+			int predIndex = val >> PRED_SHIFT;
+			double score = (val & SCORE_MASK) / 1000.0;
+			String prediction = predIndex < labels.length ? labels[predIndex] : "unknown";
+
+			String scoreStr = String.format("%.3f", score)
+				.replaceAll("0+$", "").replaceAll("\\.$", "");
+			return new String[]{ prediction, scoreStr };
+		} catch (IOException e) {
+			return null;
+		}
 	}
 
 	public static String md5Hex(String input) {

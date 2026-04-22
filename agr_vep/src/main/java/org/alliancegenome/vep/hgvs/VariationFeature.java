@@ -50,6 +50,8 @@ public class VariationFeature {
 				int flankStart = Math.max(1, start - flankSize);
 				int flankEnd = end + flankSize;
 				refSequence = reference.getSequence(chr, flankStart, flankEnd);
+				// Perl Slice::seq() uppercases FASTA output (uc($sequence))
+				if (refSequence != null) refSequence = refSequence.toUpperCase();
 				// Adjust coordinates relative to flank
 				int refStart = start - flankStart + 1;
 				int refEnd = end - flankStart + 1;

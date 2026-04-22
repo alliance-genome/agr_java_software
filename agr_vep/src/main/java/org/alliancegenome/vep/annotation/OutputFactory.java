@@ -274,9 +274,12 @@ public class OutputFactory {
 			transcript.setPeptideMd5(md5);
 		}
 		if (md5 == null) {
+			Trace.log("addPredictions.noMd5", "tr=%s", transcript.getTranscriptId());
 			return;
 		}
 
+		Trace.log("addPredictions.lookup", "tr=%s md5=%s pos=%d alt=%c sift=%b pph=%b",
+			transcript.getTranscriptId(), md5, position, altAA, siftLookup != null, polyPhenLookup != null);
 		if (siftLookup != null) {
 			String[] result = siftLookup.getPrediction(md5, position, altAA);
 			if (result != null) {
@@ -846,6 +849,16 @@ public class OutputFactory {
 		for (CdsSegment cds : transcript.getCdsSegments()) {
 			// VEP overlap: (bvf_end >= feat_start) AND (bvf_start <= feat_end)
 			if (variantEnd >= cds.getStart() && variantStart <= cds.getEnd()) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/** Check exon overlap with frameshift-intron stretch (Perl _overlapped_exons line 863). */
+	private boolean overlapsAnyExonStretched(TranscriptModel transcript, int rangeStart, int rangeEnd, int stretch) {
+		for (ExonModel exon : transcript.getExons()) {
+			if (rangeStart <= exon.getEnd() + stretch && rangeEnd >= exon.getStart() - stretch) {
 				return true;
 			}
 		}

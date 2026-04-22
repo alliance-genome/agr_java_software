@@ -150,14 +150,26 @@ public class Gff3GeneModelBuilder {
 					tm.setCdsEndNF(true);
 				}
 
+				// Read gene info from parent feature directly. htsjdk resolves
+				// parent-child references regardless of GFF file order (RGD has
+				// transcripts before genes in the file).
 				for (Gff3Feature parent : feature.getParents()) {
 					String parentId = parent.getID();
+					// Try maps first (already-processed genes)
 					if (geneSymbols.containsKey(parentId)) {
 						tm.setGeneId(parentId);
 						tm.setGeneSymbol(geneSymbols.get(parentId));
 						tm.setGeneCurie(geneCuries.get(parentId));
-						break;
+					} else {
+						// Parent gene not yet processed — read directly from feature
+						tm.setGeneId(parentId);
+						String parentSymbol = getRawName(parent);
+						if (parentSymbol != null) tm.setGeneSymbol(parentSymbol);
+						String parentCurie = getAttr(parent, "gene_id")
+							.orElse(getAttr(parent, "curie").orElse(null));
+						if (parentCurie != null) tm.setGeneCurie(parentCurie);
 					}
+					break;
 				}
 
 				if (tm.getGeneSymbol() == null) {

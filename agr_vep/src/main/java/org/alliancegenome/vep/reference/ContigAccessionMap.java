@@ -60,14 +60,27 @@ public class ContigAccessionMap {
 							nc = b; chr = a;
 						}
 						if (nc != null && chr != null) {
-							// Prefer the VERSIONED accession (e.g. NT_033779.5 over NT_033779)
-							// VEP uses RefSeq_genomic synonyms which are typically versioned.
+							// Prefer the VERSIONED accession, and when multiple versioned
+							// accessions share the same base (e.g. NC_000067.6 and NC_000067.7),
+							// keep the HIGHEST version (matches the current assembly).
 							String existing = map.chrToAccession.get(chr);
 							boolean newHasVersion = nc.contains(".");
 							boolean existingHasVersion = existing != null && existing.contains(".");
 							if (existing == null || (newHasVersion && !existingHasVersion)) {
 								map.put(chr, nc);
 								synonymCount++;
+							} else if (newHasVersion && existingHasVersion) {
+								// Both versioned — compare base and version
+								String newBase = nc.substring(0, nc.lastIndexOf('.'));
+								String existingBase = existing.substring(0, existing.lastIndexOf('.'));
+								if (newBase.equals(existingBase)) {
+									// Same base, compare version numbers
+									int newVer = Integer.parseInt(nc.substring(nc.lastIndexOf('.') + 1));
+									int existVer = Integer.parseInt(existing.substring(existing.lastIndexOf('.') + 1));
+									if (newVer > existVer) {
+										map.put(chr, nc);
+									}
+								}
 							}
 						}
 					}
