@@ -11,10 +11,11 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
+@JsonView({PublicView.GeneticInteraction.class})
 public class GeneGeneticInteractionDocument extends ESDocument {
 	{
 		category = "gene_genetic_interaction";
 	}
-	@JsonView({PublicView.GeneticInteraction.class})
+
 	private GeneGeneticInteraction geneGeneticInteraction;
 }
