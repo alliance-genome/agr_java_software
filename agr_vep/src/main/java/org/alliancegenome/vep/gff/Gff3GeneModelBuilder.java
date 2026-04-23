@@ -40,8 +40,11 @@ public class Gff3GeneModelBuilder {
 
 	// Transcript-level types to include, verified against ORIG VEP v111 output.
 	// Types NOT in ORIG: pre_miRNA, circular_ncRNA, antisense_RNA, scRNA, unconfirmed_transcript
+	// Perl VEP GFF.pm %INCLUDE_FEATURE_TYPES: has "lnc_RNA" but NOT "lncRNA".
+	// MGI GFF uses "lncRNA" (no underscore) for 190K predicted ncRNAs that
+	// Perl excludes. Removing "lncRNA" matches Perl's behavior.
 	private static final Set<String> TRANSCRIPT_TYPES = Set.of(
-		"mRNA", "lnc_RNA", "lncRNA", "lincRNA", "ncRNA", "transcript",
+		"mRNA", "lnc_RNA", "lincRNA", "ncRNA", "transcript",
 		"pseudogenic_transcript", "pseudogenic_tRNA", "pseudogenic_rRNA",
 		"tRNA", "snoRNA", "rRNA", "snRNA",
 		"miRNA", "miRNA_primary_transcript", "piRNA",
