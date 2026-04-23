@@ -727,8 +727,12 @@ public class TranscriptVariationAllele {
 						&& !consequences.contains("stop_retained_variant")) {
 					consequences.add("stop_retained_variant");
 				}
-				// Perl stop_gained (line 1171): return 0 if stop_retained(@_)
-				if (altPep != null && altPep.contains("*")
+				// Perl stop_gained (line 1171): return 0 if stop_retained(@_).
+				// For N-containing alleles, Perl's peptide() returns undef
+				// (the codon has ambiguous bases), so stop_gained doesn't fire
+				// even when the allele happens to contain a stop codon (e.g. TGA).
+				boolean alleleHasN = vepAllele.matches(".*[^ACGTacgt-].*");
+				if (!alleleHasN && altPep != null && altPep.contains("*")
 						&& (refPep == null || !refPep.contains("*"))
 						&& !consequences.contains("stop_retained_variant")) {
 					consequences.add("stop_gained");
@@ -906,7 +910,13 @@ public class TranscriptVariationAllele {
 
 					if (refPep != null && altPepTrimmed != null && refPep.length() > 0) {
 						pepMatch = altPepTrimmed.startsWith(refPep) || altPepTrimmed.endsWith(refPep);
-						if (!pepMatch && refPep.length() != altPep.length()
+						// Perl protein_altering_variant (line 378) checks UNTRIMMED
+						// alt_pep for startsWith/endsWith, not the trimmed version
+						// that inframe_insertion uses. An insertion like L→QCLAFL*...KLL
+						// has untrimmed alt ending with "L" (matches ref) → protein_altering
+						// returns 0 in Perl, but trimmed "QCLAFL*" doesn't end with "L".
+						boolean untrimmedPepMatch = altPep.startsWith(refPep) || altPep.endsWith(refPep);
+						if (!untrimmedPepMatch && refPep.length() != altPep.length()
 							&& !refPep.startsWith("*") && !altPep.startsWith("*")) {
 							isProteinAltering = true;
 						}
