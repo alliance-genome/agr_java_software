@@ -80,7 +80,13 @@ public class AlleleSearchResultConverter {
 			}
 
 			if (doc.getGeneSynonyms() != null && !doc.getGeneSynonyms().isEmpty()) {
-				searchDoc.setGeneSynonyms(doc.getGeneSynonyms());
+				Set<String> geneSynonyms = new HashSet<>(doc.getGeneSynonyms());
+				for (String synonym : doc.getGeneSynonyms()) {
+					if (synonym != null && synonym.startsWith("CELE_")) {
+						geneSynonyms.add(synonym.substring("CELE_".length()));
+					}
+				}
+				searchDoc.setGeneSynonyms(geneSynonyms);
 			}
 
 			if (doc.getCrossReference() != null && doc.getCrossReference().getReferencedCurie() != null) {
@@ -89,9 +95,6 @@ public class AlleleSearchResultConverter {
 
 			Set<String> crossRefs = new HashSet<>();
 			crossRefs.add(allele.getPrimaryExternalId());
-			if (doc.getAlleleOfGene() != null && doc.getAlleleOfGene().getPrimaryExternalId() != null) {
-				crossRefs.add(doc.getAlleleOfGene().getPrimaryExternalId());
-			}
 			searchDoc.setCrossReferences(crossRefs);
 
 			if (doc.getGeneCrossReferences() != null && !doc.getGeneCrossReferences().isEmpty()) {
