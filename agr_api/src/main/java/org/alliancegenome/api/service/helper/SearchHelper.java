@@ -188,6 +188,7 @@ public class SearchHelper {
 			add("geneDescription");
 			add("geneSynonyms");
 			add("geneCrossReferences");
+			add("systematicName");
 			add("globalId");
 			add("subtype");
 			add("go_genes");
@@ -261,6 +262,7 @@ public class SearchHelper {
 			add("crossReferenceLinks");
 			add("geneCrossReferences");
 			add("geneSynonyms");
+			add("systematicName");
 			add("curie");
 			add("dataProvider");
 			add("definition");

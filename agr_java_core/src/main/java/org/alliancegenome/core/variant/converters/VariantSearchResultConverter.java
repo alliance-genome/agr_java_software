@@ -84,6 +84,20 @@ public class VariantSearchResultConverter {
 					vsd.setGeneSynonyms(geneSynonyms);
 				}
 
+				Set<String> systematicNames = variantLocation.getPredictedVariantConsequences().stream()
+					.filter(pvc -> pvc.getVariantTranscript() != null && pvc.getVariantTranscript().getTranscriptGeneAssociations() != null)
+					.flatMap(pvc -> pvc.getVariantTranscript().getTranscriptGeneAssociations().stream())
+					.map(TranscriptGeneAssociation::getTranscriptGeneAssociationObject)
+					.filter(Objects::nonNull)
+					.map(gene -> gene.getGeneSystematicName())
+					.filter(Objects::nonNull)
+					.map(NameSlotAnnotation::getDisplayText)
+					.filter(Objects::nonNull)
+					.collect(Collectors.toSet());
+				if (!systematicNames.isEmpty()) {
+					vsd.setSystematicName(systematicNames);
+				}
+
 				Set<String> geneCrossRefs = variantLocation.getPredictedVariantConsequences().stream()
 					.filter(pvc -> pvc.getVariantTranscript() != null && pvc.getVariantTranscript().getTranscriptGeneAssociations() != null)
 					.flatMap(pvc -> pvc.getVariantTranscript().getTranscriptGeneAssociations().stream())

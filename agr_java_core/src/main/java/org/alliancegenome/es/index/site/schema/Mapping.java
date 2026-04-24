@@ -84,7 +84,7 @@ public class Mapping extends Builder {
 		//new FieldBuilder(builder, "searchSymbol", "text").analyzer("symbols").autocomplete().keyword().keywordAutocomplete().sortSmartAlpha().build();
 		//new FieldBuilder(builder, "displayText", "text").keyword().sortSmartAlpha().build();
 		//new FieldBuilder(builder, "stage", "text").keyword().build();
-		//new FieldBuilder(builder, "systematicName", "text").analyzer("symbols").build();
+		new FieldBuilder(builder, "systematicName", "text").keyword().build(); // gene, allele, variant
 		//new FieldBuilder(builder, "taxonId", "keyword").build();
 
 		// Allele Only Fields
