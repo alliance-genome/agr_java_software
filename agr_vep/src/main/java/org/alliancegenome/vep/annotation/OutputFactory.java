@@ -274,12 +274,9 @@ public class OutputFactory {
 			transcript.setPeptideMd5(md5);
 		}
 		if (md5 == null) {
-			Trace.log("addPredictions.noMd5", "tr=%s", transcript.getTranscriptId());
 			return;
 		}
 
-		Trace.log("addPredictions.lookup", "tr=%s md5=%s pos=%d alt=%c sift=%b pph=%b",
-			transcript.getTranscriptId(), md5, position, altAA, siftLookup != null, polyPhenLookup != null);
 		if (siftLookup != null) {
 			String[] result = siftLookup.getPrediction(md5, position, altAA);
 			if (result != null) {
@@ -478,12 +475,23 @@ public class OutputFactory {
 		List<String> spliceTerms = new ArrayList<>(spliceResult.getSpliceTerms());
 		boolean isIntronic = spliceResult.isIntronic();
 
-		// VEP include filter (Constants.pm): splice_polypyrimidine_tract_variant
-		// requires { exon => 0, intron => 1 } — excluded when variant overlaps any exon
-		// VEP uses overlap(bvf.start, bvf.end, exon.start, exon.end) where insertions
-		// have start > end. An insertion at an exon boundary does NOT overlap the exon.
-		boolean overlapsExon = isInsertion ? overlapsAnyExonVep(transcript, variantStart, variantEnd) : overlapsAnyExon(transcript, rangeStart, rangeEnd);
-		if (overlapsExon) {
+		// Perl _bvfo_preds: pre-consequence predicates for include filter gating.
+		PreConsequencePredicates preds = PreConsequencePredicates.compute(
+			transcript, variantStart, variantEnd, refAllele, vepAllele,
+			false, false);
+		// Unstretched exon overlap for non-coding classification (Perl
+		// non_coding_exon_variant double-checks with actual exon coords)
+		boolean overlapsExon = isInsertion
+			? overlapsAnyExonVep(transcript, variantStart, variantEnd)
+			: overlapsAnyExon(transcript, rangeStart, rangeEnd);
+		// Perl _skip_oc: polypyrimidine include filter uses STRETCHED exon
+		// pre-pred (exon=0 required). The stretch applies 12bp for transcripts
+		// with frameshift introns (abs(intron_end-intron_start) <= 12).
+		if (preds.shouldSkip("splice_polypyrimidine_tract_variant")) {
+			spliceTerms.remove("splice_polypyrimidine_tract_variant");
+		} else if (overlapsExon) {
+			// Fallback: even without stretch, remove polypyrimidine when
+			// variant actually overlaps an exon (original behavior)
 			spliceTerms.remove("splice_polypyrimidine_tract_variant");
 		}
 

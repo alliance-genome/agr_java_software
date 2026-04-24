@@ -68,6 +68,25 @@ public class TranscriptModel implements Locatable {
 		return !cdsSegments.isEmpty();
 	}
 
+	/**
+	 * Perl BaseTranscriptVariation.pm line 1034: _has_frameshift_intron.
+	 * True if any intron has abs(end - start) <= 12 (i.e., length <= 13bp).
+	 * Cached per transcript since the flag affects _overlapped_exons stretch.
+	 */
+	private Boolean hasFrameshiftIntron;
+	public boolean hasFrameshiftIntron() {
+		if (hasFrameshiftIntron == null) {
+			hasFrameshiftIntron = false;
+			for (int[] intron : getIntronIntervals()) {
+				if (Math.abs(intron[1] - intron[0]) <= 12) {
+					hasFrameshiftIntron = true;
+					break;
+				}
+			}
+		}
+		return hasFrameshiftIntron;
+	}
+
 	public List<int[]> getIntronIntervals() {
 		if (intronIntervals == null) {
 			intronIntervals = new ArrayList<>();
