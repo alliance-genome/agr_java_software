@@ -397,6 +397,9 @@ public class VariantSummaryConverter {
 								if (cachedGene.getCrossReferences() != null) {
 									gene.setCrossReferences(cachedGene.getCrossReferences());
 								}
+								if (cachedGene.getGeneSecondaryIds() != null) {
+									gene.setGeneSecondaryIds(cachedGene.getGeneSecondaryIds());
+								}
 							}
 						}
 					}
