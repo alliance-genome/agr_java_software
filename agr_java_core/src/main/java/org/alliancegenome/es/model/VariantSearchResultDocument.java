@@ -32,6 +32,7 @@ public class VariantSearchResultDocument extends ESDocument {
 	private Set<String> genes;
 	private Set<String> geneSynonyms;
 	private Set<String> geneCrossReferences;
+	private Set<String> systematicName;
 	private Set<String> secondaryIds;
 	private Set<String> variantType;
 	private Set<String> molecularConsequence;

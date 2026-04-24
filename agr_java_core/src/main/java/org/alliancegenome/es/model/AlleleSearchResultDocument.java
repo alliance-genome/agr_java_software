@@ -28,7 +28,8 @@ public class AlleleSearchResultDocument extends ESDocument {
 	private String globalId;
 	private String localId;
 	private String modCrossRefCompleteUrl;
-	
+	private String systematicName;
+
 	private Set<String> variantType;
 	private Set<String> molecularConsequence;
 	private Set<String> variants;
