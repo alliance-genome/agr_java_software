@@ -394,6 +394,9 @@ public class VariantSummaryConverter {
 								if (cachedGene.getGeneSynonyms() != null) {
 									gene.setGeneSynonyms(cachedGene.getGeneSynonyms());
 								}
+								if (cachedGene.getGeneSystematicName() != null) {
+									gene.setGeneSystematicName(cachedGene.getGeneSystematicName());
+								}
 								if (cachedGene.getCrossReferences() != null) {
 									gene.setCrossReferences(cachedGene.getCrossReferences());
 								}
