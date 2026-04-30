@@ -916,7 +916,12 @@ public class TranscriptVariationAllele {
 						// has untrimmed alt ending with "L" (matches ref) → protein_altering
 						// returns 0 in Perl, but trimmed "QCLAFL*" doesn't end with "L".
 						boolean untrimmedPepMatch = altPep.startsWith(refPep) || altPep.endsWith(refPep);
-						if (!untrimmedPepMatch && refPep.length() != altPep.length()
+						// Perl _get_peptide_alleles returns undef for N-alleles,
+						// so protein_altering never fires. Skip when allele has
+						// ambiguous bases.
+						boolean alleleAmbiguous = vepAllele.matches(".*[^ACGTacgt-].*");
+						if (!alleleAmbiguous && !untrimmedPepMatch
+							&& refPep.length() != altPep.length()
 							&& !refPep.startsWith("*") && !altPep.startsWith("*")) {
 							isProteinAltering = true;
 						}
@@ -1406,6 +1411,60 @@ public class TranscriptVariationAllele {
 	}
 
 	// genomicToCdsPosition removed — replaced by BaseTranscriptVariation.genomicToCds()
+
+	/**
+	 * Perl _ins_del_start_altered (VariationEffect.pm line 979-1018).
+	 * Builds 5'UTR + translateable_seq, applies the edit at the cDNA position,
+	 * then checks if the CDS portion (last translateable_length bytes) matches
+	 * the original. Returns true if the start codon region was altered.
+	 *
+	 * Key difference from the old Java approach: Perl edits at the cDNA position
+	 * (includes UTR), so insertions at the UTR-CDS boundary push the CDS right
+	 * without altering the CDS tail. Java's old approach edited the CDS directly,
+	 * which always altered the tail for insertions at the start.
+	 */
+	private boolean insDelStartAltered(TranscriptModel transcript, String cdsSequence,
+			BaseTranscriptVariation bvt, String vepAllele, String refAllele) {
+		try {
+			// Line 989: return 0 unless seq_is_unambiguous_dna
+			String featureSeq = "-".equals(vepAllele) ? "" :
+				(transcript.isPositiveStrand() ? vepAllele : Sequence.reverseComplement(vepAllele));
+			// Line 998: get cDNA coords
+			int cdnaStart = bvt.cdnaStart();
+			int cdnaEnd = bvt.cdnaEnd();
+			if (cdnaStart <= 0 || cdnaEnd <= 0) return true; // default: altered
+
+			// Line 1002-1004: build UTR + translateable_seq
+			String translateable = cdsSequence;
+			String utr5 = BaseTranscriptVariation.fivePrimeUtr(transcript, reference);
+			String utrAndTranslateable = (utr5 != null ? utr5 : "") + translateable;
+
+			// Line 1006-1007: feature_seq (variant bases in CDS orientation)
+			String vfFeatureSeq = "-".equals(refAllele) ? featureSeq :
+				(transcript.isPositiveStrand() ? vepAllele : Sequence.reverseComplement(vepAllele));
+			if ("-".equals(vepAllele)) vfFeatureSeq = "";
+
+			// Line 1009: substr(utr_and_translateable, cdna_start-1, len) = feature_seq
+			int editStart = cdnaStart - 1;
+			int editLen = cdnaEnd - cdnaStart + 1;
+			if (editLen < 0) editLen = 0; // insertion: cdna_start > cdna_end
+			if (editStart < 0) editStart = 0;
+			if (editStart > utrAndTranslateable.length()) return true;
+			int editEndBound = Math.min(editStart + editLen, utrAndTranslateable.length());
+			String modified = utrAndTranslateable.substring(0, editStart)
+				+ vfFeatureSeq
+				+ utrAndTranslateable.substring(editEndBound);
+
+			// Line 1012: if shorter than translateable → altered
+			if (modified.length() < translateable.length()) return true;
+
+			// Line 1014: compare tail of modified with original translateable
+			String tail = modified.substring(modified.length() - translateable.length());
+			return !tail.equals(translateable);
+		} catch (Exception e) {
+			return true; // default: altered
+		}
+	}
 
 	/**
 	 * VEP partial_codon (VariationEffect.pm line 1389-1414):
