@@ -9,8 +9,11 @@ import org.alliancegenome.api.service.DownloadService;
 
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriInfo;
 import lombok.extern.slf4j.Slf4j;
 
 @RequestScoped
@@ -18,6 +21,9 @@ import lombok.extern.slf4j.Slf4j;
 public class DownloadController implements DownloadRESTInterface {
 
 	@Inject DownloadService downloadService;
+
+	@Context UriInfo uriInfo;
+	@Context HttpHeaders headers;
 
 	@Override
 	public Response download(String filename) {
@@ -38,11 +44,24 @@ public class DownloadController implements DownloadRESTInterface {
 	public List<DownloadFile> listDownloads() {
 		try {
 			String release = downloadService.getCurrentRelease();
-			return downloadService.listDownloads(release);
+			return downloadService.listDownloads(release, resolvePublicBaseUrl());
 		} catch (Exception e) {
 			log.error("Failed to list downloads", e);
 			throw new RuntimeException(e);
 		}
+	}
+
+	/** Build the public scheme://host[:port] honouring X-Forwarded-{Proto,Host} so the URL behind a load balancer is correct. */
+	private String resolvePublicBaseUrl() {
+		String scheme = headers.getHeaderString("X-Forwarded-Proto");
+		String host = headers.getHeaderString("X-Forwarded-Host");
+		if (scheme == null || scheme.isEmpty()) {
+			scheme = uriInfo.getBaseUri().getScheme();
+		}
+		if (host == null || host.isEmpty()) {
+			host = uriInfo.getBaseUri().getAuthority();
+		}
+		return scheme + "://" + host;
 	}
 
 }
