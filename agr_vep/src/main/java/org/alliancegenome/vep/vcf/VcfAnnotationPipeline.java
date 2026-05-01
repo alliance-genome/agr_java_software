@@ -73,7 +73,7 @@ public class VcfAnnotationPipeline extends Thread {
 			File outputFile = new File(outputPath);
 	
 			Gff3GeneModelBuilder gffBuilder = new Gff3GeneModelBuilder();
-			GeneModel geneModel = gffBuilder.build(gffPath);
+			GeneModel geneModel = gffBuilder.build(gffPath, mod);
 			if (tmapPath != null) {
 				geneModel.applyTranscriptNameMap(tmapPath);
 			}

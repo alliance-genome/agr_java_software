@@ -72,7 +72,36 @@ public class Gff3GeneModelBuilder {
 		return gffTranscriptIdToName;
 	}
 
+	/**
+	 * run_agr_vep_pipelines.pl global + species-specific GFF type conversions.
+	 * Applied BEFORE the INCLUDE_FEATURE_TYPES filter so converted types pass through.
+	 */
+	private static String convertGffType(String type, String mod) {
+		// Global: guide_RNA/scRNA → ncRNA, protein_coding_gene → gene
+		switch (type) {
+			case "guide_RNA":
+			case "scRNA":
+				return "ncRNA";
+			case "protein_coding_gene":
+				return "gene";
+		}
+		// WB-specific: make_wb_changes()
+		if ("WB".equals(mod)) {
+			switch (type) {
+				case "piRNA": return "ncRNA";
+				case "nc_primary_transcript": return "ncRNA";
+				case "miRNA_primary_transcript": return "miRNA";
+				case "pseudogenic_tRNA": return "pseudogenic_transcript";
+			}
+		}
+		return type;
+	}
+
 	public GeneModel build(String gffPath) throws Exception {
+		return build(gffPath, null);
+	}
+
+	public GeneModel build(String gffPath, String mod) throws Exception {
 		log.info("Loading GFF3 gene model from: {}", gffPath);
 
 		// Preprocess GFF3 to fix invalid attribute values
@@ -91,7 +120,7 @@ public class Gff3GeneModelBuilder {
 			ProcessDisplayHelper ph = new ProcessDisplayHelper();
 			ph.startProcess("Loading Gff3Feature's");
 			for (Gff3Feature feature : reader.iterator()) {
-				String type = feature.getType();
+				String type = convertGffType(feature.getType(), mod);
 				ph.progressProcess();
 				if (GENE_TYPES.contains(type)) {
 					String geneId = feature.getID();

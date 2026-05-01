@@ -45,7 +45,7 @@ public class TestHelper {
 	public static OutputFactory createAnnotator(String modName) throws Exception {
 		ModSource mod = getMod(modName);
 		Gff3GeneModelBuilder builder = new Gff3GeneModelBuilder();
-		GeneModel geneModel = builder.build(mod.getGffFilePath());
+		GeneModel geneModel = builder.build(mod.getGffFilePath(), modName);
 		geneModel.applyTranscriptNameMap(mod.getTranscriptMapFilePath());
 		ReferenceGenome reference = new ReferenceGenome(mod.getFastaFilePath());
 		ContigAccessionMap contigMap = ContigAccessionMap.fromFasta(
@@ -64,7 +64,7 @@ public class TestHelper {
 
 	public static GeneModel loadGeneModel(String modName) throws Exception {
 		ModSource mod = getMod(modName);
-		return new Gff3GeneModelBuilder().build(mod.getGffFilePath());
+		return new Gff3GeneModelBuilder().build(mod.getGffFilePath(), modName);
 	}
 
 	public static String getTestResourceDir() {

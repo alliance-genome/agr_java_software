@@ -85,6 +85,8 @@ public class VepAnnotationTest {
 	}
 
 	@Test public void testWb_transcriptCount() {
+		// With WB-specific type conversions (piRNA→ncRNA, pseudogenic_tRNA→pseudogenic_transcript,
+		// miRNA_primary_transcript→miRNA), WB loads ~59K transcripts matching Perl pipeline.
 		assertTrue(wbGeneModel.getTranscriptCount() > 55000);
 		assertTrue(wbGeneModel.getTranscriptCount() < 65000);
 	}
