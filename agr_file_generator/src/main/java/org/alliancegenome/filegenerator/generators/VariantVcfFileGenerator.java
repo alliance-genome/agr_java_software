@@ -94,7 +94,9 @@ public class VariantVcfFileGenerator extends FileGenerator {
 
 	@Override
 	protected JsonNode customizeRow(JsonNode hit) {
-		if (!hit.isObject()) return hit;
+		if (!hit.isObject()) {
+			return hit;
+		}
 		ObjectNode obj = (ObjectNode) hit;
 
 		JsonNode loc = JsonPath.resolve(hit, "variantList.0.curatedVariantGenomicLocations.0");
@@ -145,18 +147,30 @@ public class VariantVcfFileGenerator extends FileGenerator {
 			if (pvc.isArray()) {
 				for (JsonNode entry : pvc) {
 					String c = entry.path("vepConsequences").path(0).path("name").asText("");
-					if (!c.isEmpty()) txLevel.add(c);
+					if (!c.isEmpty()) {
+						txLevel.add(c);
+					}
 					String imp = entry.path("vepImpact").path("name").asText("");
-					if (!imp.isEmpty()) txImpacts.add(imp);
+					if (!imp.isEmpty()) {
+						txImpacts.add(imp);
+					}
 					String gs = entry.path("variantTranscript").path("transcriptGeneAssociations").path(0)
 							.path("transcriptGeneAssociationObject").path("geneSymbol").path("displayText").asText("");
-					if (!gs.isEmpty()) geneSymbols.add(gs);
+					if (!gs.isEmpty()) {
+						geneSymbols.add(gs);
+					}
 					String tn = entry.path("variantTranscript").path("name").asText("");
-					if (!tn.isEmpty()) transcriptIds.add(tn);
+					if (!tn.isEmpty()) {
+						transcriptIds.add(tn);
+					}
 					String gff3Id = entry.path("variantTranscript").path("modCrossRefCompleteUrl").asText("");
-					if (!gff3Id.isEmpty()) transcriptGff3Ids.add(gff3Id);
+					if (!gff3Id.isEmpty()) {
+						transcriptGff3Ids.add(gff3Id);
+					}
 					String gff3Name = entry.path("variantTranscript").path("displayName").asText("");
-					if (!gff3Name.isEmpty()) transcriptGff3Names.add(gff3Name);
+					if (!gff3Name.isEmpty()) {
+						transcriptGff3Names.add(gff3Name);
+					}
 				}
 			}
 		}
@@ -184,23 +198,31 @@ public class VariantVcfFileGenerator extends FileGenerator {
 	}
 
 	private static void appendKv(StringBuilder sb, String key, String value) {
-		if (sb.length() > 0) sb.append(";");
+		if (sb.length() > 0) {
+			sb.append(";");
+		}
 		sb.append(key).append("=\"").append(value == null ? "" : value).append("\"");
 	}
 
 	private static String firstNonEmpty(String... values) {
 		for (String v : values) {
-			if (v != null && !v.isEmpty()) return v;
+			if (v != null && !v.isEmpty()) {
+				return v;
+			}
 		}
 		return "";
 	}
 
 	private static List<String> collectArrayStrings(JsonNode arr) {
 		List<String> out = new ArrayList<>();
-		if (arr == null || !arr.isArray()) return out;
+		if (arr == null || !arr.isArray()) {
+			return out;
+		}
 		for (JsonNode entry : arr) {
 			String s = entry.asText("");
-			if (!s.isEmpty()) out.add(s);
+			if (!s.isEmpty()) {
+				out.add(s);
+			}
 		}
 		return out;
 	}

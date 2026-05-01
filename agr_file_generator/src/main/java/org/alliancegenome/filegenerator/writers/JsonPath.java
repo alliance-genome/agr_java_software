@@ -24,7 +24,9 @@ public final class JsonPath {
 		}
 		JsonNode current = root;
 		for (String segment : dottedPath.split("\\.")) {
-			if (current == null) return null;
+			if (current == null) {
+				return null;
+			}
 			if (current.isArray()) {
 				// Numeric segment indexes into the array.
 				try {

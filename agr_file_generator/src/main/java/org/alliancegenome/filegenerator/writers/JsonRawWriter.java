@@ -31,7 +31,9 @@ public class JsonRawWriter implements RowWriter {
 
 	@Override
 	public synchronized void writeRow(JsonNode hit) throws IOException {
-		if (!firstRow) writer.write(",");
+		if (!firstRow) {
+			writer.write(",");
+		}
 		writer.write(om.writeValueAsString(hit));
 		firstRow = false;
 		rowCount++;

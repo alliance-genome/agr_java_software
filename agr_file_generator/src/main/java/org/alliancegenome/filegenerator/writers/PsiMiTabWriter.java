@@ -43,7 +43,9 @@ public class PsiMiTabWriter implements RowWriter {
 		StringBuilder sb = new StringBuilder();
 		boolean first = true;
 		for (String esPath : fieldMap.values()) {
-			if (!first) sb.append("\t");
+			if (!first) {
+				sb.append("\t");
+			}
 			String v = JsonPath.resolveString(hit, esPath);
 			sb.append(v == null || v.isEmpty() ? "-" : escape(v));
 			first = false;

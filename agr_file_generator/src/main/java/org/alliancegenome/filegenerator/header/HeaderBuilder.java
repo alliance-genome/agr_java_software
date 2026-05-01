@@ -53,7 +53,9 @@ public class HeaderBuilder {
 	private static String joinNcbiTxids(Collection<String> taxonCuries) {
 		List<String> out = new ArrayList<>();
 		for (String c : taxonCuries) {
-			if (c == null) continue;
+			if (c == null) {
+				continue;
+			}
 			String txid = c.replace("NCBITaxon:", "");
 			out.add("NCBI:txid" + txid);
 		}
@@ -113,7 +115,9 @@ public class HeaderBuilder {
 				String line;
 				boolean first = true;
 				while ((line = reader.readLine()) != null) {
-					if (!first) out.append(" ");
+					if (!first) {
+						out.append(" ");
+					}
 					out.append(line);
 					first = false;
 				}
@@ -126,11 +130,15 @@ public class HeaderBuilder {
 	}
 
 	private static String speciesNamesCsv(Collection<String> taxonCuries, SpeciesLookup lookup) {
-		if (lookup == null) return "";
+		if (lookup == null) {
+			return "";
+		}
 		List<String> names = new ArrayList<>();
 		for (String c : taxonCuries) {
 			String n = lookup.nameFor(c);
-			if (n != null) names.add(n);
+			if (n != null) {
+				names.add(n);
+			}
 		}
 		return String.join(", ", names);
 	}

@@ -29,7 +29,9 @@ public class SpeciesLookup {
 		SpeciesInterface api = RestProxyFactory.createProxy(SpeciesInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 		List<Species> all = api.findForPublic(0, 100, "FieldsOnly", new HashMap<>()).getResults();
 		for (Species s : all) {
-			if (s.getTaxon() == null || s.getTaxon().getCurie() == null) continue;
+			if (s.getTaxon() == null || s.getTaxon().getCurie() == null) {
+				continue;
+			}
 			String curie = s.getTaxon().getCurie();
 			String mod = s.getDisplayName();
 			String taxonName = s.getTaxon().getName();
@@ -84,7 +86,9 @@ public class SpeciesLookup {
 	}
 
 	private void registerAlias(String alias, String curie) {
-		if (alias == null || alias.isEmpty()) return;
+		if (alias == null || alias.isEmpty()) {
+			return;
+		}
 		nameToTaxon.putIfAbsent(alias, curie);
 	}
 }

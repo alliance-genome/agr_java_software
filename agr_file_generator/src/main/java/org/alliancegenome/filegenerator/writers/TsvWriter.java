@@ -34,7 +34,9 @@ public class TsvWriter implements RowWriter {
 		StringBuilder sb = new StringBuilder();
 		boolean first = true;
 		for (String esPath : fieldMap.values()) {
-			if (!first) sb.append("\t");
+			if (!first) {
+				sb.append("\t");
+			}
 			sb.append(escape(JsonPath.resolveString(hit, esPath)));
 			first = false;
 		}
@@ -60,7 +62,9 @@ public class TsvWriter implements RowWriter {
 	}
 
 	private static String escape(String s) {
-		if (s == null || s.isEmpty()) return "";
+		if (s == null || s.isEmpty()) {
+			return "";
+		}
 		return s.replace("\t", " ").replace("\n", " ").replace("\r", " ");
 	}
 }

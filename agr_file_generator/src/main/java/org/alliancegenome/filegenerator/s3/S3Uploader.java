@@ -99,7 +99,9 @@ public class S3Uploader {
 			long totalBytes = 0;
 			long start = System.currentTimeMillis();
 			for (Path file : (Iterable<Path>) stream::iterator) {
-				if (!Files.isRegularFile(file)) continue;
+				if (!Files.isRegularFile(file)) {
+					continue;
+				}
 				String key = keyPrefix + file.getFileName().toString();
 				File f = file.toFile();
 				log.info("Uploading {} ({} bytes) -> s3://{}/{}", file.getFileName(), f.length(), bucket, key);

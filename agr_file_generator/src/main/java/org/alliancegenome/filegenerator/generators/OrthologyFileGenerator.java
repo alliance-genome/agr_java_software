@@ -57,7 +57,9 @@ public class OrthologyFileGenerator extends FileGenerator {
 
 	@Override
 	protected JsonNode customizeRow(JsonNode hit) {
-		if (!hit.isObject()) return hit;
+		if (!hit.isObject()) {
+			return hit;
+		}
 		ObjectNode obj = (ObjectNode) hit;
 
 		List<String> matched = collectNames(hit, "geneToGeneOrthologyGenerated.predictionMethodsMatched");
@@ -80,10 +82,14 @@ public class OrthologyFileGenerator extends FileGenerator {
 	private static List<String> collectNames(JsonNode root, String arrayPath) {
 		List<String> out = new ArrayList<>();
 		JsonNode arr = JsonPath.resolve(root, arrayPath);
-		if (arr == null || !arr.isArray()) return out;
+		if (arr == null || !arr.isArray()) {
+			return out;
+		}
 		for (JsonNode entry : arr) {
 			String n = entry.path("name").asText("");
-			if (!n.isEmpty()) out.add(n);
+			if (!n.isEmpty()) {
+				out.add(n);
+			}
 		}
 		return out;
 	}

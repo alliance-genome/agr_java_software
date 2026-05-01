@@ -46,7 +46,9 @@ public class VariantAlleleFileGenerator extends FileGenerator {
 
 	@Override
 	protected JsonNode customizeRow(JsonNode hit) {
-		if (!hit.isObject()) return hit;
+		if (!hit.isObject()) {
+			return hit;
+		}
 		ObjectNode obj = (ObjectNode) hit;
 
 		// Allele synonyms — pipe-joined displayText.
@@ -148,22 +150,30 @@ public class VariantAlleleFileGenerator extends FileGenerator {
 	}
 
 	private static String boolToYesDash(JsonNode v) {
-		if (v == null || v.isMissingNode() || v.isNull()) return "-";
+		if (v == null || v.isMissingNode() || v.isNull()) {
+			return "-";
+		}
 		return v.asBoolean(false) ? "yes" : "-";
 	}
 
 	private static String joinStrings(JsonNode array, String childField) {
-		if (array == null || !array.isArray()) return "";
+		if (array == null || !array.isArray()) {
+			return "";
+		}
 		List<String> out = new ArrayList<>();
 		for (JsonNode entry : array) {
 			String v = entry.path(childField).asText("");
-			if (!v.isEmpty()) out.add(v);
+			if (!v.isEmpty()) {
+				out.add(v);
+			}
 		}
 		return String.join("|", out);
 	}
 
 	private static void addIfPresent(List<String> list, String value) {
-		if (value != null && !value.isEmpty()) list.add(value);
+		if (value != null && !value.isEmpty()) {
+			list.add(value);
+		}
 	}
 
 	private static String joinList(List<String> values) {

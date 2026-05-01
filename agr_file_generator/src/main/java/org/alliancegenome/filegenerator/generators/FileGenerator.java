@@ -131,7 +131,9 @@ public abstract class FileGenerator extends Thread {
 
 	private void dispatch(JsonNode hit, Map<OutputSpec, ConcurrentHashMap<String, RowWriter>> writersBySpec, Path outDir, String readme) {
 		try {
-			if (!shouldEmit(hit)) return;
+			if (!shouldEmit(hit)) {
+				return;
+			}
 			JsonNode row = customizeRow(hit);
 
 			// Collect every taxon curie this row should reach. The primary curie comes from
@@ -140,9 +142,13 @@ public abstract class FileGenerator extends Thread {
 			// primary taxon first.
 			LinkedHashSet<String> taxonCuries = new LinkedHashSet<>();
 			String primaryTaxon = resolveTaxonCurie(row);
-			if (primaryTaxon != null) taxonCuries.add(primaryTaxon);
+			if (primaryTaxon != null) {
+				taxonCuries.add(primaryTaxon);
+			}
 			for (String extra : additionalTaxonCuries(row)) {
-				if (extra != null) taxonCuries.add(extra);
+				if (extra != null) {
+					taxonCuries.add(extra);
+				}
 			}
 
 			// Resolve to MODs and apply the whitelist. Drop the row entirely if NO side maps to
@@ -154,10 +160,14 @@ public abstract class FileGenerator extends Thread {
 				String mod = species.modFor(curie);
 				if (mod != null && config.getMods().contains(mod)) {
 					allowedMods.add(mod);
-					if (anyAllowedTaxonCurie == null) anyAllowedTaxonCurie = curie;
+					if (anyAllowedTaxonCurie == null) {
+						anyAllowedTaxonCurie = curie;
+					}
 				}
 			}
-			if (allowedMods.isEmpty()) return;
+			if (allowedMods.isEmpty()) {
+				return;
+			}
 
 			for (OutputSpec spec : config.getOutputs()) {
 				ConcurrentHashMap<String, RowWriter> writers = writersBySpec.get(spec);
@@ -246,7 +256,9 @@ public abstract class FileGenerator extends Thread {
 		Set<String> includes = new LinkedHashSet<>();
 		includes.addAll(config.getFieldMap().values());
 		String tp = taxonPath();
-		if (tp != null && !tp.isEmpty()) includes.add(tp);
+		if (tp != null && !tp.isEmpty()) {
+			includes.add(tp);
+		}
 		includes.add("species");
 		includes.addAll(additionalSourceIncludes());
 		includes.removeIf(s -> s == null || s.isEmpty());

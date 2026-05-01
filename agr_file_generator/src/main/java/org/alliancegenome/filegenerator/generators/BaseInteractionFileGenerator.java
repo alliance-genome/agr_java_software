@@ -91,7 +91,9 @@ public abstract class BaseInteractionFileGenerator extends FileGenerator {
 
 	@Override
 	protected JsonNode customizeRow(JsonNode hit) {
-		if (!hit.isObject()) return hit;
+		if (!hit.isObject()) {
+			return hit;
+		}
 		ObjectNode obj = (ObjectNode) hit;
 		String root = docRoot();
 
@@ -134,15 +136,21 @@ public abstract class BaseInteractionFileGenerator extends FileGenerator {
 	}
 
 	private static String formatGeneId(JsonNode entity) {
-		if (entity == null) return "";
+		if (entity == null) {
+			return "";
+		}
 		String curie = entity.path("primaryExternalId").asText("");
 		return curieToPsiMi(curie);
 	}
 
 	private static String curieToPsiMi(String curie) {
-		if (curie == null || curie.isEmpty()) return "";
+		if (curie == null || curie.isEmpty()) {
+			return "";
+		}
 		int idx = curie.indexOf(':');
-		if (idx < 0) return curie;
+		if (idx < 0) {
+			return curie;
+		}
 		String prefix = curie.substring(0, idx);
 		String localId = curie.substring(idx + 1);
 		String psimi = MOD_TO_PSIMI_PREFIX.getOrDefault(prefix, prefix.toLowerCase());
@@ -150,10 +158,14 @@ public abstract class BaseInteractionFileGenerator extends FileGenerator {
 	}
 
 	private static String formatAlias(JsonNode entity) {
-		if (entity == null) return "";
+		if (entity == null) {
+			return "";
+		}
 		String symbol = entity.path("geneSymbol").path("displayText").asText("");
 		String curie = entity.path("primaryExternalId").asText("");
-		if (symbol.isEmpty() || curie.isEmpty()) return "";
+		if (symbol.isEmpty() || curie.isEmpty()) {
+			return "";
+		}
 		int idx = curie.indexOf(':');
 		String prefix = idx < 0 ? curie : curie.substring(0, idx);
 		String psimi = MOD_TO_PSIMI_PREFIX.getOrDefault(prefix, prefix.toLowerCase());
@@ -161,10 +173,14 @@ public abstract class BaseInteractionFileGenerator extends FileGenerator {
 	}
 
 	private static String formatTaxid(JsonNode entity) {
-		if (entity == null) return "";
+		if (entity == null) {
+			return "";
+		}
 		String curie = entity.path("taxon").path("curie").asText("");
 		String name = entity.path("taxon").path("name").asText("");
-		if (curie.isEmpty() || name.isEmpty()) return "";
+		if (curie.isEmpty() || name.isEmpty()) {
+			return "";
+		}
 		String txid = curie.replace("NCBITaxon:", "");
 		String code = TAXON_CODE.getOrDefault(curie, "");
 		StringBuilder sb = new StringBuilder();
@@ -176,15 +192,21 @@ public abstract class BaseInteractionFileGenerator extends FileGenerator {
 	}
 
 	private static String formatPsiMi(JsonNode term) {
-		if (term == null || term.isMissingNode() || term.isNull()) return "";
+		if (term == null || term.isMissingNode() || term.isNull()) {
+			return "";
+		}
 		String curie = term.path("curie").asText("");
 		String name = term.path("name").asText("");
-		if (curie.isEmpty()) return "";
+		if (curie.isEmpty()) {
+			return "";
+		}
 		return "psi-mi:\"" + curie + "\"(" + name + ")";
 	}
 
 	private static String isoToPsiMiDate(String iso) {
-		if (iso == null || iso.length() < 10) return "";
+		if (iso == null || iso.length() < 10) {
+			return "";
+		}
 		// "2024-06-27T..." -> "2024/06/27"
 		return iso.substring(0, 10).replace("-", "/");
 	}

@@ -38,7 +38,9 @@ public class JsonMappedWriter implements RowWriter {
 		for (Map.Entry<String, String> entry : fieldMap.entrySet()) {
 			row.put(entry.getKey(), JsonPath.resolveString(hit, entry.getValue()));
 		}
-		if (!firstRow) writer.write(",");
+		if (!firstRow) {
+			writer.write(",");
+		}
 		writer.write(om.writeValueAsString(row));
 		firstRow = false;
 		rowCount++;

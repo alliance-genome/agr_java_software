@@ -42,7 +42,9 @@ public class EsParallelFetcher {
 		try {
 			Map<String, Object> resp = es.count(index, body);
 			Object c = resp.get("count");
-			if (c instanceof Number) return ((Number) c).longValue();
+			if (c instanceof Number) {
+				return ((Number) c).longValue();
+			}
 		} catch (Exception e) {
 			log.warn("count() failed on {} for {}: {}", index, categories, e.getMessage());
 		}
@@ -89,9 +91,13 @@ public class EsParallelFetcher {
 			while (resp != null) {
 				scrollId = (String) resp.get("_scroll_id");
 				Map<String, Object> hitsMap = (Map<String, Object>) resp.get("hits");
-				if (hitsMap == null) break;
+				if (hitsMap == null) {
+					break;
+				}
 				List<Map<String, Object>> hits = (List<Map<String, Object>>) hitsMap.get("hits");
-				if (hits == null || hits.isEmpty()) break;
+				if (hits == null || hits.isEmpty()) {
+					break;
+				}
 
 				for (Map<String, Object> hit : hits) {
 					Object src = hit.get("_source");
@@ -124,7 +130,9 @@ public class EsParallelFetcher {
 		String host = ConfigHelper.getEsHost();
 		int port = ConfigHelper.getEsPort();
 		String h = host;
-		if (h.contains(",")) h = h.split(",")[0];
+		if (h.contains(",")) {
+			h = h.split(",")[0];
+		}
 		if (h.contains(":")) {
 			return "http://" + h;
 		}

@@ -72,7 +72,9 @@ public class VcfWriter implements RowWriter {
 	public synchronized void writeRow(JsonNode hit) throws IOException {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < esPaths.size(); i++) {
-			if (i > 0) sb.append("\t");
+			if (i > 0) {
+				sb.append("\t");
+			}
 			String v = JsonPath.resolveString(hit, esPaths.get(i));
 			sb.append(v == null || v.isEmpty() ? "." : escape(v));
 		}

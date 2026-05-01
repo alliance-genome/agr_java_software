@@ -29,7 +29,9 @@ public class DiseaseFileGenerator extends FileGenerator {
 
 	@Override
 	protected JsonNode customizeRow(JsonNode hit) {
-		if (!hit.isObject()) return hit;
+		if (!hit.isObject()) {
+			return hit;
+		}
 		ObjectNode obj = (ObjectNode) hit;
 
 		// DBobjectType: derive from doc category. gene_disease_annotation -> "gene",
@@ -57,7 +59,9 @@ public class DiseaseFileGenerator extends FileGenerator {
 			symbol = JsonPath.resolveString(hit, "subject.alleleSymbol.displayText");
 		} else if ("AffectedGenomicModel".equals(type)) {
 			symbol = JsonPath.resolveString(hit, "subject.agmFullName.displayText");
-			if (symbol.isEmpty()) symbol = JsonPath.resolveString(hit, "subject.name");
+			if (symbol.isEmpty()) {
+				symbol = JsonPath.resolveString(hit, "subject.name");
+			}
 		} else {
 			symbol = JsonPath.resolveString(hit, "subject.name");
 		}
@@ -81,7 +85,9 @@ public class DiseaseFileGenerator extends FileGenerator {
 		if (refs != null && refs.isArray() && refs.size() > 0) {
 			JsonNode r0 = refs.get(0);
 			String ref = r0.path("referenceID").asText("");
-			if (ref.isEmpty()) ref = r0.path("curie").asText("");
+			if (ref.isEmpty()) {
+				ref = r0.path("curie").asText("");
+			}
 			obj.put("_reference", ref);
 		} else {
 			obj.put("_reference", "");
@@ -89,8 +95,12 @@ public class DiseaseFileGenerator extends FileGenerator {
 
 		// Date: format YYYYMMDD from the most relevant ISO timestamp.
 		String iso = JsonPath.resolveString(hit, "primaryAnnotations.0.dateUpdated");
-		if (iso.isEmpty()) iso = JsonPath.resolveString(hit, "primaryAnnotations.0.dateCreated");
-		if (iso.isEmpty()) iso = JsonPath.resolveString(hit, "subject.dateUpdated");
+		if (iso.isEmpty()) {
+			iso = JsonPath.resolveString(hit, "primaryAnnotations.0.dateCreated");
+		}
+		if (iso.isEmpty()) {
+			iso = JsonPath.resolveString(hit, "subject.dateUpdated");
+		}
 		obj.put("_date", isoToYyyyMmDd(iso));
 
 		// Source: MOD code from the subject's species displayName (e.g. "WB", "MGI").
@@ -105,14 +115,18 @@ public class DiseaseFileGenerator extends FileGenerator {
 
 	private static String joinWithOrthologs(JsonNode hit) {
 		JsonNode primary = JsonPath.resolve(hit, "primaryAnnotations");
-		if (primary == null || !primary.isArray()) return "";
+		if (primary == null || !primary.isArray()) {
+			return "";
+		}
 		LinkedHashSet<String> ids = new LinkedHashSet<>();
 		for (JsonNode pa : primary) {
 			JsonNode with = pa.path("with");
 			if (with.isArray()) {
 				for (JsonNode w : with) {
 					String id = w.path("primaryExternalId").asText("");
-					if (!id.isEmpty()) ids.add(id);
+					if (!id.isEmpty()) {
+						ids.add(id);
+					}
 				}
 			}
 		}
@@ -120,7 +134,9 @@ public class DiseaseFileGenerator extends FileGenerator {
 	}
 
 	private static String isoToYyyyMmDd(String iso) {
-		if (iso == null || iso.length() < 10) return "";
+		if (iso == null || iso.length() < 10) {
+			return "";
+		}
 		// "2024-06-27T..." -> "20240627"
 		return iso.substring(0, 10).replace("-", "");
 	}
