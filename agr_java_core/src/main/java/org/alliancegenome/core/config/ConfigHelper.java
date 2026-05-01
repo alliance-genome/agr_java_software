@@ -5,7 +5,12 @@ import static org.alliancegenome.core.config.Constants.AO_TERM_LIST;
 import static org.alliancegenome.core.config.Constants.API_HOST;
 import static org.alliancegenome.core.config.Constants.API_PORT;
 import static org.alliancegenome.core.config.Constants.API_SECURE;
+import static org.alliancegenome.core.config.Constants.AWS_ACCESS_KEY_ID;
 import static org.alliancegenome.core.config.Constants.AWS_BUCKET_NAME;
+import static org.alliancegenome.core.config.Constants.AWS_PROFILE;
+import static org.alliancegenome.core.config.Constants.AWS_SECRET_ACCESS_KEY;
+import static org.alliancegenome.core.config.Constants.GENERATED_FILES_FOLDER;
+import static org.alliancegenome.core.config.Constants.SKIP_S3_UPLOAD;
 import static org.alliancegenome.core.config.Constants.BLUETEAM_ES_INDEX;
 import static org.alliancegenome.core.config.Constants.BLUETEAM_ES_URL;
 import static org.alliancegenome.core.config.Constants.CURATION_API_TOKEN;
@@ -102,6 +107,10 @@ public class ConfigHelper {
 		defaults.put(NEO4J_PORT, "7687");
 
 		defaults.put(AWS_BUCKET_NAME, "mod-datadumps-dev"); // This needs to always be a dev bucket unless running in production
+
+		// File Generator
+		defaults.put(GENERATED_FILES_FOLDER, "data");
+		defaults.put(SKIP_S3_UPLOAD, "false");
 
 		defaults.put(AO_TERM_LIST, "anatomy-term-order.csv");
 		defaults.put(GO_TERM_LIST, "go-term-order.csv");
@@ -397,6 +406,41 @@ public class ConfigHelper {
 			init();
 		}
 		return config.get(AWS_BUCKET_NAME);
+	}
+
+	public static String getAwsProfile() {
+		if (!init) {
+			init();
+		}
+		return config.get(AWS_PROFILE);
+	}
+
+	public static String getAwsAccessKeyId() {
+		if (!init) {
+			init();
+		}
+		return config.get(AWS_ACCESS_KEY_ID);
+	}
+
+	public static String getAwsSecretAccessKey() {
+		if (!init) {
+			init();
+		}
+		return config.get(AWS_SECRET_ACCESS_KEY);
+	}
+
+	public static String getGeneratedFilesFolder() {
+		if (!init) {
+			init();
+		}
+		return config.get(GENERATED_FILES_FOLDER);
+	}
+
+	public static boolean getSkipS3Upload() {
+		if (!init) {
+			init();
+		}
+		return Boolean.parseBoolean(config.get(SKIP_S3_UPLOAD));
 	}
 
 	public static String getVariantDownloadPath() {

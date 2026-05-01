@@ -34,6 +34,13 @@ public class Constants {
 	public static final String NEO4J_PORT = "NEO4J_PORT";
 
 	public static final String AWS_BUCKET_NAME = "AWS_BUCKET_NAME";
+	public static final String AWS_PROFILE = "AWS_PROFILE";
+	public static final String AWS_ACCESS_KEY_ID = "AWS_ACCESS_KEY_ID";
+	public static final String AWS_SECRET_ACCESS_KEY = "AWS_SECRET_ACCESS_KEY";
+
+	// File Generator
+	public static final String GENERATED_FILES_FOLDER = "GENERATED_FILES_FOLDER";
+	public static final String SKIP_S3_UPLOAD = "SKIP_S3_UPLOAD";
 
 	public static final String AO_TERM_LIST = "AO_TERM_LIST";
 	public static final String GO_TERM_LIST = "GO_TERM_LIST";
