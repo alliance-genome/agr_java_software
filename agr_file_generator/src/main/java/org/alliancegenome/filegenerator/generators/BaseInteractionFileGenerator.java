@@ -1,5 +1,6 @@
 package org.alliancegenome.filegenerator.generators;
 
+import java.util.List;
 import java.util.Map;
 
 import org.alliancegenome.filegenerator.config.FileGeneratorConfig;
@@ -67,8 +68,8 @@ public abstract class BaseInteractionFileGenerator extends FileGenerator {
 	 * subtree instead — that's where every ES path used by customizeRow lives.
 	 */
 	@Override
-	protected java.util.List<String> additionalSourceIncludes() {
-		return java.util.List.of(docRoot());
+	protected List<String> additionalSourceIncludes() {
+		return List.of(docRoot());
 	}
 
 	@Override
@@ -83,9 +84,9 @@ public abstract class BaseInteractionFileGenerator extends FileGenerator {
 	 * object's taxon so the row also lands in that MOD's TAXON writer when the two differ.
 	 */
 	@Override
-	protected java.util.List<String> additionalTaxonCuries(com.fasterxml.jackson.databind.JsonNode hit) {
+	protected List<String> additionalTaxonCuries(JsonNode hit) {
 		String objCurie = JsonPath.resolveString(hit, docRoot() + ".geneGeneAssociationObject.taxon.curie");
-		return objCurie == null || objCurie.isEmpty() ? java.util.List.of() : java.util.List.of(objCurie);
+		return objCurie == null || objCurie.isEmpty() ? List.of() : List.of(objCurie);
 	}
 
 	@Override

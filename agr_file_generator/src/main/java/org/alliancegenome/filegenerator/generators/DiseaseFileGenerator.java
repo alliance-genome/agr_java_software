@@ -1,5 +1,7 @@
 package org.alliancegenome.filegenerator.generators;
 
+import java.util.LinkedHashSet;
+
 import org.alliancegenome.filegenerator.config.FileGeneratorConfig;
 import org.alliancegenome.filegenerator.writers.JsonPath;
 
@@ -104,7 +106,7 @@ public class DiseaseFileGenerator extends FileGenerator {
 	private static String joinWithOrthologs(JsonNode hit) {
 		JsonNode primary = JsonPath.resolve(hit, "primaryAnnotations");
 		if (primary == null || !primary.isArray()) return "";
-		java.util.LinkedHashSet<String> ids = new java.util.LinkedHashSet<>();
+		LinkedHashSet<String> ids = new LinkedHashSet<>();
 		for (JsonNode pa : primary) {
 			JsonNode with = pa.path("with");
 			if (with.isArray()) {
