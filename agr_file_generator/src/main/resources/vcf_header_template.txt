@@ -1,0 +1,28 @@
+##fileformat=VCFv4.3
+##fileDate={fileDate}
+##ALT=<ID=R,Description="IUPAC code R = A/G">
+##ALT=<ID=Y,Description="IUPAC code Y = C/T">
+##ALT=<ID=S,Description="IUPAC code S = C/G">
+##ALT=<ID=W,Description="IUPAC code W = A/T">
+##ALT=<ID=M,Description="IUPAC code M = A/C">
+##ALT=<ID=K,Description="IUPAC code K = T/G">
+##ALT=<ID=B,Description="IUPAC code B = C/G/T">
+##ALT=<ID=D,Description="IUPAC code D = A/G/T">
+##ALT=<ID=H,Description="IUPAC code H = A/C/T">
+##ALT=<ID=V,Description="IUPAC code V = A/C/G">
+##INFO=<ID=hgvs_nomenclature,Number=1,Type=String,Description="the HGVS name of the allele">
+##INFO=<ID=geneLevelConsequence,Number=.,Type=String,Description="VEP consequence of the variant on the Gene">
+##INFO=<ID=transcriptLevelConsequence,Number=.,Type=String,Description="VEP consequence of the variant on the Transcript">
+##INFO=<ID=geneImpact,Number=.,Type=String,Description="Variant impact scale for Gene">
+##INFO=<ID=transcriptImpact,Number=.,Type=String,Description="Variant impact scale for Transcript">
+##INFO=<ID=allele_ids,Number=.,Type=String,Description="The ID of the Allele">
+##INFO=<ID=allele_symbols,Number=.,Type=String,Description="The human readable name of the Allele">
+##INFO=<ID=allele_symbols_text,Number=.,Type=String,Description="Another human readable representation of the allele">
+##INFO=<ID=soTerm,Number=1,Type=String,Description="The Sequence Ontology term for the variant">
+##INFO=<ID=allele_of_gene_ids,Number=.,Type=String,Description="The gene ids that the Allele is located on">
+##INFO=<ID=allele_of_gene_symbols,Number=.,Type=String,Description="The gene names that the Allele is located on">
+##INFO=<ID=allele_of_transcript_ids,Number=.,Type=String,Description="The gene ids that the Allele is located on">
+##INFO=<ID=allele_of_transcript_gff3_ids,Number=.,Type=String,Description="The transcript gff3ID that the Allele is located on">
+##INFO=<ID=allele_of_transcript_gff3_names,Number=.,Type=String,Description="The transcript gff3 Names that the Allele is located on">
+##phasing=partial
+##source=AGR VCF File generator
