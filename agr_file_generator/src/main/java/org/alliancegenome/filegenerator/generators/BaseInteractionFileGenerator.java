@@ -38,15 +38,15 @@ public abstract class BaseInteractionFileGenerator extends FileGenerator {
 	 * `taxid:N(<code>)|taxid:N(<full name>)`. Keyed by NCBITaxon curie.
 	 */
 	private static final Map<String, String> TAXON_CODE = Map.ofEntries(
-			Map.entry("NCBITaxon:6239",   "caeel"),
-			Map.entry("NCBITaxon:7227",   "drome"),
-			Map.entry("NCBITaxon:7955",   "danre"),
-			Map.entry("NCBITaxon:9606",   "human"),
-			Map.entry("NCBITaxon:10090",  "mouse"),
-			Map.entry("NCBITaxon:10116",  "rat"),
+			Map.entry("NCBITaxon:6239", "caeel"),
+			Map.entry("NCBITaxon:7227", "drome"),
+			Map.entry("NCBITaxon:7955", "danre"),
+			Map.entry("NCBITaxon:9606", "human"),
+			Map.entry("NCBITaxon:10090", "mouse"),
+			Map.entry("NCBITaxon:10116", "rat"),
 			Map.entry("NCBITaxon:559292", "yeast"),
-			Map.entry("NCBITaxon:8355",   "xenla"),
-			Map.entry("NCBITaxon:8364",   "xentr"),
+			Map.entry("NCBITaxon:8355", "xenla"),
+			Map.entry("NCBITaxon:8364", "xentr"),
 			Map.entry("NCBITaxon:2697049", "sars2")
 	);
 
