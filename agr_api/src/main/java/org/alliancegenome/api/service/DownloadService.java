@@ -93,10 +93,15 @@ public class DownloadService {
 			name = name.substring(0, dot);
 		}
 		f.setFileExtension(ext);
-		int us = name.lastIndexOf('_');
-		if (us > 0) {
-			f.setDataType(name.substring(0, us));
-			f.setDataSubType(name.substring(us + 1));
+		// Filename pattern: {TYPE}_{FILETYPE}_{SUBTYPE} — TYPE may contain hyphens but never underscores.
+		String[] parts = name.split("_", 3);
+		if (parts.length == 3) {
+			f.setDataType(parts[0]);
+			f.setFileType(parts[1]);
+			f.setDataSubType(parts[2]);
+		} else if (parts.length == 2) {
+			f.setDataType(parts[0]);
+			f.setFileType(parts[1]);
 		} else {
 			f.setDataType(name);
 		}

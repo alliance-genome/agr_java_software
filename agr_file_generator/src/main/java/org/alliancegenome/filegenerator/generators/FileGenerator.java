@@ -274,7 +274,7 @@ public abstract class FileGenerator extends Thread {
 	}
 
 	private RowWriter openWriter(OutputSpec spec, String subtype, Collection<String> taxonCuries, Path outDir, String readme) throws IOException {
-		String fileName = config.getType() + "-" + spec.format().getFiletypeToken() + "_" + subtype + "." + spec.format().getExtension() + ".gz";
+		String fileName = config.getType() + "_" + spec.format().getFiletypeToken() + "_" + subtype + "." + spec.format().getExtension() + ".gz";
 		Path path = outDir.resolve(fileName);
 		switch (spec.format()) {
 			case TSV: {

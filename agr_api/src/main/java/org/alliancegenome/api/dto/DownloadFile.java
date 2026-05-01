@@ -15,6 +15,7 @@ public class DownloadFile {
 	private long size;
 	private String lastModified;
 	private String dataType;
+	private String fileType;
 	private String dataSubType;
 	private String fileExtension;
 
