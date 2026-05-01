@@ -16,6 +16,8 @@ import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.StorageClass;
 import com.amazonaws.services.s3.transfer.TransferManager;
 import com.amazonaws.services.s3.transfer.TransferManagerBuilder;
 import com.amazonaws.services.s3.transfer.Upload;
@@ -104,9 +106,11 @@ public class S3Uploader {
 				}
 				String key = keyPrefix + file.getFileName().toString();
 				File f = file.toFile();
-				log.info("Uploading {} ({} bytes) -> s3://{}/{}", file.getFileName(), f.length(), bucket, key);
+				log.info("Uploading {} ({} bytes) -> s3://{}/{} (GLACIER_IR)", file.getFileName(), f.length(), bucket, key);
 				try {
-					Upload upload = tm.upload(bucket, key, f);
+					PutObjectRequest req = new PutObjectRequest(bucket, key, f)
+							.withStorageClass(StorageClass.GlacierInstantRetrieval);
+					Upload upload = tm.upload(req);
 					upload.waitForCompletion();
 					uploaded++;
 					totalBytes += f.length();
