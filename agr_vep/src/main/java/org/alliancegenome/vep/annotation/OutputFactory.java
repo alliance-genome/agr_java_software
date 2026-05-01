@@ -743,6 +743,12 @@ public class OutputFactory {
 		entry.setConsequence(consequence);
 		entry.setImpact(ConsequenceSeverity.getImpact(consequence));
 
+		// Comprehensive trace for Perl comparison — log ALL intermediate values
+		if (Trace.enabled()) {
+			logComparisonTrace(transcript, variantStart, variantEnd, bvt, tva,
+				consequence, refAllele, vepAllele);
+		}
+
 		// Exon/intron numbers — VEP iterates ALL overlapping exons/introns and
 		// produces a range like "7-8/8". Use BVT.exonNumber/intronNumber which does
 		// this iteration. Fall back to single-position lookup when BVT not available.
@@ -1187,5 +1193,88 @@ public class OutputFactory {
 			terms.add("coding_sequence_variant");
 		}
 		return terms;
+	}
+
+	/**
+	 * Log ALL intermediate values for Perl comparison.
+	 * Format matches the Perl trace so output can be diffed directly.
+	 */
+	private void logComparisonTrace(TranscriptModel transcript,
+			int variantStart, int variantEnd,
+			BaseTranscriptVariation bvt, TranscriptVariationAllele tva,
+			String consequence, String refAllele, String vepAllele) {
+		try {
+			ReferenceGenome ref = codingAnnotator.getReference();
+			String trId = transcript.getTranscriptId();
+
+			// Exons
+			StringBuilder exonsSb = new StringBuilder();
+			for (ExonModel e : transcript.getExons()) {
+				if (exonsSb.length() > 0) exonsSb.append(",");
+				exonsSb.append(e.getStart()).append("-").append(e.getEnd());
+			}
+
+			// CDS segments
+			StringBuilder cdsSb = new StringBuilder();
+			for (CdsSegment s : transcript.getCdsSegments()) {
+				if (cdsSb.length() > 0) cdsSb.append(",");
+				cdsSb.append(s.getStart()).append("-").append(s.getEnd());
+			}
+
+			// Spliced mRNA
+			String splicedSeq = BaseTranscriptVariation.buildSplicedSeq(transcript, ref);
+			String splicedFirst10 = splicedSeq != null && splicedSeq.length() >= 10
+				? splicedSeq.substring(0, 10).toUpperCase() : (splicedSeq != null ? splicedSeq.toUpperCase() : "");
+			String splicedLast10 = splicedSeq != null && splicedSeq.length() >= 10
+				? splicedSeq.substring(splicedSeq.length() - 10).toUpperCase() : "";
+
+			// CDS (translateable_seq)
+			String cds = BaseTranscriptVariation.translateableSeq(transcript, ref);
+			String cdsFirst10 = cds != null && cds.length() >= 10
+				? cds.substring(0, 10).toUpperCase() : (cds != null ? cds.toUpperCase() : "");
+			String cdsLast10 = cds != null && cds.length() >= 10
+				? cds.substring(cds.length() - 10).toUpperCase() : "";
+
+			// 5' UTR
+			String utr5 = BaseTranscriptVariation.fivePrimeUtr(transcript, ref);
+			String utr5Last5 = utr5 != null && utr5.length() >= 5
+				? utr5.substring(utr5.length() - 5) : (utr5 != null ? utr5 : "");
+
+			// 3' UTR
+			String utr3 = BaseTranscriptVariation.threePrimeUtr(transcript, ref);
+
+			// BVT values
+			int cdsStart = bvt != null ? bvt.cdsStart() : -1;
+			int cdsEnd = bvt != null ? bvt.cdsEnd() : -1;
+			int cdnaStart = bvt != null ? bvt.cdnaStart() : -1;
+			int cdnaEnd = bvt != null ? bvt.cdnaEnd() : -1;
+			int transStart = bvt != null ? bvt.translationStart() : -1;
+			int transEnd = bvt != null ? bvt.translationEnd() : -1;
+
+			// Allele-specific fields from TVA
+			String aminoAcids = tva != null ? tva.getAminoAcids() : "";
+			String codonsStr = tva != null ? tva.getCodons() : "";
+			String refAlleleStr = refAllele != null ? refAllele : "";
+			String altAlleleStr = vepAllele != null ? vepAllele : "";
+
+			Trace.log("CMP", "tr=%s var=%s:%d-%d ref=%s alt=%s strand=%s spliced_len=%d spliced_f10=%s cdna_coding_start=%d cds_len=%d cds_f10=%s utr5_len=%d utr5_l5=%s utr3_len=%d startExonPhase=%d transStartExonPhase=%d hasFS=%b cds_start=%d cds_end=%d cdna_start=%d cdna_end=%d trans_start=%d trans_end=%d amino_acids=%s codons=%s consequence=%s",
+				trId,
+				transcript.getChr(), variantStart, variantEnd,
+				refAlleleStr, altAlleleStr,
+				transcript.isPositiveStrand() ? "+" : "-",
+				splicedSeq != null ? splicedSeq.length() : 0, splicedFirst10,
+				transcript.getCdnaCodingStart(),
+				cds != null ? cds.length() : 0, cdsFirst10,
+				utr5 != null ? utr5.length() : 0, utr5Last5,
+				utr3 != null ? utr3.length() : 0,
+				transcript.getStartExonPhase(), transcript.getTranslationStartExonPhase(),
+				transcript.hasFrameshiftIntron(),
+				cdsStart, cdsEnd, cdnaStart, cdnaEnd, transStart, transEnd,
+				aminoAcids != null ? aminoAcids : "",
+				codonsStr != null ? codonsStr : "",
+				consequence);
+		} catch (Exception e) {
+			// Don't let trace errors break the pipeline
+		}
 	}
 }

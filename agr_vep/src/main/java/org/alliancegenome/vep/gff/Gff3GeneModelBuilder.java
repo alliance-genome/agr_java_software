@@ -38,18 +38,19 @@ public class Gff3GeneModelBuilder {
 		"miRNA_gene", "rRNA_gene", "snRNA_gene", "piRNA_gene"
 	);
 
-	// Transcript-level types to include, verified against ORIG VEP v111 output.
-	// Types NOT in ORIG: pre_miRNA, circular_ncRNA, antisense_RNA, scRNA, unconfirmed_transcript
-	// Perl VEP GFF.pm %INCLUDE_FEATURE_TYPES: has "lnc_RNA" but NOT "lncRNA".
-	// MGI GFF uses "lncRNA" (no underscore) for 190K predicted ncRNAs that
-	// Perl excludes. Removing "lncRNA" matches Perl's behavior.
-	private static final Set<String> TRANSCRIPT_TYPES = Set.of(
-		"mRNA", "lnc_RNA", "lincRNA", "ncRNA", "transcript",
-		"pseudogenic_transcript", "pseudogenic_tRNA", "pseudogenic_rRNA",
-		"tRNA", "snoRNA", "rRNA", "snRNA",
-		"miRNA", "miRNA_primary_transcript", "piRNA",
-		"J_gene_segment", "nc_primary_transcript",
-		"processed_transcript", "aberrant_processed_transcript"
+	// Perl VEP GFF.pm line 71-116: %INCLUDE_FEATURE_TYPES
+	// The EXACT set of GFF3 feature types that Perl loads. All others are skipped.
+	private static final Set<String> INCLUDE_FEATURE_TYPES = Set.of(
+		"aberrant_processed_transcript", "CDS", "C_gene_segment",
+		"D_gene_segment", "exon", "gene", "J_gene_segment", "lnc_RNA",
+		"lincRNA", "lincRNA_gene", "miRNA", "miRNA_gene", "mRNA",
+		"mt_gene", "nc_primary_transcript", "ncRNA",
+		"NMD_transcript_variant", "primary_transcript",
+		"processed_pseudogene", "processed_transcript",
+		"protein_coding_gene", "pseudogene", "pseudogenic_transcript",
+		"RNA", "rRNA", "rRNA_gene", "snoRNA", "snoRNA_gene",
+		"snRNA", "snRNA_gene", "supercontig", "transcript",
+		"tRNA", "VD_gene_segment", "V_gene_segment"
 	);
 
 	// Raw (un-URL-decoded) Name attribute values, keyed by decoded ID. Populated
@@ -103,7 +104,12 @@ public class Gff3GeneModelBuilder {
 					}
 				}
 
-				if (!TRANSCRIPT_TYPES.contains(type)) {
+				// Perl: only process types in %INCLUDE_FEATURE_TYPES.
+				// Skip gene-level types (handled above), CDS, exon (handled as children).
+				if (!INCLUDE_FEATURE_TYPES.contains(type)
+						|| GENE_TYPES.contains(type)
+						|| "CDS".equals(type) || "exon".equals(type)
+						|| "supercontig".equals(type)) {
 					continue;
 				}
 
