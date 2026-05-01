@@ -5,10 +5,10 @@ import static org.alliancegenome.core.config.Constants.AO_TERM_LIST;
 import static org.alliancegenome.core.config.Constants.API_HOST;
 import static org.alliancegenome.core.config.Constants.API_PORT;
 import static org.alliancegenome.core.config.Constants.API_SECURE;
-import static org.alliancegenome.core.config.Constants.AWS_ACCESS_KEY_ID;
+import static org.alliancegenome.core.config.Constants.AWS_ACCESS_KEY;
 import static org.alliancegenome.core.config.Constants.AWS_BUCKET_NAME;
 import static org.alliancegenome.core.config.Constants.AWS_PROFILE;
-import static org.alliancegenome.core.config.Constants.AWS_SECRET_ACCESS_KEY;
+import static org.alliancegenome.core.config.Constants.AWS_SECRET_KEY;
 import static org.alliancegenome.core.config.Constants.GENERATED_FILES_FOLDER;
 import static org.alliancegenome.core.config.Constants.SKIP_S3_UPLOAD;
 import static org.alliancegenome.core.config.Constants.BLUETEAM_ES_INDEX;
@@ -415,18 +415,18 @@ public class ConfigHelper {
 		return config.get(AWS_PROFILE);
 	}
 
-	public static String getAwsAccessKeyId() {
+	public static String getAwsAccessKey() {
 		if (!init) {
 			init();
 		}
-		return config.get(AWS_ACCESS_KEY_ID);
+		return config.get(AWS_ACCESS_KEY);
 	}
 
-	public static String getAwsSecretAccessKey() {
+	public static String getAwsSecretKey() {
 		if (!init) {
 			init();
 		}
-		return config.get(AWS_SECRET_ACCESS_KEY);
+		return config.get(AWS_SECRET_KEY);
 	}
 
 	public static String getGeneratedFilesFolder() {

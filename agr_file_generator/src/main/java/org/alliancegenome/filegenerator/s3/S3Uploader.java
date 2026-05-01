@@ -30,7 +30,7 @@ import lombok.extern.slf4j.Slf4j;
  *
  * Credentials chain (mirrors agr_chipmunk's S3Helper):
  *   1. AWS_PROFILE env var      -> ProfileCredentialsProvider(profile)
- *   2. AWS_ACCESS_KEY_ID + ...  -> static credentials
+ *   2. AWS_ACCESS_KEY + AWS_SECRET_KEY -> static credentials
  *   3. EC2 instance profile     -> InstanceProfileCredentialsProvider(false)
  *   4. DefaultAWSCredentialsProviderChain (env, system props, ~/.aws, container, ...)
  *
@@ -52,10 +52,10 @@ public class S3Uploader {
 			log.info("S3 credentials: AWS_PROFILE={}", profile);
 			return new ProfileCredentialsProvider(profile);
 		}
-		String accessKey = ConfigHelper.getAwsAccessKeyId();
-		String secretKey = ConfigHelper.getAwsSecretAccessKey();
+		String accessKey = ConfigHelper.getAwsAccessKey();
+		String secretKey = ConfigHelper.getAwsSecretKey();
 		if (accessKey != null && !accessKey.isEmpty() && secretKey != null && !secretKey.isEmpty()) {
-			log.info("S3 credentials: AWS_ACCESS_KEY_ID + AWS_SECRET_ACCESS_KEY");
+			log.info("S3 credentials: AWS_ACCESS_KEY + AWS_SECRET_KEY");
 			return new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey));
 		}
 		try {

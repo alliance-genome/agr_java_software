@@ -35,8 +35,8 @@ public class Constants {
 
 	public static final String AWS_BUCKET_NAME = "AWS_BUCKET_NAME";
 	public static final String AWS_PROFILE = "AWS_PROFILE";
-	public static final String AWS_ACCESS_KEY_ID = "AWS_ACCESS_KEY_ID";
-	public static final String AWS_SECRET_ACCESS_KEY = "AWS_SECRET_ACCESS_KEY";
+	public static final String AWS_ACCESS_KEY = "AWS_ACCESS_KEY";
+	public static final String AWS_SECRET_KEY = "AWS_SECRET_KEY";
 
 	// File Generator
 	public static final String GENERATED_FILES_FOLDER = "GENERATED_FILES_FOLDER";
