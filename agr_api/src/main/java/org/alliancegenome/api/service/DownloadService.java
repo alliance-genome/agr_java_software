@@ -41,7 +41,7 @@ public class DownloadService {
 		return new URL(url).openStream();
 	}
 
-	public List<DownloadFile> listDownloads(String release) throws Exception {
+	public List<DownloadFile> listDownloads(String release, String publicBaseUrl) throws Exception {
 		String prefix = release + "/downloads/";
 		String url = DOWNLOAD_HOST + "/?list-type=2&prefix=" + URLEncoder.encode(prefix, "UTF-8") + "&delimiter=%2F&max-keys=1000";
 		log.info("Listing downloads: {}", url);
@@ -64,7 +64,7 @@ public class DownloadService {
 				f.setFilename(filename);
 				f.setS3Path(key);
 				f.setS3Url(DOWNLOAD_HOST + "/" + key);
-				f.setStableURL("/download/" + filename);
+				f.setStableURL(publicBaseUrl + "/download/" + filename);
 				f.setReleaseVersion(release);
 				f.setLastModified(textOf(c, "LastModified"));
 				String size = textOf(c, "Size");
