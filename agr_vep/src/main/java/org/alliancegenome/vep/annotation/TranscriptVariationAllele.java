@@ -207,13 +207,26 @@ public class TranscriptVariationAllele {
 	}
 
 	private static boolean isUnambiguousDna(String seq) {
-		// Perl has no global DNA check — consequence predicates accept any sequence
-		// including N (unknown base). Only specific methods like _inv_start_altered
-		// guard on seq_is_unambiguous_dna. Allow N through so frameshift/inframe
-		// predicates fire correctly for N-containing alleles.
+		// Gate for annotateInternal entry — accepts ACGTN- (N passed through
+		// so codon computation still runs; N-allele gate is inside annotateSNP/annotateIndel)
 		for (int i = 0; i < seq.length(); i++) {
 			char c = Character.toUpperCase(seq.charAt(i));
 			if (c != 'A' && c != 'C' && c != 'G' && c != 'T' && c != 'N' && c != '-') {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Perl seq_is_unambiguous_dna (VariationFeatureOverlapAllele.pm line 293-302):
+	 * /^[ACGT-]+$/i — N is NOT allowed. Used by peptide() to gate translation.
+	 */
+	private static boolean seqIsUnambiguousDna(String seq) {
+		if (seq == null || seq.isEmpty() || "-".equals(seq)) return true;
+		for (int i = 0; i < seq.length(); i++) {
+			char c = Character.toUpperCase(seq.charAt(i));
+			if (c != 'A' && c != 'C' && c != 'G' && c != 'T' && c != '-') {
 				return false;
 			}
 		}
@@ -253,13 +266,9 @@ public class TranscriptVariationAllele {
 		String refCdn = new String(refCodonChars);
 		String altCdn = new String(altCodonChars);
 
-		char rAA = CodonTable.translate(refCdn);
-		char aAA = CodonTable.translate(altCdn);
-
+		// Set codons + positions BEFORE N-allele gate (Perl computes codons for all alleles)
 		this.cdsPosition = cdsPos;
 		this.proteinPosition = bvt.translationStart();
-		this.refAA = rAA;
-		this.altAA = aAA;
 		this.refCodon = formatCodon(refCdn, posInCodon);
 		this.altCodon = formatCodon(altCdn, posInCodon);
 		this.rawRefCodon = refCdn.toUpperCase();
@@ -267,6 +276,21 @@ public class TranscriptVariationAllele {
 		this.cdnaPosition = bvt.cdnaStart();
 		this.cdnaEnd = bvt.cdnaEnd();
 		this.cdsSequence = cdsSeq;
+
+		// Perl peptide() (TranscriptVariationAllele.pm line 693): returns undef
+		// unless seq_is_unambiguous_dna (/^[ACGT-]+$/i). N fails this check.
+		// All consequence predicates get undef peptides → return 0.
+		// Falls to coding_unknown → coding_sequence_variant.
+		// Codons are still computed (codon() has no ambiguity gate).
+		if (!seqIsUnambiguousDna(altBase)) {
+			return; // No amino_acids, no consequence — OutputFactory assigns coding_sequence_variant
+		}
+
+		char rAA = CodonTable.translate(refCdn);
+		char aAA = CodonTable.translate(altCdn);
+
+		this.refAA = rAA;
+		this.altAA = aAA;
 
 		// Perl VariationEffect.pm start_lost (line 850-899) fires via two paths:
 		// 1. _inv_start_altered (line 912-949): builds UTR+translateableSeq, splices
@@ -660,33 +684,14 @@ public class TranscriptVariationAllele {
 				consequences.add("stop_lost");
 			}
 			if (overlapsStart) {
-				// VEP has TWO independent paths for start codon consequences:
-				//
-				// 1. _ins_del_start_altered (line 998-1014): checks if ATG codon is
-				//	  physically changed by the indel. If NOT altered → start_retained_variant.
-				//	  If altered → start_lost (line 862).
-				//
-				// 2. Peptide check (line 864-873): checks if the translated protein differs.
-				//	  For frameshifts, the protein always differs → start_lost fires via this path
-				//	  EVEN WHEN _ins_del_start_altered is false (ATG preserved).
-				//
-				// Result: frameshift at start codon with preserved ATG produces BOTH
-				// start_lost (peptide changed) AND start_retained_variant (ATG preserved).
-				boolean startAltered = true;
-				if (altCds != null && cdsSequence != null) {
-					if (altCds.length() >= cdsSequence.length()) {
-						String tail = altCds.substring(altCds.length() - cdsSequence.length());
-						startAltered = !tail.equals(cdsSequence);
-					}
-				}
-				if (startAltered) {
-					consequences.add("start_lost");
-				} else {
-					// ATG preserved — start_retained fires
+				// Perl evaluates start_lost and start_retained as INDEPENDENT predicates:
+				// start_retained (line 946): !_ins_del_start_altered (CDS tail preserved)
+				// start_lost (line 862-873): _ins_del_start_altered || _inv_start_altered || peptide_check
+				// For frameshifts, peptide always differs → start_lost always fires.
+				boolean startAltered = _ins_del_start_altered(altCds, cdsSequence);
+				consequences.add("start_lost");
+				if (!startAltered) {
 					consequences.add("start_retained_variant");
-					// But for frameshifts, VEP's peptide check also fires start_lost
-					// because the protein IS different (reading frame shifted)
-					consequences.add("start_lost");
 				}
 			}
 			if (overlapsStop && refHasStop && altHasStopAtSamePos) {
@@ -809,15 +814,13 @@ public class TranscriptVariationAllele {
 					}
 					consequences.add(isInframeDel ? "inframe_deletion" : "protein_altering_variant");
 				} else if (overlapsStart) {
-					// VEP start_lost line 862: for inframe deletions, the
-					// _ins_del_start_altered path is BLOCKED (!(inframe_deletion) = false).
-					// start_lost fires via peptide check (line 864-873).
+					// Perl start_lost line 862-863: for inframe deletions,
+					// _ins_del_start_altered is BLOCKED (!(inframe_deletion)=false).
+					// start_lost fires via _inv_start_altered (line 863) or
+					// peptide check (line 869-873).
 					// start_retained fires when _ins_del_start_altered is false.
-					boolean startAltered = true;
-					if (altCds != null && cdsSequence != null && altCds.length() >= cdsSequence.length()) {
-						String tail = altCds.substring(altCds.length() - cdsSequence.length());
-						startAltered = !tail.equals(cdsSequence);
-					}
+					boolean startAltered = _ins_del_start_altered(altCds, cdsSequence);
+					boolean invStartAltered = _inv_start_altered(transcript, cdsSequence);
 					boolean pepRetainsStart = false;
 					if (refPep != null && altPep != null) {
 						String altPepTr = altPep;
@@ -825,7 +828,7 @@ public class TranscriptVariationAllele {
 						if (si >= 0 && si < altPepTr.length() - 1) altPepTr = altPepTr.substring(0, si + 1);
 						pepRetainsStart = altPepTr.startsWith(refPep) || altPepTr.endsWith(refPep);
 					}
-					if (!pepRetainsStart) {
+					if (invStartAltered || !pepRetainsStart) {
 						consequences.add("start_lost");
 					}
 					if (!startAltered) {
@@ -872,16 +875,13 @@ public class TranscriptVariationAllele {
 			} else {
 				// Insertion
 				if (overlapsStart) {
-					// VEP start_lost line 862: for inframe insertions, the
-					// _ins_del_start_altered path is BLOCKED (!(inframe_insertion) = false).
-					// start_lost can only fire via peptide check (line 864-873):
-					// alt_pep must NOT start or end with ref_pep.
-					// start_retained_variant fires when _ins_del_start_altered is false.
-					boolean startAltered = true;
-					if (altCds != null && cdsSequence != null && altCds.length() >= cdsSequence.length()) {
-						String tail = altCds.substring(altCds.length() - cdsSequence.length());
-						startAltered = !tail.equals(cdsSequence);
-					}
+					// Perl start_lost line 862-863: for inframe insertions,
+					// _ins_del_start_altered is BLOCKED (!(inframe_insertion)=false).
+					// start_lost fires via _inv_start_altered (line 863) or
+					// peptide check (line 869-873).
+					// start_retained fires when _ins_del_start_altered is false.
+					boolean startAltered = _ins_del_start_altered(altCds, cdsSequence);
+					boolean invStartAltered = _inv_start_altered(transcript, cdsSequence);
 
 					// VEP peptide check for start_lost (line 869-873)
 					boolean pepRetainsStart = false;
@@ -889,7 +889,7 @@ public class TranscriptVariationAllele {
 						pepRetainsStart = altPepTrimmed.startsWith(refPep) || altPepTrimmed.endsWith(refPep);
 					}
 
-					if (!pepRetainsStart) {
+					if (invStartAltered || !pepRetainsStart) {
 						consequences.add("start_lost");
 					}
 					if (!startAltered) {
@@ -1241,13 +1241,20 @@ public class TranscriptVariationAllele {
 			String modified = cdsAndUtr.substring(0, delStart) + cdsAndUtr.substring(delStart + editLen);
 
 			// 7. VEP line 1328: if shorter than translateable → altered
-			if (modified.length() < cds.length()) return true;
+			if (modified.length() < cds.length()) {
+				Trace.log("isStopAltered", "tr=%s var=%d-%d cdsPos=%d editLen=%d cdsLen=%d utr3Len=%d modLen=%d result=shorter",
+					transcript.getTranscriptId(), variantStart, variantEnd, cdsPos, editLen, cds.length(), utr3.length(), modified.length());
+				return true;
+			}
 
 			// 8. VEP line 1332-1340: check codon at original stop position
 			int stopIdx = cds.length() - 3;
 			if (stopIdx + 3 > modified.length()) return true;
 			String newStop = modified.substring(stopIdx, stopIdx + 3);
-			return !CodonTable.isStop(newStop);
+			boolean altered = !CodonTable.isStop(newStop);
+			Trace.log("isStopAltered", "tr=%s var=%d-%d cdsPos=%d editLen=%d cdsLen=%d utr3Len=%d modLen=%d stopIdx=%d origStop=%s newStop=%s altered=%b",
+				transcript.getTranscriptId(), variantStart, variantEnd, cdsPos, editLen, cds.length(), utr3.length(), modified.length(), stopIdx, cds.substring(cds.length()-3), newStop, altered);
+			return altered;
 		} catch (Exception e) {
 			Trace.log("SILENT_CATCH_2", "error=%s at %s", e.toString(), e.getStackTrace().length > 0 ? e.getStackTrace()[0].toString() : "?");
 			return false;
@@ -1411,6 +1418,58 @@ public class TranscriptVariationAllele {
 	}
 
 	// genomicToCdsPosition removed — replaced by BaseTranscriptVariation.genomicToCds()
+
+	/**
+	 * CDS-only version of _ins_del_start_altered. Compares altCds tail to
+	 * original CDS. Does NOT use UTR5 because Perl's _five_prime_utr() returns
+	 * wrong UTR for minus-strand GFF transcripts (ensembl-vep#1348), and using
+	 * the correct UTR5 produces different results from Perl.
+	 */
+	private boolean _ins_del_start_altered(String altCds, String cdsSequence) {
+		if (altCds == null || cdsSequence == null) return true;
+		if (altCds.length() < cdsSequence.length()) return true;
+		String tail = altCds.substring(altCds.length() - cdsSequence.length());
+		return !tail.equals(cdsSequence);
+	}
+
+	/**
+	 * Perl _inv_start_altered (VariationEffect.pm line 897-934).
+	 * Builds UTR5 + CDS, applies the edit at cDNA position, then checks if
+	 * the 3 bytes at the original ATG position are still "ATG".
+	 * Safe from #1348: depends only on UTR5 LENGTH (same in Perl/Java),
+	 * not content.
+	 */
+	private boolean _inv_start_altered(TranscriptModel transcript, String cdsSequence) {
+		try {
+			String utr5 = BaseTranscriptVariation.fivePrimeUtr(transcript, reference);
+			if (utr5 == null || utr5.isEmpty()) return false; // Perl line 917: return 0 unless $utr
+			int atgStart = utr5.length();
+			String utrAndTranslateable = utr5 + cdsSequence;
+
+			int cdnaStart = bvt.cdnaStart();
+			int cdnaEnd = bvt.cdnaEnd();
+			if (cdnaStart <= 0 || cdnaEnd <= 0) return false;
+
+			String featureSeq = "-".equals(this.vepAllele) ? "" :
+				(transcript.isPositiveStrand() ? this.vepAllele : Sequence.reverseComplement(this.vepAllele));
+
+			int editStart = cdnaStart - 1;
+			int editLen = cdnaEnd - cdnaStart + 1;
+			if (editLen < 0) editLen = 0; // insertion
+			if (editStart < 0 || editStart > utrAndTranslateable.length()) return false;
+			int editEndBound = Math.min(editStart + editLen, utrAndTranslateable.length());
+
+			String modified = utrAndTranslateable.substring(0, editStart)
+				+ featureSeq
+				+ utrAndTranslateable.substring(editEndBound);
+
+			if (modified.length() < atgStart + 3) return false;
+			String newStartCodon = modified.substring(atgStart, atgStart + 3);
+			return !"ATG".equals(newStartCodon);
+		} catch (Exception e) {
+			return false;
+		}
+	}
 
 	/**
 	 * Perl _ins_del_start_altered (VariationEffect.pm line 979-1018).

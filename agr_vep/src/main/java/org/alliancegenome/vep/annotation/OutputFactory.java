@@ -630,6 +630,12 @@ public class OutputFactory {
 						entry.setCodons(tva.getCodons());
 					}
 				} else {
+					// N-allele case: TVA computed codons but no consequence (peptide()
+					// returned undef because seq_is_unambiguous_dna failed). Still
+					// output the codons — Perl does (codon() has no ambiguity gate).
+					if (tva != null && tva.getCodons() != null) {
+						entry.setCodons(tva.getCodons());
+					}
 					// VEP _ins_del_stop_altered fallback (VariationEffect.pm line 1292-1344):
 					// When normal coding annotation fails (cds_end undef → peptides undef),
 					// VEP checks if the deletion alters the stop codon by building CDS+3'UTR
