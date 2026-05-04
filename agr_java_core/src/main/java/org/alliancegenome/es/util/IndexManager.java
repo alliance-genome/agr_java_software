@@ -74,12 +74,12 @@ public class IndexManager {
 		this(settings, mapping, "");
 	}
 
-	public IndexManager(Settings settings, String indexType) {
-		this(settings, null, indexType);
+	public IndexManager(Settings settings, String basePath) {
+		this(settings, null, basePath);
 	}
 
-	public IndexManager(String indexType) {
-		this(new SiteIndexSettings(true, ConfigHelper.getEsShardCount()), new Mapping(true), indexType);
+	public IndexManager(String basePath) {
+		this(new SiteIndexSettings(true, ConfigHelper.getEsShardCount()), new Mapping(true), basePath);
 	}
 
 	public void setBasePath(String basePath) {
@@ -368,7 +368,7 @@ public class IndexManager {
 				request.verify(true);
 				request.timeout(new TimeValue(30, TimeUnit.MINUTES));
 
-				log.info(repoName + " -> " + settings.toString());
+				log.info(repoName + " -> s3://agr-es-backup/" + basePath );
 
 				AcknowledgedResponse response = closableSearchClient.snapshot().createRepository(request, RequestOptions.DEFAULT);
 
