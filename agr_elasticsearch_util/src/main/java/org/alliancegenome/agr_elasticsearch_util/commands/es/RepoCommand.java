@@ -16,7 +16,7 @@ public class RepoCommand extends Command implements CommandInterface {
 	@Override
 	public void printHelp() {
 		System.out.println("repo list -- List current repos");
-		System.out.println("repo create <repoName> -- Creates a repo current repoName's are stage, prod, data, test");
+		System.out.println("repo create <repoName> <type> -- Creates a repo. <repoName> is the local repo registration name; <type> is 'site' or 'variant' and drives base_path");
 	}
 
 	@Override
@@ -25,8 +25,11 @@ public class RepoCommand extends Command implements CommandInterface {
 			String command = args.remove(0);
 
 			if (command.equals("create")) {
-				if (args.size() > 0) {
-					im.getCreateRepo(args.remove(0));
+				if (args.size() > 1) {
+					String name = args.remove(0);
+					String type = args.remove(0);
+					im.setBasePath(type);
+					im.getCreateRepo(name);
 				} else {
 					printHelp();
 				}

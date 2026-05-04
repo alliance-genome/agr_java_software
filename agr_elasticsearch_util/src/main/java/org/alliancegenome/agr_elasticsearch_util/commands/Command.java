@@ -7,7 +7,7 @@ import org.alliancegenome.es.util.IndexManager;
 public abstract class Command {
 
 	protected ArrayList<String> args;
-	public static IndexManager im = new IndexManager();
+	public static IndexManager im = new IndexManager("");
 
 	public Command(ArrayList<String> args) {
 		this.args = args;

@@ -35,7 +35,7 @@ public class TestLoadJsonFile {
 
 	public String indexName;
 
-	private IndexManager im = new IndexManager(new VariantIndexSettings(true, 4));
+	private IndexManager im = new IndexManager(new VariantIndexSettings(true, 4), "variant");
 	private ProcessDisplayHelper ph = new ProcessDisplayHelper(10000);
 	private LinkedBlockingDeque<String> jsonQueue = new LinkedBlockingDeque<String>(5000);
 

@@ -31,7 +31,7 @@ public class Main {
 
 		ph.startProcess("Indexer Main: ");
 
-		IndexManager im = new IndexManager();
+		IndexManager im = new IndexManager("site");
 
 		Indexer.indexName = im.startSiteIndex();
 

@@ -17,7 +17,7 @@ public class SnapShotCommand extends Command implements CommandInterface {
 	public void printHelp() {
 
 		System.out.println("snapshot list <reponame> -- Where <reponame> is the name of a loaded repository");
-		System.out.println("snapshot restorelatest <reponame> <index>");
+		System.out.println("snapshot restorelatest <reponame> <type> <index> -- <reponame> is local repo registration name; <type> is 'site' or 'variant' and drives base_path");
 		System.out.println("snapshot delete <reponame> <snapshot>");
 		System.out.println("snapshot clean <reponame> <snapshot>");
 	}
@@ -36,10 +36,12 @@ public class SnapShotCommand extends Command implements CommandInterface {
 					printHelp();
 				}
 			} else if (command.equals("restorelatest")) {
-				if (args.size() > 1) {
-					String repo = args.remove(0);
+				if (args.size() > 2) {
+					String name = args.remove(0);
+					String type = args.remove(0);
 					String index = args.remove(0);
-					im.restoreSnapShot(repo, index);
+					im.setBasePath(type);
+					im.restoreSnapShot(name, index);
 				} else {
 					printHelp();
 				}

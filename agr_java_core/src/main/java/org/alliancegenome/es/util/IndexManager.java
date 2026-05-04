@@ -54,24 +54,44 @@ public class IndexManager {
 	private String newIndexName;
 	private String tempIndexName;
 	private String baseIndexName = ConfigHelper.getEsIndex();
+	private String basePath = "";
 
 	private Settings settings;
 	private Mapping mapping;
 
 	RestHighLevelClient closableSearchClient;
 
-	public IndexManager(Settings settings, Mapping mapping) {
+	public IndexManager(Settings settings, Mapping mapping, String basePath) {
 		this.settings = settings;
 		this.mapping = mapping;
+		if (basePath != null) {
+			this.basePath = basePath;
+		}
 		closableSearchClient = EsClientFactory.getMustCloseSearchClient();
 	}
 
-	public IndexManager(Settings settings) {
-		this(settings, null);
+	public IndexManager(Settings settings, Mapping mapping) {
+		this(settings, mapping, "");
 	}
 
-	public IndexManager() {
-		this(new SiteIndexSettings(true, ConfigHelper.getEsShardCount()), new Mapping(true));
+	public IndexManager(Settings settings, String indexType) {
+		this(settings, null, indexType);
+	}
+
+	public IndexManager(String indexType) {
+		this(new SiteIndexSettings(true, ConfigHelper.getEsShardCount()), new Mapping(true), indexType);
+	}
+
+	public void setBasePath(String basePath) {
+		if (basePath != null) {
+			this.basePath = basePath;
+		} else {
+			this.basePath = "";
+		}
+	}
+
+	public String getBasePath() {
+		return basePath;
 	}
 
 	public void createAlias(String alias, String index) { // ES Util
@@ -335,7 +355,11 @@ public class IndexManager {
 			try {
 
 				SiteIndexSettings settings = new SiteIndexSettings(true, 1);
-				settings.buildRepositorySettings("agr-es-backup-" + repoName);
+				String fullBasePath = "";
+				if (basePath != null && !basePath.isEmpty()) {
+					fullBasePath = ConfigHelper.getEsIndexSuffix() + "/" + basePath;
+				}
+				settings.buildRepositorySettings("agr-es-backup", fullBasePath);
 
 				PutRepositoryRequest request = new PutRepositoryRequest();
 				request.settings(Strings.toString(settings.getBuilder()), settings.getBuilder().contentType());

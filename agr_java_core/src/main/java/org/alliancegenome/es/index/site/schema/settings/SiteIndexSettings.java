@@ -28,11 +28,12 @@ public class SiteIndexSettings extends Settings {
 	}
 
 	// Used for taking snapshots
-	public void buildRepositorySettings(String bucketName) throws IOException {
-		builder.startObject()
-				.field("bucket", bucketName)
-				.field("compress", true)
-			.endObject();
+	public void buildRepositorySettings(String bucketName, String basePath) throws IOException {
+		builder.startObject().field("bucket", bucketName);
+		if (basePath != null && !basePath.isEmpty()) {
+			builder.field("base_path", basePath);
+		}
+		builder.field("compress", true).endObject();
 	}
 
 }
