@@ -405,6 +405,8 @@ public class TranscriptVariationAllele {
 			this.cdnaEnd = tv.cdnaEnd();
 		}
 
+		boolean isNallele = !seqIsUnambiguousDna(vepAllele);
+
 		// VEP partial_codon guard (VariationEffect.pm line 1389-1414):
 		// Checked BEFORE frameshift/inframe — blocks those if variant is in incomplete terminal codon.
 		// VEP checks translation_start is defined (must map to CDS) and variant falls
@@ -680,10 +682,13 @@ public class TranscriptVariationAllele {
 		if (isFrameshift) {
 			consequences.add("frameshift_variant");
 
-			if (overlapsStop && refHasStop && !altHasStopAtSamePos) {
+			// Perl frameshift() is structural — fires for N-alleles too.
+			// But all peptide-based sub-consequences (stop_lost, start_lost, stop_gained)
+			// DON'T fire because peptide() returns undef for N-alleles.
+			if (!isNallele && overlapsStop && refHasStop && !altHasStopAtSamePos) {
 				consequences.add("stop_lost");
 			}
-			if (overlapsStart) {
+			if (!isNallele && overlapsStart) {
 				// Perl evaluates start_lost and start_retained as INDEPENDENT predicates:
 				// start_retained (line 946): !_ins_del_start_altered (CDS tail preserved)
 				// start_lost (line 862-873): _ins_del_start_altered || _inv_start_altered || peptide_check
@@ -694,7 +699,7 @@ public class TranscriptVariationAllele {
 					consequences.add("start_retained_variant");
 				}
 			}
-			if (overlapsStop && refHasStop && altHasStopAtSamePos) {
+			if (!isNallele && overlapsStop && refHasStop && altHasStopAtSamePos) {
 				consequences.add("stop_retained_variant");
 			}
 
@@ -771,8 +776,11 @@ public class TranscriptVariationAllele {
 			String altCodon = altCds != null ? safeSubstring(altCds, codonCdsStart - 1,
 				codonCdsStart - 1 + Math.max(0, altCodonLen)) : null;
 
-			String refPep = refCodon != null ? translateCds(refCodon) : null;
-			String altPep = altCodon != null ? translateCds(altCodon) : null;
+			// Perl peptide() returns undef for N-alleles (line 693). codon() still
+			// computes (seq_is_dna accepts N). Null out peptides so consequence
+			// checks fail but codons still compute later.
+			String refPep = (!isNallele && refCodon != null) ? translateCds(refCodon) : null;
+			String altPep = (!isNallele && altCodon != null) ? translateCds(altCodon) : null;
 
 			// Trim alt_pep after first stop (VEP inframe_insertion line 1124)
 			String altPepTrimmed = altPep;
