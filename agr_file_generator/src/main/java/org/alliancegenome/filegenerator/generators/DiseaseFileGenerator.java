@@ -1,5 +1,7 @@
 package org.alliancegenome.filegenerator.generators;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashSet;
 
 import org.alliancegenome.filegenerator.config.FileGeneratorConfig;
@@ -12,6 +14,9 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class DiseaseFileGenerator extends FileGenerator {
+
+	private static final String FILE_GENERATION_DATE =
+			LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE); // YYYYMMDD
 
 	public DiseaseFileGenerator(FileGeneratorConfig config) {
 		super(config);
@@ -93,7 +98,9 @@ public class DiseaseFileGenerator extends FileGenerator {
 			obj.put("_reference", "");
 		}
 
-		// Date: format YYYYMMDD from the most relevant ISO timestamp.
+		String relationName = JsonPath.resolveString(hit, "relation.name");
+		boolean isViaOrthology = relationName.contains("_via_orthology");
+
 		String iso = JsonPath.resolveString(hit, "primaryAnnotations.0.dateUpdated");
 		if (iso.isEmpty()) {
 			iso = JsonPath.resolveString(hit, "primaryAnnotations.0.dateCreated");
@@ -101,10 +108,20 @@ public class DiseaseFileGenerator extends FileGenerator {
 		if (iso.isEmpty()) {
 			iso = JsonPath.resolveString(hit, "subject.dateUpdated");
 		}
-		obj.put("_date", isoToYyyyMmDd(iso));
+		String date = isoToYyyyMmDd(iso);
+		if (date.isEmpty() && isViaOrthology) {
+			date = FILE_GENERATION_DATE;
+		}
+		obj.put("_date", date);
 
-		// Source: MOD code from the subject's species displayName (e.g. "WB", "MGI").
-		obj.put("_source", JsonPath.resolveString(hit, "subject.taxon.species.displayName"));
+		if (isViaOrthology) {
+			String provider = JsonPath.resolveString(hit, "primaryAnnotations.0.dataProvider.abbreviation");
+			obj.put("_source", provider.isEmpty()
+					? JsonPath.resolveString(hit, "subject.taxon.species.displayName")
+					: provider);
+		} else {
+			obj.put("_source", JsonPath.resolveString(hit, "subject.taxon.species.displayName"));
+		}
 
 		// WithOrtholog: pipe-delimited list of primaryAnnotations[*].with[*].primaryExternalId.
 		// Populated for gene-level annotations inferred via orthology.
