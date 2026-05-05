@@ -18,6 +18,7 @@ import org.alliancegenome.vep.hgvs.VariationFeature;
 import org.alliancegenome.vep.model.CdsSegment;
 import org.alliancegenome.vep.model.ExonModel;
 import org.alliancegenome.vep.model.GeneModel;
+import org.alliancegenome.vep.model.Mapper;
 import org.alliancegenome.vep.model.TranscriptModel;
 import org.alliancegenome.vep.plugin.PredictionLookup;
 import org.alliancegenome.vep.reference.ContigAccessionMap;
@@ -505,13 +506,7 @@ public class OutputFactory {
 
 		if (transcript.isCoding()) {
 			// Check CDS overlap → coding consequence or coding_sequence_variant
-			boolean overlapsCds = overlapsAnyCds(transcript, rangeStart, rangeEnd, isInsertion, variantStart, variantEnd);
-			// Perl within_cds: checks if ANY cds_coord maps to a Coordinate (not Gap).
-			// For insertions at exon-intron boundaries, the geometric overlap fails but
-			// BVT still maps one endpoint to CDS. Use BVT as fallback.
-			if (!overlapsCds && bvt != null && (bvt.cdsStart() > 0 || bvt.cdsEnd() > 0)) {
-				overlapsCds = true;
-			}
+			boolean overlapsCds = withinCds(transcript, bvt, variantStart, variantEnd);
 			boolean overlaps5utr = overlaps5PrimeUtr(transcript, rangeStart, rangeEnd, isInsertion, variantStart, variantEnd);
 			boolean overlaps3utr = overlaps3PrimeUtr(transcript, rangeStart, rangeEnd, isInsertion, variantStart, variantEnd);
 			// Perl's within_cdna uses cDNA coordinate mapping (not geometric exon overlap).
@@ -871,6 +866,52 @@ public class OutputFactory {
 			// VEP overlap: (bvf_end >= feat_start) AND (bvf_start <= feat_end)
 			if (variantEnd >= cds.getStart() && variantStart <= cds.getEnd()) {
 				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Perl within_cds (VariationEffect.pm line 628-660).
+	 *
+	 * @param transcript  Perl $feat (Transcript)
+	 * @param bvt         Perl $bvfo (BaseTranscriptVariation — has cds_coords, _translateable_seq)
+	 * @param variantStart Perl $bvf->{start}
+	 * @param variantEnd   Perl $bvf->{end}
+	 */
+	private boolean withinCds(TranscriptModel transcript, BaseTranscriptVariation bvt,
+			int variantStart, int variantEnd) {
+		// Line 634-644: check cds_coords for any Coordinate with valid range
+		if (bvt != null) {
+			List<Mapper.Result> cdsCoords = bvt.cdsCoords();
+			if (cdsCoords != null && !cdsCoords.isEmpty()) {
+				String translateableSeq = BaseTranscriptVariation.translateableSeq(transcript, codingAnnotator.getReference());
+				int translateableLen = translateableSeq != null ? translateableSeq.length() : 0;
+				for (Mapper.Result coord : cdsCoords) {
+					if (coord.isCoordinate()) {
+						if (coord.coordinate.end > 0 && coord.coordinate.start <= translateableLen) {
+							return true;
+						}
+					}
+				}
+			}
+		}
+		// Line 646-657: frameshift intron within CDS
+		// Perl: defined $feat->translation
+		if (transcript.isCoding() && transcript.hasFrameshiftIntron()) {
+			List<int[]> introns = transcript.getIntronIntervals();
+			if (introns != null) {
+				for (int[] intron : introns) {
+					if (Math.abs(intron[1] - intron[0]) <= 12) {
+						int intronStart = Math.min(intron[0], intron[1]);
+						int intronEnd = Math.max(intron[0], intron[1]);
+						if (variantEnd >= intronStart && variantStart <= intronEnd) {
+							// Perl: overlap(bvf_start, bvf_end, coding_region_start, coding_region_end)
+							return variantEnd >= transcript.getCdsStart()
+								&& variantStart <= transcript.getCdsEnd();
+						}
+					}
+				}
 			}
 		}
 		return false;

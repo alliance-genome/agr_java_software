@@ -30,6 +30,8 @@ public class BaseTranscriptVariation {
 	private int translationStart = -1;
 	private int translationEnd = -1;
 	private int codonPosition;
+	/** Perl cds_coords() — cached list of Coordinate/Gap results from genomic2cds. */
+	private List<Mapper.Result> cdsCoords;
 
 	public BaseTranscriptVariation(TranscriptModel transcript, int genomicStart, int genomicEnd) {
 		this.transcript = transcript;
@@ -62,6 +64,7 @@ public class BaseTranscriptVariation {
 
 		// VEP cds_start/end (BaseTranscriptVariation.pm line 258-264)
 		List<Mapper.Result> cdsCoords = mapper.genomic2cds(genomicStart, genomicEnd, strand);
+		this.cdsCoords = cdsCoords;
 		if (cdsCoords.isEmpty()) {
 			return;
 		}
@@ -112,6 +115,11 @@ public class BaseTranscriptVariation {
 
 	public int cdsEnd() {
 		return cdsEnd;
+	}
+
+	/** Perl cds_coords() — cached list of Coordinate/Gap results from genomic2cds. */
+	public List<Mapper.Result> cdsCoords() {
+		return cdsCoords;
 	}
 
 	public int translationStart() {
@@ -226,9 +234,9 @@ public class BaseTranscriptVariation {
 	 * VEP Transcript::translateable_seq (Transcript.pm line 905-934).
 	 * Perl builds this from the spliced mRNA (exon-only sequence), not directly
 	 * from CDS genomic coordinates:
-	 *   $mrna = $self->spliced_seq();
-	 *   $mrna = substr($mrna, cdna_coding_start - 1, cdna_coding_end - cdna_coding_start + 1);
-	 *   $mrna = "N" x start_phase . $mrna   if start_phase > 0;
+	 *	 $mrna = $self->spliced_seq();
+	 *	 $mrna = substr($mrna, cdna_coding_start - 1, cdna_coding_end - cdna_coding_start + 1);
+	 *	 $mrna = "N" x start_phase . $mrna	 if start_phase > 0;
 	 *
 	 * This matters for the ~19 FB transcripts where a CDS segment extends past its
 	 * exon (e.g. FBtr0335486 CDS 7614843-7615447 vs exon 7614843-7615444). The old
