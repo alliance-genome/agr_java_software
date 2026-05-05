@@ -380,7 +380,7 @@ public enum FileGeneratorConfig {
 		m.put("DBobjectType", "_dbObjectType");
 		m.put("DBObjectID", "subject.primaryExternalId");
 		m.put("DBObjectSymbol", "_dbObjectSymbol");
-		m.put("AssociationType", "_associationType");
+		m.put("AssociationType", "relation.name");
 		m.put("DOID", "object.curie");
 		m.put("DOtermName", "object.name");
 		m.put("WithOrtholog", "_withOrtholog");

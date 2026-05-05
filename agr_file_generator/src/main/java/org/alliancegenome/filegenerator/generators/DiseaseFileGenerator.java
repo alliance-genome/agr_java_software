@@ -100,11 +100,6 @@ public class DiseaseFileGenerator extends FileGenerator {
 
 		String relationName = JsonPath.resolveString(hit, "relation.name");
 		boolean isViaOrthology = relationName.contains("_via_orthology");
-		if (isViaOrthology) {
-			relationName = relationName.replaceFirst("^is_", "");
-			relationName = relationName.replace("marker_via_orthology", "biomarker_via_orthology");
-		}
-		obj.put("_associationType", relationName);
 
 		String iso = JsonPath.resolveString(hit, "primaryAnnotations.0.dateUpdated");
 		if (iso.isEmpty()) {
