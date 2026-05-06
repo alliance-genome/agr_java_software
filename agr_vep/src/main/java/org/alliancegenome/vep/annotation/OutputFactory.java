@@ -625,11 +625,17 @@ public class OutputFactory {
 						entry.setCodons(tva.getCodons());
 					}
 				} else {
-					// N-allele case: TVA computed codons but no consequence (peptide()
-					// returned undef because seq_is_unambiguous_dna failed). Still
-					// output the codons — Perl does (codon() has no ambiguity gate).
-					if (tva != null && tva.getCodons() != null) {
-						entry.setCodons(tva.getCodons());
+					// TVA may have computed codons/amino_acids without setting a consequence:
+					// - N-allele: codon() runs but peptide() returns undef → codons set
+					// - Partial codon: codon extracted (1-2 bases), amino_acid = 'X'
+					// Perl outputs these fields even without a coding consequence.
+					if (tva != null) {
+						if (tva.getCodons() != null) {
+							entry.setCodons(tva.getCodons());
+						}
+						if (tva.getAminoAcids() != null) {
+							entry.setAminoAcids(tva.getAminoAcids());
+						}
 					}
 					// VEP _ins_del_stop_altered fallback (VariationEffect.pm line 1292-1344):
 					// When normal coding annotation fails (cds_end undef → peptides undef),

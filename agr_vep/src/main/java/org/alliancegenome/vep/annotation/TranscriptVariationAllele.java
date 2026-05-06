@@ -244,9 +244,14 @@ public class TranscriptVariationAllele {
 		if (cdsSeq == null || cdsPos > cdsSeq.length()) return;
 
 		int codonStart = codonIndex * 3;
-		if (codonStart + 3 > cdsSeq.length()) return;
+		// Perl substr extracts available bytes even past CDS end (partial codon).
+		// For incomplete terminal codons (1-2 bases), Perl still computes the
+		// codon and translates to 'X'. Don't return early — extract what's available.
+		if (codonStart >= cdsSeq.length()) return;
+		int codonEnd = Math.min(codonStart + 3, cdsSeq.length());
+		boolean isPartialCodon = codonEnd - codonStart < 3;
 
-		String rawCodon = cdsSeq.substring(codonStart, codonStart + 3);
+		String rawCodon = cdsSeq.substring(codonStart, codonEnd);
 
 		// VEP TranscriptVariationAllele::codon (line 793-885) splices the allele into
 		// the translateable_seq at cds_start-1 before extracting the codon. This is done
@@ -276,6 +281,19 @@ public class TranscriptVariationAllele {
 		this.cdnaPosition = bvt.cdnaStart();
 		this.cdnaEnd = bvt.cdnaEnd();
 		this.cdsSequence = cdsSeq;
+
+		// Perl partial_codon (VariationEffect.pm line 1389-1414): incomplete
+		// terminal codon (1-2 bases). Perl still computes codon/peptide ('X')
+		// but blocks frameshift/inframe predicates. coding_unknown fires →
+		// consequence = incomplete_terminal_codon_variant&coding_sequence_variant.
+		// Amino_acids = 'X'. Codons = partial codon display.
+		if (isPartialCodon) {
+			this.refAA = 'X';
+			this.altAA = 'X';
+			// Don't set consequence — OutputFactory adds incomplete_terminal_codon_variant
+			// & coding_sequence_variant via its own path
+			return;
+		}
 
 		// Perl peptide() (TranscriptVariationAllele.pm line 693): returns undef
 		// unless seq_is_unambiguous_dna (/^[ACGT-]+$/i). N fails this check.
@@ -1550,8 +1568,8 @@ public class TranscriptVariationAllele {
 	// computeCdnaPosition removed — replaced by BaseTranscriptVariation.genomicToCdna()
 
 	private static String formatCodon(String codon, int variantPos) {
-		StringBuilder sb = new StringBuilder(3);
-		for (int i = 0; i < 3; i++) {
+		StringBuilder sb = new StringBuilder(codon.length());
+		for (int i = 0; i < codon.length(); i++) {
 			char c = codon.charAt(i);
 			if (i == variantPos) {
 				sb.append(Character.toUpperCase(c));
