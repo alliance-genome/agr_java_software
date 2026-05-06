@@ -42,11 +42,18 @@ public class OrthologyFileGenerator extends FileGenerator {
 		return objCurie == null || objCurie.isEmpty() ? List.of() : List.of(objCurie);
 	}
 
+	private static final String STRINGENCY = "stringent";
+
 	/** FMS only emits stringent orthologs. */
 	@Override
 	protected boolean shouldEmit(JsonNode hit) {
 		String stringency = JsonPath.resolveString(hit, "stringencyFilter");
-		return "stringent".equalsIgnoreCase(stringency);
+		return STRINGENCY.equalsIgnoreCase(stringency);
+	}
+
+	@Override
+	protected String stringencyFilter() {
+		return STRINGENCY;
 	}
 
 	/** Pull the entire orthology subtree — synthetic field names in the field map would otherwise strip it. */

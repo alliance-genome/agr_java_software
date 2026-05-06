@@ -83,12 +83,17 @@ public class HeaderBuilder {
 	}
 
 	public static Map<String, Object> buildJsonMetadata(String filetypeLabel, Format format, String readmeText, Collection<String> taxonCuries, SpeciesLookup species) {
+		return buildJsonMetadata(filetypeLabel, format, readmeText, taxonCuries, species, null);
+	}
+
+	public static Map<String, Object> buildJsonMetadata(String filetypeLabel, Format format, String readmeText, Collection<String> taxonCuries, SpeciesLookup species, String stringencyFilter) {
 		Map<String, Object> metadata = new LinkedHashMap<>();
 		metadata.put("filetype", filetypeLabel);
 		metadata.put("databaseVersion", databaseVersion());
 		metadata.put("sourceURL", SOURCE_URL);
 		metadata.put("genTime", ZonedDateTime.now(ZoneOffset.UTC).format(GEN_TIME_FMT));
 		metadata.put("dataFormat", format.getDataFormatLabel());
+		metadata.put("stringencyFilter", stringencyFilter);
 		metadata.put("readme", readmeText == null ? "" : readmeText);
 		List<Map<String, String>> speciesList = new ArrayList<>();
 		for (String curie : taxonCuries) {

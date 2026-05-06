@@ -60,10 +60,17 @@ public class EsParallelFetcher {
 		log.debug("Starting sliced scroll on {} for categories {} with {} slices, bufferSize={}, sourceIncludes={}",
 				index, categories, threadCount, bufferSize, sourceIncludes);
 
+		// Crash hard rather than throw — t.join() does not propagate worker exceptions, and a partial file must remain broken so it cannot be uploaded.
+		Thread.UncaughtExceptionHandler ueh = (thread, ex) -> {
+			log.error("Slice worker {} died with uncaught exception: {}", thread.getName(), ex.getMessage(), ex);
+			System.exit(-1);
+		};
+
 		List<Thread> threads = new ArrayList<>();
 		for (int i = 0; i < threadCount; i++) {
 			final int sliceId = i;
 			Thread t = new Thread(() -> worker(sliceId, threadCount, baseBody, consumer), "es-slice-" + i);
+			t.setUncaughtExceptionHandler(ueh);
 			threads.add(t);
 			t.start();
 		}
@@ -71,8 +78,8 @@ public class EsParallelFetcher {
 			try {
 				t.join();
 			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
-				throw new RuntimeException("Interrupted while waiting for slice threads", e);
+				log.error("Interrupted while waiting for slice threads on index {} for categories {}", index, categories, e);
+				System.exit(-1);
 			}
 		}
 	}
@@ -110,8 +117,9 @@ public class EsParallelFetcher {
 			}
 			log.debug("Slice {}/{} done: {} hits", sliceId, sliceMax, sliceCount);
 		} catch (Exception e) {
-			log.error("Slice {} failed: {}", sliceId, e.getMessage(), e);
-			throw new RuntimeException(e);
+			// Crash hard — t.join() does not propagate worker exceptions, and a partial file must remain broken so it cannot be uploaded.
+			log.error("Slice {}/{} failed on index {} for categories {}: {}", sliceId, sliceMax, index, categories, e.getMessage(), e);
+			System.exit(-1);
 		}
 	}
 
