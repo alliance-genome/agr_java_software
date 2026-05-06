@@ -335,7 +335,7 @@ public enum FileGeneratorConfig {
 		m.put("SequenceOfReference", "_sequenceOfReference");
 		m.put("SequenceOfVariant", "_sequenceOfVariant");
 		m.put("MostSevereConsequenceName", "_mostSevereConsequence");
-		m.put("VariantInformationReference", "_unavailable");
+		m.put("VariantInformationReference", "_variantInformationReference");
 		m.put("HasDiseaseAnnotations", "_hasDisease");
 		m.put("HasPhenotypeAnnotations", "_hasPhenotype");
 		return m;
