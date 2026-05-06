@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.core.util.ListUtils;
 import org.alliancegenome.curation_api.interfaces.document.GODocumentInterface;
 import org.alliancegenome.curation_api.model.document.es.GOSearchResultDocument;
 import org.alliancegenome.curation_api.response.SearchResponse;
@@ -38,7 +39,7 @@ public class GOSearchResultCurationIndexer extends Indexer {
 			List<Long> allIds = idsResponse.getResults();
 			log.info("Fetched {} GO search result IDs", allIds.size());
 			display.startProcess(allIds.size());
-			idBatches = partition(allIds, indexerConfig.getBufferSize());
+			idBatches = ListUtils.partition(allIds, indexerConfig.getBufferSize());
 			log.info("Partitioned into {} batches of up to {}", idBatches.size(), indexerConfig.getBufferSize());
 
 			LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();

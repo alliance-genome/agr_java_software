@@ -1,6 +1,5 @@
 package org.alliancegenome.indexer.indexers.curation.service;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -8,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.core.util.ListUtils;
 import org.alliancegenome.curation_api.interfaces.document.OntologyTermClosureDocumentInterface;
 import org.alliancegenome.curation_api.model.entities.ontology.OntologyTermClosure;
 import org.alliancegenome.curation_api.response.SearchResponse;
@@ -44,7 +44,7 @@ public class DoTermService {
 			display.startProcess("Pulling DOTerm closures from curation", allIds.size());
 
 			closureMap = new HashMap<>();
-			for (List<Long> batch : partition(allIds, BATCH_SIZE)) {
+			for (List<Long> batch : ListUtils.partition(allIds, BATCH_SIZE)) {
 				SearchResponse<OntologyTermClosure> response = closureApi.findByIds(batch);
 				if (response == null || CollectionUtils.isEmpty(response.getResults())) {
 					continue;
@@ -71,13 +71,4 @@ public class DoTermService {
 		}
 	}
 
-	private static <T> List<List<T>> partition(List<T> list, int size) {
-		List<List<T>> parts = new ArrayList<>();
-		if (list != null) {
-			for (int i = 0; i < list.size(); i += size) {
-				parts.add(list.subList(i, Math.min(list.size(), i + size)));
-			}
-		}
-		return parts;
-	}
 }
