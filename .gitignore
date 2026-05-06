@@ -9,7 +9,7 @@ audit.log
 .metadata/
 bin
 agr_indexer/alliance_popularity.tsv
-agr_file_generator/target/
+target/
 
 # vscode
 .vscode/
