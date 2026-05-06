@@ -182,8 +182,10 @@ public abstract class FileGenerator extends Thread {
 				}
 			}
 			display.progressProcess();
-		} catch (IOException e) {
-			throw new RuntimeException("Write failure", e);
+		} catch (Exception e) {
+			// Crash hard on any per-row failure — a single bad row invalidates the run, and the partial gzip on disk must be left broken so it cannot be uploaded.
+			log.error("{}: dispatch failed for row {} — exiting hard. Cause: {}", getClass().getSimpleName(), hit, e.getMessage(), e);
+			System.exit(-1);
 		}
 	}
 
@@ -241,6 +243,11 @@ public abstract class FileGenerator extends Thread {
 		return List.of();
 	}
 
+	/** Stringency filter value for the JSON metadata header. Null means "not applicable" for this generator. */
+	protected String stringencyFilter() {
+		return null;
+	}
+
 	/**
 	 * Builds the ES _source include list from the field map, taxon path, and any extras. Returns
 	 * null when any output requires the full source (JSON_RAW, VCF, GFF) — null tells the fetcher
@@ -291,11 +298,11 @@ public abstract class FileGenerator extends Thread {
 				return new PsiMiTabWriter(path, header, config.getFieldMap());
 			}
 			case JSON_RAW: {
-				Map<String, Object> meta = HeaderBuilder.buildJsonMetadata(config.getFiletypeLabel(), spec.format(), readme, taxonCuries, species);
+				Map<String, Object> meta = HeaderBuilder.buildJsonMetadata(config.getFiletypeLabel(), spec.format(), readme, taxonCuries, species, stringencyFilter());
 				return new JsonRawWriter(path, meta);
 			}
 			case JSON_MAPPED: {
-				Map<String, Object> meta = HeaderBuilder.buildJsonMetadata(config.getFiletypeLabel(), spec.format(), readme, taxonCuries, species);
+				Map<String, Object> meta = HeaderBuilder.buildJsonMetadata(config.getFiletypeLabel(), spec.format(), readme, taxonCuries, species, stringencyFilter());
 				return new JsonMappedWriter(path, meta, config.getFieldMap());
 			}
 			case VCF: {
