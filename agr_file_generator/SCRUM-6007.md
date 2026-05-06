@@ -24,7 +24,7 @@ indexed.
 | AssayTermName | `geneExpressionAnnotation.expressionAssayUsed.name` | OK |
 | SourceURL | computed in `customizeRow` from `crossReferences[0]` (`urlTemplate` + `referencedCurie` local part → synthetic `_sourceUrl` field) | OK |
 | Source | `geneExpressionAnnotation.dataProvider.abbreviation` | OK |
-| Reference | `geneExpressionAnnotation.evidenceItem.curie` | Partial — emits the AGRKB curie (e.g. `AGRKB:101000000178541`); FMS file emits the PMID. Resolution would need an indexer-side cross-reference lookup or a side-load against the curation API. |
+| Reference | `referenceId[0]` | OK — top-level `referenceId` array on the doc holds the MOD pub curie (e.g. `FB:FBrf0219073`), which matches the FMS `Reference` column. The previous AGRKB-curie path was wrong; the curation API's `GeneExpressionDocumentBuilder` populates `referenceId` from `evidenceItem.referenceID` for exactly this purpose. |
 | CellularComponentID | — | **Gap** |
 | CellularComponentTerm | — | **Gap** |
 | CellularComponentQualifierIDs | — | **Gap** |
@@ -87,13 +87,13 @@ location/anatomy-ish field we have to work with today.
 Recommendation: pursue (1). It's the smallest change and keeps the file generator
 purely ES-driven.
 
-## Reference column (PMID vs AGRKB)
+## Reference column
 
-The FMS file emits the publication PMID in the `Reference` column. ES carries only the
-AGRKB curie on `evidenceItem.curie`. The curation API's `Reference` entity has a
-`crossReferences` list that includes the PMID, but those aren't on the
-`GeneExpressionDocument` view either. Same fix path as above (add the relevant fields to
-the JsonView and reindex), or a per-record side-load.
+FMS emits the MOD publication curie (e.g. `FB:FBrf0219073`), not the PMID. That same
+value is sitting on the doc as the top-level `referenceId` array — populated by the
+curation API's `GeneExpressionDocumentBuilder` from `evidenceItem.referenceID`. The
+field map now reads `referenceId.0`, which matches FMS exactly. No PMID resolution or
+side-load needed.
 
 ## What the framework gets us for free
 

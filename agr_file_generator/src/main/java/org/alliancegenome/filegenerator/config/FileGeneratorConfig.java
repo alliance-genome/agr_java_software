@@ -431,7 +431,7 @@ public enum FileGeneratorConfig {
 		// inside ExpressionFileGenerator.customizeRow(); this path resolves the synthetic field.
 		m.put("SourceURL", "_sourceUrl");
 		m.put("Source", "geneExpressionAnnotation.dataProvider.abbreviation");
-		m.put("Reference", "geneExpressionAnnotation.evidenceItem.curie");
+		m.put("Reference", "referenceId.0");
 		return m;
 	}
 }
