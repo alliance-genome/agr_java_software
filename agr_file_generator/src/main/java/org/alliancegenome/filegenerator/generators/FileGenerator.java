@@ -28,7 +28,6 @@ import org.alliancegenome.filegenerator.species.SpeciesLookup;
 import org.alliancegenome.filegenerator.writers.JsonMappedWriter;
 import org.alliancegenome.filegenerator.writers.JsonPath;
 import org.alliancegenome.filegenerator.writers.JsonRawWriter;
-import org.alliancegenome.filegenerator.writers.PsiMiTabWriter;
 import org.alliancegenome.filegenerator.writers.RowWriter;
 import org.alliancegenome.filegenerator.writers.TsvWriter;
 import org.alliancegenome.filegenerator.writers.TxtWriter;
@@ -291,11 +290,6 @@ public abstract class FileGenerator extends Thread {
 			case TXT: {
 				String header = HeaderBuilder.buildTextHeader(config.getFiletypeLabel(), spec.format(), readme, taxonCuries, species);
 				return new TxtWriter(path, header, config.getFieldMap());
-			}
-			case PSI_MI_TAB: {
-				// For interactions readme is the URL to the PSI-MITAB spec (configured per-generator).
-				String header = HeaderBuilder.buildPsiMiTabHeader(config.getFiletypeLabel(), readme, taxonCuries, species);
-				return new PsiMiTabWriter(path, header, config.getFieldMap());
 			}
 			case JSON_RAW: {
 				Map<String, Object> meta = HeaderBuilder.buildJsonMetadata(config.getFiletypeLabel(), spec.format(), readme, taxonCuries, species, stringencyFilter());
