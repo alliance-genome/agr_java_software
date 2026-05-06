@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.core.util.ListUtils;
 import org.alliancegenome.curation_api.interfaces.document.GeneExpressionDocumentInterface;
 import org.alliancegenome.curation_api.model.document.es.GeneExpressionDocument;
 import org.alliancegenome.curation_api.response.SearchResponse;
@@ -39,7 +40,7 @@ public class GeneExpressionAnnotationIndexer extends Indexer {
 			List<String> primaryExternalIds = idsResponse.getResults();
 			log.info("Fetched {} gene IDs", primaryExternalIds.size());
 			display.startProcess(primaryExternalIds.size());
-			idBatches = partition(primaryExternalIds, indexerConfig.getBufferSize());
+			idBatches = ListUtils.partition(primaryExternalIds, indexerConfig.getBufferSize());
 			log.info("Partitioned into {} batches of up to {}", idBatches.size(), indexerConfig.getBufferSize());
 
 			LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();

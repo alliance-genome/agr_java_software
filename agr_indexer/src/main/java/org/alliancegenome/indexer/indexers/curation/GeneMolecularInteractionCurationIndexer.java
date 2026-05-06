@@ -6,6 +6,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 
 import org.alliancegenome.api.entity.GeneMolecularInteractionDocument;
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.core.util.ListUtils;
 import org.alliancegenome.curation_api.interfaces.document.GeneMolecularInteractionDocumentInterface;
 import org.alliancegenome.curation_api.model.entities.GeneMolecularInteraction;
 import org.alliancegenome.curation_api.response.SearchResponse;
@@ -44,7 +45,7 @@ public class GeneMolecularInteractionCurationIndexer extends Indexer {
 			List<Long> allIds = idsResponse.getResults();
 			log.info("Fetched {} GeneMolecularInteraction IDs", allIds.size());
 			display.startProcess(allIds.size());
-			idBatches = partition(allIds, indexerConfig.getBufferSize());
+			idBatches = ListUtils.partition(allIds, indexerConfig.getBufferSize());
 			log.info("Partitioned into {} batches of up to {}", idBatches.size(), indexerConfig.getBufferSize());
 
 			LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
