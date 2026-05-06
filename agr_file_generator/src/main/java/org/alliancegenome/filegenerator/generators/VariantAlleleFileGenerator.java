@@ -96,9 +96,19 @@ public class VariantAlleleFileGenerator extends FileGenerator {
 				JsonNode locs = v.path("curatedVariantGenomicLocations");
 				if (locs.isArray()) {
 					for (JsonNode loc : locs) {
-						addIfPresent(hgvsNames, loc.path("hgvs").asText(""));
+						String hgvs = loc.path("hgvs").asText("");
+						String chromName = loc.path("variantGenomicLocationAssociationObject").path("name").asText("");
+						addIfPresent(hgvsNames, hgvs);
 						addIfPresent(assemblies, loc.path("variantGenomicLocationAssociationObject").path("genomeAssembly").path("primaryExternalId").asText(""));
-						addIfPresent(chromosomes, loc.path("variantGenomicLocationAssociationObject").path("name").asText(""));
+						addIfPresent(chromosomes, chromName);
+						// VariantSynonyms = RefSeq-form hgvs + chromosome-level form (RefSeq accession swapped for chromosome name).
+						if (!hgvs.isEmpty()) {
+							addIfPresent(variantSynonyms, hgvs);
+							int colonIdx = hgvs.indexOf(':');
+							if (!chromName.isEmpty() && colonIdx > 0) {
+								addIfPresent(variantSynonyms, chromName + hgvs.substring(colonIdx));
+							}
+						}
 						String s = loc.path("start").asText("");
 						String e = loc.path("end").asText("");
 						addIfPresent(startPositions, s);
