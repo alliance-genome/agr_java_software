@@ -167,6 +167,9 @@ public class Gff3GeneModelBuilder {
 					tm.setCodonTable(2);
 				}
 
+				// Perl BaseGXF.pm line 464-465:
+				//   $id = $tr_record->{attributes}->{transcript_id} || _record_get_id($tr_record);
+				//   $id =~ s/^(gene|transcript)://i;
 				String transcriptId = getAttr(feature, "transcript_id").orElse(null);
 				String curie = getAttr(feature, "curie").orElse(null);
 				if (transcriptId != null) {
@@ -174,7 +177,10 @@ public class Gff3GeneModelBuilder {
 				} else if (curie != null) {
 					tm.setTranscriptId(curie);
 				} else {
-					tm.setTranscriptId(feature.getID());
+					String id = feature.getID();
+					// Perl strips gene:/transcript: prefix
+					id = id.replaceFirst("(?i)^(gene|transcript):", "");
+					tm.setTranscriptId(id);
 				}
 
 				tm.setName(getRawName(feature));
@@ -191,6 +197,24 @@ public class Gff3GeneModelBuilder {
 				// Read gene info from parent feature directly. htsjdk resolves
 				// parent-child references regardless of GFF file order (RGD has
 				// transcripts before genes in the file).
+				// Perl BaseGXF.pm _get_records_by_coords only collects records
+				// whose type is in %INCLUDE_FEATURE_TYPES. Gene types NOT in
+				// INCLUDE (ncRNA_gene, tRNA_gene, etc.) are never collected, so
+				// transcripts referencing them become orphans and are discarded.
+				// Match this: skip transcript if parent gene type is not in
+				// INCLUDE_FEATURE_TYPES.
+				boolean parentSkipped = false;
+				for (Gff3Feature parent : feature.getParents()) {
+					String parentType = convertGffType(parent.getType(), mod);
+					if (!INCLUDE_FEATURE_TYPES.contains(parentType)) {
+						parentSkipped = true;
+						break;
+					}
+				}
+				if (parentSkipped) {
+					continue;
+				}
+
 				for (Gff3Feature parent : feature.getParents()) {
 					String parentId = parent.getID();
 					// Try maps first (already-processed genes)
@@ -229,6 +253,14 @@ public class Gff3GeneModelBuilder {
 
 				if (tm.getExons().isEmpty()) {
 					skippedNoExons++;
+					continue;
+				}
+
+				// Perl BaseGXF.pm line 572: $tr->add_Exon($exon) throws if exon
+				// coordinates overlap existing exons. The transcript is then skipped
+				// ("Failed to add exon to transcript"). Detect overlapping exons and
+				// skip the transcript to match Perl.
+				if (hasOverlappingExons(tm.getExons())) {
 					continue;
 				}
 
@@ -479,6 +511,23 @@ public class Gff3GeneModelBuilder {
 			}
 		}
 		return -1;
+	}
+
+	/**
+	 * Perl Transcript::add_Exon (Transcript.pm line 1326-1436) throws when
+	 * an exon overlaps an existing exon. BaseGXF.pm line 572 catches this
+	 * and skips the transcript. Detect the same condition here.
+	 */
+	private boolean hasOverlappingExons(List<ExonModel> exons) {
+		if (exons.size() < 2) return false;
+		List<ExonModel> sorted = new ArrayList<>(exons);
+		sorted.sort((a, b) -> Integer.compare(a.getStart(), b.getStart()));
+		for (int i = 1; i < sorted.size(); i++) {
+			if (sorted.get(i).getStart() <= sorted.get(i - 1).getEnd()) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private String determineBiotype(Gff3Feature feature, String type) {
