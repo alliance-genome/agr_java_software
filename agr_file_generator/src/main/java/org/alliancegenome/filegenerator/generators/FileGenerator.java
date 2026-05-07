@@ -168,15 +168,34 @@ public abstract class FileGenerator extends Thread {
 				return;
 			}
 
+			// Compute the per-row expansion lazily — only generators that override customizeRows fan a single ES doc into multiple flattened rows, and only the row formats consume the expansion. Doc formats (JSON_RAW / VCF / GFF) always emit the consolidated row once.
+			List<JsonNode> expanded = null;
 			for (OutputSpec spec : config.getOutputs()) {
 				ConcurrentHashMap<String, RowWriter> writers = writersBySpec.get(spec);
+				List<JsonNode> rowsToWrite;
+				if (spec.format().isRowFormat()) {
+					if (expanded == null) {
+						expanded = customizeRows(row);
+					}
+					rowsToWrite = expanded;
+				} else {
+					rowsToWrite = List.of(row);
+				}
+				if (rowsToWrite.isEmpty()) {
+					continue;
+				}
 				if (spec.split() == SplitMode.COMBINED) {
-					writers.get("COMBINED").writeRow(row);
+					RowWriter w = writers.get("COMBINED");
+					for (JsonNode r : rowsToWrite) {
+						w.writeRow(r);
+					}
 				} else {
 					for (String mod : allowedMods) {
 						String taxonForHeader = anyAllowedTaxonCurie;
 						RowWriter w = writers.computeIfAbsent(mod, m -> openWriterUnchecked(spec, m, List.of(taxonForHeader), outDir, readme));
-						w.writeRow(row);
+						for (JsonNode r : rowsToWrite) {
+							w.writeRow(r);
+						}
 					}
 				}
 			}
@@ -232,6 +251,13 @@ public abstract class FileGenerator extends Thread {
 
 	protected JsonNode customizeRow(JsonNode hit) {
 		return hit;
+	}
+
+	/**
+	 * Override for generators whose ES docs are consolidated and need to be expanded into multiple flattened rows for row-formats (TSV / TXT / JSON_MAPPED). Default returns a singleton list with the customized hit unchanged, preserving today's one-row-per-hit behavior. Doc formats (JSON_RAW / VCF / GFF) never call this — they always write the consolidated row verbatim.
+	 */
+	protected List<JsonNode> customizeRows(JsonNode customizedHit) {
+		return List.of(customizedHit);
 	}
 
 	/**

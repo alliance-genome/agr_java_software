@@ -10,6 +10,7 @@ import org.alliancegenome.filegenerator.generators.FileGenerator;
 import org.alliancegenome.filegenerator.generators.GeneDescriptionFileGenerator;
 import org.alliancegenome.filegenerator.generators.GeneFileGenerator;
 import org.alliancegenome.filegenerator.generators.OrthologyFileGenerator;
+import org.alliancegenome.filegenerator.generators.PhenotypeFileGenerator;
 import org.alliancegenome.filegenerator.generators.VariantAlleleFileGenerator;
 import org.alliancegenome.filegenerator.generators.VariantVcfFileGenerator;
 
@@ -115,6 +116,24 @@ public enum FileGeneratorConfig {
 			vcfFieldMap(),
 			"readmes/variants_vcf.txt",
 			VariantVcfFileGenerator.class,
+			1000,
+			8
+	),
+
+	Phenotype(
+			"Phenotype",
+			"PHENOTYPE-ALLIANCE",
+			List.of("gene_phenotype_annotation"),
+			List.of(
+					new OutputSpec(Format.TSV, SplitMode.TAXON),
+					new OutputSpec(Format.TSV, SplitMode.COMBINED),
+					new OutputSpec(Format.JSON_RAW, SplitMode.TAXON),
+					new OutputSpec(Format.JSON_RAW, SplitMode.COMBINED)
+			),
+			List.of("FB", "MGI", "RGD", "SGD", "WB", "XBXL", "XBXT", "ZFIN"),
+			phenotypeFieldMap(),
+			"readmes/phenotype.txt",
+			PhenotypeFileGenerator.class,
 			1000,
 			8
 	),
@@ -326,21 +345,18 @@ public enum FileGeneratorConfig {
 	}
 
 	/**
-	 * Disease field map. Columns whose ES source is not currently indexed map to "_unavailable"
-	 * (rendered as empty cell). Columns derived from the doc category, from arrays, or that
-	 * need transformation (date format, picking PMID over MOD curie) point at synthetic fields
-	 * computed in DiseaseFileGenerator.customizeRow().
+	 * Disease field map. Source: {gene,allele,agm}_disease_annotation in site_index — these docs are consolidated and carry primaryAnnotations[]. DiseaseFileGenerator.customizeRows() expands each ES hit into N flattened rows (one per primaryAnnotations element) for TSV; JSON_RAW writes the consolidated doc verbatim. Every column is synthetic (`_*`) and populated per-row from primaryAnnotations[i]. Columns whose ES source is not currently indexed map to "_unavailable" (rendered as an empty cell).
 	 */
 	private static Map<String, String> diseaseFieldMap() {
 		Map<String, String> m = new LinkedHashMap<>();
-		m.put("Taxon", "subject.taxon.curie");
-		m.put("SpeciesName", "subject.taxon.name");
+		m.put("Taxon", "_taxon");
+		m.put("SpeciesName", "_speciesName");
 		m.put("DBobjectType", "_dbObjectType");
-		m.put("DBObjectID", "subject.primaryExternalId");
+		m.put("DBObjectID", "_dbObjectId");
 		m.put("DBObjectSymbol", "_dbObjectSymbol");
-		m.put("AssociationType", "relation.name");
-		m.put("DOID", "object.curie");
-		m.put("DOtermName", "object.name");
+		m.put("AssociationType", "_associationType");
+		m.put("DOID", "_doId");
+		m.put("DOtermName", "_doTermName");
 		m.put("WithOrtholog", "_withOrtholog");
 		m.put("InferredFromID", "_unavailable");
 		m.put("InferredFromSymbol", "_unavailable");
@@ -351,6 +367,21 @@ public enum FileGeneratorConfig {
 		m.put("Reference", "_reference");
 		m.put("Date", "_date");
 		m.put("Source", "_source");
+		return m;
+	}
+
+	/**
+	 * Phenotype field map. Source: gene_phenotype_annotation in site_index — these docs are consolidated and carry primaryAnnotations[]. PhenotypeFileGenerator.customizeRows() expands each ES hit into N flattened rows (one per primaryAnnotations element) for TSV; JSON_RAW writes the consolidated doc verbatim. Every column is synthetic (`_*`) and populated per-row from primaryAnnotations[i].
+	 */
+	private static Map<String, String> phenotypeFieldMap() {
+		Map<String, String> m = new LinkedHashMap<>();
+		m.put("Phenotype", "_phenotype");
+		m.put("Genetic Entity ID", "_geneticEntityId");
+		m.put("Genetic Entity Name", "_geneticEntityName");
+		m.put("Genetic Entity Type", "_geneticEntityType");
+		m.put("Experimental Condition", "_experimentalCondition");
+		m.put("Source", "_source");
+		m.put("Reference", "_reference");
 		return m;
 	}
 
