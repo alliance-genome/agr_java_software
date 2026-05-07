@@ -16,144 +16,33 @@ import org.alliancegenome.filegenerator.generators.VariantVcfFileGenerator;
 
 public enum FileGeneratorConfig {
 
-	GeneDescriptions(
-			"Gene Descriptions",
-			"GENE-DESCRIPTION",
-			List.of("gene_search_result"),
-			List.of(
-					new OutputSpec(Format.TSV, SplitMode.TAXON),
-					new OutputSpec(Format.TXT, SplitMode.TAXON),
-					new OutputSpec(Format.JSON_MAPPED, SplitMode.TAXON)
-			),
-			List.of("FB", "HUMAN", "MGI", "RGD", "SGD", "WB", "XBXL", "XBXT", "ZFIN"),
-			geneDescriptionFieldMap(),
-			"readmes/gene_descriptions.txt",
-			GeneDescriptionFileGenerator.class,
-			1000,
-			8
-	),
+	GeneDescriptions("Gene Descriptions", "GENE-DESCRIPTION", List.of("gene_search_result"), List.of(new OutputSpec(Format.TSV, SplitMode.TAXON), new OutputSpec(Format.TXT, SplitMode.TAXON), new OutputSpec(Format.JSON_MAPPED, SplitMode.TAXON)),
+			List.of("FB", "HUMAN", "MGI", "RGD", "SGD", "WB", "XBXL", "XBXT", "ZFIN"), geneDescriptionFieldMap(), "readmes/gene_descriptions.txt", GeneDescriptionFileGenerator.class, 1000, 8),
 
-	Gene(
-			"Gene",
-			"GENE",
-			List.of("gene_summary"),
-			List.of(
-					new OutputSpec(Format.TSV, SplitMode.TAXON),
-					new OutputSpec(Format.TSV, SplitMode.COMBINED),
-					new OutputSpec(Format.JSON_RAW, SplitMode.TAXON),
-					new OutputSpec(Format.JSON_RAW, SplitMode.COMBINED)
-			),
-			List.of("FB", "MGI", "RGD", "SGD", "WB", "XBXL", "XBXT", "ZFIN"),
-			geneFieldMap(),
-			"readmes/gene.txt",
-			GeneFileGenerator.class,
-			1000,
-			8
-	),
+	Gene("Gene", "GENE", List.of("gene_summary"), List.of(new OutputSpec(Format.TSV, SplitMode.TAXON), new OutputSpec(Format.TSV, SplitMode.COMBINED), new OutputSpec(Format.JSON_RAW, SplitMode.TAXON), new OutputSpec(Format.JSON_RAW, SplitMode.COMBINED)),
+			List.of("FB", "MGI", "RGD", "SGD", "WB", "XBXL", "XBXT", "ZFIN"), geneFieldMap(), "readmes/gene.txt", GeneFileGenerator.class, 1000, 8),
 
-	Disease(
-			"Disease",
-			"DISEASE-ALLIANCE",
-			List.of("gene_disease_annotation", "allele_disease_annotation", "agm_disease_annotation"),
-			List.of(
-					new OutputSpec(Format.TSV, SplitMode.TAXON),
-					new OutputSpec(Format.TSV, SplitMode.COMBINED),
-					new OutputSpec(Format.JSON_RAW, SplitMode.TAXON),
-					new OutputSpec(Format.JSON_RAW, SplitMode.COMBINED)
-			),
-			List.of("FB", "HUMAN", "MGI", "RGD", "SGD", "WB", "XBXL", "XBXT", "ZFIN"),
-			diseaseFieldMap(),
-			"readmes/disease.txt",
-			DiseaseFileGenerator.class,
-			1000,
-			8
-	),
+	Disease("Disease", "DISEASE-ALLIANCE", List.of("gene_disease_annotation", "allele_disease_annotation", "agm_disease_annotation"),
+			List.of(new OutputSpec(Format.TSV, SplitMode.TAXON), new OutputSpec(Format.TSV, SplitMode.COMBINED), new OutputSpec(Format.JSON_RAW, SplitMode.TAXON), new OutputSpec(Format.JSON_RAW, SplitMode.COMBINED)),
+			List.of("FB", "HUMAN", "MGI", "RGD", "SGD", "WB", "XBXL", "XBXT", "ZFIN"), diseaseFieldMap(), "readmes/disease.txt", DiseaseFileGenerator.class, 1000, 8),
 
-	Expression(
-			"Expression",
-			"EXPRESSION-ALLIANCE",
-			List.of("gene_expression_annotation"),
-			List.of(
-					new OutputSpec(Format.TSV, SplitMode.TAXON),
-					new OutputSpec(Format.TSV, SplitMode.COMBINED),
-					new OutputSpec(Format.JSON_RAW, SplitMode.TAXON),
-					new OutputSpec(Format.JSON_RAW, SplitMode.COMBINED)
-			),
-			List.of("FB", "MGI", "RGD", "SGD", "WB", "XBXL", "XBXT", "ZFIN"),
-			expressionFieldMap(),
-			"readmes/expression.txt",
-			ExpressionFileGenerator.class,
-			1000,
-			8
-	),
+	Expression("Expression", "EXPRESSION-ALLIANCE", List.of("gene_expression_annotation"),
+			List.of(new OutputSpec(Format.TSV, SplitMode.TAXON), new OutputSpec(Format.TSV, SplitMode.COMBINED), new OutputSpec(Format.JSON_RAW, SplitMode.TAXON), new OutputSpec(Format.JSON_RAW, SplitMode.COMBINED)),
+			List.of("FB", "MGI", "RGD", "SGD", "WB", "XBXL", "XBXT", "ZFIN"), expressionFieldMap(), "readmes/expression.txt", ExpressionFileGenerator.class, 1000, 8),
 
-	Orthology(
-			"Orthology",
-			"ORTHOLOGY-ALLIANCE",
-			List.of("gene_to_gene_orthology"),
-			List.of(
-					new OutputSpec(Format.TSV, SplitMode.COMBINED),
-					new OutputSpec(Format.JSON_RAW, SplitMode.COMBINED)
-			),
-			List.of("FB", "HUMAN", "MGI", "RGD", "SGD", "WB", "XBXL", "XBXT", "ZFIN"),
-			orthologyFieldMap(),
-			"readmes/orthology.txt",
-			OrthologyFileGenerator.class,
-			1000,
-			8
-	),
+	Orthology("Orthology", "ORTHOLOGY-ALLIANCE", List.of("gene_to_gene_orthology"), List.of(new OutputSpec(Format.TSV, SplitMode.COMBINED), new OutputSpec(Format.JSON_RAW, SplitMode.COMBINED)), List.of("FB", "HUMAN", "MGI", "RGD", "SGD", "WB", "XBXL", "XBXT", "ZFIN"),
+			orthologyFieldMap(), "readmes/orthology.txt", OrthologyFileGenerator.class, 1000, 8),
 
-	VariantsVcf(
-			"Variants",
-			"VARIANT-CONSEQUENCE",
-			List.of("variant_summary"),
-			List.of(
-					new OutputSpec(Format.VCF, SplitMode.TAXON)
-			),
-			// Filename split is by MOD (consistent with every other generator). The genome assembly
-			// goes inside the file content (## headers / per-record fields), not in the filename.
-			List.of("FB", "MGI", "RGD", "WB", "ZFIN"),
-			vcfFieldMap(),
-			"readmes/variants_vcf.txt",
-			VariantVcfFileGenerator.class,
-			1000,
-			8
-	),
+	VariantsVcf("Variants", "VARIANT-CONSEQUENCE", List.of("variant_summary"), List.of(new OutputSpec(Format.VCF, SplitMode.TAXON)), // Filename split is by MOD (consistent with every other generator). The genome assembly
+	// goes inside the file content (## headers / per-record fields), not in the filename.
+			List.of("FB", "MGI", "RGD", "WB", "ZFIN"), vcfFieldMap(), "readmes/variants_vcf.txt", VariantVcfFileGenerator.class, 1000, 8),
 
-	Phenotype(
-			"Phenotype",
-			"PHENOTYPE-ALLIANCE",
-			List.of("gene_phenotype_annotation"),
-			List.of(
-					new OutputSpec(Format.TSV, SplitMode.TAXON),
-					new OutputSpec(Format.TSV, SplitMode.COMBINED),
-					new OutputSpec(Format.JSON_RAW, SplitMode.TAXON),
-					new OutputSpec(Format.JSON_RAW, SplitMode.COMBINED)
-			),
-			List.of("FB", "MGI", "RGD", "SGD", "WB", "XBXL", "XBXT", "ZFIN"),
-			phenotypeFieldMap(),
-			"readmes/phenotype.txt",
-			PhenotypeFileGenerator.class,
-			1000,
-			8
-	),
+	Phenotype("Phenotype", "PHENOTYPE-ALLIANCE", List.of("gene_phenotype_annotation"),
+			List.of(new OutputSpec(Format.TSV, SplitMode.TAXON), new OutputSpec(Format.TSV, SplitMode.COMBINED), new OutputSpec(Format.JSON_RAW, SplitMode.TAXON), new OutputSpec(Format.JSON_RAW, SplitMode.COMBINED)),
+			List.of("FB", "MGI", "RGD", "SGD", "WB", "XBXL", "XBXT", "ZFIN"), phenotypeFieldMap(), "readmes/phenotype.txt", PhenotypeFileGenerator.class, 1000, 8),
 
-	VariantsAlleles(
-			"Variant/Allele",
-			"VARIANT-ALLELE",
-			List.of("allele_summary"),
-			List.of(
-					new OutputSpec(Format.TSV, SplitMode.TAXON),
-					new OutputSpec(Format.JSON_RAW, SplitMode.TAXON)
-			),
-			List.of("FB", "MGI", "RGD", "SGD", "WB", "ZFIN"),
-			variantAlleleFieldMap(),
-			"readmes/variants_alleles.txt",
-			VariantAlleleFileGenerator.class,
-			1000,
-			8
-	),
-	;
+	VariantsAlleles("Variant/Allele", "VARIANT-ALLELE", List.of("allele_summary"), List.of(new OutputSpec(Format.TSV, SplitMode.TAXON), new OutputSpec(Format.JSON_RAW, SplitMode.TAXON)), List.of("FB", "MGI", "RGD", "SGD", "WB", "ZFIN"), variantAlleleFieldMap(),
+			"readmes/variants_alleles.txt", VariantAlleleFileGenerator.class, 1000, 8),;
 
 	private final String filetypeLabel;
 	private final String type;
@@ -166,16 +55,7 @@ public enum FileGeneratorConfig {
 	private final int bufferSize;
 	private final int threadCount;
 
-	FileGeneratorConfig(String filetypeLabel,
-			String type,
-			List<String> esCategories,
-			List<OutputSpec> outputs,
-			List<String> mods,
-			Map<String, String> fieldMap,
-			String readmeResourcePath,
-			Class<? extends FileGenerator> generatorClazz,
-			int bufferSize,
-			int threadCount) {
+	FileGeneratorConfig(String filetypeLabel, String type, List<String> esCategories, List<OutputSpec> outputs, List<String> mods, Map<String, String> fieldMap, String readmeResourcePath, Class<? extends FileGenerator> generatorClazz, int bufferSize, int threadCount) {
 		this.filetypeLabel = filetypeLabel;
 		this.type = type;
 		this.esCategories = esCategories;
@@ -252,12 +132,13 @@ public enum FileGeneratorConfig {
 	}
 
 	/**
-	 * Variant/Allele field map. Source: allele_summary in site_index (LTP only — does not
-	 * include the HTP variant_index). Same source the agr_api uses for the gene-page allele
-	 * table (see AlleleESService.getAllelesByGene).
+	 * Variant/Allele field map. Source: allele_summary in site_index (LTP only —
+	 * does not include the HTP variant_index). Same source the agr_api uses for the
+	 * gene-page allele table (see AlleleESService.getAllelesByGene).
 	 *
-	 * One row per allele. variantList-derived fields (VariantId, VariantSymbol, position,
-	 * consequence, etc.) are pipe-joined when an allele has multiple known variants.
+	 * One row per allele. variantList-derived fields (VariantId, VariantSymbol,
+	 * position, consequence, etc.) are pipe-joined when an allele has multiple
+	 * known variants.
 	 */
 	private static Map<String, String> variantAlleleFieldMap() {
 		Map<String, String> m = new LinkedHashMap<>();
@@ -292,8 +173,8 @@ public enum FileGeneratorConfig {
 	}
 
 	/**
-	 * VCF field map. Field map keys must remain in this exact 8-column VCFv4.3 order.
-	 * All values are synthetic (`_*`) names populated in
+	 * VCF field map. Field map keys must remain in this exact 8-column VCFv4.3
+	 * order. All values are synthetic (`_*`) names populated in
 	 * {@code VariantVcfFileGenerator.customizeRow()}.
 	 */
 	private static Map<String, String> vcfFieldMap() {
@@ -318,9 +199,10 @@ public enum FileGeneratorConfig {
 	}
 
 	/**
-	 * Gene field map. Source: gene_summary in site_index. List-valued cells (synonyms,
-	 * secondary IDs, cross references) are pipe-joined in {@code GeneFileGenerator.customizeRow()}.
-	 * Genome location uses the first entry of {@code geneGenomicLocationAssociations}.
+	 * Gene field map. Source: gene_summary in site_index. List-valued cells
+	 * (synonyms, secondary IDs, cross references) are pipe-joined in
+	 * {@code GeneFileGenerator.customizeRow()}. Genome location uses the first
+	 * entry of {@code geneGenomicLocationAssociations}.
 	 */
 	private static Map<String, String> geneFieldMap() {
 		Map<String, String> m = new LinkedHashMap<>();
@@ -345,7 +227,13 @@ public enum FileGeneratorConfig {
 	}
 
 	/**
-	 * Disease field map. Source: {gene,allele,agm}_disease_annotation in site_index — these docs are consolidated and carry primaryAnnotations[]. DiseaseFileGenerator.customizeRows() expands each ES hit into N flattened rows (one per primaryAnnotations element) for TSV; JSON_RAW writes the consolidated doc verbatim. Every column is synthetic (`_*`) and populated per-row from primaryAnnotations[i]. Columns whose ES source is not currently indexed map to "_unavailable" (rendered as an empty cell).
+	 * Disease field map. Source: {gene,allele,agm}_disease_annotation in site_index
+	 * — these docs are consolidated and carry primaryAnnotations[].
+	 * DiseaseFileGenerator.customizeRows() expands each ES hit into N flattened
+	 * rows (one per primaryAnnotations element) for TSV; JSON_RAW writes the
+	 * consolidated doc verbatim. Every column is synthetic (`_*`) and populated
+	 * per-row from primaryAnnotations[i]. Columns whose ES source is not currently
+	 * indexed map to "_unavailable" (rendered as an empty cell).
 	 */
 	private static Map<String, String> diseaseFieldMap() {
 		Map<String, String> m = new LinkedHashMap<>();
@@ -371,7 +259,12 @@ public enum FileGeneratorConfig {
 	}
 
 	/**
-	 * Phenotype field map. Source: gene_phenotype_annotation in site_index — these docs are consolidated and carry primaryAnnotations[]. PhenotypeFileGenerator.customizeRows() expands each ES hit into N flattened rows (one per primaryAnnotations element) for TSV; JSON_RAW writes the consolidated doc verbatim. Every column is synthetic (`_*`) and populated per-row from primaryAnnotations[i].
+	 * Phenotype field map. Source: gene_phenotype_annotation in site_index — these
+	 * docs are consolidated and carry primaryAnnotations[].
+	 * PhenotypeFileGenerator.customizeRows() expands each ES hit into N flattened
+	 * rows (one per primaryAnnotations element) for TSV; JSON_RAW writes the
+	 * consolidated doc verbatim. Every column is synthetic (`_*`) and populated
+	 * per-row from primaryAnnotations[i].
 	 */
 	private static Map<String, String> phenotypeFieldMap() {
 		Map<String, String> m = new LinkedHashMap<>();
@@ -386,7 +279,10 @@ public enum FileGeneratorConfig {
 	}
 
 	/**
-	 * Expression field map. Anatomy / sub-structure / cellular-component term IDs and names come straight off whereExpressed; the six qualifier list columns are pipe-joined inside ExpressionFileGenerator.customizeRow() into synthetic fields.
+	 * Expression field map. Anatomy / sub-structure / cellular-component term IDs
+	 * and names come straight off whereExpressed; the six qualifier list columns
+	 * are pipe-joined inside ExpressionFileGenerator.customizeRow() into synthetic
+	 * fields.
 	 */
 	private static Map<String, String> expressionFieldMap() {
 		Map<String, String> m = new LinkedHashMap<>();
@@ -410,7 +306,9 @@ public enum FileGeneratorConfig {
 		m.put("AnatomyTermName", "geneExpressionAnnotation.expressionPattern.whereExpressed.anatomicalStructure.name");
 		m.put("AnatomyTermQualifierIDs", "_anatomyQualifierIds");
 		m.put("AnatomyTermQualifierTermNames", "_anatomyQualifierNames");
-		// SourceURL is built from the first crossReference's urlTemplate + referencedCurie inside ExpressionFileGenerator.customizeRow(); this path resolves the synthetic field.
+		// SourceURL is built from the first crossReference's urlTemplate +
+		// referencedCurie inside ExpressionFileGenerator.customizeRow(); this path
+		// resolves the synthetic field.
 		m.put("SourceURL", "_sourceUrl");
 		m.put("Source", "geneExpressionAnnotation.dataProvider.abbreviation");
 		m.put("Reference", "referenceId.0");
