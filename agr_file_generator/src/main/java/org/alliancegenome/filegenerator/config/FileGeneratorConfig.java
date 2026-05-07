@@ -309,13 +309,7 @@ public enum FileGeneratorConfig {
 	}
 
 	/**
-	 * Expression field map. Columns whose ES source is not currently indexed map to
-	 * "_unavailable" — JsonPath returns "" for that, so the cell is rendered blank.
-	 *
-	 * Known gap: cellularComponent, sub-structure, and anatomy terms live under
-	 * geneExpressionAnnotation.expressionPattern.whereExpressed.* on the entity, but the
-	 * curation API's GeneExpressionDocument JsonView does not include `whereExpressed`,
-	 * so those 12 columns can't be populated from ES today.
+	 * Expression field map. Anatomy / sub-structure / cellular-component term IDs and names come straight off whereExpressed; the six qualifier list columns are pipe-joined inside ExpressionFileGenerator.customizeRow() into synthetic fields.
 	 */
 	private static Map<String, String> expressionFieldMap() {
 		Map<String, String> m = new LinkedHashMap<>();
@@ -327,23 +321,22 @@ public enum FileGeneratorConfig {
 		m.put("StageTerm", "geneExpressionAnnotation.whenExpressedStageName");
 		m.put("AssayID", "geneExpressionAnnotation.expressionAssayUsed.curie");
 		m.put("AssayTermName", "geneExpressionAnnotation.expressionAssayUsed.name");
-		m.put("CellularComponentID", "_unavailable");
-		m.put("CellularComponentTerm", "_unavailable");
-		m.put("CellularComponentQualifierIDs", "_unavailable");
-		m.put("CellularComponentQualifierTermNames", "_unavailable");
-		m.put("SubStructureID", "_unavailable");
-		m.put("SubStructureName", "_unavailable");
-		m.put("SubStructureQualifierIDs", "_unavailable");
-		m.put("SubStructureQualifierTermNames", "_unavailable");
-		m.put("AnatomyTermID", "_unavailable");
-		m.put("AnatomyTermName", "_unavailable");
-		m.put("AnatomyTermQualifierIDs", "_unavailable");
-		m.put("AnatomyTermQualifierTermNames", "_unavailable");
-		// SourceURL is built from the first crossReference's urlTemplate + referencedCurie
-		// inside ExpressionFileGenerator.customizeRow(); this path resolves the synthetic field.
+		m.put("CellularComponentID", "geneExpressionAnnotation.expressionPattern.whereExpressed.cellularComponentTerm.curie");
+		m.put("CellularComponentTerm", "geneExpressionAnnotation.expressionPattern.whereExpressed.cellularComponentTerm.name");
+		m.put("CellularComponentQualifierIDs", "_cellularComponentQualifierIds");
+		m.put("CellularComponentQualifierTermNames", "_cellularComponentQualifierNames");
+		m.put("SubStructureID", "geneExpressionAnnotation.expressionPattern.whereExpressed.anatomicalSubstructure.curie");
+		m.put("SubStructureName", "geneExpressionAnnotation.expressionPattern.whereExpressed.anatomicalSubstructure.name");
+		m.put("SubStructureQualifierIDs", "_subStructureQualifierIds");
+		m.put("SubStructureQualifierTermNames", "_subStructureQualifierNames");
+		m.put("AnatomyTermID", "geneExpressionAnnotation.expressionPattern.whereExpressed.anatomicalStructure.curie");
+		m.put("AnatomyTermName", "geneExpressionAnnotation.expressionPattern.whereExpressed.anatomicalStructure.name");
+		m.put("AnatomyTermQualifierIDs", "_anatomyQualifierIds");
+		m.put("AnatomyTermQualifierTermNames", "_anatomyQualifierNames");
+		// SourceURL is built from the first crossReference's urlTemplate + referencedCurie inside ExpressionFileGenerator.customizeRow(); this path resolves the synthetic field.
 		m.put("SourceURL", "_sourceUrl");
 		m.put("Source", "geneExpressionAnnotation.dataProvider.abbreviation");
-		m.put("Reference", "geneExpressionAnnotation.evidenceItem.curie");
+		m.put("Reference", "referenceId.0");
 		return m;
 	}
 }
