@@ -16,33 +16,30 @@ import org.alliancegenome.filegenerator.generators.VariantVcfFileGenerator;
 
 public enum FileGeneratorConfig {
 
-	GeneDescriptions("Gene Descriptions", "GENE-DESCRIPTION", List.of("gene_search_result"), List.of(new OutputSpec(Format.TSV, SplitMode.TAXON), new OutputSpec(Format.TXT, SplitMode.TAXON), new OutputSpec(Format.JSON_MAPPED, SplitMode.TAXON)),
-			List.of("FB", "HUMAN", "MGI", "RGD", "SGD", "WB", "XBXL", "XBXT", "ZFIN"), geneDescriptionFieldMap(), "readmes/gene_descriptions.txt", GeneDescriptionFileGenerator.class, 1000, 8),
-
 	Gene("Gene", "GENE", List.of("gene_summary"), List.of(new OutputSpec(Format.TSV, SplitMode.TAXON), new OutputSpec(Format.TSV, SplitMode.COMBINED), new OutputSpec(Format.JSON_RAW, SplitMode.TAXON), new OutputSpec(Format.JSON_RAW, SplitMode.COMBINED)),
-			List.of("FB", "MGI", "RGD", "SGD", "WB", "XBXL", "XBXT", "ZFIN"), geneFieldMap(), "readmes/gene.txt", GeneFileGenerator.class, 1000, 8),
+		List.of("FB", "MGI", "RGD", "SGD", "WB", "XBXL", "XBXT", "ZFIN"), geneFieldMap(), "readmes/gene.txt", GeneFileGenerator.class, 1000, 8),
 
 	Disease("Disease", "DISEASE-ALLIANCE", List.of("gene_disease_annotation", "allele_disease_annotation", "agm_disease_annotation"),
-			List.of(new OutputSpec(Format.TSV, SplitMode.TAXON), new OutputSpec(Format.TSV, SplitMode.COMBINED), new OutputSpec(Format.JSON_RAW, SplitMode.TAXON), new OutputSpec(Format.JSON_RAW, SplitMode.COMBINED)),
-			List.of("FB", "HUMAN", "MGI", "RGD", "SGD", "WB", "XBXL", "XBXT", "ZFIN"), diseaseFieldMap(), "readmes/disease.txt", DiseaseFileGenerator.class, 1000, 8),
+		List.of(new OutputSpec(Format.TSV, SplitMode.TAXON), new OutputSpec(Format.TSV, SplitMode.COMBINED), new OutputSpec(Format.JSON_RAW, SplitMode.TAXON), new OutputSpec(Format.JSON_RAW, SplitMode.COMBINED)), List.of("FB", "HUMAN", "MGI", "RGD", "SGD", "WB", "XBXL", "XBXT", "ZFIN"),
+		diseaseFieldMap(), "readmes/disease.txt", DiseaseFileGenerator.class, 1000, 8),
 
-	Expression("Expression", "EXPRESSION-ALLIANCE", List.of("gene_expression_annotation"),
-			List.of(new OutputSpec(Format.TSV, SplitMode.TAXON), new OutputSpec(Format.TSV, SplitMode.COMBINED), new OutputSpec(Format.JSON_RAW, SplitMode.TAXON), new OutputSpec(Format.JSON_RAW, SplitMode.COMBINED)),
-			List.of("FB", "MGI", "RGD", "SGD", "WB", "XBXL", "XBXT", "ZFIN"), expressionFieldMap(), "readmes/expression.txt", ExpressionFileGenerator.class, 1000, 8),
+	Expression("Expression", "EXPRESSION-ALLIANCE", List.of("gene_expression_annotation"), List.of(new OutputSpec(Format.TSV, SplitMode.TAXON), new OutputSpec(Format.TSV, SplitMode.COMBINED), new OutputSpec(Format.JSON_RAW, SplitMode.TAXON), new OutputSpec(Format.JSON_RAW, SplitMode.COMBINED)),
+		List.of("FB", "MGI", "RGD", "SGD", "WB", "XBXL", "XBXT", "ZFIN"), expressionFieldMap(), "readmes/expression.txt", ExpressionFileGenerator.class, 1000, 8),
 
-	Orthology("Orthology", "ORTHOLOGY-ALLIANCE", List.of("gene_to_gene_orthology"), List.of(new OutputSpec(Format.TSV, SplitMode.COMBINED), new OutputSpec(Format.JSON_RAW, SplitMode.COMBINED)), List.of("FB", "HUMAN", "MGI", "RGD", "SGD", "WB", "XBXL", "XBXT", "ZFIN"),
-			orthologyFieldMap(), "readmes/orthology.txt", OrthologyFileGenerator.class, 1000, 8),
+	Orthology("Orthology", "ORTHOLOGY-ALLIANCE", List.of("gene_to_gene_orthology"), List.of(new OutputSpec(Format.TSV, SplitMode.COMBINED), new OutputSpec(Format.JSON_RAW, SplitMode.COMBINED)), List.of("FB", "HUMAN", "MGI", "RGD", "SGD", "WB", "XBXL", "XBXT", "ZFIN"), orthologyFieldMap(),
+		"readmes/orthology.txt", OrthologyFileGenerator.class, 1000, 8),
 
-	VariantsVcf("Variants", "VARIANT-CONSEQUENCE", List.of("variant_summary"), List.of(new OutputSpec(Format.VCF, SplitMode.TAXON)), // Filename split is by MOD (consistent with every other generator). The genome assembly
-	// goes inside the file content (## headers / per-record fields), not in the filename.
-			List.of("FB", "MGI", "RGD", "WB", "ZFIN"), vcfFieldMap(), "readmes/variants_vcf.txt", VariantVcfFileGenerator.class, 1000, 8),
+	VariantsVcf("Variants", "VARIANT-CONSEQUENCE", List.of("variant_summary"), List.of(new OutputSpec(Format.VCF, SplitMode.TAXON)), // Filename split is by MOD (consistent with every other generator). The genome
+																																												// assembly
+		// goes inside the file content (## headers / per-record fields), not in the
+		// filename.
+		List.of("FB", "MGI", "RGD", "WB", "ZFIN"), vcfFieldMap(), "readmes/variants_vcf.txt", VariantVcfFileGenerator.class, 1000, 8),
 
-	Phenotype("Phenotype", "PHENOTYPE-ALLIANCE", List.of("gene_phenotype_annotation"),
-			List.of(new OutputSpec(Format.TSV, SplitMode.TAXON), new OutputSpec(Format.TSV, SplitMode.COMBINED), new OutputSpec(Format.JSON_RAW, SplitMode.TAXON), new OutputSpec(Format.JSON_RAW, SplitMode.COMBINED)),
-			List.of("FB", "MGI", "RGD", "SGD", "WB", "XBXL", "XBXT", "ZFIN"), phenotypeFieldMap(), "readmes/phenotype.txt", PhenotypeFileGenerator.class, 1000, 8),
+	Phenotype("Phenotype", "PHENOTYPE-ALLIANCE", List.of("gene_phenotype_annotation"), List.of(new OutputSpec(Format.TSV, SplitMode.TAXON), new OutputSpec(Format.TSV, SplitMode.COMBINED), new OutputSpec(Format.JSON_RAW, SplitMode.TAXON), new OutputSpec(Format.JSON_RAW, SplitMode.COMBINED)),
+		List.of("FB", "MGI", "RGD", "SGD", "WB", "XBXL", "XBXT", "ZFIN"), phenotypeFieldMap(), "readmes/phenotype.txt", PhenotypeFileGenerator.class, 1000, 8),
 
-	VariantsAlleles("Variant/Allele", "VARIANT-ALLELE", List.of("allele_summary"), List.of(new OutputSpec(Format.TSV, SplitMode.TAXON), new OutputSpec(Format.JSON_RAW, SplitMode.TAXON)), List.of("FB", "MGI", "RGD", "SGD", "WB", "ZFIN"), variantAlleleFieldMap(),
-			"readmes/variants_alleles.txt", VariantAlleleFileGenerator.class, 1000, 8),;
+	VariantsAlleles("Variant/Allele", "VARIANT-ALLELE", List.of("allele_summary"), List.of(new OutputSpec(Format.TSV, SplitMode.TAXON), new OutputSpec(Format.JSON_RAW, SplitMode.TAXON)), List.of("FB", "MGI", "RGD", "SGD", "WB", "ZFIN"), variantAlleleFieldMap(), "readmes/variants_alleles.txt",
+		VariantAlleleFileGenerator.class, 1000, 8),;
 
 	private final String filetypeLabel;
 	private final String type;
