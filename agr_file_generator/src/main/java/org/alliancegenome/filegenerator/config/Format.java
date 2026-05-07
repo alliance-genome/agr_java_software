@@ -34,4 +34,15 @@ public enum Format {
 	public boolean isJson() {
 		return this == JSON_RAW || this == JSON_MAPPED;
 	}
+
+	/**
+	 * Doc formats write the full hit verbatim (one ES hit = one output entry). Generators that expand a hit into multiple flattened rows via {@link org.alliancegenome.filegenerator.generators.FileGenerator#customizeRows} only fan out for {@link #isRowFormat()} formats — doc formats keep one entry per hit.
+	 */
+	public boolean isDocFormat() {
+		return this == JSON_RAW || this == VCF || this == GFF;
+	}
+
+	public boolean isRowFormat() {
+		return !isDocFormat();
+	}
 }
