@@ -28,7 +28,6 @@ import org.alliancegenome.filegenerator.species.SpeciesLookup;
 import org.alliancegenome.filegenerator.writers.JsonMappedWriter;
 import org.alliancegenome.filegenerator.writers.JsonPath;
 import org.alliancegenome.filegenerator.writers.JsonRawWriter;
-import org.alliancegenome.filegenerator.writers.PsiMiTabWriter;
 import org.alliancegenome.filegenerator.writers.RowWriter;
 import org.alliancegenome.filegenerator.writers.TsvWriter;
 import org.alliancegenome.filegenerator.writers.TxtWriter;
@@ -243,6 +242,13 @@ public abstract class FileGenerator extends Thread {
 		return List.of();
 	}
 
+	/**
+	 * Per-MOD header placeholder substitutions for format templates that support them (currently VCF only). Default empty so existing generators are unaffected. VCF generator overrides this to emit `{contigLines}` per MOD via a one-shot ES aggregation.
+	 */
+	protected Map<String, String> headerSubstitutions(String mod) {
+		return Map.of();
+	}
+
 	/** Stringency filter value for the JSON metadata header. Null means "not applicable" for this generator. */
 	protected String stringencyFilter() {
 		return null;
@@ -292,11 +298,6 @@ public abstract class FileGenerator extends Thread {
 				String header = HeaderBuilder.buildTextHeader(config.getFiletypeLabel(), spec.format(), readme, taxonCuries, species);
 				return new TxtWriter(path, header, config.getFieldMap());
 			}
-			case PSI_MI_TAB: {
-				// For interactions readme is the URL to the PSI-MITAB spec (configured per-generator).
-				String header = HeaderBuilder.buildPsiMiTabHeader(config.getFiletypeLabel(), readme, taxonCuries, species);
-				return new PsiMiTabWriter(path, header, config.getFieldMap());
-			}
 			case JSON_RAW: {
 				Map<String, Object> meta = HeaderBuilder.buildJsonMetadata(config.getFiletypeLabel(), spec.format(), readme, taxonCuries, species, stringencyFilter());
 				return new JsonRawWriter(path, meta);
@@ -306,7 +307,7 @@ public abstract class FileGenerator extends Thread {
 				return new JsonMappedWriter(path, meta, config.getFieldMap());
 			}
 			case VCF: {
-				return new VcfWriter(path, config.getFieldMap());
+				return new VcfWriter(path, config.getFieldMap(), headerSubstitutions(subtype));
 			}
 			default:
 				throw new UnsupportedOperationException("Format not yet supported: " + spec.format());

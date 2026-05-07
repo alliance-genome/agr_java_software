@@ -30,38 +30,6 @@ public class HeaderBuilder {
 	private HeaderBuilder() {
 	}
 
-	public static String buildPsiMiTabHeader(String filetypeLabel, String readmeUrl, Collection<String> taxonCuries, SpeciesLookup species) {
-		String genTime = ZonedDateTime.now(ZoneOffset.UTC).format(GEN_TIME_FMT);
-		StringBuilder sb = new StringBuilder();
-		sb.append("##########################################################################\n");
-		sb.append("#\n");
-		sb.append("# Data type: ").append(filetypeLabel).append("\n");
-		sb.append("# Data format: PSI-MI TAB 2.7 Format\n");
-		sb.append("# README: ").append(readmeUrl == null ? "" : readmeUrl).append("\n");
-		sb.append("# Source: Alliance of Genome Resources (Alliance)\n");
-		sb.append("# Source URL: ").append(SOURCE_URL).append("\n");
-		sb.append("# Help Desk: ").append(HELP_DESK).append("\n");
-		sb.append("# TaxonIDs: ").append(joinNcbiTxids(taxonCuries)).append("\n");
-		sb.append("# Species: ").append(speciesNamesCsv(taxonCuries, species)).append("\n");
-		sb.append("# Alliance Database Version: ").append(databaseVersion()).append("\n");
-		sb.append("# File generated (UTC): ").append(genTime).append("\n");
-		sb.append("#\n");
-		sb.append("##########################################################################");
-		return sb.toString();
-	}
-
-	private static String joinNcbiTxids(Collection<String> taxonCuries) {
-		List<String> out = new ArrayList<>();
-		for (String c : taxonCuries) {
-			if (c == null) {
-				continue;
-			}
-			String txid = c.replace("NCBITaxon:", "");
-			out.add("NCBI:txid" + txid);
-		}
-		return String.join(", ", out);
-	}
-
 	public static String buildTextHeader(String filetypeLabel, Format format, String readmeText, Collection<String> taxonCuries, SpeciesLookup species) {
 		String genTime = ZonedDateTime.now(ZoneOffset.UTC).format(GEN_TIME_FMT);
 		StringBuilder sb = new StringBuilder();

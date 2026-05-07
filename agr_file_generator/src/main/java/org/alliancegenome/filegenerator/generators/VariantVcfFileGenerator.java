@@ -1,11 +1,16 @@
 package org.alliancegenome.filegenerator.generators;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.alliancegenome.filegenerator.config.FileGeneratorConfig;
+import org.alliancegenome.filegenerator.es.EsParallelFetcher;
 import org.alliancegenome.filegenerator.writers.JsonPath;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -34,13 +39,136 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class VariantVcfFileGenerator extends FileGenerator {
 
+	private static final String CHROM_PATH = "variantList.curatedVariantGenomicLocations.variantGenomicLocationAssociationObject.name";
+	private static final String ASSEMBLY_PATH = "variantList.curatedVariantGenomicLocations.variantGenomicLocationAssociationObject.genomeAssembly.primaryExternalId";
+	private static final String SPECIES_PATH = "allele.taxon.name";
+
+	private final Map<String, String> contigLinesByMod = new LinkedHashMap<>();
+
 	public VariantVcfFileGenerator(FileGeneratorConfig config) {
 		super(config);
 	}
 
 	@Override
 	protected void generate() throws Exception {
+		precomputeContigLines();
 		scrollAndWrite();
+	}
+
+	@Override
+	protected Map<String, String> headerSubstitutions(String mod) {
+		String contigLines = contigLinesByMod.getOrDefault(mod, "");
+		return Map.of("{contigLines}", contigLines);
+	}
+
+	/**
+	 * One ES `_search` per MOD (size=0, multi_terms agg over chrom+assembly+species). Empty buckets yield empty contigLines for that MOD so the placeholder line collapses cleanly.
+	 */
+	private void precomputeContigLines() {
+		EsParallelFetcher fetcher = new EsParallelFetcher(esIndex(), config.getEsCategories());
+		for (String mod : config.getMods()) {
+			String prefix = mod + ":";
+			Map<String, Object> body = buildContigAggBody(prefix);
+			Map<String, Object> resp = fetcher.search(body);
+			String contigLines = renderContigLines(resp);
+			contigLinesByMod.put(mod, contigLines);
+			log.info("{}: contig pre-pass for MOD {} produced {} line(s)", getClass().getSimpleName(), mod, contigLines.isEmpty() ? 0 : contigLines.split("\n").length);
+		}
+	}
+
+	private Map<String, Object> buildContigAggBody(String alleleIdPrefix) {
+		Map<String, Object> categoryFilter = Map.of("terms", Map.of("category.keyword", config.getEsCategories()));
+		Map<String, Object> prefixFilter = Map.of("prefix", Map.of("allele.primaryExternalId.keyword", alleleIdPrefix));
+		Map<String, Object> bool = Map.of("bool", Map.of("filter", List.of(categoryFilter, prefixFilter)));
+
+		Map<String, Object> multiTerms = new LinkedHashMap<>();
+		multiTerms.put("terms", List.of(
+				Map.of("field", CHROM_PATH + ".keyword"),
+				Map.of("field", ASSEMBLY_PATH + ".keyword"),
+				Map.of("field", SPECIES_PATH + ".keyword")
+		));
+		multiTerms.put("size", 1000);
+
+		Map<String, Object> aggs = Map.of("contigs", Map.of("multi_terms", multiTerms));
+
+		Map<String, Object> body = new LinkedHashMap<>();
+		body.put("size", 0);
+		body.put("query", bool);
+		body.put("aggs", aggs);
+		return body;
+	}
+
+	@SuppressWarnings("unchecked")
+	private String renderContigLines(Map<String, Object> resp) {
+		if (resp == null) {
+			return "";
+		}
+		Map<String, Object> aggregations = (Map<String, Object>) resp.get("aggregations");
+		if (aggregations == null) {
+			return "";
+		}
+		Map<String, Object> contigs = (Map<String, Object>) aggregations.get("contigs");
+		if (contigs == null) {
+			return "";
+		}
+		List<Map<String, Object>> buckets = (List<Map<String, Object>>) contigs.get("buckets");
+		if (buckets == null || buckets.isEmpty()) {
+			return "";
+		}
+
+		List<String[]> tuples = new ArrayList<>();
+		for (Map<String, Object> bucket : buckets) {
+			Object keysObj = bucket.get("key");
+			if (!(keysObj instanceof List<?> keys) || keys.size() < 3) {
+				continue;
+			}
+			String chrom = String.valueOf(keys.get(0));
+			String assembly = String.valueOf(keys.get(1));
+			String spp = String.valueOf(keys.get(2));
+			tuples.add(new String[] { chrom, assembly, spp });
+		}
+
+		// Numeric chroms ascend by parsed integer, then non-numeric chroms follow lexically — keeps 1..21 before X, Y, MtDNA, etc.
+		Comparator<String[]> byChrom = (a, b) -> {
+			String ca = a[0];
+			String cb = b[0];
+			Integer ia = parseChromInt(ca);
+			Integer ib = parseChromInt(cb);
+			if (ia != null && ib != null) {
+				return Integer.compare(ia, ib);
+			}
+			if (ia != null) {
+				return -1;
+			}
+			if (ib != null) {
+				return 1;
+			}
+			return ca.compareTo(cb);
+		};
+		Collections.sort(tuples, byChrom);
+
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < tuples.size(); i++) {
+			String[] t = tuples.get(i);
+			if (i > 0) {
+				sb.append("\n");
+			}
+			sb.append("##contig=<ID=").append(t[0])
+					.append(",assembly=").append(t[1])
+					.append(",species=\"").append(t[2]).append("\">");
+		}
+		return sb.toString();
+	}
+
+	private static Integer parseChromInt(String s) {
+		if (s == null || s.isEmpty()) {
+			return null;
+		}
+		try {
+			return Integer.valueOf(s);
+		} catch (NumberFormatException e) {
+			return null;
+		}
 	}
 
 	@Override

@@ -13,6 +13,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.GZIPOutputStream;
@@ -42,30 +43,66 @@ public class VcfWriter implements RowWriter {
 	private long rowCount;
 
 	public VcfWriter(Path path, Map<String, String> fieldMap) throws IOException {
+		this(path, fieldMap, Map.of());
+	}
+
+	public VcfWriter(Path path, Map<String, String> fieldMap, Map<String, String> headerSubstitutions) throws IOException {
 		this.path = path;
 		this.esPaths = new ArrayList<>(fieldMap.values());
 		Files.createDirectories(path.getParent());
 		this.writer = new BufferedWriter(new OutputStreamWriter(new GZIPOutputStream(Files.newOutputStream(path)), StandardCharsets.UTF_8));
-		writer.write(loadVcfHeaderTemplate());
+		writer.write(loadVcfHeaderTemplate(headerSubstitutions));
 		writer.write(COLUMN_HEADER);
 		writer.write("\n");
 	}
 
-	private static String loadVcfHeaderTemplate() throws IOException {
+	private static String loadVcfHeaderTemplate(Map<String, String> extraSubstitutions) throws IOException {
 		try (InputStream in = VcfWriter.class.getClassLoader().getResourceAsStream("vcf_header_template.txt")) {
 			if (in == null) {
 				throw new IOException("vcf_header_template.txt resource missing");
 			}
+			Map<String, String> subs = new LinkedHashMap<>();
+			subs.put("{fileDate}", ZonedDateTime.now(ZoneOffset.UTC).format(FILE_DATE_FMT));
+			if (extraSubstitutions != null) {
+				for (Map.Entry<String, String> e : extraSubstitutions.entrySet()) {
+					subs.put(e.getKey(), e.getValue() == null ? "" : e.getValue());
+				}
+			}
 			StringBuilder sb = new StringBuilder();
 			try (BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))) {
-				String fileDate = ZonedDateTime.now(ZoneOffset.UTC).format(FILE_DATE_FMT);
 				String line;
 				while ((line = reader.readLine()) != null) {
-					sb.append(line.replace("{fileDate}", fileDate)).append("\n");
+					String replaced = applySubstitutions(line, subs);
+					// A template line that is JUST a placeholder substituting to empty is dropped entirely so the header has no orphan blank line.
+					if (isWhollyEmptiedPlaceholderLine(line, subs, replaced)) {
+						continue;
+					}
+					sb.append(replaced).append("\n");
 				}
 			}
 			return sb.toString();
 		}
+	}
+
+	private static String applySubstitutions(String line, Map<String, String> subs) {
+		String out = line;
+		for (Map.Entry<String, String> e : subs.entrySet()) {
+			out = out.replace(e.getKey(), e.getValue());
+		}
+		return out;
+	}
+
+	private static boolean isWhollyEmptiedPlaceholderLine(String original, Map<String, String> subs, String replaced) {
+		if (!replaced.isEmpty()) {
+			return false;
+		}
+		String trimmed = original.trim();
+		for (Map.Entry<String, String> e : subs.entrySet()) {
+			if (trimmed.equals(e.getKey()) && e.getValue().isEmpty()) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Override

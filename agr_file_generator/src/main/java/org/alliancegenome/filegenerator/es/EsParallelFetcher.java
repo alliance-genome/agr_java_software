@@ -51,6 +51,18 @@ public class EsParallelFetcher {
 		return 0;
 	}
 
+	/**
+	 * Run an arbitrary `_search` body against this fetcher's index. Used for one-shot pre-pass aggregations (e.g. the VCF generator's contig enumeration). Returns the raw response or null on failure.
+	 */
+	public Map<String, Object> search(Map<String, Object> body) {
+		try {
+			return es.search(index, body);
+		} catch (Exception e) {
+			log.warn("search() failed on {}: {}", index, e.getMessage());
+			return null;
+		}
+	}
+
 	public void forEach(int threadCount, int bufferSize, Consumer<JsonNode> consumer) {
 		forEach(threadCount, bufferSize, null, consumer);
 	}

@@ -31,4 +31,10 @@ public interface EsRestInterface {
 	Map<String, Object> count(
 			@PathParam("index") String index,
 			Map<String, Object> body);
+
+	@POST
+	@Path("/{index}/_search")
+	Map<String, Object> search(
+			@PathParam("index") String index,
+			Map<String, Object> body);
 }
