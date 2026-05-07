@@ -24,7 +24,6 @@ public class TsvWriter implements RowWriter {
 		Files.createDirectories(path.getParent());
 		this.writer = new BufferedWriter(new OutputStreamWriter(new GZIPOutputStream(Files.newOutputStream(path)), StandardCharsets.UTF_8));
 		writer.write(headerText);
-		writer.write("\n");
 		writer.write(String.join("\t", fieldMap.keySet()));
 		writer.write("\n");
 	}
