@@ -26,3 +26,4 @@
 ##INFO=<ID=allele_of_transcript_gff3_names,Number=.,Type=String,Description="The transcript gff3 Names that the Allele is located on">
 ##phasing=partial
 ##source=AGR VCF File generator
+{contigLines}
