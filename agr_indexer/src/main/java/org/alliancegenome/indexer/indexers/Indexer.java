@@ -15,6 +15,7 @@ import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.util.StatsCollector;
 import org.alliancegenome.curation_api.model.document.es.ESDocument;
 import org.alliancegenome.curation_api.model.entities.Species;
+import org.alliancegenome.curation_api.model.entities.base.AuditedObject;
 import org.alliancegenome.es.rest.RestConfig;
 import org.alliancegenome.es.util.EsClientFactory;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
@@ -72,6 +73,7 @@ public abstract class Indexer extends Thread {
 
 		om.setSerializationInclusion(Include.NON_NULL);
 		om = customizeObjectMapper(om);
+		om.addMixIn(AuditedObject.class, AuditedObjectIndexerMixin.class);
 
 		searchClient = EsClientFactory.getMustCloseSearchClient();
 		log.info(getClass().getSimpleName() + " ES client created: " + System.identityHashCode(searchClient));
