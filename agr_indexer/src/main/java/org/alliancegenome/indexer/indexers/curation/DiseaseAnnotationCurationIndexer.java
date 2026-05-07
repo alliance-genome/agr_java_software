@@ -42,10 +42,10 @@ import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
 import org.alliancegenome.indexer.indexers.curation.service.AGMDiseaseAnnotationService;
 import org.alliancegenome.indexer.indexers.curation.service.AlleleDiseaseAnnotationService;
+import org.alliancegenome.indexer.indexers.curation.service.DoTermService;
 import org.alliancegenome.indexer.indexers.curation.service.GeneDiseaseAnnotationService;
 import org.alliancegenome.indexer.indexers.curation.service.VocabularyTermService;
 
-import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -92,8 +92,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		alleleService = new AlleleDiseaseAnnotationService();
 		agmService = new AGMDiseaseAnnotationService();
 		vocabTermService = new VocabularyTermService();
-		DiseaseRepository diseaseRepository = new DiseaseRepository();
-		closureMap = diseaseRepository.getDOClosureChildMapping();
+		closureMap = new DoTermService().getClosureMap();
 
 		indexGenes();
 		indexAlleles();
@@ -115,7 +114,6 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		log.info("Indexing " + agmList.size() + " agm documents");
 		indexDocuments(agmList);
 		log.info("Finished Indexing Disease Annotations");
-		diseaseRepository.close();
 	}
 
 	private void createDiseaseAnnotationsFromOrthology() {

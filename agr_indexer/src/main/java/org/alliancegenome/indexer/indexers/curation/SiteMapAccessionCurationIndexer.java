@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.core.util.ListUtils;
 import org.alliancegenome.curation_api.interfaces.document.AccessionDocumentInterface;
 import org.alliancegenome.curation_api.model.document.es.AccessionSummaryDocument;
 import org.alliancegenome.es.rest.RestConfig;
@@ -32,7 +33,7 @@ public class SiteMapAccessionCurationIndexer extends Indexer {
 
 			Map<String, List<String>> map = document.getIdsByType();
 
-			List<List<String>> alleleIdLists = partition(map.get("allele"), 15000);
+			List<List<String>> alleleIdLists = ListUtils.partition(map.get("allele"), 15000);
 
 			for (int i = 0; i < alleleIdLists.size(); i++) {
 				SiteMapIdDocument doc = new SiteMapIdDocument();
@@ -44,7 +45,7 @@ public class SiteMapAccessionCurationIndexer extends Indexer {
 				indexDocument(doc);
 			}
 
-			List<List<String>> geneIdLists = partition(map.get("gene"), 15000);
+			List<List<String>> geneIdLists = ListUtils.partition(map.get("gene"), 15000);
 
 			for (int i = 0; i < geneIdLists.size(); i++) {
 				SiteMapIdDocument doc = new SiteMapIdDocument();
@@ -56,7 +57,7 @@ public class SiteMapAccessionCurationIndexer extends Indexer {
 				indexDocument(doc);
 			}
 
-			List<List<String>> variantIdLists = partition(map.get("variant"), 15000);
+			List<List<String>> variantIdLists = ListUtils.partition(map.get("variant"), 15000);
 
 			for (int i = 0; i < variantIdLists.size(); i++) {
 				SiteMapIdDocument doc = new SiteMapIdDocument();
@@ -68,7 +69,7 @@ public class SiteMapAccessionCurationIndexer extends Indexer {
 				indexDocument(doc);
 			}
 
-			List<List<String>> diseaseIdLists = partition(map.get("disease"), 15000);
+			List<List<String>> diseaseIdLists = ListUtils.partition(map.get("disease"), 15000);
 
 			for (int i = 0; i < diseaseIdLists.size(); i++) {
 				SiteMapIdDocument doc = new SiteMapIdDocument();
