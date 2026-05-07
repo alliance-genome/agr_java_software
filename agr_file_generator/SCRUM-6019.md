@@ -79,11 +79,9 @@ Static `vcf_header_template.txt` resource carries:
 
 Followed by the column header line `#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO`.
 
-**Missing vs FMS:** the FMS file has `##contig=<ID=…,assembly=…,species="…">` lines
-between `##source` and the column header — one per chromosome encountered in the data.
-Generating these requires either a pre-pass to enumerate chromosomes or buffering rows
-until close. Deferred — VCF still validates without them; the assembly is implicit by
-filename.
+**`##contig=…` lines:** emitted between `##source=` and the column header. Per-MOD pre-pass runs one ES `_search` (size=0) with a `multi_terms` aggregation over (chrom, assembly, species), filtered by category=variant_summary AND a prefix match on `allele.primaryExternalId.keyword` for the MOD. Buckets are sorted numeric-chrom-first then lexical, and rendered as `##contig=<ID=<chrom>,assembly=<asm>,species="<spp>">`. Empty data for a MOD yields an empty `{contigLines}` substitution and the placeholder line is dropped from the header.
+
+The chrom and assembly fields are not currently mapped on existing 64K docs — `Mapping.java` was extended to add keyword mappings on `variantList.curatedVariantGenomicLocations.variantGenomicLocationAssociationObject.name`, `variantList.curatedVariantGenomicLocations.variantGenomicLocationAssociationObject.genomeAssembly.primaryExternalId`, and `allele.taxon.name`. **The site index must be reindexed for these mappings to take effect on existing docs**; until reindex, the multi_terms aggregation returns zero buckets and the contig block is empty (which the writer cleanly drops).
 
 ## Performance tuning for VCF
 
@@ -129,22 +127,18 @@ Matches FMS row shape: tab-separated columns, semicolon-separated INFO with `key
 | 14 `##INFO` lines | OK |
 | `##phasing=partial` | OK |
 | `##source=AGR VCF File generator` | OK |
-| `##contig=…` per-chromosome lines | **Missing** — deferred (would require pre-pass or buffered close) |
+| `##contig=…` per-chromosome lines | OK — emitted via per-MOD pre-pass `multi_terms` agg (requires reindex against new mappings to populate) |
 | Column header (`#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO`) | OK |
 | Empty cells render as `.` per spec | OK |
 | Tab-separated 8-column rows | OK |
 
 ## Outstanding follow-ups
 
-1. **`##contig=<ID=…>` lines** — would require either a pre-pass to enumerate chromosomes
-   per assembly or buffered close. Most VCF tooling tolerates their absence; the assembly is
-   already implicit in the filename and embedded in the `ID` column (HGVS) values like
-   `NC_000073.7:…`. Cosmetic gap, low priority.
-2. **`allele_of_transcript_gff3_ids` / `_names`** — currently empty. Field paths
+1. **`allele_of_transcript_gff3_ids` / `_names`** — currently empty. Field paths
    (`variantTranscript.modCrossRefCompleteUrl`, `variantTranscript.displayName`) don't
    resolve on the doc — likely a different path or fields not indexed. Worth a closer look
    at `Transcript` entity to find the canonical mapping.
-3. **FB volume** — alpha curation has fewer FB variants than prod did (15K vs 50K).
+2. **FB volume** — alpha curation has fewer FB variants than prod did (15K vs 50K).
    Upstream curation data state, not a generator bug.
 
 ## Reused framework features

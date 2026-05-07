@@ -8,8 +8,7 @@ import org.alliancegenome.filegenerator.generators.DiseaseFileGenerator;
 import org.alliancegenome.filegenerator.generators.ExpressionFileGenerator;
 import org.alliancegenome.filegenerator.generators.FileGenerator;
 import org.alliancegenome.filegenerator.generators.GeneDescriptionFileGenerator;
-import org.alliancegenome.filegenerator.generators.GeneticInteractionFileGenerator;
-import org.alliancegenome.filegenerator.generators.MolecularInteractionFileGenerator;
+import org.alliancegenome.filegenerator.generators.GeneFileGenerator;
 import org.alliancegenome.filegenerator.generators.OrthologyFileGenerator;
 import org.alliancegenome.filegenerator.generators.VariantAlleleFileGenerator;
 import org.alliancegenome.filegenerator.generators.VariantVcfFileGenerator;
@@ -29,6 +28,24 @@ public enum FileGeneratorConfig {
 			geneDescriptionFieldMap(),
 			"readmes/gene_descriptions.txt",
 			GeneDescriptionFileGenerator.class,
+			1000,
+			8
+	),
+
+	Gene(
+			"Gene",
+			"GENE",
+			List.of("gene_summary"),
+			List.of(
+					new OutputSpec(Format.TSV, SplitMode.TAXON),
+					new OutputSpec(Format.TSV, SplitMode.COMBINED),
+					new OutputSpec(Format.JSON_RAW, SplitMode.TAXON),
+					new OutputSpec(Format.JSON_RAW, SplitMode.COMBINED)
+			),
+			List.of("FB", "MGI", "RGD", "SGD", "WB", "XBXL", "XBXT", "ZFIN"),
+			geneFieldMap(),
+			"readmes/gene.txt",
+			GeneFileGenerator.class,
 			1000,
 			8
 	),
@@ -81,38 +98,6 @@ public enum FileGeneratorConfig {
 			orthologyFieldMap(),
 			"readmes/orthology.txt",
 			OrthologyFileGenerator.class,
-			1000,
-			8
-	),
-
-	MolecularInteractions(
-			"Molecular Interactions",
-			"INTERACTION-MOL",
-			List.of("gene_molecular_interaction"),
-			List.of(
-					new OutputSpec(Format.PSI_MI_TAB, SplitMode.TAXON),
-					new OutputSpec(Format.PSI_MI_TAB, SplitMode.COMBINED)
-			),
-			List.of("FB", "HUMAN", "MGI", "RGD", "SARS-CoV-2", "SGD", "WB", "XBXL", "XBXT", "ZFIN"),
-			interactionFieldMap(),
-			"readmes/molecular_interactions.txt",
-			MolecularInteractionFileGenerator.class,
-			1000,
-			8
-	),
-
-	GeneticInteractions(
-			"Genetic Interactions",
-			"INTERACTION-GEN",
-			List.of("gene_genetic_interaction"),
-			List.of(
-					new OutputSpec(Format.PSI_MI_TAB, SplitMode.TAXON),
-					new OutputSpec(Format.PSI_MI_TAB, SplitMode.COMBINED)
-			),
-			List.of("FB", "HUMAN", "MGI", "RGD", "SGD", "WB", "XBXL", "ZFIN"),
-			interactionFieldMap(),
-			"readmes/genetic_interactions.txt",
-			GeneticInteractionFileGenerator.class,
 			1000,
 			8
 	),
@@ -225,60 +210,6 @@ public enum FileGeneratorConfig {
 	}
 
 	/**
-	 * PSI-MI TAB 2.7 field map shared by Molecular and Genetic interactions. The 42 columns are
-	 * the standard PSI-MITAB layout. Most cells are formatted PSI-MI strings (e.g.
-	 * `psi-mi:"MI:XXXX"(name)`, `taxid:N(species)`, `pubmed:N`) — those are built in
-	 * {@code BaseInteractionFileGenerator.customizeRow()} and exposed via synthetic `_*` fields.
-	 * Columns we don't (yet) populate from ES use "_unavailable" and render as `-` per spec.
-	 */
-	private static Map<String, String> interactionFieldMap() {
-		Map<String, String> m = new LinkedHashMap<>();
-		m.put("ID(s) interactor A", "_idA");
-		m.put("ID(s) interactor B", "_idB");
-		m.put("Alt. ID(s) interactor A", "_unavailable");
-		m.put("Alt. ID(s) interactor B", "_unavailable");
-		m.put("Alias(es) interactor A", "_aliasA");
-		m.put("Alias(es) interactor B", "_aliasB");
-		m.put("Interaction detection method(s)", "_detectionMethod");
-		m.put("Publication 1st author(s)", "_author");
-		m.put("Publication Identifier(s)", "_pubmed");
-		m.put("Taxid interactor A", "_taxidA");
-		m.put("Taxid interactor B", "_taxidB");
-		m.put("Interaction type(s)", "_interactionType");
-		m.put("Source database(s)", "_sourceDatabase");
-		m.put("Interaction identifier(s)", "_interactionId");
-		m.put("Confidence value(s)", "_unavailable");
-		m.put("Expansion method(s)", "_unavailable");
-		m.put("Biological role(s) interactor A", "_unavailable");
-		m.put("Biological role(s) interactor B", "_unavailable");
-		m.put("Experimental role(s) interactor A", "_expRoleA");
-		m.put("Experimental role(s) interactor B", "_expRoleB");
-		m.put("Type(s) interactor A", "_typeA");
-		m.put("Type(s) interactor B", "_typeB");
-		m.put("Xref(s) interactor A", "_unavailable");
-		m.put("Xref(s) interactor B", "_unavailable");
-		m.put("Interaction Xref(s)", "_unavailable");
-		m.put("Annotation(s) interactor A", "_unavailable");
-		m.put("Annotation(s) interactor B", "_unavailable");
-		m.put("Interaction annotation(s)", "_unavailable");
-		m.put("Host organism(s)", "_unavailable");
-		m.put("Interaction parameter(s)", "_unavailable");
-		m.put("Creation date", "_creationDate");
-		m.put("Update date", "_updateDate");
-		m.put("Checksum(s) interactor A", "_unavailable");
-		m.put("Checksum(s) interactor B", "_unavailable");
-		m.put("Interaction Checksum(s)", "_unavailable");
-		m.put("Negative", "_negative");
-		m.put("Feature(s) interactor A", "_unavailable");
-		m.put("Feature(s) interactor B", "_unavailable");
-		m.put("Stoichiometry(s) interactor A", "_unavailable");
-		m.put("Stoichiometry(s) interactor B", "_unavailable");
-		m.put("Identification method participant A", "_unavailable");
-		m.put("Identification method participant B", "_unavailable");
-		return m;
-	}
-
-	/**
 	 * Orthology field map. 13 columns matching the FMS layout. Synthetic fields
 	 * (`_algorithms`, `_algorithmsMatch`, `_outOfAlgorithms`) are built in
 	 * {@code OrthologyFileGenerator.customizeRow()}.
@@ -368,6 +299,33 @@ public enum FileGeneratorConfig {
 	}
 
 	/**
+	 * Gene field map. Source: gene_summary in site_index. List-valued cells (synonyms,
+	 * secondary IDs, cross references) are pipe-joined in {@code GeneFileGenerator.customizeRow()}.
+	 * Genome location uses the first entry of {@code geneGenomicLocationAssociations}.
+	 */
+	private static Map<String, String> geneFieldMap() {
+		Map<String, String> m = new LinkedHashMap<>();
+		m.put("Taxon", "gene.taxon.curie");
+		m.put("SpeciesName", "gene.taxon.name");
+		m.put("GeneId", "gene.primaryExternalId");
+		m.put("GeneSymbol", "gene.geneSymbol.displayText");
+		m.put("GeneSynonyms", "_geneSynonyms");
+		m.put("GeneSystematicName", "gene.geneSystematicName.displayText");
+		m.put("GeneSecondaryIds", "_geneSecondaryIds");
+		m.put("GeneCrossReferences", "_geneCrossReferences");
+		m.put("GeneBioTypeId", "gene.geneType.curie");
+		m.put("GeneBioTypeName", "gene.geneType.name");
+		m.put("GeneAutomatedDescription", "_automatedDescription");
+		m.put("GeneMODDescription", "_modDescription");
+		m.put("Assembly", "_assembly");
+		m.put("Chromosome", "gene.geneGenomicLocationAssociations.0.geneGenomicLocationAssociationObject.name");
+		m.put("StartPosition", "gene.geneGenomicLocationAssociations.0.start");
+		m.put("EndPosition", "gene.geneGenomicLocationAssociations.0.end");
+		m.put("Strand", "gene.geneGenomicLocationAssociations.0.strand");
+		return m;
+	}
+
+	/**
 	 * Disease field map. Columns whose ES source is not currently indexed map to "_unavailable"
 	 * (rendered as empty cell). Columns derived from the doc category, from arrays, or that
 	 * need transformation (date format, picking PMID over MOD curie) point at synthetic fields
@@ -397,13 +355,7 @@ public enum FileGeneratorConfig {
 	}
 
 	/**
-	 * Expression field map. Columns whose ES source is not currently indexed map to
-	 * "_unavailable" — JsonPath returns "" for that, so the cell is rendered blank.
-	 *
-	 * Known gap: cellularComponent, sub-structure, and anatomy terms live under
-	 * geneExpressionAnnotation.expressionPattern.whereExpressed.* on the entity, but the
-	 * curation API's GeneExpressionDocument JsonView does not include `whereExpressed`,
-	 * so those 12 columns can't be populated from ES today.
+	 * Expression field map. Anatomy / sub-structure / cellular-component term IDs and names come straight off whereExpressed; the six qualifier list columns are pipe-joined inside ExpressionFileGenerator.customizeRow() into synthetic fields.
 	 */
 	private static Map<String, String> expressionFieldMap() {
 		Map<String, String> m = new LinkedHashMap<>();
@@ -415,23 +367,22 @@ public enum FileGeneratorConfig {
 		m.put("StageTerm", "geneExpressionAnnotation.whenExpressedStageName");
 		m.put("AssayID", "geneExpressionAnnotation.expressionAssayUsed.curie");
 		m.put("AssayTermName", "geneExpressionAnnotation.expressionAssayUsed.name");
-		m.put("CellularComponentID", "_unavailable");
-		m.put("CellularComponentTerm", "_unavailable");
-		m.put("CellularComponentQualifierIDs", "_unavailable");
-		m.put("CellularComponentQualifierTermNames", "_unavailable");
-		m.put("SubStructureID", "_unavailable");
-		m.put("SubStructureName", "_unavailable");
-		m.put("SubStructureQualifierIDs", "_unavailable");
-		m.put("SubStructureQualifierTermNames", "_unavailable");
-		m.put("AnatomyTermID", "_unavailable");
-		m.put("AnatomyTermName", "_unavailable");
-		m.put("AnatomyTermQualifierIDs", "_unavailable");
-		m.put("AnatomyTermQualifierTermNames", "_unavailable");
-		// SourceURL is built from the first crossReference's urlTemplate + referencedCurie
-		// inside ExpressionFileGenerator.customizeRow(); this path resolves the synthetic field.
+		m.put("CellularComponentID", "geneExpressionAnnotation.expressionPattern.whereExpressed.cellularComponentTerm.curie");
+		m.put("CellularComponentTerm", "geneExpressionAnnotation.expressionPattern.whereExpressed.cellularComponentTerm.name");
+		m.put("CellularComponentQualifierIDs", "_cellularComponentQualifierIds");
+		m.put("CellularComponentQualifierTermNames", "_cellularComponentQualifierNames");
+		m.put("SubStructureID", "geneExpressionAnnotation.expressionPattern.whereExpressed.anatomicalSubstructure.curie");
+		m.put("SubStructureName", "geneExpressionAnnotation.expressionPattern.whereExpressed.anatomicalSubstructure.name");
+		m.put("SubStructureQualifierIDs", "_subStructureQualifierIds");
+		m.put("SubStructureQualifierTermNames", "_subStructureQualifierNames");
+		m.put("AnatomyTermID", "geneExpressionAnnotation.expressionPattern.whereExpressed.anatomicalStructure.curie");
+		m.put("AnatomyTermName", "geneExpressionAnnotation.expressionPattern.whereExpressed.anatomicalStructure.name");
+		m.put("AnatomyTermQualifierIDs", "_anatomyQualifierIds");
+		m.put("AnatomyTermQualifierTermNames", "_anatomyQualifierNames");
+		// SourceURL is built from the first crossReference's urlTemplate + referencedCurie inside ExpressionFileGenerator.customizeRow(); this path resolves the synthetic field.
 		m.put("SourceURL", "_sourceUrl");
 		m.put("Source", "geneExpressionAnnotation.dataProvider.abbreviation");
-		m.put("Reference", "geneExpressionAnnotation.evidenceItem.curie");
+		m.put("Reference", "referenceId.0");
 		return m;
 	}
 }
