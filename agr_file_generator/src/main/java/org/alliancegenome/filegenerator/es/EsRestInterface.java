@@ -3,6 +3,7 @@ package org.alliancegenome.filegenerator.es;
 import java.util.Map;
 
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -37,4 +38,8 @@ public interface EsRestInterface {
 	Map<String, Object> search(
 			@PathParam("index") String index,
 			Map<String, Object> body);
+
+	@DELETE
+	@Path("/_search/scroll")
+	Map<String, Object> clearScroll(Map<String, Object> body);
 }
