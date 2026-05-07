@@ -6,7 +6,6 @@ public enum Format {
 	TXT("TXT", "txt", "txt"),
 	JSON_RAW("JSON", "json", "json"),
 	JSON_MAPPED("JSON", "json", "json"),
-	PSI_MI_TAB("TSV", "tsv", "PSI-MI TAB 2.7 Format"),
 	VCF("VCF", "vcf", "vcf"),
 	GFF("GFF", "gff", "gff");
 
