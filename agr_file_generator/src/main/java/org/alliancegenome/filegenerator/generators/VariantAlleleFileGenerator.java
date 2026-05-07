@@ -85,6 +85,7 @@ public class VariantAlleleFileGenerator extends FileGenerator {
 		List<String> consequences = new ArrayList<>();
 		List<String> affectedGeneIds = new ArrayList<>();
 		List<String> affectedGeneSymbols = new ArrayList<>();
+		List<String> referenceCuries = new ArrayList<>();
 
 		if (variantList != null && variantList.isArray()) {
 			for (JsonNode v : variantList) {
@@ -93,12 +94,51 @@ public class VariantAlleleFileGenerator extends FileGenerator {
 				addIfPresent(variantTypeIds, v.path("variantType").path("curie").asText(""));
 				addIfPresent(variantTypeNames, v.path("variantType").path("name").asText(""));
 
+				// VariantInformationReference — for each reference, pipe-join MOD paper curie + PMID (in that order). Skips DOI / PMCID / etc.
+				JsonNode refs = v.path("references");
+				if (refs.isArray()) {
+					for (JsonNode r : refs) {
+						JsonNode xrefs = r.path("crossReferences");
+						if (xrefs.isArray()) {
+							List<String> ordered = new ArrayList<>();
+							String pmid = null;
+							for (JsonNode x : xrefs) {
+								String c = x.path("referencedCurie").asText("");
+								if (c.isEmpty()) {
+									continue;
+								}
+								if (c.startsWith("PMID:")) {
+									pmid = c;
+								} else if (isPaperCurie(c)) {
+									ordered.add(c);
+								}
+							}
+							if (pmid != null) {
+								ordered.add(pmid);
+							}
+							if (!ordered.isEmpty()) {
+								referenceCuries.add(String.join("|", ordered));
+							}
+						}
+					}
+				}
+
 				JsonNode locs = v.path("curatedVariantGenomicLocations");
 				if (locs.isArray()) {
 					for (JsonNode loc : locs) {
-						addIfPresent(hgvsNames, loc.path("hgvs").asText(""));
+						String hgvs = loc.path("hgvs").asText("");
+						String chromName = loc.path("variantGenomicLocationAssociationObject").path("name").asText("");
+						addIfPresent(hgvsNames, hgvs);
 						addIfPresent(assemblies, loc.path("variantGenomicLocationAssociationObject").path("genomeAssembly").path("primaryExternalId").asText(""));
-						addIfPresent(chromosomes, loc.path("variantGenomicLocationAssociationObject").path("name").asText(""));
+						addIfPresent(chromosomes, chromName);
+						// VariantSynonyms = RefSeq-form hgvs + chromosome-level form (RefSeq accession swapped for chromosome name).
+						if (!hgvs.isEmpty()) {
+							addIfPresent(variantSynonyms, hgvs);
+							int colonIdx = hgvs.indexOf(':');
+							if (!chromName.isEmpty() && colonIdx > 0) {
+								addIfPresent(variantSynonyms, chromName + hgvs.substring(colonIdx));
+							}
+						}
 						String s = loc.path("start").asText("");
 						String e = loc.path("end").asText("");
 						addIfPresent(startPositions, s);
@@ -141,12 +181,26 @@ public class VariantAlleleFileGenerator extends FileGenerator {
 		obj.put("_mostSevereConsequence", joinList(dedup(consequences)));
 		obj.put("_variantAffectedGeneId", joinList(dedup(affectedGeneIds)));
 		obj.put("_variantAffectedGeneSymbol", joinList(dedup(affectedGeneSymbols)));
+		// Between references: comma-join (matches FMS); within a reference, MOD curie and PMID are pipe-joined.
+		List<String> uniqueRefs = dedup(referenceCuries);
+		obj.put("_variantInformationReference", uniqueRefs.isEmpty() ? "" : String.join(",", uniqueRefs));
 
 		// HasDisease / HasPhenotype: FMS uses "yes"/"-" not "true"/"false".
 		obj.put("_hasDisease", boolToYesDash(hit.path("hasDisease")));
 		obj.put("_hasPhenotype", boolToYesDash(hit.path("hasPhenotype")));
 
 		return hit;
+	}
+
+	// Cross-reference prefixes that count as a paper identifier per ReferenceConstants.primaryXrefOrder; everything else (DOI, PMCID, ISBN, ...) is skipped.
+	private static final Set<String> PAPER_PREFIXES = Set.of("PMID", "FB", "MGI", "RGD", "SGD", "WB", "XB", "ZFIN");
+
+	private static boolean isPaperCurie(String curie) {
+		int idx = curie.indexOf(':');
+		if (idx <= 0) {
+			return false;
+		}
+		return PAPER_PREFIXES.contains(curie.substring(0, idx));
 	}
 
 	private static String boolToYesDash(JsonNode v) {

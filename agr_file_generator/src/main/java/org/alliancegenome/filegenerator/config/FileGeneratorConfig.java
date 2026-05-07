@@ -319,7 +319,7 @@ public enum FileGeneratorConfig {
 		m.put("VariantId", "_variantId");
 		m.put("VariantSymbol", "_variantSymbol");
 		m.put("VariantSynonyms", "_variantSynonyms");
-		m.put("VariantCrossReferences", "_unavailable");
+		m.put("VariantCrossReferences", "allele.primaryExternalId");
 		m.put("AlleleAssociatedGeneId", "alleleOfGene.primaryExternalId");
 		m.put("AlleleAssociatedGeneSymbol", "alleleOfGene.geneSymbol.displayText");
 		m.put("VariantAffectedGeneId", "_variantAffectedGeneId");
@@ -335,7 +335,7 @@ public enum FileGeneratorConfig {
 		m.put("SequenceOfReference", "_sequenceOfReference");
 		m.put("SequenceOfVariant", "_sequenceOfVariant");
 		m.put("MostSevereConsequenceName", "_mostSevereConsequence");
-		m.put("VariantInformationReference", "_unavailable");
+		m.put("VariantInformationReference", "_variantInformationReference");
 		m.put("HasDiseaseAnnotations", "_hasDisease");
 		m.put("HasPhenotypeAnnotations", "_hasPhenotype");
 		return m;
