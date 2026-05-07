@@ -243,6 +243,13 @@ public abstract class FileGenerator extends Thread {
 		return List.of();
 	}
 
+	/**
+	 * Per-MOD header placeholder substitutions for format templates that support them (currently VCF only). Default empty so existing generators are unaffected. VCF generator overrides this to emit `{contigLines}` per MOD via a one-shot ES aggregation.
+	 */
+	protected Map<String, String> headerSubstitutions(String mod) {
+		return Map.of();
+	}
+
 	/** Stringency filter value for the JSON metadata header. Null means "not applicable" for this generator. */
 	protected String stringencyFilter() {
 		return null;
@@ -306,7 +313,7 @@ public abstract class FileGenerator extends Thread {
 				return new JsonMappedWriter(path, meta, config.getFieldMap());
 			}
 			case VCF: {
-				return new VcfWriter(path, config.getFieldMap());
+				return new VcfWriter(path, config.getFieldMap(), headerSubstitutions(subtype));
 			}
 			default:
 				throw new UnsupportedOperationException("Format not yet supported: " + spec.format());
