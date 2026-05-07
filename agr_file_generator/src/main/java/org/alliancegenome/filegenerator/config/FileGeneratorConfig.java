@@ -8,6 +8,7 @@ import org.alliancegenome.filegenerator.generators.DiseaseFileGenerator;
 import org.alliancegenome.filegenerator.generators.ExpressionFileGenerator;
 import org.alliancegenome.filegenerator.generators.FileGenerator;
 import org.alliancegenome.filegenerator.generators.GeneDescriptionFileGenerator;
+import org.alliancegenome.filegenerator.generators.GeneFileGenerator;
 import org.alliancegenome.filegenerator.generators.OrthologyFileGenerator;
 import org.alliancegenome.filegenerator.generators.VariantAlleleFileGenerator;
 import org.alliancegenome.filegenerator.generators.VariantVcfFileGenerator;
@@ -27,6 +28,24 @@ public enum FileGeneratorConfig {
 			geneDescriptionFieldMap(),
 			"readmes/gene_descriptions.txt",
 			GeneDescriptionFileGenerator.class,
+			1000,
+			8
+	),
+
+	Gene(
+			"Gene",
+			"GENE",
+			List.of("gene_summary"),
+			List.of(
+					new OutputSpec(Format.TSV, SplitMode.TAXON),
+					new OutputSpec(Format.TSV, SplitMode.COMBINED),
+					new OutputSpec(Format.JSON_RAW, SplitMode.TAXON),
+					new OutputSpec(Format.JSON_RAW, SplitMode.COMBINED)
+			),
+			List.of("FB", "MGI", "RGD", "SGD", "WB", "XBXL", "XBXT", "ZFIN"),
+			geneFieldMap(),
+			"readmes/gene.txt",
+			GeneFileGenerator.class,
 			1000,
 			8
 	),
@@ -276,6 +295,33 @@ public enum FileGeneratorConfig {
 		m.put("Gene ID", "curie");
 		m.put("Gene Symbol", "symbol");
 		m.put("Gene Description", "geneDescription");
+		return m;
+	}
+
+	/**
+	 * Gene field map. Source: gene_summary in site_index. List-valued cells (synonyms,
+	 * secondary IDs, cross references) are pipe-joined in {@code GeneFileGenerator.customizeRow()}.
+	 * Genome location uses the first entry of {@code geneGenomicLocationAssociations}.
+	 */
+	private static Map<String, String> geneFieldMap() {
+		Map<String, String> m = new LinkedHashMap<>();
+		m.put("Taxon", "gene.taxon.curie");
+		m.put("SpeciesName", "gene.taxon.name");
+		m.put("GeneId", "gene.primaryExternalId");
+		m.put("GeneSymbol", "gene.geneSymbol.displayText");
+		m.put("GeneSynonyms", "_geneSynonyms");
+		m.put("GeneSystematicName", "gene.geneSystematicName.displayText");
+		m.put("GeneSecondaryIds", "_geneSecondaryIds");
+		m.put("GeneCrossReferences", "_geneCrossReferences");
+		m.put("GeneBioTypeId", "gene.geneType.curie");
+		m.put("GeneBioTypeName", "gene.geneType.name");
+		m.put("GeneAutomatedDescription", "_automatedDescription");
+		m.put("GeneMODDescription", "_modDescription");
+		m.put("Assembly", "_assembly");
+		m.put("Chromosome", "gene.geneGenomicLocationAssociations.0.geneGenomicLocationAssociationObject.name");
+		m.put("StartPosition", "gene.geneGenomicLocationAssociations.0.start");
+		m.put("EndPosition", "gene.geneGenomicLocationAssociations.0.end");
+		m.put("Strand", "gene.geneGenomicLocationAssociations.0.strand");
 		return m;
 	}
 
