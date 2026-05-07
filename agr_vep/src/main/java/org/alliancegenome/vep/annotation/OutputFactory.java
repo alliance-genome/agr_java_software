@@ -99,7 +99,12 @@ public class OutputFactory {
 					// VEP TranscriptVariationAllele_to_output_hash (OutputFactory.pm line 1630)
 					CsqEntry entry = transcriptVariationAlleleToOutputHash(transcript, chr, variantStart, variantEnd, vepAllele, vepRef);
 					if (entry != null) {
+						// Perl ProtFuncTranscriptNameHTP line 118:
+					// return unless $tva->variation_feature->{start} eq $tva->variation_feature->{end}
+					// Only look up SIFT/PolyPhen for single-position variants (SNPs).
+					if (variantStart == variantEnd) {
 						addPredictions(entry, transcript);
+					}
 						alleleEntries.add(entry);
 					}
 				}

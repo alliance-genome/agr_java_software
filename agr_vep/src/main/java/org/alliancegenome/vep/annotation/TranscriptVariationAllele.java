@@ -2291,7 +2291,10 @@ public class TranscriptVariationAllele {
 
 		// VEP line 1446-1448: for SNPs in exons, use cds_start directly (avoids _get_cDNA_position).
 		// Perl: if var_class eq 'SNP' && exon && defined cds_start/end
-		boolean isSNP = variantStart == variantEnd && refAllele.length() == 1 && vepAllele.length() == 1 && !"-".equals(refAllele);
+		// Perl hgvs_transcript line 1446: $bvf->var_class eq 'SNP'
+		// Must exclude deletions (vepAllele="-") even when start==end
+		boolean isSNP = variantStart == variantEnd && refAllele.length() == 1 && vepAllele.length() == 1
+			&& !"-".equals(refAllele) && !"-".equals(vepAllele);
 		String startPos;
 		String endPos;
 		if (isSNP && isCoding && cdsPosition > 0) {
