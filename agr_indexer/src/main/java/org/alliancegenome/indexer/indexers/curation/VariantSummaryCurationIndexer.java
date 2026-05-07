@@ -72,6 +72,7 @@ public class VariantSummaryCurationIndexer extends Indexer {
 				String page = queue.takeFirst();
 				
 				SearchResponse<VariantSummaryDocument> response = variantApi.findDocuments(Integer.valueOf(page), indexerConfig.getBufferSize(), params);
+				response.getResults().forEach(VariantSummaryDocument::removeTransportFields);
 				indexDocuments(response.getResults(), CurationView.VariantSummaryDocument.class);
 				
 				List<VariantSearchResultDocument> vsrd = variantSearchResultConverter.convertToVariantSearchDocument(response.getResults());
