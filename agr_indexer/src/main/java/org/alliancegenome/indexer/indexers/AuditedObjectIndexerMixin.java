@@ -17,6 +17,9 @@ public abstract class AuditedObjectIndexerMixin {
 	Boolean internal;
 
 	@JsonIgnore
+	Boolean obsolete;
+
+	@JsonIgnore
 	OffsetDateTime dbDateCreated;
 
 	@JsonIgnore
