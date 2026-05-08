@@ -694,14 +694,21 @@ public class OutputFactory {
 				locationTerms.add("3_prime_UTR_variant");
 			}
 		} else {
-			// Non-coding transcript
-			if (overlapsExon) {
-				locationTerms.add("non_coding_transcript_exon_variant");
-			}
-			// non_coding_transcript_variant: in non-coding transcript intron (not exon)
-			// VEP: within_non_coding_gene = within_transcript AND NOT coding AND NOT exon
-			if (!overlapsExon && (isIntronic || isInAnyIntron(transcript, rangeStart, rangeEnd))) {
-				locationTerms.add("non_coding_transcript_variant");
+			// Non-coding transcript — but ONLY for non-protein_coding biotypes.
+			// Perl include filter (Constants.pm): non_coding_transcript_exon_variant
+			// has 'protein_coding' => 0 — skipped for protein_coding biotype.
+			// A protein_coding transcript with stripped CDS (e.g. CDS doesn't fall
+			// within any exon) still has biotype protein_coding and gets intergenic.
+			boolean isProteinCodingBiotype = "protein_coding".equals(transcript.getBiotype());
+			if (!isProteinCodingBiotype) {
+				if (overlapsExon) {
+					locationTerms.add("non_coding_transcript_exon_variant");
+				}
+				// non_coding_transcript_variant: in non-coding transcript intron (not exon)
+				// VEP: within_non_coding_gene = within_transcript AND NOT coding AND NOT exon
+				if (!overlapsExon && (isIntronic || isInAnyIntron(transcript, rangeStart, rangeEnd))) {
+					locationTerms.add("non_coding_transcript_variant");
+				}
 			}
 		}
 
