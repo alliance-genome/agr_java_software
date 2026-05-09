@@ -794,7 +794,10 @@ public class OutputFactory {
 		// Perl's $pre->{exon} uses _overlapped_exons with SORTED (min,max) coords.
 		// For insertions (VEP start > end), Java's geometric overlap misses boundary
 		// positions. Use BVT cDNA coords as fallback for insertions only.
-		if (entry.getCdnaPosition() == null && !consequence.contains("intergenic_variant")) {
+		// Perl OutputFactory line 1670: cDNA_position populated when pre->{exon}
+		// (regardless of consequence — even intergenic_variant for broken
+		// protein_coding transcripts gets cDNA if variant is in an exon).
+		if (entry.getCdnaPosition() == null) {
 			int cdnaS = bvt.cdnaStart();
 			int cdnaE = bvt.cdnaEnd();
 			if (overlapsExon) {
@@ -812,11 +815,10 @@ public class OutputFactory {
 			}
 		}
 
-		// HGVS — VEP does not generate HGVSc for intergenic entries.
-		// Suppress when variant extends past the transcript's exon span.
-		// Perl's _get_cDNA_position handles intronic positions WITHIN the transcript
-		// (computes intron offsets), so allow partial boundary when both endpoints
-		// are within the transcript's genomic span.
+		// HGVS — Perl OutputFactory line 1696-1701: HGVSc computed for ALL
+		// transcript overlaps, regardless of consequence (even intergenic_variant).
+		// Suppress only when variant extends past the transcript's exon span
+		// (partial boundary where one endpoint maps to cDNA but the other doesn't).
 		boolean partialBoundary = bvt != null
 			&& ((bvt.cdnaStart() <= 0) != (bvt.cdnaEnd() <= 0));
 		if (partialBoundary && transcript.getExons() != null && !transcript.getExons().isEmpty()) {
@@ -828,7 +830,7 @@ public class OutputFactory {
 				partialBoundary = false;
 			}
 		}
-		if (!consequence.contains("intergenic_variant") && !partialBoundary) {
+		if (!partialBoundary) {
 			// For insertions, VEP uses cds_start (higher value) for HGVSc position.
 			// For minus-strand insertions, cdsStart < cdsEnd, so use max.
 			// Prefer BVT coordinates when available (matches Perl: BVT owns positions).
