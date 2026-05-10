@@ -31,6 +31,10 @@ public class HeaderBuilder {
 	}
 
 	public static String buildTextHeader(String filetypeLabel, Format format, String readmeText, Collection<String> taxonCuries, SpeciesLookup species) {
+		return buildTextHeader(filetypeLabel, format, readmeText, taxonCuries, species, List.of());
+	}
+
+	public static String buildTextHeader(String filetypeLabel, Format format, String readmeText, Collection<String> taxonCuries, SpeciesLookup species, List<String> extraHeaderLines) {
 		String genTime = ZonedDateTime.now(ZoneOffset.UTC).format(GEN_TIME_FMT);
 		StringBuilder sb = new StringBuilder();
 		sb.append("##########################################################################\n");
@@ -41,6 +45,13 @@ public class HeaderBuilder {
 		sb.append("# Source: Alliance of Genome Resources (Alliance)\n");
 		sb.append("# Source URL: ").append(SOURCE_URL).append("\n");
 		sb.append("# Help Desk: ").append(HELP_DESK).append("\n");
+		if (extraHeaderLines != null) {
+			for (String line : extraHeaderLines) {
+				if (line != null && !line.isEmpty()) {
+					sb.append("# ").append(line).append("\n");
+				}
+			}
+		}
 		sb.append("# Taxon IDs: ").append(String.join(", ", taxonCuries)).append("\n");
 		sb.append("# Species: ").append(speciesNamesCsv(taxonCuries, species)).append("\n");
 		sb.append("# Alliance Database Version: ").append(databaseVersion()).append("\n");

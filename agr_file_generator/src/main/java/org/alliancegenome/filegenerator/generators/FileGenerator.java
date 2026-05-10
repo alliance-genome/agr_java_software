@@ -280,6 +280,11 @@ public abstract class FileGenerator extends Thread {
 		return null;
 	}
 
+	/** Extra `# ...` lines to inject into the text header block (TSV / TXT) between Help Desk and Taxon IDs. Default empty. Orthology overrides to emit `Orthology Filter: Stringent` to match FMS. */
+	protected List<String> extraHeaderLines() {
+		return List.of();
+	}
+
 	/**
 	 * Builds the ES _source include list from the field map, taxon path, and any extras. Returns
 	 * null when any output requires the full source (JSON_RAW, VCF, GFF) — null tells the fetcher
@@ -317,11 +322,11 @@ public abstract class FileGenerator extends Thread {
 		Path path = outDir.resolve(fileName);
 		switch (spec.format()) {
 			case TSV: {
-				String header = HeaderBuilder.buildTextHeader(config.getFiletypeLabel(), spec.format(), readme, taxonCuries, species);
+				String header = HeaderBuilder.buildTextHeader(config.getFiletypeLabel(), spec.format(), readme, taxonCuries, species, extraHeaderLines());
 				return new TsvWriter(path, header, config.getFieldMap());
 			}
 			case TXT: {
-				String header = HeaderBuilder.buildTextHeader(config.getFiletypeLabel(), spec.format(), readme, taxonCuries, species);
+				String header = HeaderBuilder.buildTextHeader(config.getFiletypeLabel(), spec.format(), readme, taxonCuries, species, extraHeaderLines());
 				return new TxtWriter(path, header, config.getFieldMap());
 			}
 			case JSON_RAW: {

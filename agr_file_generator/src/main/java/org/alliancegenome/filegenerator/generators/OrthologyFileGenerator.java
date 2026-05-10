@@ -56,6 +56,12 @@ public class OrthologyFileGenerator extends FileGenerator {
 		return STRINGENCY;
 	}
 
+	/** Match FMS's `# Orthology Filter: Stringent` line, injected between Help Desk and Taxon IDs. */
+	@Override
+	protected List<String> extraHeaderLines() {
+		return List.of("Orthology Filter: Stringent");
+	}
+
 	/** Pull the entire orthology subtree — synthetic field names in the field map would otherwise strip it. */
 	@Override
 	protected List<String> additionalSourceIncludes() {
