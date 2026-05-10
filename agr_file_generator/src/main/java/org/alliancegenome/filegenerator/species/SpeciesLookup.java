@@ -18,6 +18,7 @@ public class SpeciesLookup {
 
 	private final Map<String, String> taxonToMod = new LinkedHashMap<>();
 	private final Map<String, String> taxonToName = new LinkedHashMap<>();
+	private final Map<String, String> taxonToFullName = new LinkedHashMap<>();
 	private final Map<String, Integer> taxonToOrder = new LinkedHashMap<>();
 	private final Map<String, String> nameToTaxon = new LinkedHashMap<>();
 
@@ -43,6 +44,9 @@ public class SpeciesLookup {
 				taxonToName.put(curie, taxonName);
 				nameToTaxon.put(taxonName, curie);
 			}
+			if (s.getFullName() != null) {
+				taxonToFullName.put(curie, s.getFullName());
+			}
 			// gene_search_result emits species without strain suffix (e.g. "Saccharomyces cerevisiae"
 			// vs taxon name "Saccharomyces cerevisiae S288C"). Register every name variant so the
 			// reverse name -> curie lookup resolves regardless of which form the indexer used.
@@ -66,6 +70,14 @@ public class SpeciesLookup {
 	}
 
 	public String nameFor(String taxonCurie) {
+		return taxonToName.get(taxonCurie);
+	}
+
+	public String fullNameFor(String taxonCurie) {
+		String full = taxonToFullName.get(taxonCurie);
+		if (full != null && !full.isEmpty()) {
+			return full;
+		}
 		return taxonToName.get(taxonCurie);
 	}
 

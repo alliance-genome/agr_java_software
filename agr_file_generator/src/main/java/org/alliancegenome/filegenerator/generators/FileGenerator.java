@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiFunction;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
@@ -285,6 +286,11 @@ public abstract class FileGenerator extends Thread {
 		return List.of();
 	}
 
+	/** Resolves the species display name shown in `# Species:` and JSON metadata. Defaults to {@code SpeciesLookup.fullNameFor} so yeast renders as "Saccharomyces cerevisiae" instead of strain-suffixed "Saccharomyces cerevisiae S288C". HeaderBuilder falls back to the short name when fullName is missing. */
+	protected BiFunction<String, SpeciesLookup, String> speciesNameResolver() {
+		return (curie, lookup) -> lookup == null ? null : lookup.fullNameFor(curie);
+	}
+
 	/**
 	 * Builds the ES _source include list from the field map, taxon path, and any extras. Returns
 	 * null when any output requires the full source (JSON_RAW, VCF, GFF) — null tells the fetcher
@@ -322,19 +328,19 @@ public abstract class FileGenerator extends Thread {
 		Path path = outDir.resolve(fileName);
 		switch (spec.format()) {
 			case TSV: {
-				String header = HeaderBuilder.buildTextHeader(config.getFiletypeLabel(), spec.format(), readme, taxonCuries, species, extraHeaderLines());
+				String header = HeaderBuilder.buildTextHeader(config.getFiletypeLabel(), spec.format(), readme, taxonCuries, species, extraHeaderLines(), speciesNameResolver());
 				return new TsvWriter(path, header, config.getFieldMap());
 			}
 			case TXT: {
-				String header = HeaderBuilder.buildTextHeader(config.getFiletypeLabel(), spec.format(), readme, taxonCuries, species, extraHeaderLines());
+				String header = HeaderBuilder.buildTextHeader(config.getFiletypeLabel(), spec.format(), readme, taxonCuries, species, extraHeaderLines(), speciesNameResolver());
 				return new TxtWriter(path, header, config.getFieldMap());
 			}
 			case JSON_RAW: {
-				Map<String, Object> meta = HeaderBuilder.buildJsonMetadata(config.getFiletypeLabel(), spec.format(), readme, taxonCuries, species, stringencyFilter());
+				Map<String, Object> meta = HeaderBuilder.buildJsonMetadata(config.getFiletypeLabel(), spec.format(), readme, taxonCuries, species, stringencyFilter(), speciesNameResolver());
 				return new JsonRawWriter(path, meta);
 			}
 			case JSON_MAPPED: {
-				Map<String, Object> meta = HeaderBuilder.buildJsonMetadata(config.getFiletypeLabel(), spec.format(), readme, taxonCuries, species, stringencyFilter());
+				Map<String, Object> meta = HeaderBuilder.buildJsonMetadata(config.getFiletypeLabel(), spec.format(), readme, taxonCuries, species, stringencyFilter(), speciesNameResolver());
 				return new JsonMappedWriter(path, meta, config.getFieldMap());
 			}
 			case VCF: {

@@ -115,11 +115,11 @@ public enum FileGeneratorConfig {
 		m.put("Gene1ID", "geneToGeneOrthologyGenerated.subjectGene.primaryExternalId");
 		m.put("Gene1Symbol", "geneToGeneOrthologyGenerated.subjectGene.geneSymbol.displayText");
 		m.put("Gene1SpeciesTaxonID", "geneToGeneOrthologyGenerated.subjectGene.taxon.curie");
-		m.put("Gene1SpeciesName", "geneToGeneOrthologyGenerated.subjectGene.taxon.name");
+		m.put("Gene1SpeciesName", "geneToGeneOrthologyGenerated.subjectGene.taxon.species.fullName");
 		m.put("Gene2ID", "geneToGeneOrthologyGenerated.objectGene.primaryExternalId");
 		m.put("Gene2Symbol", "geneToGeneOrthologyGenerated.objectGene.geneSymbol.displayText");
 		m.put("Gene2SpeciesTaxonID", "geneToGeneOrthologyGenerated.objectGene.taxon.curie");
-		m.put("Gene2SpeciesName", "geneToGeneOrthologyGenerated.objectGene.taxon.name");
+		m.put("Gene2SpeciesName", "geneToGeneOrthologyGenerated.objectGene.taxon.species.fullName");
 		m.put("Algorithms", "_algorithms");
 		m.put("AlgorithmsMatch", "_algorithmsMatch");
 		m.put("OutOfAlgorithms", "_outOfAlgorithms");
