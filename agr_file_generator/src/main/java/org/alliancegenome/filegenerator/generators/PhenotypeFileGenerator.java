@@ -2,6 +2,8 @@ package org.alliancegenome.filegenerator.generators;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.alliancegenome.filegenerator.config.FileGeneratorConfig;
 import org.alliancegenome.filegenerator.writers.JsonPath;
@@ -14,6 +16,9 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class PhenotypeFileGenerator extends FileGenerator {
+
+	// Same primaryAnnotation appears across many consolidated docs. Dedup by the canonical Annotation.uniqueId so each annotation is emitted once per run. dispatch() runs from the parallel scroll pool, so this must be a concurrent set.
+	private final Set<String> seenUniqueIds = ConcurrentHashMap.newKeySet();
 
 	public PhenotypeFileGenerator(FileGeneratorConfig config) {
 		super(config);
@@ -45,6 +50,12 @@ public class PhenotypeFileGenerator extends FileGenerator {
 		}
 		List<JsonNode> rows = new ArrayList<>(primary.size());
 		for (JsonNode pa : primary) {
+			// Annotation.uniqueId is the canonical dedup key computed by AnnotationUniqueIdHelper in curation. Skip empty values so the generator keeps working before the curation-side @JsonView change has been deployed and reindexed; once it lands, this becomes a real dedup.
+			String uniqueId = JsonPath.resolveString(pa, "uniqueId");
+			if (!uniqueId.isEmpty() && !seenUniqueIds.add(uniqueId)) {
+				continue;
+			}
+
 			ObjectNode row = JsonNodeFactory.instance.objectNode();
 
 			String phenotype = JsonPath.resolveString(pa, "phenotypeTerms.0.name");
