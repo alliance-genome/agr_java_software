@@ -6,10 +6,13 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * Jackson MixIn applied to AuditedObject during ES indexing only. SCRUM-6035: drop curation-internal
- * fields (internal, dbDateCreated, dbDateUpdated) from every public ES document — they leak via nested
- * entities (Gene, Allele, Variant, etc.) because most indexers serialize without an explicit @JsonView.
- * Adding these field-level @JsonIgnore overrides via a MixIn suppresses them globally on the indexer's
- * ObjectMapper without modifying agr_curation entity annotations.
+ * fields (internal, obsolete, dbDateCreated, dbDateUpdated) from every public ES document — they leak
+ * via nested entities (Gene, Allele, Variant, etc.) because most indexers serialize without an explicit
+ * @JsonView.
+ *
+ * Annotation form: both field-level and getter-level @JsonIgnore are needed because Lombok @Data
+ * generates a public getter, and Jackson combines field+getter annotations for property resolution.
+ * Marking only the field leaves the getter visible.
  */
 public abstract class AuditedObjectIndexerMixin {
 
@@ -24,4 +27,16 @@ public abstract class AuditedObjectIndexerMixin {
 
 	@JsonIgnore
 	OffsetDateTime dbDateUpdated;
+
+	@JsonIgnore
+	public abstract Boolean getInternal();
+
+	@JsonIgnore
+	public abstract Boolean getObsolete();
+
+	@JsonIgnore
+	public abstract OffsetDateTime getDbDateCreated();
+
+	@JsonIgnore
+	public abstract OffsetDateTime getDbDateUpdated();
 }
