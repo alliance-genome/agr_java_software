@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiFunction;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.filegenerator.config.Format;
@@ -30,39 +31,15 @@ public class HeaderBuilder {
 	private HeaderBuilder() {
 	}
 
-	public static String buildPsiMiTabHeader(String filetypeLabel, String readmeUrl, Collection<String> taxonCuries, SpeciesLookup species) {
-		String genTime = ZonedDateTime.now(ZoneOffset.UTC).format(GEN_TIME_FMT);
-		StringBuilder sb = new StringBuilder();
-		sb.append("##########################################################################\n");
-		sb.append("#\n");
-		sb.append("# Data type: ").append(filetypeLabel).append("\n");
-		sb.append("# Data format: PSI-MI TAB 2.7 Format\n");
-		sb.append("# README: ").append(readmeUrl == null ? "" : readmeUrl).append("\n");
-		sb.append("# Source: Alliance of Genome Resources (Alliance)\n");
-		sb.append("# Source URL: ").append(SOURCE_URL).append("\n");
-		sb.append("# Help Desk: ").append(HELP_DESK).append("\n");
-		sb.append("# TaxonIDs: ").append(joinNcbiTxids(taxonCuries)).append("\n");
-		sb.append("# Species: ").append(speciesNamesCsv(taxonCuries, species)).append("\n");
-		sb.append("# Alliance Database Version: ").append(databaseVersion()).append("\n");
-		sb.append("# File generated (UTC): ").append(genTime).append("\n");
-		sb.append("#\n");
-		sb.append("##########################################################################");
-		return sb.toString();
-	}
-
-	private static String joinNcbiTxids(Collection<String> taxonCuries) {
-		List<String> out = new ArrayList<>();
-		for (String c : taxonCuries) {
-			if (c == null) {
-				continue;
-			}
-			String txid = c.replace("NCBITaxon:", "");
-			out.add("NCBI:txid" + txid);
-		}
-		return String.join(", ", out);
-	}
-
 	public static String buildTextHeader(String filetypeLabel, Format format, String readmeText, Collection<String> taxonCuries, SpeciesLookup species) {
+		return buildTextHeader(filetypeLabel, format, readmeText, taxonCuries, species, List.of(), null);
+	}
+
+	public static String buildTextHeader(String filetypeLabel, Format format, String readmeText, Collection<String> taxonCuries, SpeciesLookup species, List<String> extraHeaderLines) {
+		return buildTextHeader(filetypeLabel, format, readmeText, taxonCuries, species, extraHeaderLines, null);
+	}
+
+	public static String buildTextHeader(String filetypeLabel, Format format, String readmeText, Collection<String> taxonCuries, SpeciesLookup species, List<String> extraHeaderLines, BiFunction<String, SpeciesLookup, String> nameResolver) {
 		String genTime = ZonedDateTime.now(ZoneOffset.UTC).format(GEN_TIME_FMT);
 		StringBuilder sb = new StringBuilder();
 		sb.append("##########################################################################\n");
@@ -73,8 +50,15 @@ public class HeaderBuilder {
 		sb.append("# Source: Alliance of Genome Resources (Alliance)\n");
 		sb.append("# Source URL: ").append(SOURCE_URL).append("\n");
 		sb.append("# Help Desk: ").append(HELP_DESK).append("\n");
+		if (extraHeaderLines != null) {
+			for (String line : extraHeaderLines) {
+				if (line != null && !line.isEmpty()) {
+					sb.append("# ").append(line).append("\n");
+				}
+			}
+		}
 		sb.append("# Taxon IDs: ").append(String.join(", ", taxonCuries)).append("\n");
-		sb.append("# Species: ").append(speciesNamesCsv(taxonCuries, species)).append("\n");
+		sb.append("# Species: ").append(speciesNamesCsv(taxonCuries, species, nameResolver)).append("\n");
 		sb.append("# Alliance Database Version: ").append(databaseVersion()).append("\n");
 		sb.append("# Date file generated (UTC): ").append(genTime).append("\n");
 		sb.append("#\n");
@@ -83,10 +67,14 @@ public class HeaderBuilder {
 	}
 
 	public static Map<String, Object> buildJsonMetadata(String filetypeLabel, Format format, String readmeText, Collection<String> taxonCuries, SpeciesLookup species) {
-		return buildJsonMetadata(filetypeLabel, format, readmeText, taxonCuries, species, null);
+		return buildJsonMetadata(filetypeLabel, format, readmeText, taxonCuries, species, null, null);
 	}
 
 	public static Map<String, Object> buildJsonMetadata(String filetypeLabel, Format format, String readmeText, Collection<String> taxonCuries, SpeciesLookup species, String stringencyFilter) {
+		return buildJsonMetadata(filetypeLabel, format, readmeText, taxonCuries, species, stringencyFilter, null);
+	}
+
+	public static Map<String, Object> buildJsonMetadata(String filetypeLabel, Format format, String readmeText, Collection<String> taxonCuries, SpeciesLookup species, String stringencyFilter, BiFunction<String, SpeciesLookup, String> nameResolver) {
 		Map<String, Object> metadata = new LinkedHashMap<>();
 		metadata.put("filetype", filetypeLabel);
 		metadata.put("databaseVersion", databaseVersion());
@@ -99,7 +87,7 @@ public class HeaderBuilder {
 		for (String curie : taxonCuries) {
 			Map<String, String> entry = new LinkedHashMap<>();
 			entry.put("taxonId", curie);
-			entry.put("speciesName", species == null ? "" : nullToEmpty(species.nameFor(curie)));
+			entry.put("speciesName", species == null ? "" : nullToEmpty(resolveName(curie, species, nameResolver)));
 			speciesList.add(entry);
 		}
 		metadata.put("species", speciesList);
@@ -134,18 +122,28 @@ public class HeaderBuilder {
 		}
 	}
 
-	private static String speciesNamesCsv(Collection<String> taxonCuries, SpeciesLookup lookup) {
+	private static String speciesNamesCsv(Collection<String> taxonCuries, SpeciesLookup lookup, BiFunction<String, SpeciesLookup, String> nameResolver) {
 		if (lookup == null) {
 			return "";
 		}
 		List<String> names = new ArrayList<>();
 		for (String c : taxonCuries) {
-			String n = lookup.nameFor(c);
+			String n = resolveName(c, lookup, nameResolver);
 			if (n != null) {
 				names.add(n);
 			}
 		}
 		return String.join(", ", names);
+	}
+
+	private static String resolveName(String curie, SpeciesLookup lookup, BiFunction<String, SpeciesLookup, String> nameResolver) {
+		if (nameResolver != null) {
+			String resolved = nameResolver.apply(curie, lookup);
+			if (resolved != null && !resolved.isBlank()) {
+				return resolved;
+			}
+		}
+		return lookup.nameFor(curie);
 	}
 
 	private static String databaseVersion() {

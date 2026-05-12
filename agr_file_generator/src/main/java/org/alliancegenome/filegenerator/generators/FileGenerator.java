@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiFunction;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
@@ -28,7 +29,6 @@ import org.alliancegenome.filegenerator.species.SpeciesLookup;
 import org.alliancegenome.filegenerator.writers.JsonMappedWriter;
 import org.alliancegenome.filegenerator.writers.JsonPath;
 import org.alliancegenome.filegenerator.writers.JsonRawWriter;
-import org.alliancegenome.filegenerator.writers.PsiMiTabWriter;
 import org.alliancegenome.filegenerator.writers.RowWriter;
 import org.alliancegenome.filegenerator.writers.TsvWriter;
 import org.alliancegenome.filegenerator.writers.TxtWriter;
@@ -169,15 +169,34 @@ public abstract class FileGenerator extends Thread {
 				return;
 			}
 
+			// Compute the per-row expansion lazily — only generators that override customizeRows fan a single ES doc into multiple flattened rows, and only the row formats consume the expansion. Doc formats (JSON_RAW / VCF / GFF) always emit the consolidated row once.
+			List<JsonNode> expanded = null;
 			for (OutputSpec spec : config.getOutputs()) {
 				ConcurrentHashMap<String, RowWriter> writers = writersBySpec.get(spec);
+				List<JsonNode> rowsToWrite;
+				if (spec.format().isRowFormat()) {
+					if (expanded == null) {
+						expanded = customizeRows(row);
+					}
+					rowsToWrite = expanded;
+				} else {
+					rowsToWrite = List.of(row);
+				}
+				if (rowsToWrite.isEmpty()) {
+					continue;
+				}
 				if (spec.split() == SplitMode.COMBINED) {
-					writers.get("COMBINED").writeRow(row);
+					RowWriter w = writers.get("COMBINED");
+					for (JsonNode r : rowsToWrite) {
+						w.writeRow(r);
+					}
 				} else {
 					for (String mod : allowedMods) {
 						String taxonForHeader = anyAllowedTaxonCurie;
 						RowWriter w = writers.computeIfAbsent(mod, m -> openWriterUnchecked(spec, m, List.of(taxonForHeader), outDir, readme));
-						w.writeRow(row);
+						for (JsonNode r : rowsToWrite) {
+							w.writeRow(r);
+						}
 					}
 				}
 			}
@@ -236,6 +255,13 @@ public abstract class FileGenerator extends Thread {
 	}
 
 	/**
+	 * Override for generators whose ES docs are consolidated and need to be expanded into multiple flattened rows for row-formats (TSV / TXT / JSON_MAPPED). Default returns a singleton list with the customized hit unchanged, preserving today's one-row-per-hit behavior. Doc formats (JSON_RAW / VCF / GFF) never call this — they always write the consolidated row verbatim.
+	 */
+	protected List<JsonNode> customizeRows(JsonNode customizedHit) {
+		return List.of(customizedHit);
+	}
+
+	/**
 	 * Override to declare extra ES _source paths a generator needs that aren't in its field map
 	 * (e.g. fallback fields used inside customizeRow). Returns an empty list by default.
 	 */
@@ -243,9 +269,31 @@ public abstract class FileGenerator extends Thread {
 		return List.of();
 	}
 
+	/**
+	 * Per-MOD header placeholder substitutions for format templates that support them (currently VCF only). Default empty so existing generators are unaffected. VCF generator overrides this to emit `{contigLines}` per MOD via a one-shot ES aggregation.
+	 */
+	protected Map<String, String> headerSubstitutions(String mod) {
+		return Map.of();
+	}
+
 	/** Stringency filter value for the JSON metadata header. Null means "not applicable" for this generator. */
 	protected String stringencyFilter() {
 		return null;
+	}
+
+	/** Override the `readme` field used in JSON metadata headers. Default returns null, which means use the TSV readme text. Generators that publish a LinkML schema URL (e.g. Gene) override this. */
+	protected String jsonReadmeOverride() {
+		return null;
+	}
+
+	/** Extra `# ...` lines to inject into the text header block (TSV / TXT) between Help Desk and Taxon IDs. Default empty. Orthology overrides to emit `Orthology Filter: Stringent` to match FMS. */
+	protected List<String> extraHeaderLines() {
+		return List.of();
+	}
+
+	/** Resolves the species display name shown in `# Species:` and JSON metadata. Defaults to {@code SpeciesLookup.fullNameFor} so yeast renders as "Saccharomyces cerevisiae" instead of strain-suffixed "Saccharomyces cerevisiae S288C". HeaderBuilder falls back to the short name when fullName is missing. */
+	protected BiFunction<String, SpeciesLookup, String> speciesNameResolver() {
+		return (curie, lookup) -> lookup == null ? null : lookup.fullNameFor(curie);
 	}
 
 	/**
@@ -285,28 +333,25 @@ public abstract class FileGenerator extends Thread {
 		Path path = outDir.resolve(fileName);
 		switch (spec.format()) {
 			case TSV: {
-				String header = HeaderBuilder.buildTextHeader(config.getFiletypeLabel(), spec.format(), readme, taxonCuries, species);
+				String header = HeaderBuilder.buildTextHeader(config.getFiletypeLabel(), spec.format(), readme, taxonCuries, species, extraHeaderLines(), speciesNameResolver());
 				return new TsvWriter(path, header, config.getFieldMap());
 			}
 			case TXT: {
-				String header = HeaderBuilder.buildTextHeader(config.getFiletypeLabel(), spec.format(), readme, taxonCuries, species);
+				String header = HeaderBuilder.buildTextHeader(config.getFiletypeLabel(), spec.format(), readme, taxonCuries, species, extraHeaderLines(), speciesNameResolver());
 				return new TxtWriter(path, header, config.getFieldMap());
 			}
-			case PSI_MI_TAB: {
-				// For interactions readme is the URL to the PSI-MITAB spec (configured per-generator).
-				String header = HeaderBuilder.buildPsiMiTabHeader(config.getFiletypeLabel(), readme, taxonCuries, species);
-				return new PsiMiTabWriter(path, header, config.getFieldMap());
-			}
 			case JSON_RAW: {
-				Map<String, Object> meta = HeaderBuilder.buildJsonMetadata(config.getFiletypeLabel(), spec.format(), readme, taxonCuries, species, stringencyFilter());
+				String jsonReadme = jsonReadmeOverride() != null ? jsonReadmeOverride() : readme;
+				Map<String, Object> meta = HeaderBuilder.buildJsonMetadata(config.getFiletypeLabel(), spec.format(), jsonReadme, taxonCuries, species, stringencyFilter(), speciesNameResolver());
 				return new JsonRawWriter(path, meta);
 			}
 			case JSON_MAPPED: {
-				Map<String, Object> meta = HeaderBuilder.buildJsonMetadata(config.getFiletypeLabel(), spec.format(), readme, taxonCuries, species, stringencyFilter());
+				String jsonReadme = jsonReadmeOverride() != null ? jsonReadmeOverride() : readme;
+				Map<String, Object> meta = HeaderBuilder.buildJsonMetadata(config.getFiletypeLabel(), spec.format(), jsonReadme, taxonCuries, species, stringencyFilter(), speciesNameResolver());
 				return new JsonMappedWriter(path, meta, config.getFieldMap());
 			}
 			case VCF: {
-				return new VcfWriter(path, config.getFieldMap());
+				return new VcfWriter(path, config.getFieldMap(), headerSubstitutions(subtype));
 			}
 			default:
 				throw new UnsupportedOperationException("Format not yet supported: " + spec.format());

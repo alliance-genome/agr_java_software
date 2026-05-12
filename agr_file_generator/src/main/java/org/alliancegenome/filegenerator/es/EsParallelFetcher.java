@@ -51,6 +51,18 @@ public class EsParallelFetcher {
 		return 0;
 	}
 
+	/**
+	 * Run an arbitrary `_search` body against this fetcher's index. Used for one-shot pre-pass aggregations (e.g. the VCF generator's contig enumeration). Returns the raw response or null on failure.
+	 */
+	public Map<String, Object> search(Map<String, Object> body) {
+		try {
+			return es.search(index, body);
+		} catch (Exception e) {
+			log.warn("search() failed on {}: {}", index, e.getMessage());
+			return null;
+		}
+	}
+
 	public void forEach(int threadCount, int bufferSize, Consumer<JsonNode> consumer) {
 		forEach(threadCount, bufferSize, null, consumer);
 	}
@@ -94,32 +106,42 @@ public class EsParallelFetcher {
 		String scrollId = null;
 		long sliceCount = 0;
 		try {
-			Map<String, Object> resp = es.startScroll(index, SCROLL_DURATION, initialBody);
-			while (resp != null) {
-				scrollId = (String) resp.get("_scroll_id");
-				Map<String, Object> hitsMap = (Map<String, Object>) resp.get("hits");
-				if (hitsMap == null) {
-					break;
-				}
-				List<Map<String, Object>> hits = (List<Map<String, Object>>) hitsMap.get("hits");
-				if (hits == null || hits.isEmpty()) {
-					break;
-				}
+			try {
+				Map<String, Object> resp = es.startScroll(index, SCROLL_DURATION, initialBody);
+				while (resp != null) {
+					scrollId = (String) resp.get("_scroll_id");
+					Map<String, Object> hitsMap = (Map<String, Object>) resp.get("hits");
+					if (hitsMap == null) {
+						break;
+					}
+					List<Map<String, Object>> hits = (List<Map<String, Object>>) hitsMap.get("hits");
+					if (hits == null || hits.isEmpty()) {
+						break;
+					}
 
-				for (Map<String, Object> hit : hits) {
-					Object src = hit.get("_source");
-					JsonNode node = om.valueToTree(src);
-					consumer.accept(node);
-				}
-				sliceCount += hits.size();
+					for (Map<String, Object> hit : hits) {
+						Object src = hit.get("_source");
+						JsonNode node = om.valueToTree(src);
+						consumer.accept(node);
+					}
+					sliceCount += hits.size();
 
-				resp = es.continueScroll(Map.of("scroll", SCROLL_DURATION, "scroll_id", scrollId));
+					resp = es.continueScroll(Map.of("scroll", SCROLL_DURATION, "scroll_id", scrollId));
+				}
+				log.debug("Slice {}/{} done: {} hits", sliceId, sliceMax, sliceCount);
+			} catch (Exception e) {
+				// Crash hard — t.join() does not propagate worker exceptions, and a partial file must remain broken so it cannot be uploaded.
+				log.error("Slice {}/{} failed on index {} for categories {}: {}", sliceId, sliceMax, index, categories, e.getMessage(), e);
+				System.exit(-1);
 			}
-			log.debug("Slice {}/{} done: {} hits", sliceId, sliceMax, sliceCount);
-		} catch (Exception e) {
-			// Crash hard — t.join() does not propagate worker exceptions, and a partial file must remain broken so it cannot be uploaded.
-			log.error("Slice {}/{} failed on index {} for categories {}: {}", sliceId, sliceMax, index, categories, e.getMessage(), e);
-			System.exit(-1);
+		} finally {
+			if (scrollId != null) {
+				try {
+					es.clearScroll(Map.of("scroll_id", scrollId));
+				} catch (Exception e) {
+					log.warn("Failed to clear scroll {} for slice {}/{} on index {}: {}", scrollId, sliceId, sliceMax, index, e.getMessage());
+				}
+			}
 		}
 	}
 

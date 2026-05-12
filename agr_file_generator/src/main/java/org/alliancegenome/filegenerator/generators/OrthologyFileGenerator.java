@@ -16,6 +16,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class OrthologyFileGenerator extends FileGenerator {
 
+	private static final String LINKML_README_URL = "https://alliance-genome.github.io/agr_curation_schema/GeneToGeneOrthologyGenerated/";
+
 	public OrthologyFileGenerator(FileGeneratorConfig config) {
 		super(config);
 	}
@@ -23,6 +25,11 @@ public class OrthologyFileGenerator extends FileGenerator {
 	@Override
 	protected void generate() throws Exception {
 		scrollAndWrite();
+	}
+
+	@Override
+	protected String jsonReadmeOverride() {
+		return LINKML_README_URL;
 	}
 
 	@Override
@@ -54,6 +61,12 @@ public class OrthologyFileGenerator extends FileGenerator {
 	@Override
 	protected String stringencyFilter() {
 		return STRINGENCY;
+	}
+
+	/** Match FMS's `# Orthology Filter: Stringent` line, injected between Help Desk and Taxon IDs. */
+	@Override
+	protected List<String> extraHeaderLines() {
+		return List.of("Orthology Filter: Stringent");
 	}
 
 	/** Pull the entire orthology subtree — synthetic field names in the field map would otherwise strip it. */

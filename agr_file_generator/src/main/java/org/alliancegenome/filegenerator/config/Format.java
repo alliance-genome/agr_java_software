@@ -6,7 +6,6 @@ public enum Format {
 	TXT("TXT", "txt", "txt"),
 	JSON_RAW("JSON", "json", "json"),
 	JSON_MAPPED("JSON", "json", "json"),
-	PSI_MI_TAB("TSV", "tsv", "PSI-MI TAB 2.7 Format"),
 	VCF("VCF", "vcf", "vcf"),
 	GFF("GFF", "gff", "gff");
 
@@ -34,5 +33,16 @@ public enum Format {
 
 	public boolean isJson() {
 		return this == JSON_RAW || this == JSON_MAPPED;
+	}
+
+	/**
+	 * Doc formats write the full hit verbatim (one ES hit = one output entry). Generators that expand a hit into multiple flattened rows via {@link org.alliancegenome.filegenerator.generators.FileGenerator#customizeRows} only fan out for {@link #isRowFormat()} formats — doc formats keep one entry per hit.
+	 */
+	public boolean isDocFormat() {
+		return this == JSON_RAW || this == VCF || this == GFF;
+	}
+
+	public boolean isRowFormat() {
+		return !isDocFormat();
 	}
 }

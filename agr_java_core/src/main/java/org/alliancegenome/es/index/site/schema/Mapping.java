@@ -274,6 +274,7 @@ public class Mapping extends Builder {
 		builder.endObject();
 		builder.endObject();
 		new FieldBuilder(builder, "allele.alleleSynonyms.displayText", "text").keyword().sortSmartAlpha().build();
+		new FieldBuilder(builder, "allele.taxon.name", "text").keyword().sortSmartAlpha().build();
 		new FieldBuilder(builder, "hasDisease", "boolean").build();
 		new FieldBuilder(builder, "hasPhenotype", "boolean").build();
 		new FieldBuilder(builder, "alterationTypeSortOrder", "integer").keyword().sortSmartAlpha().build();
@@ -293,6 +294,8 @@ public class Mapping extends Builder {
 		new FieldBuilder(builder, "variantList.variantType.name", "text").keyword().sortSmartAlpha().build();
 		new FieldBuilder(builder, "variantList.curatedVariantGenomicLocations.predictedVariantConsequences.vepConsequences.name", "text").keyword().sortSmartAlpha().build();
 		new FieldBuilder(builder, "variantList.curatedVariantGenomicLocations.hgvs", "text").keyword().sortSmartAlpha().build();
+		new FieldBuilder(builder, "variantList.curatedVariantGenomicLocations.variantGenomicLocationAssociationObject.name", "text").keyword().sortSmartAlpha().build();
+		new FieldBuilder(builder, "variantList.curatedVariantGenomicLocations.variantGenomicLocationAssociationObject.genomeAssembly.primaryExternalId", "text").keyword().sortSmartAlpha().build();
 		builder.startObject("crossReference");
 		builder.field("type", "object");
 		builder.field("dynamic", false);
