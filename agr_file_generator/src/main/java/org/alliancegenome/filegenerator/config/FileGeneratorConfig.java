@@ -7,7 +7,6 @@ import java.util.Map;
 import org.alliancegenome.filegenerator.generators.DiseaseFileGenerator;
 import org.alliancegenome.filegenerator.generators.ExpressionFileGenerator;
 import org.alliancegenome.filegenerator.generators.FileGenerator;
-import org.alliancegenome.filegenerator.generators.GeneDescriptionFileGenerator;
 import org.alliancegenome.filegenerator.generators.GeneFileGenerator;
 import org.alliancegenome.filegenerator.generators.OrthologyFileGenerator;
 import org.alliancegenome.filegenerator.generators.PhenotypeFileGenerator;
