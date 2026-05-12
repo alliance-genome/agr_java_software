@@ -111,8 +111,12 @@ public class DiseaseFileGenerator extends FileGenerator {
 				for (JsonNode ec : evCodes) {
 					String c = ec.path("curie").asText("");
 					String n = ec.path("name").asText("");
-					if (!c.isEmpty()) curies.add(c);
-					if (!n.isEmpty()) names.add(n);
+					if (!c.isEmpty()) {
+						curies.add(c);
+					}
+					if (!n.isEmpty()) {
+						names.add(n);
+					}
 				}
 			}
 			row.put("_evidenceCode", String.join("|", curies));
