@@ -17,7 +17,7 @@ import org.alliancegenome.filegenerator.generators.VariantVcfFileGenerator;
 public enum FileGeneratorConfig {
 
 	Gene("Gene", "GENE", List.of("gene_summary"), List.of(new OutputSpec(Format.TSV, SplitMode.TAXON), new OutputSpec(Format.TSV, SplitMode.COMBINED), new OutputSpec(Format.JSON_RAW, SplitMode.TAXON), new OutputSpec(Format.JSON_RAW, SplitMode.COMBINED)),
-		List.of("FB", "MGI", "RGD", "SGD", "WB", "XBXL", "XBXT", "ZFIN"), geneFieldMap(), "readmes/gene.txt", GeneFileGenerator.class, 1000, 8),
+		List.of("FB", "HUMAN", "MGI", "RGD", "SGD", "WB", "XBXL", "XBXT", "ZFIN"), geneFieldMap(), "readmes/gene.txt", GeneFileGenerator.class, 1000, 8),
 
 	Disease("Disease", "DISEASE-ALLIANCE", List.of("gene_disease_annotation", "allele_disease_annotation", "agm_disease_annotation"),
 		List.of(new OutputSpec(Format.TSV, SplitMode.TAXON), new OutputSpec(Format.TSV, SplitMode.COMBINED), new OutputSpec(Format.JSON_RAW, SplitMode.TAXON), new OutputSpec(Format.JSON_RAW, SplitMode.COMBINED)), List.of("FB", "HUMAN", "MGI", "RGD", "SGD", "WB", "XBXL", "XBXT", "ZFIN"),
@@ -214,7 +214,8 @@ public enum FileGeneratorConfig {
 		m.put("GeneCrossReferences", "_geneCrossReferences");
 		m.put("GeneBioTypeId", "gene.geneType.curie");
 		m.put("GeneBioTypeName", "gene.geneType.name");
-		m.put("GeneAutomatedDescription", "_automatedDescription");
+		m.put("GeneAllianceAutomatedDescription", "_allianceAutomatedDescription");
+		m.put("GeneMODAutomatedDescription", "_modAutomatedDescription");
 		m.put("GeneMODDescription", "_modDescription");
 		m.put("Assembly", "_assembly");
 		m.put("Chromosome", "gene.geneGenomicLocationAssociations.0.geneGenomicLocationAssociationObject.name");

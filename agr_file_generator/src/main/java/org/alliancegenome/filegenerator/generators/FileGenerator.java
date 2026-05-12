@@ -281,6 +281,11 @@ public abstract class FileGenerator extends Thread {
 		return null;
 	}
 
+	/** Override the `readme` field used in JSON metadata headers. Default returns null, which means use the TSV readme text. Generators that publish a LinkML schema URL (e.g. Gene) override this. */
+	protected String jsonReadmeOverride() {
+		return null;
+	}
+
 	/** Extra `# ...` lines to inject into the text header block (TSV / TXT) between Help Desk and Taxon IDs. Default empty. Orthology overrides to emit `Orthology Filter: Stringent` to match FMS. */
 	protected List<String> extraHeaderLines() {
 		return List.of();
@@ -336,11 +341,13 @@ public abstract class FileGenerator extends Thread {
 				return new TxtWriter(path, header, config.getFieldMap());
 			}
 			case JSON_RAW: {
-				Map<String, Object> meta = HeaderBuilder.buildJsonMetadata(config.getFiletypeLabel(), spec.format(), readme, taxonCuries, species, stringencyFilter(), speciesNameResolver());
+				String jsonReadme = jsonReadmeOverride() != null ? jsonReadmeOverride() : readme;
+				Map<String, Object> meta = HeaderBuilder.buildJsonMetadata(config.getFiletypeLabel(), spec.format(), jsonReadme, taxonCuries, species, stringencyFilter(), speciesNameResolver());
 				return new JsonRawWriter(path, meta);
 			}
 			case JSON_MAPPED: {
-				Map<String, Object> meta = HeaderBuilder.buildJsonMetadata(config.getFiletypeLabel(), spec.format(), readme, taxonCuries, species, stringencyFilter(), speciesNameResolver());
+				String jsonReadme = jsonReadmeOverride() != null ? jsonReadmeOverride() : readme;
+				Map<String, Object> meta = HeaderBuilder.buildJsonMetadata(config.getFiletypeLabel(), spec.format(), jsonReadme, taxonCuries, species, stringencyFilter(), speciesNameResolver());
 				return new JsonMappedWriter(path, meta, config.getFieldMap());
 			}
 			case VCF: {

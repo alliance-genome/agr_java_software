@@ -1,6 +1,7 @@
 package org.alliancegenome.filegenerator.generators;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import org.alliancegenome.filegenerator.config.FileGeneratorConfig;
@@ -15,8 +16,10 @@ import lombok.extern.slf4j.Slf4j;
 public class GeneFileGenerator extends FileGenerator {
 
 	private static final String AUTOMATED_NOTE_TYPE = "automated_gene_description";
+	private static final String MOD_AUTOMATED_NOTE_TYPE = "MOD_provided_automated_gene_description";
 	private static final String MOD_NOTE_TYPE = "MOD_provided_gene_description";
 	private static final String UNIPROT_PREFIX = "UniProtKB:";
+	private static final String LINKML_README_URL = "https://alliance-genome.github.io/agr_curation_schema/Gene/";
 
 	public GeneFileGenerator(FileGeneratorConfig config) {
 		super(config);
@@ -25,6 +28,11 @@ public class GeneFileGenerator extends FileGenerator {
 	@Override
 	protected void generate() throws Exception {
 		scrollAndWrite();
+	}
+
+	@Override
+	protected String jsonReadmeOverride() {
+		return LINKML_README_URL;
 	}
 
 	@Override
@@ -54,9 +62,10 @@ public class GeneFileGenerator extends FileGenerator {
 		obj.put("_geneSynonyms", joinNodeStrings(hit, "gene.geneSynonyms", "displayText"));
 		obj.put("_geneSecondaryIds", joinNodeStrings(hit, "gene.geneSecondaryIds", "secondaryId"));
 		obj.put("_geneCrossReferences", buildCrossReferences(hit));
-		obj.put("_automatedDescription", findNoteText(hit, AUTOMATED_NOTE_TYPE));
+		obj.put("_allianceAutomatedDescription", findNoteText(hit, AUTOMATED_NOTE_TYPE));
+		obj.put("_modAutomatedDescription", findNoteText(hit, MOD_AUTOMATED_NOTE_TYPE));
 		obj.put("_modDescription", findNoteText(hit, MOD_NOTE_TYPE));
-		obj.put("_assembly", JsonPath.resolveString(hit, "gene.geneGenomicLocationAssociations.0.geneGenomicLocationAssociationObject.taxon.species.assembly_curie"));
+		obj.put("_assembly", JsonPath.resolveString(hit, "gene.taxon.species.assembly_curie"));
 
 		return hit;
 	}
@@ -77,30 +86,36 @@ public class GeneFileGenerator extends FileGenerator {
 	}
 
 	/**
-	 * Bar-separated list of every crossReferences[].referencedCurie. The single GCRP cross
-	 * reference (gene.gcrpCrossReference.referencedCurie) is matched against the list and that
-	 * entry is suffixed with " (GCRP)" so consumers can identify which UniProtKB curie is the
-	 * canonical Gene-Centric Reference Proteome entry.
+	 * Bar-separated list of crossReferences[].referencedCurie. The gene's own primaryExternalId
+	 * is filtered out, and the single GCRP cross reference (gene.gcrpCrossReference.referencedCurie)
+	 * is always emitted with a " (GCRP)" suffix — appended if it was not already present in the
+	 * crossReferences list, or tagged in-place if it was. Output is de-duplicated with a
+	 * LinkedHashSet to preserve insertion order.
 	 */
 	private static String buildCrossReferences(JsonNode hit) {
-		JsonNode arr = JsonPath.resolve(hit, "gene.crossReferences");
-		if (arr == null || !arr.isArray()) {
-			return "";
-		}
+		String selfId = JsonPath.resolveString(hit, "gene.primaryExternalId");
 		String gcrp = JsonPath.resolveString(hit, "gene.gcrpCrossReference.referencedCurie");
+		String gcrpTagged = gcrp.isEmpty() ? "" : gcrp + " (GCRP)";
+
 		List<String> out = new ArrayList<>();
-		for (JsonNode entry : arr) {
-			String curie = entry.path("referencedCurie").asText("");
-			if (curie.isEmpty()) {
-				continue;
-			}
-			if (!gcrp.isEmpty() && curie.startsWith(UNIPROT_PREFIX) && curie.equals(gcrp)) {
-				out.add(curie + " (GCRP)");
-			} else {
-				out.add(curie);
+		JsonNode arr = JsonPath.resolve(hit, "gene.crossReferences");
+		if (arr != null && arr.isArray()) {
+			for (JsonNode entry : arr) {
+				String curie = entry.path("referencedCurie").asText("");
+				if (curie.isEmpty() || curie.equals(selfId)) {
+					continue;
+				}
+				if (!gcrp.isEmpty() && curie.startsWith(UNIPROT_PREFIX) && curie.equals(gcrp)) {
+					out.add(gcrpTagged);
+				} else {
+					out.add(curie);
+				}
 			}
 		}
-		return String.join("|", out);
+		if (!gcrpTagged.isEmpty() && !gcrp.equals(selfId) && !out.contains(gcrpTagged)) {
+			out.add(gcrpTagged);
+		}
+		return String.join("|", new LinkedHashSet<>(out));
 	}
 
 	private static String findNoteText(JsonNode hit, String noteTypeName) {
