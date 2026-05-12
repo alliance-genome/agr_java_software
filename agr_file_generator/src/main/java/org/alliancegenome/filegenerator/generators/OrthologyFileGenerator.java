@@ -1,6 +1,7 @@
 package org.alliancegenome.filegenerator.generators;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -85,9 +86,11 @@ public class OrthologyFileGenerator extends FileGenerator {
 		List<String> matched = collectNames(hit, "geneToGeneOrthologyGenerated.predictionMethodsMatched");
 		List<String> notMatched = collectNames(hit, "geneToGeneOrthologyGenerated.predictionMethodsNotMatched");
 
-		// Algorithms is the pipe-delimited list of MATCHED methods, deduplicated and order-preserved.
+		// Algorithms is the pipe-delimited list of MATCHED methods, deduplicated and alphabetized.
 		Set<String> matchedDedup = new LinkedHashSet<>(matched);
-		obj.put("_algorithms", String.join("|", matchedDedup));
+		List<String> matchedSorted = new ArrayList<>(matchedDedup);
+		Collections.sort(matchedSorted);
+		obj.put("_algorithms", String.join("|", matchedSorted));
 
 		// AlgorithmsMatch is the count of distinct matched methods.
 		obj.put("_algorithmsMatch", String.valueOf(matchedDedup.size()));

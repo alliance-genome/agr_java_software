@@ -41,7 +41,7 @@ public class VariantVcfFileGenerator extends FileGenerator {
 
 	private static final String CHROM_PATH = "variantList.curatedVariantGenomicLocations.variantGenomicLocationAssociationObject.name";
 	private static final String ASSEMBLY_PATH = "variantList.curatedVariantGenomicLocations.variantGenomicLocationAssociationObject.genomeAssembly.primaryExternalId";
-	private static final String SPECIES_PATH = "allele.taxon.name";
+	private static final String SPECIES_PATH = "allele.taxon.species.fullName";
 
 	private final Map<String, String> contigLinesByMod = new LinkedHashMap<>();
 

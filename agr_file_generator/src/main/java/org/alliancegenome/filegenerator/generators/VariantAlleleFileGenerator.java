@@ -1,6 +1,7 @@
 package org.alliancegenome.filegenerator.generators;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -221,6 +222,7 @@ public class VariantAlleleFileGenerator extends FileGenerator {
 				out.add(v);
 			}
 		}
+		Collections.sort(out);
 		return String.join("|", out);
 	}
 
