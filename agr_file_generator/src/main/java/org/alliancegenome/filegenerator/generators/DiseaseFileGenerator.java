@@ -105,13 +105,18 @@ public class DiseaseFileGenerator extends FileGenerator {
 			row.put("_withOrtholog", joinWithOrthologs(pa));
 
 			JsonNode evCodes = pa.path("evidenceCodes");
-			if (evCodes.isArray() && evCodes.size() > 0) {
-				row.put("_evidenceCode", evCodes.get(0).path("curie").asText(""));
-				row.put("_evidenceCodeName", evCodes.get(0).path("name").asText(""));
-			} else {
-				row.put("_evidenceCode", "");
-				row.put("_evidenceCodeName", "");
+			List<String> curies = new ArrayList<>();
+			List<String> names = new ArrayList<>();
+			if (evCodes.isArray()) {
+				for (JsonNode ec : evCodes) {
+					String c = ec.path("curie").asText("");
+					String n = ec.path("name").asText("");
+					if (!c.isEmpty()) curies.add(c);
+					if (!n.isEmpty()) names.add(n);
+				}
 			}
+			row.put("_evidenceCode", String.join("|", curies));
+			row.put("_evidenceCodeName", String.join("|", names));
 
 			// Per-annotation reference is a single evidenceItem (not a references[] array). Prefer the PMID-style referenceID over the AGRKB curie, matching how the parent-rooted code used to choose references[0].referenceID first.
 			String reference = JsonPath.resolveString(pa, "evidenceItem.referenceID");
