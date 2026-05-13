@@ -410,6 +410,14 @@ public class OutputFactory {
 		entry.setFeature(transcript.getTranscriptId());
 		entry.setBiotype(transcript.getBiotype());
 		entry.setStrand(transcript.isPositiveStrand() ? "1" : "-1");
+		// Perl OutputFactory line 1443-1447: FLAGS = cds_start_NF, cds_end_NF
+		// from transcript attributes where code starts with "cds_"
+		List<String> flagsList = new ArrayList<>();
+		if (transcript.isCdsStartNF()) flagsList.add("cds_start_NF");
+		if (transcript.isCdsEndNF()) flagsList.add("cds_end_NF");
+		if (!flagsList.isEmpty()) {
+			entry.setFlags(String.join("&", flagsList));
+		}
 		entry.setSource(mod + "_GFF.refseq.gff.gz");
 		// Transcript length for pick_order tiebreaker — VEP OutputFactory.pm line
 		// 740-744 uses translateable_seq length when a translation exists (coding),
@@ -768,23 +776,31 @@ public class OutputFactory {
 				consequence, refAllele, vepAllele);
 		}
 
-		// Exon/intron numbers — VEP iterates ALL overlapping exons/introns and
-		// produces a range like "7-8/8". Use BVT.exonNumber/intronNumber which does
-		// this iteration. Fall back to single-position lookup when BVT not available.
-		String exonNum, intronNum;
-		if (bvt != null) {
-			exonNum = bvt.exonNumber();
-			intronNum = bvt.intronNumber();
-		} else {
-			int checkPos = isInsertion ? variantEnd : variantStart;
-			exonNum = transcript.getExonNumber(checkPos);
-			intronNum = transcript.getIntronNumber(checkPos);
+		// Perl OutputFactory line 1449-1461: EXON/INTRON gated on pre->{exon}/pre->{intron}
+		// Only populate when variant actually overlaps exon/intron.
+		if (overlapsExon) {
+			String exonNum;
+			if (bvt != null) {
+				exonNum = bvt.exonNumber();
+			} else {
+				int checkPos = isInsertion ? variantEnd : variantStart;
+				exonNum = transcript.getExonNumber(checkPos);
+			}
+			if (exonNum != null) {
+				entry.setExon(exonNum);
+			}
 		}
-		if (exonNum != null) {
-			entry.setExon(exonNum);
-		}
-		if (intronNum != null) {
-			entry.setIntron(intronNum);
+		if (isIntronic || isInAnyIntron(transcript, rangeStart, rangeEnd)) {
+			String intronNum;
+			if (bvt != null) {
+				intronNum = bvt.intronNumber();
+			} else {
+				int checkPos = isInsertion ? variantEnd : variantStart;
+				intronNum = transcript.getIntronNumber(checkPos);
+			}
+			if (intronNum != null) {
+				entry.setIntron(intronNum);
+			}
 		}
 
 		// cDNA position for non-coding exon variants and UTR variants without coding
