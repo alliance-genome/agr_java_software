@@ -38,7 +38,17 @@ public class DiseaseFileGenerator extends FileGenerator {
 
 	@Override
 	protected String taxonPath() {
-		return "subject.taxon.curie";
+		return "primaryAnnotations.diseaseAnnotationSubject.primaryExternalId";
+	}
+
+	@Override
+	protected String stringencyFilter() {
+		return "stringent";
+	}
+
+	@Override
+	protected List<String> extraHeaderLines() {
+		return List.of("Orthology Filter: Stringent");
 	}
 
 	@Override
