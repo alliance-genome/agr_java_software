@@ -136,67 +136,55 @@ public abstract class FileGenerator extends Thread {
 			}
 			JsonNode row = customizeRow(hit);
 
-			// Collect every taxon curie this row should reach. The primary curie comes from
-			// resolveTaxonCurie(row); subclasses may add more (e.g. interactions add the object
-			// side's taxon). Insertion order is preserved so per-MOD file headers list the
-			// primary taxon first.
-			LinkedHashSet<String> taxonCuries = new LinkedHashSet<>();
-			String primaryTaxon = resolveTaxonCurie(row);
-			if (primaryTaxon != null) {
-				taxonCuries.add(primaryTaxon);
-			}
-			for (String extra : additionalTaxonCuries(row)) {
-				if (extra != null) {
-					taxonCuries.add(extra);
-				}
-			}
+			// Doc-level taxa: used to route doc-format outputs (JSON_RAW / VCF / GFF) which always emit the consolidated row verbatim. Order is preserved so the first taxon mapping to an allowed MOD wins the per-MOD file header.
+			LinkedHashSet<String> docMods = new LinkedHashSet<>();
+			String docPrimaryTaxon = collectAllowedMods(resolveTaxonCurie(row), additionalTaxonCuries(row), docMods);
 
-			// Resolve to MODs and apply the whitelist. Drop the row entirely if NO side maps to
-			// an allowed MOD; otherwise route to each allowed MOD's TAXON writer once, plus a
-			// single write to any COMBINED writer.
-			LinkedHashSet<String> allowedMods = new LinkedHashSet<>();
-			String anyAllowedTaxonCurie = null;
-			for (String curie : taxonCuries) {
-				String mod = species.modFor(curie);
-				if (mod != null && config.getMods().contains(mod)) {
-					allowedMods.add(mod);
-					if (anyAllowedTaxonCurie == null) {
-						anyAllowedTaxonCurie = curie;
-					}
-				}
-			}
-			if (allowedMods.isEmpty()) {
-				return;
-			}
-
-			// Compute the per-row expansion lazily — only generators that override customizeRows fan a single ES doc into multiple flattened rows, and only the row formats consume the expansion. Doc formats (JSON_RAW / VCF / GFF) always emit the consolidated row once.
 			List<JsonNode> expanded = null;
 			for (OutputSpec spec : config.getOutputs()) {
 				ConcurrentHashMap<String, RowWriter> writers = writersBySpec.get(spec);
-				List<JsonNode> rowsToWrite;
-				if (spec.format().isRowFormat()) {
-					if (expanded == null) {
-						expanded = customizeRows(row);
+
+				if (!spec.format().isRowFormat()) {
+					// Doc-format path: route the consolidated row by doc-level taxa.
+					if (docMods.isEmpty()) {
+						continue;
 					}
-					rowsToWrite = expanded;
-				} else {
-					rowsToWrite = List.of(row);
+					if (spec.split() == SplitMode.COMBINED) {
+						writers.get("COMBINED").writeRow(row);
+					} else {
+						String taxonForHeader = docPrimaryTaxon;
+						for (String mod : docMods) {
+							RowWriter w = writers.computeIfAbsent(mod, m -> openWriterUnchecked(spec, m, List.of(taxonForHeader), outDir, readme));
+							w.writeRow(row);
+						}
+					}
+					continue;
 				}
-				if (rowsToWrite.isEmpty()) {
+
+				// Row-format path: deconsolidate via customizeRows, then route EACH row by its own taxon. Generators that don't deconsolidate get a singleton list whose row carries the same taxon as the doc, so the result is identical to the previous doc-level routing.
+				if (expanded == null) {
+					expanded = customizeRows(row);
+				}
+				if (expanded.isEmpty()) {
 					continue;
 				}
 				if (spec.split() == SplitMode.COMBINED) {
 					RowWriter w = writers.get("COMBINED");
-					for (JsonNode r : rowsToWrite) {
+					for (JsonNode r : expanded) {
 						w.writeRow(r);
 					}
-				} else {
-					for (String mod : allowedMods) {
-						String taxonForHeader = anyAllowedTaxonCurie;
+					continue;
+				}
+				for (JsonNode r : expanded) {
+					LinkedHashSet<String> rowMods = new LinkedHashSet<>();
+					String rowPrimaryTaxon = collectAllowedMods(resolveRowTaxonCurie(r), additionalRowTaxonCuries(r), rowMods);
+					if (rowMods.isEmpty()) {
+						continue;
+					}
+					String taxonForHeader = rowPrimaryTaxon;
+					for (String mod : rowMods) {
 						RowWriter w = writers.computeIfAbsent(mod, m -> openWriterUnchecked(spec, m, List.of(taxonForHeader), outDir, readme));
-						for (JsonNode r : rowsToWrite) {
-							w.writeRow(r);
-						}
+						w.writeRow(r);
 					}
 				}
 			}
@@ -206,6 +194,34 @@ public abstract class FileGenerator extends Thread {
 			log.error("{}: dispatch failed for row {} — exiting hard. Cause: {}", getClass().getSimpleName(), hit, e.getMessage(), e);
 			System.exit(-1);
 		}
+	}
+
+	/**
+	 * Walks the primary taxon + any extras, intersects with the configured MOD whitelist, and fills {@code out} with the allowed MODs in insertion order. Returns the first taxon curie whose MOD survived the whitelist (used for the per-MOD file header); null if none did.
+	 */
+	private String collectAllowedMods(String primaryTaxon, List<String> extras, LinkedHashSet<String> out) {
+		LinkedHashSet<String> taxa = new LinkedHashSet<>();
+		if (primaryTaxon != null) {
+			taxa.add(primaryTaxon);
+		}
+		if (extras != null) {
+			for (String extra : extras) {
+				if (extra != null) {
+					taxa.add(extra);
+				}
+			}
+		}
+		String anyAllowed = null;
+		for (String curie : taxa) {
+			String mod = species.modFor(curie);
+			if (mod != null && config.getMods().contains(mod)) {
+				out.add(mod);
+				if (anyAllowed == null) {
+					anyAllowed = curie;
+				}
+			}
+		}
+		return anyAllowed;
 	}
 
 	/**
@@ -248,6 +264,32 @@ public abstract class FileGenerator extends Thread {
 
 	protected String taxonPath() {
 		return "gene.taxon.curie";
+	}
+
+	/**
+	 * Row-level taxon JSON path used by row-format outputs (TSV / TXT / JSON_MAPPED) AFTER customizeRows() has expanded a consolidated ES doc. Default delegates to {@link #taxonPath()} so generators that don't deconsolidate behave identically to before. Deconsolidating generators (Disease / Phenotype) override this to point at a synthetic per-row field like {@code _taxon} that customizeRows() populates from the individual primaryAnnotations[i] entry.
+	 */
+	protected String rowTaxonPath() {
+		return taxonPath();
+	}
+
+	/**
+	 * Row-level companion to {@link #additionalTaxonCuries(JsonNode)}. Default delegates so multi-taxon dispatch on the doc level (e.g. Orthology's HGNC↔MGI pair) is preserved automatically for generators that don't deconsolidate.
+	 */
+	protected List<String> additionalRowTaxonCuries(JsonNode row) {
+		return additionalTaxonCuries(row);
+	}
+
+	protected String resolveRowTaxonCurie(JsonNode row) {
+		String fromPath = JsonPath.resolveString(row, rowTaxonPath());
+		if (fromPath != null && !fromPath.isEmpty()) {
+			return fromPath;
+		}
+		String name = JsonPath.resolveString(row, "species");
+		if (name != null && !name.isEmpty() && species != null) {
+			return species.taxonForName(name);
+		}
+		return null;
 	}
 
 	protected JsonNode customizeRow(JsonNode hit) {

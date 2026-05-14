@@ -22,6 +22,7 @@ import org.alliancegenome.curation_api.model.entities.VocabularyTerm;
 import org.alliancegenome.curation_api.model.entities.ontology.ECOTerm;
 import org.alliancegenome.curation_api.model.entities.orthology.GeneToGeneOrthologyGenerated;
 import org.alliancegenome.curation_api.response.SearchResponse;
+import org.alliancegenome.curation_api.services.helpers.annotations.AnnotationUniqueIdHelper;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.es.rest.RestConfig;
 import org.alliancegenome.indexer.indexers.curation.interfaces.GeneDiseaseAnnotationInterface;
@@ -161,6 +162,7 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 					gda.setDiseaseAnnotationObject(focusDiseaseAnnotation.getDiseaseAnnotationObject());
 					gda.setEvidenceCodes(List.of(ecoTermIEA));
 					gda.setDiseaseQualifiers(focusDiseaseAnnotation.getDiseaseQualifiers());
+					gda.setUniqueId(AnnotationUniqueIdHelper.getDiseaseAnnotationUniqueId(gda));
 
 					List<DiseaseAnnotation> geneAnnotations = newDAMap.computeIfAbsent(orthologousGene, k -> new ArrayList<>());
 					geneAnnotations.add(gda);
