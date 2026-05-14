@@ -42,6 +42,24 @@ public class DiseaseFileGenerator extends FileGenerator {
 	}
 
 	@Override
+	protected String stringencyFilter() {
+		return "stringent";
+	}
+
+	@Override
+	protected List<String> extraHeaderLines() {
+		return List.of("Orthology Filter: Stringent");
+	}
+
+	/**
+	 * Row-format outputs route by the per-annotation taxon, not the consolidated doc's subject taxon. {@code _taxon} is populated inside customizeRows() from {@code primaryAnnotations[i].diseaseAnnotationSubject.taxon.curie}, so via-orthology fan-out rows land in the file matching their own subject's MOD instead of the parent doc's.
+	 */
+	@Override
+	protected String rowTaxonPath() {
+		return "_taxon";
+	}
+
+	@Override
 	protected JsonNode customizeRow(JsonNode hit) {
 		return hit;
 	}
