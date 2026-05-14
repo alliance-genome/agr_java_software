@@ -3,6 +3,7 @@ package org.alliancegenome.filegenerator.generators;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -65,7 +66,7 @@ public class DiseaseFileGenerator extends FileGenerator {
 			ObjectNode row = JsonNodeFactory.instance.objectNode();
 
 			row.put("_taxon", JsonPath.resolveString(pa, "diseaseAnnotationSubject.taxon.curie"));
-			row.put("_speciesName", JsonPath.resolveString(pa, "diseaseAnnotationSubject.taxon.name"));
+			row.put("_speciesName", JsonPath.resolveString(pa, "diseaseAnnotationSubject.taxon.species.fullName"));
 
 			String paType = JsonPath.resolveString(pa, "type");
 			String dbObjectType;
@@ -169,7 +170,9 @@ public class DiseaseFileGenerator extends FileGenerator {
 				ids.add(id);
 			}
 		}
-		return String.join("|", ids);
+		List<String> sorted = new ArrayList<>(ids);
+		Collections.sort(sorted);
+		return String.join("|", sorted);
 	}
 
 	private static String isoToYyyyMmDd(String iso) {

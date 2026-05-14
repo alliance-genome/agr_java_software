@@ -7,7 +7,6 @@ import java.util.Map;
 import org.alliancegenome.filegenerator.generators.DiseaseFileGenerator;
 import org.alliancegenome.filegenerator.generators.ExpressionFileGenerator;
 import org.alliancegenome.filegenerator.generators.FileGenerator;
-import org.alliancegenome.filegenerator.generators.GeneDescriptionFileGenerator;
 import org.alliancegenome.filegenerator.generators.GeneFileGenerator;
 import org.alliancegenome.filegenerator.generators.OrthologyFileGenerator;
 import org.alliancegenome.filegenerator.generators.PhenotypeFileGenerator;
@@ -141,7 +140,7 @@ public enum FileGeneratorConfig {
 	private static Map<String, String> variantAlleleFieldMap() {
 		Map<String, String> m = new LinkedHashMap<>();
 		m.put("Taxon", "allele.taxon.curie");
-		m.put("SpeciesName", "allele.taxon.name");
+		m.put("SpeciesName", "allele.taxon.species.fullName");
 		m.put("AlleleId", "allele.primaryExternalId");
 		m.put("AlleleSymbol", "allele.alleleSymbol.displayText");
 		m.put("AlleleSynonyms", "_alleleSynonyms");
@@ -205,7 +204,7 @@ public enum FileGeneratorConfig {
 	private static Map<String, String> geneFieldMap() {
 		Map<String, String> m = new LinkedHashMap<>();
 		m.put("Taxon", "gene.taxon.curie");
-		m.put("SpeciesName", "gene.taxon.name");
+		m.put("SpeciesName", "gene.taxon.species.fullName");
 		m.put("GeneId", "gene.primaryExternalId");
 		m.put("GeneSymbol", "gene.geneSymbol.displayText");
 		m.put("GeneSynonyms", "_geneSynonyms");
@@ -285,7 +284,7 @@ public enum FileGeneratorConfig {
 	 */
 	private static Map<String, String> expressionFieldMap() {
 		Map<String, String> m = new LinkedHashMap<>();
-		m.put("Species", "geneExpressionAnnotation.expressionAnnotationSubject.taxon.name");
+		m.put("Species", "geneExpressionAnnotation.expressionAnnotationSubject.taxon.species.fullName");
 		m.put("SpeciesID", "geneExpressionAnnotation.expressionAnnotationSubject.taxon.curie");
 		m.put("GeneID", "geneExpressionAnnotation.expressionAnnotationSubject.primaryExternalId");
 		m.put("GeneSymbol", "geneExpressionAnnotation.expressionAnnotationSubject.geneSymbol.displayText");

@@ -1,6 +1,7 @@
 package org.alliancegenome.filegenerator.generators;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 
@@ -82,15 +83,14 @@ public class GeneFileGenerator extends FileGenerator {
 				out.add(v);
 			}
 		}
+		Collections.sort(out);
 		return String.join("|", out);
 	}
 
 	/**
-	 * Bar-separated list of crossReferences[].referencedCurie. The gene's own primaryExternalId
-	 * is filtered out, and the single GCRP cross reference (gene.gcrpCrossReference.referencedCurie)
-	 * is always emitted with a " (GCRP)" suffix — appended if it was not already present in the
-	 * crossReferences list, or tagged in-place if it was. Output is de-duplicated with a
-	 * LinkedHashSet to preserve insertion order.
+	 * Bar-separated list of crossReferences[].referencedCurie, with the gene's own primaryExternalId filtered out.
+	 * The single GCRP cross reference (gene.gcrpCrossReference.referencedCurie) is always emitted with a " (GCRP)" suffix — appended if it was not already present in the crossReferences list, or tagged in-place if it was.
+	 * Output is de-duplicated and sorted alphabetically; the GCRP entry sorts naturally amongst the other UniProt IDs.
 	 */
 	private static String buildCrossReferences(JsonNode hit) {
 		String selfId = JsonPath.resolveString(hit, "gene.primaryExternalId");
@@ -115,7 +115,9 @@ public class GeneFileGenerator extends FileGenerator {
 		if (!gcrpTagged.isEmpty() && !gcrp.equals(selfId) && !out.contains(gcrpTagged)) {
 			out.add(gcrpTagged);
 		}
-		return String.join("|", new LinkedHashSet<>(out));
+		List<String> deduped = new ArrayList<>(new LinkedHashSet<>(out));
+		Collections.sort(deduped);
+		return String.join("|", deduped);
 	}
 
 	private static String findNoteText(JsonNode hit, String noteTypeName) {
