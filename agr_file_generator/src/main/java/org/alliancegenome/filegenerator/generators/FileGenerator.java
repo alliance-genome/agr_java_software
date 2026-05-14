@@ -267,7 +267,9 @@ public abstract class FileGenerator extends Thread {
 	}
 
 	/**
-	 * Row-level taxon JSON path used by row-format outputs (TSV / TXT / JSON_MAPPED) AFTER customizeRows() has expanded a consolidated ES doc. Default delegates to {@link #taxonPath()} so generators that don't deconsolidate behave identically to before. Deconsolidating generators (Disease / Phenotype) override this to point at a synthetic per-row field like {@code _taxon} that customizeRows() populates from the individual primaryAnnotations[i] entry.
+	 * Row-level taxon JSON path used by row-format outputs (TSV / TXT / JSON_MAPPED) AFTER customizeRows() has expanded a consolidated ES doc.
+	 * Default delegates to {@link #taxonPath()} so generators that don't deconsolidate behave identically to before.
+	 * Deconsolidating generators (Disease / Phenotype) override this to point at a synthetic per-row field like {@code _taxon} that customizeRows() populates from the individual primaryAnnotations[i] entry.
 	 */
 	protected String rowTaxonPath() {
 		return taxonPath();
