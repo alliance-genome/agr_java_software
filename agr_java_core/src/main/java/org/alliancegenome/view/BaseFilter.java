@@ -1,4 +1,4 @@
-package org.alliancegenome.neo4j.view;
+package org.alliancegenome.view;
 
 import java.util.HashMap;
 

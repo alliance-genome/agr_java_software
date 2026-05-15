@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.alliancegenome.curation_api.view.CurationView;
-import org.alliancegenome.neo4j.view.PublicView;
+import org.alliancegenome.view.PublicView;
 
 import com.fasterxml.jackson.annotation.JsonView;
 

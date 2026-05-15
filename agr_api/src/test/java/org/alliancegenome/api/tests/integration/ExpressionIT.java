@@ -16,7 +16,7 @@ import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.curation_api.model.document.es.GeneExpressionDocument;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.view.BaseFilter;
+import org.alliancegenome.view.BaseFilter;
 import org.junit.Test;
 
 import jakarta.inject.Inject;

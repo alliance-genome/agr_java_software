@@ -2,7 +2,7 @@ package org.alliancegenome.api.entity;
 
 import java.io.Serializable;
 
-import org.alliancegenome.neo4j.view.PublicView;
+import org.alliancegenome.view.PublicView;
 
 import com.fasterxml.jackson.annotation.JsonView;
 

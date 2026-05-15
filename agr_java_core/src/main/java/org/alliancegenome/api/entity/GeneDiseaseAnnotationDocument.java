@@ -1,7 +1,7 @@
 package org.alliancegenome.api.entity;
 
 import org.alliancegenome.curation_api.model.entities.Gene;
-import org.alliancegenome.neo4j.view.PublicView;
+import org.alliancegenome.view.PublicView;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonView;

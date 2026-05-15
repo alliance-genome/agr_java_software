@@ -3,7 +3,7 @@ package org.alliancegenome.cache.repository.helper;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.alliancegenome.neo4j.view.PublicView;
+import org.alliancegenome.view.PublicView;
 
 import com.fasterxml.jackson.annotation.JsonView;
 

@@ -1,4 +1,4 @@
-package org.alliancegenome.neo4j.view;
+package org.alliancegenome.view;
 
 import org.alliancegenome.curation_api.view.CurationView.ForPublic;
 
