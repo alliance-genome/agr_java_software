@@ -298,18 +298,6 @@ public class AlleleToTdfTranslator {
 		String notesDescs = "";
 		String pubs = "";
 
-/*
-		if (CollectionUtils.isNotEmpty(annotation.getSynonyms())) {
-			StringJoiner synonymJoiner = new StringJoiner(",");
-			annotation.getSynonyms().forEach(synonym -> synonymJoiner.add(synonym.getName()));
-			synonyms = synonymJoiner.toString();
-		}
-		if (CollectionUtils.isNotEmpty(annotation.getHgvsG())) {
-			StringJoiner hgvsgJoiner = new StringJoiner(",");
-			annotation.getHgvsG().forEach(hgvsgJoiner::add);
-			hgvsGs = hgvsgJoiner.toString();
-		}
-*/
 		hgvsGs = variant.getHgvs();
 
 		if (CollectionUtils.isNotEmpty(variant.getHgvsC())) {
