@@ -381,7 +381,7 @@ public class GeneController implements GeneRESTInterface {
 	}
 
 	@Override
-	public JsonResultResponse<GeneToGeneOrthologyDocument> getGeneOrthology(String id, List<String> geneIDs, String geneLister, String stringencyFilter, String taxonID, String method, Integer limit, Integer page) {
+	public JsonResultResponse<GeneToGeneOrthologyDocument> getGeneOrthology(String id, List<String> geneIDs, String geneLister, String stringencyFilter, String taxonID, Integer limit, Integer page) {
 
 		List<String> geneList = new ArrayList<>();
 		if (id != null) {
@@ -396,7 +396,6 @@ public class GeneController implements GeneRESTInterface {
 		}
 		Pagination pagination = new Pagination(page, limit, null, null);
 		pagination.addFieldFilter(FieldFilter.STRINGENCY, stringencyFilter);
-		pagination.addFieldFilter(FieldFilter.ORTHOLOGY_METHOD, method);
 		pagination.addFieldFilter(FieldFilter.ORTHOLOGY_TAXON, taxonID);
 		final JsonResultResponse<GeneToGeneOrthologyDocument> response = orthologyESService.getOrthologyList(id, pagination);
 		response.setHttpServletRequest(null);
@@ -404,7 +403,7 @@ public class GeneController implements GeneRESTInterface {
 	}
 
 	@Override
-	public JsonResultResponse<GeneToGeneParalogyDocument> getGeneParalogy(String id, List<String> geneIDs, String geneLister, String stringencyFilter, String taxonID, String method, Integer limit, Integer page) {
+	public JsonResultResponse<GeneToGeneParalogyDocument> getGeneParalogy(String id, List<String> geneIDs, String geneLister, String stringencyFilter, String taxonID, Integer limit, Integer page) {
 
 		List<String> geneList = new ArrayList<>();
 		if (id != null) {
@@ -419,7 +418,6 @@ public class GeneController implements GeneRESTInterface {
 		}
 		Pagination pagination = new Pagination(page, limit, null, null);
 		pagination.addFieldFilter(FieldFilter.STRINGENCY, stringencyFilter);
-		pagination.addFieldFilter(FieldFilter.ORTHOLOGY_METHOD, method);
 		pagination.addFieldFilter(FieldFilter.ORTHOLOGY_TAXON, taxonID);
 		final JsonResultResponse<GeneToGeneParalogyDocument> response = geneToGeneParalogyESService.getParalogyMultiGeneJson(geneList, pagination);
 		response.setHttpServletRequest(null);

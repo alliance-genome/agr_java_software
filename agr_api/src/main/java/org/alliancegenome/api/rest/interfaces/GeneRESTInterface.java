@@ -353,8 +353,6 @@ public interface GeneRESTInterface {
 		@DefaultValue("stringent") @QueryParam("filter.stringency") String stringencyFilter,
 		@Parameter(in = ParameterIn.QUERY, name = "taxonID", description = "Species identifier: Could be the full ID, e.g. 'NCBITaxon:10090', or just the ID, i.e. '10090'. Alternatively, part of a species name uniquely identifying a single species, e.g. 'danio' or 'mus'.", schema = @Schema(type = SchemaType.STRING))
 		@QueryParam("filter.taxonID") String taxonID,
-		@Parameter(in = ParameterIn.QUERY, name = "filter.method", description = "calculation methods", schema = @Schema(type = SchemaType.STRING))
-		@QueryParam("filter.method") String method,
 		@Parameter(in = ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
 		@DefaultValue("20") @QueryParam("limit") Integer limit,
 		@Parameter(in = ParameterIn.QUERY, name = "page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER))
@@ -375,8 +373,6 @@ public interface GeneRESTInterface {
 		@DefaultValue("stringent") @QueryParam("filter.stringency") String stringencyFilter,
 		@Parameter(in = ParameterIn.QUERY, name = "taxonID", description = "Species identifier: Could be the full ID, e.g. 'NCBITaxon:10090', or just the ID, i.e. '10090'. Alternatively, part of a species name uniquely identifying a single species, e.g. 'danio' or 'mus'.", schema = @Schema(type = SchemaType.STRING))
 		@QueryParam("filter.taxonID") String taxonID,
-		@Parameter(in = ParameterIn.QUERY, name = "filter.method", description = "calculation methods", schema = @Schema(type = SchemaType.STRING))
-		@QueryParam("filter.method") String method,
 		@Parameter(in = ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
 		@DefaultValue("20") @QueryParam("limit") Integer limit,
 		@Parameter(in = ParameterIn.QUERY, name = "page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER))

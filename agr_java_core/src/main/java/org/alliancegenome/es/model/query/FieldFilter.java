@@ -66,7 +66,6 @@ public enum FieldFilter {
 	TRANSGENE_HAS_PHENOTYPE("filter.transgene-has-phenotype"),
 	TRANSGENE_HAS_DISEASE("filter.transgene-has-disease"),
 	STRINGENCY("filter.stringency"),
-	ORTHOLOGY_METHOD("method"),
 	ORTHOLOGY_TAXON("taxon"),
 	INDEX_NAME("indexName");
 	public static final String FILTER_PREFIX = "filter.";
