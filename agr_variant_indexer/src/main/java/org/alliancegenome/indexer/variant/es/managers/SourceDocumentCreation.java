@@ -8,8 +8,8 @@ import java.util.Map;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
-import org.alliancegenome.core.filedownload.model.DownloadSource;
-import org.alliancegenome.core.variant.config.VariantConfigHelper;
+import org.alliancegenome.indexer.variant.filedownload.model.DownloadSource;
+import org.alliancegenome.indexer.variant.config.VariantConfigHelper;
 import org.alliancegenome.core.variant.converters.SequenceSummaryConverter;
 import org.alliancegenome.core.variant.converters.VariantSearchResultConverter;
 import org.alliancegenome.core.variant.converters.VariantSummaryConverter;

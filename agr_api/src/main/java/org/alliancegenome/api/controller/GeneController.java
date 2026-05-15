@@ -26,7 +26,6 @@ import org.alliancegenome.api.service.helper.APIServiceHelper;
 import org.alliancegenome.api.translators.tdf.DiseaseAnnotationToTdfTranslator;
 import org.alliancegenome.api.translators.tdf.PhenotypeAnnotationToTdfTranslator;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.core.api.service.DiseaseService;
 import org.alliancegenome.core.api.service.InteractionColumnFieldMapping;
 import org.alliancegenome.core.exceptions.RestErrorException;
 import org.alliancegenome.core.exceptions.RestErrorMessage;
@@ -64,9 +63,6 @@ public class GeneController implements GeneRESTInterface {
 
 	@Inject
 	OrthologyESService orthologyESService;
-
-	@Inject
-	DiseaseService diseaseService;
 
 	@Inject
 	DiseaseESService diseaseESService;

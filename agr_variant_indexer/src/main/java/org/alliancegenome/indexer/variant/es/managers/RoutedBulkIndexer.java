@@ -7,7 +7,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.core.variant.config.VariantConfigHelper;
+import org.alliancegenome.indexer.variant.config.VariantConfigHelper;
 import org.alliancegenome.es.util.EsClientFactory;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics;

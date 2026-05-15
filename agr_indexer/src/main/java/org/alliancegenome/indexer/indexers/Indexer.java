@@ -12,7 +12,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.core.util.StatsCollector;
+import org.alliancegenome.indexer.util.StatsCollector;
 import org.alliancegenome.curation_api.model.document.es.ESDocument;
 import org.alliancegenome.curation_api.model.entities.Species;
 import org.alliancegenome.curation_api.model.entities.base.AuditedObject;

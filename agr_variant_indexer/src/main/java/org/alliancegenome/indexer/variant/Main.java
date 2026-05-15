@@ -1,9 +1,9 @@
 package org.alliancegenome.indexer.variant;
 
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.core.filedownload.model.DownloadFileSet;
-import org.alliancegenome.core.filedownload.process.FileDownloadManager;
-import org.alliancegenome.core.variant.config.VariantConfigHelper;
+import org.alliancegenome.indexer.variant.filedownload.model.DownloadFileSet;
+import org.alliancegenome.indexer.variant.filedownload.process.FileDownloadManager;
+import org.alliancegenome.indexer.variant.config.VariantConfigHelper;
 import org.alliancegenome.es.index.site.schema.VariantMapping;
 import org.alliancegenome.es.index.site.schema.settings.VariantIndexSettings;
 import org.alliancegenome.es.util.IndexManager;

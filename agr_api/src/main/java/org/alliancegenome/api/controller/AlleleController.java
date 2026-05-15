@@ -10,7 +10,6 @@ import org.alliancegenome.api.service.AlleleESService;
 import org.alliancegenome.api.service.DiseaseESService;
 import org.alliancegenome.api.service.EntityType;
 import org.alliancegenome.api.service.PhenotypeESService;
-import org.alliancegenome.api.service.VariantService;
 import org.alliancegenome.api.service.helper.APIServiceHelper;
 import org.alliancegenome.api.translators.tdf.DiseaseAnnotationToTdfTranslator;
 import org.alliancegenome.api.translators.tdf.PhenotypeAnnotationToTdfTranslator;
@@ -36,9 +35,6 @@ public class AlleleController implements AlleleRESTInterface {
 
 	@Inject
 	AlleleESService alleleEsService;
-
-	@Inject
-	VariantService variantService;
 
 	@Inject
 	DiseaseESService diseaseESService;

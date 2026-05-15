@@ -9,9 +9,9 @@ import java.util.Map;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.core.filedownload.model.DownloadFileSet;
-import org.alliancegenome.core.filedownload.model.DownloadSource;
-import org.alliancegenome.core.variant.config.VariantConfigHelper;
+import org.alliancegenome.indexer.variant.filedownload.model.DownloadFileSet;
+import org.alliancegenome.indexer.variant.filedownload.model.DownloadSource;
+import org.alliancegenome.indexer.variant.config.VariantConfigHelper;
 import org.alliancegenome.curation_api.interfaces.crud.ontology.SoTermCrudInterface;
 import org.alliancegenome.curation_api.interfaces.document.VariantDocumentInterface;
 import org.alliancegenome.curation_api.model.entities.Gene;

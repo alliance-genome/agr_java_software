@@ -18,7 +18,6 @@ import org.alliancegenome.api.service.helper.APIServiceHelper;
 import org.alliancegenome.api.translators.tdf.DiseaseAnnotationToTdfTranslator;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.cache.repository.helper.SortingField;
-import org.alliancegenome.core.api.service.DiseaseService;
 import org.alliancegenome.core.exceptions.RestErrorException;
 import org.alliancegenome.core.exceptions.RestErrorMessage;
 import org.alliancegenome.core.util.FileHelper;
@@ -42,9 +41,6 @@ public class DiseaseController implements DiseaseRESTInterface {
 
 	@Inject
 	ObjectMapper mapper;
-
-	@Inject
-	DiseaseService diseaseService;
 
 	@Inject
 	DiseaseESService diseaseESService;
