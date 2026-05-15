@@ -14,8 +14,6 @@ import org.alliancegenome.core.document.AlleleDiseaseAnnotationDocument;
 import org.alliancegenome.core.document.DiseaseAnnotationDocument;
 import org.alliancegenome.core.document.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.core.helper.DiseaseAnnotationHelper;
-import org.alliancegenome.api.translators.tdf.DiseaseDownloadRow;
-import org.alliancegenome.api.translators.tdf.DownloadHeader;
 import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.BiologicalEntity;

@@ -11,7 +11,6 @@ import java.util.Map;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
-import org.alliancegenome.api.es.dao.ESDAO;
 import org.alliancegenome.api.es.query.FieldFilter;
 import org.alliancegenome.api.es.query.Pagination;
 import org.alliancegenome.core.es.util.EsClientFactory;

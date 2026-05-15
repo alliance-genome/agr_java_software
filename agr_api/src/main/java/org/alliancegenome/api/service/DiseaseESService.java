@@ -23,7 +23,6 @@ import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.core.document.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.api.service.helper.APIServiceHelper;
 import org.alliancegenome.api.response.JsonResultResponse;
-import org.alliancegenome.api.service.DiseaseRibbonService;
 import org.alliancegenome.curation_api.model.document.es.DiseaseSummaryDocument;
 import org.alliancegenome.curation_api.model.document.es.GeneSummaryDocument;
 import org.alliancegenome.curation_api.model.entities.DiseaseAnnotation;

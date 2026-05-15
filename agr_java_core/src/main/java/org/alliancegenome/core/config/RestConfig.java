@@ -1,6 +1,5 @@
 package org.alliancegenome.core.config;
 
-import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.model.entities.ResourceDescriptor;
 import org.alliancegenome.curation_api.model.entities.ResourceDescriptorPage;
 

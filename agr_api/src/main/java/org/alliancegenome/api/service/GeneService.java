@@ -17,7 +17,6 @@ import org.alliancegenome.core.document.GeneMolecularInteractionDocument;
 import org.alliancegenome.core.document.GenePhenotypeAnnotationDocument;
 import org.alliancegenome.api.service.helper.ElasticSearchHelper;
 import org.alliancegenome.api.response.JsonResultResponse;
-import org.alliancegenome.api.service.AlleleVariantIndexService;
 import org.alliancegenome.curation_api.model.document.es.SequenceSummaryDocument;
 import org.alliancegenome.api.es.dao.SearchDAO;
 import org.alliancegenome.api.es.query.Pagination;
