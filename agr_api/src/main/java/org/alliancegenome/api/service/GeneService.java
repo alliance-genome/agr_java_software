@@ -21,8 +21,6 @@ import org.alliancegenome.core.variant.service.AlleleVariantIndexService;
 import org.alliancegenome.curation_api.model.document.es.SequenceSummaryDocument;
 import org.alliancegenome.es.index.site.dao.SearchDAO;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -42,8 +40,6 @@ import jakarta.inject.Inject;
 @RequestScoped
 public class GeneService {
 
-	private static GeneRepository geneRepo = new GeneRepository();
-
 	@Inject
 	AlleleVariantIndexService alleleVariantIndexService;
 
@@ -54,15 +50,6 @@ public class GeneService {
 
 	private static final ElasticSearchHelper elasticSearchHelper = new ElasticSearchHelper();
 	private static final SearchDAO searchDAO = new SearchDAO();
-
-	public Gene getById(String id) {
-		Gene gene = geneRepo.getOneGene(id);
-		// if not found directly check if it is a secondary id on a different gene
-		if (gene == null) {
-			return geneRepo.getOneGeneBySecondaryId(id);
-		}
-		return gene;
-	}
 
 	public JsonResultResponse<SequenceSummaryDocument> getAllelesAndVariantInfo(String geneId, Pagination pagination) {
 		return alleleVariantIndexService.getAllelesNVariants(geneId, pagination);

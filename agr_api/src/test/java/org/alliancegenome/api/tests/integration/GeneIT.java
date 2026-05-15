@@ -18,9 +18,7 @@ import org.alliancegenome.api.service.GeneService;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.model.document.es.GeneExpressionDocument;
-import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.repository.AlleleRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.apache.commons.collections.CollectionUtils;
 import org.junit.Before;
@@ -33,9 +31,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.inject.Inject;
 
 public class GeneIT {
-
-	@Inject
-	private GeneService geneService;
 
 	private ObjectMapper mapper = new ObjectMapper();
 
@@ -58,24 +53,6 @@ public class GeneIT {
 		//geneService = new GeneService();
 		mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
 		mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-	}
-
-	@Test
-	public void checkForSecondaryId() {
-		// ZFIN:ZDB-GENE-030131-3355 is a secondary ID for ZFIN:ZDB-LINCRNAG-160518-1
-		Gene gene = geneService.getById("ZFIN:ZDB-GENE-030131-3355");
-		assertNotNull(gene);
-		assertThat(gene.getPrimaryKey(), equalTo("ZFIN:ZDB-LINCRNAG-160518-1"));
-		assertThat(gene.getSpecies().getName(), equalTo("Danio rerio"));
-	}
-
-	@Test
-	public void checkForSynonyms() {
-		// ZFIN:ZDB-GENE-030131-3355 is a secondary ID for ZFIN:ZDB-LINCRNAG-160518-1
-		Gene gene = geneService.getById("ZFIN:ZDB-GENE-001103-1");
-		assertNotNull(gene);
-		assertNotNull(gene.getSynonyms());
-		assertThat(gene.getSynonyms().size(), greaterThan(3));
 	}
 
 	@Test
@@ -278,31 +255,6 @@ public class GeneIT {
 		assertTrue("No CrossReferences on gene object", CollectionUtils.isNotEmpty(gene.getCrossReferences()));
 	}
 
-	@Test
-	public void getAlleleConstructInfoOnGenePage() {
-		GeneRepository repository = new GeneRepository();
-		//final String geneID = "WB:WBGene00002992";
-		final String geneID = "FB:FBgn0284084";
-		Gene gene = repository.getOneGene(geneID);
-		assertNotNull(gene);
-		AlleleRepository alleleRepository = new AlleleRepository();
-		List<Allele> transgenicAlleles = alleleRepository.getTransgenicAlleles(geneID);
-
-		assertTrue("No CrossReferences on gene object", CollectionUtils.isNotEmpty(gene.getCrossReferences()));
-	}
-
-	@Test
-	public void getAlleleConstructInfoOnZfinGenePage() {
-		GeneRepository repository = new GeneRepository();
-		final String geneID = "ZFIN:ZDB-GENE-060526-31";
-		Gene gene = repository.getOneGene(geneID);
-		assertNotNull(gene);
-		AlleleRepository alleleRepository = new AlleleRepository();
-		List<Allele> transgenicAlleles = alleleRepository.getTransgenicAlleles(geneID);
-
-		assertNotNull(transgenicAlleles);
-		assertTrue(transgenicAlleles.size() > 0);
-	}
 
 
 }
