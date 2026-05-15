@@ -7,11 +7,9 @@ import java.util.List;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
-import org.alliancegenome.core.api.service.ColumnFieldMapping;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.commons.lang3.StringUtils;
 
-import jakarta.ws.rs.core.MultivaluedMap;
 import lombok.Data;
 
 @Data
@@ -26,16 +24,10 @@ public class Pagination {
 	private BaseFilter fieldFilterValueMap = new BaseFilter();
 	private List<String> errorList = new ArrayList<>();
 	private List<String> invalidFilterList = new ArrayList<>();
-	private ColumnFieldMapping mapping;
 	private long totalHits;
 	private boolean isCount;
 	private HashMap<String, String> filterOptionMap = new HashMap<>();
 
-
-	public Pagination(Integer page, Integer limit, String sortBy, String asc, ColumnFieldMapping mapping) {
-		this(page, limit, sortBy, asc);
-		this.mapping = mapping;
-	}
 
 	public Pagination(Integer page, Integer limit, String sortBy, String asc) {
 		if (page != null) {
@@ -77,24 +69,9 @@ public class Pagination {
 	}
 
 	public void addFieldFilter(FieldFilter fieldFilter, String value) {
-		// if mapping exists
-		checkIfMappingExists(fieldFilter);
 		if (value != null && !value.equals("")) {
 			fieldFilterValueMap.put(fieldFilter, value);
 		}
-	}
-
-	private boolean checkIfMappingExists(FieldFilter fieldFilter) {
-		boolean valid = true;
-		if (mapping != null) {
-			if (!mapping.getColumnFieldFilters().contains(fieldFilter)) {
-				String e = "The filter name '" + fieldFilter.getName() + "' is not a valid parameter name. ";
-				e += "Allowed values are [" + mapping.getAllowedFieldFilterNames() + "]";
-				errorList.add(e);
-				valid = false;
-			}
-		}
-		return valid;
 	}
 
 	public void makeSingleFieldFilter(FieldFilter fieldFilter, String value) {
@@ -163,21 +140,6 @@ public class Pagination {
 
 	public void setLimitToAll() {
 		limit = Integer.MAX_VALUE;
-	}
-
-	public void validateFilterValues(MultivaluedMap<String, String> queryParameters) {
-		if (mapping == null) {
-			return;
-		}
-		queryParameters.keySet().stream()
-			.filter(parameter -> parameter.startsWith(FieldFilter.FILTER_PREFIX))
-			.forEach(parameter -> {
-				if (!mapping.getColumnFieldFilters().contains(parameter)) {
-					String e = "The filter name '" + parameter + "' is not a valid parameter name. ";
-					e += "Allowed values are [" + mapping.getAllowedFieldFilterNames() + "]";
-					errorList.add(e);
-				}
-			});
 	}
 
 	public void addFilterOptions(String filterOptions) {

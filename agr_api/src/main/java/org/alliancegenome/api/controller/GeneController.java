@@ -26,7 +26,6 @@ import org.alliancegenome.api.service.helper.APIServiceHelper;
 import org.alliancegenome.api.translators.tdf.DiseaseAnnotationToTdfTranslator;
 import org.alliancegenome.api.translators.tdf.PhenotypeAnnotationToTdfTranslator;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.core.api.service.InteractionColumnFieldMapping;
 import org.alliancegenome.core.exceptions.RestErrorException;
 import org.alliancegenome.core.exceptions.RestErrorMessage;
 import org.alliancegenome.core.translators.tdf.AlleleToTdfTranslator;
@@ -212,7 +211,7 @@ public class GeneController implements GeneRESTInterface {
 		if (StringUtils.isEmpty(sortBy)) {
 			sortBy = "geneGeneticInteraction.geneGeneAssociationObject.geneSymbol.displayText.sort";
 		}
-		Pagination pagination = new Pagination(page, limit, sortBy, asc, new InteractionColumnFieldMapping());
+		Pagination pagination = new Pagination(page, limit, sortBy, asc);
 		pagination.addFilterOption("geneGeneticInteraction.geneGeneAssociationObject.geneSymbol.displayText", interactorGeneSymbol);
 		pagination.addFilterOption("geneGeneticInteraction.interactionIdORgeneGeneticInteraction.crossReferences.displayName", source);
 		pagination.addFilterOption("geneGeneticInteraction.evidence.referenceID", reference);
@@ -275,7 +274,7 @@ public class GeneController implements GeneRESTInterface {
 		if (StringUtils.isEmpty(sortBy)) {
 			sortBy = "geneMolecularInteraction.geneGeneAssociationObject.geneSymbol.displayText.sort";
 		}
-		Pagination pagination = new Pagination(page, limit, sortBy, asc, new InteractionColumnFieldMapping());
+		Pagination pagination = new Pagination(page, limit, sortBy, asc);
 		pagination.addFilterOption("geneMolecularInteraction.interactorAType.name.keyword", moleculeType);
 		pagination.addFilterOption("geneMolecularInteraction.geneGeneAssociationObject.geneSymbol.displayText", interactorGeneSymbol);
 		pagination.addFilterOption("geneMolecularInteraction.interactionIdORgeneMolecularInteraction.aggregationDatabase.nameORgeneMolecularInteraction.interactionSource.nameORgeneMolecularInteraction.crossReferences.displayName", source);
