@@ -17,7 +17,6 @@ import org.alliancegenome.api.service.EntityType;
 import org.alliancegenome.api.service.helper.APIServiceHelper;
 import org.alliancegenome.api.translators.tdf.DiseaseAnnotationToTdfTranslator;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.cache.repository.helper.SortingField;
 import org.alliancegenome.core.exceptions.RestErrorException;
 import org.alliancegenome.core.exceptions.RestErrorMessage;
 import org.alliancegenome.core.util.FileHelper;
@@ -78,7 +77,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 		// The @DefaultValue only kicks in if the value is null.
 		// need to handle an empty value manually here.
 		if (sortBy.trim().isEmpty()) {
-			sortBy = SortingField.DISEASE_ALLELE_DEFAULT.toString();
+			sortBy = "DISEASE_ALLELE_DEFAULT";
 		}
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
 		pagination.addFilterOption("subject.taxon.species.fullName.keyword", species);
