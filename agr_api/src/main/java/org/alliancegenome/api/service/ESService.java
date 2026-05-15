@@ -19,7 +19,6 @@ import org.alliancegenome.api.service.helper.GeneDiseaseSearchHelper;
 import org.alliancegenome.es.index.site.dao.SearchDAO;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.lucene.queryparser.classic.QueryParser;
@@ -93,7 +92,7 @@ public class ESService {
 			bool.must(bool3);
 			if (termID.equals(DiseaseRibbonSummary.DOID_OTHER)) {
 				BoolQueryBuilder orClause = boolQuery();
-				DOTerm.getAllOtherDiseaseTerms().forEach(parentID -> orClause.should(QueryBuilders.termQuery("parentSlimIDs.keyword", parentID)));
+				DiseaseRibbonSummary.OTHER_DISEASE_TERM_IDS.forEach(parentID -> orClause.should(QueryBuilders.termQuery("parentSlimIDs.keyword", parentID)));
 				bool3.should(orClause);
 
 			} else {

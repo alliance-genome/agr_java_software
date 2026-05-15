@@ -16,7 +16,6 @@ import org.alliancegenome.curation_api.model.document.es.ESDocument;
 import org.alliancegenome.curation_api.model.document.es.GeneSummaryDocument;
 import org.alliancegenome.curation_api.model.document.es.SequenceSummaryDocument;
 import org.alliancegenome.curation_api.view.CurationView;
-import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.view.PublicView;
 import org.apache.commons.lang3.ObjectUtils.Null;
 import org.eclipse.microprofile.openapi.annotations.Operation;
@@ -247,7 +246,7 @@ public interface GeneRESTInterface {
 				responseCode = "200",
 				description = "Phenotype annotations for a gene.",
 				content = @Content(mediaType = "application/json",
-					schema = @Schema(implementation = PhenotypeAnnotation.class)))})
+					schema = @Schema(implementation = GenePhenotypeAnnotationDocument.class)))})
 	JsonResultResponse<GenePhenotypeAnnotationDocument> getPhenotypeAnnotations(
 		@Parameter(in = ParameterIn.PATH, name = "id", description = "Gene by ID: e.g. ZFIN:ZDB-GENE-990415-8", required = true, schema = @Schema(type = SchemaType.STRING))
 		@PathParam("id") String id,

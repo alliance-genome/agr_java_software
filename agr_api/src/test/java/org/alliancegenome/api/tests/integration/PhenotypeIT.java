@@ -20,7 +20,6 @@ import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.model.entities.PhenotypeAnnotation;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.node.GeneticEntity;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -92,7 +91,7 @@ public class PhenotypeIT {
 				.stream()
 				.filter(phenotypeAnnotation -> phenotypeAnnotation.getPrimaryAnnotations() != null)
 				.forEach(phenotypeAnnotation -> phenotypeAnnotation.getPrimaryAnnotations().forEach(entity -> {
-					assertNotEquals("Direct Gene annotation found. Should be suppressed for: " + entity.getId(), entity.getRelation().getName(), GeneticEntity.CrossReferenceType.GENE);
+					assertNotEquals("Direct Gene annotation found. Should be suppressed for: " + entity.getId(), entity.getRelation().getName(), "gene");
 				}));
 	}
 
@@ -222,7 +221,7 @@ public class PhenotypeIT {
 		assertEquals(annotation.getPhenotypeStatement(), "corpus cardiacum primordium");
 		final List<PhenotypeAnnotation> primaryAnnotatedEntities = annotation.getPrimaryAnnotations();
 		assertNotNull("Phenotype annotation has Allele as the inferred AGM but missing.", primaryAnnotatedEntities);
-		assertEquals("Phenotype annotation with Allele as an inferred AGM", primaryAnnotatedEntities.get(0).getRelation().getName(), GeneticEntity.CrossReferenceType.ALLELE);
+		assertEquals("Phenotype annotation with Allele as an inferred AGM", primaryAnnotatedEntities.get(0).getRelation().getName(), "allele");
 	}
 
 	@Test
@@ -240,7 +239,7 @@ public class PhenotypeIT {
 		assertTrue("Did not find a phenotype: " + ectopicExpressionTransgene, annotation.isPresent());
 		final List<PhenotypeAnnotation> primaryAnnotatedEntities = annotation.get().getPrimaryAnnotations();
 		assertNotNull("Phenotype annotation has Allele as the inferred AGM but missing.", primaryAnnotatedEntities);
-		assertEquals("Phenotype annotation with Allele as an inferred AGM", primaryAnnotatedEntities.get(0).getRelation(), GeneticEntity.CrossReferenceType.ALLELE);
+		assertEquals("Phenotype annotation with Allele as an inferred AGM", primaryAnnotatedEntities.get(0).getRelation(), "allele");
 	}
 
 	@Test

@@ -20,6 +20,7 @@ public class DiseaseRibbonSummary implements Serializable {
 
 	public static final String DOID_ALL_ANNOTATIONS = "DOID:allAnnotations";
 	public static final String DOID_OTHER = "DOID:Other";
+	public static final List<String> OTHER_DISEASE_TERM_IDS = List.of("DOID:0080015", "DOID:0014667", "DOID:150", "DOID:225");
 	@JsonView(PublicView.DiseaseAnnotation.class)
 	@JsonProperty("categories")
 	private List<DiseaseRibbonSection> diseaseRibbonSections = new ArrayList<>();
