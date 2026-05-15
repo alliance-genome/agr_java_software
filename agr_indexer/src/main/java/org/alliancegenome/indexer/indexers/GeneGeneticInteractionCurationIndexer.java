@@ -15,7 +15,6 @@ import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.service.GeneGeneticInteractionService;
-import org.alliancegenome.neo4j.view.PublicView;
 import org.apache.commons.collections.CollectionUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -90,7 +89,7 @@ public class GeneGeneticInteractionCurationIndexer extends Indexer {
 					documentsToIndex.add(document);
 				}
 
-				indexDocuments(documentsToIndex, PublicView.GeneticInteraction.class);
+				indexDocuments(documentsToIndex);
 			} catch (Exception e) {
 				log.error("Error while indexing...", e);
 				ExceptionCatcher.report(e);
