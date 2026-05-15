@@ -28,6 +28,7 @@ import org.alliancegenome.curation_api.model.document.es.DiseaseSummaryDocument;
 import org.alliancegenome.curation_api.model.document.es.GeneSummaryDocument;
 import org.alliancegenome.curation_api.model.entities.DiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.Gene;
+import org.alliancegenome.es.index.site.dao.DiseaseESDAO;
 import org.alliancegenome.es.index.site.dao.GeneESDAO;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.node.SimpleTerm;
@@ -40,6 +41,7 @@ import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.SortOrder;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 
@@ -48,10 +50,18 @@ import jakarta.inject.Inject;
 public class DiseaseESService extends ESService {
 
 	private static final DiseaseRepository diseaseRepository = new DiseaseRepository();
-	private static final DiseaseRibbonService diseaseRibbonService = new DiseaseRibbonService(diseaseRepository);
+	private DiseaseRibbonService diseaseRibbonService;
 
 	@Inject
 	GeneESDAO geneESDAO;
+
+	@Inject
+	DiseaseESDAO diseaseESDAO;
+
+	@PostConstruct
+	void init() {
+		diseaseRibbonService = new DiseaseRibbonService(diseaseRepository, diseaseESDAO);
+	}
 
 	// termID may be used in the future when converting disease page to new ES stack.
 	public JsonResultResponse<GeneDiseaseAnnotationDocument> getRibbonDiseaseAnnotations(String focusTaxonId, List<String> geneIDs, String termID, Pagination pagination, boolean excludeNegated, boolean debug) {
@@ -212,14 +222,12 @@ public class DiseaseESService extends ESService {
 			return histogram;
 		}
 		response.getResults().forEach(annotation -> {
-			Set<String> parentIDs = diseaseRibbonService.getAllParentIDs(annotation.getObject().getCurie());
+			Set<String> parentIDs = annotation.getParentSlimIDs();
+			if (parentIDs == null) {
+				return;
+			}
 			parentIDs.forEach(parentID -> {
-				List<GeneDiseaseAnnotationDocument> list = histogram.get(parentID);
-				if (list == null) {
-					list = new ArrayList<>();
-				}
-				list.add(annotation);
-				histogram.put(parentID, list);
+				histogram.computeIfAbsent(parentID, k -> new ArrayList<>()).add(annotation);
 			});
 		});
 		return histogram;

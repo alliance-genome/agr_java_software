@@ -4,21 +4,17 @@ import static org.alliancegenome.api.entity.DiseaseRibbonSummary.DOID_OTHER;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.alliancegenome.api.entity.DiseaseRibbonSection;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.api.entity.SectionSlim;
+import org.alliancegenome.curation_api.model.document.es.DiseaseSummaryDocument;
+import org.alliancegenome.es.index.site.dao.DiseaseESDAO;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
-import org.alliancegenome.neo4j.entity.node.SimpleTerm;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
-import org.apache.commons.collections4.CollectionUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -29,11 +25,13 @@ import jakarta.enterprise.context.RequestScoped;
 public class DiseaseRibbonService {
 
 	private final DiseaseRepository diseaseRepository;
+	private final DiseaseESDAO diseaseESDAO;
 
 	private static DiseaseRibbonSummary diseaseRibbonSummary;
 
-	public DiseaseRibbonService(DiseaseRepository diseaseRepository) {
+	public DiseaseRibbonService(DiseaseRepository diseaseRepository, DiseaseESDAO diseaseESDAO) {
 		this.diseaseRepository = diseaseRepository;
+		this.diseaseESDAO = diseaseESDAO;
 	}
 
 	public DiseaseRibbonSummary getDiseaseRibbonSectionInfo() {
@@ -83,9 +81,10 @@ public class DiseaseRibbonService {
 			allSlimElement.setLabel(names.get(1));
 			allSlimElement.setTypeAll();
 			if (!id.equals(DOID_OTHER)) {
-				DOTerm term = diseaseRepository.getShallowDiseaseTerm(id);
-				section.setDescription(term.getDefinition());
-				allSlimElement.setDescription(term.getDefinition());
+				DiseaseSummaryDocument doc = diseaseESDAO.getById(id);
+				String definition = doc != null && doc.getDoTerm() != null ? doc.getDoTerm().getDefinition() : null;
+				section.setDescription(definition);
+				allSlimElement.setDescription(definition);
 			} else {
 				final String description = "Terms that do not fall into any other group";
 				section.setDescription(description);
@@ -100,8 +99,10 @@ public class DiseaseRibbonService {
 			.filter(diseaseRibbonSection -> !diseaseRibbonSection.getId().equals(DiseaseRibbonSummary.DOID_ALL_ANNOTATIONS))
 			.filter(diseaseRibbonSection -> !diseaseRibbonSection.getId().equals(DOID_OTHER))
 			.forEach(diseaseRibbonSection -> {
-				DOTerm term = diseaseRepository.getShallowDiseaseTerm(diseaseRibbonSection.getId());
-				diseaseRibbonSection.setDescription(term.getDefinition());
+				DiseaseSummaryDocument doc = diseaseESDAO.getById(diseaseRibbonSection.getId());
+				if (doc != null && doc.getDoTerm() != null) {
+					diseaseRibbonSection.setDescription(doc.getDoTerm().getDefinition());
+				}
 			});
 
 //		  Map<String, Set<String>> closureMapping = diseaseRepository.getClosureChildToParentsMapping();
@@ -129,26 +130,6 @@ public class DiseaseRibbonService {
 		});
 
 		return diseaseRibbonSummary;
-	}
-
-	public Set<String> getAllParentIDs(String doID) {
-		List<DOTerm> doList = diseaseRepository.getAgrDoSlim();
-		Set<String> parentSet = new HashSet<>();
-
-		parentSet.addAll(getParentIDsFromStream(doList.stream().map(SimpleTerm::getPrimaryKey), doID));
-		parentSet.addAll(getParentIDsFromStream(slimParentTermIdMap.keySet().stream(), doID));
-
-		// check for parents of 'All Other Diseases' group. That high-level term does not exist in DO and
-		// consists of the sum of four other individual high-level terms.
-		if (CollectionUtils.isNotEmpty(getParentIDsFromStream(DOTerm.getAllOtherDiseaseTerms().stream(), doID))) {
-			parentSet.add(DOID_OTHER);
-		}
-		return parentSet;
-	}
-
-	private Set<String> getParentIDsFromStream(Stream<String> stream, String doID) {
-		return stream.filter(id -> diseaseRepository.getDOParentTermIDs(doID).contains(id))
-			.collect(Collectors.toSet());
 	}
 
 }
