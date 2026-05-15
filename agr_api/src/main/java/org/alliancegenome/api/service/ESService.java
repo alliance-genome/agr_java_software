@@ -221,15 +221,13 @@ public class ESService {
 
 
 	protected LinkedHashMap<String, SortOrder> getAnnotationSorts(String focusTaxonId, boolean debug) {
-		SpeciesType type = SpeciesType.getTypeByID(focusTaxonId);
 		LinkedHashMap<String, SortOrder> sorts = new LinkedHashMap<>();
-		if (type != null) {
-			sorts.put("speciesOrder." + type.getTaxonIDPart(), SortOrder.ASC);
-		} else {
-			if (debug) {
+		if (focusTaxonId != null) {
+			SpeciesType type = SpeciesType.getTypeByID(focusTaxonId);
+			if (type != null) {
+				sorts.put("speciesOrder." + type.getTaxonIDPart(), SortOrder.ASC);
+			} else if (debug) {
 				Log.info("Species could not be found for: " + focusTaxonId);
-			} else {
-				Log.debug("Species could not be found for: " + focusTaxonId);
 			}
 		}
 		sorts.put("object.name.sort", SortOrder.ASC);

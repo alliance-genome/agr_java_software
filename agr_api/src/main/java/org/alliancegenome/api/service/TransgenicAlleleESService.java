@@ -28,7 +28,7 @@ public class TransgenicAlleleESService extends ESService {
 
 		JsonResultResponse<GeneTransgenicAlleleSummaryDocument> ret = new JsonResultResponse<>();
 		Map<String, String> aggregationFields = Map.of("alleleDocument.allele.taxon.species.fullName.keyword", "species");
-		ret.setSupplementalData(getSupplementalData(geneId, true, debug, query, aggregationFields));
+		ret.setSupplementalData(getSupplementalData(null, true, debug, query, aggregationFields));
 
 		// add table filter
 		addTableFilter(pagination, query);
