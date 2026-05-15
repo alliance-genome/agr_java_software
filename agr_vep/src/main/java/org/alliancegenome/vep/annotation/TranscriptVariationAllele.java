@@ -395,6 +395,15 @@ public class TranscriptVariationAllele {
 		String cdsSequence = BaseTranscriptVariation.translateableSeq(transcript, reference);
 		if (cdsSequence == null) return;
 
+		// Perl _get_alternate_cds (TranscriptVariationAllele.pm line 2315):
+		// return undef unless defined($tv->cds_start) && defined($tv->cds_end)
+		// When cds_end is undef (deletion extends past CDS into UTR/intron),
+		// ALL peptide-based predicates return 0. OutputFactory's fallback
+		// handles stop_lost via _ins_del_stop_altered.
+		if (isDeletion && cdsEnd < 0) {
+			return;
+		}
+
 		// VEP: vf_nt_len = cds_end - cds_start + 1 (ref CDS span)
 		// VEP: allele_len = length(alt allele) (0 for pure deletions)
 		int vfNtLen; // ref CDS span
@@ -425,20 +434,15 @@ public class TranscriptVariationAllele {
 
 		boolean isNallele = !seqIsUnambiguousDna(vepAllele);
 
-		// VEP partial_codon guard (VariationEffect.pm line 1389-1414):
-		// Checked BEFORE frameshift/inframe — blocks those if variant is in incomplete terminal codon.
-		// VEP checks translation_start is defined (must map to CDS) and variant falls
-		// entirely within the last incomplete codon. For deletions spanning past CDS end,
-		// the fallback path handles stop_lost etc.
-		if (isPartialCodon(transcript, cdsPos, cdsSequence.length())
-				&& (!isDeletion || cdsEnd <= cdsSequence.length())) {
-			this.consequence = ("incomplete_terminal_codon_variant");
-			return;
-		}
+		// Perl partial_codon (VariationEffect.pm line 1389-1414):
+		// Set as a flag — Perl evaluates ALL predicates independently.
+		// partial_codon only blocks frameshift (line 1353).
+		boolean isPartialCodon = isPartialCodon(transcript, cdsPos, cdsSequence.length())
+				&& (!isDeletion || cdsEnd <= cdsSequence.length());
 
-		// VEP frameshift check (VariationEffect.pm line 1346-1387):
-		// abs(allele_len - vf_nt_len) % 3 != 0
-		boolean isFrameshift = Math.abs(alleleLen - vfNtLen) % 3 != 0;
+		// Perl frameshift (VariationEffect.pm line 1346-1387):
+		// return 0 if partial_codon (line 1353)
+		boolean isFrameshift = !isPartialCodon && Math.abs(alleleLen - vfNtLen) % 3 != 0;
 		Trace.log("annotateIndel.entry", "tr=%s cdsPos=%d cdsEnd=%d alleleLen=%d vfNtLen=%d isFrameshift=%b cdsLen=%d",
 			transcript.getTranscriptId(), cdsPos, this.cdsEnd, alleleLen, vfNtLen, isFrameshift, cdsSequence.length());
 
@@ -701,69 +705,55 @@ public class TranscriptVariationAllele {
 			consequences.add("frameshift_variant");
 
 			// Perl frameshift() is structural — fires for N-alleles too.
-			// But all peptide-based sub-consequences (stop_lost, start_lost, stop_gained)
-			// DON'T fire because peptide() returns undef for N-alleles.
-			if (!isNallele && overlapsStop && refHasStop && !altHasStopAtSamePos) {
-				consequences.add("stop_lost");
-			}
-			if (!isNallele && overlapsStart) {
-				// Perl evaluates start_lost and start_retained as INDEPENDENT predicates:
-				// start_retained (line 946): !_ins_del_start_altered (CDS tail preserved)
-				// start_lost (line 862-873): _ins_del_start_altered || _inv_start_altered || peptide_check
-				// For frameshifts, peptide always differs → start_lost always fires.
-				boolean startAltered = _ins_del_start_altered(altCds, cdsSequence);
-				consequences.add("start_lost");
-				if (!startAltered) {
-					consequences.add("start_retained_variant");
+			// But all peptide-based sub-consequences DON'T fire (peptide undef).
+			if (!isNallele) {
+				// start_lost / start_retained (independent predicates)
+				if (overlapsStart) {
+					boolean startAltered = _ins_del_start_altered(altCds, cdsSequence);
+					consequences.add("start_lost");
+					if (!startAltered) {
+						consequences.add("start_retained_variant");
+					}
 				}
-			}
-			if (!isNallele && overlapsStop && refHasStop && altHasStopAtSamePos) {
-				consequences.add("stop_retained_variant");
-			}
 
-			// VEP stop_gained (VariationEffect.pm line 1146-1166): fires when alt peptide
-			// contains '*' AND ref peptide does not. Perl's peptide() for a frameshift
-			// extracts codon_len + (allele_len - vf_nt_len) bases from the alt CDS starting
-			// at codon_cds_start (= (tv_tr_start-1)*3), translates whole codons, and appends
-			// 'X' for any partial trailing codon (TranscriptVariationAllele.pm line 684-778).
-			// If the resulting alt peptide contains '*' while the ref peptide does not,
-			// stop_gained fires alongside frameshift_variant.
-			// VEP stop_gained (VariationEffect.pm line 1146-1166):
-			// alt_pep contains '*' AND ref_pep doesn't.
-			// VEP's _get_peptide_alleles returns codon/peptide from $bvfoa->peptide().
-			// For between-codon insertions (codonLen0 <= 0): ref="-", alt=translated insertion.
-			if (altCds != null && codonCdsStart0 >= 0) {
-				String refPep;
-				String altPep;
-				if (codonLen0 > 0) {
-					int altExtractLen = codonLen0 + (alleleLen - vfNtLen);
-					String altCodonStr = altExtractLen > 0 ? vepCodon(altCds, codonCdsStart0, altExtractLen) : null;
-					altPep = altCodonStr != null ? vepPeptide(altCodonStr) : null;
-					String refCodonStr = vepCodon(cdsSequence, codonCdsStart0, codonLen0);
-					refPep = refCodonStr != null ? vepPeptide(refCodonStr) : null;
-				} else {
-					// Between-codon insertion: Perl peptide() returns "-" for ref, translated insertion for alt
-					refPep = "-";
-					String insSeq = transcript.isPositiveStrand() ? vepAllele : Sequence.reverseComplement(vepAllele);
-					if ("-".equals(insSeq)) insSeq = "";
-					altPep = insSeq.isEmpty() ? "-" : vepPeptide(insSeq);
-				}
-				// Perl stop_retained (line 1238-1272): also fires when local
-				// peptides both start with *
-				if (refPep != null && altPep != null
-						&& altPep.startsWith("*") && refPep.startsWith("*")
-						&& !consequences.contains("stop_retained_variant")) {
-					consequences.add("stop_retained_variant");
-				}
-				// Perl stop_gained (line 1171): return 0 if stop_retained(@_).
-				// For N-containing alleles, Perl's peptide() returns undef
-				// (the codon has ambiguous bases), so stop_gained doesn't fire
-				// even when the allele happens to contain a stop codon (e.g. TGA).
-				boolean alleleHasN = vepAllele.matches(".*[^ACGTacgt-].*");
-				if (!alleleHasN && altPep != null && altPep.contains("*")
-						&& (refPep == null || !refPep.contains("*"))
-						&& !consequences.contains("stop_retained_variant")) {
-					consequences.add("stop_gained");
+				// Perl evaluates stop_lost, stop_retained, stop_gained using LOCAL
+				// peptides from _get_peptide_alleles (NOT global position check).
+				// Compute LOCAL ref/alt peptides at the codon boundaries.
+				if (altCds != null && codonCdsStart0 >= 0) {
+					String refPep;
+					String altPep;
+					if (codonLen0 > 0) {
+						int altExtractLen = codonLen0 + (alleleLen - vfNtLen);
+						String altCodonStr = altExtractLen > 0 ? vepCodon(altCds, codonCdsStart0, altExtractLen) : null;
+						altPep = altCodonStr != null ? vepPeptide(altCodonStr) : null;
+						String refCodonStr = vepCodon(cdsSequence, codonCdsStart0, codonLen0);
+						refPep = refCodonStr != null ? vepPeptide(refCodonStr) : null;
+					} else {
+						refPep = "-";
+						String insSeq = transcript.isPositiveStrand() ? vepAllele : Sequence.reverseComplement(vepAllele);
+						if ("-".equals(insSeq)) insSeq = "";
+						altPep = insSeq.isEmpty() ? "-" : vepPeptide(insSeq);
+					}
+
+					// Perl stop_lost (line 1190-1194): ref_pep contains *, alt_pep doesn't
+					if (refPep != null && refPep.contains("*")
+							&& (altPep == null || !altPep.contains("*"))) {
+						consequences.add("stop_lost");
+					}
+
+					// Perl stop_retained (line 1257): both start with *
+					if (refPep != null && altPep != null
+							&& altPep.startsWith("*") && refPep.startsWith("*")) {
+						consequences.add("stop_retained_variant");
+					}
+
+					// Perl stop_gained (line 1161): alt has *, ref doesn't.
+					// Guarded by stop_retained (line 1171).
+					if (altPep != null && altPep.contains("*")
+							&& (refPep == null || !refPep.contains("*"))
+							&& !consequences.contains("stop_retained_variant")) {
+						consequences.add("stop_gained");
+					}
 				}
 			}
 		} else {
@@ -1058,6 +1048,11 @@ public class TranscriptVariationAllele {
 			if (refDisplay == null) refDisplay = "-";
 			if (altDisplay == null) altDisplay = "-";
 			this.codons = (displayCodonAlleleString(refDisplay, altDisplay));
+		}
+
+		// Perl partial_codon fires independently — add to consequence list
+		if (isPartialCodon && !consequences.contains("incomplete_terminal_codon_variant")) {
+			consequences.add("incomplete_terminal_codon_variant");
 		}
 
 		// Sort by VEP rank (most severe first) to match VEP output order
