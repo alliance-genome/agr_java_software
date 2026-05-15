@@ -1,6 +1,6 @@
 package org.alliancegenome.api.service;
 
-import static org.alliancegenome.cache.repository.helper.JsonResultResponse.DISTINCT_FIELD_VALUES;
+import static org.alliancegenome.api.response.JsonResultResponse.DISTINCT_FIELD_VALUES;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
@@ -16,8 +16,8 @@ import java.util.stream.Stream;
 
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.api.service.helper.GeneDiseaseSearchHelper;
-import org.alliancegenome.es.index.site.dao.SearchDAO;
-import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.api.es.dao.SearchDAO;
+import org.alliancegenome.api.es.query.Pagination;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.CollectionUtils;

@@ -4,10 +4,10 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import org.alliancegenome.cache.repository.helper.JsonResultResponse;
+import org.alliancegenome.api.response.JsonResultResponse;
 import org.alliancegenome.curation_api.model.document.es.AGMAnnotationDocument;
 import org.alliancegenome.es.index.site.schema.Mapping;
-import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.api.es.query.Pagination;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.search.sort.SortOrder;

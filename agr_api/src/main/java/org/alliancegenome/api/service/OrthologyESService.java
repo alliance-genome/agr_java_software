@@ -8,9 +8,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.alliancegenome.api.entity.GeneToGeneOrthologyDocument;
-import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.es.model.query.FieldFilter;
-import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.api.response.JsonResultResponse;
+import org.alliancegenome.api.es.query.FieldFilter;
+import org.alliancegenome.api.es.query.Pagination;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.TermQueryBuilder;

@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.alliancegenome.api.rest.interfaces.VariantRESTInterface;
 import org.alliancegenome.api.service.VariantService;
-import org.alliancegenome.core.exceptions.RestErrorException;
-import org.alliancegenome.core.exceptions.RestErrorMessage;
+import org.alliancegenome.api.exceptions.RestErrorException;
+import org.alliancegenome.api.exceptions.RestErrorMessage;
 import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
 
 import jakarta.enterprise.context.RequestScoped;

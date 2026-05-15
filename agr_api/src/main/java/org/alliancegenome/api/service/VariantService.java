@@ -1,7 +1,7 @@
 package org.alliancegenome.api.service;
 
 import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
-import org.alliancegenome.es.index.site.dao.VariantESDAO;
+import org.alliancegenome.api.es.dao.VariantESDAO;
 
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;

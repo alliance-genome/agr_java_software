@@ -10,8 +10,8 @@ import java.util.Map;
 import org.alliancegenome.api.entity.GeneGeneticInteractionDocument;
 import org.alliancegenome.api.entity.GeneMolecularInteractionDocument;
 import org.alliancegenome.api.service.GeneService;
-import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.api.response.JsonResultResponse;
+import org.alliancegenome.api.es.query.Pagination;
 import org.junit.Test;
 
 import jakarta.inject.Inject;

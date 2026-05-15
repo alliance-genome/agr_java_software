@@ -5,9 +5,9 @@ import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import java.util.ArrayList;
 import java.util.Map;
 
-import org.alliancegenome.es.index.site.dao.AutoCompleteDAO;
-import org.alliancegenome.es.model.search.AutoCompleteResult;
-import org.alliancegenome.es.model.search.Category;
+import org.alliancegenome.api.es.dao.AutoCompleteDAO;
+import org.alliancegenome.api.es.search.AutoCompleteResult;
+import org.alliancegenome.api.es.search.Category;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;

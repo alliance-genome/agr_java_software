@@ -3,7 +3,7 @@ package org.alliancegenome.api.tests.unit;
 import java.io.IOException;
 
 import org.alliancegenome.api.controller.GeneController;
-import org.alliancegenome.cache.repository.helper.JsonResultResponse;
+import org.alliancegenome.api.response.JsonResultResponse;
 import org.alliancegenome.curation_api.model.document.es.ESDocument;
 import org.alliancegenome.es.util.EsClientFactory;
 

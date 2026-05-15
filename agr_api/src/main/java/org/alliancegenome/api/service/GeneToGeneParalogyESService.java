@@ -8,9 +8,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.alliancegenome.api.entity.GeneToGeneParalogyDocument;
-import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.es.index.site.dao.SearchDAO;
-import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.api.response.JsonResultResponse;
+import org.alliancegenome.api.es.dao.SearchDAO;
+import org.alliancegenome.api.es.query.Pagination;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;

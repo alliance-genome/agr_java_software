@@ -1,0 +1,179 @@
+package org.alliancegenome.api.es.dao;
+
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
+import org.alliancegenome.api.es.dao.ESDAO;
+import org.alliancegenome.api.es.query.FieldFilter;
+import org.alliancegenome.api.es.query.Pagination;
+import org.alliancegenome.es.util.EsClientFactory;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.core.CountRequest;
+import org.elasticsearch.client.core.CountResponse;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.TermQueryBuilder;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@ApplicationScoped
+public class VariantESDAO extends ESDAO {
+
+	public static final String SITE_INDEX = ConfigHelper.getEsIndex();
+
+	@Inject
+	ObjectMapper mapper;
+
+	private static Map<String, List<String>> sortAlleles = new HashMap<>();
+
+	{
+		sortAlleles.put("default", List.of("primaryKey.keyword"));
+		sortAlleles.put("molecularConsequence", List.of("transcriptLevelConsequences.molecularConsequence.keyword", "primaryKey.keyword"));
+		sortAlleles.put("variant", List.of("transcriptLevelConsequences.molecularConsequence.keyword", "primaryKey.keyword"));
+	}
+
+	public Integer performQueryCount(QueryBuilder query, Pagination pagination) {
+
+		// index name needs to come from configuration
+		CountRequest countRequest = new CountRequest(SITE_INDEX);
+		countRequest.query(query);
+
+		CountResponse response = null;
+		try {
+			response = EsClientFactory.getDefaultEsClient().count(countRequest, RequestOptions.DEFAULT);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return response == null ? 0 : (int) response.getCount();
+	}
+
+	public Map<String, List<String>> getDistinctValues(SearchSourceBuilder searchSourceBuilder) {
+
+		SearchRequest searchRequest = new SearchRequest(SITE_INDEX);
+		searchRequest.source(searchSourceBuilder);
+		SearchResponse response = null;
+
+		Map<FieldFilter, String> distinctFields = new HashMap<>();
+		distinctFields.put(FieldFilter.VARIANT_TYPE, "variant.variantType.name.keyword");
+		distinctFields.put(FieldFilter.ALLELE_CATEGORY, "alterationType.keyword");
+		distinctFields.put(FieldFilter.VARIANT_IMPACT, "transcriptLevelConsequences.impact.keyword");
+		distinctFields.put(FieldFilter.MOLECULAR_CONSEQUENCE, "transcriptLevelConsequences.molecularConsequences.keyword");
+		distinctFields.put(FieldFilter.VARIANT_SIFT, "transcriptLevelConsequences.siftPrediction.keyword");
+		distinctFields.put(FieldFilter.VARIANT_POLYPHEN, "transcriptLevelConsequences.polyphenPrediction.keyword");
+		distinctFields.forEach((fieldFilter, esFieldName) -> searchSourceBuilder.aggregation(AggregationBuilders.terms(fieldFilter.getName()).field(esFieldName)));
+
+		try {
+			response = EsClientFactory.getDefaultEsClient().search(searchRequest, RequestOptions.DEFAULT);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		// get Distinct values
+		// for now on the filtered result set. This needs to be done on the full,
+		// unfiltered result set.
+
+		Map<String, List<String>> distinctValueMap = new HashMap<>();
+		for (FieldFilter filter : distinctFields.keySet()) {
+			List<String> list = ((ParsedStringTerms) response.getAggregations().get(filter.getName())).getBuckets().stream().map(bucket -> (String) bucket.getKey()).collect(toList());
+			distinctValueMap.put(filter.getName(), list);
+		}
+		return distinctValueMap;
+	}
+
+	public Map<String, Map<String, Integer>> getHistogram(SearchSourceBuilder searchSourceBuilder) {
+
+		SearchRequest searchRequest = new SearchRequest(SITE_INDEX);
+		searchRequest.source(searchSourceBuilder);
+		SearchResponse response = null;
+
+		Map<FieldFilter, String> distinctFields = new HashMap<>();
+		distinctFields.put(FieldFilter.MODEL_NAME, "transcriptLevelConsequences.geneLevelConsequence.keyword");
+		distinctFields.put(FieldFilter.DETECTION_METHOD, "transcriptLevelConsequences.molecularConsequence.keyword");
+		distinctFields.put(FieldFilter.VARIANT_TYPE, "variant.variantType.name.keyword");
+		distinctFields.put(FieldFilter.ALLELE_CATEGORY, "alterationType.keyword");
+		distinctFields.put(FieldFilter.MOLECULAR_CONSEQUENCE, "transcriptLevelConsequences.impact.keyword");
+		distinctFields.put(FieldFilter.ASSAY, "transcriptLevelConsequences.siftPrediction.keyword");
+		distinctFields.put(FieldFilter.VARIANT_POLYPHEN, "transcriptLevelConsequences.polyphenPrediction.keyword");
+		distinctFields.forEach((fieldFilter, esFieldName) -> searchSourceBuilder.aggregation(AggregationBuilders.terms(fieldFilter.getName()).field(esFieldName)));
+
+		try {
+			response = EsClientFactory.getDefaultEsClient().search(searchRequest, RequestOptions.DEFAULT);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		// get Distinct values
+		// for now on the filtered result set. This needs to be done on the full,
+		// unfiltered result set.
+
+		Map<String, Map<String, Integer>> distinctValueMap = new HashMap<>();
+		for (FieldFilter filter : distinctFields.keySet()) {
+			Map<String, Integer> map = ((ParsedStringTerms) response.getAggregations().get(filter.getName())).getBuckets().stream()
+				/*
+				 * .map(bucket -> { Map<String, Integer> map = new HashMap<>();
+				 * map.put(bucket.getKey(), (Integer) bucket.getDocCount()); return map; }
+				 */
+				.collect(toMap(t -> (String) t.getKey(), bucket -> (int) bucket.getDocCount()));
+			distinctValueMap.put(filter.getName(), map);
+		}
+		return distinctValueMap;
+	}
+
+	public VariantSummaryDocument getVariant(String id) {
+
+		BoolQueryBuilder bool = boolQuery();
+		bool.filter(new TermQueryBuilder("category", "variant_summary"));
+		bool.must(new TermQueryBuilder("variantList.curatedVariantGenomicLocations.hgvs.keyword", id));
+
+		SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+		searchSourceBuilder.query(bool);
+
+		SearchRequest searchRequest = new SearchRequest(SITE_INDEX);
+		searchRequest.source(searchSourceBuilder);
+		SearchResponse response = null;
+
+		try {
+			response = EsClientFactory.getDefaultEsClient().search(searchRequest, RequestOptions.DEFAULT);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		if (response == null || response.getHits() == null || response.getHits().getHits().length == 0) {
+			return null;
+		}
+
+		SearchHit[] searchHits = response.getHits().getHits();
+
+		// Try to deserialize as VariantSummaryDocument (new curation API format)
+		for (SearchHit hit : searchHits) {
+			try {
+				VariantSummaryDocument summaryDoc = mapper.readValue(hit.getSourceAsString(), VariantSummaryDocument.class);
+				if (summaryDoc != null && summaryDoc.getVariantList() != null && !summaryDoc.getVariantList().isEmpty()) {
+					return summaryDoc;
+				}
+			} catch (IOException e) {
+				log.debug("Failed to deserialize as VariantSummaryDocument, trying AlleleVariantSequence: " + e.getMessage());
+			}
+		}
+		return null;
+	}
+}

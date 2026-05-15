@@ -8,7 +8,7 @@ import java.util.List;
 
 import org.alliancegenome.api.entity.ReleaseInfoDocument;
 import org.alliancegenome.curation_api.model.input.Pagination;
-import org.alliancegenome.es.index.site.dao.SearchDAO;
+import org.alliancegenome.api.es.dao.SearchDAO;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;

@@ -1,6 +1,6 @@
 package org.alliancegenome.api.service;
 
-import static org.alliancegenome.cache.repository.helper.JsonResultResponse.DISTINCT_FIELD_VALUES;
+import static org.alliancegenome.api.response.JsonResultResponse.DISTINCT_FIELD_VALUES;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 
 import java.time.LocalDateTime;
@@ -16,11 +16,11 @@ import org.alliancegenome.api.entity.GeneGeneticInteractionDocument;
 import org.alliancegenome.api.entity.GeneMolecularInteractionDocument;
 import org.alliancegenome.api.entity.GenePhenotypeAnnotationDocument;
 import org.alliancegenome.api.service.helper.ElasticSearchHelper;
-import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.core.variant.service.AlleleVariantIndexService;
+import org.alliancegenome.api.response.JsonResultResponse;
+import org.alliancegenome.api.service.AlleleVariantIndexService;
 import org.alliancegenome.curation_api.model.document.es.SequenceSummaryDocument;
-import org.alliancegenome.es.index.site.dao.SearchDAO;
-import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.api.es.dao.SearchDAO;
+import org.alliancegenome.api.es.query.Pagination;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;

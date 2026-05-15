@@ -15,11 +15,11 @@ import java.util.Optional;
 import org.alliancegenome.api.entity.GenePhenotypeAnnotationDocument;
 import org.alliancegenome.api.service.GeneService;
 import org.alliancegenome.api.translators.tdf.PhenotypeAnnotationToTdfTranslator;
-import org.alliancegenome.cache.repository.helper.JsonResultResponse;
+import org.alliancegenome.api.response.JsonResultResponse;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.model.entities.PhenotypeAnnotation;
-import org.alliancegenome.es.model.query.FieldFilter;
-import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.api.es.query.FieldFilter;
+import org.alliancegenome.api.es.query.Pagination;
 import org.junit.Before;
 import org.junit.Test;
 

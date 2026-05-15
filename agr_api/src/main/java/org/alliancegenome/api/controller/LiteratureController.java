@@ -3,8 +3,8 @@ package org.alliancegenome.api.controller;
 import org.alliancegenome.api.entity.LiteratureSummaryDocument;
 import org.alliancegenome.api.rest.interfaces.LiteratureRESTInterface;
 import org.alliancegenome.api.service.LiteratureESService;
-import org.alliancegenome.core.exceptions.RestErrorException;
-import org.alliancegenome.core.exceptions.RestErrorMessage;
+import org.alliancegenome.api.exceptions.RestErrorException;
+import org.alliancegenome.api.exceptions.RestErrorMessage;
 
 import jakarta.inject.Inject;
 

@@ -1,6 +1,6 @@
 package org.alliancegenome.api.rest.interfaces;
 
-import org.alliancegenome.es.model.search.SearchApiResponse;
+import org.alliancegenome.api.es.search.SearchApiResponse;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.ParameterIn;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;

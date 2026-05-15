@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.alliancegenome.es.model.search.AggResult;
-import org.alliancegenome.es.model.search.Category;
+import org.alliancegenome.api.es.search.AggResult;
+import org.alliancegenome.api.es.search.Category;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.index.query.BoolQueryBuilder;

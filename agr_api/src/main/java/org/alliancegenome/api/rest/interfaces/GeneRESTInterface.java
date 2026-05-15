@@ -10,7 +10,7 @@ import org.alliancegenome.api.entity.GenePhenotypeAnnotationDocument;
 import org.alliancegenome.api.entity.GeneToGeneOrthologyDocument;
 import org.alliancegenome.api.entity.GeneToGeneParalogyDocument;
 import org.alliancegenome.api.entity.GeneTransgenicAlleleSummaryDocument;
-import org.alliancegenome.cache.repository.helper.JsonResultResponse;
+import org.alliancegenome.api.response.JsonResultResponse;
 import org.alliancegenome.curation_api.model.document.es.AGMAnnotationDocument;
 import org.alliancegenome.curation_api.model.document.es.ESDocument;
 import org.alliancegenome.curation_api.model.document.es.GeneSummaryDocument;

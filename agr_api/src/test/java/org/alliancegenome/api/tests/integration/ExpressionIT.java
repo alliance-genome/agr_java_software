@@ -12,11 +12,11 @@ import org.alliancegenome.api.dto.EntitySubgroupSlim;
 import org.alliancegenome.api.dto.RibbonSummary;
 import org.alliancegenome.api.service.ExpressionESService;
 import org.alliancegenome.api.service.ExpressionRibbonESService;
-import org.alliancegenome.cache.repository.helper.JsonResultResponse;
+import org.alliancegenome.api.response.JsonResultResponse;
 import org.alliancegenome.curation_api.model.document.es.GeneExpressionDocument;
-import org.alliancegenome.es.model.query.FieldFilter;
-import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.view.BaseFilter;
+import org.alliancegenome.api.es.query.FieldFilter;
+import org.alliancegenome.api.es.query.Pagination;
+import org.alliancegenome.api.view.BaseFilter;
 import org.junit.Test;
 
 import jakarta.inject.Inject;

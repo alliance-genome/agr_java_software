@@ -18,10 +18,10 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.alliancegenome.api.service.helper.SearchHelper;
-import org.alliancegenome.es.index.site.dao.SearchDAO;
-import org.alliancegenome.es.model.search.Category;
-import org.alliancegenome.es.model.search.RelatedDataLink;
-import org.alliancegenome.es.model.search.SearchApiResponse;
+import org.alliancegenome.api.es.dao.SearchDAO;
+import org.alliancegenome.api.es.search.Category;
+import org.alliancegenome.api.es.search.RelatedDataLink;
+import org.alliancegenome.api.es.search.SearchApiResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.lucene.search.function.FieldValueFactorFunction;

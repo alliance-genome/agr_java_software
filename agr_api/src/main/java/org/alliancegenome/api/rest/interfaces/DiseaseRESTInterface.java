@@ -5,7 +5,7 @@ import java.util.List;
 import org.alliancegenome.api.entity.AGMDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
-import org.alliancegenome.cache.repository.helper.JsonResultResponse;
+import org.alliancegenome.api.response.JsonResultResponse;
 import org.alliancegenome.curation_api.model.document.es.DiseaseSummaryDocument;
 import org.alliancegenome.view.PublicView;
 import org.apache.commons.lang3.ObjectUtils.Null;

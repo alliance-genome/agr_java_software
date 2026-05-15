@@ -8,8 +8,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import org.alliancegenome.es.index.site.dao.SearchDAO;
-import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.api.es.dao.SearchDAO;
+import org.alliancegenome.api.es.query.Pagination;
 import org.apache.commons.collections.MapUtils;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.elasticsearch.action.search.SearchResponse;
