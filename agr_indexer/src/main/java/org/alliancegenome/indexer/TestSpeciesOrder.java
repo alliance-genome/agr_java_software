@@ -8,7 +8,7 @@ import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.model.entities.Species;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.es.rest.RestConfig;
-import org.alliancegenome.indexer.indexers.curation.interfaces.SpeciesInterface;
+import org.alliancegenome.indexer.interfaces.SpeciesInterface;
 
 import si.mazi.rescu.RestProxyFactory;
 
