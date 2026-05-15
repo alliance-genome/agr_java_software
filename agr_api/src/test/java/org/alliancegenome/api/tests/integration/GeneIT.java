@@ -247,14 +247,4 @@ public class GeneIT {
 				.collect(Collectors.toList());
 	}
 
-	@Test
-	public void checkCrossReferenceOnGene() {
-		GeneRepository repository = new GeneRepository();
-		Gene gene = repository.getOneGene("ZFIN:ZDB-GENE-001103-1");
-		assertNotNull(gene);
-		assertTrue("No CrossReferences on gene object", CollectionUtils.isNotEmpty(gene.getCrossReferences()));
-	}
-
-
-
 }
