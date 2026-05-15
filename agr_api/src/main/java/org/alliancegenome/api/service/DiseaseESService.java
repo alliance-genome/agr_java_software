@@ -31,8 +31,6 @@ import org.alliancegenome.curation_api.model.entities.Gene;
 import org.alliancegenome.es.index.site.dao.DiseaseESDAO;
 import org.alliancegenome.es.index.site.dao.GeneESDAO;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.node.SimpleTerm;
-import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.apache.commons.collections4.CollectionUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -49,7 +47,6 @@ import jakarta.inject.Inject;
 @RequestScoped
 public class DiseaseESService extends ESService {
 
-	private static final DiseaseRepository diseaseRepository = new DiseaseRepository();
 	private DiseaseRibbonService diseaseRibbonService;
 
 	@Inject
@@ -60,7 +57,7 @@ public class DiseaseESService extends ESService {
 
 	@PostConstruct
 	void init() {
-		diseaseRibbonService = new DiseaseRibbonService(diseaseRepository, diseaseESDAO);
+		diseaseRibbonService = new DiseaseRibbonService(diseaseESDAO);
 	}
 
 	// termID may be used in the future when converting disease page to new ES stack.
@@ -189,8 +186,9 @@ public class DiseaseESService extends ESService {
 
 		Set<String> allTerms = new HashSet<>();
 		Set<GeneDiseaseAnnotationDocument> allAnnotations = new HashSet<>();
-		List<String> agrDoSlimIDs = diseaseRepository.getAgrDoSlim().stream()
-			.map(SimpleTerm::getPrimaryKey)
+		List<String> agrDoSlimIDs = diseaseESDAO.getAgrSlimDocs().stream()
+			.filter(d -> d.getDoTerm() != null)
+			.map(d -> d.getDoTerm().getCurie())
 			.collect(toList());
 		// add category term IDs to get the full histogram mapped into the response
 		agrDoSlimIDs.addAll(DiseaseRibbonService.slimParentTermIdMap.keySet());

@@ -7,14 +7,13 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.alliancegenome.api.entity.DiseaseRibbonSection;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.api.entity.SectionSlim;
 import org.alliancegenome.curation_api.model.document.es.DiseaseSummaryDocument;
 import org.alliancegenome.es.index.site.dao.DiseaseESDAO;
-import org.alliancegenome.neo4j.entity.node.DOTerm;
-import org.alliancegenome.neo4j.repository.DiseaseRepository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -24,13 +23,11 @@ import jakarta.enterprise.context.RequestScoped;
 @RequestScoped
 public class DiseaseRibbonService {
 
-	private final DiseaseRepository diseaseRepository;
 	private final DiseaseESDAO diseaseESDAO;
 
 	private static DiseaseRibbonSummary diseaseRibbonSummary;
 
-	public DiseaseRibbonService(DiseaseRepository diseaseRepository, DiseaseESDAO diseaseESDAO) {
-		this.diseaseRepository = diseaseRepository;
+	public DiseaseRibbonService(DiseaseESDAO diseaseESDAO) {
 		this.diseaseESDAO = diseaseESDAO;
 	}
 
@@ -94,40 +91,34 @@ public class DiseaseRibbonService {
 			diseaseRibbonSummary.addDiseaseRibbonSection(section);
 		});
 
-		diseaseRibbonSummary.getDiseaseRibbonSections().stream()
-			.filter(diseaseRibbonSection -> diseaseRibbonSection.getId() != null)
-			.filter(diseaseRibbonSection -> !diseaseRibbonSection.getId().equals(DiseaseRibbonSummary.DOID_ALL_ANNOTATIONS))
-			.filter(diseaseRibbonSection -> !diseaseRibbonSection.getId().equals(DOID_OTHER))
-			.forEach(diseaseRibbonSection -> {
-				DiseaseSummaryDocument doc = diseaseESDAO.getById(diseaseRibbonSection.getId());
-				if (doc != null && doc.getDoTerm() != null) {
-					diseaseRibbonSection.setDescription(doc.getDoTerm().getDefinition());
-				}
-			});
+		for (DiseaseSummaryDocument slimDoc : diseaseESDAO.getAgrSlimDocs()) {
+			if (slimDoc.getDoTerm() == null) {
+				continue;
+			}
+			String slimCurie = slimDoc.getDoTerm().getCurie();
+			String slimName = slimDoc.getDoTerm().getName();
+			String slimDefinition = slimDoc.getDoTerm().getDefinition();
+			Set<String> slimAncestors = slimDoc.getParentClosureIDs();
 
-//		  Map<String, Set<String>> closureMapping = diseaseRepository.getClosureChildToParentsMapping();
-
-		List<DOTerm> doList = diseaseRepository.getAgrDoSlim();
-		doList.forEach(doTerm -> {
-			List<String> slimFoundList = new ArrayList<>();
-			diseaseRibbonSummary.getDiseaseRibbonSections().forEach(diseaseRibbonSection -> {
-				if (diseaseRepository.getDOParentTermIDs(doTerm.getPrimaryKey()).contains(diseaseRibbonSection.getId())) {
+			boolean foundSection = false;
+			for (DiseaseRibbonSection section : diseaseRibbonSummary.getDiseaseRibbonSections()) {
+				if (slimAncestors != null && slimAncestors.contains(section.getId())) {
 					SectionSlim slim = new SectionSlim();
-					slim.setId(doTerm.getPrimaryKey());
-					slim.setLabel(doTerm.getName());
-					slim.setDescription(doTerm.getDefinition());
-					diseaseRibbonSection.addDiseaseSlim(slim);
-					slimFoundList.add(doTerm.getPrimaryKey());
+					slim.setId(slimCurie);
+					slim.setLabel(slimName);
+					slim.setDescription(slimDefinition);
+					section.addDiseaseSlim(slim);
+					foundSection = true;
 				}
-			});
-			if (slimFoundList.isEmpty()) {
+			}
+			if (!foundSection) {
 				SectionSlim slim = new SectionSlim();
-				slim.setId(doTerm.getPrimaryKey());
-				slim.setLabel(doTerm.getName());
-				slim.setDescription(doTerm.getDefinition());
+				slim.setId(slimCurie);
+				slim.setLabel(slimName);
+				slim.setDescription(slimDefinition);
 				diseaseRibbonSummary.getOtherSection().addDiseaseSlim(slim);
 			}
-		});
+		}
 
 		return diseaseRibbonSummary;
 	}
