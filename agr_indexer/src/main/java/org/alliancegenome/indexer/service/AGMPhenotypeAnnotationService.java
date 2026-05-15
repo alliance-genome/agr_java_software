@@ -9,9 +9,9 @@ import java.util.concurrent.TimeUnit;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.model.entities.AGMPhenotypeAnnotation;
 import org.alliancegenome.curation_api.response.SearchResponse;
+import org.alliancegenome.es.rest.RestConfig;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.interfaces.AGMPhenotypeAnnotationInterface;
-import org.alliancegenome.es.rest.RestConfig;
 
 import lombok.extern.slf4j.Slf4j;
 import si.mazi.rescu.RestProxyFactory;

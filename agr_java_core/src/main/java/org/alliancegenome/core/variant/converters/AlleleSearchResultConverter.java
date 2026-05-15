@@ -1,17 +1,19 @@
 package org.alliancegenome.core.variant.converters;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
 import org.alliancegenome.curation_api.model.entities.Allele;
 import org.alliancegenome.curation_api.model.entities.Species;
 import org.alliancegenome.curation_api.model.entities.ontology.NCBITaxonTerm;
 import org.alliancegenome.curation_api.model.entities.slotAnnotations.NameSlotAnnotation;
 import org.alliancegenome.es.model.AlleleSearchResultDocument;
-import org.alliancegenome.es.model.search.Category;
-import org.alliancegenome.es.model.search.RelatedDataLink;
 import org.apache.commons.collections.CollectionUtils;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 public class AlleleSearchResultConverter {
 

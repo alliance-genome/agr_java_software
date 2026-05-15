@@ -9,9 +9,6 @@ import java.util.Map;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.indexer.variant.filedownload.model.DownloadFileSet;
-import org.alliancegenome.indexer.variant.filedownload.model.DownloadSource;
-import org.alliancegenome.indexer.variant.config.VariantConfigHelper;
 import org.alliancegenome.curation_api.interfaces.crud.ontology.SoTermCrudInterface;
 import org.alliancegenome.curation_api.interfaces.document.VariantDocumentInterface;
 import org.alliancegenome.curation_api.model.entities.Gene;
@@ -20,6 +17,9 @@ import org.alliancegenome.es.rest.RestConfig;
 import org.alliancegenome.es.util.ElasticSearchInterface;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;
+import org.alliancegenome.indexer.variant.config.VariantConfigHelper;
+import org.alliancegenome.indexer.variant.filedownload.model.DownloadFileSet;
+import org.alliancegenome.indexer.variant.filedownload.model.DownloadSource;
 import org.alliancegenome.indexer.variant.interfaces.SpeciesInterface;
 
 import lombok.extern.slf4j.Slf4j;

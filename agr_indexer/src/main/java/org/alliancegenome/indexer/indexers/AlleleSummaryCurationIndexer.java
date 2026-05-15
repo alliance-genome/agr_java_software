@@ -12,9 +12,9 @@ import org.alliancegenome.curation_api.interfaces.document.AlleleDocumentInterfa
 import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
 import org.alliancegenome.curation_api.model.document.es.SequenceSummaryDocument;
 import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
-import org.alliancegenome.es.model.AlleleSearchResultDocument;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.curation_api.view.CurationView;
+import org.alliancegenome.es.model.AlleleSearchResultDocument;
 import org.alliancegenome.es.rest.RestConfig;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;

@@ -1,12 +1,11 @@
 package org.alliancegenome.es.model;
 
-import java.util.List;
 import java.util.Set;
-
-import com.fasterxml.jackson.annotation.JsonView;
 
 import org.alliancegenome.curation_api.model.document.es.ESDocument;
 import org.alliancegenome.curation_api.view.CurationView;
+
+import com.fasterxml.jackson.annotation.JsonView;
 
 import lombok.Getter;
 import lombok.Setter;

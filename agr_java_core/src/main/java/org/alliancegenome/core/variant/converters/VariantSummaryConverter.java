@@ -23,7 +23,6 @@ import org.alliancegenome.curation_api.model.entities.Transcript;
 import org.alliancegenome.curation_api.model.entities.Variant;
 import org.alliancegenome.curation_api.model.entities.VocabularyTerm;
 import org.alliancegenome.curation_api.model.entities.associations.CuratedVariantGenomicLocationAssociation;
-import org.alliancegenome.curation_api.model.entities.associations.GeneGenomicLocationAssociation;
 import org.alliancegenome.curation_api.model.entities.associations.TranscriptGeneAssociation;
 import org.alliancegenome.curation_api.model.entities.ontology.NCBITaxonTerm;
 import org.alliancegenome.curation_api.model.entities.ontology.SOTerm;

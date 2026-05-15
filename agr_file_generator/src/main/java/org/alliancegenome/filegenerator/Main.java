@@ -1,12 +1,11 @@
 package org.alliancegenome.filegenerator;
 
+import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
-import java.nio.file.Paths;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.util.ProcessDisplayHelper;

@@ -12,7 +12,6 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.indexer.util.StatsCollector;
 import org.alliancegenome.curation_api.model.document.es.ESDocument;
 import org.alliancegenome.curation_api.model.entities.Species;
 import org.alliancegenome.curation_api.model.entities.base.AuditedObject;
@@ -23,8 +22,7 @@ import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.document.AuditedObjectIndexerMixin;
 import org.alliancegenome.indexer.interfaces.SpeciesInterface;
-
-import si.mazi.rescu.RestProxyFactory;
+import org.alliancegenome.indexer.util.StatsCollector;
 import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.bulk.BackoffPolicy;
 import org.elasticsearch.action.bulk.BulkProcessor;
@@ -44,6 +42,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import si.mazi.rescu.RestProxyFactory;
 
 @Slf4j
 public abstract class Indexer extends Thread {

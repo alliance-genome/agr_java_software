@@ -1,6 +1,5 @@
 package org.alliancegenome.es.model;
 
-import java.util.List;
 import java.util.Set;
 
 import org.alliancegenome.curation_api.model.document.es.ESDocument;

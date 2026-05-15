@@ -6,8 +6,8 @@ import static org.alliancegenome.core.config.Constants.VARIANT_CACHER_CONFIG_FIL
 import static org.alliancegenome.core.config.Constants.VARIANT_CONFIG_CREATING;
 import static org.alliancegenome.core.config.Constants.VARIANT_CONFIG_DOWNLOAD;
 import static org.alliancegenome.core.config.Constants.VARIANT_CONFIG_GATHERSTATS;
-import static org.alliancegenome.core.config.Constants.VARIANT_CONFIG_INDEX_CURATION_DOCUMENTS;
 import static org.alliancegenome.core.config.Constants.VARIANT_CONFIG_INDEXING;
+import static org.alliancegenome.core.config.Constants.VARIANT_CONFIG_INDEX_CURATION_DOCUMENTS;
 import static org.alliancegenome.core.config.Constants.VARIANT_DISPLAY_INTERVAL;
 import static org.alliancegenome.core.config.Constants.VARIANT_DOWNLOAD_SET_FILE;
 import static org.alliancegenome.core.config.Constants.VARIANT_FILE_DOWNLOAD_FILTER_THREADS;
@@ -16,12 +16,12 @@ import static org.alliancegenome.core.config.Constants.VARIANT_FILE_DOWNLOAD_THR
 import static org.alliancegenome.core.config.Constants.VARIANT_INDEXER_BULK_PROCESSOR_THREADS;
 import static org.alliancegenome.core.config.Constants.VARIANT_INDEXER_SHARDS;
 import static org.alliancegenome.core.config.Constants.VARIANT_PRODUCER_THREADS;
+import static org.alliancegenome.core.config.Constants.VARIANT_SOURCE_DOCUMENT_CREATOR_JSON_QUEUE_BUCKET_SIZE;
 import static org.alliancegenome.core.config.Constants.VARIANT_SOURCE_DOCUMENT_CREATOR_OBJECT_QUEUE_BUCKET_SIZE;
 import static org.alliancegenome.core.config.Constants.VARIANT_SOURCE_DOCUMENT_CREATOR_OBJECT_QUEUE_SIZE;
 import static org.alliancegenome.core.config.Constants.VARIANT_SOURCE_DOCUMENT_CREATOR_THREADS;
 import static org.alliancegenome.core.config.Constants.VARIANT_SOURCE_DOCUMENT_CREATOR_VCQUEUE_BUCKET_SIZE;
 import static org.alliancegenome.core.config.Constants.VARIANT_SOURCE_DOCUMENT_CREATOR_VCQUEUE_SIZE;
-import static org.alliancegenome.core.config.Constants.VARIANT_SOURCE_DOCUMENT_CREATOR_JSON_QUEUE_BUCKET_SIZE;
 import static org.alliancegenome.core.config.Constants.VARIANT_TRANSFORMER_THREADS;
 
 import java.util.HashMap;
