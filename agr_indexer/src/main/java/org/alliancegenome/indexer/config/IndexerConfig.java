@@ -25,9 +25,6 @@ import org.alliancegenome.indexer.indexers.curation.TransgenicAlleleCurationInde
 
 public enum IndexerConfig {
 
-	// Neo Indexers
-	ModelIndexer("model", ModelIndexer.class, 4, 1500, 1426, 4, 1, true),
-
 	// Curation Indexers
 
 	// Run Sequentially -- typically take a lot of RAM or do consolidation in memory
