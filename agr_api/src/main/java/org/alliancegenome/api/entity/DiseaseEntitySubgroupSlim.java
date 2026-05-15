@@ -1,6 +1,6 @@
 package org.alliancegenome.api.entity;
 
-import org.alliancegenome.view.PublicView;
+import org.alliancegenome.core.view.PublicView;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;

@@ -12,7 +12,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.List;
 import java.util.Optional;
 
-import org.alliancegenome.api.entity.GenePhenotypeAnnotationDocument;
+import org.alliancegenome.core.document.GenePhenotypeAnnotationDocument;
 import org.alliancegenome.api.service.GeneService;
 import org.alliancegenome.api.translators.tdf.PhenotypeAnnotationToTdfTranslator;
 import org.alliancegenome.api.response.JsonResultResponse;

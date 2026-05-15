@@ -12,9 +12,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.alliancegenome.api.entity.GeneGeneticInteractionDocument;
-import org.alliancegenome.api.entity.GeneMolecularInteractionDocument;
-import org.alliancegenome.api.entity.GenePhenotypeAnnotationDocument;
+import org.alliancegenome.core.document.GeneGeneticInteractionDocument;
+import org.alliancegenome.core.document.GeneMolecularInteractionDocument;
+import org.alliancegenome.core.document.GenePhenotypeAnnotationDocument;
 import org.alliancegenome.api.service.helper.ElasticSearchHelper;
 import org.alliancegenome.api.response.JsonResultResponse;
 import org.alliancegenome.api.service.AlleleVariantIndexService;

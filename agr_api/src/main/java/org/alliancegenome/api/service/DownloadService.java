@@ -10,7 +10,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.alliancegenome.api.dto.DownloadFile;
-import org.alliancegenome.api.entity.ReleaseInfoDocument;
+import org.alliancegenome.core.document.ReleaseInfoDocument;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;

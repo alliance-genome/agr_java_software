@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.alliancegenome.api.entity.GeneToGeneOrthologyDocument;
+import org.alliancegenome.core.document.GeneToGeneOrthologyDocument;
 import org.alliancegenome.api.response.JsonResultResponse;
 import org.alliancegenome.api.es.query.FieldFilter;
 import org.alliancegenome.api.es.query.Pagination;

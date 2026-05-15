@@ -5,9 +5,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 
-import org.alliancegenome.api.entity.ReleaseInfoDocument;
+import org.alliancegenome.core.document.ReleaseInfoDocument;
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.es.util.ProcessDisplayHelper;
+import org.alliancegenome.core.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.config.IndexerConfig;
 
 public class ReleaseInfoIndexer extends Indexer {

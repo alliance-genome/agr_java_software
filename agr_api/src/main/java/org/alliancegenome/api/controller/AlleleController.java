@@ -2,9 +2,9 @@ package org.alliancegenome.api.controller;
 
 import java.time.LocalDateTime;
 
-import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
-import org.alliancegenome.api.entity.AllelePhenotypeAnnotationDocument;
-import org.alliancegenome.api.entity.TransgenicAlleleSummaryDocument;
+import org.alliancegenome.core.document.AlleleDiseaseAnnotationDocument;
+import org.alliancegenome.core.document.AllelePhenotypeAnnotationDocument;
+import org.alliancegenome.core.document.TransgenicAlleleSummaryDocument;
 import org.alliancegenome.api.rest.interfaces.AlleleRESTInterface;
 import org.alliancegenome.api.service.AlleleESService;
 import org.alliancegenome.api.service.DiseaseESService;

@@ -1,6 +1,6 @@
 package org.alliancegenome.api.controller;
 
-import org.alliancegenome.api.entity.ReleaseInfoDocument;
+import org.alliancegenome.core.document.ReleaseInfoDocument;
 import org.alliancegenome.api.rest.interfaces.ReleaseInfoRESTInterface;
 import org.alliancegenome.api.service.ReleaseInfoService;
 

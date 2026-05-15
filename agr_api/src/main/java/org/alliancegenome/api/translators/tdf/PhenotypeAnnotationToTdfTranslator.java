@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.alliancegenome.api.entity.PhenotypeAnnotationDocument;
+import org.alliancegenome.core.document.PhenotypeAnnotationDocument;
 import org.alliancegenome.api.translators.tdf.DownloadHeader;
 import org.alliancegenome.api.translators.tdf.PhenotypeDownloadRow;
 import org.alliancegenome.curation_api.model.entities.AGMPhenotypeAnnotation;

@@ -5,7 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.alliancegenome.api.entity.GeneTransgenicAlleleSummaryDocument;
+import org.alliancegenome.core.document.GeneTransgenicAlleleSummaryDocument;
 import org.alliancegenome.api.response.JsonResultResponse;
 import org.alliancegenome.api.es.query.Pagination;
 import org.elasticsearch.action.search.SearchResponse;

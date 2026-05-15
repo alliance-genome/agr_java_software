@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 import org.alliancegenome.api.controller.ExpressionController;
 import org.alliancegenome.api.controller.GeneController;
-import org.alliancegenome.api.entity.GeneToGeneOrthologyDocument;
+import org.alliancegenome.core.document.GeneToGeneOrthologyDocument;
 import org.alliancegenome.api.response.JsonResultResponse;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.model.document.es.GeneExpressionDocument;

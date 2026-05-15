@@ -2,7 +2,7 @@ package org.alliancegenome.api.service;
 
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 
-import org.alliancegenome.api.entity.LiteratureSummaryDocument;
+import org.alliancegenome.core.document.LiteratureSummaryDocument;
 import org.alliancegenome.api.es.query.Pagination;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;

@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import org.alliancegenome.api.entity.ReleaseInfoDocument;
+import org.alliancegenome.core.document.ReleaseInfoDocument;
 import org.alliancegenome.curation_api.model.input.Pagination;
 import org.alliancegenome.api.es.dao.SearchDAO;
 import org.elasticsearch.action.search.SearchResponse;

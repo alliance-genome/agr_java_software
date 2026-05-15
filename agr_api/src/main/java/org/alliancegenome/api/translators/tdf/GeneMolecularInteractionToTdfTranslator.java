@@ -3,7 +3,7 @@ package org.alliancegenome.api.translators.tdf;
 import java.util.List;
 import java.util.StringJoiner;
 
-import org.alliancegenome.api.entity.GeneMolecularInteractionDocument;
+import org.alliancegenome.core.document.GeneMolecularInteractionDocument;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.model.entities.InformationContentEntity;
 import org.alliancegenome.curation_api.model.entities.Reference;

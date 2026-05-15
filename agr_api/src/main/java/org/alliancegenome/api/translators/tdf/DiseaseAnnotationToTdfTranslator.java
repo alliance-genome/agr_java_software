@@ -9,11 +9,11 @@ import java.util.StringJoiner;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.alliancegenome.api.entity.AGMDiseaseAnnotationDocument;
-import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
-import org.alliancegenome.api.entity.DiseaseAnnotationDocument;
-import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
-import org.alliancegenome.core.helpers.DiseaseAnnotationHelper;
+import org.alliancegenome.core.document.AGMDiseaseAnnotationDocument;
+import org.alliancegenome.core.document.AlleleDiseaseAnnotationDocument;
+import org.alliancegenome.core.document.DiseaseAnnotationDocument;
+import org.alliancegenome.core.document.GeneDiseaseAnnotationDocument;
+import org.alliancegenome.core.helper.DiseaseAnnotationHelper;
 import org.alliancegenome.api.translators.tdf.DiseaseDownloadRow;
 import org.alliancegenome.api.translators.tdf.DownloadHeader;
 import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;

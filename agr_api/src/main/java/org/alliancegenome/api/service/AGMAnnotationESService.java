@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.alliancegenome.api.response.JsonResultResponse;
 import org.alliancegenome.curation_api.model.document.es.AGMAnnotationDocument;
-import org.alliancegenome.es.index.site.schema.Mapping;
+import org.alliancegenome.core.es.schema.Mapping;
 import org.alliancegenome.api.es.query.Pagination;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;

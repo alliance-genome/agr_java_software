@@ -1,9 +1,9 @@
 package org.alliancegenome.indexer.variant;
 
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.es.index.site.schema.VariantMapping;
-import org.alliancegenome.es.index.site.schema.settings.VariantIndexSettings;
-import org.alliancegenome.es.util.IndexManager;
+import org.alliancegenome.core.es.schema.VariantMapping;
+import org.alliancegenome.core.es.schema.settings.VariantIndexSettings;
+import org.alliancegenome.core.es.util.IndexManager;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.variant.config.VariantConfigHelper;
 import org.alliancegenome.indexer.variant.es.managers.SourceDocumentCreation;

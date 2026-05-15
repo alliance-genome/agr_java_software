@@ -1,6 +1,6 @@
 package org.alliancegenome.api.controller;
 
-import org.alliancegenome.api.entity.LiteratureSummaryDocument;
+import org.alliancegenome.core.document.LiteratureSummaryDocument;
 import org.alliancegenome.api.rest.interfaces.LiteratureRESTInterface;
 import org.alliancegenome.api.service.LiteratureESService;
 import org.alliancegenome.api.exceptions.RestErrorException;

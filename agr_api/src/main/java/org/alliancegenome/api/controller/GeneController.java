@@ -5,12 +5,12 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
-import org.alliancegenome.api.entity.GeneGeneticInteractionDocument;
-import org.alliancegenome.api.entity.GeneMolecularInteractionDocument;
-import org.alliancegenome.api.entity.GenePhenotypeAnnotationDocument;
-import org.alliancegenome.api.entity.GeneToGeneOrthologyDocument;
-import org.alliancegenome.api.entity.GeneToGeneParalogyDocument;
-import org.alliancegenome.api.entity.GeneTransgenicAlleleSummaryDocument;
+import org.alliancegenome.core.document.GeneGeneticInteractionDocument;
+import org.alliancegenome.core.document.GeneMolecularInteractionDocument;
+import org.alliancegenome.core.document.GenePhenotypeAnnotationDocument;
+import org.alliancegenome.core.document.GeneToGeneOrthologyDocument;
+import org.alliancegenome.core.document.GeneToGeneParalogyDocument;
+import org.alliancegenome.core.document.GeneTransgenicAlleleSummaryDocument;
 import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
 import org.alliancegenome.api.service.AGMAnnotationESService;
 import org.alliancegenome.api.service.AlleleESService;

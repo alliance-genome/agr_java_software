@@ -1,12 +1,12 @@
 package org.alliancegenome.api.rest.interfaces;
 
-import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
-import org.alliancegenome.api.entity.AllelePhenotypeAnnotationDocument;
-import org.alliancegenome.api.entity.TransgenicAlleleSummaryDocument;
+import org.alliancegenome.core.document.AlleleDiseaseAnnotationDocument;
+import org.alliancegenome.core.document.AllelePhenotypeAnnotationDocument;
+import org.alliancegenome.core.document.TransgenicAlleleSummaryDocument;
 import org.alliancegenome.api.response.JsonResultResponse;
 import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
 import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
-import org.alliancegenome.view.PublicView;
+import org.alliancegenome.core.view.PublicView;
 import org.apache.commons.lang3.ObjectUtils.Null;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.ParameterIn;

@@ -8,7 +8,7 @@ import java.util.Map.Entry;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.api.es.dao.ESDAO;
-import org.alliancegenome.es.util.EsClientFactory;
+import org.alliancegenome.core.es.util.EsClientFactory;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;

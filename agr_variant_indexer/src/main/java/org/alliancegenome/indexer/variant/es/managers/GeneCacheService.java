@@ -11,8 +11,8 @@ import org.alliancegenome.curation_api.interfaces.document.GeneDocumentInterface
 import org.alliancegenome.curation_api.model.document.es.GeneSummaryDocument;
 import org.alliancegenome.curation_api.model.entities.Gene;
 import org.alliancegenome.curation_api.response.SearchResponse;
-import org.alliancegenome.es.rest.RestConfig;
-import org.alliancegenome.es.util.ProcessDisplayHelper;
+import org.alliancegenome.core.config.RestConfig;
+import org.alliancegenome.core.es.util.ProcessDisplayHelper;
 
 import lombok.extern.slf4j.Slf4j;
 import si.mazi.rescu.RestProxyFactory;

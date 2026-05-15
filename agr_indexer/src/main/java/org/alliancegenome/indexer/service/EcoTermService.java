@@ -3,7 +3,7 @@ package org.alliancegenome.indexer.service;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.model.entities.ontology.ECOTerm;
 import org.alliancegenome.curation_api.response.ObjectResponse;
-import org.alliancegenome.es.rest.RestConfig;
+import org.alliancegenome.core.config.RestConfig;
 import org.alliancegenome.indexer.interfaces.EcoTermRESTInterface;
 
 import si.mazi.rescu.RestProxyFactory;

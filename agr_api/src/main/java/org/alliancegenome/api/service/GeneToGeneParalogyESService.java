@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import org.alliancegenome.api.entity.GeneToGeneParalogyDocument;
+import org.alliancegenome.core.document.GeneToGeneParalogyDocument;
 import org.alliancegenome.api.response.JsonResultResponse;
 import org.alliancegenome.api.es.dao.SearchDAO;
 import org.alliancegenome.api.es.query.Pagination;

@@ -1,7 +1,7 @@
 package org.alliancegenome.api.rest.interfaces;
 
-import org.alliancegenome.api.entity.ReleaseInfoDocument;
-import org.alliancegenome.view.PublicView;
+import org.alliancegenome.core.document.ReleaseInfoDocument;
+import org.alliancegenome.core.view.PublicView;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 

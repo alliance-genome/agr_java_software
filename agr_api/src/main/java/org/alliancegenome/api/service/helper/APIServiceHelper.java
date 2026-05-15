@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.alliancegenome.api.service.EntityType;
-import org.alliancegenome.core.helpers.DiseaseAnnotationHelper;
+import org.alliancegenome.core.helper.DiseaseAnnotationHelper;
 import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.BiologicalEntity;

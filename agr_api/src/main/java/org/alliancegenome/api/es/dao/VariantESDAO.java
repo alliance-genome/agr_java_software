@@ -14,7 +14,7 @@ import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
 import org.alliancegenome.api.es.dao.ESDAO;
 import org.alliancegenome.api.es.query.FieldFilter;
 import org.alliancegenome.api.es.query.Pagination;
-import org.alliancegenome.es.util.EsClientFactory;
+import org.alliancegenome.core.es.util.EsClientFactory;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;

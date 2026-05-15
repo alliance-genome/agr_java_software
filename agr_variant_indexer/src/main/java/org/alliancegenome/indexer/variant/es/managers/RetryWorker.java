@@ -11,7 +11,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.alliancegenome.es.util.EsClientFactory;
+import org.alliancegenome.core.es.util.EsClientFactory;
 import org.alliancegenome.indexer.variant.config.VariantConfigHelper;
 import org.elasticsearch.client.RestHighLevelClient;
 
