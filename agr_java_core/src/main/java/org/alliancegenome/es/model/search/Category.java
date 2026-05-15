@@ -7,7 +7,7 @@ public enum Category {
 	VARIANT("variant_search_result", true),
 	SEQUENCE_SUMMARY("sequence_summary", false),
 	DISEASE("disease_search_result", true),
-	MODEL("model", true),
+	MODEL("model_search_result", true),
 	GENE("gene_search_result", true),
 	GO("go_search_result", true),
 	DATASET("htp_dataset_search_result", true);

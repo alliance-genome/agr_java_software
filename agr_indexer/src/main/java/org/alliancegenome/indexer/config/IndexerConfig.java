@@ -17,6 +17,7 @@ import org.alliancegenome.indexer.indexers.curation.GeneSummaryCurationIndexer;
 import org.alliancegenome.indexer.indexers.curation.GeneToGeneOrthologyIndexer;
 import org.alliancegenome.indexer.indexers.curation.GeneToGeneParalogyIndexer;
 import org.alliancegenome.indexer.indexers.curation.HTPDatasetSearchResultCurationIndexer;
+import org.alliancegenome.indexer.indexers.curation.ModelSearchResultCurationIndexer;
 import org.alliancegenome.indexer.indexers.curation.PhenotypeAnnotationCurationIndexer;
 import org.alliancegenome.indexer.indexers.curation.ReleaseInfoIndexer;
 import org.alliancegenome.indexer.indexers.curation.SiteMapAccessionCurationIndexer;
@@ -48,6 +49,7 @@ public enum IndexerConfig {
 	TransgenicAlleleIndexer("transgenicAlleles", TransgenicAlleleCurationIndexer.class, 1, 3000, 1500, 8, 1, true),
 	DiseaseSearchResultIndexer("diseaseSearchResult", DiseaseSearchResultCurationIndexer.class, 8, 50, 50, 4, 1, true),
 	GOSearchResultCurationIndexer("goSearchResult", GOSearchResultCurationIndexer.class, 4, 1500, 1500, 4, 1, true),
+	ModelSearchResultIndexer("modelSearchResult", ModelSearchResultCurationIndexer.class, 4, 1500, 1500, 4, 1, true),
 	AlleleSummaryIndexer("alleleSummary", AlleleSummaryCurationIndexer.class, 8, 1500, 1500, 8, 10, true),
 	GeneToGeneOrthologyIndexer("geneToGeneOrthology", GeneToGeneOrthologyIndexer.class, 4, 2500, 2500, 8, 1, true),
 	GeneMolecularInteractionIndexers("geneMolecularInteraction", GeneMolecularInteractionCurationIndexer.class, 4, 1500, 1500, 2, 1, true),
