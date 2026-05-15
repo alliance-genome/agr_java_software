@@ -1,10 +1,8 @@
 package org.alliancegenome.api.tests.integration;
 
 import static java.util.Arrays.asList;
-import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 import java.lang.reflect.Method;
@@ -14,21 +12,15 @@ import java.util.stream.Collectors;
 import org.alliancegenome.api.controller.ExpressionController;
 import org.alliancegenome.api.controller.GeneController;
 import org.alliancegenome.api.entity.GeneToGeneOrthologyDocument;
-import org.alliancegenome.api.service.GeneService;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.model.document.es.GeneExpressionDocument;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.repository.GeneRepository;
-import org.apache.commons.collections.CollectionUtils;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import jakarta.inject.Inject;
 
 public class GeneIT {
 

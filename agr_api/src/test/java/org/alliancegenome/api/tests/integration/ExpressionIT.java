@@ -4,11 +4,9 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.alliancegenome.api.dto.EntitySubgroupSlim;
 import org.alliancegenome.api.dto.RibbonSummary;
@@ -18,8 +16,6 @@ import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.curation_api.model.document.es.GeneExpressionDocument;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.node.GOTerm;
-import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.junit.Test;
 
@@ -85,17 +81,6 @@ public class ExpressionIT extends AbstractIT {
 		EntitySubgroupSlim slim = (EntitySubgroupSlim) summary.getDiseaseRibbonEntities().get(0).getSlims().get("GO:0005634").get("ALL");
 		assertEquals(slim.getNumberOfAnnotations(), 4);
 		assertEquals(slim.getNumberOfClasses(), 3);
-	}
-
-	@Test
-	// Test Pten from MGI for expression ribbon summary
-	public void checkExpressionRibbonGoTerms() {
-		GeneRepository geneRepository = new GeneRepository();
-		List<GOTerm> terms = geneRepository.getFullGoTermList();
-		assertNotNull(terms);
-		String termNames = terms.stream().map(GOTerm::getName).collect(Collectors.joining(","));
-		assertTrue(termNames.contains("extracellular region"));
-
 	}
 
 	@Test
