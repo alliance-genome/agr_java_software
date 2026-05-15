@@ -12,15 +12,12 @@ import org.alliancegenome.api.entity.GeneMolecularInteractionDocument;
 import org.alliancegenome.api.service.GeneService;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.repository.InteractionRepository;
 import org.junit.Test;
 
 import jakarta.inject.Inject;
 
 public class InteractionsIT {
 
-	public static InteractionRepository repo = new InteractionRepository();
-	
 	@Inject
 	private GeneService geneService;
 
