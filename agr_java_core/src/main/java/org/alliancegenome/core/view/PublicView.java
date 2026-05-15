@@ -8,12 +8,6 @@ public class PublicView {
 	public static class Default extends ForPublic {
 	}
 
-	public static class DetailView {
-	}
-
-	public static class SimpleView {
-	}
-
 	public static class PhenotypeAnnotation extends API {
 	}
 
@@ -23,13 +17,7 @@ public class PublicView {
 	public static class API extends Default {
 	}
 
-	public static class Homology extends Default {
-	}
-	
 	public static class PhenotypeAPI extends API {
-	}
-
-	public static class OrthologyMethod extends Default {
 	}
 
 	public static class Expression extends API {
@@ -44,9 +32,6 @@ public class PublicView {
 	public static class DiseaseAnnotationSummary extends DiseaseAnnotation {
 	}
 
-	public static class PrimaryAnnotation extends API {
-	}
-
 	public static class Interaction extends API {
 	}
 
@@ -56,30 +41,9 @@ public class PublicView {
 	public static class MolecularInteraction extends Interaction {
 	}
 
-	public static class GeneAPI extends API {
-	}
-
-	public static class DiseaseAPI extends API {
-	}
-
-	public static class GeneAllelesAPI extends API {
-	}
-
-	public static class GeneAlleleVariantSequenceAPI extends Default {
-	}
-
-	public static class AlleleAPI extends API {
-	}
-
-	public static class TransgenicAlleleAPI extends API {
-	}
-
 	public static class VariantAPI extends API {
 	}
 	public static class ReleaseInfo extends API {
-	}
-
-	public static class OntologyFileMetadata extends API {
 	}
 
 }
