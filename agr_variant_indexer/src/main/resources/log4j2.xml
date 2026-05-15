@@ -26,7 +26,6 @@
 		<logger name="org.alliancegenome" level="${env:DEFAULT_LOG_LEVEL}" />
 		<logger name="org.elasticsearch" level="${env:ES_LOG_LEVEL}" />
 		<logger name="io.netty" level="${env:NETTY_LOG_LEVEL}" />
-		<logger name="org.neo4j.ogm" level="${env:BOLT_LOG_LEVEL}" />
 		<logger name="si.mazi.rescu" level="${env:RESCU_LOG_LEVEL}" />
 	</Loggers>
 </Configuration>
