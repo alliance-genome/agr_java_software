@@ -23,7 +23,6 @@ import org.alliancegenome.api.service.OrthologyESService;
 import org.alliancegenome.api.service.PhenotypeESService;
 import org.alliancegenome.api.service.TransgenicAlleleESService;
 import org.alliancegenome.api.service.helper.APIServiceHelper;
-import org.alliancegenome.api.translators.tdf.DiseaseAnnotationToTdfTranslator;
 import org.alliancegenome.api.translators.tdf.PhenotypeAnnotationToTdfTranslator;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.exceptions.RestErrorException;
@@ -80,7 +79,6 @@ public class GeneController implements GeneRESTInterface {
 	private static final AlleleToTdfTranslator alleleTranslator = new AlleleToTdfTranslator();
 	private static final GeneGeneticInteractionToTdfTranslator geneticInteractionTranslator = new GeneGeneticInteractionToTdfTranslator();
 	private static final GeneMolecularInteractionToTdfTranslator molecularInteractionTranslator = new GeneMolecularInteractionToTdfTranslator();
-	private static final DiseaseAnnotationToTdfTranslator diseaseTranslator = new DiseaseAnnotationToTdfTranslator();
 
 	@Override
 	public GeneSummaryDocument getGene(String id) {
