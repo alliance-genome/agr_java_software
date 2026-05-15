@@ -27,9 +27,9 @@ import org.alliancegenome.api.translators.tdf.PhenotypeAnnotationToTdfTranslator
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.exceptions.RestErrorException;
 import org.alliancegenome.core.exceptions.RestErrorMessage;
-import org.alliancegenome.core.translators.tdf.AlleleToTdfTranslator;
-import org.alliancegenome.core.translators.tdf.GeneGeneticInteractionToTdfTranslator;
-import org.alliancegenome.core.translators.tdf.GeneMolecularInteractionToTdfTranslator;
+import org.alliancegenome.api.translators.tdf.AlleleToTdfTranslator;
+import org.alliancegenome.api.translators.tdf.GeneGeneticInteractionToTdfTranslator;
+import org.alliancegenome.api.translators.tdf.GeneMolecularInteractionToTdfTranslator;
 import org.alliancegenome.curation_api.model.document.es.AGMAnnotationDocument;
 import org.alliancegenome.curation_api.model.document.es.ESDocument;
 import org.alliancegenome.curation_api.model.document.es.GeneSummaryDocument;

@@ -13,7 +13,7 @@ import org.alliancegenome.api.service.helper.APIServiceHelper;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.exceptions.RestErrorException;
 import org.alliancegenome.core.exceptions.RestErrorMessage;
-import org.alliancegenome.core.translators.tdf.ExpressionToTdfTranslator;
+import org.alliancegenome.api.translators.tdf.ExpressionToTdfTranslator;
 import org.alliancegenome.curation_api.model.document.es.GeneExpressionDocument;
 import org.alliancegenome.es.model.query.Pagination;
 

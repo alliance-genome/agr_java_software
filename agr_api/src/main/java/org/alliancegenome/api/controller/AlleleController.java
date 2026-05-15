@@ -16,7 +16,7 @@ import org.alliancegenome.api.translators.tdf.PhenotypeAnnotationToTdfTranslator
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.exceptions.RestErrorException;
 import org.alliancegenome.core.exceptions.RestErrorMessage;
-import org.alliancegenome.core.translators.tdf.AlleleToTdfTranslator;
+import org.alliancegenome.api.translators.tdf.AlleleToTdfTranslator;
 import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
 import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
 import org.alliancegenome.es.model.query.FieldFilter;

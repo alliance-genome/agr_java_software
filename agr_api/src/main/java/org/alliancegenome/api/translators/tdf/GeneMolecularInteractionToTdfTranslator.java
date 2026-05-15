@@ -1,4 +1,4 @@
-package org.alliancegenome.core.translators.tdf;
+package org.alliancegenome.api.translators.tdf;
 
 import java.util.List;
 import java.util.StringJoiner;

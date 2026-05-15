@@ -88,7 +88,7 @@ public class ExpressionIT extends AbstractIT {
 	public void checkExpressionFiltering() {
 		Pagination pagination = new Pagination();
 		BaseFilter filter = new BaseFilter();
-		filter.addFieldFilter(FieldFilter.SOURCE, "9913");
+		filter.put(FieldFilter.SOURCE, "9913");
 		pagination.setFieldFilterValueMap(filter);
 		JsonResultResponse<GeneExpressionDocument> summary = expressionESService.getExpressionAnnotations(List.of("WB:WBGene00000898"), null, "NCBITaxon:6239", pagination);
 		assertNotNull(summary);
