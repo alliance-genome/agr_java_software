@@ -2,6 +2,7 @@ package org.alliancegenome.indexer.variant.es.managers;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -14,10 +15,12 @@ import org.alliancegenome.core.variant.config.VariantConfigHelper;
 import org.alliancegenome.curation_api.interfaces.crud.ontology.SoTermCrudInterface;
 import org.alliancegenome.curation_api.interfaces.document.VariantDocumentInterface;
 import org.alliancegenome.curation_api.model.entities.Gene;
+import org.alliancegenome.curation_api.model.entities.Species;
 import org.alliancegenome.es.rest.RestConfig;
 import org.alliancegenome.es.util.ElasticSearchInterface;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;
+import org.alliancegenome.indexer.variant.interfaces.SpeciesInterface;
 
 import lombok.extern.slf4j.Slf4j;
 import net.nilosplace.process_display.util.ObjectFileStorage;
@@ -30,6 +33,7 @@ public class SourceDocumentCreationManager extends Thread {
 
 	private final VariantDocumentInterface variantApi = RestProxyFactory.createProxy(VariantDocumentInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 	private final SoTermCrudInterface soTermApi = RestProxyFactory.createProxy(SoTermCrudInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
+	private final SpeciesInterface speciesApi = RestProxyFactory.createProxy(SpeciesInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 
 	public SourceDocumentCreationManager(DownloadFileSet downloadSet) {
 		this.downloadSet = downloadSet;
@@ -65,6 +69,15 @@ public class SourceDocumentCreationManager extends Thread {
 			Map<String, Integer> severityRanking = soTermApi.getSeverityRanking();
 			log.info("Fetched severity ranking for {} SO terms", severityRanking.size());
 
+			log.info("Fetching species list from curation API...");
+			Map<String, Species> speciesByTaxon = new HashMap<>();
+			for (Species s : speciesApi.findForPublic(0, 100, "FieldsOnly", new HashMap<>()).getResults()) {
+				if (s.getTaxon() != null) {
+					speciesByTaxon.put(s.getTaxon().getCurie(), s);
+				}
+			}
+			log.info("Fetched {} species", speciesByTaxon.size());
+
 			// Count active species and create shared jsonQueue
 			long activeCount = downloadSet.getDownloadFileSources().stream().filter(DownloadSource::getActive).count();
 			LinkedBlockingDeque<List<byte[]>> jsonQueue = new LinkedBlockingDeque<>((int) (250 * activeCount));
@@ -94,7 +107,11 @@ public class SourceDocumentCreationManager extends Thread {
 			List<SourceDocumentCreation> creators = new ArrayList<>();
 			for (DownloadSource source : downloadSet.getDownloadFileSources()) {
 				if (source.getActive()) {
-					SourceDocumentCreation creator = new SourceDocumentCreation(downloadSet.getDownloadPath(), source, geneCacheMap, variantsCache, severityRanking, jsonQueue);
+					Species species = speciesByTaxon.get(source.getTaxonId());
+					if (species == null) {
+						throw new RuntimeException("Species not found in curation API for taxon: " + source.getTaxonId());
+					}
+					SourceDocumentCreation creator = new SourceDocumentCreation(downloadSet.getDownloadPath(), source, species, geneCacheMap, variantsCache, severityRanking, jsonQueue);
 					creator.start();
 					creators.add(creator);
 				}

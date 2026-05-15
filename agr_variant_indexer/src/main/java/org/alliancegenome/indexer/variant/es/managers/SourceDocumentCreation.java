@@ -18,11 +18,11 @@ import org.alliancegenome.curation_api.model.document.es.SequenceSummaryDocument
 import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
 import org.alliancegenome.curation_api.view.CurationView;
 import org.alliancegenome.curation_api.model.entities.Gene;
+import org.alliancegenome.curation_api.model.entities.Species;
 import org.alliancegenome.es.model.VariantSearchResultDocument;
 import org.alliancegenome.es.rest.RestConfig;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;
-import org.alliancegenome.neo4j.entity.SpeciesType;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -42,7 +42,7 @@ public class SourceDocumentCreation extends Thread {
 	private final Map<String, Integer> severityRanking;
 	private String downloadPath;
 	private DownloadSource source;
-	private SpeciesType speciesType;
+	private Species species;
 	private String[] header;
 	public static String indexName;
 
@@ -61,15 +61,15 @@ public class SourceDocumentCreation extends Thread {
 
 	private String messageHeader = "";
 
-	public SourceDocumentCreation(String downloadPath, DownloadSource source, Map<String, Gene> geneCache, HashSet<String> variantsCache, Map<String, Integer> severityRanking, LinkedBlockingDeque<List<byte[]>> jsonQueue) {
+	public SourceDocumentCreation(String downloadPath, DownloadSource source, Species species, Map<String, Gene> geneCache, HashSet<String> variantsCache, Map<String, Integer> severityRanking, LinkedBlockingDeque<List<byte[]>> jsonQueue) {
 		this.downloadPath = downloadPath;
 		this.source = source;
+		this.species = species;
 		this.geneCache = geneCache;
 		this.variantsCache = variantsCache;
 		this.severityRanking = severityRanking;
 		this.jsonQueue = jsonQueue;
-		speciesType = SpeciesType.getTypeByID(source.getTaxonId());
-		messageHeader = speciesType.getModName() + " ";
+		messageHeader = species.getDataProvider().getAbbreviation() + " ";
 		int vcQueueSize = source.getVcQueueSize() != null ? source.getVcQueueSize() : VariantConfigHelper.getSourceDocumentCreatorVCQueueSize();
 		int objectQueueSize = source.getObjectQueueSize() != null ? source.getObjectQueueSize() : VariantConfigHelper.getSourceDocumentCreatorObjectQueueSize();
 		vcQueue = new LinkedBlockingDeque<>(vcQueueSize);
@@ -221,7 +221,7 @@ public class SourceDocumentCreation extends Thread {
 
 					for (VariantContext ctx : ctxList) {
 						try {
-							List<VariantSummaryDocument> variantSummaryDocuments = variantSummaryConverter.convertContextToDocument(ctx, speciesType);
+							List<VariantSummaryDocument> variantSummaryDocuments = variantSummaryConverter.convertContextToDocument(ctx, species);
 							variantSummaryDocuments.removeIf(doc -> doc.getSymbol() != null && variantsCache.contains(doc.getSymbol()));
 							for (VariantSummaryDocument variantSummaryDocument : variantSummaryDocuments) {
 								workBucket.add(variantSummaryDocument);

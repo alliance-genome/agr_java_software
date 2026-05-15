@@ -21,7 +21,8 @@ import org.alliancegenome.es.util.EsClientFactory;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.config.IndexerConfig;
-import org.alliancegenome.indexer.indexers.curation.interfaces.SpeciesInterface;
+import org.alliancegenome.indexer.document.AuditedObjectIndexerMixin;
+import org.alliancegenome.indexer.interfaces.SpeciesInterface;
 
 import si.mazi.rescu.RestProxyFactory;
 import org.elasticsearch.action.DocWriteRequest;

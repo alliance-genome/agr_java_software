@@ -28,7 +28,6 @@ import org.alliancegenome.curation_api.model.entities.associations.TranscriptGen
 import org.alliancegenome.curation_api.model.entities.ontology.NCBITaxonTerm;
 import org.alliancegenome.curation_api.model.entities.ontology.SOTerm;
 import org.alliancegenome.curation_api.model.entities.slotAnnotations.GeneSymbolSlotAnnotation;
-import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -105,19 +104,13 @@ public class VariantSummaryConverter {
 		hgvsgIdx = findHeaderIndex(header, "HGVSg");
 	}
 
-	public List<VariantSummaryDocument> convertContextToDocument(VariantContext ctx, SpeciesType speciesType) throws Exception {
+	public List<VariantSummaryDocument> convertContextToDocument(VariantContext ctx, Species species) throws Exception {
 
 		List<VariantSummaryDocument> returnDocuments = new ArrayList<>();
 
-		// TODO remove speciesType altogether and use the correct Species class coming from curation
 		// Initialize taxon if not already done
 		if (taxon == null) {
-			taxon = new NCBITaxonTerm();
-			taxon.setName(speciesType.getName());
-			taxon.setCurie(speciesType.getTaxonID());
-			Species species = new Species();
-			species.setFullName(speciesType.getName());
-			species.setAbbreviation(speciesType.getAbbreviation());
+			taxon = species.getTaxon();
 			taxon.setSpecies(species);
 		}
 
@@ -160,7 +153,7 @@ public class VariantSummaryConverter {
 
 			// Parse VEP consequences from CSQ field
 			Set<String> hgvsGList = new HashSet<>();
-			Pair<List<PredictedVariantConsequence>, HashSet<String>> resultPair = getConsequences(csqList, vepAllele, speciesType, hgvsGList);
+			Pair<List<PredictedVariantConsequence>, HashSet<String>> resultPair = getConsequences(csqList, vepAllele, species, hgvsGList);
 			List<PredictedVariantConsequence> consequences = resultPair.getLeft();
 			if (consequences.isEmpty()) {
 				continue;
@@ -207,7 +200,7 @@ public class VariantSummaryConverter {
 			AssemblyComponent chromosome = new AssemblyComponent();
 			chromosome.setName(ctx.getContig());
 			GenomeAssembly assembly = new GenomeAssembly();
-			assembly.setPrimaryExternalId(speciesType.getAssembly());
+			assembly.setPrimaryExternalId(species.getAssembly_curie());
 			chromosome.setGenomeAssembly(assembly);
 			cvgla.setVariantGenomicLocationAssociationObject(chromosome);
 			cvgla.setStart(ctx.getStart());
@@ -216,7 +209,7 @@ public class VariantSummaryConverter {
 			// Build variant name
 			StringBuilder variantName = new StringBuilder();
 			if (StringUtils.isNotEmpty(hgvsNomenclature)) {
-				variantName.append('(').append(speciesType.getAssembly()).append(')').append(ctx.getContig()).append(':');
+				variantName.append('(').append(species.getAssembly_curie()).append(')').append(ctx.getContig()).append(':');
 				int colonIdx = hgvsNomenclature.indexOf(':');
 				if (colonIdx >= 0) {
 					variantName.append(hgvsNomenclature, colonIdx + 1, hgvsNomenclature.length());
@@ -298,7 +291,7 @@ public class VariantSummaryConverter {
 	 *
 	 * @param hgvsGList
 	 */
-	private Pair<List<PredictedVariantConsequence>, HashSet<String>> getConsequences(List<String> csqList, String varNuc, SpeciesType speciesType, Set<String> hgvsGList) {
+	private Pair<List<PredictedVariantConsequence>, HashSet<String>> getConsequences(List<String> csqList, String varNuc, Species species, Set<String> hgvsGList) {
 
 		List<PredictedVariantConsequence> consequences = new ArrayList<>();
 		HashSet<String> alreadyAdded = new HashSet<>();
