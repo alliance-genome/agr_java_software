@@ -1,5 +1,7 @@
 package org.alliancegenome.api.service.helper;
 
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,12 +24,11 @@ import org.alliancegenome.curation_api.model.entities.CrossReference;
 import org.alliancegenome.curation_api.model.entities.DiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.GeneDiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.Organization;
-import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.DOTerm;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.repository.AlleleRepository;
-import org.alliancegenome.neo4j.repository.DiseaseRepository;
-import org.alliancegenome.neo4j.repository.GeneRepository;
+import org.alliancegenome.es.index.site.dao.SearchDAO;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.TermQueryBuilder;
+import org.elasticsearch.search.SearchHit;
 
 import io.quarkus.logging.Log;
 import jakarta.ws.rs.core.MediaType;
@@ -35,9 +36,7 @@ import jakarta.ws.rs.core.Response;
 
 public class APIServiceHelper {
 
-	private static GeneRepository repository = new GeneRepository();
-	private static DiseaseRepository diseaseRepository = new DiseaseRepository();
-	private static AlleleRepository alleleRepository = new AlleleRepository();
+	private static final SearchDAO searchDAO = new SearchDAO();
 	
 	private APIServiceHelper() { } // All Static Methods
 	
@@ -77,35 +76,65 @@ public class APIServiceHelper {
 	}
 
 	/**
-	 * Retrieve the name / symbol of an entity given by an ID
+	 * Retrieve the name / symbol of an entity given by an ID. Looks up the matching *_summary document in ES and returns only the name field.
 	 *
 	 * @param id id of entity
 	 * @return name of entity
 	 */
 	public static String getEntityName(String id, EntityType type) {
-		String entityName = "NotFound";
+		String category;
+		String idField;
+		String nameField;
 		switch (type) {
 			case GENE:
-				Gene gene = repository.getShallowGene(id);
-				if (gene != null) {
-					entityName = gene.getSymbol();
-				}
+				category = "gene_summary";
+				idField = "gene.primaryExternalId.keyword";
+				nameField = "gene.geneSymbol.displayText";
 				break;
 			case DISEASE:
-				DOTerm disease = diseaseRepository.getDiseaseTerm(id);
-				if (disease != null) {
-					entityName = disease.getName();
-				}
+				category = "disease_summary";
+				idField = "doTerm.curie.keyword";
+				nameField = "doTerm.name";
 				break;
 			case ALLELE:
-				Allele allele = alleleRepository.getAllele(id);
-				if (allele != null) {
-					entityName = allele.getSymbol();
-				}
+				category = "allele_summary";
+				idField = "allele.primaryExternalId.keyword";
+				nameField = "allele.alleleSymbol.displayText";
 				break;
 			default:
+				return "NotFound";
 		}
-		return entityName;
+
+		BoolQueryBuilder bool = boolQuery()
+			.filter(new TermQueryBuilder("category", category))
+			.filter(new TermQueryBuilder(idField, id));
+
+		try {
+			SearchResponse response = searchDAO.performQuery(bool, new ArrayList<>(), null, List.of(nameField), 1, 0, null, null, false);
+			SearchHit[] hits = response.getHits().getHits();
+			if (hits.length == 0) {
+				return "NotFound";
+			}
+			Object value = extractNestedField(hits[0].getSourceAsMap(), nameField);
+			return value != null ? value.toString() : "NotFound";
+		} catch (Exception e) {
+			Log.error(e);
+			return "NotFound";
+		}
+	}
+
+	private static Object extractNestedField(Map<String, Object> source, String path) {
+		Object current = source;
+		for (String part : path.split("\\.")) {
+			if (!(current instanceof Map)) {
+				return null;
+			}
+			current = ((Map<?, ?>) current).get(part);
+			if (current == null) {
+				return null;
+			}
+		}
+		return current;
 	}
 	
 	//copied from natural sort used in the frontend
