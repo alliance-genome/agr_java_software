@@ -1,8 +1,7 @@
 package org.alliancegenome.api.service;
 
+import static org.alliancegenome.api.response.JsonResultResponse.DISTINCT_FIELD_VALUES;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
-import static org.alliancegenome.cache.repository.helper.JsonResultResponse.DISTINCT_FIELD_VALUES;
-
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,12 +9,13 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import org.alliancegenome.cache.repository.helper.JsonResultResponse;
+
+import org.alliancegenome.core.document.TransgenicAlleleSummaryDocument;
+import org.alliancegenome.api.response.JsonResultResponse;
 import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
 import org.alliancegenome.curation_api.model.document.es.ESDocument;
-import org.alliancegenome.api.entity.TransgenicAlleleSummaryDocument;
 import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
-import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.api.es.query.Pagination;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;

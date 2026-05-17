@@ -6,10 +6,9 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import org.alliancegenome.api.entity.ReleaseInfoDocument;
+import org.alliancegenome.core.document.ReleaseInfoDocument;
 import org.alliancegenome.curation_api.model.input.Pagination;
-import org.alliancegenome.es.index.site.dao.SearchDAO;
-import org.alliancegenome.neo4j.entity.ReleaseSummary;
+import org.alliancegenome.api.es.dao.SearchDAO;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
@@ -47,14 +46,6 @@ public class ReleaseInfoService {
 			}
 		}
 		return null;
-	}
-
-	public ReleaseSummary getSummary() {
-		ReleaseSummary sum = new ReleaseSummary();
-		// sum.setReleaseInfo(StreamSupport.stream(releaseRepo.getAll().spliterator(), false).collect(Collectors.toList()).get(0));
-		// sum.setMetaData(StreamSupport.stream(modFileRepo.getAll().spliterator(), false).collect(Collectors.toList()));
-		// sum.setOntologyMetaData(StreamSupport.stream(ontologyFileRepo.getAll().spliterator(), false).collect(Collectors.toList()));
-		return sum;
 	}
 
 }

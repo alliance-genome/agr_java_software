@@ -1,25 +1,38 @@
 package org.alliancegenome.indexer.indexers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
-import org.alliancegenome.api.entity.GeneTransgenicAlleleSummaryDocument;
-import org.alliancegenome.api.entity.TransgenicAlleleSummaryDocument;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.LinkedBlockingDeque;
+
+import org.alliancegenome.core.document.GeneTransgenicAlleleSummaryDocument;
+import org.alliancegenome.core.document.TransgenicAlleleSummaryDocument;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.interfaces.document.AlleleDocumentInterface;
 import org.alliancegenome.curation_api.model.document.es.TransgenicAlleleDocument;
-import org.alliancegenome.curation_api.model.entities.*;
+import org.alliancegenome.curation_api.model.entities.Allele;
+import org.alliancegenome.curation_api.model.entities.Construct;
+import org.alliancegenome.curation_api.model.entities.Gene;
+import org.alliancegenome.curation_api.model.entities.Species;
+import org.alliancegenome.curation_api.model.entities.TransgenicAlleleConstruct;
 import org.alliancegenome.curation_api.model.entities.slotAnnotations.ConstructComponentSlotAnnotation;
 import org.alliancegenome.curation_api.model.entities.slotAnnotations.GeneSymbolSlotAnnotation;
 import org.alliancegenome.curation_api.response.SearchResponse;
-import org.alliancegenome.es.rest.RestConfig;
-import org.alliancegenome.es.util.ProcessDisplayHelper;
+import org.alliancegenome.core.config.RestConfig;
+import org.alliancegenome.core.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
-import si.mazi.rescu.RestProxyFactory;
 
-import java.util.*;
-import java.util.concurrent.LinkedBlockingDeque;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.extern.slf4j.Slf4j;
+import si.mazi.rescu.RestProxyFactory;
 
 @Slf4j
 public class TransgenicAlleleCurationIndexer extends Indexer {

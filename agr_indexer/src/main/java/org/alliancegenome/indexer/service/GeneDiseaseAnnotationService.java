@@ -23,10 +23,10 @@ import org.alliancegenome.curation_api.model.entities.ontology.ECOTerm;
 import org.alliancegenome.curation_api.model.entities.orthology.GeneToGeneOrthologyGenerated;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.curation_api.services.helpers.annotations.AnnotationUniqueIdHelper;
-import org.alliancegenome.es.util.ProcessDisplayHelper;
+import org.alliancegenome.core.config.RestConfig;
+import org.alliancegenome.core.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.interfaces.GeneDiseaseAnnotationInterface;
 import org.alliancegenome.indexer.interfaces.GeneToGeneOrthologyGeneratedInterface;
-import org.alliancegenome.es.rest.RestConfig;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.Pair;
 

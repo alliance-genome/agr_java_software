@@ -8,24 +8,22 @@ import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
-import org.alliancegenome.api.entity.AGMDiseaseAnnotationDocument;
-import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
-import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
+import org.alliancegenome.core.document.AGMDiseaseAnnotationDocument;
+import org.alliancegenome.core.document.AlleleDiseaseAnnotationDocument;
+import org.alliancegenome.core.document.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.api.rest.interfaces.DiseaseRESTInterface;
 import org.alliancegenome.api.service.DiseaseESService;
 import org.alliancegenome.api.service.EntityType;
 import org.alliancegenome.api.service.helper.APIServiceHelper;
 import org.alliancegenome.api.translators.tdf.DiseaseAnnotationToTdfTranslator;
-import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.cache.repository.helper.SortingField;
-import org.alliancegenome.core.api.service.DiseaseService;
-import org.alliancegenome.core.exceptions.RestErrorException;
-import org.alliancegenome.core.exceptions.RestErrorMessage;
+import org.alliancegenome.api.response.JsonResultResponse;
+import org.alliancegenome.api.exceptions.RestErrorException;
+import org.alliancegenome.api.exceptions.RestErrorMessage;
 import org.alliancegenome.core.util.FileHelper;
 import org.alliancegenome.curation_api.model.document.es.DiseaseSummaryDocument;
-import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.api.es.query.Pagination;
 import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.neo4j.view.PublicView;
+import org.alliancegenome.core.view.PublicView;
 import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -42,9 +40,6 @@ public class DiseaseController implements DiseaseRESTInterface {
 
 	@Inject
 	ObjectMapper mapper;
-
-	@Inject
-	DiseaseService diseaseService;
 
 	@Inject
 	DiseaseESService diseaseESService;
@@ -82,7 +77,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 		// The @DefaultValue only kicks in if the value is null.
 		// need to handle an empty value manually here.
 		if (sortBy.trim().isEmpty()) {
-			sortBy = SortingField.DISEASE_ALLELE_DEFAULT.toString();
+			sortBy = "DISEASE_ALLELE_DEFAULT";
 		}
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
 		pagination.addFilterOption("subject.taxon.species.fullName.keyword", species);

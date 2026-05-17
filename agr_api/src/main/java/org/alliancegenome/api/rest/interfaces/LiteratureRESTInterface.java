@@ -1,6 +1,6 @@
 package org.alliancegenome.api.rest.interfaces;
 
-import org.alliancegenome.api.entity.LiteratureSummaryDocument;
+import org.alliancegenome.core.document.LiteratureSummaryDocument;
 import org.apache.commons.lang3.ObjectUtils.Null;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.ParameterIn;

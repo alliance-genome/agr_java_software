@@ -3,7 +3,7 @@ package org.alliancegenome.api.rest.interfaces;
 import java.util.List;
 
 import org.alliancegenome.api.dto.RibbonSummary;
-import org.alliancegenome.cache.repository.helper.JsonResultResponse;
+import org.alliancegenome.api.response.JsonResultResponse;
 import org.alliancegenome.curation_api.model.document.es.GeneExpressionDocument;
 import org.apache.commons.lang3.ObjectUtils.Null;
 import org.eclipse.microprofile.openapi.annotations.Operation;

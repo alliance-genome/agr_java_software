@@ -7,7 +7,7 @@ import java.util.Map;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.model.entities.Organization;
 import org.alliancegenome.curation_api.response.SearchResponse;
-import org.alliancegenome.es.rest.RestConfig;
+import org.alliancegenome.core.config.RestConfig;
 import org.alliancegenome.indexer.interfaces.OrganizationInterface;
 import org.apache.commons.collections.CollectionUtils;
 

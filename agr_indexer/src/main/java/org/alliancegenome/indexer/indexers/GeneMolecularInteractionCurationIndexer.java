@@ -4,14 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 
-import org.alliancegenome.api.entity.GeneMolecularInteractionDocument;
+import org.alliancegenome.core.document.GeneMolecularInteractionDocument;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.util.ListUtils;
 import org.alliancegenome.curation_api.interfaces.document.GeneMolecularInteractionDocumentInterface;
 import org.alliancegenome.curation_api.model.entities.GeneMolecularInteraction;
 import org.alliancegenome.curation_api.response.SearchResponse;
-import org.alliancegenome.es.rest.RestConfig;
-import org.alliancegenome.es.util.ProcessDisplayHelper;
+import org.alliancegenome.core.config.RestConfig;
+import org.alliancegenome.core.es.util.ProcessDisplayHelper;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.service.GeneMolecularInteractionService;

@@ -2,12 +2,12 @@ package org.alliancegenome.api.rest.interfaces;
 
 import java.util.List;
 
-import org.alliancegenome.api.entity.AGMDiseaseAnnotationDocument;
-import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
-import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
-import org.alliancegenome.cache.repository.helper.JsonResultResponse;
+import org.alliancegenome.core.document.AGMDiseaseAnnotationDocument;
+import org.alliancegenome.core.document.AlleleDiseaseAnnotationDocument;
+import org.alliancegenome.core.document.GeneDiseaseAnnotationDocument;
+import org.alliancegenome.api.response.JsonResultResponse;
 import org.alliancegenome.curation_api.model.document.es.DiseaseSummaryDocument;
-import org.alliancegenome.neo4j.view.PublicView;
+import org.alliancegenome.core.view.PublicView;
 import org.apache.commons.lang3.ObjectUtils.Null;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.ParameterIn;

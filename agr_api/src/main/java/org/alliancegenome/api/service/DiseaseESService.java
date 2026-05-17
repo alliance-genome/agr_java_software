@@ -14,23 +14,22 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.alliancegenome.api.entity.AGMDiseaseAnnotationDocument;
-import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
-import org.alliancegenome.api.entity.DiseaseAnnotationDocument;
+import org.alliancegenome.core.document.AGMDiseaseAnnotationDocument;
+import org.alliancegenome.core.document.AlleleDiseaseAnnotationDocument;
+import org.alliancegenome.core.document.DiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.DiseaseEntitySubgroupSlim;
 import org.alliancegenome.api.entity.DiseaseRibbonEntity;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
-import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
+import org.alliancegenome.core.document.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.api.service.helper.APIServiceHelper;
-import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.core.api.service.DiseaseRibbonService;
+import org.alliancegenome.api.response.JsonResultResponse;
 import org.alliancegenome.curation_api.model.document.es.DiseaseSummaryDocument;
+import org.alliancegenome.curation_api.model.document.es.GeneSummaryDocument;
 import org.alliancegenome.curation_api.model.entities.DiseaseAnnotation;
-import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.SimpleTerm;
-import org.alliancegenome.neo4j.repository.DiseaseRepository;
-import org.alliancegenome.neo4j.repository.GeneRepository;
+import org.alliancegenome.curation_api.model.entities.Gene;
+import org.alliancegenome.api.es.dao.DiseaseESDAO;
+import org.alliancegenome.api.es.dao.GeneESDAO;
+import org.alliancegenome.api.es.query.Pagination;
 import org.apache.commons.collections4.CollectionUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -39,15 +38,26 @@ import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.SortOrder;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
 
 
 @RequestScoped
 public class DiseaseESService extends ESService {
 
-	private static final GeneRepository geneRepository = new GeneRepository();
-	private static final DiseaseRepository diseaseRepository = new DiseaseRepository();
-	private static final DiseaseRibbonService diseaseRibbonService = new DiseaseRibbonService(diseaseRepository);
+	private DiseaseRibbonService diseaseRibbonService;
+
+	@Inject
+	GeneESDAO geneESDAO;
+
+	@Inject
+	DiseaseESDAO diseaseESDAO;
+
+	@PostConstruct
+	void init() {
+		diseaseRibbonService = new DiseaseRibbonService(diseaseESDAO);
+	}
 
 	// termID may be used in the future when converting disease page to new ES stack.
 	public JsonResultResponse<GeneDiseaseAnnotationDocument> getRibbonDiseaseAnnotations(String focusTaxonId, List<String> geneIDs, String termID, Pagination pagination, boolean excludeNegated, boolean debug) {
@@ -154,12 +164,12 @@ public class DiseaseESService extends ESService {
 			// calculate histogram
 			Map<String, List<GeneDiseaseAnnotationDocument>> histogram = getDiseaseAnnotationHistogram(paginationResult);
 
-			Gene gene = geneRepository.getShallowGene(geneID);
-			if (gene == null) {
+			GeneSummaryDocument geneDoc = geneESDAO.getById(geneID);
+			if (geneDoc == null || geneDoc.getGene() == null) {
 				return;
 			}
 			// populate diseaseEntity records
-			populateDiseaseRibbonSummary(geneID, summary, histogram, gene);
+			populateDiseaseRibbonSummary(geneID, summary, histogram, geneDoc.getGene());
 			summary.addAllAnnotationsCount(geneID, paginationResult.getTotal());
 		});
 		return summary;
@@ -168,15 +178,16 @@ public class DiseaseESService extends ESService {
 	public void populateDiseaseRibbonSummary(String geneID, DiseaseRibbonSummary summary, Map<String, List<GeneDiseaseAnnotationDocument>> histogram, Gene gene) {
 		DiseaseRibbonEntity entity = new DiseaseRibbonEntity();
 		entity.setId(geneID);
-		entity.setLabel(gene.getSymbol());
-		entity.setTaxonID(gene.getTaxonId());
-		entity.setTaxonName(gene.getSpecies().getName());
+		entity.setLabel(gene.getGeneSymbol().getDisplayText());
+		entity.setTaxonID(gene.getTaxon().getCurie());
+		entity.setTaxonName(gene.getTaxon().getName());
 		summary.addDiseaseRibbonEntity(entity);
 
 		Set<String> allTerms = new HashSet<>();
 		Set<GeneDiseaseAnnotationDocument> allAnnotations = new HashSet<>();
-		List<String> agrDoSlimIDs = diseaseRepository.getAgrDoSlim().stream()
-			.map(SimpleTerm::getPrimaryKey)
+		List<String> agrDoSlimIDs = diseaseESDAO.getAgrSlimDocs().stream()
+			.filter(d -> d.getDoTerm() != null)
+			.map(d -> d.getDoTerm().getCurie())
 			.collect(toList());
 		// add category term IDs to get the full histogram mapped into the response
 		agrDoSlimIDs.addAll(DiseaseRibbonService.slimParentTermIdMap.keySet());
@@ -208,14 +219,12 @@ public class DiseaseESService extends ESService {
 			return histogram;
 		}
 		response.getResults().forEach(annotation -> {
-			Set<String> parentIDs = diseaseRibbonService.getAllParentIDs(annotation.getObject().getCurie());
+			Set<String> parentIDs = annotation.getParentSlimIDs();
+			if (parentIDs == null) {
+				return;
+			}
 			parentIDs.forEach(parentID -> {
-				List<GeneDiseaseAnnotationDocument> list = histogram.get(parentID);
-				if (list == null) {
-					list = new ArrayList<>();
-				}
-				list.add(annotation);
-				histogram.put(parentID, list);
+				histogram.computeIfAbsent(parentID, k -> new ArrayList<>()).add(annotation);
 			});
 		});
 		return histogram;

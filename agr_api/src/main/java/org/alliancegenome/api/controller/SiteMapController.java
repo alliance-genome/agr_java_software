@@ -12,7 +12,7 @@ import org.alliancegenome.api.model.xml.XMLURLSet;
 import org.alliancegenome.api.rest.interfaces.SiteMapRESTInterface;
 import org.alliancegenome.api.service.SiteMapService;
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.es.model.search.Category;
+import org.alliancegenome.api.es.search.Category;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
 

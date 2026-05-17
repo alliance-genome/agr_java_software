@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.es.rest.RestConfig;
+import org.alliancegenome.core.config.RestConfig;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

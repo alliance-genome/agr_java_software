@@ -4,23 +4,19 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.alliancegenome.api.dto.EntitySubgroupSlim;
 import org.alliancegenome.api.dto.RibbonSummary;
 import org.alliancegenome.api.service.ExpressionESService;
 import org.alliancegenome.api.service.ExpressionRibbonESService;
-import org.alliancegenome.cache.repository.helper.JsonResultResponse;
+import org.alliancegenome.api.response.JsonResultResponse;
 import org.alliancegenome.curation_api.model.document.es.GeneExpressionDocument;
-import org.alliancegenome.es.model.query.FieldFilter;
-import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.node.GOTerm;
-import org.alliancegenome.neo4j.repository.GeneRepository;
-import org.alliancegenome.neo4j.view.BaseFilter;
+import org.alliancegenome.api.es.query.FieldFilter;
+import org.alliancegenome.api.es.query.Pagination;
+import org.alliancegenome.api.view.BaseFilter;
 import org.junit.Test;
 
 import jakarta.inject.Inject;
@@ -89,21 +85,10 @@ public class ExpressionIT extends AbstractIT {
 
 	@Test
 	// Test Pten from MGI for expression ribbon summary
-	public void checkExpressionRibbonGoTerms() {
-		GeneRepository geneRepository = new GeneRepository();
-		List<GOTerm> terms = geneRepository.getFullGoTermList();
-		assertNotNull(terms);
-		String termNames = terms.stream().map(GOTerm::getName).collect(Collectors.joining(","));
-		assertTrue(termNames.contains("extracellular region"));
-
-	}
-
-	@Test
-	// Test Pten from MGI for expression ribbon summary
 	public void checkExpressionFiltering() {
 		Pagination pagination = new Pagination();
 		BaseFilter filter = new BaseFilter();
-		filter.addFieldFilter(FieldFilter.SOURCE, "9913");
+		filter.put(FieldFilter.SOURCE, "9913");
 		pagination.setFieldFilterValueMap(filter);
 		JsonResultResponse<GeneExpressionDocument> summary = expressionESService.getExpressionAnnotations(List.of("WB:WBGene00000898"), null, "NCBITaxon:6239", pagination);
 		assertNotNull(summary);

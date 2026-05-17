@@ -1,10 +1,8 @@
 package org.alliancegenome.api.tests.integration;
 
 import static java.util.Arrays.asList;
-import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 import java.lang.reflect.Method;
@@ -13,16 +11,10 @@ import java.util.stream.Collectors;
 
 import org.alliancegenome.api.controller.ExpressionController;
 import org.alliancegenome.api.controller.GeneController;
-import org.alliancegenome.api.entity.GeneToGeneOrthologyDocument;
-import org.alliancegenome.api.service.GeneService;
-import org.alliancegenome.cache.repository.helper.JsonResultResponse;
+import org.alliancegenome.core.document.GeneToGeneOrthologyDocument;
+import org.alliancegenome.api.response.JsonResultResponse;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.model.document.es.GeneExpressionDocument;
-import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.repository.AlleleRepository;
-import org.alliancegenome.neo4j.repository.GeneRepository;
-import org.apache.commons.collections.CollectionUtils;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -30,12 +22,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import jakarta.inject.Inject;
-
 public class GeneIT {
-
-	@Inject
-	private GeneService geneService;
 
 	private ObjectMapper mapper = new ObjectMapper();
 
@@ -61,29 +48,11 @@ public class GeneIT {
 	}
 
 	@Test
-	public void checkForSecondaryId() {
-		// ZFIN:ZDB-GENE-030131-3355 is a secondary ID for ZFIN:ZDB-LINCRNAG-160518-1
-		Gene gene = geneService.getById("ZFIN:ZDB-GENE-030131-3355");
-		assertNotNull(gene);
-		assertThat(gene.getPrimaryKey(), equalTo("ZFIN:ZDB-LINCRNAG-160518-1"));
-		assertThat(gene.getSpecies().getName(), equalTo("Danio rerio"));
-	}
-
-	@Test
-	public void checkForSynonyms() {
-		// ZFIN:ZDB-GENE-030131-3355 is a secondary ID for ZFIN:ZDB-LINCRNAG-160518-1
-		Gene gene = geneService.getById("ZFIN:ZDB-GENE-001103-1");
-		assertNotNull(gene);
-		assertNotNull(gene.getSynonyms());
-		assertThat(gene.getSynonyms().size(), greaterThan(3));
-	}
-
-	@Test
 	public void checkOrthologyAPIWithFilter() {
 
 		GeneController controller = new GeneController();
 		String[] geneIDs = {"RGD:2129"};
-		JsonResultResponse<GeneToGeneOrthologyDocument> response = controller.getGeneOrthology("MGI:109583", asList(geneIDs), null, "stringENT", null, null, 20, 1);
+		JsonResultResponse<GeneToGeneOrthologyDocument> response = controller.getGeneOrthology("MGI:109583", asList(geneIDs), null, "stringENT", null, 20, 1);
 		assertThat("Matches found for containsFilterValue 'stringent", (int) response.getTotal(), greaterThan(0));
 	}
 
@@ -91,7 +60,7 @@ public class GeneIT {
 	public void checkOrthologyForListOfGenes() {
 
 		GeneController controller = new GeneController();
-		JsonResultResponse<GeneToGeneOrthologyDocument> response = controller.getGeneOrthology("MGI:109583", null, null, "stringENT", null, null, 20, 1);
+		JsonResultResponse<GeneToGeneOrthologyDocument> response = controller.getGeneOrthology("MGI:109583", null, null, "stringENT", null, 20, 1);
 		assertThat("Matches found for containsFilterValue 'stringent", (int) response.getTotal(), greaterThan(0));
 	}
 
@@ -99,14 +68,14 @@ public class GeneIT {
 	public void checkOrthologyAPIWithSpecies() {
 
 		GeneController controller = new GeneController();
-		JsonResultResponse<GeneToGeneOrthologyDocument> response = controller.getGeneOrthology("MGI:109583", null, null, "stringent", null, null, 20, 1);
+		JsonResultResponse<GeneToGeneOrthologyDocument> response = controller.getGeneOrthology("MGI:109583", null, null, "stringent", null, 20, 1);
 		assertThat("No matches found for species 'NCBITaxon:10115", (int) response.getTotal(), greaterThan(5));
 
 		String taxonArray = "NCBITaxon:10116";
-		response = controller.getGeneOrthology("MGI:109583", null, null, null, taxonArray, null, 20, 1);
+		response = controller.getGeneOrthology("MGI:109583", null, null, null, taxonArray, 20, 1);
 		assertThat("matches found for method species NCBITaxon:10116", (int) response.getTotal(), greaterThan(0));
 
-		response = controller.getGeneOrthology("MGI:109583", null, null, "stringent", taxonArray, null, 20, 1);
+		response = controller.getGeneOrthology("MGI:109583", null, null, "stringent", taxonArray, 20, 1);
 		assertThat("matches found for method species NCBITaxon:10116", (int) response.getTotal(), greaterThan(0));
 
 /*
@@ -120,31 +89,10 @@ public class GeneIT {
 	}
 
 	@Test
-	public void checkOrthologyAPIWithMethods() {
-
-		GeneController controller = new GeneController();
-		String methods = "ZFIN";
-		JsonResultResponse<GeneToGeneOrthologyDocument> response = controller.getGeneOrthology("MGI:109583", null, null, null, null, methods, 20, 1);
-		assertThat("No match against method 'ZFIN'", (int) response.getTotal(), greaterThan(0));
-
-		methods = "OrthoFinder";
-		response = controller.getGeneOrthology("MGI:109583", null, null, null, null, methods, 20, 1);
-		assertThat("matches found for method 'OrthoFinder'", (int) response.getTotal(), greaterThan(0));
-
-		methods = "ZFIN";
-		response = controller.getGeneOrthology("MGI:109583", null, null, null, null, methods, 20, 1);
-		assertThat("no matches found for method 'OrthoFinder and ZFIN'", (int) response.getTotal(), greaterThan(0));
-
-		methods = "PANTHER";
-		response = controller.getGeneOrthology("MGI:109583", null, null, null, null, methods, 20, 1);
-		assertThat("matches found for method 'OrthoFinder and Panther'", (int) response.getTotal(), greaterThan(0));
-	}
-
-	@Test
 	public void checkOrthologyAPINoFilters() {
 
 		GeneController controller = new GeneController();
-		JsonResultResponse<GeneToGeneOrthologyDocument> response = controller.getGeneOrthology("MGI:109583", null, null, null, null, null, 20, 1);
+		JsonResultResponse<GeneToGeneOrthologyDocument> response = controller.getGeneOrthology("MGI:109583", null, null, null, null, 20, 1);
 		assertThat("matches found for gene MGI:109583'", (int) response.getTotal(), greaterThan(0));
 	}
 
@@ -290,40 +238,5 @@ public class GeneIT {
 				.map(annotation -> annotation.getGeneExpressionAnnotation().getWhereExpressedStatement())
 				.collect(Collectors.toList());
 	}
-
-	@Test
-	public void checkCrossReferenceOnGene() {
-		GeneRepository repository = new GeneRepository();
-		Gene gene = repository.getOneGene("ZFIN:ZDB-GENE-001103-1");
-		assertNotNull(gene);
-		assertTrue("No CrossReferences on gene object", CollectionUtils.isNotEmpty(gene.getCrossReferences()));
-	}
-
-	@Test
-	public void getAlleleConstructInfoOnGenePage() {
-		GeneRepository repository = new GeneRepository();
-		//final String geneID = "WB:WBGene00002992";
-		final String geneID = "FB:FBgn0284084";
-		Gene gene = repository.getOneGene(geneID);
-		assertNotNull(gene);
-		AlleleRepository alleleRepository = new AlleleRepository();
-		List<Allele> transgenicAlleles = alleleRepository.getTransgenicAlleles(geneID);
-
-		assertTrue("No CrossReferences on gene object", CollectionUtils.isNotEmpty(gene.getCrossReferences()));
-	}
-
-	@Test
-	public void getAlleleConstructInfoOnZfinGenePage() {
-		GeneRepository repository = new GeneRepository();
-		final String geneID = "ZFIN:ZDB-GENE-060526-31";
-		Gene gene = repository.getOneGene(geneID);
-		assertNotNull(gene);
-		AlleleRepository alleleRepository = new AlleleRepository();
-		List<Allele> transgenicAlleles = alleleRepository.getTransgenicAlleles(geneID);
-
-		assertNotNull(transgenicAlleles);
-		assertTrue(transgenicAlleles.size() > 0);
-	}
-
 
 }

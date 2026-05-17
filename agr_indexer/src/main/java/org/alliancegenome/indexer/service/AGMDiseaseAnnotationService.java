@@ -8,9 +8,9 @@ import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.Gene;
 import org.alliancegenome.curation_api.response.SearchResponse;
-import org.alliancegenome.es.util.ProcessDisplayHelper;
+import org.alliancegenome.core.config.RestConfig;
+import org.alliancegenome.core.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.interfaces.AGMDiseaseAnnotationInterface;
-import org.alliancegenome.es.rest.RestConfig;
 
 import si.mazi.rescu.RestProxyFactory;
 

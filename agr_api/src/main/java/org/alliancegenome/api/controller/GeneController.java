@@ -5,12 +5,12 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
-import org.alliancegenome.api.entity.GeneGeneticInteractionDocument;
-import org.alliancegenome.api.entity.GeneMolecularInteractionDocument;
-import org.alliancegenome.api.entity.GenePhenotypeAnnotationDocument;
-import org.alliancegenome.api.entity.GeneToGeneOrthologyDocument;
-import org.alliancegenome.api.entity.GeneToGeneParalogyDocument;
-import org.alliancegenome.api.entity.GeneTransgenicAlleleSummaryDocument;
+import org.alliancegenome.core.document.GeneGeneticInteractionDocument;
+import org.alliancegenome.core.document.GeneMolecularInteractionDocument;
+import org.alliancegenome.core.document.GenePhenotypeAnnotationDocument;
+import org.alliancegenome.core.document.GeneToGeneOrthologyDocument;
+import org.alliancegenome.core.document.GeneToGeneParalogyDocument;
+import org.alliancegenome.core.document.GeneTransgenicAlleleSummaryDocument;
 import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
 import org.alliancegenome.api.service.AGMAnnotationESService;
 import org.alliancegenome.api.service.AlleleESService;
@@ -23,22 +23,19 @@ import org.alliancegenome.api.service.OrthologyESService;
 import org.alliancegenome.api.service.PhenotypeESService;
 import org.alliancegenome.api.service.TransgenicAlleleESService;
 import org.alliancegenome.api.service.helper.APIServiceHelper;
-import org.alliancegenome.api.translators.tdf.DiseaseAnnotationToTdfTranslator;
 import org.alliancegenome.api.translators.tdf.PhenotypeAnnotationToTdfTranslator;
-import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.core.api.service.DiseaseService;
-import org.alliancegenome.core.api.service.InteractionColumnFieldMapping;
-import org.alliancegenome.core.exceptions.RestErrorException;
-import org.alliancegenome.core.exceptions.RestErrorMessage;
-import org.alliancegenome.core.translators.tdf.AlleleToTdfTranslator;
-import org.alliancegenome.core.translators.tdf.GeneGeneticInteractionToTdfTranslator;
-import org.alliancegenome.core.translators.tdf.GeneMolecularInteractionToTdfTranslator;
+import org.alliancegenome.api.response.JsonResultResponse;
+import org.alliancegenome.api.exceptions.RestErrorException;
+import org.alliancegenome.api.exceptions.RestErrorMessage;
+import org.alliancegenome.api.translators.tdf.AlleleToTdfTranslator;
+import org.alliancegenome.api.translators.tdf.GeneGeneticInteractionToTdfTranslator;
+import org.alliancegenome.api.translators.tdf.GeneMolecularInteractionToTdfTranslator;
 import org.alliancegenome.curation_api.model.document.es.AGMAnnotationDocument;
 import org.alliancegenome.curation_api.model.document.es.ESDocument;
 import org.alliancegenome.curation_api.model.document.es.GeneSummaryDocument;
 import org.alliancegenome.curation_api.model.document.es.SequenceSummaryDocument;
-import org.alliancegenome.es.model.query.FieldFilter;
-import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.api.es.query.FieldFilter;
+import org.alliancegenome.api.es.query.Pagination;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -66,9 +63,6 @@ public class GeneController implements GeneRESTInterface {
 	OrthologyESService orthologyESService;
 
 	@Inject
-	DiseaseService diseaseService;
-
-	@Inject
 	DiseaseESService diseaseESService;
 
 	@Inject
@@ -85,7 +79,6 @@ public class GeneController implements GeneRESTInterface {
 	private static final AlleleToTdfTranslator alleleTranslator = new AlleleToTdfTranslator();
 	private static final GeneGeneticInteractionToTdfTranslator geneticInteractionTranslator = new GeneGeneticInteractionToTdfTranslator();
 	private static final GeneMolecularInteractionToTdfTranslator molecularInteractionTranslator = new GeneMolecularInteractionToTdfTranslator();
-	private static final DiseaseAnnotationToTdfTranslator diseaseTranslator = new DiseaseAnnotationToTdfTranslator();
 
 	@Override
 	public GeneSummaryDocument getGene(String id) {
@@ -216,7 +209,7 @@ public class GeneController implements GeneRESTInterface {
 		if (StringUtils.isEmpty(sortBy)) {
 			sortBy = "geneGeneticInteraction.geneGeneAssociationObject.geneSymbol.displayText.sort";
 		}
-		Pagination pagination = new Pagination(page, limit, sortBy, asc, new InteractionColumnFieldMapping());
+		Pagination pagination = new Pagination(page, limit, sortBy, asc);
 		pagination.addFilterOption("geneGeneticInteraction.geneGeneAssociationObject.geneSymbol.displayText", interactorGeneSymbol);
 		pagination.addFilterOption("geneGeneticInteraction.interactionIdORgeneGeneticInteraction.crossReferences.displayName", source);
 		pagination.addFilterOption("geneGeneticInteraction.evidence.referenceID", reference);
@@ -279,7 +272,7 @@ public class GeneController implements GeneRESTInterface {
 		if (StringUtils.isEmpty(sortBy)) {
 			sortBy = "geneMolecularInteraction.geneGeneAssociationObject.geneSymbol.displayText.sort";
 		}
-		Pagination pagination = new Pagination(page, limit, sortBy, asc, new InteractionColumnFieldMapping());
+		Pagination pagination = new Pagination(page, limit, sortBy, asc);
 		pagination.addFilterOption("geneMolecularInteraction.interactorAType.name.keyword", moleculeType);
 		pagination.addFilterOption("geneMolecularInteraction.geneGeneAssociationObject.geneSymbol.displayText", interactorGeneSymbol);
 		pagination.addFilterOption("geneMolecularInteraction.interactionIdORgeneMolecularInteraction.aggregationDatabase.nameORgeneMolecularInteraction.interactionSource.nameORgeneMolecularInteraction.crossReferences.displayName", source);
@@ -385,7 +378,7 @@ public class GeneController implements GeneRESTInterface {
 	}
 
 	@Override
-	public JsonResultResponse<GeneToGeneOrthologyDocument> getGeneOrthology(String id, List<String> geneIDs, String geneLister, String stringencyFilter, String taxonID, String method, Integer limit, Integer page) {
+	public JsonResultResponse<GeneToGeneOrthologyDocument> getGeneOrthology(String id, List<String> geneIDs, String geneLister, String stringencyFilter, String taxonID, Integer limit, Integer page) {
 
 		List<String> geneList = new ArrayList<>();
 		if (id != null) {
@@ -400,7 +393,6 @@ public class GeneController implements GeneRESTInterface {
 		}
 		Pagination pagination = new Pagination(page, limit, null, null);
 		pagination.addFieldFilter(FieldFilter.STRINGENCY, stringencyFilter);
-		pagination.addFieldFilter(FieldFilter.ORTHOLOGY_METHOD, method);
 		pagination.addFieldFilter(FieldFilter.ORTHOLOGY_TAXON, taxonID);
 		final JsonResultResponse<GeneToGeneOrthologyDocument> response = orthologyESService.getOrthologyList(id, pagination);
 		response.setHttpServletRequest(null);
@@ -408,7 +400,7 @@ public class GeneController implements GeneRESTInterface {
 	}
 
 	@Override
-	public JsonResultResponse<GeneToGeneParalogyDocument> getGeneParalogy(String id, List<String> geneIDs, String geneLister, String stringencyFilter, String taxonID, String method, Integer limit, Integer page) {
+	public JsonResultResponse<GeneToGeneParalogyDocument> getGeneParalogy(String id, List<String> geneIDs, String geneLister, String stringencyFilter, String taxonID, Integer limit, Integer page) {
 
 		List<String> geneList = new ArrayList<>();
 		if (id != null) {
@@ -423,7 +415,6 @@ public class GeneController implements GeneRESTInterface {
 		}
 		Pagination pagination = new Pagination(page, limit, null, null);
 		pagination.addFieldFilter(FieldFilter.STRINGENCY, stringencyFilter);
-		pagination.addFieldFilter(FieldFilter.ORTHOLOGY_METHOD, method);
 		pagination.addFieldFilter(FieldFilter.ORTHOLOGY_TAXON, taxonID);
 		final JsonResultResponse<GeneToGeneParalogyDocument> response = geneToGeneParalogyESService.getParalogyMultiGeneJson(geneList, pagination);
 		response.setHttpServletRequest(null);

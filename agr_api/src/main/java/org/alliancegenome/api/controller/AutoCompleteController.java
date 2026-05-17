@@ -2,7 +2,7 @@ package org.alliancegenome.api.controller;
 
 import org.alliancegenome.api.rest.interfaces.AutoCompleteRESTInterface;
 import org.alliancegenome.api.service.AutoCompleteService;
-import org.alliancegenome.es.model.search.AutoCompleteResult;
+import org.alliancegenome.api.es.search.AutoCompleteResult;
 
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.RequestScoped;

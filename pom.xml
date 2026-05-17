@@ -11,9 +11,7 @@
 		<module>agr_elasticsearch_util</module>
 		<module>agr_indexer</module>
 		<module>agr_api</module>
-		<module>agr_api_tester</module>
 		<module>agr_schema_validation</module>
-		<module>agr_intermine_data_extractor</module>
 		<module>agr_variant_indexer</module>
 		<module>agr_file_generator</module>
 	</modules>
@@ -24,14 +22,14 @@
 		<maven-checkstyle-plugin.version>3.3.1</maven-checkstyle-plugin.version>
 		<checkstyle.version>10.17.0</checkstyle.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<curation.version>v0.49.1</curation.version>
+		<curation.version>v0.49.2</curation.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
 				<groupId>io.quarkus.platform</groupId>
 				<artifactId>quarkus-bom</artifactId>
-				<version>3.13.3</version>
+				<version>3.29.4</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -190,7 +188,7 @@
 			<plugin>
 				<groupId>io.quarkus</groupId>
 				<artifactId>quarkus-maven-plugin</artifactId>
-				<version>3.13.3</version>
+				<version>3.29.4</version>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

@@ -1,6 +1,6 @@
 package org.alliancegenome.api.rest.interfaces;
 
-import org.alliancegenome.es.model.search.AutoCompleteResult;
+import org.alliancegenome.api.es.search.AutoCompleteResult;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import jakarta.ws.rs.Consumes;

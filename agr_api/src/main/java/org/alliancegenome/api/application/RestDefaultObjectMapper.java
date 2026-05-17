@@ -22,7 +22,6 @@ public class RestDefaultObjectMapper implements ContextResolver<ObjectMapper> {
 		mapper.registerModule(new JavaTimeModule());
 		mapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false);
 		mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-		//mapper.setSerializerFactory(mapper.getSerializerFactory().withSerializerModifier(new APIBeanSerializerModifier()));
 		mapper.setSerializationInclusion(Include.NON_NULL);
 		mapper.setSerializationInclusion(Include.NON_EMPTY);
 	}

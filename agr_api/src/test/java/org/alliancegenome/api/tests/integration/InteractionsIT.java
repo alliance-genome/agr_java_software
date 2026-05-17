@@ -7,20 +7,17 @@ import static org.junit.Assert.assertThat;
 import java.util.List;
 import java.util.Map;
 
-import org.alliancegenome.api.entity.GeneGeneticInteractionDocument;
-import org.alliancegenome.api.entity.GeneMolecularInteractionDocument;
+import org.alliancegenome.core.document.GeneGeneticInteractionDocument;
+import org.alliancegenome.core.document.GeneMolecularInteractionDocument;
 import org.alliancegenome.api.service.GeneService;
-import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.repository.InteractionRepository;
+import org.alliancegenome.api.response.JsonResultResponse;
+import org.alliancegenome.api.es.query.Pagination;
 import org.junit.Test;
 
 import jakarta.inject.Inject;
 
 public class InteractionsIT {
 
-	public static InteractionRepository repo = new InteractionRepository();
-	
 	@Inject
 	private GeneService geneService;
 
