@@ -1,7 +1,6 @@
 package org.alliancegenome.filegenerator.generators;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 
@@ -83,7 +82,7 @@ public class GeneFileGenerator extends FileGenerator {
 				out.add(v);
 			}
 		}
-		Collections.sort(out);
+		out.sort(String.CASE_INSENSITIVE_ORDER);
 		return String.join("|", out);
 	}
 
@@ -116,7 +115,7 @@ public class GeneFileGenerator extends FileGenerator {
 			out.add(gcrpTagged);
 		}
 		List<String> deduped = new ArrayList<>(new LinkedHashSet<>(out));
-		Collections.sort(deduped);
+		deduped.sort(String.CASE_INSENSITIVE_ORDER);
 		return String.join("|", deduped);
 	}
 
