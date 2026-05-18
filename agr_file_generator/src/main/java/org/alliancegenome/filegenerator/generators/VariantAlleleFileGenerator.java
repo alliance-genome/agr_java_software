@@ -52,6 +52,9 @@ public class VariantAlleleFileGenerator extends FileGenerator {
 		}
 		ObjectNode obj = (ObjectNode) hit;
 
+		String alleleTaxonCurie = JsonPath.resolveString(hit, "allele.taxon.curie");
+		String modPrefix = (alleleTaxonCurie != null && species != null) ? species.modFor(alleleTaxonCurie) : null;
+
 		// Allele synonyms — pipe-joined displayText.
 		obj.put("_alleleSynonyms", joinStrings(JsonPath.resolve(hit, "allele.alleleSynonyms"), "displayText"));
 
@@ -95,30 +98,43 @@ public class VariantAlleleFileGenerator extends FileGenerator {
 				addIfPresent(variantTypeIds, v.path("variantType").path("curie").asText(""));
 				addIfPresent(variantTypeNames, v.path("variantType").path("name").asText(""));
 
-				// VariantInformationReference — for each reference, pipe-join MOD paper curie + PMID (in that order). Skips DOI / PMCID / etc.
+				// VariantInformationReference — for each reference, emit exactly ONE curie. Priority: PMID, then MOD curie matching the file's MOD, then any paper-prefixed MOD curie. Skips DOI / PMCID / etc.
 				JsonNode refs = v.path("references");
 				if (refs.isArray()) {
 					for (JsonNode r : refs) {
 						JsonNode xrefs = r.path("crossReferences");
 						if (xrefs.isArray()) {
-							List<String> ordered = new ArrayList<>();
 							String pmid = null;
+							String modMatch = null;
+							String anyPaper = null;
 							for (JsonNode x : xrefs) {
 								String c = x.path("referencedCurie").asText("");
 								if (c.isEmpty()) {
 									continue;
 								}
 								if (c.startsWith("PMID:")) {
-									pmid = c;
+									if (pmid == null) {
+										pmid = c;
+									}
 								} else if (isPaperCurie(c)) {
-									ordered.add(c);
+									if (modPrefix != null && modMatch == null && c.startsWith(modPrefix + ":")) {
+										modMatch = c;
+									}
+									if (anyPaper == null) {
+										anyPaper = c;
+									}
 								}
 							}
+							String chosen;
 							if (pmid != null) {
-								ordered.add(pmid);
+								chosen = pmid;
+							} else if (modMatch != null) {
+								chosen = modMatch;
+							} else {
+								chosen = anyPaper;
 							}
-							if (!ordered.isEmpty()) {
-								referenceCuries.add(String.join("|", ordered));
+							if (chosen != null) {
+								referenceCuries.add(chosen);
 							}
 						}
 					}
@@ -182,7 +198,7 @@ public class VariantAlleleFileGenerator extends FileGenerator {
 		obj.put("_mostSevereConsequence", joinList(dedup(consequences)));
 		obj.put("_variantAffectedGeneId", joinList(dedup(affectedGeneIds)));
 		obj.put("_variantAffectedGeneSymbol", joinList(dedup(affectedGeneSymbols)));
-		// Between references: comma-join (matches FMS); within a reference, MOD curie and PMID are pipe-joined.
+		// Between references: comma-join (matches FMS); each reference contributes exactly one curie (PMID preferred, then file-MOD curie, then any paper curie).
 		List<String> uniqueRefs = dedup(referenceCuries);
 		obj.put("_variantInformationReference", uniqueRefs.isEmpty() ? "" : String.join(",", uniqueRefs));
 
