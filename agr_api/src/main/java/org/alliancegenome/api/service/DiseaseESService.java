@@ -71,6 +71,17 @@ public class DiseaseESService extends ESService {
 		diseaseRibbonService = new DiseaseRibbonService(diseaseESDAO);
 	}
 
+	private static final SearchDAO SEARCH_DAO = new SearchDAO();
+
+	private static final String DISEASE_ROOT = "DOID:4";
+	private static final int MAX_ANCESTOR_DEPTH = 30;
+
+	private static final List<String[]> COUNT_CATEGORIES = List.of(
+		new String[] { "genes", "gene_disease_annotation" },
+		new String[] { "models", "agm_disease_annotation" },
+		new String[] { "alleles", "allele_disease_annotation" }
+	);
+
 	// termID may be used in the future when converting disease page to new ES stack.
 	public JsonResultResponse<GeneDiseaseAnnotationDocument> getRibbonDiseaseAnnotations(String focusTaxonId, List<String> geneIDs, String termID, Pagination pagination, boolean excludeNegated, boolean debug) {
 		return getRibbonDiseaseAnnotations(focusTaxonId, geneIDs, termID, pagination, excludeNegated, debug, false);
@@ -490,9 +501,11 @@ public class DiseaseESService extends ESService {
 		return result;
 	}
 
-	private static final String DISEASE_ROOT = "DOID:4";
-	private static final int MAX_ANCESTOR_DEPTH = 30;
-
+	// Disease Ontology is a DAG, so a term can have multiple parents. We walk a single
+	// path by picking the lexicographically-smallest parent at each step, which gives a
+	// stable breadcrumb across requests. This makes N sequential ES queries (one per
+	// ancestor level, capped at MAX_ANCESTOR_DEPTH) — acceptable for a one-shot lookup
+	// on page load.
 	public List<DOTerm> getAncestors(String diseaseID) {
 		List<DOTerm> chain = new ArrayList<>();
 		Set<String> visited = new HashSet<>();
@@ -504,14 +517,16 @@ public class DiseaseESService extends ESService {
 			chain.add(doc.getDoTerm());
 			if (DISEASE_ROOT.equals(current)) break;
 			if (doc.getParents() == null || doc.getParents().isEmpty()) break;
-			current = doc.getParents().iterator().next().getCurie();
+			current = doc.getParents().stream()
+				.map(p -> p.getCurie())
+				.filter(java.util.Objects::nonNull)
+				.sorted()
+				.findFirst()
+				.orElse(null);
 		}
 		java.util.Collections.reverse(chain);
 		return chain;
 	}
-
-	private static final SearchDAO COUNTS_SEARCH_DAO = new SearchDAO();
-	private static final SearchDAO BATCH_TERMS_SEARCH_DAO = new SearchDAO();
 
 	public java.util.Map<String, Object> getBatchTerms(java.util.List<String> diseaseIds) {
 		java.util.LinkedHashMap<String, Object> result = new java.util.LinkedHashMap<>();
@@ -521,7 +536,7 @@ public class DiseaseESService extends ESService {
 			.filter(new TermQueryBuilder("category", "disease_summary"))
 			.filter(new TermsQueryBuilder("doTerm.curie.keyword", diseaseIds));
 
-		SearchResponse response = BATCH_TERMS_SEARCH_DAO.performQuery(
+		SearchResponse response = SEARCH_DAO.performQuery(
 			(QueryBuilder) bool, java.util.List.of(), null, java.util.List.of(),
 			diseaseIds.size(), 0, new HighlightBuilder(), null, false);
 
@@ -537,12 +552,6 @@ public class DiseaseESService extends ESService {
 		return result;
 	}
 
-
-	private static final java.util.List<String[]> COUNT_CATEGORIES = java.util.List.of(
-		new String[] { "genes", "gene_disease_annotation" },
-		new String[] { "models", "agm_disease_annotation" },
-		new String[] { "alleles", "allele_disease_annotation" }
-	);
 
 	public java.util.Map<String, java.util.Map<String, Long>> getBatchCounts(java.util.List<String> diseaseIds) {
 		java.util.Map<String, java.util.Map<String, Long>> result = new java.util.LinkedHashMap<>();
@@ -576,7 +585,7 @@ public class DiseaseESService extends ESService {
 			.includeExclude(new IncludeExclude(diseaseIds, null))
 			.size(Math.max(diseaseIds.length, 1));
 
-		SearchResponse response = COUNTS_SEARCH_DAO.performQuery(
+		SearchResponse response = SEARCH_DAO.performQuery(
 			(QueryBuilder) bool, java.util.List.of(agg), null, java.util.List.of("subject"),
 			0, 0, new HighlightBuilder(), null, false);
 
