@@ -78,7 +78,7 @@ public interface LiteratureRESTInterface {
 	@APIResponses(value = { @APIResponse(responseCode = "200", description = "List of expression annotations", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
 	JsonResultResponse<GeneExpressionDocument> getExpressionAnnotationsByReference(
 		@Parameter(in = ParameterIn.PATH, name = "id", description = "Reference curie", required = true, schema = @Schema(type = SchemaType.STRING)) @PathParam("id") String id,
-		@Parameter(in = ParameterIn.QUERY, name = "crossReferences", description = "Comma-separated PMID/MOD curies for filtering (required on stage ES)", schema = @Schema(type = SchemaType.STRING)) @QueryParam("crossReferences") List<String> crossReferences,
+		@Parameter(in = ParameterIn.QUERY, name = "crossReferences", description = "Comma-separated PMID/MOD curies", required = true, schema = @Schema(type = SchemaType.STRING)) @QueryParam("crossReferences") List<String> crossReferences,
 		@Parameter(in = ParameterIn.QUERY, name = "limit", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("20") @QueryParam("limit") Integer limit,
 		@Parameter(in = ParameterIn.QUERY, name = "page", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("1") @QueryParam("page") Integer page,
 		@Parameter(in = ParameterIn.QUERY, name = "sortBy", schema = @Schema(type = SchemaType.STRING)) @DefaultValue("") @QueryParam("sortBy") String sortBy,
@@ -91,7 +91,7 @@ public interface LiteratureRESTInterface {
 	@APIResponses(value = { @APIResponse(responseCode = "200", description = "List of molecular interactions", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
 	JsonResultResponse<GeneMolecularInteractionDocument> getMolecularInteractionsByReference(
 		@Parameter(in = ParameterIn.PATH, name = "id", description = "Reference curie", required = true, schema = @Schema(type = SchemaType.STRING)) @PathParam("id") String id,
-		@Parameter(in = ParameterIn.QUERY, name = "crossReferences", description = "Comma-separated PMID/MOD curies for filtering (required on stage ES)", schema = @Schema(type = SchemaType.STRING)) @QueryParam("crossReferences") List<String> crossReferences,
+		@Parameter(in = ParameterIn.QUERY, name = "crossReferences", description = "Comma-separated PMID/MOD curies", required = true, schema = @Schema(type = SchemaType.STRING)) @QueryParam("crossReferences") List<String> crossReferences,
 		@Parameter(in = ParameterIn.QUERY, name = "limit", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("20") @QueryParam("limit") Integer limit,
 		@Parameter(in = ParameterIn.QUERY, name = "page", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("1") @QueryParam("page") Integer page,
 		@Parameter(in = ParameterIn.QUERY, name = "sortBy", schema = @Schema(type = SchemaType.STRING)) @DefaultValue("") @QueryParam("sortBy") String sortBy,
@@ -104,7 +104,7 @@ public interface LiteratureRESTInterface {
 	@APIResponses(value = { @APIResponse(responseCode = "200", description = "List of genetic interactions", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
 	JsonResultResponse<GeneGeneticInteractionDocument> getGeneticInteractionsByReference(
 		@Parameter(in = ParameterIn.PATH, name = "id", description = "Reference curie", required = true, schema = @Schema(type = SchemaType.STRING)) @PathParam("id") String id,
-		@Parameter(in = ParameterIn.QUERY, name = "crossReferences", description = "Comma-separated PMID/MOD curies (required on stage ES)", schema = @Schema(type = SchemaType.STRING)) @QueryParam("crossReferences") List<String> crossReferences,
+		@Parameter(in = ParameterIn.QUERY, name = "crossReferences", description = "Comma-separated PMID/MOD curies", required = true, schema = @Schema(type = SchemaType.STRING)) @QueryParam("crossReferences") List<String> crossReferences,
 		@Parameter(in = ParameterIn.QUERY, name = "limit", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("20") @QueryParam("limit") Integer limit,
 		@Parameter(in = ParameterIn.QUERY, name = "page", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("1") @QueryParam("page") Integer page,
 		@Parameter(in = ParameterIn.QUERY, name = "sortBy", schema = @Schema(type = SchemaType.STRING)) @DefaultValue("") @QueryParam("sortBy") String sortBy,

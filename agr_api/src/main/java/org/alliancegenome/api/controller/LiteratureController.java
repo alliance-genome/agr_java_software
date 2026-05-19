@@ -96,11 +96,13 @@ public class LiteratureController implements LiteratureRESTInterface {
 																									String species,
 																									String asc) {
 		long startTime = System.currentTimeMillis();
+		List<String> xrefs = splitCommas(crossReferences);
+		requireCrossReferences(xrefs);
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
 		pagination.addFilterOption("geneExpressionAnnotation.expressionAnnotationSubject.taxon.species.fullName.keyword", species);
 		validate(pagination);
 		try {
-			return timed(referenceDataESService.getExpressionAnnotations(splitCommas(crossReferences), pagination), startTime);
+			return timed(referenceDataESService.getExpressionAnnotations(xrefs, pagination), startTime);
 		} catch (Exception e) {
 			throw restError("Error while retrieving expression annotations by reference", e);
 		}
@@ -115,11 +117,13 @@ public class LiteratureController implements LiteratureRESTInterface {
 																									String species,
 																									String asc) {
 		long startTime = System.currentTimeMillis();
+		List<String> xrefs = splitCommas(crossReferences);
+		requireCrossReferences(xrefs);
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
 		pagination.addFilterOption("geneMolecularInteraction.geneAssociationSubject.taxon.species.fullName.keyword", species);
 		validate(pagination);
 		try {
-			return timed(referenceDataESService.getMolecularInteractions(splitCommas(crossReferences), pagination), startTime);
+			return timed(referenceDataESService.getMolecularInteractions(xrefs, pagination), startTime);
 		} catch (Exception e) {
 			throw restError("Error while retrieving molecular interactions by reference", e);
 		}
@@ -134,11 +138,13 @@ public class LiteratureController implements LiteratureRESTInterface {
 																								String species,
 																								String asc) {
 		long startTime = System.currentTimeMillis();
+		List<String> xrefs = splitCommas(crossReferences);
+		requireCrossReferences(xrefs);
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
 		pagination.addFilterOption("geneGeneticInteraction.geneAssociationSubject.taxon.species.fullName.keyword", species);
 		validate(pagination);
 		try {
-			return timed(referenceDataESService.getGeneticInteractions(splitCommas(crossReferences), pagination), startTime);
+			return timed(referenceDataESService.getGeneticInteractions(xrefs, pagination), startTime);
 		} catch (Exception e) {
 			throw restError("Error while retrieving genetic interactions by reference", e);
 		}
@@ -199,6 +205,20 @@ public class LiteratureController implements LiteratureRESTInterface {
 			return timed(referenceDataESService.getModelsByReference(id), startTime);
 		} catch (Exception e) {
 			throw restError("Error while retrieving models by reference", e);
+		}
+	}
+
+	// Expression / molecular-interaction / genetic-interaction docs on stage ES are
+	// indexed by PMID/MOD curie (referenceId / evidence.referenceID), not by AGRKB curie.
+	// The {id} path param can't be used to scope these queries, so the caller must pass
+	// the cross-reference curies (typically pulled from the literature summary) as a
+	// non-empty query param. Without it the endpoint would return unscoped data from
+	// the entire index, so we reject the request with 400.
+	private void requireCrossReferences(List<String> crossReferences) {
+		if (crossReferences == null || crossReferences.isEmpty()) {
+			RestErrorMessage message = new RestErrorMessage(
+				"crossReferences query param is required (provide one or more PMID/MOD curies, comma-separated)");
+			throw new RestErrorException(message);
 		}
 	}
 
