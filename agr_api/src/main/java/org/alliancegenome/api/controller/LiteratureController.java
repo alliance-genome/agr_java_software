@@ -3,14 +3,19 @@ package org.alliancegenome.api.controller;
 import java.util.List;
 import java.util.Map;
 
-import org.alliancegenome.core.document.LiteratureSummaryDocument;
+import org.alliancegenome.api.es.query.Pagination;
+import org.alliancegenome.api.exceptions.RestErrorException;
+import org.alliancegenome.api.exceptions.RestErrorMessage;
+import org.alliancegenome.api.response.JsonResultResponse;
 import org.alliancegenome.api.rest.interfaces.LiteratureRESTInterface;
 import org.alliancegenome.api.service.LiteratureESService;
 import org.alliancegenome.api.service.ReferenceDataESService;
-import org.alliancegenome.api.response.JsonResultResponse;
-import org.alliancegenome.api.exceptions.RestErrorException;
-import org.alliancegenome.api.exceptions.RestErrorMessage;
-import org.alliancegenome.api.es.query.Pagination;
+import org.alliancegenome.core.document.DiseaseAnnotationDocument;
+import org.alliancegenome.core.document.GeneGeneticInteractionDocument;
+import org.alliancegenome.core.document.GeneMolecularInteractionDocument;
+import org.alliancegenome.core.document.LiteratureSummaryDocument;
+import org.alliancegenome.core.document.PhenotypeAnnotationDocument;
+import org.alliancegenome.curation_api.model.document.es.GeneExpressionDocument;
 
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.RequestScoped;
@@ -37,7 +42,7 @@ public class LiteratureController implements LiteratureRESTInterface {
 	}
 
 	@Override
-	public JsonResultResponse<Map<String, Object>> getDiseaseAnnotationsByReference(String id,
+	public JsonResultResponse<DiseaseAnnotationDocument> getDiseaseAnnotationsByReference(String id,
 																						  Integer limit,
 																						  Integer page,
 																						  String sortBy,
@@ -63,7 +68,7 @@ public class LiteratureController implements LiteratureRESTInterface {
 	}
 
 	@Override
-	public JsonResultResponse<Map<String, Object>> getPhenotypeAnnotationsByReference(String id,
+	public JsonResultResponse<PhenotypeAnnotationDocument> getPhenotypeAnnotationsByReference(String id,
 																							  Integer limit,
 																							  Integer page,
 																							  String sortBy,
@@ -83,7 +88,7 @@ public class LiteratureController implements LiteratureRESTInterface {
 	}
 
 	@Override
-	public JsonResultResponse<Map<String, Object>> getExpressionAnnotationsByReference(String id,
+	public JsonResultResponse<GeneExpressionDocument> getExpressionAnnotationsByReference(String id,
 																									List<String> crossReferences,
 																									Integer limit,
 																									Integer page,
@@ -102,7 +107,7 @@ public class LiteratureController implements LiteratureRESTInterface {
 	}
 
 	@Override
-	public JsonResultResponse<Map<String, Object>> getMolecularInteractionsByReference(String id,
+	public JsonResultResponse<GeneMolecularInteractionDocument> getMolecularInteractionsByReference(String id,
 																									List<String> crossReferences,
 																									Integer limit,
 																									Integer page,
@@ -121,7 +126,7 @@ public class LiteratureController implements LiteratureRESTInterface {
 	}
 
 	@Override
-	public JsonResultResponse<Map<String, Object>> getGeneticInteractionsByReference(String id,
+	public JsonResultResponse<GeneGeneticInteractionDocument> getGeneticInteractionsByReference(String id,
 																								List<String> crossReferences,
 																								Integer limit,
 																								Integer page,

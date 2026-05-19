@@ -9,19 +9,29 @@ import java.util.List;
 import java.util.Map;
 
 import org.alliancegenome.api.es.dao.SearchDAO;
+import org.alliancegenome.api.es.query.Pagination;
+import org.alliancegenome.api.response.JsonResultResponse;
+import org.alliancegenome.api.service.helper.APIServiceHelper;
+import org.alliancegenome.core.document.AGMDiseaseAnnotationDocument;
+import org.alliancegenome.core.document.AlleleDiseaseAnnotationDocument;
+import org.alliancegenome.core.document.AllelePhenotypeAnnotationDocument;
+import org.alliancegenome.core.document.DiseaseAnnotationDocument;
+import org.alliancegenome.core.document.GeneDiseaseAnnotationDocument;
+import org.alliancegenome.core.document.GeneGeneticInteractionDocument;
+import org.alliancegenome.core.document.GeneMolecularInteractionDocument;
+import org.alliancegenome.core.document.GenePhenotypeAnnotationDocument;
+import org.alliancegenome.core.document.PhenotypeAnnotationDocument;
+import org.alliancegenome.curation_api.model.document.es.GeneExpressionDocument;
+import org.apache.commons.collections4.CollectionUtils;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.TopHits;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
-
-import org.alliancegenome.api.response.JsonResultResponse;
-import org.alliancegenome.api.es.query.Pagination;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.search.SearchHit;
 
 import jakarta.enterprise.context.RequestScoped;
 import lombok.extern.slf4j.Slf4j;
@@ -57,52 +67,52 @@ public class ReferenceDataESService extends ESService {
 		"agm_phenotype_annotation"
 	);
 
-	public JsonResultResponse<Map<String, Object>> getDiseaseAnnotations(String referenceCurie, Pagination pagination) {
+	public JsonResultResponse<DiseaseAnnotationDocument> getDiseaseAnnotations(String referenceCurie, Pagination pagination) {
 		BoolQueryBuilder query = boolQuery()
 			.filter(termsQuery("category", DISEASE_CATEGORIES))
 			.must(termQuery("references.curie.keyword", referenceCurie));
 
-		return runQuery(query, pagination, this::hitAsMap);
+		return runQuery(query, pagination, this::deserializeDiseaseByCategory);
 	}
 
-	public JsonResultResponse<Map<String, Object>> getPhenotypeAnnotations(String referenceCurie, Pagination pagination) {
+	public JsonResultResponse<PhenotypeAnnotationDocument> getPhenotypeAnnotations(String referenceCurie, Pagination pagination) {
 		BoolQueryBuilder query = boolQuery()
 			.filter(termsQuery("category", PHENOTYPE_CATEGORIES))
 			.must(termQuery("references.curie.keyword", referenceCurie));
 
-		return runQuery(query, pagination, this::hitAsMap);
+		return runQuery(query, pagination, this::deserializePhenotypeByCategory);
 	}
 
 	// Expression docs on stage index only `referenceId` (PMID/MOD IDs).
 	// The caller passes the set of cross-reference curies (PMID/MOD) from the literature summary.
-	public JsonResultResponse<Map<String, Object>> getExpressionAnnotations(List<String> crossReferenceCuries, Pagination pagination) {
+	public JsonResultResponse<GeneExpressionDocument> getExpressionAnnotations(List<String> crossReferenceCuries, Pagination pagination) {
 		BoolQueryBuilder query = boolQuery()
 			.filter(termQuery("category", "gene_expression_annotation"));
 		if (crossReferenceCuries != null && !crossReferenceCuries.isEmpty()) {
 			query.must(termsQuery("referenceId.keyword", crossReferenceCuries));
 		}
-		return runQuery(query, pagination, this::hitAsMap);
+		return runQuery(query, pagination, hit -> mapHit(hit, GeneExpressionDocument.class));
 	}
 
 	// Molecular interaction docs only index `geneMolecularInteraction.evidence.referenceID` (PMID/MOD IDs).
-	public JsonResultResponse<Map<String, Object>> getMolecularInteractions(List<String> crossReferenceCuries, Pagination pagination) {
+	public JsonResultResponse<GeneMolecularInteractionDocument> getMolecularInteractions(List<String> crossReferenceCuries, Pagination pagination) {
 		BoolQueryBuilder query = boolQuery()
 			.filter(termQuery("category", "gene_molecular_interaction"));
 		if (crossReferenceCuries != null && !crossReferenceCuries.isEmpty()) {
 			query.must(termsQuery("geneMolecularInteraction.evidence.referenceID.keyword", crossReferenceCuries));
 		}
-		return runQuery(query, pagination, this::hitAsMap);
+		return runQuery(query, pagination, hit -> mapHit(hit, GeneMolecularInteractionDocument.class));
 	}
 
 	// Genetic interaction category mirrors molecular interaction shape. Note: stage ES currently has
 	// zero docs in `gene_genetic_interaction` (indexing gap); code works once the category is populated.
-	public JsonResultResponse<Map<String, Object>> getGeneticInteractions(List<String> crossReferenceCuries, Pagination pagination) {
+	public JsonResultResponse<GeneGeneticInteractionDocument> getGeneticInteractions(List<String> crossReferenceCuries, Pagination pagination) {
 		BoolQueryBuilder query = boolQuery()
 			.filter(termQuery("category", "gene_genetic_interaction"));
 		if (crossReferenceCuries != null && !crossReferenceCuries.isEmpty()) {
 			query.must(termsQuery("geneGeneticInteraction.evidence.referenceID.keyword", crossReferenceCuries));
 		}
-		return runQuery(query, pagination, this::hitAsMap);
+		return runQuery(query, pagination, hit -> mapHit(hit, GeneGeneticInteractionDocument.class));
 	}
 
 	public JsonResultResponse<Map<String, Object>> getGenesByReference(String referenceCurie) {
@@ -367,10 +377,57 @@ public class ReferenceDataESService extends ESService {
 		return ret;
 	}
 
-	private Map<String, Object> hitAsMap(SearchHit hit) {
-		Map<String, Object> source = hit.getSourceAsMap();
-		if (source == null) return null;
-		source.put("uniqueId", hit.getId());
-		return source;
+	private <T> T mapHit(SearchHit hit, Class<T> type) {
+		try {
+			return this.mapper.readValue(hit.getSourceAsString(), type);
+		} catch (Exception e) {
+			log.error("Failed to deserialize hit id={} as {}", hit.getId(), type.getSimpleName(), e);
+			return null;
+		}
+	}
+
+	private DiseaseAnnotationDocument deserializeDiseaseByCategory(SearchHit hit) {
+		try {
+			Object category = hit.getSourceAsMap().get("category");
+			String json = hit.getSourceAsString();
+			DiseaseAnnotationDocument doc;
+			if ("allele_disease_annotation".equals(category)) {
+				doc = mapper.readValue(json, AlleleDiseaseAnnotationDocument.class);
+			} else if ("agm_disease_annotation".equals(category)) {
+				doc = mapper.readValue(json, AGMDiseaseAnnotationDocument.class);
+			} else {
+				doc = mapper.readValue(json, GeneDiseaseAnnotationDocument.class);
+			}
+			doc.setUniqueId(hit.getId());
+			if (CollectionUtils.isNotEmpty(doc.getPrimaryAnnotations())) {
+				doc.setProviders(APIServiceHelper.buildProvidersWithUrl(doc.getPrimaryAnnotations()));
+			}
+			return doc;
+		} catch (Exception e) {
+			log.error("Failed to deserialize disease annotation hit id={}", hit.getId(), e);
+			return null;
+		}
+	}
+
+	// agm_phenotype_annotation has no dedicated subclass on this branch — fall back to the
+	// base PhenotypeAnnotationDocument for that category.
+	private PhenotypeAnnotationDocument deserializePhenotypeByCategory(SearchHit hit) {
+		try {
+			Object category = hit.getSourceAsMap().get("category");
+			String json = hit.getSourceAsString();
+			PhenotypeAnnotationDocument doc;
+			if ("allele_phenotype_annotation".equals(category)) {
+				doc = mapper.readValue(json, AllelePhenotypeAnnotationDocument.class);
+			} else if ("gene_phenotype_annotation".equals(category)) {
+				doc = mapper.readValue(json, GenePhenotypeAnnotationDocument.class);
+			} else {
+				doc = mapper.readValue(json, PhenotypeAnnotationDocument.class);
+			}
+			doc.setUniqueId(hit.getId());
+			return doc;
+		} catch (Exception e) {
+			log.error("Failed to deserialize phenotype annotation hit id={}", hit.getId(), e);
+			return null;
+		}
 	}
 }

@@ -3,8 +3,13 @@ package org.alliancegenome.api.rest.interfaces;
 import java.util.List;
 import java.util.Map;
 
-import org.alliancegenome.core.document.LiteratureSummaryDocument;
 import org.alliancegenome.api.response.JsonResultResponse;
+import org.alliancegenome.core.document.DiseaseAnnotationDocument;
+import org.alliancegenome.core.document.GeneGeneticInteractionDocument;
+import org.alliancegenome.core.document.GeneMolecularInteractionDocument;
+import org.alliancegenome.core.document.LiteratureSummaryDocument;
+import org.alliancegenome.core.document.PhenotypeAnnotationDocument;
+import org.alliancegenome.curation_api.model.document.es.GeneExpressionDocument;
 import org.apache.commons.lang3.ObjectUtils.Null;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.ParameterIn;
@@ -42,7 +47,7 @@ public interface LiteratureRESTInterface {
 	@Path("/{id}/disease-annotations")
 	@Operation(summary = "Retrieve disease annotations that cite the given reference")
 	@APIResponses(value = { @APIResponse(responseCode = "200", description = "List of disease annotations", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
-	JsonResultResponse<Map<String, Object>> getDiseaseAnnotationsByReference(
+	JsonResultResponse<DiseaseAnnotationDocument> getDiseaseAnnotationsByReference(
 		@Parameter(in = ParameterIn.PATH, name = "id", description = "Reference curie, e.g. AGRKB:101000000828456", required = true, schema = @Schema(type = SchemaType.STRING)) @PathParam("id") String id,
 		@Parameter(in = ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("20") @QueryParam("limit") Integer limit,
 		@Parameter(in = ParameterIn.QUERY, name = "page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("1") @QueryParam("page") Integer page,
@@ -58,7 +63,7 @@ public interface LiteratureRESTInterface {
 	@Path("/{id}/phenotype-annotations")
 	@Operation(summary = "Retrieve phenotype annotations that cite the given reference")
 	@APIResponses(value = { @APIResponse(responseCode = "200", description = "List of phenotype annotations", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
-	JsonResultResponse<Map<String, Object>> getPhenotypeAnnotationsByReference(
+	JsonResultResponse<PhenotypeAnnotationDocument> getPhenotypeAnnotationsByReference(
 		@Parameter(in = ParameterIn.PATH, name = "id", description = "Reference curie", required = true, schema = @Schema(type = SchemaType.STRING)) @PathParam("id") String id,
 		@Parameter(in = ParameterIn.QUERY, name = "limit", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("20") @QueryParam("limit") Integer limit,
 		@Parameter(in = ParameterIn.QUERY, name = "page", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("1") @QueryParam("page") Integer page,
@@ -71,7 +76,7 @@ public interface LiteratureRESTInterface {
 	@Path("/{id}/expression-annotations")
 	@Operation(summary = "Retrieve expression annotations that cite the given reference")
 	@APIResponses(value = { @APIResponse(responseCode = "200", description = "List of expression annotations", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
-	JsonResultResponse<Map<String, Object>> getExpressionAnnotationsByReference(
+	JsonResultResponse<GeneExpressionDocument> getExpressionAnnotationsByReference(
 		@Parameter(in = ParameterIn.PATH, name = "id", description = "Reference curie", required = true, schema = @Schema(type = SchemaType.STRING)) @PathParam("id") String id,
 		@Parameter(in = ParameterIn.QUERY, name = "crossReferences", description = "Comma-separated PMID/MOD curies for filtering (required on stage ES)", schema = @Schema(type = SchemaType.STRING)) @QueryParam("crossReferences") List<String> crossReferences,
 		@Parameter(in = ParameterIn.QUERY, name = "limit", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("20") @QueryParam("limit") Integer limit,
@@ -84,7 +89,7 @@ public interface LiteratureRESTInterface {
 	@Path("/{id}/molecular-interactions")
 	@Operation(summary = "Retrieve molecular interactions that cite the given reference")
 	@APIResponses(value = { @APIResponse(responseCode = "200", description = "List of molecular interactions", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
-	JsonResultResponse<Map<String, Object>> getMolecularInteractionsByReference(
+	JsonResultResponse<GeneMolecularInteractionDocument> getMolecularInteractionsByReference(
 		@Parameter(in = ParameterIn.PATH, name = "id", description = "Reference curie", required = true, schema = @Schema(type = SchemaType.STRING)) @PathParam("id") String id,
 		@Parameter(in = ParameterIn.QUERY, name = "crossReferences", description = "Comma-separated PMID/MOD curies for filtering (required on stage ES)", schema = @Schema(type = SchemaType.STRING)) @QueryParam("crossReferences") List<String> crossReferences,
 		@Parameter(in = ParameterIn.QUERY, name = "limit", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("20") @QueryParam("limit") Integer limit,
@@ -97,7 +102,7 @@ public interface LiteratureRESTInterface {
 	@Path("/{id}/genetic-interactions")
 	@Operation(summary = "Retrieve genetic interactions that cite the given reference")
 	@APIResponses(value = { @APIResponse(responseCode = "200", description = "List of genetic interactions", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
-	JsonResultResponse<Map<String, Object>> getGeneticInteractionsByReference(
+	JsonResultResponse<GeneGeneticInteractionDocument> getGeneticInteractionsByReference(
 		@Parameter(in = ParameterIn.PATH, name = "id", description = "Reference curie", required = true, schema = @Schema(type = SchemaType.STRING)) @PathParam("id") String id,
 		@Parameter(in = ParameterIn.QUERY, name = "crossReferences", description = "Comma-separated PMID/MOD curies (required on stage ES)", schema = @Schema(type = SchemaType.STRING)) @QueryParam("crossReferences") List<String> crossReferences,
 		@Parameter(in = ParameterIn.QUERY, name = "limit", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("20") @QueryParam("limit") Integer limit,
