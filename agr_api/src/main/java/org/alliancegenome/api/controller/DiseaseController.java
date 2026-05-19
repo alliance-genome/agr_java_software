@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.alliancegenome.api.entity.AGMDiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
+import org.alliancegenome.api.entity.DiseaseTermStub;
 import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.api.rest.interfaces.DiseaseRESTInterface;
 import org.alliancegenome.api.service.DiseaseESService;
@@ -34,6 +35,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
@@ -505,6 +507,42 @@ public class DiseaseController implements DiseaseRESTInterface {
 		
 		JsonResultResponse<AGMDiseaseAnnotationDocument> response = getDiseaseAnnotationsForModel(diseaseID, null, null, null, null, null, null, null, null, null, null, associationType, null, null, null, null, null);
 		return response.getTotal();
+	}
+
+	@Override
+	public List<DiseaseTermStub> getDiseaseAncestors(String diseaseID) {
+		return diseaseESService.getAncestors(diseaseID);
+	}
+
+
+	private static final int MAX_BATCH_IDS = 500;
+
+	@Override
+	public java.util.Map<String, Object> getBatchDiseaseTerms(String ids) {
+		if (ids == null || ids.isBlank()) return java.util.Collections.emptyMap();
+		java.util.List<String> idList = java.util.Arrays.stream(ids.split(","))
+			.map(String::trim)
+			.filter(s -> !s.isEmpty())
+			.distinct()
+			.toList();
+		if (idList.size() > MAX_BATCH_IDS) {
+			throw new BadRequestException("ids exceeds maximum of " + MAX_BATCH_IDS);
+		}
+		return diseaseESService.getBatchTerms(idList);
+	}
+
+	@Override
+	public java.util.Map<String, java.util.Map<String, Long>> getBatchDiseaseCounts(String ids) {
+		if (ids == null || ids.isBlank()) return java.util.Collections.emptyMap();
+		java.util.List<String> idList = java.util.Arrays.stream(ids.split(","))
+			.map(String::trim)
+			.filter(s -> !s.isEmpty())
+			.distinct()
+			.toList();
+		if (idList.size() > MAX_BATCH_IDS) {
+			throw new BadRequestException("ids exceeds maximum of " + MAX_BATCH_IDS);
+		}
+		return diseaseESService.getBatchCounts(idList);
 	}
 
 	@Override
