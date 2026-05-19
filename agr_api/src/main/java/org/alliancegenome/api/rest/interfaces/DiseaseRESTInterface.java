@@ -5,6 +5,7 @@ import java.util.List;
 import org.alliancegenome.core.document.AGMDiseaseAnnotationDocument;
 import org.alliancegenome.core.document.AlleleDiseaseAnnotationDocument;
 import org.alliancegenome.core.document.GeneDiseaseAnnotationDocument;
+import org.alliancegenome.api.entity.DiseaseTermStub;
 import org.alliancegenome.api.response.JsonResultResponse;
 import org.alliancegenome.curation_api.model.document.es.DiseaseSummaryDocument;
 import org.alliancegenome.core.view.PublicView;
@@ -123,6 +124,27 @@ public interface DiseaseRESTInterface {
 		@Parameter(in = ParameterIn.QUERY, name = "filter.associationType", description = "filter by association type") @QueryParam("filter.associationType") String associationType,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.diseaseQualifier", description = "diseaseQualifier", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.diseaseQualifier") String diseaseQualifier,
 		@Parameter(in = ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING)) @QueryParam("asc") String asc);
+
+	@GET
+	@Path("/batch")
+	@Operation(summary = "Batch fetch DiseaseSummaryDocument for many disease ids")
+	@APIResponses(value = { @APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
+	java.util.Map<String, Object> getBatchDiseaseTerms(
+		@Parameter(in = ParameterIn.QUERY, name = "ids", description = "Comma-separated disease IDs", required = true, schema = @Schema(type = SchemaType.STRING)) @QueryParam("ids") String ids);
+
+	@GET
+	@Path("/counts")
+	@Operation(summary = "Batch counts of gene/model/allele annotations for many disease ids")
+	@APIResponses(value = { @APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
+	java.util.Map<String, java.util.Map<String, Long>> getBatchDiseaseCounts(
+		@Parameter(in = ParameterIn.QUERY, name = "ids", description = "Comma-separated disease IDs", required = true, schema = @Schema(type = SchemaType.STRING)) @QueryParam("ids") String ids);
+
+	@GET
+	@Path("/{id}/ancestors")
+	@Operation(summary = "Retrieve the ancestor chain for a given disease id (root-first)")
+	@APIResponses(value = { @APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
+	java.util.List<DiseaseTermStub> getDiseaseAncestors(
+		@Parameter(in = ParameterIn.PATH, name = "id", description = "Disease ID, e.g. DOID:14330", required = true, schema = @Schema(type = SchemaType.STRING)) @PathParam("id") String id);
 
 	@GET
 	@Path("/{id}/genes/download")
