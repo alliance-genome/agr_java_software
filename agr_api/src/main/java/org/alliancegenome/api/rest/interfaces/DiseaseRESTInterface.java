@@ -5,7 +5,7 @@ import java.util.List;
 import org.alliancegenome.core.document.AGMDiseaseAnnotationDocument;
 import org.alliancegenome.core.document.AlleleDiseaseAnnotationDocument;
 import org.alliancegenome.core.document.GeneDiseaseAnnotationDocument;
-import org.alliancegenome.api.entity.DiseaseTermStub;
+import org.alliancegenome.curation_api.model.entities.ontology.DOTerm;
 import org.alliancegenome.api.response.JsonResultResponse;
 import org.alliancegenome.curation_api.model.document.es.DiseaseSummaryDocument;
 import org.alliancegenome.core.view.PublicView;
@@ -143,7 +143,8 @@ public interface DiseaseRESTInterface {
 	@Path("/{id}/ancestors")
 	@Operation(summary = "Retrieve the ancestor chain for a given disease id (root-first)")
 	@APIResponses(value = { @APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
-	java.util.List<DiseaseTermStub> getDiseaseAncestors(
+	@JsonView(value = { PublicView.DiseaseAncestor.class })
+	java.util.List<DOTerm> getDiseaseAncestors(
 		@Parameter(in = ParameterIn.PATH, name = "id", description = "Disease ID, e.g. DOID:14330", required = true, schema = @Schema(type = SchemaType.STRING)) @PathParam("id") String id);
 
 	@GET

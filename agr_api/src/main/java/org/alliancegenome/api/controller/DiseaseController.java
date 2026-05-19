@@ -11,7 +11,7 @@ import java.util.List;
 import org.alliancegenome.core.document.AGMDiseaseAnnotationDocument;
 import org.alliancegenome.core.document.AlleleDiseaseAnnotationDocument;
 import org.alliancegenome.core.document.GeneDiseaseAnnotationDocument;
-import org.alliancegenome.api.entity.DiseaseTermStub;
+import org.alliancegenome.curation_api.model.entities.ontology.DOTerm;
 import org.alliancegenome.api.rest.interfaces.DiseaseRESTInterface;
 import org.alliancegenome.api.service.DiseaseESService;
 import org.alliancegenome.api.service.EntityType;
@@ -505,7 +505,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 	}
 
 	@Override
-	public List<DiseaseTermStub> getDiseaseAncestors(String diseaseID) {
+	public List<DOTerm> getDiseaseAncestors(String diseaseID) {
 		return diseaseESService.getAncestors(diseaseID);
 	}
 

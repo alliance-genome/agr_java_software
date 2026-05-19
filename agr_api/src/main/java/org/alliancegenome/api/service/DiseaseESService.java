@@ -21,7 +21,7 @@ import org.alliancegenome.api.entity.DiseaseEntitySubgroupSlim;
 import org.alliancegenome.api.entity.DiseaseRibbonEntity;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.core.document.GeneDiseaseAnnotationDocument;
-import org.alliancegenome.api.entity.DiseaseTermStub;
+import org.alliancegenome.curation_api.model.entities.ontology.DOTerm;
 import org.alliancegenome.api.es.dao.SearchDAO;
 import org.alliancegenome.api.service.helper.APIServiceHelper;
 import org.alliancegenome.api.response.JsonResultResponse;
@@ -493,15 +493,15 @@ public class DiseaseESService extends ESService {
 	private static final String DISEASE_ROOT = "DOID:4";
 	private static final int MAX_ANCESTOR_DEPTH = 30;
 
-	public List<DiseaseTermStub> getAncestors(String diseaseID) {
-		List<DiseaseTermStub> chain = new ArrayList<>();
+	public List<DOTerm> getAncestors(String diseaseID) {
+		List<DOTerm> chain = new ArrayList<>();
 		Set<String> visited = new HashSet<>();
 		String current = diseaseID;
 		for (int i = 0; i < MAX_ANCESTOR_DEPTH; i++) {
 			if (current == null || !visited.add(current)) break;
 			DiseaseSummaryDocument doc = getById(current);
 			if (doc == null || doc.getDoTerm() == null) break;
-			chain.add(new DiseaseTermStub(doc.getDoTerm().getCurie(), doc.getDoTerm().getName()));
+			chain.add(doc.getDoTerm());
 			if (DISEASE_ROOT.equals(current)) break;
 			if (doc.getParents() == null || doc.getParents().isEmpty()) break;
 			current = doc.getParents().iterator().next().getCurie();
