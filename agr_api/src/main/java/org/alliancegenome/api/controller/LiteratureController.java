@@ -42,16 +42,18 @@ public class LiteratureController implements LiteratureRESTInterface {
 	}
 
 	@Override
-	public JsonResultResponse<DiseaseAnnotationDocument> getDiseaseAnnotationsByReference(String id,
-																						  Integer limit,
-																						  Integer page,
-																						  String sortBy,
-																						  String species,
-																						  String diseaseName,
-																						  String associationType,
-																						  String evidenceCode,
-																						  String dataProvider,
-																						  String asc) {
+	public JsonResultResponse<DiseaseAnnotationDocument> getDiseaseAnnotationsByReference(
+		String id,
+		Integer limit,
+		Integer page,
+		String sortBy,
+		String species,
+		String diseaseName,
+		String associationType,
+		String evidenceCode,
+		String dataProvider,
+		String asc
+	) {
 		long startTime = System.currentTimeMillis();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
 		pagination.addFilterOption("subject.taxon.species.fullName.keyword", species);
@@ -68,13 +70,15 @@ public class LiteratureController implements LiteratureRESTInterface {
 	}
 
 	@Override
-	public JsonResultResponse<PhenotypeAnnotationDocument> getPhenotypeAnnotationsByReference(String id,
-																							  Integer limit,
-																							  Integer page,
-																							  String sortBy,
-																							  String species,
-																							  String phenotype,
-																							  String asc) {
+	public JsonResultResponse<PhenotypeAnnotationDocument> getPhenotypeAnnotationsByReference(
+		String id,
+		Integer limit,
+		Integer page,
+		String sortBy,
+		String species,
+		String phenotype,
+		String asc
+	) {
 		long startTime = System.currentTimeMillis();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
 		pagination.addFilterOption("subject.taxon.species.fullName.keyword", species);
@@ -88,13 +92,15 @@ public class LiteratureController implements LiteratureRESTInterface {
 	}
 
 	@Override
-	public JsonResultResponse<GeneExpressionDocument> getExpressionAnnotationsByReference(String id,
-																									List<String> crossReferences,
-																									Integer limit,
-																									Integer page,
-																									String sortBy,
-																									String species,
-																									String asc) {
+	public JsonResultResponse<GeneExpressionDocument> getExpressionAnnotationsByReference(
+		String id,
+		List<String> crossReferences,
+		Integer limit,
+		Integer page,
+		String sortBy,
+		String species,
+		String asc
+	) {
 		long startTime = System.currentTimeMillis();
 		List<String> xrefs = splitCommas(crossReferences);
 		requireCrossReferences(xrefs);
@@ -109,13 +115,15 @@ public class LiteratureController implements LiteratureRESTInterface {
 	}
 
 	@Override
-	public JsonResultResponse<GeneMolecularInteractionDocument> getMolecularInteractionsByReference(String id,
-																									List<String> crossReferences,
-																									Integer limit,
-																									Integer page,
-																									String sortBy,
-																									String species,
-																									String asc) {
+	public JsonResultResponse<GeneMolecularInteractionDocument> getMolecularInteractionsByReference(
+		String id,
+		List<String> crossReferences,
+		Integer limit,
+		Integer page,
+		String sortBy,
+		String species,
+		String asc
+	) {
 		long startTime = System.currentTimeMillis();
 		List<String> xrefs = splitCommas(crossReferences);
 		requireCrossReferences(xrefs);
@@ -130,13 +138,15 @@ public class LiteratureController implements LiteratureRESTInterface {
 	}
 
 	@Override
-	public JsonResultResponse<GeneGeneticInteractionDocument> getGeneticInteractionsByReference(String id,
-																								List<String> crossReferences,
-																								Integer limit,
-																								Integer page,
-																								String sortBy,
-																								String species,
-																								String asc) {
+	public JsonResultResponse<GeneGeneticInteractionDocument> getGeneticInteractionsByReference(
+		String id,
+		List<String> crossReferences,
+		Integer limit,
+		Integer page,
+		String sortBy,
+		String species,
+		String asc
+	) {
 		long startTime = System.currentTimeMillis();
 		List<String> xrefs = splitCommas(crossReferences);
 		requireCrossReferences(xrefs);
@@ -163,11 +173,13 @@ public class LiteratureController implements LiteratureRESTInterface {
 	}
 
 	@Override
-	public JsonResultResponse<Map<String, Object>> getOrthologyByReference(String id,
-																			Integer limit,
-																			Integer page,
-																			String sortBy,
-																			String asc) {
+	public JsonResultResponse<Map<String, Object>> getOrthologyByReference(
+		String id,
+		Integer limit,
+		Integer page,
+		String sortBy,
+		String asc
+	) {
 		long startTime = System.currentTimeMillis();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
 		validate(pagination);
@@ -245,7 +257,9 @@ public class LiteratureController implements LiteratureRESTInterface {
 
 	// JAX-RS gives a List<String> for repeated params; this also handles a single "a,b,c" value.
 	private static List<String> splitCommas(List<String> raw) {
-		if (raw == null) return List.of();
+		if (raw == null) {
+			return List.of();
+		}
 		return raw.stream()
 			.filter(s -> s != null && !s.isBlank())
 			.flatMap(s -> java.util.Arrays.stream(s.split(",")))

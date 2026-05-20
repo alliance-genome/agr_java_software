@@ -135,7 +135,9 @@ public class ReferenceDataESService extends ESService {
 		List<String> focusGenes = new ArrayList<>();
 		for (Map<String, Object> g : genesResp.getResults()) {
 			Object id = g.get("primaryExternalId");
-			if (id != null) focusGenes.add(id.toString());
+			if (id != null) {
+				focusGenes.add(id.toString());
+			}
 		}
 
 		List<String> aGenes = new ArrayList<>(focusGenes);
@@ -173,9 +175,13 @@ public class ReferenceDataESService extends ESService {
 		ParsedStringTerms refTerms = sharedResp.getAggregations().get("refs");
 		for (Terms.Bucket b : refTerms.getBuckets()) {
 			String candidateRef = b.getKeyAsString();
-			if (candidateRef.equals(referenceCurie)) continue;
+			if (candidateRef.equals(referenceCurie)) {
+				continue;
+			}
 			// Skip external disease-database refs (OMIM, Orphanet) that aren't papers.
-			if (!candidateRef.startsWith("AGRKB:")) continue;
+			if (!candidateRef.startsWith("AGRKB:")) {
+				continue;
+			}
 			org.elasticsearch.search.aggregations.metrics.Cardinality card = b.getAggregations().get("uniqGenes");
 			sharedCounts.put(candidateRef, (int) card.getValue());
 			ParsedStringTerms speciesAgg = b.getAggregations().get("species");
@@ -214,7 +220,7 @@ public class ReferenceDataESService extends ESService {
 		}
 
 		// 3) compute Jaccard and sort
-		record Scored(String curie, int shared, int bSize, double jaccard) {}
+		record Scored(String curie, int shared, int bSize, double jaccard) { }
 		List<Scored> scored = new ArrayList<>();
 		for (Map.Entry<String, Integer> e : sharedCounts.entrySet()) {
 			int shared = e.getValue();
@@ -260,12 +266,18 @@ public class ReferenceDataESService extends ESService {
 			try {
 				@SuppressWarnings("unchecked")
 				Map<String, Object> gto = (Map<String, Object>) hit.getSourceAsMap().get("geneToGeneOrthologyGenerated");
-				if (gto == null) continue;
+				if (gto == null) {
+					continue;
+				}
 				@SuppressWarnings("unchecked")
 				Map<String, Object> obj = (Map<String, Object>) gto.get("objectGene");
-				if (obj == null) continue;
+				if (obj == null) {
+					continue;
+				}
 				Object id = obj.get("primaryExternalId");
-				if (id != null) out.add(id.toString());
+				if (id != null) {
+					out.add(id.toString());
+				}
 			} catch (Exception e) {
 				log.warn("Failed to parse ortholog object gene (hit id={})", hit.getId(), e);
 			}
@@ -281,7 +293,9 @@ public class ReferenceDataESService extends ESService {
 		List<String> geneIds = new ArrayList<>();
 		for (Map<String, Object> gene : genesResp.getResults()) {
 			Object id = gene.get("primaryExternalId");
-			if (id != null) geneIds.add(id.toString());
+			if (id != null) {
+				geneIds.add(id.toString());
+			}
 		}
 
 		JsonResultResponse<Map<String, Object>> ret = new JsonResultResponse<>();
