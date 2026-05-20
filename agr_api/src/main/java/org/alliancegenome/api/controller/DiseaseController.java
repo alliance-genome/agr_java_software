@@ -514,7 +514,9 @@ public class DiseaseController implements DiseaseRESTInterface {
 
 	@Override
 	public java.util.Map<String, Object> getBatchDiseaseTerms(String ids) {
-		if (ids == null || ids.isBlank()) return java.util.Collections.emptyMap();
+		if (ids == null || ids.isBlank()) {
+			return java.util.Collections.emptyMap();
+		}
 		java.util.List<String> idList = java.util.Arrays.stream(ids.split(","))
 			.map(String::trim)
 			.filter(s -> !s.isEmpty())
@@ -528,7 +530,9 @@ public class DiseaseController implements DiseaseRESTInterface {
 
 	@Override
 	public java.util.Map<String, java.util.Map<String, Long>> getBatchDiseaseCounts(String ids) {
-		if (ids == null || ids.isBlank()) return java.util.Collections.emptyMap();
+		if (ids == null || ids.isBlank()) {
+			return java.util.Collections.emptyMap();
+		}
 		java.util.List<String> idList = java.util.Arrays.stream(ids.split(","))
 			.map(String::trim)
 			.filter(s -> !s.isEmpty())

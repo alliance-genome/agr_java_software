@@ -511,12 +511,20 @@ public class DiseaseESService extends ESService {
 		Set<String> visited = new HashSet<>();
 		String current = diseaseID;
 		for (int i = 0; i < MAX_ANCESTOR_DEPTH; i++) {
-			if (current == null || !visited.add(current)) break;
+			if (current == null || !visited.add(current)) {
+				break;
+			}
 			DiseaseSummaryDocument doc = getById(current);
-			if (doc == null || doc.getDoTerm() == null) break;
+			if (doc == null || doc.getDoTerm() == null) {
+				break;
+			}
 			chain.add(doc.getDoTerm());
-			if (DISEASE_ROOT.equals(current)) break;
-			if (doc.getParents() == null || doc.getParents().isEmpty()) break;
+			if (DISEASE_ROOT.equals(current)) {
+				break;
+			}
+			if (doc.getParents() == null || doc.getParents().isEmpty()) {
+				break;
+			}
 			current = doc.getParents().stream()
 				.map(p -> p.getCurie())
 				.filter(java.util.Objects::nonNull)
@@ -530,7 +538,9 @@ public class DiseaseESService extends ESService {
 
 	public java.util.Map<String, Object> getBatchTerms(java.util.List<String> diseaseIds) {
 		java.util.LinkedHashMap<String, Object> result = new java.util.LinkedHashMap<>();
-		if (diseaseIds == null || diseaseIds.isEmpty()) return result;
+		if (diseaseIds == null || diseaseIds.isEmpty()) {
+			return result;
+		}
 
 		BoolQueryBuilder bool = boolQuery()
 			.filter(new TermQueryBuilder("category", "disease_summary"))
@@ -544,7 +554,9 @@ public class DiseaseESService extends ESService {
 			try {
 				DiseaseSummaryDocument doc = mapper.readValue(hit.getSourceAsString(), DiseaseSummaryDocument.class);
 				String curie = doc.getDoTerm() != null ? doc.getDoTerm().getCurie() : null;
-				if (curie != null) result.put(curie, doc);
+				if (curie != null) {
+					result.put(curie, doc);
+				}
 			} catch (Exception e) {
 				log.error("Failed to deserialize disease term in batch (id={})", hit.getId(), e);
 			}
@@ -557,10 +569,14 @@ public class DiseaseESService extends ESService {
 		java.util.Map<String, java.util.Map<String, Long>> result = new java.util.LinkedHashMap<>();
 		for (String id : diseaseIds) {
 			java.util.Map<String, Long> zeros = new java.util.LinkedHashMap<>();
-			for (String[] pair : COUNT_CATEGORIES) zeros.put(pair[0], 0L);
+			for (String[] pair : COUNT_CATEGORIES) {
+				zeros.put(pair[0], 0L);
+			}
 			result.put(id, zeros);
 		}
-		if (diseaseIds.isEmpty()) return result;
+		if (diseaseIds.isEmpty()) {
+			return result;
+		}
 		String[] idArray = diseaseIds.toArray(new String[0]);
 		for (String[] pair : COUNT_CATEGORIES) {
 			String key = pair[0];
@@ -568,7 +584,9 @@ public class DiseaseESService extends ESService {
 			java.util.Map<String, Long> counts = countByDisease(category, idArray);
 			for (String id : diseaseIds) {
 				Long c = counts.get(id);
-				if (c != null) result.get(id).put(key, c);
+				if (c != null) {
+					result.get(id).put(key, c);
+				}
 			}
 		}
 		return result;
