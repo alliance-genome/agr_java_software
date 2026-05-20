@@ -310,7 +310,7 @@ public enum FileGeneratorConfig {
 		// resolves the synthetic field.
 		m.put("SourceURL", "_sourceUrl");
 		m.put("Source", "geneExpressionAnnotation.dataProvider.abbreviation");
-		m.put("Reference", "referenceId.0");
+		m.put("Reference", "_reference");
 		return m;
 	}
 }
