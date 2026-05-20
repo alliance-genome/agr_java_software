@@ -26,6 +26,7 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
@@ -241,5 +242,14 @@ public class ESService {
 		bool2.should(new MatchQueryBuilder("subject.curie.keyword", geneID));
 		bool2.should(new MatchQueryBuilder("subject.primaryExternalId.keyword", geneID));
 		bool2.should(new MatchQueryBuilder("subject.modInternalId.keyword", geneID));
+	}
+
+	protected <T> T mapHit(SearchHit hit, Class<T> type) {
+		try {
+			return this.mapper.readValue(hit.getSourceAsString(), type);
+		} catch (Exception e) {
+			Log.error("Failed to deserialize hit id=" + hit.getId() + " as " + type.getSimpleName(), e);
+			return null;
+		}
 	}
 }

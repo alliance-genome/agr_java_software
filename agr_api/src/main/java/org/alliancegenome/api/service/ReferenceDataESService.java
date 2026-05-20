@@ -67,12 +67,32 @@ public class ReferenceDataESService extends ESService {
 		"agm_phenotype_annotation"
 	);
 
+	private static final List<String> GENE_AND_ALLELE_ANNOTATION_CATEGORIES = List.of(
+		"gene_disease_annotation",
+		"gene_phenotype_annotation",
+		"allele_disease_annotation",
+		"allele_phenotype_annotation"
+	);
+
 	public JsonResultResponse<DiseaseAnnotationDocument> getDiseaseAnnotations(String referenceCurie, Pagination pagination) {
 		BoolQueryBuilder query = boolQuery()
 			.filter(termsQuery("category", DISEASE_CATEGORIES))
 			.must(termQuery("references.curie.keyword", referenceCurie));
 
-		return runQuery(query, pagination, this::deserializeDiseaseByCategory);
+		addTableFilter(pagination, query);
+		SearchResponse searchResponse = getSearchResponse(query, pagination, null, false);
+
+		JsonResultResponse<DiseaseAnnotationDocument> ret = new JsonResultResponse<>();
+		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
+		List<DiseaseAnnotationDocument> results = new ArrayList<>();
+		for (SearchHit hit : searchResponse.getHits().getHits()) {
+			DiseaseAnnotationDocument doc = deserializeDiseaseByCategory(hit);
+			if (doc != null) {
+				results.add(doc);
+			}
+		}
+		ret.setResults(results);
+		return ret;
 	}
 
 	public JsonResultResponse<PhenotypeAnnotationDocument> getPhenotypeAnnotations(String referenceCurie, Pagination pagination) {
@@ -80,7 +100,20 @@ public class ReferenceDataESService extends ESService {
 			.filter(termsQuery("category", PHENOTYPE_CATEGORIES))
 			.must(termQuery("references.curie.keyword", referenceCurie));
 
-		return runQuery(query, pagination, this::deserializePhenotypeByCategory);
+		addTableFilter(pagination, query);
+		SearchResponse searchResponse = getSearchResponse(query, pagination, null, false);
+
+		JsonResultResponse<PhenotypeAnnotationDocument> ret = new JsonResultResponse<>();
+		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
+		List<PhenotypeAnnotationDocument> results = new ArrayList<>();
+		for (SearchHit hit : searchResponse.getHits().getHits()) {
+			PhenotypeAnnotationDocument doc = deserializePhenotypeByCategory(hit);
+			if (doc != null) {
+				results.add(doc);
+			}
+		}
+		ret.setResults(results);
+		return ret;
 	}
 
 	// Expression docs on stage index only `referenceId` (PMID/MOD IDs).
@@ -91,7 +124,7 @@ public class ReferenceDataESService extends ESService {
 		if (crossReferenceCuries != null && !crossReferenceCuries.isEmpty()) {
 			query.must(termsQuery("referenceId.keyword", crossReferenceCuries));
 		}
-		return runQuery(query, pagination, hit -> mapHit(hit, GeneExpressionDocument.class));
+		return runTypedQuery(query, pagination, GeneExpressionDocument.class);
 	}
 
 	// Molecular interaction docs only index `geneMolecularInteraction.evidence.referenceID` (PMID/MOD IDs).
@@ -101,7 +134,7 @@ public class ReferenceDataESService extends ESService {
 		if (crossReferenceCuries != null && !crossReferenceCuries.isEmpty()) {
 			query.must(termsQuery("geneMolecularInteraction.evidence.referenceID.keyword", crossReferenceCuries));
 		}
-		return runQuery(query, pagination, hit -> mapHit(hit, GeneMolecularInteractionDocument.class));
+		return runTypedQuery(query, pagination, GeneMolecularInteractionDocument.class);
 	}
 
 	// Genetic interaction category mirrors molecular interaction shape. Note: stage ES currently has
@@ -112,19 +145,29 @@ public class ReferenceDataESService extends ESService {
 		if (crossReferenceCuries != null && !crossReferenceCuries.isEmpty()) {
 			query.must(termsQuery("geneGeneticInteraction.evidence.referenceID.keyword", crossReferenceCuries));
 		}
-		return runQuery(query, pagination, hit -> mapHit(hit, GeneGeneticInteractionDocument.class));
+		return runTypedQuery(query, pagination, GeneGeneticInteractionDocument.class);
+	}
+
+	private <T> JsonResultResponse<T> runTypedQuery(BoolQueryBuilder query, Pagination pagination, Class<T> type) {
+		addTableFilter(pagination, query);
+		SearchResponse searchResponse = getSearchResponse(query, pagination, null, false);
+
+		JsonResultResponse<T> ret = new JsonResultResponse<>();
+		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
+		List<T> results = new ArrayList<>();
+		for (SearchHit hit : searchResponse.getHits().getHits()) {
+			T doc = mapHit(hit, type);
+			if (doc != null) {
+				results.add(doc);
+			}
+		}
+		ret.setResults(results);
+		return ret;
 	}
 
 	public JsonResultResponse<Map<String, Object>> getGenesByReference(String referenceCurie) {
 		return getDistinctSubjects(GENE_SUBJECT_CATEGORIES, referenceCurie);
 	}
-
-	private static final List<String> GENE_AND_ALLELE_ANNOTATION_CATEGORIES = List.of(
-		"gene_disease_annotation",
-		"gene_phenotype_annotation",
-		"allele_disease_annotation",
-		"allele_phenotype_annotation"
-	);
 
 	// Related papers by Jaccard similarity of gene subjects.
 	// - A = distinct gene subjects on this reference (optionally expanded with orthologs)
@@ -366,38 +409,6 @@ public class ReferenceDataESService extends ESService {
 		ret.setTotal(subjects.size());
 		ret.setResults(subjects);
 		return ret;
-	}
-
-	@FunctionalInterface
-	private interface HitMapper<T> {
-		T map(SearchHit hit);
-	}
-
-	private <T> JsonResultResponse<T> runQuery(BoolQueryBuilder query, Pagination pagination, HitMapper<T> mapper) {
-		addTableFilter(pagination, query);
-		SearchResponse searchResponse = getSearchResponse(query, pagination, null, false);
-
-		JsonResultResponse<T> ret = new JsonResultResponse<>();
-		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
-
-		List<T> results = new ArrayList<>();
-		for (SearchHit hit : searchResponse.getHits().getHits()) {
-			T doc = mapper.map(hit);
-			if (doc != null) {
-				results.add(doc);
-			}
-		}
-		ret.setResults(results);
-		return ret;
-	}
-
-	private <T> T mapHit(SearchHit hit, Class<T> type) {
-		try {
-			return this.mapper.readValue(hit.getSourceAsString(), type);
-		} catch (Exception e) {
-			log.error("Failed to deserialize hit id={} as {}", hit.getId(), type.getSimpleName(), e);
-			return null;
-		}
 	}
 
 	private DiseaseAnnotationDocument deserializeDiseaseByCategory(SearchHit hit) {
