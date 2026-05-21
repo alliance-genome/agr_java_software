@@ -83,6 +83,7 @@ public class DiseaseFileGenerator extends FileGenerator {
 
 			ObjectNode row = JsonNodeFactory.instance.objectNode();
 
+			row.put("_uniqueId", uniqueId);
 			row.put("_taxon", JsonPath.resolveString(pa, "diseaseAnnotationSubject.taxon.curie"));
 			row.put("_speciesName", JsonPath.resolveString(pa, "diseaseAnnotationSubject.taxon.species.fullName"));
 
