@@ -206,6 +206,7 @@ public enum FileGeneratorConfig {
 		m.put("Taxon", "gene.taxon.curie");
 		m.put("SpeciesName", "gene.taxon.species.fullName");
 		m.put("GeneId", "gene.primaryExternalId");
+		m.put("GeneName", "gene.geneFullName.displayText");
 		m.put("GeneSymbol", "gene.geneSymbol.displayText");
 		m.put("GeneSynonyms", "_geneSynonyms");
 		m.put("GeneSystematicName", "gene.geneSystematicName.displayText");
@@ -235,6 +236,7 @@ public enum FileGeneratorConfig {
 	 */
 	private static Map<String, String> diseaseFieldMap() {
 		Map<String, String> m = new LinkedHashMap<>();
+		m.put("UniqueID", "_uniqueId");
 		m.put("Taxon", "_taxon");
 		m.put("SpeciesName", "_speciesName");
 		m.put("DBobjectType", "_dbObjectType");
