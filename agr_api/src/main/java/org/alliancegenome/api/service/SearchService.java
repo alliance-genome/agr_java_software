@@ -48,6 +48,12 @@ import jakarta.ws.rs.core.UriInfo;
 @RequestScoped
 public class SearchService {
 
+	// SCRUM-6096: tokens matching <PREFIX>:<localId> are treated as exact-curie candidates
+	// and OR'd into the must clause as plain term queries, bypassing Lucene query_string's
+	// split_on_whitespace=false behaviour that otherwise breaks multi-curie searches against
+	// keyword fields (e.g. RGD genes whose primary curie sits only on `curie`).
+	private static final Pattern CURIE_TOKEN_PATTERN = Pattern.compile("^[A-Za-z]+:[A-Za-z0-9_.\\-]+$");
+
 	private static SearchDAO searchDAO = new SearchDAO();
 
 	private SearchHelper searchHelper = new SearchHelper();
@@ -233,7 +239,33 @@ public class SearchService {
 			// this applies individual boosts, if they're in the map
 			builder.fields(searchHelper.getBoostMap());
 
-			bool.must(builder);
+			// SCRUM-6096: query_string against keyword fields handles whitespace-separated
+			// tokens as a single literal, so multi-curie searches like
+			// "RGD:1306828 RGD:628748" return 0 hits whenever the primary curie lives only
+			// on a keyword field. Detect ID-shaped tokens and OR-in plain term queries on
+			// the curie/primary-key/cross-reference keyword fields as a parallel match path.
+			List<String> curieTokens = new ArrayList<>();
+			for (String tok : tokenizeQuery(queryTerm)) {
+				if (CURIE_TOKEN_PATTERN.matcher(tok).matches()) {
+					curieTokens.add(tok);
+				}
+			}
+			if (curieTokens.isEmpty()) {
+				bool.must(builder);
+			} else {
+				BoolQueryBuilder curieMatches = boolQuery();
+				for (String tok : curieTokens) {
+					// Tag each clause with the token name so the response's matched_queries
+					// reflects the exact-term path; otherwise the UI labels the token as
+					// "Missing" because the cross_fields MultiMatch boost named after the
+					// token never matches a curie that lives only on a keyword field.
+					curieMatches.should(termQuery("curie", tok).queryName(tok));
+					curieMatches.should(termQuery("primaryKey", tok).queryName(tok));
+					curieMatches.should(termQuery("globalId.keyword", tok).queryName(tok));
+					curieMatches.should(termQuery("crossReferences.keyword", tok).queryName(tok));
+				}
+				bool.must(boolQuery().should(builder).should(curieMatches).minimumShouldMatch(1));
+			}
 
 		} else {
 			bool.must(matchAllQuery());
