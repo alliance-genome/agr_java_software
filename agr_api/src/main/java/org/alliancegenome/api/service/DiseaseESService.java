@@ -336,10 +336,10 @@ public class DiseaseESService extends ESService {
 		// tier was missing on species/disease sorts. Also add the missing
 		// alpha-by-disease tertiary to the default order.
 		Map<String, List<String>> sortingSetMap = new HashMap<>();
-		sortingSetMap.put("default", List.of("phylogeneticSortingIndex", "subject.agmFullName.displayText.sort", "object.name.sort"));
-		sortingSetMap.put("model", List.of("subject.agmFullName.displayText.sort", "phylogeneticSortingIndex"));
-		sortingSetMap.put("disease", List.of("object.name.sort", "phylogeneticSortingIndex", "subject.agmFullName.displayText.sort"));
-		sortingSetMap.put("species", List.of("subject.taxon.species.fullName.keyword", "subject.agmFullName.displayText.sort"));
+		sortingSetMap.put("default", List.of("phylogeneticSortingIndex", "subject.agmFullName.displayText.keyword", "object.name.sort"));
+		sortingSetMap.put("model", List.of("subject.agmFullName.displayText.keyword", "phylogeneticSortingIndex"));
+		sortingSetMap.put("disease", List.of("object.name.sort", "phylogeneticSortingIndex", "subject.agmFullName.displayText.keyword"));
+		sortingSetMap.put("species", List.of("subject.taxon.species.fullName.keyword", "subject.agmFullName.displayText.keyword"));
 
 		LinkedHashMap<String, SortOrder> sortingMap = new LinkedHashMap<>();
 
