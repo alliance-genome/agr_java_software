@@ -818,13 +818,14 @@ public class TranscriptVariationAllele {
 				if (localRefHasStop && localAltHasNoStop) {
 					consequences.add("stop_lost");
 					// VEP inframe_deletion: checks codon pattern (ref starts/ends with alt).
-					// If pattern fails → protein_altering_variant instead.
+					// A pure deletion at C-terminal leaves altCodon="" (or null from
+					// safeSubstring). Normalize to "" so prefix/suffix check fires.
+					String altCodonForCheck = altCodon == null ? "" : altCodon;
 					boolean isInframeDel = false;
-					if (refCodon != null && altCodon != null && altCodon.length() < refCodon.length()) {
-						isInframeDel = refCodon.startsWith(altCodon) || refCodon.endsWith(altCodon);
+					if (refCodon != null && altCodonForCheck.length() < refCodon.length()) {
+						isInframeDel = refCodon.startsWith(altCodonForCheck) || refCodon.endsWith(altCodonForCheck);
 						if (!isInframeDel) {
-							// Perl trim_sequences check: trim common prefix+suffix, check if alt is empty
-							String[] trimmed = trimSequences(refCodon, altCodon);
+							String[] trimmed = trimSequences(refCodon, altCodonForCheck);
 							isInframeDel = trimmed[1].isEmpty() && trimmed[0].length() % 3 == 0;
 						}
 					}
@@ -853,12 +854,14 @@ public class TranscriptVariationAllele {
 					consequences.add("inframe_deletion");
 				} else {
 					// Check inframe_deletion vs protein_altering (VEP line 1167-1182)
+					// Normalize null altCodon to "" for C-terminal deletions.
+					String altCodonForCheck2 = altCodon == null ? "" : altCodon;
 					boolean isInframeDel = false;
-					if (refCodon != null && altCodon != null) {
-						if (refCodon.startsWith(altCodon) || refCodon.endsWith(altCodon)) {
+					if (refCodon != null) {
+						if (refCodon.startsWith(altCodonForCheck2) || refCodon.endsWith(altCodonForCheck2)) {
 							isInframeDel = true;
-						} else {
-							String[] trimmed = trimSequences(refCodon, altCodon);
+						} else if (!altCodonForCheck2.isEmpty()) {
+							String[] trimmed = trimSequences(refCodon, altCodonForCheck2);
 							if (trimmed[1].isEmpty() && trimmed[0].length() % 3 == 0) {
 								isInframeDel = true;
 							}
@@ -875,9 +878,11 @@ public class TranscriptVariationAllele {
 					}
 
 					// Perl stop_retained_variant (line 1238-1272): fires when both
-					// local peptides start with *
+					// local peptides start with * AND the peptides are equal
+					// ("retained" means unchanged, not just "still has a stop")
 					if (refPep != null && altPep != null
 						&& altPep.startsWith("*") && refPep.startsWith("*")
+						&& refPep.equals(altPep)
 						&& !consequences.contains("stop_retained_variant")) {
 						consequences.add("stop_retained_variant");
 					}
@@ -1139,8 +1144,11 @@ public class TranscriptVariationAllele {
 	// formatDisplayCodon removed — replaced by displayCodon() Perl port
 
 	private String safeSubstring(String s, int start, int end) {
-		if (s == null || start < 0 || start >= s.length()) return null;
-		return s.substring(start, Math.min(end, s.length()));
+		// start AT s.length() is a valid empty-slice anchor (returns "");
+		// start PAST s.length() is invalid (returns null).
+		if (s == null || start < 0 || start > s.length()) return null;
+		int clampedEnd = Math.max(start, Math.min(end, s.length()));
+		return s.substring(start, clampedEnd);
 	}
 
 	private String translateCds(String cds) {
@@ -1228,10 +1236,11 @@ public class TranscriptVariationAllele {
 			}
 			if (variantStart > stopHigh || variantEnd < stopLow) return false;
 
-			// 2. Build CDS and verify stop codon
+			// 2. Build CDS
+			// Perl _ins_del_stop_altered does NOT validate original stop codon.
+			// It only checks if the MODIFIED codon at the stop position is still *.
 			String cds = BaseTranscriptVariation.translateableSeq(transcript, reference);
 			if (cds == null || cds.length() < 3) return false;
-			if (!CodonTable.isStop(cds.substring(cds.length() - 3))) return false;
 
 			// 3. Build 3' UTR sequence
 			String utr3 = BaseTranscriptVariation.threePrimeUtr(transcript, reference);
@@ -1288,17 +1297,16 @@ public class TranscriptVariationAllele {
 	 * The variant start may be in UTR/intron but the range still overlaps CDS.
 	 */
 	private int findFirstCdsPositionInRange(TranscriptModel transcript, int variantStart, int variantEnd) {
-		// VEP uses genomic2cds which maps the range and takes the first Coordinate
+		// VEP uses genomic2cds which maps the range and takes the first Coordinate.
+		// genomic2cds already returns CDS-space coordinates (phase accounted for
+		// internally by the mapper). Do NOT add phaseOffset — that double-counts.
 		TranscriptMapper mapper = new TranscriptMapper(transcript);
 		int strand = transcript.isPositiveStrand() ? 1 : -1;
 		List<Mapper.Result> cdsCoords = mapper.genomic2cds(variantStart, variantEnd, strand);
 
-		// Find first non-gap result
-		int exonPhase = transcript.getStartExonPhase();
-		int phaseOffset = exonPhase > 0 ? exonPhase : 0;
 		for (Mapper.Result r : cdsCoords) {
 			if (r.isCoordinate()) {
-				return r.coordinate.start + phaseOffset;
+				return r.coordinate.start;
 			}
 		}
 		return -1;
@@ -1394,9 +1402,8 @@ public class TranscriptVariationAllele {
 				stopHigh = stopLow + 2;
 			}
 			if (variantStart > stopHigh || variantEnd < stopLow) return false;
-			String cds = BaseTranscriptVariation.translateableSeq(transcript, reference);
-			if (cds == null || cds.length() < 3) return false;
-			if (!CodonTable.isStop(cds.substring(cds.length() - 3))) return false;
+			// Perl stop_retained (line 1261): !_ins_del_stop_altered
+			// No original stop codon validation (same as _ins_del_stop_altered)
 			return !isStopAltered(transcript, chr, variantStart, variantEnd);
 		} catch (Exception e) {
 			Trace.log("SILENT_CATCH_4", "error=%s at %s", e.toString(), e.getStackTrace().length > 0 ? e.getStackTrace()[0].toString() : "?");

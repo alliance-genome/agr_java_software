@@ -254,12 +254,27 @@ public class OutputFactory {
 		}
 
 		String aminoAcids = entry.getAminoAcids();
-		if (aminoAcids == null || aminoAcids.length() != 3 || aminoAcids.charAt(1) != '/') {
+		if (aminoAcids == null || aminoAcids.isEmpty()) {
 			return;
 		}
-		char refAA = aminoAcids.charAt(0);
-		char altAA = aminoAcids.charAt(2);
-		if (refAA == altAA || refAA == '*' || altAA == '*' || refAA == 'X' || altAA == 'X') {
+
+		char refAA, altAA;
+		if (aminoAcids.length() == 1) {
+			// Collapsed form: ref == alt (e.g. synonymous codon change at start_lost).
+			// Perl still looks up SIFT for the unchanged residue.
+			refAA = aminoAcids.charAt(0);
+			altAA = refAA;
+		} else if (aminoAcids.length() == 3 && aminoAcids.charAt(1) == '/') {
+			refAA = aminoAcids.charAt(0);
+			altAA = aminoAcids.charAt(2);
+		} else {
+			return;
+		}
+
+		// Skip non-standard residues. Do NOT skip refAA == altAA — Perl
+		// queries SIFT for self-substitutions and returns the pre-computed
+		// score (typically tolerated/1).
+		if (refAA == '*' || altAA == '*' || refAA == 'X' || altAA == 'X') {
 			return;
 		}
 
@@ -475,12 +490,19 @@ public class OutputFactory {
 			if (hgvsg != null) {
 				entry.setHgvsg(hgvsg);
 			}
-			// VEP populates EXON/INTRON even for transcript_ablation
+			// VEP populates EXON/INTRON and cDNA_position even for transcript_ablation
 			BaseTranscriptVariation ablBvt = new BaseTranscriptVariation(transcript, variantStart, variantEnd);
 			String exonNum = ablBvt.exonNumber();
 			String intronNum = ablBvt.intronNumber();
 			if (exonNum != null) entry.setExon(exonNum);
 			if (intronNum != null) entry.setIntron(intronNum);
+			// Perl populates cDNA_position for ablation — typically "1-?" when
+			// the deletion extends past the transcript end.
+			int cdnaS = ablBvt.cdnaStart();
+			int cdnaE = ablBvt.cdnaEnd();
+			if (cdnaS > 0 || cdnaE > 0) {
+				entry.setCdnaPosition(formatCoords(cdnaS, cdnaE));
+			}
 			return entry;
 		}
 
@@ -573,16 +595,23 @@ public class OutputFactory {
 					// here.
 					// Null out and let the fallback handle stop/start determination.
 					if (tva.getConsequence() != null && (overlaps5utr || overlaps3utr)) {
-						// Keep only start_lost from TranscriptVariationAllele (5'UTR case)
+						// TVA's stop_lost / start_lost / stop_retained / stop_gained
+						// detection is reliable when the deletion overlaps a UTR — it
+						// can directly see the start/stop codon bases being edited.
+						// Keep those; null out everything else (frameshift, inframe_deletion,
+						// etc.) so the structural fallback gets a chance.
 						String cons = tva.getConsequence();
-						boolean hasStartLost = false;
+						boolean hasTrustedConsequence = false;
 						for (String term : cons.split("&")) {
-							if (term.equals("start_lost")) {
-								hasStartLost = true;
+							if (term.equals("start_lost")
+								|| term.equals("stop_lost")
+								|| term.equals("stop_retained_variant")
+								|| term.equals("stop_gained")) {
+								hasTrustedConsequence = true;
 								break;
 							}
 						}
-						if (!hasStartLost) {
+						if (!hasTrustedConsequence) {
 							tva = null;
 						}
 					}
@@ -658,7 +687,25 @@ public class OutputFactory {
 					// = both endpoints in exons AND range overlaps CDS.
 					boolean fallbackFired = false;
 					if (overlaps3utr && startInExon && endInExon) {
-						if (codingAnnotator.isStopAltered(transcript, chr, variantStart, variantEnd)) {
+						// Geometric check: if a deletion overlaps the stop codon AND
+						// extends past it into 3'UTR, the stop is necessarily removed.
+						int stopLow, stopHigh;
+						if (transcript.isPositiveStrand()) {
+							stopHigh = transcript.getCdsEnd();
+							stopLow = stopHigh - 2;
+						} else {
+							stopLow = transcript.getCdsStart();
+							stopHigh = stopLow + 2;
+						}
+						boolean overlapsStop = rangeStart <= stopHigh && rangeEnd >= stopLow;
+						boolean extendsPastStop = transcript.isPositiveStrand()
+							? rangeEnd > stopHigh
+							: rangeStart < stopLow;
+
+						if (!isInsertion && overlapsStop && extendsPastStop) {
+							locationTerms.add("stop_lost");
+							fallbackFired = true;
+						} else if (codingAnnotator.isStopAltered(transcript, chr, variantStart, variantEnd)) {
 							locationTerms.add("stop_lost");
 							fallbackFired = true;
 						} else if (codingAnnotator.isStopRetained(transcript, chr, variantStart, variantEnd)) {

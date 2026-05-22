@@ -185,8 +185,13 @@ public class VcfAnnotationPipeline extends Thread {
 			String line;
 			while ((line = br.readLine()) != null) {
 				if (line.startsWith("##")) {
+					// Number=0 with non-Flag type is internally inconsistent per VCF
+					// spec. The data is almost always string tokens (e.g. RGD
+					// VT=del/ins/snv). Coerce both Number and Type for a
+					// spec-compliant header.
 					if (line.contains("Number=0") && !line.contains("Type=Flag")) {
 						line = line.replace("Number=0", "Number=.");
+						line = line.replaceFirst("Type=(Integer|Float|Character)", "Type=String");
 					}
 				} else if (!line.startsWith("#") && hasInvalidRef(line)) {
 					skippedCount++;

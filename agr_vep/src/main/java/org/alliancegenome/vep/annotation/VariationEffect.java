@@ -30,6 +30,16 @@ public class VariationEffect {
 		return (f1End >= f2Start) && (f1Start <= f2End);
 	}
 
+	/**
+	 * Returns true if an insertion whose surrounding bases are (before, after)
+	 * lies strictly inside [rangeStart, rangeEnd]. Both surrounding bases must
+	 * be inside — a boundary insertion (one base inside, one outside) is NOT
+	 * in the range, matching Perl VEP's behavior at the exon/intron seam.
+	 */
+	public static boolean insertionInRange(int before, int after, int rangeStart, int rangeEnd) {
+		return before >= rangeStart && after <= rangeEnd;
+	}
+
 	// VEP line 119-137
 	public static boolean withinFeature(int vfStart, int vfEnd, int featStart, int featEnd) {
 		return overlap(vfStart, vfEnd, featStart, featEnd);
@@ -745,15 +755,28 @@ public class VariationEffect {
 				: overlap(ppStart, ppEnd, intronStart + 2, intronStart + 16);
 			if (polypyrimidine) hasPolypyrimidine = true;
 
-			// Splice region: 3-8 bases into intron OR 1-3 bases of exon
+			// Splice region: 3-8 bases into intron OR 1-3 bases of exon.
+			// For insertions VEP uses inverted coords (start=P, end=P-1).
+			// overlap() returns false for inverted coords, so insertions need
+			// their own check: both surrounding bases must be inside the range.
+			// Boundary insertions (exon/intron seam) are NOT in the splice region.
 			if (!isDonor && !isAcceptor) {
-				boolean spliceRegion =
-					overlap(variantStart, variantEnd, intronStart + 2, intronStart + 7) ||
-					overlap(variantStart, variantEnd, intronEnd - 7, intronEnd - 2) ||
-					overlap(variantStart, variantEnd, intronStart - 3, intronStart - 1) ||
-					overlap(variantStart, variantEnd, intronEnd + 1, intronEnd + 3) ||
-					(insertion && (variantStart == intronStart || variantEnd == intronEnd
-						|| variantStart == intronStart + 2 || variantEnd == intronEnd - 2));
+				boolean spliceRegion;
+				if (insertion) {
+					int before = variantEnd;    // P - 1
+					int after = variantStart;   // P
+					spliceRegion =
+						insertionInRange(before, after, intronStart + 2, intronStart + 7) ||
+						insertionInRange(before, after, intronEnd - 7, intronEnd - 2) ||
+						insertionInRange(before, after, intronStart - 3, intronStart - 1) ||
+						insertionInRange(before, after, intronEnd + 1, intronEnd + 3);
+				} else {
+					spliceRegion =
+						overlap(variantStart, variantEnd, intronStart + 2, intronStart + 7) ||
+						overlap(variantStart, variantEnd, intronEnd - 7, intronEnd - 2) ||
+						overlap(variantStart, variantEnd, intronStart - 3, intronStart - 1) ||
+						overlap(variantStart, variantEnd, intronEnd + 1, intronEnd + 3);
+				}
 				if (spliceRegion) hasSpliceRegion = true;
 			}
 		}
