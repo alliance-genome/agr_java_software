@@ -70,6 +70,9 @@ public class VariantVcfFileGenerator extends FileGenerator {
 			String prefix = mod + ":";
 			Map<String, Object> body = buildContigAggBody(prefix);
 			Map<String, Object> resp = fetcher.search(body);
+			if (resp == null) {
+				log.warn("{}: contig pre-pass for MOD {} returned null response — contig header lines will be empty", getClass().getSimpleName(), mod);
+			}
 			String contigLines = renderContigLines(resp);
 			contigLinesByMod.put(mod, contigLines);
 			log.info("{}: contig pre-pass for MOD {} produced {} line(s)", getClass().getSimpleName(), mod, contigLines.isEmpty() ? 0 : contigLines.split("\n").length);
@@ -248,24 +251,44 @@ public class VariantVcfFileGenerator extends FileGenerator {
 		obj.put("_alt", alt);
 		obj.put("_qual", ".");
 		obj.put("_filter", ".");
-		obj.put("_info", buildInfo(hit, loc, id));
+		String alleleId = JsonPath.resolveString(hit, "allele.primaryExternalId");
+		obj.put("_info", buildInfo(hit, loc, id, alleleId));
 
 		return hit;
 	}
 
-	private static String buildInfo(JsonNode hit, JsonNode loc, String hgvs) {
+	private static String buildInfo(JsonNode hit, JsonNode loc, String hgvs, String alleleId) {
 		StringBuilder sb = new StringBuilder();
 
 		appendKv(sb, "hgvs_nomenclature", hgvs);
 
-		String geneLevel = loc == null ? "" : firstNonEmpty(
-				loc.path("mostSevereConsequence").path("variantConsequence").path("name").asText(""),
-				loc.path("mostSevereConsequence").path("vepConsequences").path(0).path("name").asText(""));
-		appendKv(sb, "geneLevelConsequence", geneLevel);
+		// MOD prefix derived from the allele curie (e.g., "WB:WBVar..." -> "WB:") — applied to transcript IDs to match legacy VCF format.
+		String modPrefix = "";
+		if (alleleId != null) {
+			int colon = alleleId.indexOf(':');
+			if (colon > 0) {
+				modPrefix = alleleId.substring(0, colon + 1);
+			}
+		}
 
-		// transcriptLevelConsequence — comma-joined names from each predictedVariantConsequences entry's vepConsequences[0]
-		List<String> txLevel = new ArrayList<>();
-		List<String> txImpacts = new ArrayList<>();
+		// geneLevelConsequence — pipe-joined unique names across mostSevereConsequence.vepConsequences[*].
+		LinkedHashSet<String> geneLevel = new LinkedHashSet<>();
+		if (loc != null) {
+			JsonNode vepCs = loc.path("mostSevereConsequence").path("vepConsequences");
+			if (vepCs.isArray()) {
+				for (JsonNode v : vepCs) {
+					String n = v.path("name").asText("");
+					if (!n.isEmpty()) {
+						geneLevel.add(n);
+					}
+				}
+			}
+		}
+		appendKv(sb, "geneLevelConsequence", String.join("|", geneLevel));
+
+		// transcriptLevelConsequence — pipe-joined unique names across all predictedVariantConsequences[*].vepConsequences[*]. transcriptImpact and geneSymbols collected during the same pass for cache locality. Transcript IDs are kept per-transcript (comma-joined, dedup) — allele_of_transcript_ids gets the MOD prefix per legacy format, the two gff3_* keys carry the unprefixed transcript name.
+		LinkedHashSet<String> txLevel = new LinkedHashSet<>();
+		LinkedHashSet<String> txImpacts = new LinkedHashSet<>();
 		List<String> geneSymbols = new ArrayList<>();
 		List<String> transcriptIds = new ArrayList<>();
 		List<String> transcriptGff3Ids = new ArrayList<>();
@@ -274,9 +297,14 @@ public class VariantVcfFileGenerator extends FileGenerator {
 			JsonNode pvc = loc.path("predictedVariantConsequences");
 			if (pvc.isArray()) {
 				for (JsonNode entry : pvc) {
-					String c = entry.path("vepConsequences").path(0).path("name").asText("");
-					if (!c.isEmpty()) {
-						txLevel.add(c);
+					JsonNode vepCs = entry.path("vepConsequences");
+					if (vepCs.isArray()) {
+						for (JsonNode v : vepCs) {
+							String n = v.path("name").asText("");
+							if (!n.isEmpty()) {
+								txLevel.add(n);
+							}
+						}
 					}
 					String imp = entry.path("vepImpact").path("name").asText("");
 					if (!imp.isEmpty()) {
@@ -289,26 +317,20 @@ public class VariantVcfFileGenerator extends FileGenerator {
 					}
 					String tn = entry.path("variantTranscript").path("name").asText("");
 					if (!tn.isEmpty()) {
-						transcriptIds.add(tn);
-					}
-					String gff3Id = entry.path("variantTranscript").path("modCrossRefCompleteUrl").asText("");
-					if (!gff3Id.isEmpty()) {
-						transcriptGff3Ids.add(gff3Id);
-					}
-					String gff3Name = entry.path("variantTranscript").path("displayName").asText("");
-					if (!gff3Name.isEmpty()) {
-						transcriptGff3Names.add(gff3Name);
+						transcriptIds.add(modPrefix + tn);
+						transcriptGff3Ids.add(tn);
+						transcriptGff3Names.add(tn);
 					}
 				}
 			}
 		}
-		appendKv(sb, "transcriptLevelConsequence", String.join(",", txLevel));
+		appendKv(sb, "transcriptLevelConsequence", String.join("|", txLevel));
 
 		String geneImpact = loc == null ? "" : loc.path("mostSevereConsequence").path("vepImpact").path("name").asText("");
 		appendKv(sb, "geneImpact", geneImpact);
-		appendKv(sb, "transcriptImpact", String.join(",", txImpacts));
+		appendKv(sb, "transcriptImpact", String.join("|", txImpacts));
 
-		appendKv(sb, "allele_ids", JsonPath.resolveString(hit, "allele.primaryExternalId"));
+		appendKv(sb, "allele_ids", alleleId);
 		appendKv(sb, "allele_symbols", JsonPath.resolveString(hit, "allele.alleleSymbol.displayText"));
 		appendKv(sb, "allele_symbols_text", JsonPath.resolveString(hit, "allele.alleleSymbol.formatText"));
 
@@ -330,15 +352,6 @@ public class VariantVcfFileGenerator extends FileGenerator {
 			sb.append(";");
 		}
 		sb.append(key).append("=\"").append(value == null ? "" : value).append("\"");
-	}
-
-	private static String firstNonEmpty(String... values) {
-		for (String v : values) {
-			if (v != null && !v.isEmpty()) {
-				return v;
-			}
-		}
-		return "";
 	}
 
 	private static List<String> collectArrayStrings(JsonNode arr) {

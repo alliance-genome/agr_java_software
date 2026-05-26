@@ -13,6 +13,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +41,8 @@ public class VcfWriter implements RowWriter {
 	private final Path path;
 	private final BufferedWriter writer;
 	private final List<String> esPaths;
+	// Rows are buffered then sorted on close so the table is emitted in CHROM (smart-alpha) then POS (numeric) order — matches the legacy VCF format and lets downstream tools rely on positional ordering.
+	private final List<String[]> bufferedRows = new ArrayList<>();
 	private long rowCount;
 
 	public VcfWriter(Path path, Map<String, String> fieldMap) throws IOException {
@@ -107,16 +110,12 @@ public class VcfWriter implements RowWriter {
 
 	@Override
 	public synchronized void writeRow(JsonNode hit) throws IOException {
-		StringBuilder sb = new StringBuilder();
+		String[] cells = new String[esPaths.size()];
 		for (int i = 0; i < esPaths.size(); i++) {
-			if (i > 0) {
-				sb.append("\t");
-			}
 			String v = JsonPath.resolveString(hit, esPaths.get(i));
-			sb.append(v == null || v.isEmpty() ? "." : escape(v));
+			cells[i] = v == null || v.isEmpty() ? "." : escape(v);
 		}
-		sb.append("\n");
-		writer.write(sb.toString());
+		bufferedRows.add(cells);
 		rowCount++;
 	}
 
@@ -132,8 +131,67 @@ public class VcfWriter implements RowWriter {
 
 	@Override
 	public synchronized void close() throws IOException {
+		// Field map ordering is fixed by VariantsVcf in FileGeneratorConfig — cells[0] is CHROM and cells[1] is POS, so sort directly on those indices.
+		bufferedRows.sort(CHROM_THEN_POS);
+		StringBuilder sb = new StringBuilder();
+		for (String[] cells : bufferedRows) {
+			for (int i = 0; i < cells.length; i++) {
+				if (i > 0) {
+					sb.append('\t');
+				}
+				sb.append(cells[i]);
+			}
+			sb.append('\n');
+		}
+		writer.write(sb.toString());
 		writer.flush();
 		writer.close();
+	}
+
+	// Numeric chromosomes (1, 2, 3, ...) come first in numeric order, then non-numeric (MT, X, Y, MtDNA, ...) in lexical order. Within a chrom, POS is sorted numerically.
+	private static final Comparator<String[]> CHROM_THEN_POS = (a, b) -> {
+		int c = compareChrom(a[0], b[0]);
+		if (c != 0) {
+			return c;
+		}
+		return Long.compare(parsePos(a[1]), parsePos(b[1]));
+	};
+
+	private static int compareChrom(String a, String b) {
+		Integer ia = parseChromInt(a);
+		Integer ib = parseChromInt(b);
+		if (ia != null && ib != null) {
+			return Integer.compare(ia, ib);
+		}
+		if (ia != null) {
+			return -1;
+		}
+		if (ib != null) {
+			return 1;
+		}
+		return a.compareTo(b);
+	}
+
+	private static Integer parseChromInt(String s) {
+		if (s == null || s.isEmpty()) {
+			return null;
+		}
+		try {
+			return Integer.valueOf(s);
+		} catch (NumberFormatException e) {
+			return null;
+		}
+	}
+
+	private static long parsePos(String s) {
+		if (s == null || s.isEmpty() || ".".equals(s)) {
+			return Long.MAX_VALUE;
+		}
+		try {
+			return Long.parseLong(s);
+		} catch (NumberFormatException e) {
+			return Long.MAX_VALUE;
+		}
 	}
 
 	private static String escape(String s) {
