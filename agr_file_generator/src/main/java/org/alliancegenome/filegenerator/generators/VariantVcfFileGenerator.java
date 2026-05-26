@@ -286,7 +286,8 @@ public class VariantVcfFileGenerator extends FileGenerator {
 		}
 		appendKv(sb, "geneLevelConsequence", String.join("|", geneLevel));
 
-		// transcriptLevelConsequence — pipe-joined unique names across all predictedVariantConsequences[*].vepConsequences[*]. transcriptImpact and geneSymbols collected during the same pass for cache locality. Transcript IDs are kept per-transcript (comma-joined, dedup) — allele_of_transcript_ids gets the MOD prefix per legacy format, the two gff3_* keys carry the unprefixed transcript name.
+		// transcriptLevelConsequence — pipe-joined unique names across all predictedVariantConsequences[*].vepConsequences[*]. transcriptImpact and geneSymbols collected during the same pass.
+		// Transcript IDs are kept per-transcript (comma-joined, dedup) — allele_of_transcript_ids gets the MOD prefix per legacy format, the two gff3_* keys carry the unprefixed transcript name.
 		LinkedHashSet<String> txLevel = new LinkedHashSet<>();
 		LinkedHashSet<String> txImpacts = new LinkedHashSet<>();
 		List<String> geneSymbols = new ArrayList<>();

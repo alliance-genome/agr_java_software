@@ -368,7 +368,7 @@ public class IndexManager {
 				request.verify(true);
 				request.timeout(new TimeValue(30, TimeUnit.MINUTES));
 
-				log.info(repoName + " -> s3://agr-es-backup/" + fullBasePath );
+				log.info(repoName + " -> s3://agr-es-backup/" + fullBasePath);
 
 				AcknowledgedResponse response = closableSearchClient.snapshot().createRepository(request, RequestOptions.DEFAULT);
 
