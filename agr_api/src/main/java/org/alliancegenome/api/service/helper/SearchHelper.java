@@ -2,6 +2,7 @@ package org.alliancegenome.api.service.helper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -398,6 +399,39 @@ public class SearchHelper {
 		log.debug("Formatting Results: ");
 		ArrayList<Map<String, Object>> ret = new ArrayList<>();
 
+		// SCRUM-6096: build a result-set-wide "matched" set so an ID-shaped token that
+		// matched some other hit on the page isn't flagged as missing on this hit.
+		// (Per-hit "missing" remains correct for non-ID free-text tokens — those don't
+		// equal a doc's curie/primaryKey/globalId/crossReference so they won't be added
+		// here unless ES itself reports them as matched.)
+		Set<String> globallyMatched = new HashSet<>();
+		if (searchedTerms != null && !searchedTerms.isEmpty()) {
+			for (SearchHit hit : res.getHits()) {
+				if (hit.getMatchedQueries() != null) {
+					for (String n : hit.getMatchedQueries()) {
+						globallyMatched.add(n);
+					}
+				}
+				Set<String> docIds = new HashSet<>();
+				collectStringField(hit.getSourceAsMap(), "curie", docIds);
+				collectStringField(hit.getSourceAsMap(), "primaryKey", docIds);
+				collectStringField(hit.getSourceAsMap(), "globalId", docIds);
+				Object xrefs = hit.getSourceAsMap().get("crossReferences");
+				if (xrefs instanceof Collection) {
+					for (Object x : (Collection<?>) xrefs) {
+						if (x instanceof String) {
+							docIds.add((String) x);
+						}
+					}
+				}
+				for (String t : searchedTerms) {
+					if (docIds.contains(t)) {
+						globallyMatched.add(t);
+					}
+				}
+			}
+		}
+
 		for (SearchHit hit : res.getHits()) {
 			Map<String, List<String>> map = new HashMap<>();
 			for (String key : hit.getHighlightFields().keySet()) {
@@ -441,14 +475,14 @@ public class SearchHelper {
 				hit.getSourceAsMap().put("explanation", hit.getExplanation());
 			}
 
-			hit.getSourceAsMap().put("missingTerms", findMissingTerms(Arrays.asList(hit.getMatchedQueries()), searchedTerms));
+			hit.getSourceAsMap().put("missingTerms", findMissingTerms(Arrays.asList(hit.getMatchedQueries()), searchedTerms, globallyMatched));
 			ret.add(hit.getSourceAsMap());
 		}
 		log.debug("Finished Formatting Results: ");
 		return ret;
 	}
 
-	private List<String> findMissingTerms(List<String> matchedTerms, List<String> searchedTerms) {
+	private List<String> findMissingTerms(List<String> matchedTerms, List<String> searchedTerms, Set<String> globallyMatched) {
 
 		List<String> terms = new ArrayList<>();
 
@@ -462,7 +496,23 @@ public class SearchHelper {
 		terms.addAll(searchedTerms);
 		terms.removeAll(matchedTerms);
 
+		// SCRUM-6096: suppress tokens that matched any hit in the result set. Avoids
+		// labelling RGD:628748 as missing on the RGD:1306828 hit (and vice versa) when
+		// the user searched for both IDs at once. Also covers the ES quirk where a
+		// shared _name between a function_score filter and a main-query clause drops
+		// the name from matched_queries.
+		if (globallyMatched != null) {
+			terms.removeAll(globallyMatched);
+		}
+
 		return terms;
+	}
+
+	private static void collectStringField(Map<String, Object> source, String key, Set<String> sink) {
+		Object v = source.get(key);
+		if (v instanceof String) {
+			sink.add((String) v);
+		}
 	}
 
 	public HighlightBuilder buildHighlights() {
