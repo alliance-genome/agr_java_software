@@ -351,12 +351,18 @@ public class DiseaseESService extends ESService {
 		// create histogram of select columns of unfiltered query
 		addTableFilter(pagination, bool);
 
-		// Sorting sets for different names of the sorting selection box
+		// Sorting sets for different names of the sorting selection box.
+		// SCRUM-6117: AGM disease annotation docs have no subject.name field — the AGM
+		// name lives at subject.agmFullName.displayText (.sort sub-field carries the
+		// smart_alpha_sort normalizer). The previous subject.name.sort keys silently
+		// no-op'd, which is why model sort did nothing and the secondary/tertiary AGM
+		// tier was missing on species/disease sorts. Also add the missing
+		// alpha-by-disease tertiary to the default order.
 		Map<String, List<String>> sortingSetMap = new HashMap<>();
-		sortingSetMap.put("default", List.of("phylogeneticSortingIndex", "subject.name.sort"));
-		sortingSetMap.put("model", List.of("subject.name.sort", "phylogeneticSortingIndex"));
-		sortingSetMap.put("disease", List.of("object.name.sort", "phylogeneticSortingIndex", "subject.name.sort"));
-		sortingSetMap.put("species", List.of("subject.taxon.species.fullName.keyword", "subject.name.sort"));
+		sortingSetMap.put("default", List.of("phylogeneticSortingIndex", "subject.agmFullName.displayText.keyword", "object.name.sort"));
+		sortingSetMap.put("model", List.of("subject.agmFullName.displayText.keyword", "phylogeneticSortingIndex"));
+		sortingSetMap.put("disease", List.of("object.name.sort", "phylogeneticSortingIndex", "subject.agmFullName.displayText.keyword"));
+		sortingSetMap.put("species", List.of("subject.taxon.species.fullName.keyword", "subject.agmFullName.displayText.keyword"));
 
 		LinkedHashMap<String, SortOrder> sortingMap = new LinkedHashMap<>();
 
