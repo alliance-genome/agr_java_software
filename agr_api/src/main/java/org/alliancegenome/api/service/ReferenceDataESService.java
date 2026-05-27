@@ -74,6 +74,8 @@ public class ReferenceDataESService extends ESService {
 		"allele_phenotype_annotation"
 	);
 
+	private static final SearchDAO SEARCH_DAO = new SearchDAO();
+
 	public JsonResultResponse<DiseaseAnnotationDocument> getDiseaseAnnotations(String referenceCurie, Pagination pagination) {
 		BoolQueryBuilder query = boolQuery()
 			.filter(termsQuery("category", DISEASE_CATEGORIES))
@@ -371,8 +373,6 @@ public class ReferenceDataESService extends ESService {
 	public JsonResultResponse<Map<String, Object>> getModelsByReference(String referenceCurie) {
 		return getDistinctSubjects(MODEL_SUBJECT_CATEGORIES, referenceCurie);
 	}
-
-	private static final SearchDAO SEARCH_DAO = new SearchDAO();
 
 	private JsonResultResponse<Map<String, Object>> getDistinctSubjects(List<String> categories, String referenceCurie) {
 		BoolQueryBuilder query = boolQuery()
