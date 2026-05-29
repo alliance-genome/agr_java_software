@@ -58,7 +58,7 @@ public class EsParallelFetcher {
 		try {
 			return es.search(index, body);
 		} catch (Exception e) {
-			log.warn("search() failed on {}: {}", index, e.getMessage());
+			log.warn("search() failed on {}: {}", index, e.getMessage(), e);
 			return null;
 		}
 	}
