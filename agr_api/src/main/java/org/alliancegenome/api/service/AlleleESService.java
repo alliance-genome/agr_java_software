@@ -55,6 +55,11 @@ public class AlleleESService extends ESService {
 		put("symbol.sort", SortOrder.ASC);
 	}};
 
+	LinkedHashMap<String, SortOrder> variantSummaryDefaultSort = new LinkedHashMap<>() {{
+		put("variantList.curatedVariantGenomicLocations.variantGenomicLocationAssociationObject.name.sort", SortOrder.ASC);
+		put("variantList.curatedVariantGenomicLocations.start", SortOrder.ASC);
+	}};
+
 	Map<String, LinkedHashMap<String, SortOrder>> sortMap = new HashMap<>() {{
 		put("default", defaultSortMap);
 		put("variant", variantSortMap);
@@ -114,7 +119,7 @@ public class AlleleESService extends ESService {
 		BoolQueryBuilder bool = boolQuery();
 		bool.must(new MatchQueryBuilder("allele.primaryExternalId", alleleId));
 		bool.filter(new TermQueryBuilder("category", "variant_summary"));
-		SearchResponse searchResponse = getSearchResponse(bool, pagination, null, false);
+		SearchResponse searchResponse = getSearchResponse(bool, pagination, variantSummaryDefaultSort, false);
 		List<VariantSummaryDocument> list = new ArrayList<>();
 		for (SearchHit hit : searchResponse.getHits().getHits()) {
 			try {
