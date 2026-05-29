@@ -294,6 +294,8 @@ public class Mapping extends Builder {
 		new FieldBuilder(builder, "variantList.variantType.name", "text").keyword().sortSmartAlpha().build();
 		new FieldBuilder(builder, "variantList.curatedVariantGenomicLocations.predictedVariantConsequences.vepConsequences.name", "text").keyword().sortSmartAlpha().build();
 		new FieldBuilder(builder, "variantList.curatedVariantGenomicLocations.hgvs", "text").keyword().sortSmartAlpha().build();
+		new FieldBuilder(builder, "variantList.curatedVariantGenomicLocations.start", "integer").build();
+		new FieldBuilder(builder, "variantList.curatedVariantGenomicLocations.end", "integer").build();
 		new FieldBuilder(builder, "variantList.curatedVariantGenomicLocations.variantGenomicLocationAssociationObject.name", "text").keyword().sortSmartAlpha().build();
 		new FieldBuilder(builder, "variantList.curatedVariantGenomicLocations.variantGenomicLocationAssociationObject.genomeAssembly.primaryExternalId", "text").keyword().sortSmartAlpha().build();
 		builder.startObject("crossReference");
