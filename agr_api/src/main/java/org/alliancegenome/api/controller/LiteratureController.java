@@ -48,19 +48,29 @@ public class LiteratureController implements LiteratureRESTInterface {
 		Integer page,
 		String sortBy,
 		String species,
+		String gene,
+		String allele,
 		String diseaseName,
 		String associationType,
+		String diseaseQualifier,
 		String evidenceCode,
+		String basedOnGene,
 		String dataProvider,
+		String reference,
 		String asc
 	) {
 		long startTime = System.currentTimeMillis();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
 		pagination.addFilterOption("subject.taxon.species.fullName.keyword", species);
+		pagination.addFilterOption("primaryAnnotations.inferredGene.geneSymbol.displayText", gene);
+		pagination.addFilterOption("primaryAnnotations.inferredAllele.alleleSymbol.displayText", allele);
 		pagination.addFilterOption("object.name", diseaseName);
 		pagination.addFilterOption("generatedRelationString.keyword", associationType);
+		pagination.addFilterOption("diseaseQualifiers.keyword", diseaseQualifier);
 		pagination.addFilterOption("evidenceCodes.abbreviation", evidenceCode);
+		pagination.addFilterOption("primaryAnnotations.with.geneSymbol.displayText", basedOnGene);
 		pagination.addFilterOption("primaryAnnotations.dataProvider.abbreviation", dataProvider);
+		pagination.addFilterOption("pubmedPubModIDs", reference);
 		validate(pagination);
 		try {
 			return timed(referenceDataESService.getDiseaseAnnotations(id, pagination), startTime);
@@ -76,13 +86,21 @@ public class LiteratureController implements LiteratureRESTInterface {
 		Integer page,
 		String sortBy,
 		String species,
+		String gene,
+		String allele,
 		String phenotype,
+		String dataProvider,
+		String reference,
 		String asc
 	) {
 		long startTime = System.currentTimeMillis();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
 		pagination.addFilterOption("subject.taxon.species.fullName.keyword", species);
+		pagination.addFilterOption("primaryAnnotations.inferredGene.geneSymbol.displayText", gene);
+		pagination.addFilterOption("primaryAnnotations.inferredAllele.alleleSymbol.displayText", allele);
 		pagination.addFilterOption("phenotypeStatement", phenotype);
+		pagination.addFilterOption("primaryAnnotations.dataProvider.abbreviation", dataProvider);
+		pagination.addFilterOption("pubmedPubModIDs", reference);
 		validate(pagination);
 		try {
 			return timed(referenceDataESService.getPhenotypeAnnotations(id, pagination), startTime);
@@ -122,6 +140,13 @@ public class LiteratureController implements LiteratureRESTInterface {
 		Integer page,
 		String sortBy,
 		String species,
+		String gene,
+		String moleculeType,
+		String interactorGene,
+		String interactorSpecies,
+		String interactorMoleculeType,
+		String detectionMethod,
+		String source,
 		String asc
 	) {
 		long startTime = System.currentTimeMillis();
@@ -129,6 +154,13 @@ public class LiteratureController implements LiteratureRESTInterface {
 		requireCrossReferences(xrefs);
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
 		pagination.addFilterOption("geneMolecularInteraction.geneAssociationSubject.taxon.species.fullName.keyword", species);
+		pagination.addFilterOption("geneMolecularInteraction.geneAssociationSubject.geneSymbol.displayText", gene);
+		pagination.addFilterOption("geneMolecularInteraction.interactorAType.name.keyword", moleculeType);
+		pagination.addFilterOption("geneMolecularInteraction.geneGeneAssociationObject.geneSymbol.displayText", interactorGene);
+		pagination.addFilterOption("geneMolecularInteraction.geneGeneAssociationObject.taxon.species.fullName.keyword", interactorSpecies);
+		pagination.addFilterOption("geneMolecularInteraction.interactorBType.name.keyword", interactorMoleculeType);
+		pagination.addFilterOption("geneMolecularInteraction.detectionMethod.name.keyword", detectionMethod);
+		pagination.addFilterOption("geneMolecularInteraction.interactionIdORgeneMolecularInteraction.aggregationDatabase.nameORgeneMolecularInteraction.interactionSource.nameORgeneMolecularInteraction.crossReferences.displayName", source);
 		validate(pagination);
 		try {
 			return timed(referenceDataESService.getMolecularInteractions(xrefs, pagination), startTime);
@@ -145,6 +177,16 @@ public class LiteratureController implements LiteratureRESTInterface {
 		Integer page,
 		String sortBy,
 		String species,
+		String gene,
+		String geneRole,
+		String geneticPerturbation,
+		String interactorGene,
+		String interactorSpecies,
+		String interactorRole,
+		String interactorGeneticPerturbation,
+		String interactionType,
+		String phenotypes,
+		String source,
 		String asc
 	) {
 		long startTime = System.currentTimeMillis();
@@ -152,41 +194,21 @@ public class LiteratureController implements LiteratureRESTInterface {
 		requireCrossReferences(xrefs);
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
 		pagination.addFilterOption("geneGeneticInteraction.geneAssociationSubject.taxon.species.fullName.keyword", species);
+		pagination.addFilterOption("geneGeneticInteraction.geneAssociationSubject.geneSymbol.displayText", gene);
+		pagination.addFilterOption("geneGeneticInteraction.interactorARole.name.keyword", geneRole);
+		pagination.addFilterOption("geneGeneticInteraction.interactorAGeneticPerturbation.alleleSymbol.displayText", geneticPerturbation);
+		pagination.addFilterOption("geneGeneticInteraction.geneGeneAssociationObject.geneSymbol.displayText", interactorGene);
+		pagination.addFilterOption("geneGeneticInteraction.geneGeneAssociationObject.taxon.species.fullName.keyword", interactorSpecies);
+		pagination.addFilterOption("geneGeneticInteraction.interactorBRole.name.keyword", interactorRole);
+		pagination.addFilterOption("geneGeneticInteraction.interactorBGeneticPerturbation.alleleSymbol.displayText", interactorGeneticPerturbation);
+		pagination.addFilterOption("geneGeneticInteraction.interactionType.name.keyword", interactionType);
+		pagination.addFilterOption("geneGeneticInteraction.phenotypesOrTraits", phenotypes);
+		pagination.addFilterOption("geneGeneticInteraction.interactionIdORgeneGeneticInteraction.crossReferences.displayName", source);
 		validate(pagination);
 		try {
 			return timed(referenceDataESService.getGeneticInteractions(xrefs, pagination), startTime);
 		} catch (Exception e) {
 			throw restError("Error while retrieving genetic interactions by reference", e);
-		}
-	}
-
-	@Override
-	public JsonResultResponse<Map<String, Object>> getRelatedPapersByReference(String id, Integer limit, Boolean includeOrthologs) {
-		long startTime = System.currentTimeMillis();
-		try {
-			int n = (limit == null || limit <= 0) ? 10 : limit;
-			boolean expand = includeOrthologs != null && includeOrthologs;
-			return timed(referenceDataESService.getRelatedPapers(id, n, expand), startTime);
-		} catch (Exception e) {
-			throw restError("Error while retrieving related papers", e);
-		}
-	}
-
-	@Override
-	public JsonResultResponse<Map<String, Object>> getOrthologyByReference(
-		String id,
-		Integer limit,
-		Integer page,
-		String sortBy,
-		String asc
-	) {
-		long startTime = System.currentTimeMillis();
-		Pagination pagination = new Pagination(page, limit, sortBy, asc);
-		validate(pagination);
-		try {
-			return timed(referenceDataESService.getOrthologyByReference(id, pagination), startTime);
-		} catch (Exception e) {
-			throw restError("Error while retrieving orthology by reference", e);
 		}
 	}
 
