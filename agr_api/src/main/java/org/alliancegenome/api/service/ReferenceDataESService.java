@@ -5,8 +5,14 @@ import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.alliancegenome.api.es.dao.SearchDAO;
 import org.alliancegenome.api.es.query.Pagination;
@@ -26,6 +32,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -67,27 +74,40 @@ public class ReferenceDataESService extends ESService {
 		"agm_phenotype_annotation"
 	);
 
-	private static final List<String> GENE_AND_ALLELE_ANNOTATION_CATEGORIES = List.of(
-		"gene_disease_annotation",
-		"gene_phenotype_annotation",
-		"allele_disease_annotation",
-		"allele_phenotype_annotation"
-	);
-
 	private static final SearchDAO SEARCH_DAO = new SearchDAO();
 
+	private static final int MAX_DEDUPE_HITS = 10000;
+
+	private static final List<String> DEDUPE_SOURCE_FIELDS = List.of(
+		"primaryAnnotations.inferredGene.primaryExternalId",
+		"primaryAnnotations.inferredAllele.primaryExternalId",
+		"phenotypeStatement",
+		"object.curie"
+	);
+
+	private static final int MAX_MODEL_BUCKETS = 1000;
+
+	private static final int MAX_MODEL_SAMPLES_PER_AGM = 100;
+
+	private static final int MAX_AGM_PHENOTYPE_HITS = 10000;
+
+	// Stage indexes the same annotation at gene/allele/agm levels; dedupe in Java by
+	// (inferredGene, inferredAllele, secondary) and drop the gene-level rollup when an
+	// allele-level row already covers the same (gene, secondary) pair.
 	public JsonResultResponse<DiseaseAnnotationDocument> getDiseaseAnnotations(String referenceCurie, Pagination pagination) {
 		BoolQueryBuilder query = boolQuery()
 			.filter(termsQuery("category", DISEASE_CATEGORIES))
 			.must(termQuery("references.curie.keyword", referenceCurie));
-
 		addTableFilter(pagination, query);
-		SearchResponse searchResponse = getSearchResponse(query, pagination, null, false);
+
+		List<SearchHit> allHits = fetchDedupeHits(query);
+		List<SearchHit> deduped = dedupeByGeneAlleleAndSecondary(allHits, "disease");
+		List<SearchHit> page = sliceForPagination(deduped, pagination);
 
 		JsonResultResponse<DiseaseAnnotationDocument> ret = new JsonResultResponse<>();
-		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
+		ret.setTotal(deduped.size());
 		List<DiseaseAnnotationDocument> results = new ArrayList<>();
-		for (SearchHit hit : searchResponse.getHits().getHits()) {
+		for (SearchHit hit : rehydratePage(page)) {
 			DiseaseAnnotationDocument doc = deserializeDiseaseByCategory(hit);
 			if (doc != null) {
 				results.add(doc);
@@ -101,14 +121,16 @@ public class ReferenceDataESService extends ESService {
 		BoolQueryBuilder query = boolQuery()
 			.filter(termsQuery("category", PHENOTYPE_CATEGORIES))
 			.must(termQuery("references.curie.keyword", referenceCurie));
-
 		addTableFilter(pagination, query);
-		SearchResponse searchResponse = getSearchResponse(query, pagination, null, false);
+
+		List<SearchHit> allHits = fetchDedupeHits(query);
+		List<SearchHit> deduped = dedupeByGeneAlleleAndSecondary(allHits, "phenotype");
+		List<SearchHit> page = sliceForPagination(deduped, pagination);
 
 		JsonResultResponse<PhenotypeAnnotationDocument> ret = new JsonResultResponse<>();
-		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
+		ret.setTotal(deduped.size());
 		List<PhenotypeAnnotationDocument> results = new ArrayList<>();
-		for (SearchHit hit : searchResponse.getHits().getHits()) {
+		for (SearchHit hit : rehydratePage(page)) {
 			PhenotypeAnnotationDocument doc = deserializePhenotypeByCategory(hit);
 			if (doc != null) {
 				results.add(doc);
@@ -116,6 +138,164 @@ public class ReferenceDataESService extends ESService {
 		}
 		ret.setResults(results);
 		return ret;
+	}
+
+	// Lightweight pass that only pulls the dedupe-key fields; the visible page is then
+	// re-hydrated with full _source via rehydratePage. This keeps per-hit payload tiny
+	// for the dedupe sweep and avoids deserializing rows that won't render.
+	// On papers where the underlying hit count exceeds MAX_DEDUPE_HITS, we log and
+	// continue with the truncated set rather than failing the request so page 1 still
+	// renders (the count is then a best-effort lower bound).
+	private List<SearchHit> fetchDedupeHits(BoolQueryBuilder query) {
+		SearchResponse resp = SEARCH_DAO.performQuery(
+			(QueryBuilder) query, List.of(), null, DEDUPE_SOURCE_FIELDS,
+			MAX_DEDUPE_HITS, 0,
+			new org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder(), null, false);
+		long total = resp.getHits().getTotalHits().value;
+		if (total > MAX_DEDUPE_HITS) {
+			log.warn("Reference annotation hit count {} exceeds dedupe limit {}; truncating dedupe input and returning best-effort total.",
+				total, MAX_DEDUPE_HITS);
+		}
+		return new ArrayList<>(Arrays.asList(resp.getHits().getHits()));
+	}
+
+	private List<SearchHit> rehydratePage(List<SearchHit> pageHits) {
+		if (pageHits.isEmpty()) {
+			return List.of();
+		}
+		String[] ids = new String[pageHits.size()];
+		for (int i = 0; i < pageHits.size(); i++) {
+			ids[i] = pageHits.get(i).getId();
+		}
+		BoolQueryBuilder byIds = boolQuery().must(QueryBuilders.idsQuery().addIds(ids));
+		SearchResponse resp = SEARCH_DAO.performQuery(
+			(QueryBuilder) byIds, List.of(), null, List.of(),
+			ids.length, 0,
+			new org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder(), null, false);
+		Map<String, SearchHit> byId = new HashMap<>();
+		for (SearchHit hit : resp.getHits().getHits()) {
+			byId.put(hit.getId(), hit);
+		}
+		List<SearchHit> ordered = new ArrayList<>(pageHits.size());
+		for (SearchHit hit : pageHits) {
+			SearchHit full = byId.get(hit.getId());
+			if (full != null) {
+				ordered.add(full);
+			}
+		}
+		return ordered;
+	}
+
+	private List<SearchHit> sliceForPagination(List<SearchHit> hits, Pagination pagination) {
+		int from = Math.max(0, Math.min(pagination.getOffset(), hits.size()));
+		int to = Math.min(from + pagination.getLimit(), hits.size());
+		return hits.subList(from, to);
+	}
+
+	private List<SearchHit> dedupeByGeneAlleleAndSecondary(List<SearchHit> hits, String secondaryKind) {
+		Map<String, SearchHit> seen = new LinkedHashMap<>();
+		Map<SearchHit, List<String[]>> keysByHit = new LinkedHashMap<>();
+		for (SearchHit hit : hits) {
+			List<String[]> keys = extractDedupeKeys(hit.getSourceAsMap(), secondaryKind);
+			boolean firstClaim = false;
+			for (String[] key : keys) {
+				String composite = key[0] + "|" + key[1] + "|" + key[2];
+				if (seen.putIfAbsent(composite, hit) == null) {
+					firstClaim = true;
+				}
+			}
+			if (firstClaim) {
+				keysByHit.put(hit, keys);
+			}
+		}
+
+		Set<String> hasAlleleForGeneSecondary = new HashSet<>();
+		for (List<String[]> keys : keysByHit.values()) {
+			for (String[] key : keys) {
+				if (!key[1].isEmpty()) {
+					hasAlleleForGeneSecondary.add(key[0] + "|" + key[2]);
+				}
+			}
+		}
+
+		List<SearchHit> out = new ArrayList<>();
+		for (Map.Entry<SearchHit, List<String[]>> entry : keysByHit.entrySet()) {
+			boolean hasAlleleKey = false;
+			for (String[] key : entry.getValue()) {
+				if (!key[1].isEmpty()) {
+					hasAlleleKey = true;
+					break;
+				}
+			}
+			if (hasAlleleKey) {
+				out.add(entry.getKey());
+				continue;
+			}
+			boolean shadowedByAlleleSibling = false;
+			for (String[] key : entry.getValue()) {
+				if (hasAlleleForGeneSecondary.contains(key[0] + "|" + key[2])) {
+					shadowedByAlleleSibling = true;
+					break;
+				}
+			}
+			if (!shadowedByAlleleSibling) {
+				out.add(entry.getKey());
+			}
+		}
+		return out;
+	}
+
+	// One key per distinct (inferredGene, inferredAllele) pair in primaryAnnotations.
+	// Earlier this used only primaryAnnotations[0], which silently dropped sibling
+	// allele claims when a single doc rolled up multiple alleles.
+	@SuppressWarnings("unchecked")
+	private List<String[]> extractDedupeKeys(Map<String, Object> src, String secondaryKind) {
+		String secondary = "";
+		if ("phenotype".equals(secondaryKind)) {
+			Object stmt = src.get("phenotypeStatement");
+			if (stmt != null) {
+				secondary = stmt.toString();
+			}
+		} else if ("disease".equals(secondaryKind)) {
+			Object obj = src.get("object");
+			if (obj instanceof Map) {
+				Object curie = ((Map<String, Object>) obj).get("curie");
+				if (curie != null) {
+					secondary = curie.toString();
+				}
+			}
+		}
+
+		List<String[]> keys = new ArrayList<>();
+		Object paObj = src.get("primaryAnnotations");
+		if (paObj instanceof List) {
+			Set<String> seenComposite = new HashSet<>();
+			for (Object item : (List<Object>) paObj) {
+				if (!(item instanceof Map)) {
+					continue;
+				}
+				Map<String, Object> pa = (Map<String, Object>) item;
+				String geneId = nestedId(pa, "inferredGene");
+				String alleleId = nestedId(pa, "inferredAllele");
+				if (seenComposite.add(geneId + "|" + alleleId)) {
+					keys.add(new String[]{geneId, alleleId, secondary});
+				}
+			}
+		}
+		if (keys.isEmpty()) {
+			keys.add(new String[]{"", "", secondary});
+		}
+		return keys;
+	}
+
+	@SuppressWarnings("unchecked")
+	private String nestedId(Map<String, Object> parent, String field) {
+		Object v = parent.get(field);
+		if (!(v instanceof Map)) {
+			return "";
+		}
+		Object id = ((Map<String, Object>) v).get("primaryExternalId");
+		return id == null ? "" : id.toString();
 	}
 
 	// Expression docs on stage index only `referenceId` (PMID/MOD IDs).
@@ -167,203 +347,61 @@ public class ReferenceDataESService extends ESService {
 		return ret;
 	}
 
+	// The embedded `subject` gene on annotation docs is a thin projection that omits
+	// geneType (biotype) and geneGenomicLocationAssociations. The full gene doc lives
+	// in the gene_summary category; enrich each reference-scoped gene with that doc.
 	public JsonResultResponse<Map<String, Object>> getGenesByReference(String referenceCurie) {
-		return getDistinctSubjects(GENE_SUBJECT_CATEGORIES, referenceCurie);
-	}
-
-	// Related papers by Jaccard similarity of gene subjects.
-	// - A = distinct gene subjects on this reference (optionally expanded with orthologs)
-	// - For candidates sharing any of A, B = their own distinct gene subjects
-	// - jaccard = |A ∩ B| / |A ∪ B| = shared / (|A| + |B| - shared)
-	public JsonResultResponse<Map<String, Object>> getRelatedPapers(String referenceCurie, int limit, boolean includeOrthologs) {
-		JsonResultResponse<Map<String, Object>> genesResp = getDistinctSubjects(GENE_SUBJECT_CATEGORIES, referenceCurie);
-		List<String> focusGenes = new ArrayList<>();
-		for (Map<String, Object> g : genesResp.getResults()) {
-			Object id = g.get("primaryExternalId");
-			if (id != null) {
-				focusGenes.add(id.toString());
-			}
-		}
-
-		List<String> aGenes = new ArrayList<>(focusGenes);
-		if (includeOrthologs && !focusGenes.isEmpty()) {
-			aGenes.addAll(getOrthologGeneIds(focusGenes));
-			aGenes = new ArrayList<>(aGenes.stream().distinct().toList());
-		}
-		int aSize = aGenes.size();
-
-		JsonResultResponse<Map<String, Object>> ret = new JsonResultResponse<>();
-		if (aGenes.isEmpty()) {
-			ret.setTotal(0);
-			ret.setResults(List.of());
-			return ret;
-		}
-
-		// 1) find candidate papers and their shared-gene count
-		BoolQueryBuilder sharedQuery = boolQuery()
-			.filter(termsQuery("category", GENE_AND_ALLELE_ANNOTATION_CATEGORIES))
-			.must(termsQuery("subject.primaryExternalId.keyword", aGenes));
-
-		AggregationBuilder sharedAgg = AggregationBuilders
-			.terms("refs")
-			.field("references.curie.keyword")
-			.size(Math.max(50, limit * 3))
-			.subAggregation(AggregationBuilders.cardinality("uniqGenes").field("subject.primaryExternalId.keyword"))
-			.subAggregation(AggregationBuilders.terms("species").field("subject.taxon.species.fullName.keyword").size(10));
-
-		SearchResponse sharedResp = SEARCH_DAO.performQuery(
-			(QueryBuilder) sharedQuery, List.of(sharedAgg), null, List.of(),
-			0, 0, new org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder(), null, false);
-
-		Map<String, Integer> sharedCounts = new java.util.LinkedHashMap<>();
-		Map<String, List<String>> sharedSpecies = new java.util.HashMap<>();
-		ParsedStringTerms refTerms = sharedResp.getAggregations().get("refs");
-		for (Terms.Bucket b : refTerms.getBuckets()) {
-			String candidateRef = b.getKeyAsString();
-			if (candidateRef.equals(referenceCurie)) {
-				continue;
-			}
-			// Skip external disease-database refs (OMIM, Orphanet) that aren't papers.
-			if (!candidateRef.startsWith("AGRKB:")) {
-				continue;
-			}
-			org.elasticsearch.search.aggregations.metrics.Cardinality card = b.getAggregations().get("uniqGenes");
-			sharedCounts.put(candidateRef, (int) card.getValue());
-			ParsedStringTerms speciesAgg = b.getAggregations().get("species");
-			List<String> species = new ArrayList<>();
-			for (Terms.Bucket sb : speciesAgg.getBuckets()) {
-				species.add(sb.getKeyAsString());
-			}
-			sharedSpecies.put(candidateRef, species);
-		}
-		if (sharedCounts.isEmpty()) {
-			ret.setTotal(0);
-			ret.setResults(List.of());
-			return ret;
-		}
-
-		// 2) for the candidates, get each one's own distinct gene count (|B|)
-		BoolQueryBuilder bSizeQuery = boolQuery()
-			.filter(termsQuery("category", GENE_AND_ALLELE_ANNOTATION_CATEGORIES))
-			.must(termsQuery("references.curie.keyword", sharedCounts.keySet().stream().toList()));
-
-		AggregationBuilder bSizeAgg = AggregationBuilders
-			.terms("refs")
-			.field("references.curie.keyword")
-			.size(sharedCounts.size() + 1)
-			.subAggregation(AggregationBuilders.cardinality("uniqGenes").field("subject.primaryExternalId.keyword"));
-
-		SearchResponse bSizeResp = SEARCH_DAO.performQuery(
-			(QueryBuilder) bSizeQuery, List.of(bSizeAgg), null, List.of(),
-			0, 0, new org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder(), null, false);
-
-		Map<String, Integer> bSizes = new java.util.HashMap<>();
-		ParsedStringTerms bTerms = bSizeResp.getAggregations().get("refs");
-		for (Terms.Bucket b : bTerms.getBuckets()) {
-			org.elasticsearch.search.aggregations.metrics.Cardinality card = b.getAggregations().get("uniqGenes");
-			bSizes.put(b.getKeyAsString(), (int) card.getValue());
-		}
-
-		// 3) compute Jaccard and sort
-		record Scored(String curie, int shared, int bSize, double jaccard) { }
-		List<Scored> scored = new ArrayList<>();
-		for (Map.Entry<String, Integer> e : sharedCounts.entrySet()) {
-			int shared = e.getValue();
-			int b = bSizes.getOrDefault(e.getKey(), shared);
-			int union = aSize + b - shared;
-			double j = union == 0 ? 0 : ((double) shared) / union;
-			scored.add(new Scored(e.getKey(), shared, b, j));
-		}
-		scored.sort((x, y) -> Double.compare(y.jaccard(), x.jaccard()));
-
-		List<Map<String, Object>> out = new ArrayList<>();
-		for (Scored s : scored.stream().limit(limit).toList()) {
-			Map<String, Object> row = new java.util.LinkedHashMap<>();
-			row.put("referenceCurie", s.curie());
-			row.put("sharedGenes", s.shared());
-			row.put("candidateGeneCount", s.bSize());
-			row.put("focusGeneCount", aSize);
-			row.put("jaccard", s.jaccard());
-			row.put("sharedSpecies", sharedSpecies.getOrDefault(s.curie(), List.of()));
-			out.add(row);
-		}
-		ret.setTotal(out.size());
-		ret.setResults(out);
-		return ret;
-	}
-
-	// Returns the object-side gene IDs for orthology rows whose subject is in the input set.
-	// objectGene.primaryExternalId has no .keyword sub-field in the stage mapping, so we
-	// fetch source docs and pull the ID out of _source rather than using a terms aggregation.
-	private List<String> getOrthologGeneIds(List<String> subjectGeneIds) {
-		BoolQueryBuilder query = boolQuery()
-			.filter(termQuery("category", "gene_to_gene_orthology"))
-			.must(termsQuery("geneToGeneOrthologyGenerated.subjectGene.primaryExternalId.keyword", subjectGeneIds));
-
-		SearchResponse resp = SEARCH_DAO.performQuery(
-			(QueryBuilder) query, List.of(), null,
-			List.of("geneToGeneOrthologyGenerated.objectGene.primaryExternalId"),
-			10_000, 0,
-			new org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder(), null, false);
-
-		java.util.Set<String> out = new java.util.LinkedHashSet<>();
-		for (SearchHit hit : resp.getHits().getHits()) {
-			try {
-				@SuppressWarnings("unchecked")
-				Map<String, Object> gto = (Map<String, Object>) hit.getSourceAsMap().get("geneToGeneOrthologyGenerated");
-				if (gto == null) {
-					continue;
-				}
-				@SuppressWarnings("unchecked")
-				Map<String, Object> obj = (Map<String, Object>) gto.get("objectGene");
-				if (obj == null) {
-					continue;
-				}
-				Object id = obj.get("primaryExternalId");
-				if (id != null) {
-					out.add(id.toString());
-				}
-			} catch (Exception e) {
-				log.warn("Failed to parse ortholog object gene (hit id={})", hit.getId(), e);
-			}
-		}
-		return new ArrayList<>(out);
-	}
-
-	// Orthologs of the genes mentioned in this reference. "Reference-scoped" loosely —
-	// gene_to_gene_orthology docs have no reference field, so we look up distinct genes
-	// first, then fetch their orthologs.
-	public JsonResultResponse<Map<String, Object>> getOrthologyByReference(String referenceCurie, Pagination pagination) {
-		JsonResultResponse<Map<String, Object>> genesResp = getDistinctSubjects(GENE_SUBJECT_CATEGORIES, referenceCurie);
+		JsonResultResponse<Map<String, Object>> baseResp = getDistinctSubjects(GENE_SUBJECT_CATEGORIES, referenceCurie);
 		List<String> geneIds = new ArrayList<>();
-		for (Map<String, Object> gene : genesResp.getResults()) {
-			Object id = gene.get("primaryExternalId");
+		for (Map<String, Object> g : baseResp.getResults()) {
+			Object id = g.get("primaryExternalId");
 			if (id != null) {
 				geneIds.add(id.toString());
 			}
 		}
+		Map<String, Map<String, Object>> fullGenes = lookupGeneSummaries(geneIds);
 
+		List<Map<String, Object>> enriched = new ArrayList<>();
+		for (Map<String, Object> g : baseResp.getResults()) {
+			Object id = g.get("primaryExternalId");
+			Map<String, Object> full = id == null ? null : fullGenes.get(id.toString());
+			enriched.add(full != null ? full : g);
+		}
 		JsonResultResponse<Map<String, Object>> ret = new JsonResultResponse<>();
-		if (geneIds.isEmpty()) {
-			ret.setTotal(0);
-			ret.setResults(List.of());
-			return ret;
-		}
-
-		BoolQueryBuilder query = boolQuery()
-			.filter(termQuery("category", "gene_to_gene_orthology"))
-			.must(termsQuery("geneToGeneOrthologyGenerated.subjectGene.primaryExternalId.keyword", geneIds));
-
-		addTableFilter(pagination, query);
-		SearchResponse searchResponse = getSearchResponse(query, pagination, null, false);
-		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
-
-		List<Map<String, Object>> results = new ArrayList<>();
-		for (SearchHit hit : searchResponse.getHits().getHits()) {
-			results.add(hit.getSourceAsMap());
-		}
-		ret.setResults(results);
+		ret.setTotal(enriched.size());
+		ret.setResults(enriched);
 		return ret;
+	}
+
+	@SuppressWarnings("unchecked")
+	private Map<String, Map<String, Object>> lookupGeneSummaries(List<String> geneIds) {
+		if (geneIds.isEmpty()) {
+			return Map.of();
+		}
+		BoolQueryBuilder query = boolQuery()
+			.filter(termQuery("category", "gene_summary"))
+			.filter(termsQuery("gene.primaryExternalId.keyword", geneIds));
+
+		SearchResponse resp = SEARCH_DAO.performQuery(
+			(QueryBuilder) query, List.of(), null,
+			List.of("gene"),
+			geneIds.size() * 2, 0,
+			new org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder(), null, false);
+
+		Map<String, Map<String, Object>> out = new LinkedHashMap<>();
+		for (SearchHit hit : resp.getHits().getHits()) {
+			Map<String, Object> src = hit.getSourceAsMap();
+			Object geneObj = src.get("gene");
+			if (!(geneObj instanceof Map)) {
+				continue;
+			}
+			Map<String, Object> gene = (Map<String, Object>) geneObj;
+			Object id = gene.get("primaryExternalId");
+			if (id != null) {
+				out.put(id.toString(), gene);
+			}
+		}
+		return out;
 	}
 
 	public JsonResultResponse<Map<String, Object>> getAllelesByReference(String referenceCurie) {
@@ -371,7 +409,179 @@ public class ReferenceDataESService extends ESService {
 	}
 
 	public JsonResultResponse<Map<String, Object>> getModelsByReference(String referenceCurie) {
-		return getDistinctSubjects(MODEL_SUBJECT_CATEGORIES, referenceCurie);
+		Map<String, Map<String, Object>> rowsByAgm = aggregateModelsWithDiseases(referenceCurie);
+		Map<String, Set<String>> phenotypesByAgm = aggregatePhenotypesByAgm(referenceCurie);
+		for (Map.Entry<String, Map<String, Object>> entry : rowsByAgm.entrySet()) {
+			Set<String> phenotypes = phenotypesByAgm.get(entry.getKey());
+			if (phenotypes != null) {
+				entry.getValue().put("associatedPhenotype", new ArrayList<>(phenotypes));
+			}
+		}
+		JsonResultResponse<Map<String, Object>> ret = new JsonResultResponse<>();
+		List<Map<String, Object>> models = new ArrayList<>(rowsByAgm.values());
+		ret.setTotal(models.size());
+		ret.setResults(models);
+		return ret;
+	}
+
+	private Map<String, Map<String, Object>> aggregateModelsWithDiseases(String referenceCurie) {
+		BoolQueryBuilder query = boolQuery()
+			.filter(termsQuery("category", MODEL_SUBJECT_CATEGORIES))
+			.must(termQuery("references.curie.keyword", referenceCurie));
+
+		AggregationBuilder agg = AggregationBuilders
+			.terms("models")
+			.field("subject.primaryExternalId.keyword")
+			.size(MAX_MODEL_BUCKETS)
+			.subAggregation(AggregationBuilders.topHits("samples")
+				.size(MAX_MODEL_SAMPLES_PER_AGM)
+				.fetchSource(new String[]{"subject", "object", "generatedRelationString", "phenotypeStatement", "category"}, null));
+
+		SearchResponse searchResponse = SEARCH_DAO.performQuery(
+			(QueryBuilder) query, List.of(agg), null, List.of(), 0, 0,
+			new org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder(), null, false);
+
+		Map<String, Map<String, Object>> rowsByAgm = new LinkedHashMap<>();
+		ParsedStringTerms terms = searchResponse.getAggregations().get("models");
+		long otherAgmDocCount = terms.getSumOfOtherDocCounts();
+		if (otherAgmDocCount > 0) {
+			log.warn("Reference {} has more than {} distinct AGMs; {} doc(s) fell out of the terms aggregation.",
+				referenceCurie, MAX_MODEL_BUCKETS, otherAgmDocCount);
+		}
+		for (Terms.Bucket bucket : terms.getBuckets()) {
+			Map<String, Object> row = buildModelRow(bucket, referenceCurie);
+			if (row != null) {
+				rowsByAgm.put(bucket.getKeyAsString(), row);
+			}
+		}
+		return rowsByAgm;
+	}
+
+	private Map<String, Object> buildModelRow(Terms.Bucket bucket, String referenceCurie) {
+		TopHits topHits = bucket.getAggregations().get("samples");
+		long bucketTotal = topHits.getHits().getTotalHits().value;
+		if (bucketTotal > MAX_MODEL_SAMPLES_PER_AGM) {
+			log.warn("Reference {} AGM {} has {} sample hits; truncated to {} for disease/phenotype rollup.",
+				referenceCurie, bucket.getKeyAsString(), bucketTotal, MAX_MODEL_SAMPLES_PER_AGM);
+		}
+		Map<String, Object> agm = null;
+		Map<String, Map<String, Object>> diseases = new LinkedHashMap<>();
+		Set<String> phenotypes = new LinkedHashSet<>();
+
+		for (SearchHit hit : topHits.getHits().getHits()) {
+			Map<String, Object> src = hit.getSourceAsMap();
+			if (agm == null) {
+				@SuppressWarnings("unchecked")
+				Map<String, Object> subject = (Map<String, Object>) src.get("subject");
+				agm = subject;
+			}
+			String category = (String) src.get("category");
+			if ("agm_disease_annotation".equals(category)) {
+				@SuppressWarnings("unchecked")
+				Map<String, Object> obj = (Map<String, Object>) src.get("object");
+				if (obj != null) {
+					String diseaseCurie = (String) obj.get("curie");
+					if (diseaseCurie != null && !diseases.containsKey(diseaseCurie)) {
+						Map<String, Object> diseaseModel = new LinkedHashMap<>();
+						diseaseModel.put("disease", obj);
+						diseaseModel.put("associationType", src.get("generatedRelationString"));
+						diseases.put(diseaseCurie, diseaseModel);
+					}
+				}
+			} else if ("agm_phenotype_annotation".equals(category)) {
+				Object stmt = src.get("phenotypeStatement");
+				if (stmt instanceof String) {
+					phenotypes.add((String) stmt);
+				}
+			}
+		}
+
+		if (agm == null) {
+			return null;
+		}
+		Map<String, Object> row = new LinkedHashMap<>();
+		row.put("model", agm);
+		row.put("diseaseModels", new ArrayList<>(diseases.values()));
+		row.put("associatedPhenotype", new ArrayList<>(phenotypes));
+		String source = extractAgmSource(agm);
+		if (source != null) {
+			row.put("dataProvider", source);
+		}
+		return row;
+	}
+
+	// AGM phenotypes for this paper may live on allele/gene phenotype rows whose
+	// primaryAnnotations[].phenotypeAnnotationSubject is an AffectedGenomicModel.
+	// Fetch all phenotype-category docs scoped by reference and bucket the phenotype
+	// statements by the AGM they refer to.
+	@SuppressWarnings("unchecked")
+	private Map<String, Set<String>> aggregatePhenotypesByAgm(String referenceCurie) {
+		BoolQueryBuilder query = boolQuery()
+			.filter(termsQuery("category", PHENOTYPE_CATEGORIES))
+			.must(termQuery("references.curie.keyword", referenceCurie));
+
+		SearchResponse resp = SEARCH_DAO.performQuery(
+			(QueryBuilder) query, List.of(), null,
+			List.of("phenotypeStatement", "primaryAnnotations"),
+			MAX_AGM_PHENOTYPE_HITS, 0,
+			new org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder(), null, false);
+
+		long total = resp.getHits().getTotalHits().value;
+		if (total > MAX_AGM_PHENOTYPE_HITS) {
+			log.warn("Reference {} has {} phenotype docs for AGM rollup; truncating to {}.",
+				referenceCurie, total, MAX_AGM_PHENOTYPE_HITS);
+		}
+		Map<String, Set<String>> out = new LinkedHashMap<>();
+		for (SearchHit hit : resp.getHits().getHits()) {
+			Map<String, Object> src = hit.getSourceAsMap();
+			Object stmtObj = src.get("phenotypeStatement");
+			if (!(stmtObj instanceof String)) {
+				continue;
+			}
+			String stmt = (String) stmtObj;
+			Object paObj = src.get("primaryAnnotations");
+			if (!(paObj instanceof List)) {
+				continue;
+			}
+			for (Object item : (List<Object>) paObj) {
+				if (!(item instanceof Map)) {
+					continue;
+				}
+				Map<String, Object> pa = (Map<String, Object>) item;
+				Object subjObj = pa.get("phenotypeAnnotationSubject");
+				if (!(subjObj instanceof Map)) {
+					continue;
+				}
+				Map<String, Object> subj = (Map<String, Object>) subjObj;
+				if (!"AffectedGenomicModel".equals(subj.get("type"))) {
+					continue;
+				}
+				Object agmId = subj.get("primaryExternalId");
+				if (agmId == null) {
+					continue;
+				}
+				out.computeIfAbsent(agmId.toString(), k -> new LinkedHashSet<>()).add(stmt);
+			}
+		}
+		return out;
+	}
+
+	@SuppressWarnings("unchecked")
+	private String extractAgmSource(Map<String, Object> agm) {
+		Object dpc = agm.get("dataProviderCrossReference");
+		if (!(dpc instanceof Map)) {
+			return null;
+		}
+		Object rdp = ((Map<String, Object>) dpc).get("resourceDescriptorPage");
+		if (!(rdp instanceof Map)) {
+			return null;
+		}
+		Object rd = ((Map<String, Object>) rdp).get("resourceDescriptor");
+		if (!(rd instanceof Map)) {
+			return null;
+		}
+		Object name = ((Map<String, Object>) rd).get("name");
+		return name == null ? null : name.toString();
 	}
 
 	private JsonResultResponse<Map<String, Object>> getDistinctSubjects(List<String> categories, String referenceCurie) {
@@ -412,47 +622,43 @@ public class ReferenceDataESService extends ESService {
 	}
 
 	private DiseaseAnnotationDocument deserializeDiseaseByCategory(SearchHit hit) {
-		try {
-			Object category = hit.getSourceAsMap().get("category");
-			String json = hit.getSourceAsString();
-			DiseaseAnnotationDocument doc;
-			if ("allele_disease_annotation".equals(category)) {
-				doc = mapper.readValue(json, AlleleDiseaseAnnotationDocument.class);
-			} else if ("agm_disease_annotation".equals(category)) {
-				doc = mapper.readValue(json, AGMDiseaseAnnotationDocument.class);
-			} else {
-				doc = mapper.readValue(json, GeneDiseaseAnnotationDocument.class);
-			}
-			doc.setUniqueId(hit.getId());
-			if (CollectionUtils.isNotEmpty(doc.getPrimaryAnnotations())) {
-				doc.setProviders(APIServiceHelper.buildProvidersWithUrl(doc.getPrimaryAnnotations()));
-			}
-			return doc;
-		} catch (Exception e) {
-			log.error("Failed to deserialize disease annotation hit id={}", hit.getId(), e);
+		Object category = hit.getSourceAsMap().get("category");
+		Class<? extends DiseaseAnnotationDocument> klass;
+		if ("allele_disease_annotation".equals(category)) {
+			klass = AlleleDiseaseAnnotationDocument.class;
+		} else if ("agm_disease_annotation".equals(category)) {
+			klass = AGMDiseaseAnnotationDocument.class;
+		} else {
+			klass = GeneDiseaseAnnotationDocument.class;
+		}
+		DiseaseAnnotationDocument doc = mapHit(hit, klass);
+		if (doc == null) {
 			return null;
 		}
+		doc.setUniqueId(hit.getId());
+		if (CollectionUtils.isNotEmpty(doc.getPrimaryAnnotations())) {
+			doc.setProviders(APIServiceHelper.buildProvidersWithUrl(doc.getPrimaryAnnotations()));
+		}
+		return doc;
 	}
 
-	// agm_phenotype_annotation has no dedicated subclass on this branch — fall back to the
+	// agm_phenotype_annotation has no dedicated subclass on this branch; fall back to the
 	// base PhenotypeAnnotationDocument for that category.
 	private PhenotypeAnnotationDocument deserializePhenotypeByCategory(SearchHit hit) {
-		try {
-			Object category = hit.getSourceAsMap().get("category");
-			String json = hit.getSourceAsString();
-			PhenotypeAnnotationDocument doc;
-			if ("allele_phenotype_annotation".equals(category)) {
-				doc = mapper.readValue(json, AllelePhenotypeAnnotationDocument.class);
-			} else if ("gene_phenotype_annotation".equals(category)) {
-				doc = mapper.readValue(json, GenePhenotypeAnnotationDocument.class);
-			} else {
-				doc = mapper.readValue(json, PhenotypeAnnotationDocument.class);
-			}
-			doc.setUniqueId(hit.getId());
-			return doc;
-		} catch (Exception e) {
-			log.error("Failed to deserialize phenotype annotation hit id={}", hit.getId(), e);
+		Object category = hit.getSourceAsMap().get("category");
+		Class<? extends PhenotypeAnnotationDocument> klass;
+		if ("allele_phenotype_annotation".equals(category)) {
+			klass = AllelePhenotypeAnnotationDocument.class;
+		} else if ("gene_phenotype_annotation".equals(category)) {
+			klass = GenePhenotypeAnnotationDocument.class;
+		} else {
+			klass = PhenotypeAnnotationDocument.class;
+		}
+		PhenotypeAnnotationDocument doc = mapHit(hit, klass);
+		if (doc == null) {
 			return null;
 		}
+		doc.setUniqueId(hit.getId());
+		return doc;
 	}
 }

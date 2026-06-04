@@ -53,10 +53,15 @@ public interface LiteratureRESTInterface {
 		@Parameter(in = ParameterIn.QUERY, name = "page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("1") @QueryParam("page") Integer page,
 		@Parameter(in = ParameterIn.QUERY, name = "sortBy", description = "Field name by which to sort", schema = @Schema(type = SchemaType.STRING)) @DefaultValue("") @QueryParam("sortBy") String sortBy,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.species", description = "filter by species", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.species") String species,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.gene", description = "filter by gene symbol", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.gene") String gene,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.allele", description = "filter by allele symbol", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.allele") String allele,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.disease", description = "filter by disease name", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.disease") String diseaseName,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.associationType", description = "filter by association type", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.associationType") String associationType,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.diseaseQualifier", description = "filter by disease qualifier", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.diseaseQualifier") String diseaseQualifier,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.evidenceCode", description = "filter by evidence code", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.evidenceCode") String evidenceCode,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.basedOnGene", description = "filter by based-on gene symbol", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.basedOnGene") String basedOnGene,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.dataProvider", description = "filter by source", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.dataProvider") String dataProvider,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.reference", description = "filter by reference (pubmed/MOD id)", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.reference") String reference,
 		@Parameter(in = ParameterIn.QUERY, name = "asc", description = "sort order", schema = @Schema(type = SchemaType.STRING)) @DefaultValue("true") @QueryParam("asc") String asc);
 
 	@GET
@@ -69,7 +74,11 @@ public interface LiteratureRESTInterface {
 		@Parameter(in = ParameterIn.QUERY, name = "page", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("1") @QueryParam("page") Integer page,
 		@Parameter(in = ParameterIn.QUERY, name = "sortBy", schema = @Schema(type = SchemaType.STRING)) @DefaultValue("") @QueryParam("sortBy") String sortBy,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.species", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.species") String species,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.gene", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.gene") String gene,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.allele", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.allele") String allele,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.phenotype", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.phenotype") String phenotype,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.dataProvider", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.dataProvider") String dataProvider,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.reference", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.reference") String reference,
 		@Parameter(in = ParameterIn.QUERY, name = "asc", schema = @Schema(type = SchemaType.STRING)) @DefaultValue("true") @QueryParam("asc") String asc);
 
 	@GET
@@ -96,6 +105,13 @@ public interface LiteratureRESTInterface {
 		@Parameter(in = ParameterIn.QUERY, name = "page", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("1") @QueryParam("page") Integer page,
 		@Parameter(in = ParameterIn.QUERY, name = "sortBy", schema = @Schema(type = SchemaType.STRING)) @DefaultValue("") @QueryParam("sortBy") String sortBy,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.species", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.species") String species,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.gene", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.gene") String gene,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.moleculeType", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.moleculeType") String moleculeType,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.interactorGene", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.interactorGene") String interactorGene,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.interactorSpecies", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.interactorSpecies") String interactorSpecies,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.interactorMoleculeType", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.interactorMoleculeType") String interactorMoleculeType,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.detectionMethod", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.detectionMethod") String detectionMethod,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.source", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.source") String source,
 		@Parameter(in = ParameterIn.QUERY, name = "asc", schema = @Schema(type = SchemaType.STRING)) @DefaultValue("true") @QueryParam("asc") String asc);
 
 	@GET
@@ -109,6 +125,16 @@ public interface LiteratureRESTInterface {
 		@Parameter(in = ParameterIn.QUERY, name = "page", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("1") @QueryParam("page") Integer page,
 		@Parameter(in = ParameterIn.QUERY, name = "sortBy", schema = @Schema(type = SchemaType.STRING)) @DefaultValue("") @QueryParam("sortBy") String sortBy,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.species", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.species") String species,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.gene", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.gene") String gene,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.geneRole", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.geneRole") String geneRole,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.geneticPerturbation", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.geneticPerturbation") String geneticPerturbation,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.interactorGene", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.interactorGene") String interactorGene,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.interactorSpecies", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.interactorSpecies") String interactorSpecies,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.interactorRole", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.interactorRole") String interactorRole,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.interactorGeneticPerturbation", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.interactorGeneticPerturbation") String interactorGeneticPerturbation,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.interactionType", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.interactionType") String interactionType,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.phenotypes", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.phenotypes") String phenotypes,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.source", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.source") String source,
 		@Parameter(in = ParameterIn.QUERY, name = "asc", schema = @Schema(type = SchemaType.STRING)) @DefaultValue("true") @QueryParam("asc") String asc);
 
 	@GET
@@ -124,26 +150,6 @@ public interface LiteratureRESTInterface {
 	@APIResponses(value = { @APIResponse(responseCode = "200", description = "List of alleles", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
 	JsonResultResponse<Map<String, Object>> getAllelesByReference(
 		@Parameter(in = ParameterIn.PATH, name = "id", description = "Reference curie", required = true, schema = @Schema(type = SchemaType.STRING)) @PathParam("id") String id);
-
-	@GET
-	@Path("/{id}/related-papers")
-	@Operation(summary = "Papers sharing gene subjects with this reference, ranked by Jaccard similarity")
-	@APIResponses(value = { @APIResponse(responseCode = "200", description = "List of related papers", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
-	JsonResultResponse<Map<String, Object>> getRelatedPapersByReference(
-		@Parameter(in = ParameterIn.PATH, name = "id", description = "Reference curie", required = true, schema = @Schema(type = SchemaType.STRING)) @PathParam("id") String id,
-		@Parameter(in = ParameterIn.QUERY, name = "limit", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("10") @QueryParam("limit") Integer limit,
-		@Parameter(in = ParameterIn.QUERY, name = "includeOrthologs", description = "Expand gene set via orthology to include cross-species papers", schema = @Schema(type = SchemaType.BOOLEAN)) @DefaultValue("false") @QueryParam("includeOrthologs") Boolean includeOrthologs);
-
-	@GET
-	@Path("/{id}/orthology")
-	@Operation(summary = "Retrieve orthologs of genes associated with the given reference")
-	@APIResponses(value = { @APIResponse(responseCode = "200", description = "List of orthology pairs", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
-	JsonResultResponse<Map<String, Object>> getOrthologyByReference(
-		@Parameter(in = ParameterIn.PATH, name = "id", description = "Reference curie", required = true, schema = @Schema(type = SchemaType.STRING)) @PathParam("id") String id,
-		@Parameter(in = ParameterIn.QUERY, name = "limit", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("20") @QueryParam("limit") Integer limit,
-		@Parameter(in = ParameterIn.QUERY, name = "page", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("1") @QueryParam("page") Integer page,
-		@Parameter(in = ParameterIn.QUERY, name = "sortBy", schema = @Schema(type = SchemaType.STRING)) @DefaultValue("") @QueryParam("sortBy") String sortBy,
-		@Parameter(in = ParameterIn.QUERY, name = "asc", schema = @Schema(type = SchemaType.STRING)) @DefaultValue("true") @QueryParam("asc") String asc);
 
 	@GET
 	@Path("/{id}/models")
