@@ -85,6 +85,12 @@ public class ReferenceDataESService extends ESService {
 		"object.curie"
 	);
 
+	private static final int MAX_MODEL_BUCKETS = 1000;
+
+	private static final int MAX_MODEL_SAMPLES_PER_AGM = 100;
+
+	private static final int MAX_AGM_PHENOTYPE_HITS = 10000;
+
 	// Stage indexes the same annotation at gene/allele/agm levels; dedupe in Java by
 	// (inferredGene, inferredAllele, secondary) and drop the gene-level rollup when an
 	// allele-level row already covers the same (gene, secondary) pair.
@@ -137,6 +143,9 @@ public class ReferenceDataESService extends ESService {
 	// Lightweight pass that only pulls the dedupe-key fields; the visible page is then
 	// re-hydrated with full _source via rehydratePage. This keeps per-hit payload tiny
 	// for the dedupe sweep and avoids deserializing rows that won't render.
+	// On papers where the underlying hit count exceeds MAX_DEDUPE_HITS, we log and
+	// continue with the truncated set rather than failing the request so page 1 still
+	// renders (the count is then a best-effort lower bound).
 	private List<SearchHit> fetchDedupeHits(BoolQueryBuilder query) {
 		SearchResponse resp = SEARCH_DAO.performQuery(
 			(QueryBuilder) query, List.of(), null, DEDUPE_SOURCE_FIELDS,
@@ -144,9 +153,8 @@ public class ReferenceDataESService extends ESService {
 			new org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder(), null, false);
 		long total = resp.getHits().getTotalHits().value;
 		if (total > MAX_DEDUPE_HITS) {
-			throw new IllegalStateException(
-				"Reference annotation hit count " + total + " exceeds dedupe limit " + MAX_DEDUPE_HITS
-				+ "; refine filters or increase the limit before paging.");
+			log.warn("Reference annotation hit count {} exceeds dedupe limit {}; truncating dedupe input and returning best-effort total.",
+				total, MAX_DEDUPE_HITS);
 		}
 		return new ArrayList<>(Arrays.asList(resp.getHits().getHits()));
 	}
@@ -424,9 +432,9 @@ public class ReferenceDataESService extends ESService {
 		AggregationBuilder agg = AggregationBuilders
 			.terms("models")
 			.field("subject.primaryExternalId.keyword")
-			.size(1000)
+			.size(MAX_MODEL_BUCKETS)
 			.subAggregation(AggregationBuilders.topHits("samples")
-				.size(100)
+				.size(MAX_MODEL_SAMPLES_PER_AGM)
 				.fetchSource(new String[]{"subject", "object", "generatedRelationString", "phenotypeStatement", "category"}, null));
 
 		SearchResponse searchResponse = SEARCH_DAO.performQuery(
@@ -435,8 +443,13 @@ public class ReferenceDataESService extends ESService {
 
 		Map<String, Map<String, Object>> rowsByAgm = new LinkedHashMap<>();
 		ParsedStringTerms terms = searchResponse.getAggregations().get("models");
+		long otherAgmDocCount = terms.getSumOfOtherDocCounts();
+		if (otherAgmDocCount > 0) {
+			log.warn("Reference {} has more than {} distinct AGMs; {} doc(s) fell out of the terms aggregation.",
+				referenceCurie, MAX_MODEL_BUCKETS, otherAgmDocCount);
+		}
 		for (Terms.Bucket bucket : terms.getBuckets()) {
-			Map<String, Object> row = buildModelRow(bucket);
+			Map<String, Object> row = buildModelRow(bucket, referenceCurie);
 			if (row != null) {
 				rowsByAgm.put(bucket.getKeyAsString(), row);
 			}
@@ -444,8 +457,13 @@ public class ReferenceDataESService extends ESService {
 		return rowsByAgm;
 	}
 
-	private Map<String, Object> buildModelRow(Terms.Bucket bucket) {
+	private Map<String, Object> buildModelRow(Terms.Bucket bucket, String referenceCurie) {
 		TopHits topHits = bucket.getAggregations().get("samples");
+		long bucketTotal = topHits.getHits().getTotalHits().value;
+		if (bucketTotal > MAX_MODEL_SAMPLES_PER_AGM) {
+			log.warn("Reference {} AGM {} has {} sample hits; truncated to {} for disease/phenotype rollup.",
+				referenceCurie, bucket.getKeyAsString(), bucketTotal, MAX_MODEL_SAMPLES_PER_AGM);
+		}
 		Map<String, Object> agm = null;
 		Map<String, Map<String, Object>> diseases = new LinkedHashMap<>();
 		Set<String> phenotypes = new LinkedHashSet<>();
@@ -505,9 +523,14 @@ public class ReferenceDataESService extends ESService {
 		SearchResponse resp = SEARCH_DAO.performQuery(
 			(QueryBuilder) query, List.of(), null,
 			List.of("phenotypeStatement", "primaryAnnotations"),
-			10000, 0,
+			MAX_AGM_PHENOTYPE_HITS, 0,
 			new org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder(), null, false);
 
+		long total = resp.getHits().getTotalHits().value;
+		if (total > MAX_AGM_PHENOTYPE_HITS) {
+			log.warn("Reference {} has {} phenotype docs for AGM rollup; truncating to {}.",
+				referenceCurie, total, MAX_AGM_PHENOTYPE_HITS);
+		}
 		Map<String, Set<String>> out = new LinkedHashMap<>();
 		for (SearchHit hit : resp.getHits().getHits()) {
 			Map<String, Object> src = hit.getSourceAsMap();
