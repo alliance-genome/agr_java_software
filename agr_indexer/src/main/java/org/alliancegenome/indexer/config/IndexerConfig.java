@@ -20,6 +20,7 @@ import org.alliancegenome.indexer.indexers.ModelSearchResultCurationIndexer;
 import org.alliancegenome.indexer.indexers.PhenotypeAnnotationCurationIndexer;
 import org.alliancegenome.indexer.indexers.ReleaseInfoIndexer;
 import org.alliancegenome.indexer.indexers.SiteMapAccessionCurationIndexer;
+import org.alliancegenome.indexer.indexers.SpeciesIndexer;
 import org.alliancegenome.indexer.indexers.TransgenicAlleleCurationIndexer;
 
 public enum IndexerConfig {
@@ -28,6 +29,7 @@ public enum IndexerConfig {
 
 	// Run Sequentially -- typically take a lot of RAM or do consolidation in memory
 	ReleaseInfoIndexer("release", ReleaseInfoIndexer.class, 1, 1, 1, 1, 1, false),
+	SpeciesIndexer("species", SpeciesIndexer.class, 1, 1, 1, 1, 1, false),
 	GeneExpressionRibbonSummaryIndexer("geneExpressionRibbonSummary", GeneExpressionRibbonSummaryIndexer.class, 1, 1, 1, 1, 1, false),
 	
 	// Run Parallelly

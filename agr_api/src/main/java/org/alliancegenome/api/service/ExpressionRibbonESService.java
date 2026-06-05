@@ -23,7 +23,7 @@ import org.alliancegenome.curation_api.model.entities.Gene;
 import org.alliancegenome.curation_api.model.entities.GeneExpressionAnnotation;
 import org.alliancegenome.api.es.query.Pagination;
 import org.alliancegenome.api.es.search.Category;
-import org.alliancegenome.neo4j.entity.SpeciesType;
+import org.alliancegenome.core.document.SpeciesSummaryDocument;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
@@ -156,16 +156,16 @@ public class ExpressionRibbonESService extends ESService {
 			entity.setTaxonName(gene.getTaxon().getSpecies().getFullName());
 		} else {
 			Map<String, Object> geneDoc = getGene(geneID);
-			SpeciesType type = SpeciesType.getTypeByNameField(geneDoc.get("species").toString());
-			if (type != null) {
-				if (type.getDisplayName().equals("XBXT") || type.getDisplayName().equals("XBXL")) {
+			SpeciesSummaryDocument species = speciesESDAO.byScientificName(geneDoc.get("species").toString());
+			if (species != null) {
+				if (species.getDisplayName().equals("XBXT") || species.getDisplayName().equals("XBXL")) {
 					dataProvider = "XB";
 				} else {
-					dataProvider = type.getDisplayName();
+					dataProvider = species.getDisplayName();
 				}
 				entity.setLabel(geneDoc.get("symbol").toString());
-				entity.setTaxonID(type.getTaxonID());
-				entity.setTaxonName(type.getName());
+				entity.setTaxonID(species.getTaxonID());
+				entity.setTaxonName(species.getName());
 			} else {
 				dataProvider = null;
 				Log.error("Could not find species for geneID: " + geneID);

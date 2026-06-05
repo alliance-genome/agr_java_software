@@ -12,7 +12,7 @@ import java.util.Map;
 import org.alliancegenome.api.response.JsonResultResponse;
 import org.alliancegenome.curation_api.model.document.es.GeneExpressionDocument;
 import org.alliancegenome.api.es.query.Pagination;
-import org.alliancegenome.neo4j.entity.SpeciesType;
+import org.alliancegenome.core.document.SpeciesSummaryDocument;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
@@ -79,8 +79,8 @@ public class ExpressionESService extends ESService {
 		sortingSetMap.put("stage", "geneExpressionAnnotation.whenExpressedStageName.sort");
 		sortingSetMap.put("assay", "geneExpressionAnnotation.expressionAssayUsed.name.sort");
 		if (StringUtils.isNotEmpty(focusTaxonId)) {
-			SpeciesType type = SpeciesType.getTypeByID(focusTaxonId);
-			sortingSetMap.put("default", "speciesOrder." + type.getTaxonIDPart());
+			SpeciesSummaryDocument species = speciesESDAO.byTaxonID(focusTaxonId);
+			sortingSetMap.put("default", "speciesOrder." + species.getTaxonIDPart());
 		} else {
 			sortingSetMap.put("default", "geneExpressionAnnotation.expressionAnnotationSubject.geneSymbol.displayText.sort");
 		}
