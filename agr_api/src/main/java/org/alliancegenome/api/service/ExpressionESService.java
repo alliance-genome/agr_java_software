@@ -78,12 +78,14 @@ public class ExpressionESService extends ESService {
 		sortingSetMap.put("location", "geneExpressionAnnotation.whereExpressedStatement.sort");
 		sortingSetMap.put("stage", "geneExpressionAnnotation.whenExpressedStageName.sort");
 		sortingSetMap.put("assay", "geneExpressionAnnotation.expressionAssayUsed.name.sort");
+		String defaultSort = "geneExpressionAnnotation.expressionAnnotationSubject.geneSymbol.displayText.sort";
 		if (StringUtils.isNotEmpty(focusTaxonId)) {
 			SpeciesSummaryDocument species = speciesESDAO.byTaxonID(focusTaxonId);
-			sortingSetMap.put("default", "speciesOrder." + species.getTaxonIDPart());
-		} else {
-			sortingSetMap.put("default", "geneExpressionAnnotation.expressionAnnotationSubject.geneSymbol.displayText.sort");
+			if (species != null) {
+				defaultSort = "speciesOrder." + species.getTaxonIDPart();
+			}
 		}
+		sortingSetMap.put("default", defaultSort);
 
 		String sortField = pagination.getSortBy() != null ? pagination.getSortBy() : "default";
 

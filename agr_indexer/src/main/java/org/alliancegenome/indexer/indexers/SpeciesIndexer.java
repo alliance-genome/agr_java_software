@@ -22,6 +22,8 @@ import si.mazi.rescu.RestProxyFactory;
 @Slf4j
 public class SpeciesIndexer extends Indexer {
 
+	private static final int FETCH_LIMIT = 1000;
+
 	private final SpeciesCrudInterface speciesApi = RestProxyFactory.createProxy(
 		SpeciesCrudInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 
@@ -32,10 +34,13 @@ public class SpeciesIndexer extends Indexer {
 	@Override
 	protected void index(ProcessDisplayHelper display) {
 		try {
-			SearchResponse<Species> response = speciesApi.find(0, 100, new HashMap<>());
+			SearchResponse<Species> response = speciesApi.find(0, FETCH_LIMIT, new HashMap<>());
 			List<Species> all = response != null && response.getResults() != null
 				? response.getResults()
 				: new ArrayList<>();
+			if (all.size() >= FETCH_LIMIT) {
+				log.warn("Species fetch returned {} rows — at FETCH_LIMIT cap, results may be truncated", all.size());
+			}
 			List<SpeciesSummaryDocument> docs = all.stream()
 				.filter(s -> s != null
 					&& !Boolean.TRUE.equals(s.getInternal())
@@ -70,7 +75,9 @@ public class SpeciesIndexer extends Indexer {
 	}
 
 	private static String taxonIDPart(String curie) {
-		if (curie == null) return null;
+		if (curie == null) {
+			return null;
+		}
 		int idx = curie.lastIndexOf(':');
 		return idx >= 0 ? curie.substring(idx + 1) : curie;
 	}

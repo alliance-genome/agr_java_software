@@ -34,9 +34,9 @@ public class SpeciesESDAO extends ESDAO {
 
 	private static final String SITE_INDEX = ConfigHelper.getEsIndex();
 	private static final String CATEGORY = "species_summary";
-	private static final int FETCH_SIZE = 100;
+	private static final int FETCH_SIZE = 1000;
 
-	private static volatile List<SpeciesSummaryDocument> all;
+	private static volatile List<SpeciesSummaryDocument> allSpecies;
 	private static volatile Map<String, SpeciesSummaryDocument> byTaxonID;
 	private static volatile Map<String, SpeciesSummaryDocument> byName;
 
@@ -45,44 +45,61 @@ public class SpeciesESDAO extends ESDAO {
 
 	public List<SpeciesSummaryDocument> getAll() {
 		ensureLoaded();
-		return all;
+		return allSpecies;
 	}
 
 	public SpeciesSummaryDocument byTaxonID(String taxonID) {
 		ensureLoaded();
-		return taxonID == null ? null : byTaxonID.get(taxonID);
+		if (taxonID == null || byTaxonID == null) {
+			return null;
+		}
+		return byTaxonID.get(taxonID);
 	}
 
 	public SpeciesSummaryDocument byScientificName(String scientificName) {
 		ensureLoaded();
-		return scientificName == null ? null : byName.get(scientificName);
+		if (scientificName == null || byName == null) {
+			return null;
+		}
+		return byName.get(scientificName);
 	}
 
 	public String getAllTaxonIDs() {
 		ensureLoaded();
-		return all.stream()
+		if (allSpecies == null) {
+			return "";
+		}
+		return allSpecies.stream()
 			.map(SpeciesSummaryDocument::getTaxonID)
 			.collect(Collectors.joining(","));
 	}
 
 	private void ensureLoaded() {
-		if (all != null) {
+		if (allSpecies != null) {
 			return;
 		}
 		synchronized (SpeciesESDAO.class) {
-			if (all != null) {
+			if (allSpecies != null) {
 				return;
 			}
 			List<SpeciesSummaryDocument> fetched = fetchAll();
+			if (fetched.isEmpty()) {
+				log.warn("No {} documents found in {}; will retry on next call", CATEGORY, SITE_INDEX);
+				return;
+			}
 			Map<String, SpeciesSummaryDocument> tx = new LinkedHashMap<>();
 			Map<String, SpeciesSummaryDocument> nm = new LinkedHashMap<>();
 			for (SpeciesSummaryDocument d : fetched) {
-				if (d.getTaxonID() != null) tx.put(d.getTaxonID(), d);
-				if (d.getName() != null) nm.put(d.getName(), d);
+				if (d.getTaxonID() != null) {
+					tx.put(d.getTaxonID(), d);
+				}
+				if (d.getName() != null) {
+					nm.put(d.getName(), d);
+				}
 			}
-			all = Collections.unmodifiableList(fetched);
 			byTaxonID = Collections.unmodifiableMap(tx);
 			byName = Collections.unmodifiableMap(nm);
+			allSpecies = Collections.unmodifiableList(fetched);
 		}
 	}
 
@@ -105,14 +122,17 @@ public class SpeciesESDAO extends ESDAO {
 				try {
 					result.add(mapper.readValue(hit.getSourceAsString(), SpeciesSummaryDocument.class));
 				} catch (Exception parseEx) {
-					log.error("Failed to parse species_summary hit", parseEx);
+					log.error("Failed to parse {} hit", CATEGORY, parseEx);
 				}
+			}
+			if (result.size() >= FETCH_SIZE) {
+				log.warn("{} fetch returned {} docs — at FETCH_SIZE cap, results may be truncated", CATEGORY, result.size());
 			}
 			result.sort(Comparator.comparing(
 				SpeciesSummaryDocument::getPhylogeneticOrder,
 				Comparator.nullsLast(Comparator.naturalOrder())));
 		} catch (IOException e) {
-			log.error("Failed to load species_summary documents from " + SITE_INDEX, e);
+			log.error("Failed to load {} documents from {}", CATEGORY, SITE_INDEX, e);
 		}
 		return result;
 	}
