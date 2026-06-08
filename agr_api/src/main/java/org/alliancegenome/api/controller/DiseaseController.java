@@ -22,8 +22,8 @@ import org.alliancegenome.api.exceptions.RestErrorException;
 import org.alliancegenome.api.exceptions.RestErrorMessage;
 import org.alliancegenome.core.util.FileHelper;
 import org.alliancegenome.curation_api.model.document.es.DiseaseSummaryDocument;
+import org.alliancegenome.api.es.dao.SpeciesESDAO;
 import org.alliancegenome.api.es.query.Pagination;
-import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.core.view.PublicView;
 import org.apache.commons.lang3.StringUtils;
 
@@ -45,6 +45,9 @@ public class DiseaseController implements DiseaseRESTInterface {
 
 	@Inject
 	DiseaseESService diseaseESService;
+
+	@Inject
+	SpeciesESDAO speciesESDAO;
 
 	private final DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();
 
@@ -141,7 +144,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 
 				String taxonIDs = species;
 				if (StringUtils.isEmpty(taxonIDs)) {
-					taxonIDs = SpeciesType.getAllTaxonIDs();
+					taxonIDs = speciesESDAO.getAllTaxonIDs();
 				}
 				data = data.replace("${taxonIDs}", taxonIDs);
 				data += allRowsForAlleles;
@@ -196,7 +199,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 
 				String taxonIDs = species;
 				if (StringUtils.isEmpty(taxonIDs)) {
-					taxonIDs = SpeciesType.getAllTaxonIDs();
+					taxonIDs = speciesESDAO.getAllTaxonIDs();
 				}
 				data = data.replace("${taxonIDs}", taxonIDs);
 				data += allRowsForGenes;

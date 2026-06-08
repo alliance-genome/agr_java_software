@@ -17,8 +17,9 @@ import java.util.stream.Stream;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.api.service.helper.GeneDiseaseSearchHelper;
 import org.alliancegenome.api.es.dao.SearchDAO;
+import org.alliancegenome.api.es.dao.SpeciesESDAO;
 import org.alliancegenome.api.es.query.Pagination;
-import org.alliancegenome.neo4j.entity.SpeciesType;
+import org.alliancegenome.core.document.SpeciesSummaryDocument;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.lucene.queryparser.classic.QueryParser;
@@ -47,6 +48,9 @@ public class ESService {
 
 	@Inject
 	ObjectMapper mapper;
+
+	@Inject
+	SpeciesESDAO speciesESDAO;
 
 	private static final SearchDAO searchDAO = new SearchDAO();
 	private static final GeneDiseaseSearchHelper geneDiseaseSearchHelper = new GeneDiseaseSearchHelper();
@@ -224,9 +228,9 @@ public class ESService {
 	protected LinkedHashMap<String, SortOrder> getAnnotationSorts(String focusTaxonId, boolean debug) {
 		LinkedHashMap<String, SortOrder> sorts = new LinkedHashMap<>();
 		if (focusTaxonId != null) {
-			SpeciesType type = SpeciesType.getTypeByID(focusTaxonId);
-			if (type != null) {
-				sorts.put("speciesOrder." + type.getTaxonIDPart(), SortOrder.ASC);
+			SpeciesSummaryDocument species = speciesESDAO.byTaxonID(focusTaxonId);
+			if (species != null) {
+				sorts.put("speciesOrder." + species.getTaxonIDPart(), SortOrder.ASC);
 			} else if (debug) {
 				Log.info("Species could not be found for: " + focusTaxonId);
 			}

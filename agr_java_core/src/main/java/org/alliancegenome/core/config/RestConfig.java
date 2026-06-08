@@ -2,6 +2,7 @@ package org.alliancegenome.core.config;
 
 import org.alliancegenome.curation_api.model.entities.ResourceDescriptor;
 import org.alliancegenome.curation_api.model.entities.ResourceDescriptorPage;
+import org.alliancegenome.curation_api.model.entities.Species;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonFactory;
@@ -65,7 +66,8 @@ public class RestConfig {
 		mapper.setSerializationInclusion(Include.NON_EMPTY);
 		mapper.registerSubtypes(
 			new NamedType(ResourceDescriptor.class, "ResourceDescriptor"),
-			new NamedType(ResourceDescriptorPage.class, "ResourceDescriptorPage")
+			new NamedType(ResourceDescriptorPage.class, "ResourceDescriptorPage"),
+			new NamedType(Species.class, "Species")
 		);
 		return mapper;
 	}
@@ -81,7 +83,8 @@ public class RestConfig {
 		mapper.setSerializationInclusion(Include.NON_EMPTY);
 		mapper.registerSubtypes(
 			new NamedType(ResourceDescriptor.class, "ResourceDescriptor"),
-			new NamedType(ResourceDescriptorPage.class, "ResourceDescriptorPage")
+			new NamedType(ResourceDescriptorPage.class, "ResourceDescriptorPage"),
+			new NamedType(Species.class, "Species")
 		);
 		return mapper;
 	}
