@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.zip.GZIPOutputStream;
 
+import org.alliancegenome.core.util.SmartAlphaComparator;
+
 import com.fasterxml.jackson.databind.JsonNode;
 
 /**
@@ -148,40 +150,14 @@ public class VcfWriter implements RowWriter {
 		writer.close();
 	}
 
-	// Numeric chromosomes (1, 2, 3, ...) come first in numeric order, then non-numeric (MT, X, Y, MtDNA, ...) in lexical order. Within a chrom, POS is sorted numerically.
+	// Smart-alpha CHROM ordering (2L < 2R < 3L < 3R < 4 < X for fly; 1 < 2 < ... < 19 < MT < X for mouse) plus numeric POS within a chrom.
 	private static final Comparator<String[]> CHROM_THEN_POS = (a, b) -> {
-		int c = compareChrom(a[0], b[0]);
+		int c = SmartAlphaComparator.INSTANCE.compare(a[0], b[0]);
 		if (c != 0) {
 			return c;
 		}
 		return Long.compare(parsePos(a[1]), parsePos(b[1]));
 	};
-
-	private static int compareChrom(String a, String b) {
-		Integer ia = parseChromInt(a);
-		Integer ib = parseChromInt(b);
-		if (ia != null && ib != null) {
-			return Integer.compare(ia, ib);
-		}
-		if (ia != null) {
-			return -1;
-		}
-		if (ib != null) {
-			return 1;
-		}
-		return a.compareTo(b);
-	}
-
-	private static Integer parseChromInt(String s) {
-		if (s == null || s.isEmpty()) {
-			return null;
-		}
-		try {
-			return Integer.valueOf(s);
-		} catch (NumberFormatException e) {
-			return null;
-		}
-	}
 
 	private static long parsePos(String s) {
 		if (s == null || s.isEmpty() || ".".equals(s)) {

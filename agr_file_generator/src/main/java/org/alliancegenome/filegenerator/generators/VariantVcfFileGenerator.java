@@ -1,14 +1,13 @@
 package org.alliancegenome.filegenerator.generators;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.alliancegenome.core.util.SmartAlphaComparator;
 import org.alliancegenome.filegenerator.config.FileGeneratorConfig;
 import org.alliancegenome.filegenerator.es.EsParallelFetcher;
 import org.alliancegenome.filegenerator.writers.JsonPath;
@@ -131,24 +130,8 @@ public class VariantVcfFileGenerator extends FileGenerator {
 			tuples.add(new String[] { chrom, assembly, spp });
 		}
 
-		// Numeric chroms ascend by parsed integer, then non-numeric chroms follow lexically — keeps 1..21 before X, Y, MtDNA, etc.
-		Comparator<String[]> byChrom = (a, b) -> {
-			String ca = a[0];
-			String cb = b[0];
-			Integer ia = parseChromInt(ca);
-			Integer ib = parseChromInt(cb);
-			if (ia != null && ib != null) {
-				return Integer.compare(ia, ib);
-			}
-			if (ia != null) {
-				return -1;
-			}
-			if (ib != null) {
-				return 1;
-			}
-			return ca.compareTo(cb);
-		};
-		Collections.sort(tuples, byChrom);
+		// Smart-alpha (natural sort) on the chrom string keeps Drosophila's 2L/2R/3L/3R/4 in mod-order while still putting Mouse's 1..19 before MT/X/Y and Worm's I/II/III/IV before V/X.
+		tuples.sort((a, b) -> SmartAlphaComparator.INSTANCE.compare(a[0], b[0]));
 
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < tuples.size(); i++) {
@@ -161,17 +144,6 @@ public class VariantVcfFileGenerator extends FileGenerator {
 					.append(",species=\"").append(t[2]).append("\">");
 		}
 		return sb.toString();
-	}
-
-	private static Integer parseChromInt(String s) {
-		if (s == null || s.isEmpty()) {
-			return null;
-		}
-		try {
-			return Integer.valueOf(s);
-		} catch (NumberFormatException e) {
-			return null;
-		}
 	}
 
 	@Override

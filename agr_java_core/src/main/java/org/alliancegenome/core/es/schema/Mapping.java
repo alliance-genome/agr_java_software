@@ -150,6 +150,9 @@ public class Mapping extends Builder {
 		new FieldBuilder(builder, "alleleDocument.allele.alleleSymbol.formatText", "text").keyword().sortSmartAlpha().build(); //
 		new FieldBuilder(builder, "alleleDocument.allele.taxon.species.fullName", "text").keyword().sortSmartAlpha().build(); //
 		new FieldBuilder(builder, "alleleDocument.phylogeneticSortingIndex", "long").keyword().sortSmartAlpha().build(); //
+		new FieldBuilder(builder, "allele.taxon.species.fullName", "text").keyword().sortSmartAlpha().build(); // variant_summary
+		new FieldBuilder(builder, "allele.taxon.species.genomeAssembly.curie", "text").keyword().build(); // variant_summary
+		new FieldBuilder(builder, "allele.taxon.species.genomeAssembly.primaryExternalId", "text").keyword().build(); // variant_summary
 		new FieldBuilder(builder, "definition", "text").standardText().build(); // go, disease
 
 		new FieldBuilder(builder, "models", "text").keyword().autocomplete().build(); // gene, disease
