@@ -173,6 +173,7 @@ public final class VcfValidator {
 			try {
 				bytes = Files.size(path);
 			} catch (Exception ignore) {
+				// size is cosmetic — leave at 0 if we can't read it.
 			}
 			return String.format("%-65s records=%-7d contigs=%-3d info=%-3d alt=%-3d size=%dKB %s",
 					path.getFileName(), records, contigCount, infoCount, altCount, bytes / 1024,
