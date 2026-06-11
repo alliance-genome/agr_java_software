@@ -65,7 +65,7 @@ public class GeneFileGenerator extends FileGenerator {
 		obj.put("_allianceAutomatedDescription", findNoteText(hit, AUTOMATED_NOTE_TYPE));
 		obj.put("_modAutomatedDescription", findNoteText(hit, MOD_AUTOMATED_NOTE_TYPE));
 		obj.put("_modDescription", findNoteText(hit, MOD_NOTE_TYPE));
-		obj.put("_assembly", JsonPath.resolveString(hit, "gene.taxon.species.assembly_curie"));
+		obj.put("_assembly", JsonPath.resolveString(hit, "gene.taxon.species.genomeAssembly.primaryExternalId"));
 
 		return hit;
 	}
