@@ -1,14 +1,14 @@
 package org.alliancegenome.filegenerator.generators;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
+import org.alliancegenome.core.util.SmartAlphaComparator;
 import org.alliancegenome.filegenerator.config.FileGeneratorConfig;
 import org.alliancegenome.filegenerator.es.EsParallelFetcher;
 import org.alliancegenome.filegenerator.writers.JsonPath;
@@ -42,6 +42,10 @@ public class VariantVcfFileGenerator extends FileGenerator {
 	private static final String CHROM_PATH = "variantList.curatedVariantGenomicLocations.variantGenomicLocationAssociationObject.name";
 	private static final String ASSEMBLY_PATH = "variantList.curatedVariantGenomicLocations.variantGenomicLocationAssociationObject.genomeAssembly.primaryExternalId";
 	private static final String SPECIES_PATH = "allele.taxon.species.fullName";
+	// IUPAC ambiguity codes that need to be wrapped in angle brackets to remain valid as a VCF ALT (they reference the corresponding ##ALT=<ID=..> declarations in the header).
+	private static final Set<Character> IUPAC_AMBIGUITY_CODES = Set.of('R', 'Y', 'S', 'W', 'K', 'M', 'B', 'D', 'H', 'V');
+	// VCF v4.3 INFO values cannot contain whitespace; appendKv replaces matches with underscore so the field parses while preserving the symbol token.
+	private static final Pattern WHITESPACE = Pattern.compile("\\s+");
 
 	private final Map<String, String> contigLinesByMod = new LinkedHashMap<>();
 
@@ -131,24 +135,8 @@ public class VariantVcfFileGenerator extends FileGenerator {
 			tuples.add(new String[] { chrom, assembly, spp });
 		}
 
-		// Numeric chroms ascend by parsed integer, then non-numeric chroms follow lexically — keeps 1..21 before X, Y, MtDNA, etc.
-		Comparator<String[]> byChrom = (a, b) -> {
-			String ca = a[0];
-			String cb = b[0];
-			Integer ia = parseChromInt(ca);
-			Integer ib = parseChromInt(cb);
-			if (ia != null && ib != null) {
-				return Integer.compare(ia, ib);
-			}
-			if (ia != null) {
-				return -1;
-			}
-			if (ib != null) {
-				return 1;
-			}
-			return ca.compareTo(cb);
-		};
-		Collections.sort(tuples, byChrom);
+		// Smart-alpha (natural sort) on the chrom string keeps Drosophila's 2L/2R/3L/3R/4 in mod-order while still putting Mouse's 1..19 before MT/X/Y and Worm's I/II/III/IV before V/X.
+		tuples.sort((a, b) -> SmartAlphaComparator.INSTANCE.compare(a[0], b[0]));
 
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < tuples.size(); i++) {
@@ -161,17 +149,6 @@ public class VariantVcfFileGenerator extends FileGenerator {
 					.append(",species=\"").append(t[2]).append("\">");
 		}
 		return sb.toString();
-	}
-
-	private static Integer parseChromInt(String s) {
-		if (s == null || s.isEmpty()) {
-			return null;
-		}
-		try {
-			return Integer.valueOf(s);
-		} catch (NumberFormatException e) {
-			return null;
-		}
 	}
 
 	@Override
@@ -238,10 +215,29 @@ public class VariantVcfFileGenerator extends FileGenerator {
 		String alt = "";
 		if (loc != null && loc.isObject()) {
 			chrom = loc.path("variantGenomicLocationAssociationObject").path("name").asText("");
-			pos = loc.path("start").asText("");
 			id = loc.path("hgvs").asText("");
-			ref = loc.path("referenceSequence").asText("");
-			alt = loc.path("variantSequence").asText("");
+			long start = loc.path("start").asLong(0);
+			String rawRef = loc.path("referenceSequence").asText("");
+			// IUPAC ambiguity codes in the ALT have to be wrapped in angle brackets so they reference the ##ALT=<ID=R,...> header lines (VCF v4.3 symbolic alleles); the legacy python generator did the same substitution.
+			String rawAlt = wrapIupacAmbiguityCodes(loc.path("variantSequence").asText(""));
+			String paddedBase = loc.path("paddedBase").asText("");
+			// VCF v4.3 §5.1: insertions/deletions/delins require a padding base at POS = start - 1 so REF and ALT are non-empty. When paddedBase is absent on an indel/delins we silently emit unpadded — matches the legacy python generator's quiet fall-through.
+			boolean isInsertion = rawRef.isEmpty() && !rawAlt.isEmpty();
+			boolean isDeletion = rawAlt.isEmpty() && !rawRef.isEmpty();
+			boolean isDelins = !rawRef.isEmpty() && !rawAlt.isEmpty() && rawRef.length() != rawAlt.length();
+			if (!paddedBase.isEmpty() && isInsertion) {
+				ref = paddedBase;
+				alt = paddedBase + rawAlt;
+				pos = Long.toString(start);
+			} else if (!paddedBase.isEmpty() && (isDeletion || isDelins)) {
+				ref = paddedBase + rawRef;
+				alt = paddedBase + rawAlt;
+				pos = Long.toString(start - 1);
+			} else {
+				ref = rawRef;
+				alt = rawAlt;
+				pos = start > 0 ? Long.toString(start) : "";
+			}
 		}
 
 		obj.put("_chrom", chrom);
@@ -352,7 +348,9 @@ public class VariantVcfFileGenerator extends FileGenerator {
 		if (sb.length() > 0) {
 			sb.append(";");
 		}
-		sb.append(key).append("=\"").append(value == null ? "" : value).append("\"");
+		// VCF v4.3 INFO values cannot contain whitespace (space/tab/newline); replace with underscore to keep the field parseable while preserving the symbol token.
+		String escaped = value == null ? "" : WHITESPACE.matcher(value).replaceAll("_");
+		sb.append(key).append("=\"").append(escaped).append("\"");
 	}
 
 	private static List<String> collectArrayStrings(JsonNode arr) {
@@ -367,6 +365,31 @@ public class VariantVcfFileGenerator extends FileGenerator {
 			}
 		}
 		return out;
+	}
+
+	// VCF v4.3 §1.4.1.1: REF/ALT bases must be one of A/C/G/T/N. IUPAC ambiguity codes (R/Y/S/W/K/M/B/D/H/V) are valid only as symbolic alleles — i.e. when the entire ALT is `<R>`, referencing the matching ##ALT=<ID=R,..> header line.
+	// A single-base ALT made of an IUPAC code is therefore wrapped in angle brackets; the same code embedded in a longer multi-base ALT is collapsed to N (we lose the specific ambiguity but the row stays parseable; the legacy python generator wrapped unconditionally and produced files htsjdk refused to read).
+	private static String wrapIupacAmbiguityCodes(String s) {
+		if (s == null || s.isEmpty()) {
+			return s;
+		}
+		if (s.length() == 1 && IUPAC_AMBIGUITY_CODES.contains(s.charAt(0))) {
+			return "<" + s + ">";
+		}
+		StringBuilder out = null;
+		for (int i = 0; i < s.length(); i++) {
+			char c = s.charAt(i);
+			if (IUPAC_AMBIGUITY_CODES.contains(c)) {
+				if (out == null) {
+					out = new StringBuilder(s.length());
+					out.append(s, 0, i);
+				}
+				out.append('N');
+			} else if (out != null) {
+				out.append(c);
+			}
+		}
+		return out == null ? s : out.toString();
 	}
 
 	private static List<String> dedup(List<String> values) {
