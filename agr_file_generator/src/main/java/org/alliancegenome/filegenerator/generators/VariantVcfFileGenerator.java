@@ -48,6 +48,8 @@ public class VariantVcfFileGenerator extends FileGenerator {
 	private static final Pattern WHITESPACE = Pattern.compile("\\s+");
 
 	private final Map<String, String> contigLinesByMod = new LinkedHashMap<>();
+	// Per-MOD assembly token surfaced into the VCF header as `##reference=...`. Pipe-joined when a MOD has more than one assembly (extremely rare in practice — each MOD typically maps to exactly one).
+	private final Map<String, String> referenceByMod = new LinkedHashMap<>();
 
 	public VariantVcfFileGenerator(FileGeneratorConfig config) {
 		super(config);
@@ -62,7 +64,11 @@ public class VariantVcfFileGenerator extends FileGenerator {
 	@Override
 	protected Map<String, String> headerSubstitutions(String mod) {
 		String contigLines = contigLinesByMod.getOrDefault(mod, "");
-		return Map.of("{contigLines}", contigLines);
+		String reference = referenceByMod.getOrDefault(mod, "");
+		Map<String, String> subs = new LinkedHashMap<>();
+		subs.put("{contigLines}", contigLines);
+		subs.put("{reference}", reference.isEmpty() ? "" : "##reference=" + reference);
+		return subs;
 	}
 
 	/**
@@ -77,9 +83,10 @@ public class VariantVcfFileGenerator extends FileGenerator {
 			if (resp == null) {
 				log.warn("{}: contig pre-pass for MOD {} returned null response — contig header lines will be empty", getClass().getSimpleName(), mod);
 			}
-			String contigLines = renderContigLines(resp);
-			contigLinesByMod.put(mod, contigLines);
-			log.info("{}: contig pre-pass for MOD {} produced {} line(s)", getClass().getSimpleName(), mod, contigLines.isEmpty() ? 0 : contigLines.split("\n").length);
+			List<String[]> tuples = collectContigTuples(resp);
+			contigLinesByMod.put(mod, renderContigLines(tuples));
+			referenceByMod.put(mod, pickAssembly(tuples));
+			log.info("{}: contig pre-pass for MOD {} produced {} line(s); assembly={}", getClass().getSimpleName(), mod, tuples.size(), referenceByMod.get(mod));
 		}
 	}
 
@@ -106,38 +113,39 @@ public class VariantVcfFileGenerator extends FileGenerator {
 	}
 
 	@SuppressWarnings("unchecked")
-	private String renderContigLines(Map<String, Object> resp) {
+	private List<String[]> collectContigTuples(Map<String, Object> resp) {
+		List<String[]> tuples = new ArrayList<>();
 		if (resp == null) {
-			return "";
+			return tuples;
 		}
 		Map<String, Object> aggregations = (Map<String, Object>) resp.get("aggregations");
 		if (aggregations == null) {
-			return "";
+			return tuples;
 		}
 		Map<String, Object> contigs = (Map<String, Object>) aggregations.get("contigs");
 		if (contigs == null) {
-			return "";
+			return tuples;
 		}
 		List<Map<String, Object>> buckets = (List<Map<String, Object>>) contigs.get("buckets");
-		if (buckets == null || buckets.isEmpty()) {
-			return "";
+		if (buckets == null) {
+			return tuples;
 		}
-
-		List<String[]> tuples = new ArrayList<>();
 		for (Map<String, Object> bucket : buckets) {
 			Object keysObj = bucket.get("key");
 			if (!(keysObj instanceof List<?> keys) || keys.size() < 3) {
 				continue;
 			}
-			String chrom = String.valueOf(keys.get(0));
-			String assembly = String.valueOf(keys.get(1));
-			String spp = String.valueOf(keys.get(2));
-			tuples.add(new String[] { chrom, assembly, spp });
+			tuples.add(new String[] { String.valueOf(keys.get(0)), String.valueOf(keys.get(1)), String.valueOf(keys.get(2)) });
 		}
-
 		// Smart-alpha (natural sort) on the chrom string keeps Drosophila's 2L/2R/3L/3R/4 in mod-order while still putting Mouse's 1..19 before MT/X/Y and Worm's I/II/III/IV before V/X.
 		tuples.sort((a, b) -> SmartAlphaComparator.INSTANCE.compare(a[0], b[0]));
+		return tuples;
+	}
 
+	private static String renderContigLines(List<String[]> tuples) {
+		if (tuples.isEmpty()) {
+			return "";
+		}
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < tuples.size(); i++) {
 			String[] t = tuples.get(i);
@@ -149,6 +157,17 @@ public class VariantVcfFileGenerator extends FileGenerator {
 					.append(",species=\"").append(t[2]).append("\">");
 		}
 		return sb.toString();
+	}
+
+	// Each MOD typically has exactly one assembly across its variant_summary docs (FB=R6, MGI=GRCm39, WB=WBcel235, etc.). On the rare chance a MOD ships multiple assemblies, pipe-join the unique values so the `##reference` line stays a single string.
+	private static String pickAssembly(List<String[]> tuples) {
+		LinkedHashSet<String> assemblies = new LinkedHashSet<>();
+		for (String[] t : tuples) {
+			if (t[1] != null && !t[1].isEmpty()) {
+				assemblies.add(t[1]);
+			}
+		}
+		return String.join("|", assemblies);
 	}
 
 	@Override
@@ -218,26 +237,27 @@ public class VariantVcfFileGenerator extends FileGenerator {
 			id = loc.path("hgvs").asText("");
 			long start = loc.path("start").asLong(0);
 			String rawRef = loc.path("referenceSequence").asText("");
-			// IUPAC ambiguity codes in the ALT have to be wrapped in angle brackets so they reference the ##ALT=<ID=R,...> header lines (VCF v4.3 symbolic alleles); the legacy python generator did the same substitution.
-			String rawAlt = wrapIupacAmbiguityCodes(loc.path("variantSequence").asText(""));
+			String rawAlt = loc.path("variantSequence").asText("");
 			String paddedBase = loc.path("paddedBase").asText("");
-			// VCF v4.3 §5.1: insertions/deletions/delins require a padding base at POS = start - 1 so REF and ALT are non-empty. When paddedBase is absent on an indel/delins we silently emit unpadded — matches the legacy python generator's quiet fall-through.
+			// VCF v4.3 §5.1 padding: insertion and deletion need a padding base so REF/ALT are non-empty.
+			// Delins does NOT (per Jennifer Smith's clarification on SCRUM-6019); REF carries the deleted bases and ALT the inserted bases as-is at the natural POS. SNV/MNV are emitted as-is. When paddedBase is absent on an indel we silently fall through to no-padding — matches the legacy python generator.
 			boolean isInsertion = rawRef.isEmpty() && !rawAlt.isEmpty();
 			boolean isDeletion = rawAlt.isEmpty() && !rawRef.isEmpty();
-			boolean isDelins = !rawRef.isEmpty() && !rawAlt.isEmpty() && rawRef.length() != rawAlt.length();
 			if (!paddedBase.isEmpty() && isInsertion) {
 				ref = paddedBase;
 				alt = paddedBase + rawAlt;
 				pos = Long.toString(start);
-			} else if (!paddedBase.isEmpty() && (isDeletion || isDelins)) {
+			} else if (!paddedBase.isEmpty() && isDeletion) {
 				ref = paddedBase + rawRef;
-				alt = paddedBase + rawAlt;
+				alt = paddedBase;
 				pos = Long.toString(start - 1);
 			} else {
 				ref = rawRef;
 				alt = rawAlt;
 				pos = start > 0 ? Long.toString(start) : "";
 			}
+			// IUPAC wrap runs AFTER padding so length-1 ALTs (pure SNVs) get symbolic-allele wrapping (<R>) while padded multi-base ALTs collapse embedded ambiguity codes to N. Applying it before padding produced invalid `T<Y>` style ALTs when an insertion's lone inserted base was IUPAC.
+			alt = wrapIupacAmbiguityCodes(alt);
 		}
 
 		obj.put("_chrom", chrom);

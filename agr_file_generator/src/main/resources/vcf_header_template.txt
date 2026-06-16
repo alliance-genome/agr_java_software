@@ -1,5 +1,6 @@
 ##fileformat=VCFv4.3
 ##fileDate={fileDate}
+{reference}
 ##ALT=<ID=R,Description="IUPAC code R = A/G">
 ##ALT=<ID=Y,Description="IUPAC code Y = C/T">
 ##ALT=<ID=S,Description="IUPAC code S = C/G">
