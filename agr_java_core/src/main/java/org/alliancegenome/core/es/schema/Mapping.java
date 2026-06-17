@@ -112,8 +112,8 @@ public class Mapping extends Builder {
 		new FieldBuilder(builder, "cellularComponentWithParents", "text").keyword().build(); // gene
 		new FieldBuilder(builder, "chromosomes", "text").keyword().build(); // gene
 		new FieldBuilder(builder, "expressionStages", "text").keyword().standardText().build(); // gene
-		new FieldBuilder(builder, "geneSynopsis", "text").build(); // gene
-		new FieldBuilder(builder, "geneSynopsisUrl", "keyword").build(); // gene
+		new FieldBuilder(builder, "geneDescription", "text").analyzer("standard_text").build(); // gene
+		new FieldBuilder(builder, "automatedGeneDescription", "text").analyzer("standard_text").build(); // gene
 		new FieldBuilder(builder, "molecularFunctionAgrSlim", "text").keyword().build(); // gene
 		new FieldBuilder(builder, "molecularFunctionWithParents", "text").keyword().build(); // gene
 		new FieldBuilder(builder, "soTermName", "text").keyword().letterText().build(); // gene
