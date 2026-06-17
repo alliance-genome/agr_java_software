@@ -45,6 +45,7 @@ import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.metrics.ParsedCardinality;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
@@ -81,6 +82,13 @@ public class DiseaseESService extends ESService {
 		new String[] { "models", "agm_disease_annotation" },
 		new String[] { "alleles", "allele_disease_annotation" }
 	);
+
+	// the disease-portal "genes" pill counts distinct genes (gene-species pairs)
+	// with a positive association, not annotation documents.
+	private static final String GENE_CATEGORY = "gene_disease_annotation";
+	private static final String DISTINCT_SUBJECT_AGG = "distinct_subjects";
+	// ES cardinality is exact below this threshold; disease-portal gene counts stay well under it.
+	private static final int GENE_COUNT_PRECISION_THRESHOLD = 40000;
 
 	// termID may be used in the future when converting disease page to new ES stack.
 	public JsonResultResponse<GeneDiseaseAnnotationDocument> getRibbonDiseaseAnnotations(String focusTaxonId, List<String> geneIDs, String termID, Pagination pagination, boolean excludeNegated, boolean debug) {
@@ -596,6 +604,30 @@ public class DiseaseESService extends ESService {
 			}
 		}
 		return result;
+	}
+
+	// distinct count of genes (gene-species pairs) with a positive association
+	// with a single disease (including its sub-terms). Backs the /{id}/genes_counts endpoint
+	// shown at the top of the disease portal pages. Excludes negated associations ("not
+	// implicated in" / "not marker for"); disease qualifiers don't matter once we de-duplicate
+	// by gene.
+	public long countDistinctPositiveGenes(String diseaseID) {
+		BoolQueryBuilder bool = boolQuery()
+			.filter(new TermQueryBuilder("category", GENE_CATEGORY))
+			.filter(new TermQueryBuilder("parentSlimIDs.keyword", diseaseID));
+		bool.must(matchQuery("primaryAnnotations.negated", false));
+
+		AggregationBuilder agg = AggregationBuilders
+			.cardinality(DISTINCT_SUBJECT_AGG)
+			.field("subject.primaryExternalId.keyword")
+			.precisionThreshold(GENE_COUNT_PRECISION_THRESHOLD);
+
+		SearchResponse response = SEARCH_DAO.performQuery(
+			(QueryBuilder) bool, java.util.List.of(agg), null, java.util.List.of("subject"),
+			0, 0, new HighlightBuilder(), null, false);
+
+		ParsedCardinality distinct = response.getAggregations().get(DISTINCT_SUBJECT_AGG);
+		return distinct.getValue();
 	}
 
 	private java.util.Map<String, Long> countByDisease(String category, String[] diseaseIds) {
