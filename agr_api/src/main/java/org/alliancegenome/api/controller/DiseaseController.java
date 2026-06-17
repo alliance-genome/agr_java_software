@@ -549,10 +549,10 @@ public class DiseaseController implements DiseaseRESTInterface {
 
 	@Override
 	public Long getCountsOfDiseaseAnnotationsByGene(String diseaseID) {
-		String associationType = diseaseESService.getAT("gene_disease_annotation", diseaseID);
-		
-		JsonResultResponse<GeneDiseaseAnnotationDocument> response = getDiseaseAnnotationsByGene(diseaseID, null, null, null, null, null, null, null, null, null, null, null, associationType, null, null);
-		return response.getTotal();
+		// Count distinct genes (gene-species pairs) with a positive association,
+		// not annotation documents (which over-count genes that roll up to multiple sub-terms,
+		// disease qualifiers, or based-on-gene groups).
+		return diseaseESService.countDistinctPositiveGenes(diseaseID);
 	}
 
 }
