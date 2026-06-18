@@ -243,12 +243,12 @@ public class LiteratureController implements LiteratureRESTInterface {
 	}
 
 	@Override
-	public JsonResultResponse<LiteratureSummaryDocument> getLatestLiteratureSummariesByMod(String q, Integer latest) {
+	public JsonResultResponse<LiteratureSummaryDocument> getLatestLiteratureByDiseasePerMod(String disease, Integer latest) {
 		long startTime = System.currentTimeMillis();
 		try {
-			return timed(referenceDataESService.getLatestLiteratureSummaryByMod(q, latest), startTime);
+			return timed(referenceDataESService.getLatestLiteratureByDiseasePerMod(disease, latest), startTime);
 		} catch (Exception e) {
-			throw restError("Error while retrieving latest literature summaries by MOD", e);
+			throw restError("Error while retrieving latest literature by disease per MOD", e);
 		}
 	}
 

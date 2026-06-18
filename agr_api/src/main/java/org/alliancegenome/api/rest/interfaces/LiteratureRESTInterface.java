@@ -159,11 +159,11 @@ public interface LiteratureRESTInterface {
 		@Parameter(in = ParameterIn.PATH, name = "id", description = "Reference curie", required = true, schema = @Schema(type = SchemaType.STRING)) @PathParam("id") String id);
 
 	@GET
-	@Path("/literature-summaries-by-mod")
-	@Operation(summary = "Retrieve the latest literature summaries per MOD whose title or abstract match the search term")
-	@APIResponses(value = { @APIResponse(responseCode = "200", description = "Latest matching literature summaries grouped by MOD", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
-	JsonResultResponse<LiteratureSummaryDocument> getLatestLiteratureSummariesByMod(
-		@Parameter(in = ParameterIn.QUERY, name = "q", description = "Term to match in title or abstract", schema = @Schema(type = SchemaType.STRING)) @DefaultValue("diabetes") @QueryParam("q") String q,
+	@Path("/latest-literature-by-disease-per-mod")
+	@Operation(summary = "Retrieve the latest literature summaries per MOD whose title or abstract match the given disease")
+	@APIResponses(value = { @APIResponse(responseCode = "200", description = "Latest matching literature summaries per MOD", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
+	JsonResultResponse<LiteratureSummaryDocument> getLatestLiteratureByDiseasePerMod(
+		@Parameter(in = ParameterIn.QUERY, name = "disease", description = "Disease to match in title or abstract", schema = @Schema(type = SchemaType.STRING)) @DefaultValue("diabetes") @QueryParam("disease") String disease,
 		@Parameter(in = ParameterIn.QUERY, name = "latest", description = "Number of most-recent papers to return per MOD", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("1") @QueryParam("latest") Integer latest);
 
 }

@@ -624,13 +624,13 @@ public class ReferenceDataESService extends ESService {
 		return ret;
 	}
 
-	// literatureSummary.title/abstract/mods_in_corpus are indexed as of the Mapping change; match the term in title
+	// literatureSummary.title/abstract/mods_in_corpus are indexed as of the Mapping change; match the disease in title
 	// OR abstract, bucket by MOD, and keep the `latest` most-recently-published papers per MOD via a top_hits sub-agg.
-	public JsonResultResponse<LiteratureSummaryDocument> getLatestLiteratureSummaryByMod(String term, int latest) {
+	public JsonResultResponse<LiteratureSummaryDocument> getLatestLiteratureByDiseasePerMod(String disease, int latest) {
 		BoolQueryBuilder query = boolQuery()
 			.filter(termQuery("category", "literature_summary"))
-			.should(matchQuery("literatureSummary.title", term))
-			.should(matchQuery("literatureSummary.abstract", term))
+			.should(matchQuery("literatureSummary.title", disease))
+			.should(matchQuery("literatureSummary.abstract", disease))
 			.minimumShouldMatch(1);
 
 		AggregationBuilder agg = AggregationBuilders
