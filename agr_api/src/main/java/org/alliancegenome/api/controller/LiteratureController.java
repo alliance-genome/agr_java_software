@@ -243,7 +243,7 @@ public class LiteratureController implements LiteratureRESTInterface {
 	}
 
 	@Override
-	public JsonResultResponse<Map<String, Object>> getLatestLiteratureSummariesByMod(String q, Integer latest) {
+	public JsonResultResponse<LiteratureSummaryDocument> getLatestLiteratureSummariesByMod(String q, Integer latest) {
 		long startTime = System.currentTimeMillis();
 		try {
 			return timed(referenceDataESService.getLatestLiteratureSummaryByMod(q, latest), startTime);

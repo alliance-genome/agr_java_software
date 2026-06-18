@@ -27,6 +27,7 @@ import org.alliancegenome.core.document.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.core.document.GeneGeneticInteractionDocument;
 import org.alliancegenome.core.document.GeneMolecularInteractionDocument;
 import org.alliancegenome.core.document.GenePhenotypeAnnotationDocument;
+import org.alliancegenome.core.document.LiteratureSummaryDocument;
 import org.alliancegenome.core.document.PhenotypeAnnotationDocument;
 import org.alliancegenome.curation_api.model.document.es.GeneExpressionDocument;
 import org.apache.commons.collections4.CollectionUtils;
@@ -625,7 +626,7 @@ public class ReferenceDataESService extends ESService {
 
 	// literatureSummary.title/abstract/mods_in_corpus are indexed as of the Mapping change; match the term in title
 	// OR abstract, bucket by MOD, and keep the `latest` most-recently-published papers per MOD via a top_hits sub-agg.
-	public JsonResultResponse<Map<String, Object>> getLatestLiteratureSummaryByMod(String term, int latest) {
+	public JsonResultResponse<LiteratureSummaryDocument> getLatestLiteratureSummaryByMod(String term, int latest) {
 		BoolQueryBuilder query = boolQuery()
 			.filter(termQuery("category", "literature_summary"))
 			.should(matchQuery("literatureSummary.title", term))
@@ -637,34 +638,28 @@ public class ReferenceDataESService extends ESService {
 			.field("literatureSummary.mods_in_corpus.keyword")
 			.size(30)
 			.subAggregation(AggregationBuilders.topHits("latest").size(latest)
-				.sort("literatureSummary.date_published.keyword", SortOrder.DESC)
-				.fetchSource(new String[]{"literatureSummary.title", "literatureSummary.date_published", "literatureSummary.curie", "literatureSummary.cross_references", "literatureSummary.mods_in_corpus"}, null));
+				.sort("literatureSummary.date_published.keyword", SortOrder.DESC));
 
 		SearchResponse searchResponse = SEARCH_DAO.performQuery(
 			(QueryBuilder) query, List.of(agg), null, List.of(), 0, 0,
 			new org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder(), null, false);
 
-		JsonResultResponse<Map<String, Object>> ret = new JsonResultResponse<>();
-		List<Map<String, Object>> rows = new ArrayList<>();
+		JsonResultResponse<LiteratureSummaryDocument> ret = new JsonResultResponse<>();
+		List<LiteratureSummaryDocument> results = new ArrayList<>();
 
 		ParsedStringTerms terms = searchResponse.getAggregations().get("by_mod");
 		for (Terms.Bucket bucket : terms.getBuckets()) {
 			TopHits topHits = bucket.getAggregations().get("latest");
-			List<Object> papers = new ArrayList<>();
 			for (SearchHit hit : topHits.getHits().getHits()) {
-				papers.add(hit.getSourceAsMap().get("literatureSummary"));
-			}
-			if (!papers.isEmpty()) {
-				Map<String, Object> row = new LinkedHashMap<>();
-				row.put("mod", bucket.getKeyAsString());
-				row.put("count", bucket.getDocCount());
-				row.put("latestPapers", papers);
-				rows.add(row);
+				LiteratureSummaryDocument doc = mapHit(hit, LiteratureSummaryDocument.class);
+				if (doc != null) {
+					results.add(doc);
+				}
 			}
 		}
 
-		ret.setTotal(rows.size());
-		ret.setResults(rows);
+		ret.setTotal(results.size());
+		ret.setResults(results);
 		return ret;
 	}
 
