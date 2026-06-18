@@ -242,6 +242,16 @@ public class LiteratureController implements LiteratureRESTInterface {
 		}
 	}
 
+	@Override
+	public JsonResultResponse<LiteratureSummaryDocument> getLatestLiteratureByDiseasePerMod(String disease, Integer latest) {
+		long startTime = System.currentTimeMillis();
+		try {
+			return timed(referenceDataESService.getLatestLiteratureByDiseasePerMod(disease, latest), startTime);
+		} catch (Exception e) {
+			throw restError("Error while retrieving latest literature by disease per MOD", e);
+		}
+	}
+
 	// Expression / molecular-interaction / genetic-interaction docs on stage ES are
 	// indexed by PMID/MOD curie (referenceId / evidence.referenceID), not by AGRKB curie.
 	// The {id} path param can't be used to scope these queries, so the caller must pass

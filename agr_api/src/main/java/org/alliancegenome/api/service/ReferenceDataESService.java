@@ -1,6 +1,7 @@
 package org.alliancegenome.api.service;
 
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
 
@@ -26,6 +27,7 @@ import org.alliancegenome.core.document.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.core.document.GeneGeneticInteractionDocument;
 import org.alliancegenome.core.document.GeneMolecularInteractionDocument;
 import org.alliancegenome.core.document.GenePhenotypeAnnotationDocument;
+import org.alliancegenome.core.document.LiteratureSummaryDocument;
 import org.alliancegenome.core.document.PhenotypeAnnotationDocument;
 import org.alliancegenome.curation_api.model.document.es.GeneExpressionDocument;
 import org.apache.commons.collections4.CollectionUtils;
@@ -39,6 +41,7 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.TopHits;
+import org.elasticsearch.search.sort.SortOrder;
 
 import jakarta.enterprise.context.RequestScoped;
 import lombok.extern.slf4j.Slf4j;
@@ -618,6 +621,45 @@ public class ReferenceDataESService extends ESService {
 
 		ret.setTotal(subjects.size());
 		ret.setResults(subjects);
+		return ret;
+	}
+
+	// literatureSummary.title/abstract/mods_in_corpus are indexed as of the Mapping change; match the disease in title
+	// OR abstract, bucket by MOD, and keep the `latest` most-recently-published papers per MOD via a top_hits sub-agg.
+	public JsonResultResponse<LiteratureSummaryDocument> getLatestLiteratureByDiseasePerMod(String disease, int latest) {
+		BoolQueryBuilder query = boolQuery()
+			.filter(termQuery("category", "literature_summary"))
+			.should(matchQuery("literatureSummary.title", disease))
+			.should(matchQuery("literatureSummary.abstract", disease))
+			.minimumShouldMatch(1);
+
+		AggregationBuilder agg = AggregationBuilders
+			.terms("by_mod")
+			.field("literatureSummary.mods_in_corpus.keyword")
+			.size(30)
+			.subAggregation(AggregationBuilders.topHits("latest").size(latest)
+				.sort("literatureSummary.date_published.keyword", SortOrder.DESC));
+
+		SearchResponse searchResponse = SEARCH_DAO.performQuery(
+			(QueryBuilder) query, List.of(agg), null, List.of(), 0, 0,
+			new org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder(), null, false);
+
+		JsonResultResponse<LiteratureSummaryDocument> ret = new JsonResultResponse<>();
+		List<LiteratureSummaryDocument> results = new ArrayList<>();
+
+		ParsedStringTerms terms = searchResponse.getAggregations().get("by_mod");
+		for (Terms.Bucket bucket : terms.getBuckets()) {
+			TopHits topHits = bucket.getAggregations().get("latest");
+			for (SearchHit hit : topHits.getHits().getHits()) {
+				LiteratureSummaryDocument doc = mapHit(hit, LiteratureSummaryDocument.class);
+				if (doc != null) {
+					results.add(doc);
+				}
+			}
+		}
+
+		ret.setTotal(results.size());
+		ret.setResults(results);
 		return ret;
 	}
 
