@@ -158,4 +158,12 @@ public interface LiteratureRESTInterface {
 	JsonResultResponse<Map<String, Object>> getModelsByReference(
 		@Parameter(in = ParameterIn.PATH, name = "id", description = "Reference curie", required = true, schema = @Schema(type = SchemaType.STRING)) @PathParam("id") String id);
 
+	@GET
+	@Path("/literature-summaries-by-mod")
+	@Operation(summary = "Retrieve the latest literature summaries per MOD whose title or abstract match the search term")
+	@APIResponses(value = { @APIResponse(responseCode = "200", description = "Latest matching literature summaries grouped by MOD", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
+	JsonResultResponse<Map<String, Object>> getLatestLiteratureSummariesByMod(
+		@Parameter(in = ParameterIn.QUERY, name = "q", description = "Term to match in title or abstract", schema = @Schema(type = SchemaType.STRING)) @DefaultValue("diabetes") @QueryParam("q") String q,
+		@Parameter(in = ParameterIn.QUERY, name = "latest", description = "Number of most-recent papers to return per MOD", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("1") @QueryParam("latest") Integer latest);
+
 }

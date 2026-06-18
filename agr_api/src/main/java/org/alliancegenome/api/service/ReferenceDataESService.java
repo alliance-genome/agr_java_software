@@ -1,6 +1,7 @@
 package org.alliancegenome.api.service;
 
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
 
@@ -39,6 +40,7 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.TopHits;
+import org.elasticsearch.search.sort.SortOrder;
 
 import jakarta.enterprise.context.RequestScoped;
 import lombok.extern.slf4j.Slf4j;
@@ -618,6 +620,51 @@ public class ReferenceDataESService extends ESService {
 
 		ret.setTotal(subjects.size());
 		ret.setResults(subjects);
+		return ret;
+	}
+
+	// literatureSummary.title/abstract/mods_in_corpus are indexed as of the Mapping change; match the term in title
+	// OR abstract, bucket by MOD, and keep the `latest` most-recently-published papers per MOD via a top_hits sub-agg.
+	public JsonResultResponse<Map<String, Object>> getLatestLiteratureSummaryByMod(String term, int latest) {
+		BoolQueryBuilder query = boolQuery()
+			.filter(termQuery("category", "literature_summary"))
+			.should(matchQuery("literatureSummary.title", term))
+			.should(matchQuery("literatureSummary.abstract", term))
+			.minimumShouldMatch(1);
+
+		AggregationBuilder agg = AggregationBuilders
+			.terms("by_mod")
+			.field("literatureSummary.mods_in_corpus.keyword")
+			.size(30)
+			.subAggregation(AggregationBuilders.topHits("latest").size(latest)
+				.sort("literatureSummary.date_published.keyword", SortOrder.DESC)
+				.fetchSource(new String[]{"literatureSummary.title", "literatureSummary.date_published", "literatureSummary.curie", "literatureSummary.cross_references", "literatureSummary.mods_in_corpus"}, null));
+
+		SearchResponse searchResponse = SEARCH_DAO.performQuery(
+			(QueryBuilder) query, List.of(agg), null, List.of(), 0, 0,
+			new org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder(), null, false);
+
+		JsonResultResponse<Map<String, Object>> ret = new JsonResultResponse<>();
+		List<Map<String, Object>> rows = new ArrayList<>();
+
+		ParsedStringTerms terms = searchResponse.getAggregations().get("by_mod");
+		for (Terms.Bucket bucket : terms.getBuckets()) {
+			TopHits topHits = bucket.getAggregations().get("latest");
+			List<Object> papers = new ArrayList<>();
+			for (SearchHit hit : topHits.getHits().getHits()) {
+				papers.add(hit.getSourceAsMap().get("literatureSummary"));
+			}
+			if (!papers.isEmpty()) {
+				Map<String, Object> row = new LinkedHashMap<>();
+				row.put("mod", bucket.getKeyAsString());
+				row.put("count", bucket.getDocCount());
+				row.put("latestPapers", papers);
+				rows.add(row);
+			}
+		}
+
+		ret.setTotal(rows.size());
+		ret.setResults(rows);
 		return ret;
 	}
 
