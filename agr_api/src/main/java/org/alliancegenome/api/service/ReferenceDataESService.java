@@ -635,7 +635,7 @@ public class ReferenceDataESService extends ESService {
 
 		AggregationBuilder agg = AggregationBuilders
 			.terms("by_mod")
-			.field("literatureSummary.mods_in_corpus.keyword")
+			.field("literatureSummary.mods_in_corpus")
 			.size(30)
 			.subAggregation(AggregationBuilders.topHits("latest").size(latest)
 				.sort("literatureSummary.date_published.keyword", SortOrder.DESC));
