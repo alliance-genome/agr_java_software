@@ -631,15 +631,26 @@ public class DiseaseESService extends ESService {
 	}
 
 	private java.util.Map<String, Long> countByDisease(String category, String[] diseaseIds) {
+		boolean distinctGenes = GENE_CATEGORY.equals(category);
+
 		BoolQueryBuilder bool = boolQuery()
 			.filter(new TermQueryBuilder("category", category))
 			.filter(new TermsQueryBuilder("parentSlimIDs.keyword", diseaseIds));
+		if (distinctGenes) {
+			bool.must(matchQuery("primaryAnnotations.negated", false));
+		}
 
 		AggregationBuilder agg = AggregationBuilders
 			.terms("by_disease")
 			.field("parentSlimIDs.keyword")
 			.includeExclude(new IncludeExclude(diseaseIds, null))
 			.size(Math.max(diseaseIds.length, 1));
+		if (distinctGenes) {
+			agg.subAggregation(AggregationBuilders
+				.cardinality(DISTINCT_SUBJECT_AGG)
+				.field("subject.primaryExternalId.keyword")
+				.precisionThreshold(GENE_COUNT_PRECISION_THRESHOLD));
+		}
 
 		SearchResponse response = SEARCH_DAO.performQuery(
 			(QueryBuilder) bool, java.util.List.of(agg), null, java.util.List.of("subject"),
@@ -648,7 +659,14 @@ public class DiseaseESService extends ESService {
 		java.util.Map<String, Long> counts = new java.util.HashMap<>();
 		ParsedStringTerms terms = response.getAggregations().get("by_disease");
 		for (Terms.Bucket bucket : terms.getBuckets()) {
-			counts.put(bucket.getKeyAsString(), bucket.getDocCount());
+			long count;
+			if (distinctGenes) {
+				ParsedCardinality distinct = bucket.getAggregations().get(DISTINCT_SUBJECT_AGG);
+				count = distinct.getValue();
+			} else {
+				count = bucket.getDocCount();
+			}
+			counts.put(bucket.getKeyAsString(), count);
 		}
 		return counts;
 	}
