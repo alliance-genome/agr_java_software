@@ -32,9 +32,11 @@ public class FileDownloadManager extends Thread {
 		ExecutorService executor = Executors.newFixedThreadPool(VariantConfigHelper.getFileDownloadThreads());
 
 		for (DownloadSource source: downloadSet.getDownloadFileSources()) {
-			for (String chromosome: source.getChromosomeList()) {
-				FileDownload fd = new FileDownload(ConfigHelper.getAllianceRelease(), source.getSource(), chromosome, downloadSet.getDownloadPath(), downloadSet.getS3RootUrl());
-				executor.execute(fd);
+			if(source.getActive()) {
+				for (String chromosome: source.getChromosomeList()) {
+					FileDownload fd = new FileDownload(ConfigHelper.getAllianceRelease(), source.getSource(), chromosome, downloadSet.getDownloadPath(), downloadSet.getS3RootUrl());
+					executor.execute(fd);
+				}
 			}
 		}
 
