@@ -41,7 +41,8 @@ public class AlleleDiseaseAnnotationService extends BaseDiseaseAnnotationService
 		SearchResponse<AlleleDiseaseAnnotation> totalResponse = alleleApi.findForPublic(0, 0, params);
 		display.startProcess("Pulling Allele DA's from curation", totalResponse.getTotalResults());
 
-		for (int page = 0; page < (int) (totalResponse.getTotalResults() / batchSize); page++) {
+		int maxPage = (int) (totalResponse.getTotalResults() / batchSize);
+		for (int page = 0; page <= maxPage; page++) {
 
 			SearchResponse<AlleleDiseaseAnnotation> response = alleleApi.findForPublic(page, batchSize, params);
 			for (AlleleDiseaseAnnotation da : response.getResults()) {
