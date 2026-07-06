@@ -43,7 +43,8 @@ public class AGMDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 		SearchResponse<AGMDiseaseAnnotation> totalResponse = agmApi.findForPublic(0, 0, params);
 		display.startProcess("Pulling AGM DA's from curation", totalResponse.getTotalResults());
 
-		for (int page = 0; page < (int) (totalResponse.getTotalResults() / batchSize); page++) {
+		int maxPage = (int) (totalResponse.getTotalResults() / batchSize);
+		for (int page = 0; page <= maxPage; page++) {
 			SearchResponse<AGMDiseaseAnnotation> response = agmApi.findForPublic(page, batchSize, params);
 			for (AGMDiseaseAnnotation da : response.getResults()) {
 				if (hasNoObsoletedOrInternalEntities(da)) {
