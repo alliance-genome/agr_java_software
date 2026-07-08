@@ -133,7 +133,7 @@ public enum FileGeneratorConfig {
 	 * does not include the HTP variant_index). Same source the agr_api uses for the
 	 * gene-page allele table (see AlleleESService.getAllelesByGene).
 	 *
-	 * One row per allele. variantList-derived fields (VariantId, VariantSymbol,
+	 * One row per allele. variantList-derived fields (VariantSymbol,
 	 * position, consequence, etc.) are pipe-joined when an allele has multiple
 	 * known variants.
 	 */
@@ -144,7 +144,6 @@ public enum FileGeneratorConfig {
 		m.put("AlleleId", "allele.primaryExternalId");
 		m.put("AlleleSymbol", "allele.alleleSymbol.displayText");
 		m.put("AlleleSynonyms", "_alleleSynonyms");
-		m.put("VariantId", "_variantId");
 		m.put("VariantSymbol", "_variantSymbol");
 		m.put("VariantSynonyms", "_variantSynonyms");
 		m.put("VariantCrossReferences", "allele.primaryExternalId");
@@ -247,7 +246,7 @@ public enum FileGeneratorConfig {
 		m.put("DOtermName", "_doTermName");
 		m.put("WithOrtholog", "_withOrtholog");
 		m.put("InferredFromID", "_unavailable");
-		m.put("InferredFromSymbol", "_unavailable");
+		m.put("InferredFromSymbol", "_inferredFromSymbol");
 		m.put("ExperimentalCondition", "_unavailable");
 		m.put("Modifier", "_unavailable");
 		m.put("EvidenceCode", "_evidenceCode");

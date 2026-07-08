@@ -105,7 +105,6 @@ public class VariantAlleleFileGenerator extends FileGenerator {
 	}
 
 	private static void populateEmptyVariantFields(ObjectNode row) {
-		row.put("_variantId", "");
 		row.put("_variantSymbol", "");
 		row.put("_variantSynonyms", "");
 		row.put("_variantsTypeId", "");
@@ -220,8 +219,7 @@ public class VariantAlleleFileGenerator extends FileGenerator {
 			}
 		}
 
-		row.put("_variantId", v.path("primaryExternalId").asText(""));
-		row.put("_variantSymbol", v.path("variantSymbol").path("displayText").asText(""));
+		row.put("_variantSymbol", joinList(hgvsNames));
 		row.put("_variantSynonyms", joinList(variantSynonyms));
 		row.put("_variantsTypeId", v.path("variantType").path("curie").asText(""));
 		row.put("_variantsTypeName", v.path("variantType").path("name").asText(""));
