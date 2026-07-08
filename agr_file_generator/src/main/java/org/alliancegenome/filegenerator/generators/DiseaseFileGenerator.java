@@ -24,6 +24,8 @@ public class DiseaseFileGenerator extends FileGenerator {
 	private static final String FILE_GENERATION_DATE =
 			LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE); // YYYYMMDD
 
+	private static final String LINKML_README_URL = "https://alliance-genome.github.io/agr_curation_schema/DiseaseAnnotation/";
+
 	// Same primaryAnnotation appears across many consolidated docs (gene/allele/agm rollups + via_orthology fan-out). Dedup by the canonical Annotation.uniqueId so each annotation is emitted once per run. dispatch() runs from the parallel scroll pool, so this must be a concurrent set.
 	private final Set<String> seenUniqueIds = ConcurrentHashMap.newKeySet();
 
@@ -34,6 +36,11 @@ public class DiseaseFileGenerator extends FileGenerator {
 	@Override
 	protected void generate() throws Exception {
 		scrollAndWrite();
+	}
+
+	@Override
+	protected String jsonReadmeOverride() {
+		return LINKML_README_URL;
 	}
 
 	@Override
