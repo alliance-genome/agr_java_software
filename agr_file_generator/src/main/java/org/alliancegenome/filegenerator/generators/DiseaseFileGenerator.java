@@ -130,6 +130,7 @@ public class DiseaseFileGenerator extends FileGenerator {
 			row.put("_doTermName", JsonPath.resolveString(pa, "diseaseAnnotationObject.name"));
 
 			row.put("_withOrtholog", joinWithOrthologs(pa));
+			row.put("_inferredFromSymbol", joinBasedOnSymbols(pa));
 
 			JsonNode evCodes = pa.path("evidenceCodes");
 			List<String> curies = new ArrayList<>();
@@ -197,6 +198,29 @@ public class DiseaseFileGenerator extends FileGenerator {
 			}
 		}
 		List<String> sorted = new ArrayList<>(ids);
+		Collections.sort(sorted);
+		return String.join("|", sorted);
+	}
+
+	private static String joinBasedOnSymbols(JsonNode pa) {
+		JsonNode with = pa.path("with");
+		if (!with.isArray()) {
+			return "";
+		}
+		LinkedHashSet<String> symbols = new LinkedHashSet<>();
+		for (JsonNode w : with) {
+			String symbol = w.path("geneSymbol").path("displayText").asText("");
+			if (symbol.isEmpty()) {
+				continue;
+			}
+			String abbreviation = w.path("taxon").path("species").path("abbreviation").asText("");
+			if (abbreviation.isEmpty()) {
+				symbols.add(symbol);
+			} else {
+				symbols.add(symbol + " (" + abbreviation + ")");
+			}
+		}
+		List<String> sorted = new ArrayList<>(symbols);
 		Collections.sort(sorted);
 		return String.join("|", sorted);
 	}

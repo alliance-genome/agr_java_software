@@ -247,7 +247,7 @@ public enum FileGeneratorConfig {
 		m.put("DOtermName", "_doTermName");
 		m.put("WithOrtholog", "_withOrtholog");
 		m.put("InferredFromID", "_unavailable");
-		m.put("InferredFromSymbol", "_unavailable");
+		m.put("InferredFromSymbol", "_inferredFromSymbol");
 		m.put("ExperimentalCondition", "_unavailable");
 		m.put("Modifier", "_unavailable");
 		m.put("EvidenceCode", "_evidenceCode");
