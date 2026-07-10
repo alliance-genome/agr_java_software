@@ -13,12 +13,17 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.GZIPOutputStream;
 
+import org.alliancegenome.core.util.SmartAlphaComparator;
+
 import com.fasterxml.jackson.databind.JsonNode;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * VCF v4.3 writer. Streams a VCFv4.3-compliant gzipped file with:
@@ -32,6 +37,7 @@ import com.fasterxml.jackson.databind.JsonNode;
  * as a single dot (`.`) per VCF spec for missing fields, and the INFO column should be a
  * pre-formatted {@code key="value";...} string.
  */
+@Slf4j
 public class VcfWriter implements RowWriter {
 
 	private static final String COLUMN_HEADER = "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO";
@@ -40,7 +46,10 @@ public class VcfWriter implements RowWriter {
 	private final Path path;
 	private final BufferedWriter writer;
 	private final List<String> esPaths;
+	// Rows are buffered then sorted on close so the table is emitted in CHROM (smart-alpha) then POS (numeric) order — matches the legacy VCF format and lets downstream tools rely on positional ordering.
+	private final List<String[]> bufferedRows = new ArrayList<>();
 	private long rowCount;
+	private long skippedRowCount;
 
 	public VcfWriter(Path path, Map<String, String> fieldMap) throws IOException {
 		this(path, fieldMap, Map.of());
@@ -107,16 +116,17 @@ public class VcfWriter implements RowWriter {
 
 	@Override
 	public synchronized void writeRow(JsonNode hit) throws IOException {
-		StringBuilder sb = new StringBuilder();
+		String[] cells = new String[esPaths.size()];
 		for (int i = 0; i < esPaths.size(); i++) {
-			if (i > 0) {
-				sb.append("\t");
-			}
 			String v = JsonPath.resolveString(hit, esPaths.get(i));
-			sb.append(v == null || v.isEmpty() ? "." : escape(v));
+			cells[i] = v == null || v.isEmpty() ? "." : escape(v);
 		}
-		sb.append("\n");
-		writer.write(sb.toString());
+		// VCF v4.3 §1.4.1: REF cannot be missing, and REF and ALT must differ. Drop rows where either is true — the underlying ES data is degenerate (e.g. `g.X_YinsZ` with no inserted base, or `g.PC>C` no-op SNVs) and emitting them produces files that htsjdk refuses to parse.
+		if (".".equals(cells[3]) || cells[3].isEmpty() || cells[3].equals(cells[4])) {
+			skippedRowCount++;
+			return;
+		}
+		bufferedRows.add(cells);
 		rowCount++;
 	}
 
@@ -132,8 +142,44 @@ public class VcfWriter implements RowWriter {
 
 	@Override
 	public synchronized void close() throws IOException {
+		if (skippedRowCount > 0) {
+			log.info("VcfWriter: {} — skipped {} row(s) for empty/duplicate REF (degenerate source data)", path.getFileName(), skippedRowCount);
+		}
+		// Field map ordering is fixed by VariantsVcf in FileGeneratorConfig — cells[0] is CHROM and cells[1] is POS, so sort directly on those indices.
+		bufferedRows.sort(CHROM_THEN_POS);
+		StringBuilder sb = new StringBuilder();
+		for (String[] cells : bufferedRows) {
+			for (int i = 0; i < cells.length; i++) {
+				if (i > 0) {
+					sb.append('\t');
+				}
+				sb.append(cells[i]);
+			}
+			sb.append('\n');
+		}
+		writer.write(sb.toString());
 		writer.flush();
 		writer.close();
+	}
+
+	// Smart-alpha CHROM ordering (2L < 2R < 3L < 3R < 4 < X for fly; 1 < 2 < ... < 19 < MT < X for mouse) plus numeric POS within a chrom.
+	private static final Comparator<String[]> CHROM_THEN_POS = (a, b) -> {
+		int c = SmartAlphaComparator.INSTANCE.compare(a[0], b[0]);
+		if (c != 0) {
+			return c;
+		}
+		return Long.compare(parsePos(a[1]), parsePos(b[1]));
+	};
+
+	private static long parsePos(String s) {
+		if (s == null || s.isEmpty() || ".".equals(s)) {
+			return Long.MAX_VALUE;
+		}
+		try {
+			return Long.parseLong(s);
+		} catch (NumberFormatException e) {
+			return Long.MAX_VALUE;
+		}
 	}
 
 	private static String escape(String s) {

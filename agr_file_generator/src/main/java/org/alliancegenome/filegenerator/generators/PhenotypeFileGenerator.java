@@ -34,6 +34,14 @@ public class PhenotypeFileGenerator extends FileGenerator {
 		return "subject.taxon.curie";
 	}
 
+	/**
+	 * Row-format outputs route by the per-annotation taxon, not the consolidated doc's subject taxon. {@code _taxon} is populated inside customizeRows() from {@code primaryAnnotations[i].phenotypeAnnotationSubject.taxon.curie}, so via-orthology fan-out rows land in the file matching their own subject's MOD instead of the parent doc's.
+	 */
+	@Override
+	protected String rowTaxonPath() {
+		return "_taxon";
+	}
+
 	@Override
 	protected JsonNode customizeRow(JsonNode hit) {
 		return hit;
@@ -57,6 +65,9 @@ public class PhenotypeFileGenerator extends FileGenerator {
 			}
 
 			ObjectNode row = JsonNodeFactory.instance.objectNode();
+
+			// Per-row taxon — drives row-level routing (see rowTaxonPath()). Pulled from the individual primaryAnnotations[i] entry so via-orthology fan-out rows land in the right per-MOD file.
+			row.put("_taxon", JsonPath.resolveString(pa, "phenotypeAnnotationSubject.taxon.curie"));
 
 			String phenotype = JsonPath.resolveString(pa, "phenotypeTerms.0.name");
 			if (phenotype.isEmpty()) {

@@ -5,14 +5,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingDeque;
 
-import org.alliancegenome.api.entity.LiteratureSummaryDocument;
+import org.alliancegenome.core.document.LiteratureSummaryDocument;
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.es.util.ProcessDisplayHelper;
+import org.alliancegenome.core.es.util.ElasticSearchInterface;
+import org.alliancegenome.core.es.util.ProcessDisplayHelper;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.config.IndexerConfig;
-import org.alliancegenome.es.util.ElasticSearchInterface;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
 import si.mazi.rescu.RestProxyFactory;

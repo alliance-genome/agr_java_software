@@ -14,40 +14,81 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.alliancegenome.api.entity.AGMDiseaseAnnotationDocument;
-import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
-import org.alliancegenome.api.entity.DiseaseAnnotationDocument;
+import org.alliancegenome.core.document.AGMDiseaseAnnotationDocument;
+import org.alliancegenome.core.document.AlleleDiseaseAnnotationDocument;
+import org.alliancegenome.core.document.DiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.DiseaseEntitySubgroupSlim;
 import org.alliancegenome.api.entity.DiseaseRibbonEntity;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
-import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
+import org.alliancegenome.core.document.GeneDiseaseAnnotationDocument;
+import org.alliancegenome.curation_api.model.entities.ontology.DOTerm;
+import org.alliancegenome.api.es.dao.SearchDAO;
 import org.alliancegenome.api.service.helper.APIServiceHelper;
-import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.core.api.service.DiseaseRibbonService;
+import org.alliancegenome.api.response.JsonResultResponse;
 import org.alliancegenome.curation_api.model.document.es.DiseaseSummaryDocument;
+import org.alliancegenome.curation_api.model.document.es.GeneSummaryDocument;
 import org.alliancegenome.curation_api.model.entities.DiseaseAnnotation;
-import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.SimpleTerm;
-import org.alliancegenome.neo4j.repository.DiseaseRepository;
-import org.alliancegenome.neo4j.repository.GeneRepository;
+import org.alliancegenome.curation_api.model.entities.Gene;
+import org.alliancegenome.api.es.dao.DiseaseESDAO;
+import org.alliancegenome.api.es.dao.GeneESDAO;
+import org.alliancegenome.api.es.query.Pagination;
 import org.apache.commons.collections4.CollectionUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.TermQueryBuilder;
+import org.elasticsearch.index.query.TermsQueryBuilder;
+import org.elasticsearch.search.aggregations.bucket.terms.IncludeExclude;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.aggregations.AggregationBuilder;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.metrics.ParsedCardinality;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+import lombok.extern.slf4j.Slf4j;
 
 
+@Slf4j
 @RequestScoped
 public class DiseaseESService extends ESService {
 
-	private static final GeneRepository geneRepository = new GeneRepository();
-	private static final DiseaseRepository diseaseRepository = new DiseaseRepository();
-	private static final DiseaseRibbonService diseaseRibbonService = new DiseaseRibbonService(diseaseRepository);
+	private DiseaseRibbonService diseaseRibbonService;
+
+	@Inject
+	GeneESDAO geneESDAO;
+
+	@Inject
+	DiseaseESDAO diseaseESDAO;
+
+	@PostConstruct
+	void init() {
+		diseaseRibbonService = new DiseaseRibbonService(diseaseESDAO);
+	}
+
+	private static final SearchDAO SEARCH_DAO = new SearchDAO();
+
+	private static final String DISEASE_ROOT = "DOID:4";
+	private static final int MAX_ANCESTOR_DEPTH = 30;
+
+	private static final List<String[]> COUNT_CATEGORIES = List.of(
+		new String[] { "genes", "gene_disease_annotation" },
+		new String[] { "models", "agm_disease_annotation" },
+		new String[] { "alleles", "allele_disease_annotation" }
+	);
+
+	// the disease-portal "genes" pill counts distinct genes (gene-species pairs)
+	// with a positive association, not annotation documents.
+	private static final String GENE_CATEGORY = "gene_disease_annotation";
+	private static final String DISTINCT_SUBJECT_AGG = "distinct_subjects";
+	// ES cardinality is exact below this threshold; disease-portal gene counts stay well under it.
+	private static final int GENE_COUNT_PRECISION_THRESHOLD = 40000;
 
 	// termID may be used in the future when converting disease page to new ES stack.
 	public JsonResultResponse<GeneDiseaseAnnotationDocument> getRibbonDiseaseAnnotations(String focusTaxonId, List<String> geneIDs, String termID, Pagination pagination, boolean excludeNegated, boolean debug) {
@@ -154,12 +195,12 @@ public class DiseaseESService extends ESService {
 			// calculate histogram
 			Map<String, List<GeneDiseaseAnnotationDocument>> histogram = getDiseaseAnnotationHistogram(paginationResult);
 
-			Gene gene = geneRepository.getShallowGene(geneID);
-			if (gene == null) {
+			GeneSummaryDocument geneDoc = geneESDAO.getById(geneID);
+			if (geneDoc == null || geneDoc.getGene() == null) {
 				return;
 			}
 			// populate diseaseEntity records
-			populateDiseaseRibbonSummary(geneID, summary, histogram, gene);
+			populateDiseaseRibbonSummary(geneID, summary, histogram, geneDoc.getGene());
 			summary.addAllAnnotationsCount(geneID, paginationResult.getTotal());
 		});
 		return summary;
@@ -168,15 +209,16 @@ public class DiseaseESService extends ESService {
 	public void populateDiseaseRibbonSummary(String geneID, DiseaseRibbonSummary summary, Map<String, List<GeneDiseaseAnnotationDocument>> histogram, Gene gene) {
 		DiseaseRibbonEntity entity = new DiseaseRibbonEntity();
 		entity.setId(geneID);
-		entity.setLabel(gene.getSymbol());
-		entity.setTaxonID(gene.getTaxonId());
-		entity.setTaxonName(gene.getSpecies().getName());
+		entity.setLabel(gene.getGeneSymbol().getDisplayText());
+		entity.setTaxonID(gene.getTaxon().getCurie());
+		entity.setTaxonName(gene.getTaxon().getName());
 		summary.addDiseaseRibbonEntity(entity);
 
 		Set<String> allTerms = new HashSet<>();
 		Set<GeneDiseaseAnnotationDocument> allAnnotations = new HashSet<>();
-		List<String> agrDoSlimIDs = diseaseRepository.getAgrDoSlim().stream()
-			.map(SimpleTerm::getPrimaryKey)
+		List<String> agrDoSlimIDs = diseaseESDAO.getAgrSlimDocs().stream()
+			.filter(d -> d.getDoTerm() != null)
+			.map(d -> d.getDoTerm().getCurie())
 			.collect(toList());
 		// add category term IDs to get the full histogram mapped into the response
 		agrDoSlimIDs.addAll(DiseaseRibbonService.slimParentTermIdMap.keySet());
@@ -208,14 +250,12 @@ public class DiseaseESService extends ESService {
 			return histogram;
 		}
 		response.getResults().forEach(annotation -> {
-			Set<String> parentIDs = diseaseRibbonService.getAllParentIDs(annotation.getObject().getCurie());
+			Set<String> parentIDs = annotation.getParentSlimIDs();
+			if (parentIDs == null) {
+				return;
+			}
 			parentIDs.forEach(parentID -> {
-				List<GeneDiseaseAnnotationDocument> list = histogram.get(parentID);
-				if (list == null) {
-					list = new ArrayList<>();
-				}
-				list.add(annotation);
-				histogram.put(parentID, list);
+				histogram.computeIfAbsent(parentID, k -> new ArrayList<>()).add(annotation);
 			});
 		});
 		return histogram;
@@ -319,12 +359,18 @@ public class DiseaseESService extends ESService {
 		// create histogram of select columns of unfiltered query
 		addTableFilter(pagination, bool);
 
-		// Sorting sets for different names of the sorting selection box
+		// Sorting sets for different names of the sorting selection box.
+		// SCRUM-6117: AGM disease annotation docs have no subject.name field — the AGM
+		// name lives at subject.agmFullName.displayText (.sort sub-field carries the
+		// smart_alpha_sort normalizer). The previous subject.name.sort keys silently
+		// no-op'd, which is why model sort did nothing and the secondary/tertiary AGM
+		// tier was missing on species/disease sorts. Also add the missing
+		// alpha-by-disease tertiary to the default order.
 		Map<String, List<String>> sortingSetMap = new HashMap<>();
-		sortingSetMap.put("default", List.of("phylogeneticSortingIndex", "subject.name.sort"));
-		sortingSetMap.put("model", List.of("subject.name.sort", "phylogeneticSortingIndex"));
-		sortingSetMap.put("disease", List.of("object.name.sort", "phylogeneticSortingIndex", "subject.name.sort"));
-		sortingSetMap.put("species", List.of("subject.taxon.species.fullName.keyword", "subject.name.sort"));
+		sortingSetMap.put("default", List.of("phylogeneticSortingIndex", "subject.agmFullName.displayText.keyword", "object.name.sort"));
+		sortingSetMap.put("model", List.of("subject.agmFullName.displayText.keyword", "phylogeneticSortingIndex"));
+		sortingSetMap.put("disease", List.of("object.name.sort", "phylogeneticSortingIndex", "subject.agmFullName.displayText.keyword"));
+		sortingSetMap.put("species", List.of("subject.taxon.species.fullName.keyword", "subject.agmFullName.displayText.keyword"));
 
 		LinkedHashMap<String, SortOrder> sortingMap = new LinkedHashMap<>();
 
@@ -468,6 +514,163 @@ public class DiseaseESService extends ESService {
 		result = formatAT(assoList);
 		return result;
 	}
+
+	// Disease Ontology is a DAG, so a term can have multiple parents. We walk a single
+	// path by picking the lexicographically-smallest parent at each step, which gives a
+	// stable breadcrumb across requests. This makes N sequential ES queries (one per
+	// ancestor level, capped at MAX_ANCESTOR_DEPTH) — acceptable for a one-shot lookup
+	// on page load.
+	public List<DOTerm> getAncestors(String diseaseID) {
+		List<DOTerm> chain = new ArrayList<>();
+		Set<String> visited = new HashSet<>();
+		String current = diseaseID;
+		for (int i = 0; i < MAX_ANCESTOR_DEPTH; i++) {
+			if (current == null || !visited.add(current)) {
+				break;
+			}
+			DiseaseSummaryDocument doc = getById(current);
+			if (doc == null || doc.getDoTerm() == null) {
+				break;
+			}
+			chain.add(doc.getDoTerm());
+			if (DISEASE_ROOT.equals(current)) {
+				break;
+			}
+			if (doc.getParents() == null || doc.getParents().isEmpty()) {
+				break;
+			}
+			current = doc.getParents().stream()
+				.map(p -> p.getCurie())
+				.filter(java.util.Objects::nonNull)
+				.sorted()
+				.findFirst()
+				.orElse(null);
+		}
+		java.util.Collections.reverse(chain);
+		return chain;
+	}
+
+	public java.util.Map<String, Object> getBatchTerms(java.util.List<String> diseaseIds) {
+		java.util.LinkedHashMap<String, Object> result = new java.util.LinkedHashMap<>();
+		if (diseaseIds == null || diseaseIds.isEmpty()) {
+			return result;
+		}
+
+		BoolQueryBuilder bool = boolQuery()
+			.filter(new TermQueryBuilder("category", "disease_summary"))
+			.filter(new TermsQueryBuilder("doTerm.curie.keyword", diseaseIds));
+
+		SearchResponse response = SEARCH_DAO.performQuery(
+			(QueryBuilder) bool, java.util.List.of(), null, java.util.List.of(),
+			diseaseIds.size(), 0, new HighlightBuilder(), null, false);
+
+		for (SearchHit hit : response.getHits().getHits()) {
+			try {
+				DiseaseSummaryDocument doc = mapper.readValue(hit.getSourceAsString(), DiseaseSummaryDocument.class);
+				String curie = doc.getDoTerm() != null ? doc.getDoTerm().getCurie() : null;
+				if (curie != null) {
+					result.put(curie, doc);
+				}
+			} catch (Exception e) {
+				log.error("Failed to deserialize disease term in batch (id={})", hit.getId(), e);
+			}
+		}
+		return result;
+	}
+
+
+	public java.util.Map<String, java.util.Map<String, Long>> getBatchCounts(java.util.List<String> diseaseIds) {
+		java.util.Map<String, java.util.Map<String, Long>> result = new java.util.LinkedHashMap<>();
+		for (String id : diseaseIds) {
+			java.util.Map<String, Long> zeros = new java.util.LinkedHashMap<>();
+			for (String[] pair : COUNT_CATEGORIES) {
+				zeros.put(pair[0], 0L);
+			}
+			result.put(id, zeros);
+		}
+		if (diseaseIds.isEmpty()) {
+			return result;
+		}
+		String[] idArray = diseaseIds.toArray(new String[0]);
+		for (String[] pair : COUNT_CATEGORIES) {
+			String key = pair[0];
+			String category = pair[1];
+			java.util.Map<String, Long> counts = countByDisease(category, idArray);
+			for (String id : diseaseIds) {
+				Long c = counts.get(id);
+				if (c != null) {
+					result.get(id).put(key, c);
+				}
+			}
+		}
+		return result;
+	}
+
+	// distinct count of genes (gene-species pairs) with a positive association
+	// with a single disease (including its sub-terms). Backs the /{id}/genes_counts endpoint
+	// shown at the top of the disease portal pages. Excludes negated associations ("not
+	// implicated in" / "not marker for"); disease qualifiers don't matter once we de-duplicate
+	// by gene.
+	public long countDistinctPositiveGenes(String diseaseID) {
+		BoolQueryBuilder bool = boolQuery()
+			.filter(new TermQueryBuilder("category", GENE_CATEGORY))
+			.filter(new TermQueryBuilder("parentSlimIDs.keyword", diseaseID));
+		bool.must(matchQuery("primaryAnnotations.negated", false));
+
+		AggregationBuilder agg = AggregationBuilders
+			.cardinality(DISTINCT_SUBJECT_AGG)
+			.field("subject.primaryExternalId.keyword")
+			.precisionThreshold(GENE_COUNT_PRECISION_THRESHOLD);
+
+		SearchResponse response = SEARCH_DAO.performQuery(
+			(QueryBuilder) bool, java.util.List.of(agg), null, java.util.List.of("subject"),
+			0, 0, new HighlightBuilder(), null, false);
+
+		ParsedCardinality distinct = response.getAggregations().get(DISTINCT_SUBJECT_AGG);
+		return distinct.getValue();
+	}
+
+	private java.util.Map<String, Long> countByDisease(String category, String[] diseaseIds) {
+		boolean distinctGenes = GENE_CATEGORY.equals(category);
+
+		BoolQueryBuilder bool = boolQuery()
+			.filter(new TermQueryBuilder("category", category))
+			.filter(new TermsQueryBuilder("parentSlimIDs.keyword", diseaseIds));
+		if (distinctGenes) {
+			bool.must(matchQuery("primaryAnnotations.negated", false));
+		}
+
+		AggregationBuilder agg = AggregationBuilders
+			.terms("by_disease")
+			.field("parentSlimIDs.keyword")
+			.includeExclude(new IncludeExclude(diseaseIds, null))
+			.size(Math.max(diseaseIds.length, 1));
+		if (distinctGenes) {
+			agg.subAggregation(AggregationBuilders
+				.cardinality(DISTINCT_SUBJECT_AGG)
+				.field("subject.primaryExternalId.keyword")
+				.precisionThreshold(GENE_COUNT_PRECISION_THRESHOLD));
+		}
+
+		SearchResponse response = SEARCH_DAO.performQuery(
+			(QueryBuilder) bool, java.util.List.of(agg), null, java.util.List.of("subject"),
+			0, 0, new HighlightBuilder(), null, false);
+
+		java.util.Map<String, Long> counts = new java.util.HashMap<>();
+		ParsedStringTerms terms = response.getAggregations().get("by_disease");
+		for (Terms.Bucket bucket : terms.getBuckets()) {
+			long count;
+			if (distinctGenes) {
+				ParsedCardinality distinct = bucket.getAggregations().get(DISTINCT_SUBJECT_AGG);
+				count = distinct.getValue();
+			} else {
+				count = bucket.getDocCount();
+			}
+			counts.put(bucket.getKeyAsString(), count);
+		}
+		return counts;
+	}
+
 
 	private String formatAT(List<String> list) {
 		if (list.size() == 0) {

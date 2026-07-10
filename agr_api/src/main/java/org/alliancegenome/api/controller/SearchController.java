@@ -2,7 +2,7 @@ package org.alliancegenome.api.controller;
 
 import org.alliancegenome.api.rest.interfaces.SearchRESTInterface;
 import org.alliancegenome.api.service.SearchService;
-import org.alliancegenome.es.model.search.SearchApiResponse;
+import org.alliancegenome.api.es.search.SearchApiResponse;
 
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.RequestScoped;

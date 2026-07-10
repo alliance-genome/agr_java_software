@@ -1,6 +1,6 @@
 package org.alliancegenome.api.service;
 
-import static org.alliancegenome.cache.repository.helper.JsonResultResponse.DISTINCT_FIELD_VALUES;
+import static org.alliancegenome.api.response.JsonResultResponse.DISTINCT_FIELD_VALUES;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
@@ -16,10 +16,10 @@ import java.util.stream.Stream;
 
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.api.service.helper.GeneDiseaseSearchHelper;
-import org.alliancegenome.es.index.site.dao.SearchDAO;
-import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.neo4j.entity.node.DOTerm;
+import org.alliancegenome.api.es.dao.SearchDAO;
+import org.alliancegenome.api.es.dao.SpeciesESDAO;
+import org.alliancegenome.api.es.query.Pagination;
+import org.alliancegenome.core.document.SpeciesSummaryDocument;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.lucene.queryparser.classic.QueryParser;
@@ -27,6 +27,7 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
@@ -47,6 +48,9 @@ public class ESService {
 
 	@Inject
 	ObjectMapper mapper;
+
+	@Inject
+	SpeciesESDAO speciesESDAO;
 
 	private static final SearchDAO searchDAO = new SearchDAO();
 	private static final GeneDiseaseSearchHelper geneDiseaseSearchHelper = new GeneDiseaseSearchHelper();
@@ -93,7 +97,7 @@ public class ESService {
 			bool.must(bool3);
 			if (termID.equals(DiseaseRibbonSummary.DOID_OTHER)) {
 				BoolQueryBuilder orClause = boolQuery();
-				DOTerm.getAllOtherDiseaseTerms().forEach(parentID -> orClause.should(QueryBuilders.termQuery("parentSlimIDs.keyword", parentID)));
+				DiseaseRibbonSummary.OTHER_DISEASE_TERM_IDS.forEach(parentID -> orClause.should(QueryBuilders.termQuery("parentSlimIDs.keyword", parentID)));
 				bool3.should(orClause);
 
 			} else {
@@ -222,15 +226,13 @@ public class ESService {
 
 
 	protected LinkedHashMap<String, SortOrder> getAnnotationSorts(String focusTaxonId, boolean debug) {
-		SpeciesType type = SpeciesType.getTypeByID(focusTaxonId);
 		LinkedHashMap<String, SortOrder> sorts = new LinkedHashMap<>();
-		if (type != null) {
-			sorts.put("speciesOrder." + type.getTaxonIDPart(), SortOrder.ASC);
-		} else {
-			if (debug) {
+		if (focusTaxonId != null) {
+			SpeciesSummaryDocument species = speciesESDAO.byTaxonID(focusTaxonId);
+			if (species != null) {
+				sorts.put("speciesOrder." + species.getTaxonIDPart(), SortOrder.ASC);
+			} else if (debug) {
 				Log.info("Species could not be found for: " + focusTaxonId);
-			} else {
-				Log.debug("Species could not be found for: " + focusTaxonId);
 			}
 		}
 		sorts.put("object.name.sort", SortOrder.ASC);
@@ -244,5 +246,14 @@ public class ESService {
 		bool2.should(new MatchQueryBuilder("subject.curie.keyword", geneID));
 		bool2.should(new MatchQueryBuilder("subject.primaryExternalId.keyword", geneID));
 		bool2.should(new MatchQueryBuilder("subject.modInternalId.keyword", geneID));
+	}
+
+	protected <T> T mapHit(SearchHit hit, Class<T> type) {
+		try {
+			return this.mapper.readValue(hit.getSourceAsString(), type);
+		} catch (Exception e) {
+			Log.error("Failed to deserialize hit id=" + hit.getId() + " as " + type.getSimpleName(), e);
+			return null;
+		}
 	}
 }

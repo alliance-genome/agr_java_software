@@ -1,8 +1,7 @@
 package org.alliancegenome.api.service;
 
+import static org.alliancegenome.api.response.JsonResultResponse.DISTINCT_FIELD_VALUES;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
-import static org.alliancegenome.cache.repository.helper.JsonResultResponse.DISTINCT_FIELD_VALUES;
-
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,12 +9,13 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import org.alliancegenome.cache.repository.helper.JsonResultResponse;
+
+import org.alliancegenome.core.document.TransgenicAlleleSummaryDocument;
+import org.alliancegenome.api.response.JsonResultResponse;
 import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
 import org.alliancegenome.curation_api.model.document.es.ESDocument;
-import org.alliancegenome.api.entity.TransgenicAlleleSummaryDocument;
 import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
-import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.api.es.query.Pagination;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
@@ -53,6 +53,11 @@ public class AlleleESService extends ESService {
 
 	LinkedHashMap<String, SortOrder> alleleSymbolSortMap = new LinkedHashMap<>() {{
 		put("symbol.sort", SortOrder.ASC);
+	}};
+
+	LinkedHashMap<String, SortOrder> variantSummaryDefaultSort = new LinkedHashMap<>() {{
+		put("variantList.curatedVariantGenomicLocations.variantGenomicLocationAssociationObject.name.sort", SortOrder.ASC);
+		put("variantList.curatedVariantGenomicLocations.start", SortOrder.ASC);
 	}};
 
 	Map<String, LinkedHashMap<String, SortOrder>> sortMap = new HashMap<>() {{
@@ -114,7 +119,7 @@ public class AlleleESService extends ESService {
 		BoolQueryBuilder bool = boolQuery();
 		bool.must(new MatchQueryBuilder("allele.primaryExternalId", alleleId));
 		bool.filter(new TermQueryBuilder("category", "variant_summary"));
-		SearchResponse searchResponse = getSearchResponse(bool, pagination, null, false);
+		SearchResponse searchResponse = getSearchResponse(bool, pagination, variantSummaryDefaultSort, false);
 		List<VariantSummaryDocument> list = new ArrayList<>();
 		for (SearchHit hit : searchResponse.getHits().getHits()) {
 			try {

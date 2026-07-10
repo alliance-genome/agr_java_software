@@ -1,14 +1,14 @@
 package org.alliancegenome.filegenerator.generators;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
+import org.alliancegenome.core.util.SmartAlphaComparator;
 import org.alliancegenome.filegenerator.config.FileGeneratorConfig;
 import org.alliancegenome.filegenerator.es.EsParallelFetcher;
 import org.alliancegenome.filegenerator.writers.JsonPath;
@@ -41,9 +41,15 @@ public class VariantVcfFileGenerator extends FileGenerator {
 
 	private static final String CHROM_PATH = "variantList.curatedVariantGenomicLocations.variantGenomicLocationAssociationObject.name";
 	private static final String ASSEMBLY_PATH = "variantList.curatedVariantGenomicLocations.variantGenomicLocationAssociationObject.genomeAssembly.primaryExternalId";
-	private static final String SPECIES_PATH = "allele.taxon.name";
+	private static final String SPECIES_PATH = "allele.taxon.species.fullName";
+	// IUPAC ambiguity codes that need to be wrapped in angle brackets to remain valid as a VCF ALT (they reference the corresponding ##ALT=<ID=..> declarations in the header).
+	private static final Set<Character> IUPAC_AMBIGUITY_CODES = Set.of('R', 'Y', 'S', 'W', 'K', 'M', 'B', 'D', 'H', 'V');
+	// VCF v4.3 INFO values cannot contain whitespace; appendKv replaces matches with underscore so the field parses while preserving the symbol token.
+	private static final Pattern WHITESPACE = Pattern.compile("\\s+");
 
 	private final Map<String, String> contigLinesByMod = new LinkedHashMap<>();
+	// Per-MOD assembly token surfaced into the VCF header as `##reference=...`. Pipe-joined when a MOD has more than one assembly (extremely rare in practice — each MOD typically maps to exactly one).
+	private final Map<String, String> referenceByMod = new LinkedHashMap<>();
 
 	public VariantVcfFileGenerator(FileGeneratorConfig config) {
 		super(config);
@@ -58,7 +64,11 @@ public class VariantVcfFileGenerator extends FileGenerator {
 	@Override
 	protected Map<String, String> headerSubstitutions(String mod) {
 		String contigLines = contigLinesByMod.getOrDefault(mod, "");
-		return Map.of("{contigLines}", contigLines);
+		String reference = referenceByMod.getOrDefault(mod, "");
+		Map<String, String> subs = new LinkedHashMap<>();
+		subs.put("{contigLines}", contigLines);
+		subs.put("{reference}", reference.isEmpty() ? "" : "##reference=" + reference);
+		return subs;
 	}
 
 	/**
@@ -70,9 +80,13 @@ public class VariantVcfFileGenerator extends FileGenerator {
 			String prefix = mod + ":";
 			Map<String, Object> body = buildContigAggBody(prefix);
 			Map<String, Object> resp = fetcher.search(body);
-			String contigLines = renderContigLines(resp);
-			contigLinesByMod.put(mod, contigLines);
-			log.info("{}: contig pre-pass for MOD {} produced {} line(s)", getClass().getSimpleName(), mod, contigLines.isEmpty() ? 0 : contigLines.split("\n").length);
+			if (resp == null) {
+				log.warn("{}: contig pre-pass for MOD {} returned null response — contig header lines will be empty", getClass().getSimpleName(), mod);
+			}
+			List<String[]> tuples = collectContigTuples(resp);
+			contigLinesByMod.put(mod, renderContigLines(tuples));
+			referenceByMod.put(mod, pickAssembly(tuples));
+			log.info("{}: contig pre-pass for MOD {} produced {} line(s); assembly={}", getClass().getSimpleName(), mod, tuples.size(), referenceByMod.get(mod));
 		}
 	}
 
@@ -99,54 +113,39 @@ public class VariantVcfFileGenerator extends FileGenerator {
 	}
 
 	@SuppressWarnings("unchecked")
-	private String renderContigLines(Map<String, Object> resp) {
+	private List<String[]> collectContigTuples(Map<String, Object> resp) {
+		List<String[]> tuples = new ArrayList<>();
 		if (resp == null) {
-			return "";
+			return tuples;
 		}
 		Map<String, Object> aggregations = (Map<String, Object>) resp.get("aggregations");
 		if (aggregations == null) {
-			return "";
+			return tuples;
 		}
 		Map<String, Object> contigs = (Map<String, Object>) aggregations.get("contigs");
 		if (contigs == null) {
-			return "";
+			return tuples;
 		}
 		List<Map<String, Object>> buckets = (List<Map<String, Object>>) contigs.get("buckets");
-		if (buckets == null || buckets.isEmpty()) {
-			return "";
+		if (buckets == null) {
+			return tuples;
 		}
-
-		List<String[]> tuples = new ArrayList<>();
 		for (Map<String, Object> bucket : buckets) {
 			Object keysObj = bucket.get("key");
 			if (!(keysObj instanceof List<?> keys) || keys.size() < 3) {
 				continue;
 			}
-			String chrom = String.valueOf(keys.get(0));
-			String assembly = String.valueOf(keys.get(1));
-			String spp = String.valueOf(keys.get(2));
-			tuples.add(new String[] { chrom, assembly, spp });
+			tuples.add(new String[] { String.valueOf(keys.get(0)), String.valueOf(keys.get(1)), String.valueOf(keys.get(2)) });
 		}
+		// Smart-alpha (natural sort) on the chrom string keeps Drosophila's 2L/2R/3L/3R/4 in mod-order while still putting Mouse's 1..19 before MT/X/Y and Worm's I/II/III/IV before V/X.
+		tuples.sort((a, b) -> SmartAlphaComparator.INSTANCE.compare(a[0], b[0]));
+		return tuples;
+	}
 
-		// Numeric chroms ascend by parsed integer, then non-numeric chroms follow lexically — keeps 1..21 before X, Y, MtDNA, etc.
-		Comparator<String[]> byChrom = (a, b) -> {
-			String ca = a[0];
-			String cb = b[0];
-			Integer ia = parseChromInt(ca);
-			Integer ib = parseChromInt(cb);
-			if (ia != null && ib != null) {
-				return Integer.compare(ia, ib);
-			}
-			if (ia != null) {
-				return -1;
-			}
-			if (ib != null) {
-				return 1;
-			}
-			return ca.compareTo(cb);
-		};
-		Collections.sort(tuples, byChrom);
-
+	private static String renderContigLines(List<String[]> tuples) {
+		if (tuples.isEmpty()) {
+			return "";
+		}
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < tuples.size(); i++) {
 			String[] t = tuples.get(i);
@@ -160,15 +159,15 @@ public class VariantVcfFileGenerator extends FileGenerator {
 		return sb.toString();
 	}
 
-	private static Integer parseChromInt(String s) {
-		if (s == null || s.isEmpty()) {
-			return null;
+	// Each MOD typically has exactly one assembly across its variant_summary docs (FB=R6, MGI=GRCm39, WB=WBcel235, etc.). On the rare chance a MOD ships multiple assemblies, pipe-join the unique values so the `##reference` line stays a single string.
+	private static String pickAssembly(List<String[]> tuples) {
+		LinkedHashSet<String> assemblies = new LinkedHashSet<>();
+		for (String[] t : tuples) {
+			if (t[1] != null && !t[1].isEmpty()) {
+				assemblies.add(t[1]);
+			}
 		}
-		try {
-			return Integer.valueOf(s);
-		} catch (NumberFormatException e) {
-			return null;
-		}
+		return String.join("|", assemblies);
 	}
 
 	@Override
@@ -235,10 +234,30 @@ public class VariantVcfFileGenerator extends FileGenerator {
 		String alt = "";
 		if (loc != null && loc.isObject()) {
 			chrom = loc.path("variantGenomicLocationAssociationObject").path("name").asText("");
-			pos = loc.path("start").asText("");
 			id = loc.path("hgvs").asText("");
-			ref = loc.path("referenceSequence").asText("");
-			alt = loc.path("variantSequence").asText("");
+			long start = loc.path("start").asLong(0);
+			String rawRef = loc.path("referenceSequence").asText("");
+			String rawAlt = loc.path("variantSequence").asText("");
+			String paddedBase = loc.path("paddedBase").asText("");
+			// VCF v4.3 §5.1 padding: insertion and deletion need a padding base so REF/ALT are non-empty.
+			// Delins does NOT (per Jennifer Smith's clarification on SCRUM-6019); REF carries the deleted bases and ALT the inserted bases as-is at the natural POS. SNV/MNV are emitted as-is. When paddedBase is absent on an indel we silently fall through to no-padding — matches the legacy python generator.
+			boolean isInsertion = rawRef.isEmpty() && !rawAlt.isEmpty();
+			boolean isDeletion = rawAlt.isEmpty() && !rawRef.isEmpty();
+			if (!paddedBase.isEmpty() && isInsertion) {
+				ref = paddedBase;
+				alt = paddedBase + rawAlt;
+				pos = Long.toString(start);
+			} else if (!paddedBase.isEmpty() && isDeletion) {
+				ref = paddedBase + rawRef;
+				alt = paddedBase;
+				pos = Long.toString(start - 1);
+			} else {
+				ref = rawRef;
+				alt = rawAlt;
+				pos = start > 0 ? Long.toString(start) : "";
+			}
+			// IUPAC wrap runs AFTER padding so length-1 ALTs (pure SNVs) get symbolic-allele wrapping (<R>) while padded multi-base ALTs collapse embedded ambiguity codes to N. Applying it before padding produced invalid `T<Y>` style ALTs when an insertion's lone inserted base was IUPAC.
+			alt = wrapIupacAmbiguityCodes(alt);
 		}
 
 		obj.put("_chrom", chrom);
@@ -248,24 +267,45 @@ public class VariantVcfFileGenerator extends FileGenerator {
 		obj.put("_alt", alt);
 		obj.put("_qual", ".");
 		obj.put("_filter", ".");
-		obj.put("_info", buildInfo(hit, loc, id));
+		String alleleId = JsonPath.resolveString(hit, "allele.primaryExternalId");
+		obj.put("_info", buildInfo(hit, loc, id, alleleId));
 
 		return hit;
 	}
 
-	private static String buildInfo(JsonNode hit, JsonNode loc, String hgvs) {
+	private static String buildInfo(JsonNode hit, JsonNode loc, String hgvs, String alleleId) {
 		StringBuilder sb = new StringBuilder();
 
 		appendKv(sb, "hgvs_nomenclature", hgvs);
 
-		String geneLevel = loc == null ? "" : firstNonEmpty(
-				loc.path("mostSevereConsequence").path("variantConsequence").path("name").asText(""),
-				loc.path("mostSevereConsequence").path("vepConsequences").path(0).path("name").asText(""));
-		appendKv(sb, "geneLevelConsequence", geneLevel);
+		// MOD prefix derived from the allele curie (e.g., "WB:WBVar..." -> "WB:") — applied to transcript IDs to match legacy VCF format.
+		String modPrefix = "";
+		if (alleleId != null) {
+			int colon = alleleId.indexOf(':');
+			if (colon > 0) {
+				modPrefix = alleleId.substring(0, colon + 1);
+			}
+		}
 
-		// transcriptLevelConsequence — comma-joined names from each predictedVariantConsequences entry's vepConsequences[0]
-		List<String> txLevel = new ArrayList<>();
-		List<String> txImpacts = new ArrayList<>();
+		// geneLevelConsequence — pipe-joined unique names across mostSevereConsequence.vepConsequences[*].
+		LinkedHashSet<String> geneLevel = new LinkedHashSet<>();
+		if (loc != null) {
+			JsonNode vepCs = loc.path("mostSevereConsequence").path("vepConsequences");
+			if (vepCs.isArray()) {
+				for (JsonNode v : vepCs) {
+					String n = v.path("name").asText("");
+					if (!n.isEmpty()) {
+						geneLevel.add(n);
+					}
+				}
+			}
+		}
+		appendKv(sb, "geneLevelConsequence", String.join("|", geneLevel));
+
+		// transcriptLevelConsequence — pipe-joined unique names across all predictedVariantConsequences[*].vepConsequences[*]. transcriptImpact and geneSymbols collected during the same pass.
+		// Transcript IDs are kept per-transcript (comma-joined, dedup) — allele_of_transcript_ids gets the MOD prefix per legacy format, the two gff3_* keys carry the unprefixed transcript name.
+		LinkedHashSet<String> txLevel = new LinkedHashSet<>();
+		LinkedHashSet<String> txImpacts = new LinkedHashSet<>();
 		List<String> geneSymbols = new ArrayList<>();
 		List<String> transcriptIds = new ArrayList<>();
 		List<String> transcriptGff3Ids = new ArrayList<>();
@@ -274,9 +314,14 @@ public class VariantVcfFileGenerator extends FileGenerator {
 			JsonNode pvc = loc.path("predictedVariantConsequences");
 			if (pvc.isArray()) {
 				for (JsonNode entry : pvc) {
-					String c = entry.path("vepConsequences").path(0).path("name").asText("");
-					if (!c.isEmpty()) {
-						txLevel.add(c);
+					JsonNode vepCs = entry.path("vepConsequences");
+					if (vepCs.isArray()) {
+						for (JsonNode v : vepCs) {
+							String n = v.path("name").asText("");
+							if (!n.isEmpty()) {
+								txLevel.add(n);
+							}
+						}
 					}
 					String imp = entry.path("vepImpact").path("name").asText("");
 					if (!imp.isEmpty()) {
@@ -289,26 +334,20 @@ public class VariantVcfFileGenerator extends FileGenerator {
 					}
 					String tn = entry.path("variantTranscript").path("name").asText("");
 					if (!tn.isEmpty()) {
-						transcriptIds.add(tn);
-					}
-					String gff3Id = entry.path("variantTranscript").path("modCrossRefCompleteUrl").asText("");
-					if (!gff3Id.isEmpty()) {
-						transcriptGff3Ids.add(gff3Id);
-					}
-					String gff3Name = entry.path("variantTranscript").path("displayName").asText("");
-					if (!gff3Name.isEmpty()) {
-						transcriptGff3Names.add(gff3Name);
+						transcriptIds.add(modPrefix + tn);
+						transcriptGff3Ids.add(tn);
+						transcriptGff3Names.add(tn);
 					}
 				}
 			}
 		}
-		appendKv(sb, "transcriptLevelConsequence", String.join(",", txLevel));
+		appendKv(sb, "transcriptLevelConsequence", String.join("|", txLevel));
 
 		String geneImpact = loc == null ? "" : loc.path("mostSevereConsequence").path("vepImpact").path("name").asText("");
 		appendKv(sb, "geneImpact", geneImpact);
-		appendKv(sb, "transcriptImpact", String.join(",", txImpacts));
+		appendKv(sb, "transcriptImpact", String.join("|", txImpacts));
 
-		appendKv(sb, "allele_ids", JsonPath.resolveString(hit, "allele.primaryExternalId"));
+		appendKv(sb, "allele_ids", alleleId);
 		appendKv(sb, "allele_symbols", JsonPath.resolveString(hit, "allele.alleleSymbol.displayText"));
 		appendKv(sb, "allele_symbols_text", JsonPath.resolveString(hit, "allele.alleleSymbol.formatText"));
 
@@ -329,16 +368,9 @@ public class VariantVcfFileGenerator extends FileGenerator {
 		if (sb.length() > 0) {
 			sb.append(";");
 		}
-		sb.append(key).append("=\"").append(value == null ? "" : value).append("\"");
-	}
-
-	private static String firstNonEmpty(String... values) {
-		for (String v : values) {
-			if (v != null && !v.isEmpty()) {
-				return v;
-			}
-		}
-		return "";
+		// VCF v4.3 INFO values cannot contain whitespace (space/tab/newline); replace with underscore to keep the field parseable while preserving the symbol token.
+		String escaped = value == null ? "" : WHITESPACE.matcher(value).replaceAll("_");
+		sb.append(key).append("=\"").append(escaped).append("\"");
 	}
 
 	private static List<String> collectArrayStrings(JsonNode arr) {
@@ -353,6 +385,31 @@ public class VariantVcfFileGenerator extends FileGenerator {
 			}
 		}
 		return out;
+	}
+
+	// VCF v4.3 §1.4.1.1: REF/ALT bases must be one of A/C/G/T/N. IUPAC ambiguity codes (R/Y/S/W/K/M/B/D/H/V) are valid only as symbolic alleles — i.e. when the entire ALT is `<R>`, referencing the matching ##ALT=<ID=R,..> header line.
+	// A single-base ALT made of an IUPAC code is therefore wrapped in angle brackets; the same code embedded in a longer multi-base ALT is collapsed to N (we lose the specific ambiguity but the row stays parseable; the legacy python generator wrapped unconditionally and produced files htsjdk refused to read).
+	private static String wrapIupacAmbiguityCodes(String s) {
+		if (s == null || s.isEmpty()) {
+			return s;
+		}
+		if (s.length() == 1 && IUPAC_AMBIGUITY_CODES.contains(s.charAt(0))) {
+			return "<" + s + ">";
+		}
+		StringBuilder out = null;
+		for (int i = 0; i < s.length(); i++) {
+			char c = s.charAt(i);
+			if (IUPAC_AMBIGUITY_CODES.contains(c)) {
+				if (out == null) {
+					out = new StringBuilder(s.length());
+					out.append(s, 0, i);
+				}
+				out.append('N');
+			} else if (out != null) {
+				out.append(c);
+			}
+		}
+		return out == null ? s : out.toString();
 	}
 
 	private static List<String> dedup(List<String> values) {

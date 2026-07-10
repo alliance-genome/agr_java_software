@@ -10,12 +10,12 @@ import org.alliancegenome.api.service.EntityType;
 import org.alliancegenome.api.service.ExpressionESService;
 import org.alliancegenome.api.service.ExpressionRibbonESService;
 import org.alliancegenome.api.service.helper.APIServiceHelper;
-import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.core.exceptions.RestErrorException;
-import org.alliancegenome.core.exceptions.RestErrorMessage;
-import org.alliancegenome.core.translators.tdf.ExpressionToTdfTranslator;
+import org.alliancegenome.api.response.JsonResultResponse;
+import org.alliancegenome.api.exceptions.RestErrorException;
+import org.alliancegenome.api.exceptions.RestErrorMessage;
+import org.alliancegenome.api.translators.tdf.ExpressionToTdfTranslator;
 import org.alliancegenome.curation_api.model.document.es.GeneExpressionDocument;
-import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.api.es.query.Pagination;
 
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.RequestScoped;

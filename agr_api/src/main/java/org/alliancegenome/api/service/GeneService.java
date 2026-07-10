@@ -1,6 +1,6 @@
 package org.alliancegenome.api.service;
 
-import static org.alliancegenome.cache.repository.helper.JsonResultResponse.DISTINCT_FIELD_VALUES;
+import static org.alliancegenome.api.response.JsonResultResponse.DISTINCT_FIELD_VALUES;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 
 import java.time.LocalDateTime;
@@ -12,17 +12,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.alliancegenome.api.entity.GeneGeneticInteractionDocument;
-import org.alliancegenome.api.entity.GeneMolecularInteractionDocument;
-import org.alliancegenome.api.entity.GenePhenotypeAnnotationDocument;
+import org.alliancegenome.core.document.GeneGeneticInteractionDocument;
+import org.alliancegenome.core.document.GeneMolecularInteractionDocument;
+import org.alliancegenome.core.document.GenePhenotypeAnnotationDocument;
 import org.alliancegenome.api.service.helper.ElasticSearchHelper;
-import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.core.variant.service.AlleleVariantIndexService;
+import org.alliancegenome.api.response.JsonResultResponse;
 import org.alliancegenome.curation_api.model.document.es.SequenceSummaryDocument;
-import org.alliancegenome.es.index.site.dao.SearchDAO;
-import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.repository.GeneRepository;
+import org.alliancegenome.api.es.dao.SearchDAO;
+import org.alliancegenome.api.es.query.Pagination;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -42,8 +39,6 @@ import jakarta.inject.Inject;
 @RequestScoped
 public class GeneService {
 
-	private static GeneRepository geneRepo = new GeneRepository();
-
 	@Inject
 	AlleleVariantIndexService alleleVariantIndexService;
 
@@ -54,15 +49,6 @@ public class GeneService {
 
 	private static final ElasticSearchHelper elasticSearchHelper = new ElasticSearchHelper();
 	private static final SearchDAO searchDAO = new SearchDAO();
-
-	public Gene getById(String id) {
-		Gene gene = geneRepo.getOneGene(id);
-		// if not found directly check if it is a secondary id on a different gene
-		if (gene == null) {
-			return geneRepo.getOneGeneBySecondaryId(id);
-		}
-		return gene;
-	}
 
 	public JsonResultResponse<SequenceSummaryDocument> getAllelesAndVariantInfo(String geneId, Pagination pagination) {
 		return alleleVariantIndexService.getAllelesNVariants(geneId, pagination);

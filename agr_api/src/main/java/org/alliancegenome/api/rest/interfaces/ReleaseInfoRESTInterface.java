@@ -1,8 +1,7 @@
 package org.alliancegenome.api.rest.interfaces;
 
-import org.alliancegenome.api.entity.ReleaseInfoDocument;
-import org.alliancegenome.neo4j.entity.ReleaseSummary;
-import org.alliancegenome.neo4j.view.PublicView;
+import org.alliancegenome.core.document.ReleaseInfoDocument;
+import org.alliancegenome.core.view.PublicView;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
@@ -25,13 +24,7 @@ public interface ReleaseInfoRESTInterface {
 	@Operation(summary = "Retrieve release information")
 	@JsonView({PublicView.ReleaseInfo.class})
 	ReleaseInfoDocument getReleaseInfo();
-	
-	@GET
-	@Path("/summary")
-	@Operation(summary = "Retrieve release information summary")
-	@JsonView({PublicView.ReleaseInfo.class})
-	ReleaseSummary getReleaseInfoSummary();
-	
+
 }
 
 

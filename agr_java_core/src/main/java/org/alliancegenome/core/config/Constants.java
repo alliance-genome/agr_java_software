@@ -50,9 +50,6 @@ public class Constants {
 	public static final String POPULARITY_FILE_NAME = "POPULARITY_FILE_NAME";
 	public static final String EXTRACTOR_OUTPUTDIR = "EXTRACTOR_OUTPUTDIR";
 
-	// Other Constants
-	public static final String SEARCHABLE_ITEM = "searchable_item";
-
 	// Variant Indexer Related ENV param constants
 	public static final String VARIANT_DOWNLOAD_SET_FILE = "VARIANT_DOWNLOAD_SET_FILE";
 

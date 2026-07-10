@@ -7,7 +7,6 @@ import java.util.Map;
 import org.alliancegenome.filegenerator.generators.DiseaseFileGenerator;
 import org.alliancegenome.filegenerator.generators.ExpressionFileGenerator;
 import org.alliancegenome.filegenerator.generators.FileGenerator;
-import org.alliancegenome.filegenerator.generators.GeneDescriptionFileGenerator;
 import org.alliancegenome.filegenerator.generators.GeneFileGenerator;
 import org.alliancegenome.filegenerator.generators.OrthologyFileGenerator;
 import org.alliancegenome.filegenerator.generators.PhenotypeFileGenerator;
@@ -134,18 +133,17 @@ public enum FileGeneratorConfig {
 	 * does not include the HTP variant_index). Same source the agr_api uses for the
 	 * gene-page allele table (see AlleleESService.getAllelesByGene).
 	 *
-	 * One row per allele. variantList-derived fields (VariantId, VariantSymbol,
+	 * One row per allele. variantList-derived fields (VariantSymbol,
 	 * position, consequence, etc.) are pipe-joined when an allele has multiple
 	 * known variants.
 	 */
 	private static Map<String, String> variantAlleleFieldMap() {
 		Map<String, String> m = new LinkedHashMap<>();
 		m.put("Taxon", "allele.taxon.curie");
-		m.put("SpeciesName", "allele.taxon.name");
+		m.put("SpeciesName", "allele.taxon.species.fullName");
 		m.put("AlleleId", "allele.primaryExternalId");
 		m.put("AlleleSymbol", "allele.alleleSymbol.displayText");
 		m.put("AlleleSynonyms", "_alleleSynonyms");
-		m.put("VariantId", "_variantId");
 		m.put("VariantSymbol", "_variantSymbol");
 		m.put("VariantSynonyms", "_variantSynonyms");
 		m.put("VariantCrossReferences", "allele.primaryExternalId");
@@ -205,8 +203,9 @@ public enum FileGeneratorConfig {
 	private static Map<String, String> geneFieldMap() {
 		Map<String, String> m = new LinkedHashMap<>();
 		m.put("Taxon", "gene.taxon.curie");
-		m.put("SpeciesName", "gene.taxon.name");
+		m.put("SpeciesName", "gene.taxon.species.fullName");
 		m.put("GeneId", "gene.primaryExternalId");
+		m.put("GeneName", "gene.geneFullName.displayText");
 		m.put("GeneSymbol", "gene.geneSymbol.displayText");
 		m.put("GeneSynonyms", "_geneSynonyms");
 		m.put("GeneSystematicName", "gene.geneSystematicName.displayText");
@@ -236,6 +235,7 @@ public enum FileGeneratorConfig {
 	 */
 	private static Map<String, String> diseaseFieldMap() {
 		Map<String, String> m = new LinkedHashMap<>();
+		m.put("UniqueID", "_uniqueId");
 		m.put("Taxon", "_taxon");
 		m.put("SpeciesName", "_speciesName");
 		m.put("DBobjectType", "_dbObjectType");
@@ -246,7 +246,7 @@ public enum FileGeneratorConfig {
 		m.put("DOtermName", "_doTermName");
 		m.put("WithOrtholog", "_withOrtholog");
 		m.put("InferredFromID", "_unavailable");
-		m.put("InferredFromSymbol", "_unavailable");
+		m.put("InferredFromSymbol", "_inferredFromSymbol");
 		m.put("ExperimentalCondition", "_unavailable");
 		m.put("Modifier", "_unavailable");
 		m.put("EvidenceCode", "_evidenceCode");
@@ -285,7 +285,7 @@ public enum FileGeneratorConfig {
 	 */
 	private static Map<String, String> expressionFieldMap() {
 		Map<String, String> m = new LinkedHashMap<>();
-		m.put("Species", "geneExpressionAnnotation.expressionAnnotationSubject.taxon.name");
+		m.put("Species", "geneExpressionAnnotation.expressionAnnotationSubject.taxon.species.fullName");
 		m.put("SpeciesID", "geneExpressionAnnotation.expressionAnnotationSubject.taxon.curie");
 		m.put("GeneID", "geneExpressionAnnotation.expressionAnnotationSubject.primaryExternalId");
 		m.put("GeneSymbol", "geneExpressionAnnotation.expressionAnnotationSubject.geneSymbol.displayText");
@@ -310,7 +310,7 @@ public enum FileGeneratorConfig {
 		// resolves the synthetic field.
 		m.put("SourceURL", "_sourceUrl");
 		m.put("Source", "geneExpressionAnnotation.dataProvider.abbreviation");
-		m.put("Reference", "referenceId.0");
+		m.put("Reference", "_reference");
 		return m;
 	}
 }

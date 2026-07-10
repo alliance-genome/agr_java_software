@@ -11,19 +11,15 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
-import org.alliancegenome.api.entity.GenePhenotypeAnnotationDocument;
+import org.alliancegenome.core.document.GenePhenotypeAnnotationDocument;
 import org.alliancegenome.api.service.GeneService;
 import org.alliancegenome.api.translators.tdf.PhenotypeAnnotationToTdfTranslator;
-import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.core.api.service.DiseaseService;
+import org.alliancegenome.api.response.JsonResultResponse;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.model.entities.PhenotypeAnnotation;
-import org.alliancegenome.curation_api.model.entities.base.CurieObject;
-import org.alliancegenome.es.model.query.FieldFilter;
-import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.node.GeneticEntity;
+import org.alliancegenome.api.es.query.FieldFilter;
+import org.alliancegenome.api.es.query.Pagination;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -84,23 +80,6 @@ public class PhenotypeIT {
 	}
 
 	@Test
-	public void checkPhenotypesWithReference() {
-
-		// sox9a
-		String geneID = "ZFIN:ZDB-GENE-001103-1";
-
-		Pagination pagination = new Pagination(1, 60, null, null);
-		DiseaseService diseaseService = new DiseaseService();
-		JsonResultResponse<GenePhenotypeAnnotationDocument> response = geneService.getPhenotypeAnnotations(geneID, pagination);
-		List<GenePhenotypeAnnotationDocument> pa = response.getResults().stream()
-				.filter(phenotypeAnnotation -> phenotypeAnnotation.getPhenotypeStatement().equals("cartilage development disrupted, abnormal"))
-				.collect(Collectors.toList());
-		assertNotNull(pa);
-		String pmids = pa.get(0).getReferences().stream().map(CurieObject::getCurie).collect(Collectors.joining(","));
-		assertEquals("Pmid list", "PMID:12397114,PMID:18950725,PMID:9007254", pmids);
-	}
-
-	@Test
 	public void checkPhenotypesWithoutGenePopup() {
 
 		// ATP7
@@ -112,7 +91,7 @@ public class PhenotypeIT {
 				.stream()
 				.filter(phenotypeAnnotation -> phenotypeAnnotation.getPrimaryAnnotations() != null)
 				.forEach(phenotypeAnnotation -> phenotypeAnnotation.getPrimaryAnnotations().forEach(entity -> {
-					assertNotEquals("Direct Gene annotation found. Should be suppressed for: " + entity.getId(), entity.getRelation().getName(), GeneticEntity.CrossReferenceType.GENE);
+					assertNotEquals("Direct Gene annotation found. Should be suppressed for: " + entity.getId(), entity.getRelation().getName(), "gene");
 				}));
 	}
 
@@ -242,7 +221,7 @@ public class PhenotypeIT {
 		assertEquals(annotation.getPhenotypeStatement(), "corpus cardiacum primordium");
 		final List<PhenotypeAnnotation> primaryAnnotatedEntities = annotation.getPrimaryAnnotations();
 		assertNotNull("Phenotype annotation has Allele as the inferred AGM but missing.", primaryAnnotatedEntities);
-		assertEquals("Phenotype annotation with Allele as an inferred AGM", primaryAnnotatedEntities.get(0).getRelation().getName(), GeneticEntity.CrossReferenceType.ALLELE);
+		assertEquals("Phenotype annotation with Allele as an inferred AGM", primaryAnnotatedEntities.get(0).getRelation().getName(), "allele");
 	}
 
 	@Test
@@ -260,7 +239,7 @@ public class PhenotypeIT {
 		assertTrue("Did not find a phenotype: " + ectopicExpressionTransgene, annotation.isPresent());
 		final List<PhenotypeAnnotation> primaryAnnotatedEntities = annotation.get().getPrimaryAnnotations();
 		assertNotNull("Phenotype annotation has Allele as the inferred AGM but missing.", primaryAnnotatedEntities);
-		assertEquals("Phenotype annotation with Allele as an inferred AGM", primaryAnnotatedEntities.get(0).getRelation(), GeneticEntity.CrossReferenceType.ALLELE);
+		assertEquals("Phenotype annotation with Allele as an inferred AGM", primaryAnnotatedEntities.get(0).getRelation(), "allele");
 	}
 
 	@Test

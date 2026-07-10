@@ -1,6 +1,6 @@
 package org.alliancegenome.api.service;
 
-import static org.alliancegenome.cache.repository.helper.JsonResultResponse.DISTINCT_FIELD_VALUES;
+import static org.alliancegenome.api.response.JsonResultResponse.DISTINCT_FIELD_VALUES;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 
 import java.util.ArrayList;
@@ -9,10 +9,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.alliancegenome.cache.repository.helper.JsonResultResponse;
+import org.alliancegenome.api.response.JsonResultResponse;
 import org.alliancegenome.curation_api.model.document.es.GeneExpressionDocument;
-import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.SpeciesType;
+import org.alliancegenome.api.es.query.Pagination;
+import org.alliancegenome.core.document.SpeciesSummaryDocument;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
@@ -78,12 +78,14 @@ public class ExpressionESService extends ESService {
 		sortingSetMap.put("location", "geneExpressionAnnotation.whereExpressedStatement.sort");
 		sortingSetMap.put("stage", "geneExpressionAnnotation.whenExpressedStageName.sort");
 		sortingSetMap.put("assay", "geneExpressionAnnotation.expressionAssayUsed.name.sort");
+		String defaultSort = "geneExpressionAnnotation.expressionAnnotationSubject.geneSymbol.displayText.sort";
 		if (StringUtils.isNotEmpty(focusTaxonId)) {
-			SpeciesType type = SpeciesType.getTypeByID(focusTaxonId);
-			sortingSetMap.put("default", "speciesOrder." + type.getTaxonIDPart());
-		} else {
-			sortingSetMap.put("default", "geneExpressionAnnotation.expressionAnnotationSubject.geneSymbol.displayText.sort");
+			SpeciesSummaryDocument species = speciesESDAO.byTaxonID(focusTaxonId);
+			if (species != null) {
+				defaultSort = "speciesOrder." + species.getTaxonIDPart();
+			}
 		}
+		sortingSetMap.put("default", defaultSort);
 
 		String sortField = pagination.getSortBy() != null ? pagination.getSortBy() : "default";
 

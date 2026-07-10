@@ -3,6 +3,7 @@ package org.alliancegenome.filegenerator.generators;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -23,6 +24,8 @@ public class DiseaseFileGenerator extends FileGenerator {
 	private static final String FILE_GENERATION_DATE =
 			LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE); // YYYYMMDD
 
+	private static final String LINKML_README_URL = "https://alliance-genome.github.io/agr_curation_schema/DiseaseAnnotation/";
+
 	// Same primaryAnnotation appears across many consolidated docs (gene/allele/agm rollups + via_orthology fan-out). Dedup by the canonical Annotation.uniqueId so each annotation is emitted once per run. dispatch() runs from the parallel scroll pool, so this must be a concurrent set.
 	private final Set<String> seenUniqueIds = ConcurrentHashMap.newKeySet();
 
@@ -36,8 +39,31 @@ public class DiseaseFileGenerator extends FileGenerator {
 	}
 
 	@Override
+	protected String jsonReadmeOverride() {
+		return LINKML_README_URL;
+	}
+
+	@Override
 	protected String taxonPath() {
 		return "subject.taxon.curie";
+	}
+
+	@Override
+	protected String stringencyFilter() {
+		return "stringent";
+	}
+
+	@Override
+	protected List<String> extraHeaderLines() {
+		return List.of("Orthology Filter: Stringent");
+	}
+
+	/**
+	 * Row-format outputs route by the per-annotation taxon, not the consolidated doc's subject taxon. {@code _taxon} is populated inside customizeRows() from {@code primaryAnnotations[i].diseaseAnnotationSubject.taxon.curie}, so via-orthology fan-out rows land in the file matching their own subject's MOD instead of the parent doc's.
+	 */
+	@Override
+	protected String rowTaxonPath() {
+		return "_taxon";
 	}
 
 	@Override
@@ -56,53 +82,70 @@ public class DiseaseFileGenerator extends FileGenerator {
 		}
 		List<JsonNode> rows = new ArrayList<>(primary.size());
 		for (JsonNode pa : primary) {
+			String relationName = JsonPath.resolveString(pa, "relation.name");
+			boolean isViaOrthology = relationName.contains("_via_orthology");
+
 			// Annotation.uniqueId is the canonical dedup key computed by AnnotationUniqueIdHelper in curation. Skip empty values so the generator keeps working before the curation-side @JsonView change has been deployed and reindexed; once it lands, this becomes a real dedup.
 			String uniqueId = JsonPath.resolveString(pa, "uniqueId");
-			if (!uniqueId.isEmpty() && !seenUniqueIds.add(uniqueId)) {
+			// A via_orthology annotation's uniqueId is identical across every ortholog-gene doc it fans out to (it is keyed on the source entity, not the ortholog gene), so include the enclosing doc's gene subject in the dedup key to keep one row per ortholog gene instead of collapsing them all into one.
+			String dedupKey = isViaOrthology ? JsonPath.resolveString(customizedHit, "subject.primaryExternalId") + "|" + uniqueId : uniqueId;
+			if (!uniqueId.isEmpty() && !seenUniqueIds.add(dedupKey)) {
 				continue;
 			}
 
 			ObjectNode row = JsonNodeFactory.instance.objectNode();
 
-			row.put("_taxon", JsonPath.resolveString(pa, "diseaseAnnotationSubject.taxon.curie"));
-			row.put("_speciesName", JsonPath.resolveString(pa, "diseaseAnnotationSubject.taxon.name"));
+			row.put("_uniqueId", uniqueId);
 
-			String paType = JsonPath.resolveString(pa, "type");
-			String dbObjectType;
-			if ("GeneDiseaseAnnotation".equals(paType)) {
-				dbObjectType = "gene";
-			} else if ("AlleleDiseaseAnnotation".equals(paType)) {
-				dbObjectType = "allele";
-			} else if ("AGMDiseaseAnnotation".equals(paType)) {
-				dbObjectType = "affected_genomic_model";
+			if (isViaOrthology) {
+				// A via_orthology annotation lives inside the ortholog GENE's consolidated doc, but its diseaseAnnotationSubject still points at the source entity (allele/AGM/source gene). The row must be keyed on the enclosing doc's gene subject, so source every subject column from the top-level subject.
+				row.put("_taxon", JsonPath.resolveString(customizedHit, "subject.taxon.curie"));
+				row.put("_speciesName", JsonPath.resolveString(customizedHit, "subject.taxon.species.fullName"));
+				row.put("_dbObjectType", "gene");
+				row.put("_dbObjectId", JsonPath.resolveString(customizedHit, "subject.primaryExternalId"));
+				row.put("_dbObjectSymbol", JsonPath.resolveString(customizedHit, "subject.geneSymbol.displayText"));
 			} else {
-				dbObjectType = paType.replace("DiseaseAnnotation", "").toLowerCase();
-			}
-			row.put("_dbObjectType", dbObjectType);
+				row.put("_taxon", JsonPath.resolveString(pa, "diseaseAnnotationSubject.taxon.curie"));
+				row.put("_speciesName", JsonPath.resolveString(pa, "diseaseAnnotationSubject.taxon.species.fullName"));
 
-			row.put("_dbObjectId", JsonPath.resolveString(pa, "diseaseAnnotationSubject.primaryExternalId"));
+				String paType = JsonPath.resolveString(pa, "type");
+				String dbObjectType;
+				if ("GeneDiseaseAnnotation".equals(paType)) {
+					dbObjectType = "gene";
+				} else if ("AlleleDiseaseAnnotation".equals(paType)) {
+					dbObjectType = "allele";
+				} else if ("AGMDiseaseAnnotation".equals(paType)) {
+					dbObjectType = "affected_genomic_model";
+				} else {
+					dbObjectType = paType.replace("DiseaseAnnotation", "").toLowerCase();
+				}
+				row.put("_dbObjectType", dbObjectType);
 
-			String subjectType = JsonPath.resolveString(pa, "diseaseAnnotationSubject.type");
-			String symbol;
-			if ("Gene".equals(subjectType)) {
-				symbol = JsonPath.resolveString(pa, "diseaseAnnotationSubject.geneSymbol.displayText");
-			} else if ("Allele".equals(subjectType)) {
-				symbol = JsonPath.resolveString(pa, "diseaseAnnotationSubject.alleleSymbol.displayText");
-			} else if ("AffectedGenomicModel".equals(subjectType)) {
-				symbol = JsonPath.resolveString(pa, "diseaseAnnotationSubject.agmFullName.displayText");
-				if (symbol.isEmpty()) {
+				row.put("_dbObjectId", JsonPath.resolveString(pa, "diseaseAnnotationSubject.primaryExternalId"));
+
+				String subjectType = JsonPath.resolveString(pa, "diseaseAnnotationSubject.type");
+				String symbol;
+				if ("Gene".equals(subjectType)) {
+					symbol = JsonPath.resolveString(pa, "diseaseAnnotationSubject.geneSymbol.displayText");
+				} else if ("Allele".equals(subjectType)) {
+					symbol = JsonPath.resolveString(pa, "diseaseAnnotationSubject.alleleSymbol.displayText");
+				} else if ("AffectedGenomicModel".equals(subjectType)) {
+					symbol = JsonPath.resolveString(pa, "diseaseAnnotationSubject.agmFullName.displayText");
+					if (symbol.isEmpty()) {
+						symbol = JsonPath.resolveString(pa, "diseaseAnnotationSubject.name");
+					}
+				} else {
 					symbol = JsonPath.resolveString(pa, "diseaseAnnotationSubject.name");
 				}
-			} else {
-				symbol = JsonPath.resolveString(pa, "diseaseAnnotationSubject.name");
+				row.put("_dbObjectSymbol", symbol);
 			}
-			row.put("_dbObjectSymbol", symbol);
 
 			row.put("_associationType", JsonPath.resolveString(pa, "relation.name"));
 			row.put("_doId", JsonPath.resolveString(pa, "diseaseAnnotationObject.curie"));
 			row.put("_doTermName", JsonPath.resolveString(pa, "diseaseAnnotationObject.name"));
 
 			row.put("_withOrtholog", joinWithOrthologs(pa));
+			row.put("_inferredFromSymbol", joinBasedOnSymbols(pa));
 
 			JsonNode evCodes = pa.path("evidenceCodes");
 			List<String> curies = new ArrayList<>();
@@ -128,9 +171,6 @@ public class DiseaseFileGenerator extends FileGenerator {
 				reference = JsonPath.resolveString(pa, "evidenceItem.curie");
 			}
 			row.put("_reference", reference);
-
-			String relationName = JsonPath.resolveString(pa, "relation.name");
-			boolean isViaOrthology = relationName.contains("_via_orthology");
 
 			// The per-annotation element does not carry dateUpdated; only dateCreated is present. Fall back to file-generation-date for via_orthology rows when the date is missing, preserving existing behavior.
 			String iso = JsonPath.resolveString(pa, "dateUpdated");
@@ -169,7 +209,32 @@ public class DiseaseFileGenerator extends FileGenerator {
 				ids.add(id);
 			}
 		}
-		return String.join("|", ids);
+		List<String> sorted = new ArrayList<>(ids);
+		Collections.sort(sorted);
+		return String.join("|", sorted);
+	}
+
+	private static String joinBasedOnSymbols(JsonNode pa) {
+		JsonNode with = pa.path("with");
+		if (!with.isArray()) {
+			return "";
+		}
+		LinkedHashSet<String> symbols = new LinkedHashSet<>();
+		for (JsonNode w : with) {
+			String symbol = w.path("geneSymbol").path("displayText").asText("");
+			if (symbol.isEmpty()) {
+				continue;
+			}
+			String abbreviation = w.path("taxon").path("species").path("abbreviation").asText("");
+			if (abbreviation.isEmpty()) {
+				symbols.add(symbol);
+			} else {
+				symbols.add(symbol + " (" + abbreviation + ")");
+			}
+		}
+		List<String> sorted = new ArrayList<>(symbols);
+		Collections.sort(sorted);
+		return String.join("|", sorted);
 	}
 
 	private static String isoToYyyyMmDd(String iso) {

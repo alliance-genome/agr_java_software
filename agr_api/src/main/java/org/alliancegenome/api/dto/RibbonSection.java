@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.alliancegenome.api.entity.SectionSlim;
-import org.alliancegenome.neo4j.view.PublicView;
+import org.alliancegenome.core.view.PublicView;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;

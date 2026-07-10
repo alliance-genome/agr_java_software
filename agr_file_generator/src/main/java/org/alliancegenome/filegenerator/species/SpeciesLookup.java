@@ -7,7 +7,7 @@ import java.util.Map;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.model.entities.Species;
-import org.alliancegenome.es.rest.RestConfig;
+import org.alliancegenome.core.config.RestConfig;
 import org.alliancegenome.filegenerator.curation.SpeciesInterface;
 
 import lombok.extern.slf4j.Slf4j;

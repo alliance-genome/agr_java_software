@@ -8,24 +8,23 @@ import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
-import org.alliancegenome.api.entity.AGMDiseaseAnnotationDocument;
-import org.alliancegenome.api.entity.AlleleDiseaseAnnotationDocument;
-import org.alliancegenome.api.entity.GeneDiseaseAnnotationDocument;
+import org.alliancegenome.core.document.AGMDiseaseAnnotationDocument;
+import org.alliancegenome.core.document.AlleleDiseaseAnnotationDocument;
+import org.alliancegenome.core.document.GeneDiseaseAnnotationDocument;
+import org.alliancegenome.curation_api.model.entities.ontology.DOTerm;
 import org.alliancegenome.api.rest.interfaces.DiseaseRESTInterface;
 import org.alliancegenome.api.service.DiseaseESService;
 import org.alliancegenome.api.service.EntityType;
 import org.alliancegenome.api.service.helper.APIServiceHelper;
 import org.alliancegenome.api.translators.tdf.DiseaseAnnotationToTdfTranslator;
-import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.cache.repository.helper.SortingField;
-import org.alliancegenome.core.api.service.DiseaseService;
-import org.alliancegenome.core.exceptions.RestErrorException;
-import org.alliancegenome.core.exceptions.RestErrorMessage;
+import org.alliancegenome.api.response.JsonResultResponse;
+import org.alliancegenome.api.exceptions.RestErrorException;
+import org.alliancegenome.api.exceptions.RestErrorMessage;
 import org.alliancegenome.core.util.FileHelper;
 import org.alliancegenome.curation_api.model.document.es.DiseaseSummaryDocument;
-import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.neo4j.view.PublicView;
+import org.alliancegenome.api.es.dao.SpeciesESDAO;
+import org.alliancegenome.api.es.query.Pagination;
+import org.alliancegenome.core.view.PublicView;
 import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -34,6 +33,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
@@ -44,10 +44,10 @@ public class DiseaseController implements DiseaseRESTInterface {
 	ObjectMapper mapper;
 
 	@Inject
-	DiseaseService diseaseService;
+	DiseaseESService diseaseESService;
 
 	@Inject
-	DiseaseESService diseaseESService;
+	SpeciesESDAO speciesESDAO;
 
 	private final DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();
 
@@ -82,7 +82,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 		// The @DefaultValue only kicks in if the value is null.
 		// need to handle an empty value manually here.
 		if (sortBy.trim().isEmpty()) {
-			sortBy = SortingField.DISEASE_ALLELE_DEFAULT.toString();
+			sortBy = "DISEASE_ALLELE_DEFAULT";
 		}
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
 		pagination.addFilterOption("subject.taxon.species.fullName.keyword", species);
@@ -144,7 +144,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 
 				String taxonIDs = species;
 				if (StringUtils.isEmpty(taxonIDs)) {
-					taxonIDs = SpeciesType.getAllTaxonIDs();
+					taxonIDs = speciesESDAO.getAllTaxonIDs();
 				}
 				data = data.replace("${taxonIDs}", taxonIDs);
 				data += allRowsForAlleles;
@@ -199,7 +199,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 
 				String taxonIDs = species;
 				if (StringUtils.isEmpty(taxonIDs)) {
-					taxonIDs = SpeciesType.getAllTaxonIDs();
+					taxonIDs = speciesESDAO.getAllTaxonIDs();
 				}
 				data = data.replace("${taxonIDs}", taxonIDs);
 				data += allRowsForGenes;
@@ -508,11 +508,51 @@ public class DiseaseController implements DiseaseRESTInterface {
 	}
 
 	@Override
+	public List<DOTerm> getDiseaseAncestors(String diseaseID) {
+		return diseaseESService.getAncestors(diseaseID);
+	}
+
+
+	private static final int MAX_BATCH_IDS = 500;
+
+	@Override
+	public java.util.Map<String, Object> getBatchDiseaseTerms(String ids) {
+		if (ids == null || ids.isBlank()) {
+			return java.util.Collections.emptyMap();
+		}
+		java.util.List<String> idList = java.util.Arrays.stream(ids.split(","))
+			.map(String::trim)
+			.filter(s -> !s.isEmpty())
+			.distinct()
+			.toList();
+		if (idList.size() > MAX_BATCH_IDS) {
+			throw new BadRequestException("ids exceeds maximum of " + MAX_BATCH_IDS);
+		}
+		return diseaseESService.getBatchTerms(idList);
+	}
+
+	@Override
+	public java.util.Map<String, java.util.Map<String, Long>> getBatchDiseaseCounts(String ids) {
+		if (ids == null || ids.isBlank()) {
+			return java.util.Collections.emptyMap();
+		}
+		java.util.List<String> idList = java.util.Arrays.stream(ids.split(","))
+			.map(String::trim)
+			.filter(s -> !s.isEmpty())
+			.distinct()
+			.toList();
+		if (idList.size() > MAX_BATCH_IDS) {
+			throw new BadRequestException("ids exceeds maximum of " + MAX_BATCH_IDS);
+		}
+		return diseaseESService.getBatchCounts(idList);
+	}
+
+	@Override
 	public Long getCountsOfDiseaseAnnotationsByGene(String diseaseID) {
-		String associationType = diseaseESService.getAT("gene_disease_annotation", diseaseID);
-		
-		JsonResultResponse<GeneDiseaseAnnotationDocument> response = getDiseaseAnnotationsByGene(diseaseID, null, null, null, null, null, null, null, null, null, null, null, associationType, null, null);
-		return response.getTotal();
+		// Count distinct genes (gene-species pairs) with a positive association,
+		// not annotation documents (which over-count genes that roll up to multiple sub-terms,
+		// disease qualifiers, or based-on-gene groups).
+		return diseaseESService.countDistinctPositiveGenes(diseaseID);
 	}
 
 }
