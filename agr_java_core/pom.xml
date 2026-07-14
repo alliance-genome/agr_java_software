@@ -23,6 +23,10 @@
 					<artifactId>*</artifactId>
 				</exclusion>
 				<exclusion>
+					<groupId>org.eclipse.microprofile.openapi</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+				<exclusion>
 					<groupId>com.innoventsolutions.birt.runtime</groupId>
 					<artifactId>*</artifactId>
 				</exclusion>
