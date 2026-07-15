@@ -1,0 +1,19 @@
+agr_api/src/main/java/org/alliancegenome/api/service/DiseaseESService.java
+  s_11794b899a98c6::t_4dad0b2def1f7b 260-265
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "734478b94ab414a3e5f1970439cebe42503606ba",
+  "prompts": {},
+  "sessions": {
+    "s_11794b899a98c6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "01f1646c-0a98-4446-afc3-745a1f64df58",
+        "model": "unknown"
+      },
+      "human_author": "Ketaki Kindre <kkindre@caltech.edu>"
+    }
+  }
+}
