@@ -202,6 +202,9 @@ public class DiseaseFileGenerator extends FileGenerator {
 		if (relationName.isEmpty() || !pa.path("negated").asBoolean(false)) {
 			return relationName;
 		}
+		if (relationName.equals("is_model_of")) {
+			return "does_not_model";
+		}
 		return relationName.replaceFirst("_", "_not_");
 	}
 
