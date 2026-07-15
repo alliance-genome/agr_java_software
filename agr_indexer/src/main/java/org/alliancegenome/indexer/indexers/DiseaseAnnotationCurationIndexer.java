@@ -20,12 +20,14 @@ import org.alliancegenome.core.document.AlleleDiseaseAnnotationDocument;
 import org.alliancegenome.core.document.DiseaseAnnotationDocument;
 import org.alliancegenome.core.document.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.core.helper.DiseaseAnnotationHelper;
+import org.alliancegenome.curation_api.constants.ReferenceConstants;
 import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.AffectedGenomicModel;
 import org.alliancegenome.curation_api.model.entities.Allele;
 import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.BiologicalEntity;
 import org.alliancegenome.curation_api.model.entities.ConditionRelation;
+import org.alliancegenome.curation_api.model.entities.CrossReference;
 import org.alliancegenome.curation_api.model.entities.DiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.ExperimentalCondition;
 import org.alliancegenome.curation_api.model.entities.Gene;
@@ -98,7 +100,6 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 
 		List<GeneDiseaseAnnotationDocument> list = createGeneDiseaseAnnotationDocuments();
 		createDiseaseAnnotationsFromOrthology();
-
 		List<GeneDiseaseAnnotationDocument> viaOrthologyList = createGeneDiseaseAnnotationViaOrthologyDocuments();
 		list.addAll(viaOrthologyList);
 		log.info("Indexing " + list.size() + " gene documents");
@@ -179,8 +180,8 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 							gdad.setBasedOnGenes(new ArrayList<>(basedOnGenes));
 							Reference evidenceItem = (Reference) diseaseAnnotation.getEvidenceItem();
 							gdad.addReference(evidenceItem);
-							gdad.addPubMedPubModID(getPubmedPubModID(evidenceItem));
-							gdad.addPubModID(getPubModID(evidenceItem));
+							gdad.addPubmedPublication(getPubmedPubModXref(evidenceItem));
+							gdad.addPubModPublication(getPubModXref(evidenceItem));
 							if (gene.getTaxon().getSpecies() != null) {
 								gdad.setPhylogeneticSortingIndex(gene.getTaxon().getSpecies().getPhylogeneticOrder());
 							} else {
@@ -266,18 +267,46 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		target.setEvidenceCodes(source.getEvidenceCodes());
 	}
 
-	private String getPubmedPubModID(Reference singleReference) {
-		if (singleReference == null || CollectionUtils.isEmpty(singleReference.getCrossReferences())) {
-			return null;
-		}
-		return singleReference.getReferenceID();
+	/**
+	 * Walk Reference.crossReferences in {@link ReferenceConstants#primaryXrefOrder} order and
+	 * return the first matching CrossReference (PMID-first for pubmed bucket, PMID-excluded
+	 * for pubMod bucket). The returned CrossReference carries its persisted
+	 * resourceDescriptorPage from the curation system. Falls back to a transient
+	 * CrossReference wrapping the reference's own AGRKB curie when no priority-prefixed xref
+	 * is attached — matches Reference.getReferenceID()/getPubModID() fallback semantics so
+	 * downstream filters and UI rendering see the same payload as pre-SCRUM-6204.
+	 */
+	private CrossReference getPubmedPubModXref(Reference singleReference) {
+		return findPriorityXref(singleReference, true);
 	}
 
-	private String getPubModID(Reference singleReference) {
-		if (singleReference == null || CollectionUtils.isEmpty(singleReference.getCrossReferences())) {
+	private CrossReference getPubModXref(Reference singleReference) {
+		return findPriorityXref(singleReference, false);
+	}
+
+	private CrossReference findPriorityXref(Reference reference, boolean pubmedFirst) {
+		if (reference == null) {
 			return null;
 		}
-		return singleReference.getPubModID();
+		if (CollectionUtils.isNotEmpty(reference.getCrossReferences())) {
+			for (String prefix : ReferenceConstants.primaryXrefOrder) {
+				if (!pubmedFirst && prefix.equals("PMID")) {
+					continue;
+				}
+				for (CrossReference xref : reference.getCrossReferences()) {
+					if (xref.getReferencedCurie() != null && xref.getReferencedCurie().startsWith(prefix + ":")) {
+						return xref;
+					}
+				}
+			}
+		}
+		if (reference.getCurie() == null) {
+			return null;
+		}
+		CrossReference fallback = new CrossReference();
+		fallback.setReferencedCurie(reference.getCurie());
+		fallback.setDisplayName(reference.getCurie());
+		return fallback;
 	}
 
 	private String getGeneratedRelationString(String relation, Boolean negated) {
@@ -376,8 +405,8 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		// gdad.setDataProvider(da.getDataProvider());
 		Reference evidenceItem = (Reference) da.getEvidenceItem();
 		dad.addReference(evidenceItem);
-		dad.addPubMedPubModID(getPubmedPubModID(evidenceItem));
-		dad.addPubModID(getPubModID(evidenceItem));
+		dad.addPubmedPublication(getPubmedPubModXref(evidenceItem));
+		dad.addPubModPublication(getPubModXref(evidenceItem));
 		dad.addPrimaryAnnotation(da);
 		if (biologicalEntity.getTaxon().getSpecies() != null) {
 			dad.setPhylogeneticSortingIndex(biologicalEntity.getTaxon().getSpecies().getPhylogeneticOrder());

@@ -11,6 +11,7 @@ import java.util.Set;
 import org.alliancegenome.curation_api.model.document.es.ESDocument;
 import org.alliancegenome.curation_api.model.entities.BiologicalEntity;
 import org.alliancegenome.curation_api.model.entities.ConditionRelation;
+import org.alliancegenome.curation_api.model.entities.CrossReference;
 import org.alliancegenome.curation_api.model.entities.DiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.Gene;
 import org.alliancegenome.curation_api.model.entities.Reference;
@@ -40,8 +41,8 @@ public class DiseaseAnnotationDocument extends ESDocument {
 
 	private String generatedRelationString;
 	private Set<String> diseaseQualifiers;
-	private Set<String> pubmedPubModIDs;
-	private Set<String> pubModIDs;
+	private Set<CrossReference> pubmedPublications;
+	private Set<CrossReference> pubModPublications;
 	private Set<String> parentSlimIDs;
 	private List<DiseaseAnnotation> primaryAnnotations;
 	private List<Gene> basedOnGenes;
@@ -87,18 +88,24 @@ public class DiseaseAnnotationDocument extends ESDocument {
 		});
 	}
 
-	public void addPubMedPubModID(String id) {
-		if (pubmedPubModIDs == null) {
-			pubmedPubModIDs = new HashSet<>();
+	public void addPubmedPublication(CrossReference publication) {
+		if (publication == null) {
+			return;
 		}
-		pubmedPubModIDs.add(id);
+		if (pubmedPublications == null) {
+			pubmedPublications = new HashSet<>();
+		}
+		pubmedPublications.add(publication);
 	}
 
-	public void addPubModID(String id) {
-		if (pubModIDs == null) {
-			pubModIDs = new HashSet<>();
+	public void addPubModPublication(CrossReference publication) {
+		if (publication == null) {
+			return;
 		}
-		pubModIDs.add(id);
+		if (pubModPublications == null) {
+			pubModPublications = new HashSet<>();
+		}
+		pubModPublications.add(publication);
 	}
 
 	public void addPrimaryAnnotation(DiseaseAnnotation da) {

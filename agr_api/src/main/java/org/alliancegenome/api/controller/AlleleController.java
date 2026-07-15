@@ -124,7 +124,7 @@ public class AlleleController implements AlleleRESTInterface {
 		long startTime = System.currentTimeMillis();
 		Pagination pagination = new Pagination(page, limit, sortBy, null);
 		pagination.addFilterOption("phenotypeStatement", phenotype);
-		pagination.addFilterOption("pubmedPubModIDs", reference);
+		pagination.addFilterOption("pubmedPublications.referencedCurie.keyword", reference);
 		pagination.addFilterOption("primaryAnnotations.dataProvider.abbreviation", source);
 		try {
 			JsonResultResponse<AllelePhenotypeAnnotationDocument> phenotypes = phenotypeESService.getAllelePhenotypeAnnotations(id, pagination, false);
@@ -181,7 +181,7 @@ public class AlleleController implements AlleleRESTInterface {
 		pagination.addFilterOption("evidenceCodes.abbreviation", evidenceCode);
 		pagination.addFilterOption("generatedRelationString.keyword", associationType);
 		pagination.addFilterOption("diseaseQualifiers.keyword", diseaseQualifier);
-		pagination.addFilterOption("pubmedPubModIDs", filterReference);
+		pagination.addFilterOption("pubmedPublications.referencedCurie.keyword", filterReference);
 		pagination.addFilterOption("primaryAnnotations.dataProvider.sourceOrganization.abbreviation", filterSource);
 
 

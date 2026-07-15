@@ -36,7 +36,6 @@ public class GenePhenotypeAnnotationService extends BaseDiseaseAnnotationService
 		HashMap<String, Object> params = new HashMap<>();
 		params.put("internal", false);
 		params.put("obsolete", false);
-		//params.put("phenotypeAnnotationSubject.primaryExternalId", "HGNC:10848");
 		SearchResponse<GenePhenotypeAnnotation> response = geneApi.findForPublic(0, 0, "PhenotypeAnnotationView", params);
 
 		int totalPages = (int) (response.getTotalResults() / bufferSize);
@@ -96,7 +95,6 @@ public class GenePhenotypeAnnotationService extends BaseDiseaseAnnotationService
 			HashMap<String, Object> params = new HashMap<>();
 			params.put("internal", false);
 			params.put("obsolete", false);
-			///params.put("phenotypeAnnotationSubject.primaryExternalId", "HGNC:10848");
 
 			while (true) {
 				if (queue.isEmpty()) {

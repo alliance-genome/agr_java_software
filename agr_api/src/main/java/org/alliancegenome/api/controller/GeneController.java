@@ -325,7 +325,7 @@ public class GeneController implements GeneRESTInterface {
 		long startTime = System.currentTimeMillis();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
 		pagination.addFilterOption("phenotypeStatement", phenotype);
-		pagination.addFilterOption("pubmedPubModIDs", reference);
+		pagination.addFilterOption("pubmedPublications.referencedCurie.keyword", reference);
 		pagination.addFilterOption("primaryAnnotations.dataProvider.abbreviation", dataProvider);
 		try {
 			JsonResultResponse<GenePhenotypeAnnotationDocument> phenotypes = phenotypeESService.getGenePhenotypeAnnotations(id, pagination, false);
