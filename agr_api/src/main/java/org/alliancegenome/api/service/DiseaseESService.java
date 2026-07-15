@@ -257,6 +257,12 @@ public class DiseaseESService extends ESService {
 			parentIDs.forEach(parentID -> {
 				histogram.computeIfAbsent(parentID, k -> new ArrayList<>()).add(annotation);
 			});
+			// DOID:Other is a synthetic bucket with no real ontology term backing it, so it never
+			// appears in an annotation's ancestor closure directly; derive it from the same term
+			// list used by the "Other Disease" drill-down query.
+			if (!CollectionUtils.intersection(parentIDs, DiseaseRibbonSummary.OTHER_DISEASE_TERM_IDS).isEmpty()) {
+				histogram.computeIfAbsent(DiseaseRibbonSummary.DOID_OTHER, k -> new ArrayList<>()).add(annotation);
+			}
 		});
 		return histogram;
 	}
