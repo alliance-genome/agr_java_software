@@ -140,7 +140,7 @@ public class DiseaseFileGenerator extends FileGenerator {
 				row.put("_dbObjectSymbol", symbol);
 			}
 
-			row.put("_associationType", JsonPath.resolveString(pa, "relation.name"));
+			row.put("_associationType", resolveAssociationType(pa));
 			row.put("_doId", JsonPath.resolveString(pa, "diseaseAnnotationObject.curie"));
 			row.put("_doTermName", JsonPath.resolveString(pa, "diseaseAnnotationObject.name"));
 
@@ -195,6 +195,17 @@ public class DiseaseFileGenerator extends FileGenerator {
 			rows.add(row);
 		}
 		return rows;
+	}
+
+	private static String resolveAssociationType(JsonNode pa) {
+		String relationName = JsonPath.resolveString(pa, "relation.name");
+		if (relationName.isEmpty() || !pa.path("negated").asBoolean(false)) {
+			return relationName;
+		}
+		if (relationName.equals("is_model_of")) {
+			return "does_not_model";
+		}
+		return relationName.replaceFirst("_", "_not_");
 	}
 
 	private static String joinWithOrthologs(JsonNode pa) {
