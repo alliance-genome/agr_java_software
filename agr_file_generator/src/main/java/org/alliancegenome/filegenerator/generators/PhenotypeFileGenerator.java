@@ -17,6 +17,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class PhenotypeFileGenerator extends FileGenerator {
 
+	private static final String LINKML_README_URL = "https://alliance-genome.github.io/agr_curation_schema/PhenotypeAnnotation/";
+
 	// Same primaryAnnotation appears across many consolidated docs. Dedup by the canonical Annotation.uniqueId so each annotation is emitted once per run. dispatch() runs from the parallel scroll pool, so this must be a concurrent set.
 	private final Set<String> seenUniqueIds = ConcurrentHashMap.newKeySet();
 
@@ -27,6 +29,11 @@ public class PhenotypeFileGenerator extends FileGenerator {
 	@Override
 	protected void generate() throws Exception {
 		scrollAndWrite();
+	}
+
+	@Override
+	protected String jsonReadmeOverride() {
+		return LINKML_README_URL;
 	}
 
 	@Override
