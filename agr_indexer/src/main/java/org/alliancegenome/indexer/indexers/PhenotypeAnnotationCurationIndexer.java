@@ -5,13 +5,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import org.alliancegenome.core.document.AllelePhenotypeAnnotationDocument;
 import org.alliancegenome.core.document.GenePhenotypeAnnotationDocument;
 import org.alliancegenome.core.document.PhenotypeAnnotationDocument;
+import org.alliancegenome.curation_api.constants.ReferenceConstants;
 import org.alliancegenome.curation_api.model.entities.AGMPhenotypeAnnotation;
 import org.alliancegenome.curation_api.model.entities.AffectedGenomicModel;
 import org.alliancegenome.curation_api.model.entities.Allele;
@@ -125,27 +124,54 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 		return ret;
 	}
 
-	private String getPubmedPubModID(Reference singleReference) {
-		Set<CrossReference> crossReferences = singleReference.getCrossReferences();
-		if (CollectionUtils.isEmpty(crossReferences)) {
+	/**
+	 * Walk Reference.crossReferences in {@link ReferenceConstants#primaryXrefOrder} order
+	 * (PMID first) and return the first matching CrossReference. The returned CrossReference
+	 * carries its persisted resourceDescriptorPage from the curation system. Falls back to a
+	 * transient CrossReference wrapping the reference's own AGRKB curie when no
+	 * priority-prefixed xref is attached — matches Reference.getReferenceID() fallback
+	 * semantics so filters and UI chips see the same payload as pre-SCRUM-6121.
+	 */
+	private CrossReference getPubmedPubModXref(Reference singleReference) {
+		if (singleReference == null) {
 			return null;
 		}
-		String[] prefixes = {"PMID", "MGI", "RGD", "ZFIN", "FB", "WB", "MGI"};
-		for (String prefix : prefixes) {
-			Optional<CrossReference> opt = crossReferences.stream().filter(reference -> reference.getReferencedCurie().startsWith(prefix + ":")).findFirst();
-			if (opt.isPresent()) {
-				return opt.get().getReferencedCurie();
+		if (CollectionUtils.isNotEmpty(singleReference.getCrossReferences())) {
+			for (String prefix : ReferenceConstants.primaryXrefOrder) {
+				for (CrossReference xref : singleReference.getCrossReferences()) {
+					if (xref.getReferencedCurie() != null && xref.getReferencedCurie().startsWith(prefix + ":")) {
+						return xref;
+					}
+				}
 			}
 		}
-		return null;
+		if (singleReference.getCurie() == null) {
+			return null;
+		}
+		CrossReference fallback = new CrossReference();
+		fallback.setReferencedCurie(singleReference.getCurie());
+		fallback.setDisplayName(singleReference.getCurie());
+		return fallback;
+	}
+
+	private CrossReference buildExternalDatabaseReferenceXref(ExternalDatabaseReference externalReference) {
+		if (externalReference == null || externalReference.getCurie() == null) {
+			return null;
+		}
+		CrossReference xref = new CrossReference();
+		xref.setReferencedCurie(externalReference.getCurie());
+		xref.setDisplayName(externalReference.getCurie());
+		xref.setResourceDescriptorPage(externalReference.getResourceDescriptorPage());
+		return xref;
 	}
 
 	private void populateBasePhenotypeAnnotationDocument(BiologicalEntity biologicalEntity, PhenotypeAnnotation da, PhenotypeAnnotationDocument dad) {
 		dad.addReference(da.getEvidenceItem());
 		if (da.getEvidenceItem() instanceof Reference) {
-			dad.addPubMedPubModID(getPubmedPubModID((Reference) da.getEvidenceItem()));
+			CrossReference xref = getPubmedPubModXref((Reference) da.getEvidenceItem());
+			dad.addPubmedPublication(xref);
 		} else if (da.getEvidenceItem() instanceof ExternalDatabaseReference externalReference) {
-			dad.addPubMedPubModID(externalReference.getCurie());
+			dad.addPubmedPublication(buildExternalDatabaseReferenceXref(externalReference));
 		}
 		dad.addPrimaryAnnotation(da);
 	}

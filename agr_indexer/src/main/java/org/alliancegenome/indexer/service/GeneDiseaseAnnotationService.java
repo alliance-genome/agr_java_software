@@ -61,7 +61,6 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 		HashMap<String, Object> params = new HashMap<>();
 		params.put("internal", false);
 		params.put("obsolete", false);
-		//params.put("diseaseAnnotationSubject.primaryExternalId", "HGNC:11998");
 
 		SearchResponse<GeneDiseaseAnnotation> totalResponse = geneApi.findForPublic(0, 0, params);
 		display.startProcess("Pulling Gene DA's from curation", totalResponse.getTotalResults());

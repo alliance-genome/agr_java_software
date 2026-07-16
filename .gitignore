@@ -15,3 +15,6 @@ target/
 .vscode/
 .factorypath
 .claude
+
+# Local indexer dumps (curation API responses cached during development)
+*.json.gz

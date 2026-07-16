@@ -9,6 +9,7 @@ import java.util.Set;
 import org.alliancegenome.curation_api.model.document.es.ESDocument;
 import org.alliancegenome.curation_api.model.entities.BiologicalEntity;
 import org.alliancegenome.curation_api.model.entities.ConditionRelation;
+import org.alliancegenome.curation_api.model.entities.CrossReference;
 import org.alliancegenome.curation_api.model.entities.InformationContentEntity;
 import org.alliancegenome.curation_api.model.entities.PhenotypeAnnotation;
 import org.alliancegenome.curation_api.model.entities.Reference;
@@ -31,7 +32,7 @@ public class PhenotypeAnnotationDocument extends ESDocument {
 
 	private String generatedRelationString;
 	private Set<String> diseaseQualifiers;
-	private Set<String> pubmedPubModIDs;
+	private Set<CrossReference> pubmedPublications;
 	private List<PhenotypeAnnotation> primaryAnnotations;
 	private List<ConditionRelation> conditionModifierList;
 	private List<BiologicalEntity> geneticModifierList;
@@ -54,11 +55,14 @@ public class PhenotypeAnnotationDocument extends ESDocument {
 		references.add(singleReference);
 	}
 
-	public void addPubMedPubModID(String id) {
-		if (pubmedPubModIDs == null) {
-			pubmedPubModIDs = new HashSet<>();
+	public void addPubmedPublication(CrossReference publication) {
+		if (publication == null) {
+			return;
 		}
-		pubmedPubModIDs.add(id);
+		if (pubmedPublications == null) {
+			pubmedPublications = new HashSet<>();
+		}
+		pubmedPublications.add(publication);
 	}
 
 	public void addPrimaryAnnotation(PhenotypeAnnotation da) {

@@ -90,7 +90,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 		pagination.addFilterOption("evidenceCodes.abbreviation", evidenceCode);
 		pagination.addFilterOption("generatedRelationString.keyword", associationType);
 		pagination.addFilterOption("diseaseQualifiers.keyword", diseaseQualifier);
-		pagination.addFilterOption("pubmedPubModIDs", reference);
+		pagination.addFilterOption("pubmedPublications.referencedCurie.keyword", reference);
 		pagination.addFilterOption("primaryAnnotations.dataProvider.abbreviation", dataProvider);
 		pagination.addFilterOption("object.name", diseaseName);
 		if (pagination.hasErrors()) {
@@ -247,7 +247,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 		pagination.addFilterOption("evidenceCodes.abbreviation", evidenceCode);
 		pagination.addFilterOption("generatedRelationString.keyword", associationType);
 		pagination.addFilterOption("diseaseQualifiers.keyword", diseaseQualifier);
-		pagination.addFilterOption("pubmedPubModIDs", reference);
+		pagination.addFilterOption("pubmedPublications.referencedCurie.keyword", reference);
 		pagination.addFilterOption("primaryAnnotations.dataProvider.abbreviation", source);
 		pagination.addFilterOption("primaryAnnotations.with.geneSymbol.displayText", basedOnGeneSymbol);
 		pagination.addFilterOption("object.name", diseaseName);
@@ -306,7 +306,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 		pagination.addFilterOption("experimentalConditionsAggregated", experimentalCondition);
 		pagination.addFilterOption("geneticModifierAggregated", geneticModifier);
 		pagination.addFilterOption("diseaseQualifiers.keyword", diseaseQualifier);
-		pagination.addFilterOption("pubmedPubModIDs", reference);
+		pagination.addFilterOption("pubmedPublications.referencedCurie.keyword", reference);
 		pagination.addFilterOption("primaryAnnotations.dataProvider.abbreviation", source);
 		pagination.addFilterOption("object.name", disease);
 
@@ -408,7 +408,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 		pagination.addFilterOption("evidenceCodes.abbreviation", evidenceCode);
 		pagination.addFilterOption("generatedRelationString.keyword", associationType);
 		pagination.addFilterOption("diseaseQualifiers.keyword", diseaseQualifier);
-		pagination.addFilterOption("pubmedPubModIDs", filterReference);
+		pagination.addFilterOption("pubmedPublications.referencedCurie.keyword", filterReference);
 		pagination.addFilterOption("subject.geneSymbol.displayText", filterGene);
 		pagination.addFilterOption("primaryAnnotations.with.geneSymbol.displayText", basedOnGeneSymbol);
 		pagination.addFilterOption("primaryAnnotations.dataProvider.abbreviation OR primaryAnnotations.secondaryDataProvider.abbreviation", filterSource);

@@ -59,8 +59,8 @@ public class ExpressionFileGenerator extends FileGenerator {
 		obj.put("_cellularComponentQualifierIds", joinField(hit, wherePath + ".cellularComponentQualifiers", "curie"));
 		obj.put("_cellularComponentQualifierNames", joinField(hit, wherePath + ".cellularComponentQualifiers", "name"));
 
-		// Pipe-join the referenceId array; the consolidation upstream in agr_curation packs all PMIDs supporting one annotation into this list.
-		obj.put("_reference", joinScalarArray(hit, "referenceId"));
+		// Pipe-join the references from the referenceXrefs array; the consolidation upstream in agr_curation packs all PMIDs supporting one annotation into this list.
+		obj.put("_reference", joinField(hit, "referenceXrefs", "referencedCurie"));
 
 		return hit;
 	}

@@ -70,7 +70,7 @@ public class LiteratureController implements LiteratureRESTInterface {
 		pagination.addFilterOption("evidenceCodes.abbreviation", evidenceCode);
 		pagination.addFilterOption("primaryAnnotations.with.geneSymbol.displayText", basedOnGene);
 		pagination.addFilterOption("primaryAnnotations.dataProvider.abbreviation", dataProvider);
-		pagination.addFilterOption("pubmedPubModIDs", reference);
+		pagination.addFilterOption("pubmedPublications.referencedCurie", reference);
 		validate(pagination);
 		try {
 			return timed(referenceDataESService.getDiseaseAnnotations(id, pagination), startTime);
@@ -100,7 +100,7 @@ public class LiteratureController implements LiteratureRESTInterface {
 		pagination.addFilterOption("primaryAnnotations.inferredAllele.alleleSymbol.displayText", allele);
 		pagination.addFilterOption("phenotypeStatement", phenotype);
 		pagination.addFilterOption("primaryAnnotations.dataProvider.abbreviation", dataProvider);
-		pagination.addFilterOption("pubmedPubModIDs", reference);
+		pagination.addFilterOption("pubmedPublications.referencedCurie", reference);
 		validate(pagination);
 		try {
 			return timed(referenceDataESService.getPhenotypeAnnotations(id, pagination), startTime);
