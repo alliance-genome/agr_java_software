@@ -1,27 +1,28 @@
 package org.alliancegenome.indexer.service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.config.RestConfig;
+import org.alliancegenome.curation_api.interfaces.crud.ResourceDescriptorCrudInterface;
 import org.alliancegenome.curation_api.model.entities.ResourceDescriptor;
 import org.alliancegenome.curation_api.model.entities.ResourceDescriptorPage;
 import org.alliancegenome.curation_api.response.SearchResponse;
-import org.alliancegenome.indexer.interfaces.ResourceDescriptorPageInterface;
 
 import lombok.extern.slf4j.Slf4j;
 import si.mazi.rescu.RestProxyFactory;
 
 /**
- * Resolves curie → URL template 
+ * Resolves curie → URL template
  */
 @Slf4j
 public class ResourceDescriptorService {
 
-	private static final int PAGE_FETCH_LIMIT = 10000;
+	private static final int RD_FETCH_LIMIT = 10000;
 
-	private final ResourceDescriptorPageInterface resourceDescriptorPageApi = RestProxyFactory.createProxy(ResourceDescriptorPageInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
+	private final ResourceDescriptorCrudInterface resourceDescriptorApi = RestProxyFactory.createProxy(ResourceDescriptorCrudInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 
 	private volatile Map<String, Map<String, String>> pagesByPrefix;
 	private volatile Map<String, String> defaultsByPrefix;
@@ -72,41 +73,55 @@ public class ResourceDescriptorService {
 	}
 
 	private void load() {
-		SearchResponse<ResourceDescriptorPage> response;
+		SearchResponse<ResourceDescriptor> response;
 		try {
-			response = resourceDescriptorPageApi.findForPublic(0, PAGE_FETCH_LIMIT, new HashMap<>());
+			response = resourceDescriptorApi.find(0, RD_FETCH_LIMIT, new HashMap<>());
 		} catch (Exception e) {
-			log.error("Failed to load ResourceDescriptorPages from curation API at " + ConfigHelper.getCurationApiUrl() + " — reference URL resolution will be unavailable", e);
+			log.error("Failed to load ResourceDescriptors from curation API at " + ConfigHelper.getCurationApiUrl() + " — reference URL resolution will be unavailable", e);
 			throw new RuntimeException("ResourceDescriptorService bootstrap failed", e);
 		}
 		Map<String, Map<String, String>> pageMap = new HashMap<>();
 		Map<String, String> defaultMap = new HashMap<>();
+		int pageCount = 0;
 		// Two-pass: real prefixes first so synonyms cannot shadow them when the same
 		// alias is both a real prefix on descriptor A and a synonym on descriptor B.
-		for (ResourceDescriptorPage page : response.getResults()) {
-			ResourceDescriptor rd = page.getResourceDescriptor();
-			if (rd == null || rd.getPrefix() == null || page.getName() == null) {
+		for (ResourceDescriptor rd : response.getResults()) {
+			if (rd.getPrefix() == null || rd.getResourcePages() == null) {
 				continue;
 			}
-			registerPageForPrefix(pageMap, defaultMap, rd.getPrefix(), page, rd);
+			for (ResourceDescriptorPage page : rd.getResourcePages()) {
+				if (page.getName() == null) {
+					continue;
+				}
+				registerPageForPrefix(pageMap, defaultMap, rd.getPrefix(), page, rd);
+				pageCount++;
+			}
 		}
-		for (ResourceDescriptorPage page : response.getResults()) {
-			ResourceDescriptor rd = page.getResourceDescriptor();
-			if (rd == null || rd.getSynonyms() == null || page.getName() == null) {
+		for (ResourceDescriptor rd : response.getResults()) {
+			List<String> synonyms = rd.getSynonyms();
+			if (synonyms == null || rd.getResourcePages() == null) {
 				continue;
 			}
-			for (String synonym : rd.getSynonyms()) {
-				if (synonym != null && !synonym.isEmpty()) {
+			for (String synonym : synonyms) {
+				if (synonym == null || synonym.isEmpty()) {
+					continue;
+				}
+				for (ResourceDescriptorPage page : rd.getResourcePages()) {
+					if (page.getName() == null) {
+						continue;
+					}
 					registerPageForPrefix(pageMap, defaultMap, synonym, page, rd);
 				}
 			}
 		}
-		if (response.getResults().size() >= PAGE_FETCH_LIMIT) {
-			log.warn("ResourceDescriptorService load hit PAGE_FETCH_LIMIT={} — response may be truncated; consider paging", PAGE_FETCH_LIMIT);
+		if (response.getResults().size() >= RD_FETCH_LIMIT) {
+			log.warn("ResourceDescriptorService load hit RD_FETCH_LIMIT={} — response may be truncated; consider paging", RD_FETCH_LIMIT);
 		}
-		log.info("ResourceDescriptorService loaded {} pages across {} prefixes", response.getResults().size(), pageMap.size());
-		pagesByPrefix = pageMap;
+		log.info("ResourceDescriptorService loaded {} pages across {} prefixes from {} descriptors", pageCount, pageMap.size(), response.getResults().size());
+		// Publish defaultsByPrefix first so the DCL fast-path guard (pagesByPrefix != null)
+		// on warm() cannot see a state where pagesByPrefix is set but defaultsByPrefix is still null.
 		defaultsByPrefix = defaultMap;
+		pagesByPrefix = pageMap;
 	}
 
 	private static void registerPageForPrefix(Map<String, Map<String, String>> pageMap, Map<String, String> defaultMap, String prefix, ResourceDescriptorPage page, ResourceDescriptor rd) {

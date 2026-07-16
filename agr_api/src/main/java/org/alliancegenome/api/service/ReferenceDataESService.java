@@ -301,13 +301,13 @@ public class ReferenceDataESService extends ESService {
 		return id == null ? "" : id.toString();
 	}
 
-	// Expression docs on stage index only `referenceId` (PMID/MOD IDs).
+	// Expression docs index publications as `referenceXrefs` (PMID/MOD CrossReference objects).
 	// The caller passes the set of cross-reference curies (PMID/MOD) from the literature summary.
 	public JsonResultResponse<GeneExpressionDocument> getExpressionAnnotations(List<String> crossReferenceCuries, Pagination pagination) {
 		BoolQueryBuilder query = boolQuery()
 			.filter(termQuery("category", "gene_expression_annotation"));
 		if (crossReferenceCuries != null && !crossReferenceCuries.isEmpty()) {
-			query.must(termsQuery("referenceId.keyword", crossReferenceCuries));
+			query.must(termsQuery("referenceXrefs.referencedCurie.keyword", crossReferenceCuries));
 		}
 		return runTypedQuery(query, pagination, GeneExpressionDocument.class);
 	}
