@@ -267,7 +267,10 @@ public enum FileGeneratorConfig {
 	 */
 	private static Map<String, String> phenotypeFieldMap() {
 		Map<String, String> m = new LinkedHashMap<>();
-		m.put("Phenotype", "_phenotype");
+		m.put("Taxon", "_taxon");
+		m.put("SpeciesName", "_speciesName");
+		m.put("Phenotype Statement", "_phenotypeStatement");
+		m.put("Phenotype Terms", "_phenotypeTerms");
 		m.put("Genetic Entity ID", "_geneticEntityId");
 		m.put("Genetic Entity Name", "_geneticEntityName");
 		m.put("Genetic Entity Type", "_geneticEntityType");

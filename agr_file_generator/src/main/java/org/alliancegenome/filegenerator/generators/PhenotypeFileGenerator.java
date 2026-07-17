@@ -1,6 +1,7 @@
 package org.alliancegenome.filegenerator.generators;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -17,6 +18,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class PhenotypeFileGenerator extends FileGenerator {
 
+	private static final String LINKML_README_URL = "https://alliance-genome.github.io/agr_curation_schema/PhenotypeAnnotation/";
+
 	// Same primaryAnnotation appears across many consolidated docs. Dedup by the canonical Annotation.uniqueId so each annotation is emitted once per run. dispatch() runs from the parallel scroll pool, so this must be a concurrent set.
 	private final Set<String> seenUniqueIds = ConcurrentHashMap.newKeySet();
 
@@ -27,6 +30,11 @@ public class PhenotypeFileGenerator extends FileGenerator {
 	@Override
 	protected void generate() throws Exception {
 		scrollAndWrite();
+	}
+
+	@Override
+	protected String jsonReadmeOverride() {
+		return LINKML_README_URL;
 	}
 
 	@Override
@@ -68,12 +76,11 @@ public class PhenotypeFileGenerator extends FileGenerator {
 
 			// Per-row taxon — drives row-level routing (see rowTaxonPath()). Pulled from the individual primaryAnnotations[i] entry so via-orthology fan-out rows land in the right per-MOD file.
 			row.put("_taxon", JsonPath.resolveString(pa, "phenotypeAnnotationSubject.taxon.curie"));
+			row.put("_speciesName", JsonPath.resolveString(pa, "phenotypeAnnotationSubject.taxon.species.fullName"));
 
-			String phenotype = JsonPath.resolveString(pa, "phenotypeTerms.0.name");
-			if (phenotype.isEmpty()) {
-				phenotype = JsonPath.resolveString(pa, "phenotypeAnnotationObject");
-			}
-			row.put("_phenotype", phenotype);
+			// The phenotype statement is the full curated phrase (e.g. "decreased mating efficiency"); phenotypeTerms are its individual ontology components (e.g. "decreased", "mating efficiency"). Emit the statement and the terms in separate columns.
+			row.put("_phenotypeStatement", JsonPath.resolveString(pa, "phenotypeAnnotationObject"));
+			row.put("_phenotypeTerms", joinPhenotypeTerms(pa));
 
 			row.put("_geneticEntityId", JsonPath.resolveString(pa, "phenotypeAnnotationSubject.primaryExternalId"));
 
@@ -106,8 +113,8 @@ public class PhenotypeFileGenerator extends FileGenerator {
 			}
 			row.put("_geneticEntityType", entityType);
 
-			// Reserved — the consolidated ES doc does not currently carry experimental conditions for phenotype annotations. Same empty-cell pattern Disease uses for unsupported columns.
-			row.put("_experimentalCondition", "");
+			// Experimental conditions live at conditionRelations[].conditions[].conditionSummary — both are arrays, so flatten and bar-separate the human-readable summaries. Empty when the annotation carries no conditions.
+			row.put("_experimentalCondition", joinConditionSummaries(pa));
 
 			row.put("_source", JsonPath.resolveString(pa, "dataProvider.abbreviation"));
 
@@ -120,5 +127,47 @@ public class PhenotypeFileGenerator extends FileGenerator {
 			rows.add(row);
 		}
 		return rows;
+	}
+
+	private static String joinPhenotypeTerms(JsonNode pa) {
+		JsonNode terms = pa.path("phenotypeTerms");
+		if (!terms.isArray()) {
+			return "";
+		}
+		LinkedHashSet<String> rendered = new LinkedHashSet<>();
+		for (JsonNode term : terms) {
+			String name = term.path("name").asText("");
+			String curie = term.path("curie").asText("");
+			if (name.isEmpty() && curie.isEmpty()) {
+				continue;
+			}
+			if (curie.isEmpty()) {
+				rendered.add(name);
+			} else {
+				rendered.add(name + " (" + curie + ")");
+			}
+		}
+		return String.join("|", rendered);
+	}
+
+	private static String joinConditionSummaries(JsonNode pa) {
+		JsonNode relations = pa.path("conditionRelations");
+		if (!relations.isArray()) {
+			return "";
+		}
+		LinkedHashSet<String> summaries = new LinkedHashSet<>();
+		for (JsonNode relation : relations) {
+			JsonNode conditions = relation.path("conditions");
+			if (!conditions.isArray()) {
+				continue;
+			}
+			for (JsonNode condition : conditions) {
+				String summary = condition.path("conditionSummary").asText("");
+				if (!summary.isEmpty()) {
+					summaries.add(summary);
+				}
+			}
+		}
+		return String.join("|", summaries);
 	}
 }
