@@ -153,6 +153,7 @@ public class Mapping extends Builder {
 		new FieldBuilder(builder, "allele.taxon.species.fullName", "text").keyword().sortSmartAlpha().build(); // variant_summary
 		new FieldBuilder(builder, "allele.taxon.species.genomeAssembly.curie", "text").keyword().build(); // variant_summary
 		new FieldBuilder(builder, "allele.taxon.species.genomeAssembly.primaryExternalId", "text").keyword().build(); // variant_summary
+		new FieldBuilder(builder, "allele.references.curie", "text").keyword().build(); // allele_summary, transgenic_allele_summary
 		new FieldBuilder(builder, "definition", "text").standardText().build(); // go, disease
 
 		new FieldBuilder(builder, "models", "text").keyword().autocomplete().build(); // gene, disease
