@@ -78,11 +78,9 @@ public class PhenotypeFileGenerator extends FileGenerator {
 			row.put("_taxon", JsonPath.resolveString(pa, "phenotypeAnnotationSubject.taxon.curie"));
 			row.put("_speciesName", JsonPath.resolveString(pa, "phenotypeAnnotationSubject.taxon.species.fullName"));
 
-			String phenotype = JsonPath.resolveString(pa, "phenotypeTerms.0.name");
-			if (phenotype.isEmpty()) {
-				phenotype = JsonPath.resolveString(pa, "phenotypeAnnotationObject");
-			}
-			row.put("_phenotype", phenotype);
+			// The phenotype statement is the full curated phrase (e.g. "decreased mating efficiency"); phenotypeTerms are its individual ontology components (e.g. "decreased", "mating efficiency"). Emit the statement and the terms in separate columns.
+			row.put("_phenotypeStatement", JsonPath.resolveString(pa, "phenotypeAnnotationObject"));
+			row.put("_phenotypeTerms", joinPhenotypeTerms(pa));
 
 			row.put("_geneticEntityId", JsonPath.resolveString(pa, "phenotypeAnnotationSubject.primaryExternalId"));
 
@@ -129,6 +127,27 @@ public class PhenotypeFileGenerator extends FileGenerator {
 			rows.add(row);
 		}
 		return rows;
+	}
+
+	private static String joinPhenotypeTerms(JsonNode pa) {
+		JsonNode terms = pa.path("phenotypeTerms");
+		if (!terms.isArray()) {
+			return "";
+		}
+		LinkedHashSet<String> rendered = new LinkedHashSet<>();
+		for (JsonNode term : terms) {
+			String name = term.path("name").asText("");
+			String curie = term.path("curie").asText("");
+			if (name.isEmpty() && curie.isEmpty()) {
+				continue;
+			}
+			if (curie.isEmpty()) {
+				rendered.add(name);
+			} else {
+				rendered.add(name + " (" + curie + ")");
+			}
+		}
+		return String.join("|", rendered);
 	}
 
 	private static String joinConditionSummaries(JsonNode pa) {
