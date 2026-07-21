@@ -20,7 +20,6 @@ public class PhenotypeFileGenerator extends FileGenerator {
 
 	private static final String LINKML_README_URL = "https://alliance-genome.github.io/agr_curation_schema/PhenotypeAnnotation/";
 
-	// Same primaryAnnotation appears across many consolidated docs. Dedup by the canonical Annotation.uniqueId so each annotation is emitted once per run. dispatch() runs from the parallel scroll pool, so this must be a concurrent set.
 	private final Set<String> seenUniqueIds = ConcurrentHashMap.newKeySet();
 
 	public PhenotypeFileGenerator(FileGeneratorConfig config) {
@@ -42,9 +41,6 @@ public class PhenotypeFileGenerator extends FileGenerator {
 		return "subject.taxon.curie";
 	}
 
-	/**
-	 * Row-format outputs route by the per-annotation taxon, not the consolidated doc's subject taxon. {@code _taxon} is populated inside customizeRows() from {@code primaryAnnotations[i].phenotypeAnnotationSubject.taxon.curie}, so via-orthology fan-out rows land in the file matching their own subject's MOD instead of the parent doc's.
-	 */
 	@Override
 	protected String rowTaxonPath() {
 		return "_taxon";
@@ -55,9 +51,6 @@ public class PhenotypeFileGenerator extends FileGenerator {
 		return hit;
 	}
 
-	/**
-	 * The gene_phenotype_annotation ES docs are consolidated — each hit carries a primaryAnnotations[] array containing the individual phenotype annotations. JSON_RAW writes the consolidated doc verbatim (via customizeRow); TSV writes one flattened row per primaryAnnotations[i].
-	 */
 	@Override
 	protected List<JsonNode> customizeRows(JsonNode customizedHit) {
 		JsonNode primary = JsonPath.resolve(customizedHit, "primaryAnnotations");
