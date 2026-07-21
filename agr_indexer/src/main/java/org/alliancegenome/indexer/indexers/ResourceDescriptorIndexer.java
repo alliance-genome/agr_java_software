@@ -9,14 +9,14 @@ import java.util.stream.Collectors;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.config.RestConfig;
 import org.alliancegenome.core.document.ResourceDescriptorDocument;
-import org.alliancegenome.core.document.ResourceDescriptorPageDocument;
 import org.alliancegenome.core.es.util.ProcessDisplayHelper;
 import org.alliancegenome.curation_api.interfaces.crud.ResourceDescriptorCrudInterface;
 import org.alliancegenome.curation_api.model.entities.ResourceDescriptor;
-import org.alliancegenome.curation_api.model.entities.ResourceDescriptorPage;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.config.IndexerConfig;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
 import si.mazi.rescu.RestProxyFactory;
@@ -31,6 +31,11 @@ public class ResourceDescriptorIndexer extends Indexer {
 
 	public ResourceDescriptorIndexer(IndexerConfig indexerConfig) {
 		super(indexerConfig);
+	}
+
+	@Override
+	protected ObjectMapper customizeObjectMapper(ObjectMapper objectMapper) {
+		return RestConfig.config.getJacksonObjectMapperFactory().createObjectMapper();
 	}
 
 	@Override
@@ -64,25 +69,7 @@ public class ResourceDescriptorIndexer extends Indexer {
 
 	private static ResourceDescriptorDocument toDocument(ResourceDescriptor rd) {
 		ResourceDescriptorDocument document = new ResourceDescriptorDocument();
-		document.setPrefix(rd.getPrefix());
-		document.setName(rd.getName());
-		document.setSynonyms(rd.getSynonyms());
-		document.setIdExample(rd.getIdExample());
-		document.setIdPattern(rd.getIdPattern());
-		document.setDefaultUrlTemplate(rd.getDefaultUrlTemplate());
-		if (rd.getResourcePages() != null) {
-			document.setResourcePages(rd.getResourcePages().stream()
-				.map(ResourceDescriptorIndexer::toPageDocument)
-				.collect(Collectors.toList()));
-		}
+		document.setResourceDescriptor(rd);
 		return document;
-	}
-
-	private static ResourceDescriptorPageDocument toPageDocument(ResourceDescriptorPage page) {
-		ResourceDescriptorPageDocument pageDocument = new ResourceDescriptorPageDocument();
-		pageDocument.setName(page.getName());
-		pageDocument.setUrlTemplate(page.getUrlTemplate());
-		pageDocument.setPageDescription(page.getPageDescription());
-		return pageDocument;
 	}
 }

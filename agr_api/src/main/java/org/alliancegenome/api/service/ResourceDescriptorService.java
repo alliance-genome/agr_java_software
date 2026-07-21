@@ -64,7 +64,9 @@ public class ResourceDescriptorService {
 		}
 		// Deterministic order for a stable public listing (replaces an ordered YAML file).
 		// Sorted client-side because `prefix` has no ES keyword sub-field to sort on server-side.
-		results.sort(Comparator.comparing(ResourceDescriptorDocument::getPrefix, Comparator.nullsLast(Comparator.naturalOrder())));
+		results.sort(Comparator.comparing(
+			(ResourceDescriptorDocument document) -> document.getResourceDescriptor() != null ? document.getResourceDescriptor().getPrefix() : null,
+			Comparator.nullsLast(Comparator.naturalOrder())));
 		return results;
 	}
 
