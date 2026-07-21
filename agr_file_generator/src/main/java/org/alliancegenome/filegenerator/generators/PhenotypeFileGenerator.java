@@ -71,7 +71,6 @@ public class PhenotypeFileGenerator extends FileGenerator {
 			String taxonCurie = JsonPath.resolveString(pa, "phenotypeAnnotationSubject.taxon.curie");
 			row.put("_taxon", taxonCurie);
 
-			// The nested taxon.species object is only hydrated on some ES docs (e.g. allele annotations, mouse/fly/worm gene annotations) and absent on others (all human/Xenopus gene annotations, most rat gene annotations), which left the Species Name column blank or sporadic. Fall back to the taxon-curie -> fullName lookup (the same source the file header uses) so every row is populated.
 			String speciesName = JsonPath.resolveString(pa, "phenotypeAnnotationSubject.taxon.species.fullName");
 			if (speciesName.isEmpty() && species != null) {
 				String looked = species.fullNameFor(taxonCurie);
