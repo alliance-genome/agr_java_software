@@ -75,8 +75,18 @@ public class PhenotypeFileGenerator extends FileGenerator {
 			ObjectNode row = JsonNodeFactory.instance.objectNode();
 
 			// Per-row taxon — drives row-level routing (see rowTaxonPath()). Pulled from the individual primaryAnnotations[i] entry so via-orthology fan-out rows land in the right per-MOD file.
-			row.put("_taxon", JsonPath.resolveString(pa, "phenotypeAnnotationSubject.taxon.curie"));
-			row.put("_speciesName", JsonPath.resolveString(pa, "phenotypeAnnotationSubject.taxon.species.fullName"));
+			String taxonCurie = JsonPath.resolveString(pa, "phenotypeAnnotationSubject.taxon.curie");
+			row.put("_taxon", taxonCurie);
+
+			// The nested taxon.species object is only hydrated on some ES docs (e.g. allele annotations, mouse/fly/worm gene annotations) and absent on others (all human/Xenopus gene annotations, most rat gene annotations), which left the Species Name column blank or sporadic. Fall back to the taxon-curie -> fullName lookup (the same source the file header uses) so every row is populated.
+			String speciesName = JsonPath.resolveString(pa, "phenotypeAnnotationSubject.taxon.species.fullName");
+			if (speciesName.isEmpty() && species != null) {
+				String looked = species.fullNameFor(taxonCurie);
+				if (looked != null) {
+					speciesName = looked;
+				}
+			}
+			row.put("_speciesName", speciesName);
 
 			// The phenotype statement is the full curated phrase (e.g. "decreased mating efficiency"); phenotypeTerms are its individual ontology components (e.g. "decreased", "mating efficiency"). Emit the statement and the terms in separate columns.
 			row.put("_phenotypeStatement", JsonPath.resolveString(pa, "phenotypeAnnotationObject"));
