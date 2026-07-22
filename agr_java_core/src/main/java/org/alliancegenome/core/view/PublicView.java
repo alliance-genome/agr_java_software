@@ -46,6 +46,9 @@ public class PublicView {
 	public static class ReleaseInfo extends API {
 	}
 
+	public static class ResourceDescriptor extends API {
+	}
+
 	// Narrow view used by the disease-ancestors endpoint to serialize only curie + name
 	// from each ancestor term. Intentionally standalone (not extending API) so the
 	// MixIn-applied annotations on OntologyTerm's curie/name fully define the output.
