@@ -105,6 +105,7 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 		VocabularyTerm isMarkerViaOrthology = vocabularyTermService.getDiseaseRelationTerms().get("is_marker_via_orthology");
 		VocabularyTerm isImplicatedViaOrthology = vocabularyTermService.getDiseaseRelationTerms().get("is_implicated_via_orthology");
 		ECOTerm ecoTermIEA = ecoTermService.getEcoTerm("ECO:0000501");
+		Reference allianceReference = referenceService.getReference("AGRKB:101000000828456");
 
 		display.startProcess("Creating Gene DA's via orthology", geneMap.size());
 		// loop over all Markers of validated DiseaseAnnotation records
@@ -154,7 +155,7 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 					Organization dataProvider = orgService.getOrganization("Alliance");
 					gda.setDataProvider(dataProvider);
 					gda.setWith(List.of(geneGeneOrthology.getSubjectGene()));
-					gda.setEvidenceItem(focusDiseaseAnnotation.getEvidenceItem());
+					gda.setEvidenceItem(allianceReference);
 					gda.setDiseaseAnnotationObject(focusDiseaseAnnotation.getDiseaseAnnotationObject());
 					gda.setEvidenceCodes(List.of(ecoTermIEA));
 					gda.setDiseaseQualifiers(focusDiseaseAnnotation.getDiseaseQualifiers());
