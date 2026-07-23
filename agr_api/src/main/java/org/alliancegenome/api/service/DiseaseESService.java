@@ -83,12 +83,12 @@ public class DiseaseESService extends ESService {
 		new String[] { "alleles", "allele_disease_annotation" }
 	);
 
-	// the disease-portal "genes" pill counts distinct genes (gene-species pairs)
-	// with a positive association, not annotation documents.
+	// distinct-subject counts (gene/allele-species pairs, positive associations only)
 	private static final String GENE_CATEGORY = "gene_disease_annotation";
+	private static final String ALLELE_CATEGORY = "allele_disease_annotation";
 	private static final String DISTINCT_SUBJECT_AGG = "distinct_subjects";
-	// ES cardinality is exact below this threshold; disease-portal gene counts stay well under it.
-	private static final int GENE_COUNT_PRECISION_THRESHOLD = 40000;
+	// ES cardinality is exact below this threshold; disease-portal counts stay well under it.
+	private static final int SUBJECT_COUNT_PRECISION_THRESHOLD = 40000;
 
 	// termID may be used in the future when converting disease page to new ES stack.
 	public JsonResultResponse<GeneDiseaseAnnotationDocument> getRibbonDiseaseAnnotations(String focusTaxonId, List<String> geneIDs, String termID, Pagination pagination, boolean excludeNegated, boolean debug) {
@@ -612,21 +612,25 @@ public class DiseaseESService extends ESService {
 		return result;
 	}
 
-	// distinct count of genes (gene-species pairs) with a positive association
-	// with a single disease (including its sub-terms). Backs the /{id}/genes_counts endpoint
-	// shown at the top of the disease portal pages. Excludes negated associations ("not
-	// implicated in" / "not marker for"); disease qualifiers don't matter once we de-duplicate
-	// by gene.
 	public long countDistinctPositiveGenes(String diseaseID) {
+		return countDistinctPositiveSubjects(GENE_CATEGORY, diseaseID);
+	}
+
+	public long countDistinctPositiveAlleles(String diseaseID) {
+		return countDistinctPositiveSubjects(ALLELE_CATEGORY, diseaseID);
+	}
+
+	// distinct subjects positively associated with a disease, excluding negated annotations
+	private long countDistinctPositiveSubjects(String category, String diseaseID) {
 		BoolQueryBuilder bool = boolQuery()
-			.filter(new TermQueryBuilder("category", GENE_CATEGORY))
+			.filter(new TermQueryBuilder("category", category))
 			.filter(new TermQueryBuilder("parentSlimIDs.keyword", diseaseID));
 		bool.must(matchQuery("primaryAnnotations.negated", false));
 
 		AggregationBuilder agg = AggregationBuilders
 			.cardinality(DISTINCT_SUBJECT_AGG)
 			.field("subject.primaryExternalId.keyword")
-			.precisionThreshold(GENE_COUNT_PRECISION_THRESHOLD);
+			.precisionThreshold(SUBJECT_COUNT_PRECISION_THRESHOLD);
 
 		SearchResponse response = SEARCH_DAO.performQuery(
 			(QueryBuilder) bool, java.util.List.of(agg), null, java.util.List.of("subject"),
@@ -637,12 +641,13 @@ public class DiseaseESService extends ESService {
 	}
 
 	private java.util.Map<String, Long> countByDisease(String category, String[] diseaseIds) {
-		boolean distinctGenes = GENE_CATEGORY.equals(category);
+		// genes and alleles are counted as distinct positive subjects; models as annotation docs
+		boolean distinctSubjects = GENE_CATEGORY.equals(category) || ALLELE_CATEGORY.equals(category);
 
 		BoolQueryBuilder bool = boolQuery()
 			.filter(new TermQueryBuilder("category", category))
 			.filter(new TermsQueryBuilder("parentSlimIDs.keyword", diseaseIds));
-		if (distinctGenes) {
+		if (distinctSubjects) {
 			bool.must(matchQuery("primaryAnnotations.negated", false));
 		}
 
@@ -651,11 +656,11 @@ public class DiseaseESService extends ESService {
 			.field("parentSlimIDs.keyword")
 			.includeExclude(new IncludeExclude(diseaseIds, null))
 			.size(Math.max(diseaseIds.length, 1));
-		if (distinctGenes) {
+		if (distinctSubjects) {
 			agg.subAggregation(AggregationBuilders
 				.cardinality(DISTINCT_SUBJECT_AGG)
 				.field("subject.primaryExternalId.keyword")
-				.precisionThreshold(GENE_COUNT_PRECISION_THRESHOLD));
+				.precisionThreshold(SUBJECT_COUNT_PRECISION_THRESHOLD));
 		}
 
 		SearchResponse response = SEARCH_DAO.performQuery(
@@ -666,7 +671,7 @@ public class DiseaseESService extends ESService {
 		ParsedStringTerms terms = response.getAggregations().get("by_disease");
 		for (Terms.Bucket bucket : terms.getBuckets()) {
 			long count;
-			if (distinctGenes) {
+			if (distinctSubjects) {
 				ParsedCardinality distinct = bucket.getAggregations().get(DISTINCT_SUBJECT_AGG);
 				count = distinct.getValue();
 			} else {

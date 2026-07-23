@@ -492,11 +492,8 @@ public class DiseaseController implements DiseaseRESTInterface {
 
 	@Override
 	public Long getCountsOfDiseaseAnnotationsByAllele(String diseaseID) {
-		String associationType = diseaseESService.getAT("allele_disease_annotation", diseaseID);
-		String sortBy = "diseaseAlleleDefault";
-		
-		JsonResultResponse<AlleleDiseaseAnnotationDocument> response = getDiseaseAnnotationsByAllele(diseaseID, null, null, sortBy, null, null, null, null, null, null, null, null, associationType, null, null);
-		return response.getTotal();
+		// count distinct alleles with a positive association, not annotation documents
+		return diseaseESService.countDistinctPositiveAlleles(diseaseID);
 	}
 
 	@Override
