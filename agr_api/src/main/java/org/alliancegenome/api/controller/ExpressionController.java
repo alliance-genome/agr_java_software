@@ -84,7 +84,7 @@ public class ExpressionController implements ExpressionRESTInterface {
 		pagination.addFilterOption("geneExpressionAnnotation.whenExpressedStageName", filterStage);
 		pagination.addFilterOption("geneExpressionAnnotation.expressionAssayUsed.name", filterAssay);
 		pagination.addFilterOption("geneExpressionAnnotation.crossReferences.referencedCurie", filterSource);
-		pagination.addFilterOption("referenceXrefs.referencedCurie.keyword", filterReference);
+		pagination.addFilterOption("referenceXrefs.referencedCurie", filterReference);
 
 		JsonResultResponse<GeneExpressionDocument> expressions = expressionESService.getExpressionAnnotations(geneIDs, termID, focusTaxonId, pagination);
 		expressions.calculateRequestDuration(startTime);
