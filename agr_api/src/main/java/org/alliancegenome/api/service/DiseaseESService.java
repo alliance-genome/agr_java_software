@@ -83,9 +83,10 @@ public class DiseaseESService extends ESService {
 		new String[] { "alleles", "allele_disease_annotation" }
 	);
 
-	// distinct-subject counts (gene/allele-species pairs, positive associations only)
+	// distinct-subject counts (gene/allele/model-species pairs, positive associations only)
 	private static final String GENE_CATEGORY = "gene_disease_annotation";
 	private static final String ALLELE_CATEGORY = "allele_disease_annotation";
+	private static final String MODEL_CATEGORY = "agm_disease_annotation";
 	private static final String DISTINCT_SUBJECT_AGG = "distinct_subjects";
 	// ES cardinality is exact below this threshold; disease-portal counts stay well under it.
 	private static final int SUBJECT_COUNT_PRECISION_THRESHOLD = 40000;
@@ -620,6 +621,10 @@ public class DiseaseESService extends ESService {
 		return countDistinctPositiveSubjects(ALLELE_CATEGORY, diseaseID);
 	}
 
+	public long countDistinctPositiveModels(String diseaseID) {
+		return countDistinctPositiveSubjects(MODEL_CATEGORY, diseaseID);
+	}
+
 	// distinct subjects positively associated with a disease, excluding negated annotations
 	private long countDistinctPositiveSubjects(String category, String diseaseID) {
 		BoolQueryBuilder bool = boolQuery()
@@ -641,27 +646,21 @@ public class DiseaseESService extends ESService {
 	}
 
 	private java.util.Map<String, Long> countByDisease(String category, String[] diseaseIds) {
-		// genes and alleles are counted as distinct positive subjects; models as annotation docs
-		boolean distinctSubjects = GENE_CATEGORY.equals(category) || ALLELE_CATEGORY.equals(category);
-
+		// all portal pills count distinct positive subjects (subject-species pairs)
 		BoolQueryBuilder bool = boolQuery()
 			.filter(new TermQueryBuilder("category", category))
-			.filter(new TermsQueryBuilder("parentSlimIDs.keyword", diseaseIds));
-		if (distinctSubjects) {
-			bool.must(matchQuery("primaryAnnotations.negated", false));
-		}
+			.filter(new TermsQueryBuilder("parentSlimIDs.keyword", diseaseIds))
+			.must(matchQuery("primaryAnnotations.negated", false));
 
 		AggregationBuilder agg = AggregationBuilders
 			.terms("by_disease")
 			.field("parentSlimIDs.keyword")
 			.includeExclude(new IncludeExclude(diseaseIds, null))
-			.size(Math.max(diseaseIds.length, 1));
-		if (distinctSubjects) {
-			agg.subAggregation(AggregationBuilders
+			.size(Math.max(diseaseIds.length, 1))
+			.subAggregation(AggregationBuilders
 				.cardinality(DISTINCT_SUBJECT_AGG)
 				.field("subject.primaryExternalId.keyword")
 				.precisionThreshold(SUBJECT_COUNT_PRECISION_THRESHOLD));
-		}
 
 		SearchResponse response = SEARCH_DAO.performQuery(
 			(QueryBuilder) bool, java.util.List.of(agg), null, java.util.List.of("subject"),
@@ -670,14 +669,8 @@ public class DiseaseESService extends ESService {
 		java.util.Map<String, Long> counts = new java.util.HashMap<>();
 		ParsedStringTerms terms = response.getAggregations().get("by_disease");
 		for (Terms.Bucket bucket : terms.getBuckets()) {
-			long count;
-			if (distinctSubjects) {
-				ParsedCardinality distinct = bucket.getAggregations().get(DISTINCT_SUBJECT_AGG);
-				count = distinct.getValue();
-			} else {
-				count = bucket.getDocCount();
-			}
-			counts.put(bucket.getKeyAsString(), count);
+			ParsedCardinality distinct = bucket.getAggregations().get(DISTINCT_SUBJECT_AGG);
+			counts.put(bucket.getKeyAsString(), distinct.getValue());
 		}
 		return counts;
 	}

@@ -21,7 +21,8 @@ public class DiseaseAnnotationHelper {
 			return allele.getAlleleSymbol().getFormatText();
 		}
 		if (entity instanceof AffectedGenomicModel model) {
-			return model.getAgmFullName().getDisplayText();
+			// agmFullName is an optional slot annotation; return null when absent to avoid an NPE
+			return model.getAgmFullName() != null ? model.getAgmFullName().getDisplayText() : null;
 		}
 		return null;
 	}

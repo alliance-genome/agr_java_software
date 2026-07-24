@@ -498,10 +498,8 @@ public class DiseaseController implements DiseaseRESTInterface {
 
 	@Override
 	public Long getCountsOfDiseaseAnnotationsForModel(String diseaseID) {
-		String associationType = diseaseESService.getAT("agm_disease_annotation", diseaseID);
-		
-		JsonResultResponse<AGMDiseaseAnnotationDocument> response = getDiseaseAnnotationsForModel(diseaseID, null, null, null, null, null, null, null, null, null, null, associationType, null, null, null, null, null);
-		return response.getTotal();
+		// count distinct models with a positive association, not annotation documents
+		return diseaseESService.countDistinctPositiveModels(diseaseID);
 	}
 
 	@Override

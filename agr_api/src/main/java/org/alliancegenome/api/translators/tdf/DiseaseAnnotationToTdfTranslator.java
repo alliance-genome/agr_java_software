@@ -87,6 +87,17 @@ public class DiseaseAnnotationToTdfTranslator extends BaseToTdfTranslator {
 		return list;
 	}
 
+	// An AGM's full name is an optional slot annotation; return null (blank cell) when it is absent
+	// so the download does not fail on models lacking an agmFullName (e.g. some RGD strains). This
+	// mirrors the web table, which renders agmFullName?.displayText; the model identifier is still
+	// emitted separately in the "Model ID" column.
+	private static String getAgmName(org.alliancegenome.curation_api.model.entities.AffectedGenomicModel agm) {
+		if (agm == null || agm.getAgmFullName() == null) {
+			return null;
+		}
+		return agm.getAgmFullName().getDisplayText();
+	}
+
 	private static void extracted(DiseaseAnnotationDocument annotation, DiseaseAnnotation primaryAnnotation, DiseaseDownloadRow row) {
 		String subjectTaxonCurie = null;
 		String subjectTaxonName = null;
@@ -109,7 +120,7 @@ public class DiseaseAnnotationToTdfTranslator extends BaseToTdfTranslator {
 			subjectTaxonCurie = subject.getTaxon().getCurie();
 			subjectTaxonName = subject.getTaxon().getSpecies().getFullName();
 			subjectID = subject.getIdentifier();
-			subjectSymbol = subject.getAgmFullName().getDisplayText();
+			subjectSymbol = getAgmName(subject);
 			row.setEntityType(subject.getSubtype().getName());
 		} else {
 			subjectID = null;
@@ -121,7 +132,7 @@ public class DiseaseAnnotationToTdfTranslator extends BaseToTdfTranslator {
 		// needs better generics or have subject attribute on the parent class (DiseaseAnnotation)
 		if (primaryAnnotation instanceof AGMDiseaseAnnotation pAnnotation) {
 			row.setGeneticEntityID(pAnnotation.getDiseaseAnnotationSubject().getIdentifier());
-			row.setGeneticEntityName(pAnnotation.getDiseaseAnnotationSubject().getAgmFullName().getDisplayText());
+			row.setGeneticEntityName(getAgmName(pAnnotation.getDiseaseAnnotationSubject()));
 			row.setGeneticEntityType(pAnnotation.getDiseaseAnnotationSubject().getSubtype().getName());
 			List<org.alliancegenome.curation_api.model.entities.Gene> assertedGenes = pAnnotation.getAssertedGenes();
 			if (CollectionUtils.isNotEmpty(assertedGenes)) {
