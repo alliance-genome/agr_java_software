@@ -77,7 +77,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 																							String evidenceCode,
 																							String associationType,
 																							String diseaseQualifier,
-																							String asc) {
+																							String asc, String referenceCitation) {
 		long startTime = System.currentTimeMillis();
 		// The @DefaultValue only kicks in if the value is null.
 		// need to handle an empty value manually here.
@@ -91,6 +91,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 		pagination.addFilterOption("generatedRelationString.keyword", associationType);
 		pagination.addFilterOption("diseaseQualifiers.keyword", diseaseQualifier);
 		pagination.addFilterOption("pubmedPublications.referencedCurie", reference);
+		pagination.addFilterOption("references.shortCitation", referenceCitation);
 		pagination.addFilterOption("primaryAnnotations.dataProvider.abbreviation", dataProvider);
 		pagination.addFilterOption("object.name", diseaseName);
 		if (pagination.hasErrors()) {
@@ -129,9 +130,9 @@ public class DiseaseController implements DiseaseRESTInterface {
 		String diseaseQualifier,
 		boolean fullDownload,
 		String downloadFileType,
-		String asc) {
+		String asc, String referenceCitation) {
 		
-		JsonResultResponse<AlleleDiseaseAnnotationDocument> response = getDiseaseAnnotationsByAllele(id, 150000, null, sortBy, geneName, alleleName, disease, species, disease, source, reference, evidenceCode, associationType, diseaseQualifier, asc);
+		JsonResultResponse<AlleleDiseaseAnnotationDocument> response = getDiseaseAnnotationsByAllele(id, 150000, null, sortBy, geneName, alleleName, disease, species, disease, source, reference, evidenceCode, associationType, diseaseQualifier, asc, referenceCitation);
 		Response.ResponseBuilder responseBuilder = null;
 		String allRowsForAlleles = translator.getAllRowsForAlleleDiseaseAnnotations(response.getResults());
 
@@ -186,8 +187,8 @@ public class DiseaseController implements DiseaseRESTInterface {
 														String diseaseQualifier,
 														boolean fullDownload,
 														String downloadFileType,
-														String asc) {
-		JsonResultResponse<GeneDiseaseAnnotationDocument> response = getDiseaseAnnotationsByGene(id, 250000, null, sortBy, geneName, geneID, species, diseaseName, source, reference, evidenceCode, basedOnGeneSymbol, associationType, diseaseQualifier, asc);
+														String asc, String referenceCitation) {
+		JsonResultResponse<GeneDiseaseAnnotationDocument> response = getDiseaseAnnotationsByGene(id, 250000, null, sortBy, geneName, geneID, species, diseaseName, source, reference, evidenceCode, basedOnGeneSymbol, associationType, diseaseQualifier, asc, referenceCitation);
 		Response.ResponseBuilder responseBuilder = null;
 		String allRowsForGenes = translator.getAllRowsForAssociatedGenes(response.getResults());
 		if (fullDownload) {
@@ -240,7 +241,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 																						String basedOnGeneSymbol,
 																						String associationType,
 																						String diseaseQualifier,
-																						String asc) {
+																						String asc, String referenceCitation) {
 		long startTime = System.currentTimeMillis();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
 		pagination.addFilterOption("subject.geneSymbol.displayText", geneName);
@@ -248,6 +249,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 		pagination.addFilterOption("generatedRelationString.keyword", associationType);
 		pagination.addFilterOption("diseaseQualifiers.keyword", diseaseQualifier);
 		pagination.addFilterOption("pubmedPublications.referencedCurie", reference);
+		pagination.addFilterOption("references.shortCitation", referenceCitation);
 		pagination.addFilterOption("primaryAnnotations.dataProvider.abbreviation", source);
 		pagination.addFilterOption("primaryAnnotations.with.geneSymbol.displayText", basedOnGeneSymbol);
 		pagination.addFilterOption("object.name", diseaseName);
@@ -295,7 +297,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 																						String conditionModifier,
 																						String experimentalCondition,
 																						String geneticModifier,
-																						String asc) {
+																						String asc, String referenceCitation) {
 		long startTime = System.currentTimeMillis();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
 		pagination.addFilterOption("subject.agmFullName.displayText", modelName);
@@ -307,6 +309,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 		pagination.addFilterOption("geneticModifierAggregated", geneticModifier);
 		pagination.addFilterOption("diseaseQualifiers.keyword", diseaseQualifier);
 		pagination.addFilterOption("pubmedPublications.referencedCurie", reference);
+		pagination.addFilterOption("references.shortCitation", referenceCitation);
 		pagination.addFilterOption("primaryAnnotations.dataProvider.abbreviation", source);
 		pagination.addFilterOption("object.name", disease);
 
@@ -344,8 +347,8 @@ public class DiseaseController implements DiseaseRESTInterface {
 														String conditionModifier,
 														String experimentalCondition,
 														String geneticModifier,
-														String asc) {
-		JsonResultResponse<AGMDiseaseAnnotationDocument> response = getDiseaseAnnotationsForModel(id, 200000, null, sortBy, modelName, geneName, species, disease, source, reference, evidenceCode, associationType, diseaseQualifier, conditionModifier, experimentalCondition, geneticModifier, asc);
+														String asc, String referenceCitation) {
+		JsonResultResponse<AGMDiseaseAnnotationDocument> response = getDiseaseAnnotationsForModel(id, 200000, null, sortBy, modelName, geneName, species, disease, source, reference, evidenceCode, associationType, diseaseQualifier, conditionModifier, experimentalCondition, geneticModifier, asc, referenceCitation);
 		Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRowsForModel(response.getResults()));
 		APIServiceHelper.setDownloadHeader(id, EntityType.DISEASE, EntityType.MODEL, responseBuilder);
 		return responseBuilder.build();
@@ -373,8 +376,9 @@ public class DiseaseController implements DiseaseRESTInterface {
 																								Integer page,
 																								String sortBy,
 																								String asc,
+																								String referenceCitation,
 																								List<String> geneIDs) {
-		return getDiseaseAnnotationsRibbonDetails(focusTaxonId, termID, filterOptions, filterSpecies, filterGene, filterReference, diseaseTerm, filterSource, geneticEntity, geneticEntityType, associationType, diseaseQualifier, evidenceCode, basedOnGeneSymbol, includeNegation, debug, limit, page, sortBy, asc, geneIDs, false);
+		return getDiseaseAnnotationsRibbonDetails(focusTaxonId, termID, filterOptions, filterSpecies, filterGene, filterReference, diseaseTerm, filterSource, geneticEntity, geneticEntityType, associationType, diseaseQualifier, evidenceCode, basedOnGeneSymbol, includeNegation, debug, limit, page, sortBy, asc, referenceCitation, geneIDs, false);
 	}
 
 	private JsonResultResponse<GeneDiseaseAnnotationDocument> getDiseaseAnnotationsRibbonDetails(
@@ -398,6 +402,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 																								Integer page,
 																								String sortBy,
 																								String asc,
+																								String referenceCitation,
 																								List<String> geneIDs,
 																								boolean includePrimaryAnnotations) {
 
@@ -409,6 +414,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 		pagination.addFilterOption("generatedRelationString.keyword", associationType);
 		pagination.addFilterOption("diseaseQualifiers.keyword", diseaseQualifier);
 		pagination.addFilterOption("pubmedPublications.referencedCurie", filterReference);
+		pagination.addFilterOption("references.shortCitation", referenceCitation);
 		pagination.addFilterOption("subject.geneSymbol.displayText", filterGene);
 		pagination.addFilterOption("primaryAnnotations.with.geneSymbol.displayText", basedOnGeneSymbol);
 		pagination.addFilterOption("primaryAnnotations.dataProvider.abbreviation OR primaryAnnotations.secondaryDataProvider.abbreviation", filterSource);
@@ -441,12 +447,15 @@ public class DiseaseController implements DiseaseRESTInterface {
 		String diseaseTerm, String filterSource, String geneticEntity,
 		String geneticEntityType, String associationType, String diseaseQualifier,
 		String evidenceCode, String basedOnGeneSymbol, Boolean includeNegation,
-		Boolean debug, String sortBy, String asc, List<String> geneIDs) {
+		Boolean debug, String sortBy, String asc, String referenceCitation, List<String> geneIDs) {
 
 		LocalDateTime startDate = LocalDateTime.now();
 		Response.ResponseBuilder responseBuilder;
 		try {
-			JsonResultResponse<GeneDiseaseAnnotationDocument> response = getDiseaseAnnotationsRibbonDetails(focusTaxonId, termID, null, filterSpecies, filterGene, filterReference, diseaseTerm, filterSource, geneticEntity, geneticEntityType, associationType, diseaseQualifier, evidenceCode, basedOnGeneSymbol, includeNegation, debug, 150000, 1, sortBy, asc, geneIDs, true);
+			JsonResultResponse<GeneDiseaseAnnotationDocument> response = getDiseaseAnnotationsRibbonDetails(
+				focusTaxonId, termID, null, filterSpecies, filterGene, filterReference, diseaseTerm, filterSource,
+				geneticEntity, geneticEntityType, associationType, diseaseQualifier, evidenceCode, basedOnGeneSymbol,
+				includeNegation, debug, 150000, 1, sortBy, asc, referenceCitation, geneIDs, true);
 			response.setHttpServletRequest(null);
 			response.calculateRequestDuration(startDate);
 			// translate all records

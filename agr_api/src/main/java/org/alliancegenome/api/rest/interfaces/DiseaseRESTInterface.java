@@ -75,7 +75,8 @@ public interface DiseaseRESTInterface {
 		@Parameter(in = ParameterIn.QUERY, name = "filter.diseaseQualifier", description = "diseaseQualifier", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.diseaseQualifier") String diseaseQualifier,
 		@Parameter(in = ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))
 //,allowedValues = "true,false")
-		@DefaultValue("true") @QueryParam("asc") String asc);
+		@DefaultValue("true") @QueryParam("asc") String asc,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.referenceCitation", description = "filter by reference citation") @QueryParam("filter.referenceCitation") String referenceCitation);
 
 	@GET
 	@Path("/{id}/alleles/download")
@@ -98,7 +99,8 @@ public interface DiseaseRESTInterface {
 		@Parameter(in = ParameterIn.QUERY, name = "filter.associationType", description = "filter by association type", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.associationType") String associationType,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.diseaseQualifier", description = "diseaseQualifier", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.diseaseQualifier") String diseaseQualifier, @QueryParam("fullDownload") boolean fullDownload,
 		// @ApiParam(value = "download file type")
-		@QueryParam("fileType") String downloadFileType, @Parameter(in = ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING)) @QueryParam("asc") String asc);
+		@QueryParam("fileType") String downloadFileType, @Parameter(in = ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING)) @QueryParam("asc") String asc,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.referenceCitation", description = "filter by reference citation") @QueryParam("filter.referenceCitation") String referenceCitation);
 
 	@GET
 	@Path("/{id}/genes_counts")
@@ -123,7 +125,8 @@ public interface DiseaseRESTInterface {
 		@Parameter(in = ParameterIn.QUERY, name = "filter.basedOnGeneSymbol", description = "filter by based-on-gene", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.basedOnGeneSymbol") String basedOnGeneSymbol,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.associationType", description = "filter by association type") @QueryParam("filter.associationType") String associationType,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.diseaseQualifier", description = "diseaseQualifier", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.diseaseQualifier") String diseaseQualifier,
-		@Parameter(in = ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING)) @QueryParam("asc") String asc);
+		@Parameter(in = ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING)) @QueryParam("asc") String asc,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.referenceCitation", description = "filter by reference citation") @QueryParam("filter.referenceCitation") String referenceCitation);
 
 	@GET
 	@Path("/batch")
@@ -165,7 +168,8 @@ public interface DiseaseRESTInterface {
 		@Parameter(in = ParameterIn.QUERY, name = "filter.associationType", description = "filter by association type") @QueryParam("filter.associationType") String associationType,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.diseaseQualifier", description = "diseaseQualifier", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.diseaseQualifier") String diseaseQualifier, @QueryParam("fullDownload") boolean fullDownload,
 		// @ApiParam(value = "download file type")
-		@QueryParam("fileType") String downloadFileType, @Parameter(in = ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING)) @QueryParam("asc") String asc);
+		@QueryParam("fileType") String downloadFileType, @Parameter(in = ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING)) @QueryParam("asc") String asc,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.referenceCitation", description = "filter by reference citation") @QueryParam("filter.referenceCitation") String referenceCitation);
 
 	@GET
 	@Path("/{id}/models")
@@ -189,7 +193,8 @@ public interface DiseaseRESTInterface {
 		@Parameter(in = ParameterIn.QUERY, name = "filter.geneticModifier", description = "geneticModifier", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.geneticModifier") String geneticModifier,
 		@Parameter(in = ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))
 //,allowedValues = "true,false")
-		@DefaultValue("true") @QueryParam("asc") String asc);
+		@DefaultValue("true") @QueryParam("asc") String asc,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.referenceCitation", description = "filter by reference citation") @QueryParam("filter.referenceCitation") String referenceCitation);
 
 	@GET
 	@Path("/{id}/models_counts")
@@ -218,7 +223,8 @@ public interface DiseaseRESTInterface {
 		@Parameter(in = ParameterIn.QUERY, name = "filter.geneticModifier", description = "geneticModifier", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.geneticModifier") String geneticModifier,
 		@Parameter(in = ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))
 //,allowedValues = "true,false")
-		@DefaultValue("true") @QueryParam("asc") String asc);
+		@DefaultValue("true") @QueryParam("asc") String asc,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.referenceCitation", description = "filter by reference citation") @QueryParam("filter.referenceCitation") String referenceCitation);
 
 	@GET
 	@Path("/{id}/primaryannotations")
@@ -274,6 +280,8 @@ public interface DiseaseRESTInterface {
 
 		@Parameter(in = ParameterIn.QUERY, name = "asc", description = "ascending or descending", schema = @Schema(type = SchemaType.STRING)) @DefaultValue("true") @QueryParam("asc") String asc,
 
+		@Parameter(in = ParameterIn.QUERY, name = "filter.referenceCitation", description = "filter by reference citation") @QueryParam("filter.referenceCitation") String referenceCitation,
+
 		@Parameter(in = ParameterIn.QUERY, name = "geneID", description = "Gene by ID", required = true) @RequestBody List<String> geneIDs) throws JsonProcessingException;
 
 	@POST
@@ -297,6 +305,8 @@ public interface DiseaseRESTInterface {
 		@Parameter(in = ParameterIn.QUERY, name = "debug", description = "debug query", schema = @Schema(type = SchemaType.STRING)) @DefaultValue("false") @QueryParam("debug") Boolean debug,
 		@Parameter(in = ParameterIn.QUERY, name = "sortBy", description = "Sort by field name") @QueryParam("sortBy") String sortBy, @Parameter(in = ParameterIn.QUERY, name = "asc", description = "ascending or descending", schema = @Schema(type = SchemaType.STRING))
 //allowedValues = "true,false"
-		@DefaultValue("true") @QueryParam("asc") String asc, @Parameter(in = ParameterIn.QUERY, name = "geneID", description = "Gene by ID", required = true) @RequestBody List<String> geneIDs) throws JsonProcessingException;
+		@DefaultValue("true") @QueryParam("asc") String asc,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.referenceCitation", description = "filter by reference citation") @QueryParam("filter.referenceCitation") String referenceCitation,
+		@Parameter(in = ParameterIn.QUERY, name = "geneID", description = "Gene by ID", required = true) @RequestBody List<String> geneIDs) throws JsonProcessingException;
 
 }
