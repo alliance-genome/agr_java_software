@@ -452,7 +452,10 @@ public class DiseaseController implements DiseaseRESTInterface {
 		LocalDateTime startDate = LocalDateTime.now();
 		Response.ResponseBuilder responseBuilder;
 		try {
-			JsonResultResponse<GeneDiseaseAnnotationDocument> response = getDiseaseAnnotationsRibbonDetails(focusTaxonId, termID, null, filterSpecies, filterGene, filterReference, diseaseTerm, filterSource, geneticEntity, geneticEntityType, associationType, diseaseQualifier, evidenceCode, basedOnGeneSymbol, includeNegation, debug, 150000, 1, sortBy, asc, referenceCitation, geneIDs, true);
+			JsonResultResponse<GeneDiseaseAnnotationDocument> response = getDiseaseAnnotationsRibbonDetails(
+				focusTaxonId, termID, null, filterSpecies, filterGene, filterReference, diseaseTerm, filterSource,
+				geneticEntity, geneticEntityType, associationType, diseaseQualifier, evidenceCode, basedOnGeneSymbol,
+				includeNegation, debug, 150000, 1, sortBy, asc, referenceCitation, geneIDs, true);
 			response.setHttpServletRequest(null);
 			response.calculateRequestDuration(startDate);
 			// translate all records
