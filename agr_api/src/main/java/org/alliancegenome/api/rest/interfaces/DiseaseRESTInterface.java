@@ -280,6 +280,8 @@ public interface DiseaseRESTInterface {
 
 		@Parameter(in = ParameterIn.QUERY, name = "asc", description = "ascending or descending", schema = @Schema(type = SchemaType.STRING)) @DefaultValue("true") @QueryParam("asc") String asc,
 
+		@Parameter(in = ParameterIn.QUERY, name = "filter.referenceCitation", description = "filter by reference citation") @QueryParam("filter.referenceCitation") String referenceCitation,
+
 		@Parameter(in = ParameterIn.QUERY, name = "geneID", description = "Gene by ID", required = true) @RequestBody List<String> geneIDs) throws JsonProcessingException;
 
 	@POST
@@ -303,6 +305,8 @@ public interface DiseaseRESTInterface {
 		@Parameter(in = ParameterIn.QUERY, name = "debug", description = "debug query", schema = @Schema(type = SchemaType.STRING)) @DefaultValue("false") @QueryParam("debug") Boolean debug,
 		@Parameter(in = ParameterIn.QUERY, name = "sortBy", description = "Sort by field name") @QueryParam("sortBy") String sortBy, @Parameter(in = ParameterIn.QUERY, name = "asc", description = "ascending or descending", schema = @Schema(type = SchemaType.STRING))
 //allowedValues = "true,false"
-		@DefaultValue("true") @QueryParam("asc") String asc, @Parameter(in = ParameterIn.QUERY, name = "geneID", description = "Gene by ID", required = true) @RequestBody List<String> geneIDs) throws JsonProcessingException;
+		@DefaultValue("true") @QueryParam("asc") String asc,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.referenceCitation", description = "filter by reference citation") @QueryParam("filter.referenceCitation") String referenceCitation,
+		@Parameter(in = ParameterIn.QUERY, name = "geneID", description = "Gene by ID", required = true) @RequestBody List<String> geneIDs) throws JsonProcessingException;
 
 }
