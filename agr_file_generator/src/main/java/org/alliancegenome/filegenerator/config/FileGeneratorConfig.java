@@ -284,7 +284,10 @@ public enum FileGeneratorConfig {
 	 * Expression field map. Anatomy / sub-structure / cellular-component term IDs
 	 * and names come straight off whereExpressed; the six qualifier list columns
 	 * are pipe-joined inside ExpressionFileGenerator.customizeRow() into synthetic
-	 * fields.
+	 * fields. These docs are consolidated by gene + location + stage + assay, so
+	 * ExpressionFileGenerator.customizeRows() then expands each ES hit into one TSV
+	 * row per crossReferences[i] / referenceId[i] pair; JSON_RAW writes the
+	 * consolidated doc verbatim.
 	 */
 	private static Map<String, String> expressionFieldMap() {
 		Map<String, String> m = new LinkedHashMap<>();
@@ -308,9 +311,10 @@ public enum FileGeneratorConfig {
 		m.put("AnatomyTermName", "geneExpressionAnnotation.expressionPattern.whereExpressed.anatomicalStructure.name");
 		m.put("AnatomyTermQualifierIDs", "_anatomyQualifierIds");
 		m.put("AnatomyTermQualifierTermNames", "_anatomyQualifierNames");
-		// SourceURL is built from the first crossReference's urlTemplate +
-		// referencedCurie inside ExpressionFileGenerator.customizeRow(); this path
-		// resolves the synthetic field.
+		// SourceURL and Reference are populated per row by
+		// ExpressionFileGenerator.customizeRows() from the crossReference and the
+		// referenceId sharing an index, so each URL is reported against the one
+		// publication it came from; these paths resolve the synthetic fields.
 		m.put("SourceURL", "_sourceUrl");
 		m.put("Source", "geneExpressionAnnotation.dataProvider.abbreviation");
 		m.put("Reference", "_reference");
