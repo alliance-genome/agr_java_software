@@ -267,7 +267,8 @@ public interface GeneRESTInterface {
 		@QueryParam("filter.reference") String reference,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.dataProvider", description = "Source", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.dataProvider") String filterSource,
 		@Parameter(in = ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))
-		@DefaultValue("true") @QueryParam("asc") String asc);
+		@DefaultValue("true") @QueryParam("asc") String asc,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.referenceCitation", description = "filter by reference citation") @QueryParam("filter.referenceCitation") String referenceCitation);
 
 	@GET
 	@Path("/{id}/phenotypes/download")
@@ -291,7 +292,8 @@ public interface GeneRESTInterface {
 		@Parameter(in = ParameterIn.QUERY, name = "filter.dataProvider", description = "Source", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.dataProvider") String filterSource,
 		@Parameter(in = ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))
 		@DefaultValue("true")
-		@QueryParam("asc") String asc);
+		@QueryParam("asc") String asc,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.referenceCitation", description = "filter by reference citation") @QueryParam("filter.referenceCitation") String referenceCitation);
 
 
 	@GET
