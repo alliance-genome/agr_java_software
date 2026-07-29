@@ -85,7 +85,8 @@ public interface AlleleRESTInterface {
 		@Parameter(in = ParameterIn.QUERY, name = "filter.termName", description = "termName annotation") @QueryParam("filter.termName") String phenotype,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.dataProvider", description = "Source", schema = @Schema(type = SchemaType.STRING)) @QueryParam("filter.dataProvider") String source,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.reference", description = "Reference number: PUBMED or a Pub ID from the MOD") @QueryParam("filter.reference") String reference,
-		@Parameter(in = ParameterIn.QUERY, name = "sortBy", description = "Field name by which to sort", schema = @Schema(type = SchemaType.STRING)) @DefaultValue("symbol") @QueryParam("sortBy") String sortBy
+		@Parameter(in = ParameterIn.QUERY, name = "sortBy", description = "Field name by which to sort", schema = @Schema(type = SchemaType.STRING)) @DefaultValue("symbol") @QueryParam("sortBy") String sortBy,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.referenceCitation", description = "filter by reference citation") @QueryParam("filter.referenceCitation") String referenceCitation
 
 	);
 
@@ -98,7 +99,8 @@ public interface AlleleRESTInterface {
 		@Parameter(in = ParameterIn.PATH, name = "id", description = "Search for Phenotypes for a given Allele by ID", required = true, schema = @Schema(type = SchemaType.STRING)) @PathParam("id") String id,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.termName", description = "termName annotation") @QueryParam("filter.termName") String phenotype, @Parameter(in = ParameterIn.QUERY, name = "filter.source", description = "Source") @QueryParam("filter.source") String source,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.reference", description = "Reference number: PUBMED or a Pub ID from the MOD") @QueryParam("filter.reference") String reference,
-		@Parameter(in = ParameterIn.QUERY, name = "sortBy", description = "Field name by which to sort", schema = @Schema(type = SchemaType.STRING)) @DefaultValue("symbol") @QueryParam("sortBy") String sortBy);
+		@Parameter(in = ParameterIn.QUERY, name = "sortBy", description = "Field name by which to sort", schema = @Schema(type = SchemaType.STRING)) @DefaultValue("symbol") @QueryParam("sortBy") String sortBy,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.referenceCitation", description = "filter by reference citation") @QueryParam("filter.referenceCitation") String referenceCitation);
 
 	@GET
 	@Path("/{id}/diseases")
@@ -118,7 +120,8 @@ public interface AlleleRESTInterface {
 		@Parameter(in = ParameterIn.QUERY, name = "debug", description = "debug query", schema = @Schema(type = SchemaType.STRING)) @DefaultValue("false") @QueryParam("debug") Boolean debug,
 		@Parameter(in = ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("20") @QueryParam("limit") Integer limit,
 		@Parameter(in = ParameterIn.QUERY, name = "page", description = "Page number") @DefaultValue("1") @QueryParam("page") Integer page, @Parameter(in = ParameterIn.QUERY, name = "sortBy", description = "Sort by field name") @QueryParam("sortBy") String sortBy,
-		@Parameter(in = ParameterIn.QUERY, name = "asc", description = "ascending or descending", schema = @Schema(type = SchemaType.STRING)) @DefaultValue("true") @QueryParam("asc") String asc);
+		@Parameter(in = ParameterIn.QUERY, name = "asc", description = "ascending or descending", schema = @Schema(type = SchemaType.STRING)) @DefaultValue("true") @QueryParam("asc") String asc,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.referenceCitation", description = "filter by reference citation") @QueryParam("filter.referenceCitation") String referenceCitation);
 
 	@GET
 	@Path("/{id}/diseases/download")
@@ -138,6 +141,7 @@ public interface AlleleRESTInterface {
 		@Parameter(in = ParameterIn.QUERY, name = "debug", description = "debug query", schema = @Schema(type = SchemaType.STRING)) @DefaultValue("false") @QueryParam("debug") Boolean debug,
 		@Parameter(in = ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER)) @DefaultValue("20") @QueryParam("limit") Integer limit,
 		@Parameter(in = ParameterIn.QUERY, name = "page", description = "Page number") @DefaultValue("1") @QueryParam("page") Integer page, @Parameter(in = ParameterIn.QUERY, name = "sortBy", description = "Sort by field name") @QueryParam("sortBy") String sortBy,
-		@Parameter(in = ParameterIn.QUERY, name = "asc", description = "ascending or descending", schema = @Schema(type = SchemaType.STRING)) @DefaultValue("true") @QueryParam("asc") String asc);
+		@Parameter(in = ParameterIn.QUERY, name = "asc", description = "ascending or descending", schema = @Schema(type = SchemaType.STRING)) @DefaultValue("true") @QueryParam("asc") String asc,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.referenceCitation", description = "filter by reference citation") @QueryParam("filter.referenceCitation") String referenceCitation);
 
 }
