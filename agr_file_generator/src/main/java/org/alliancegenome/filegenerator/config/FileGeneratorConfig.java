@@ -286,8 +286,8 @@ public enum FileGeneratorConfig {
 	 * are pipe-joined inside ExpressionFileGenerator.customizeRow() into synthetic
 	 * fields. These docs are consolidated by gene + location + stage + assay, so
 	 * ExpressionFileGenerator.customizeRows() then expands each ES hit into one TSV
-	 * row per crossReferences[i] / referenceId[i] pair; JSON_RAW writes the
-	 * consolidated doc verbatim.
+	 * row per distinct referenceId — one row per underlying annotation; JSON_RAW
+	 * writes the consolidated doc verbatim.
 	 */
 	private static Map<String, String> expressionFieldMap() {
 		Map<String, String> m = new LinkedHashMap<>();
@@ -312,9 +312,10 @@ public enum FileGeneratorConfig {
 		m.put("AnatomyTermQualifierIDs", "_anatomyQualifierIds");
 		m.put("AnatomyTermQualifierTermNames", "_anatomyQualifierNames");
 		// SourceURL and Reference are populated per row by
-		// ExpressionFileGenerator.customizeRows() from the crossReference and the
-		// referenceId sharing an index, so each URL is reported against the one
-		// publication it came from; these paths resolve the synthetic fields.
+		// ExpressionFileGenerator.customizeRows(), which groups the crossReferences
+		// by the referenceId sharing their index; every URL is reported against the
+		// one publication it came from, pipe-joined when a publication carries
+		// several. These paths resolve the synthetic fields.
 		m.put("SourceURL", "_sourceUrl");
 		m.put("Source", "geneExpressionAnnotation.dataProvider.abbreviation");
 		m.put("Reference", "_reference");
