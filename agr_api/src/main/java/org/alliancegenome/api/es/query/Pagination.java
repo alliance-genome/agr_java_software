@@ -27,6 +27,8 @@ public class Pagination {
 	private long totalHits;
 	private boolean isCount;
 	private HashMap<String, String> filterOptionMap = new HashMap<>();
+	// ES _source fields to exclude from the fetch. Empty = fetch full source (default behavior).
+	private List<String> sourceExcludes = new ArrayList<>();
 
 
 	public Pagination(Integer page, Integer limit, String sortBy, String asc) {
