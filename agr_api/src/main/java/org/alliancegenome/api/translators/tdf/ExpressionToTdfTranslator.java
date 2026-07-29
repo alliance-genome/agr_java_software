@@ -1,16 +1,25 @@
 package org.alliancegenome.api.translators.tdf;
 
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.StringJoiner;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.model.document.es.GeneExpressionDocument;
-import org.alliancegenome.curation_api.model.entities.CrossReference;
 import org.alliancegenome.curation_api.model.entities.GeneExpressionAnnotation;
 import org.apache.commons.collections.CollectionUtils;
 
 public class ExpressionToTdfTranslator {
 
+	private static final String SOURCE_DELIMITER = "|";
+
+	/**
+	 * The consolidation in agr_curation's GeneExpressionDocumentBuilder pads crossReferences and referenceId so entry i of each describes the same underlying annotation, and one annotation is one publication. Group the cross references by the reference they are aligned to and emit one row per distinct reference, so the row count matches the annotation count.
+	 * MGI and WB take their cross references from the expression experiment rather than the annotation, so a single publication commonly carries many sources; those share one row with the sources pipe-joined rather than fanning out into rows that would each claim a specific source.
+	 */
 	public String getAllRows(List<GeneExpressionDocument> annotations, boolean isMultipleGenes) {
 		StringBuilder builder = new StringBuilder();
 		builder.append(buildHeader(isMultipleGenes));
@@ -23,18 +32,23 @@ public class ExpressionToTdfTranslator {
 
 			int pubSize = CollectionUtils.isNotEmpty(refIds) ? refIds.size() : 0;
 			int crossRefSize = CollectionUtils.isNotEmpty(crossRefs) ? crossRefs.size() : 0;
+			int pairCount = Math.max(1, Math.max(pubSize, crossRefSize));
 
-			if (pubSize > 1) {
-				for (int i = 0; i < pubSize; i++) {
-					builder.append(buildRow(annotation, refIds, crossRefs, i, isMultipleGenes));
-					builder.append(ConfigHelper.getJavaLineSeparator());
+			// Insertion-ordered so rows follow the order the references appear on the document; the source sets drop exact repeats.
+			Map<String, Set<String>> sourcesByReference = new LinkedHashMap<>();
+			for (int i = 0; i < pairCount; i++) {
+				// Cross references past the end of the reference list belong to the first publication — the group.size() == 1 short-circuit upstream skips the padding, so the lists are not always equal length.
+				String refId = pubSize == 0 ? "" : (i < pubSize ? refIds.get(i) : refIds.get(0));
+				String source = i < crossRefSize ? crossRefs.get(i).getDisplayName() : "";
+				Set<String> sources = sourcesByReference.computeIfAbsent(refId, r -> new LinkedHashSet<>());
+				if (source != null && !source.isEmpty()) {
+					sources.add(source);
 				}
-			} else {
-				int rows = crossRefSize > 0 ? crossRefSize : 1;
-				for (int i = 0; i < rows; i++) {
-					builder.append(buildRow(annotation, refIds, crossRefs, i, isMultipleGenes));
-					builder.append(ConfigHelper.getJavaLineSeparator());
-				}
+			}
+
+			for (Map.Entry<String, Set<String>> entry : sourcesByReference.entrySet()) {
+				builder.append(buildRow(annotation, entry.getKey(), String.join(SOURCE_DELIMITER, entry.getValue()), isMultipleGenes));
+				builder.append(ConfigHelper.getJavaLineSeparator());
 			}
 		}
 		return builder.toString();
@@ -51,9 +65,8 @@ public class ExpressionToTdfTranslator {
 
 	private String buildRow(
 		GeneExpressionAnnotation annotation,
-		List<String> refIds,
-		List<CrossReference> crossRefs,
-		int index,
+		String reference,
+		String source,
 		boolean isMultipleGenes
 	) {
 		StringJoiner joiner = new StringJoiner("\t");
@@ -67,13 +80,8 @@ public class ExpressionToTdfTranslator {
 				.add(annotation.getWhenExpressedStageName())
 				.add(annotation.getExpressionAssayUsed().getName());
 
-		String crossRef = (CollectionUtils.isNotEmpty(crossRefs) && index < crossRefs.size())
-			? crossRefs.get(index).getDisplayName() : "";
-		joiner.add(crossRef);
-
-		String refId = (CollectionUtils.isNotEmpty(refIds) && index < refIds.size())
-			? refIds.get(index) : (CollectionUtils.isNotEmpty(refIds) ? refIds.get(0) : "");
-		joiner.add(refId);
+		joiner.add(source);
+		joiner.add(reference);
 
 		return joiner.toString();
 	}
