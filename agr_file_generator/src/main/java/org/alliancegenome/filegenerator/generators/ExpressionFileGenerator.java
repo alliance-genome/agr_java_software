@@ -55,9 +55,18 @@ public class ExpressionFileGenerator extends FileGenerator {
 	}
 
 	/**
-	 * The consolidation in agr_curation's GeneExpressionDocumentBuilder pads crossReferences and referenceId so entry i of each describes the same underlying annotation, and one annotation is one publication. Group the cross references by the reference they are aligned to and emit one row per distinct reference, so the row count matches the annotation count while no SourceURL is reported against a publication it did not come from and no cross reference is dropped.
-	 * referenceId is the aligned list; referenceXrefs is a deduplicated set in a different order and cannot be paired positionally.
-	 * MGI and WB take their cross references from the expression experiment rather than the annotation, so a single publication commonly carries many assay URLs; those share one row with the URLs pipe-joined rather than fanning out into rows that would each claim a specific assay.
+	 * The consolidation in agr_curation's GeneExpressionDocumentBuilder pads crossReferences and referenceId so
+	 * entry i of each describes the same underlying annotation, and one annotation is one publication. Group the
+	 * cross references by the reference they are aligned to and emit one row per distinct reference, so the row
+	 * count matches the annotation count while no SourceURL is reported against a publication it did not come
+	 * from and no cross reference is dropped.
+	 *
+	 * referenceId is the aligned list; referenceXrefs is a deduplicated set in a different order and cannot be
+	 * paired positionally.
+	 *
+	 * MGI and WB take their cross references from the expression experiment rather than the annotation, so a
+	 * single publication commonly carries many assay URLs; those share one row with the URLs pipe-joined rather
+	 * than fanning out into rows that would each claim a specific assay.
 	 */
 	@Override
 	protected List<JsonNode> customizeRows(JsonNode customizedHit) {
@@ -71,13 +80,17 @@ public class ExpressionFileGenerator extends FileGenerator {
 		int xrefSize = xrefs != null && xrefs.isArray() ? xrefs.size() : 0;
 		int refSize = refIds != null && refIds.isArray() ? refIds.size() : 0;
 
-		// A doc carrying neither list still emits its single row — the location / stage / assay columns stand on their own.
+		// A doc with neither list still emits one row — location / stage / assay stand on their own.
 		int pairCount = Math.max(1, Math.max(xrefSize, refSize));
-		// Insertion-ordered so rows follow the order the references appear in the document; the URL sets drop exact repeats.
+		// Insertion-ordered so rows follow the document's reference order; the URL sets drop exact repeats.
 		Map<String, Set<String>> urlsByReference = new LinkedHashMap<>();
 
 		for (int i = 0; i < pairCount; i++) {
-			// Cross references past the end of the reference list belong to the first publication — the group.size() == 1 short-circuit upstream skips the padding, so the lists are not always equal length.
+			/*
+			 * Cross references past the end of the reference list belong to the first publication — the
+			 * group.size() == 1 short-circuit upstream skips the padding, so the lists are not always equal
+			 * length.
+			 */
 			String reference = refSize == 0 ? "" : (i < refSize ? refIds.get(i) : refIds.get(0)).asText("");
 			String sourceUrl = buildSourceUrl(i < xrefSize ? xrefs.get(i) : null);
 			Set<String> urls = urlsByReference.computeIfAbsent(reference, r -> new LinkedHashSet<>());
@@ -89,7 +102,7 @@ public class ExpressionFileGenerator extends FileGenerator {
 		List<JsonNode> rows = new ArrayList<>(urlsByReference.size());
 		for (Map.Entry<String, Set<String>> entry : urlsByReference.entrySet()) {
 			ObjectNode row = JsonNodeFactory.instance.objectNode();
-			// Shallow copy: the doc-level fields are shared by reference and never mutated, only the two per-reference fields differ.
+			// Shallow copy: doc-level fields are shared by reference and never mutated, only the two below differ.
 			row.setAll(obj);
 			row.put("_sourceUrl", String.join(QUALIFIER_DELIMITER, entry.getValue()));
 			row.put("_reference", entry.getKey());

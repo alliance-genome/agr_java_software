@@ -17,8 +17,14 @@ public class ExpressionToTdfTranslator {
 	private static final String SOURCE_DELIMITER = "|";
 
 	/**
-	 * The consolidation in agr_curation's GeneExpressionDocumentBuilder pads crossReferences and referenceId so entry i of each describes the same underlying annotation, and one annotation is one publication. Group the cross references by the reference they are aligned to and emit one row per distinct reference, so the row count matches the annotation count.
-	 * MGI and WB take their cross references from the expression experiment rather than the annotation, so a single publication commonly carries many sources; those share one row with the sources pipe-joined rather than fanning out into rows that would each claim a specific source.
+	 * The consolidation in agr_curation's GeneExpressionDocumentBuilder pads crossReferences and referenceId so
+	 * entry i of each describes the same underlying annotation, and one annotation is one publication. Group the
+	 * cross references by the reference they are aligned to and emit one row per distinct reference, so the row
+	 * count matches the annotation count.
+	 *
+	 * MGI and WB take their cross references from the expression experiment rather than the annotation, so a
+	 * single publication commonly carries many sources; those share one row with the sources pipe-joined rather
+	 * than fanning out into rows that would each claim a specific source.
 	 */
 	public String getAllRows(List<GeneExpressionDocument> annotations, boolean isMultipleGenes) {
 		StringBuilder builder = new StringBuilder();
@@ -34,10 +40,14 @@ public class ExpressionToTdfTranslator {
 			int crossRefSize = CollectionUtils.isNotEmpty(crossRefs) ? crossRefs.size() : 0;
 			int pairCount = Math.max(1, Math.max(pubSize, crossRefSize));
 
-			// Insertion-ordered so rows follow the order the references appear on the document; the source sets drop exact repeats.
+			// Insertion-ordered so rows follow the document's reference order; the source sets drop exact repeats.
 			Map<String, Set<String>> sourcesByReference = new LinkedHashMap<>();
 			for (int i = 0; i < pairCount; i++) {
-				// Cross references past the end of the reference list belong to the first publication — the group.size() == 1 short-circuit upstream skips the padding, so the lists are not always equal length.
+				/*
+				 * Cross references past the end of the reference list belong to the first publication — the
+				 * group.size() == 1 short-circuit upstream skips the padding, so the lists are not always
+				 * equal length.
+				 */
 				String refId = pubSize == 0 ? "" : (i < pubSize ? refIds.get(i) : refIds.get(0));
 				String source = i < crossRefSize ? crossRefs.get(i).getDisplayName() : "";
 				Set<String> sources = sourcesByReference.computeIfAbsent(refId, r -> new LinkedHashSet<>());
