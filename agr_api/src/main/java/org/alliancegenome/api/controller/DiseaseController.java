@@ -51,6 +51,18 @@ public class DiseaseController implements DiseaseRESTInterface {
 
 	private final DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();
 
+	// ES _source field paths dropped from DOWNLOAD fetches so large download responses stay under the ES
+	// client's response buffer limit. Add an entry whenever a field is large in the index but unused by
+	// the download output.
+	//   "*.resourceDescriptor" - drops the heavy nested ResourceDescriptor graph that SCRUM-6204 embeds on
+	//     every annotation; downloads only need resourceDescriptorPage.urlTemplate, which is retained.
+	private static final List<String> DOWNLOAD_SOURCE_EXCLUDES = List.of("*.resourceDescriptor");
+
+	// Excludes applied to the current request's fetch: set to DOWNLOAD_SOURCE_EXCLUDES by the *Download
+	// methods, left empty for normal table/JSON requests (which still fetch full source). Safe as an
+	// instance field because this controller is @RequestScoped (a fresh instance per request).
+	private List<String> downloadSourceExcludes = List.of();
+
 	@Override
 	public DiseaseSummaryDocument getDisease(String id) {
 		DiseaseSummaryDocument diseaseSummary = diseaseESService.getById(id);
@@ -85,6 +97,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 			sortBy = "DISEASE_ALLELE_DEFAULT";
 		}
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
+		pagination.setSourceExcludes(downloadSourceExcludes);
 		pagination.addFilterOption("subject.taxon.species.fullName.keyword", species);
 		pagination.addFilterOption("subject.alleleSymbol.displayText", alleleName);
 		pagination.addFilterOption("evidenceCodes.abbreviation", evidenceCode);
@@ -132,6 +145,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 		String downloadFileType,
 		String asc, String referenceCitation) {
 		
+		downloadSourceExcludes = DOWNLOAD_SOURCE_EXCLUDES;
 		JsonResultResponse<AlleleDiseaseAnnotationDocument> response = getDiseaseAnnotationsByAllele(id, 150000, null, sortBy, geneName, alleleName, disease, species, disease, source, reference, evidenceCode, associationType, diseaseQualifier, asc, referenceCitation);
 		Response.ResponseBuilder responseBuilder = null;
 		String allRowsForAlleles = translator.getAllRowsForAlleleDiseaseAnnotations(response.getResults());
@@ -188,6 +202,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 														boolean fullDownload,
 														String downloadFileType,
 														String asc, String referenceCitation) {
+		downloadSourceExcludes = DOWNLOAD_SOURCE_EXCLUDES;
 		JsonResultResponse<GeneDiseaseAnnotationDocument> response = getDiseaseAnnotationsByGene(id, 250000, null, sortBy, geneName, geneID, species, diseaseName, source, reference, evidenceCode, basedOnGeneSymbol, associationType, diseaseQualifier, asc, referenceCitation);
 		Response.ResponseBuilder responseBuilder = null;
 		String allRowsForGenes = translator.getAllRowsForAssociatedGenes(response.getResults());
@@ -244,6 +259,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 																						String asc, String referenceCitation) {
 		long startTime = System.currentTimeMillis();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
+		pagination.setSourceExcludes(downloadSourceExcludes);
 		pagination.addFilterOption("subject.geneSymbol.displayText", geneName);
 		pagination.addFilterOption("evidenceCodes.abbreviation", evidenceCode);
 		pagination.addFilterOption("generatedRelationString.keyword", associationType);
@@ -300,6 +316,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 																						String asc, String referenceCitation) {
 		long startTime = System.currentTimeMillis();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
+		pagination.setSourceExcludes(downloadSourceExcludes);
 		pagination.addFilterOption("subject.agmFullName.displayText", modelName);
 		pagination.addFilterOption("subject.taxon.species.fullName.keyword", species);
 		pagination.addFilterOption("evidenceCodes.abbreviation", evidenceCode);
@@ -348,6 +365,7 @@ public class DiseaseController implements DiseaseRESTInterface {
 														String experimentalCondition,
 														String geneticModifier,
 														String asc, String referenceCitation) {
+		downloadSourceExcludes = DOWNLOAD_SOURCE_EXCLUDES;
 		JsonResultResponse<AGMDiseaseAnnotationDocument> response = getDiseaseAnnotationsForModel(id, 200000, null, sortBy, modelName, geneName, species, disease, source, reference, evidenceCode, associationType, diseaseQualifier, conditionModifier, experimentalCondition, geneticModifier, asc, referenceCitation);
 		Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRowsForModel(response.getResults()));
 		APIServiceHelper.setDownloadHeader(id, EntityType.DISEASE, EntityType.MODEL, responseBuilder);
@@ -408,6 +426,11 @@ public class DiseaseController implements DiseaseRESTInterface {
 
 		LocalDateTime startDate = LocalDateTime.now();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
+		// The download variant (includePrimaryAnnotations) pulls the heavy primaryAnnotations, so drop the
+		// nested ResourceDescriptor to keep the response under the ES client buffer (see DOWNLOAD_SOURCE_EXCLUDES).
+		if (includePrimaryAnnotations) {
+			pagination.setSourceExcludes(DOWNLOAD_SOURCE_EXCLUDES);
+		}
 		pagination.addFilterOptions(filterOptions);
 		pagination.addFilterOption("object.name", diseaseTerm);
 		pagination.addFilterOption("evidenceCodes.abbreviation", evidenceCode);
