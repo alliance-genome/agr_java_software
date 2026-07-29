@@ -258,22 +258,30 @@ public enum FileGeneratorConfig {
 	}
 
 	/**
-	 * Phenotype field map. Source: gene_phenotype_annotation in site_index — these
-	 * docs are consolidated and carry primaryAnnotations[].
+	 * Phenotype field map. Source: {gene,allele,agm}_phenotype_annotation in
+	 * site_index — these docs are consolidated and carry primaryAnnotations[].
 	 * PhenotypeFileGenerator.customizeRows() expands each ES hit into N flattened
 	 * rows (one per primaryAnnotations element) for TSV; JSON_RAW writes the
 	 * consolidated doc verbatim. Every column is synthetic (`_*`) and populated
-	 * per-row from primaryAnnotations[i].
+	 * per-row from primaryAnnotations[i]. The model, allele and gene columns each
+	 * name their own level of the annotation: the level matching the annotation's
+	 * type comes from its subject, the other levels from the inferred entity or
+	 * the asserted entities, and any level the annotation does not carry is left
+	 * blank.
 	 */
 	private static Map<String, String> phenotypeFieldMap() {
 		Map<String, String> m = new LinkedHashMap<>();
 		m.put("Taxon", "_taxon");
 		m.put("SpeciesName", "_speciesName");
+		m.put("Model ID", "_modelId");
+		m.put("Model Symbol", "_modelSymbol");
+		m.put("Model Type", "_modelType");
+		m.put("Allele ID", "_alleleId");
+		m.put("Allele Symbol", "_alleleSymbol");
+		m.put("Gene ID", "_geneId");
+		m.put("Gene Symbol", "_geneSymbol");
 		m.put("Phenotype Statement", "_phenotypeStatement");
-		m.put("Phenotype Terms", "_phenotypeTerms");
-		m.put("Genetic Entity ID", "_geneticEntityId");
-		m.put("Genetic Entity Name", "_geneticEntityName");
-		m.put("Genetic Entity Type", "_geneticEntityType");
+		m.put("Phenotype Statement Terms", "_phenotypeTerms");
 		m.put("Experimental Condition", "_experimentalCondition");
 		m.put("Source", "_source");
 		m.put("Reference", "_reference");

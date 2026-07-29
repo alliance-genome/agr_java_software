@@ -321,11 +321,12 @@ public class GeneController implements GeneRESTInterface {
 	}
 
 	@Override
-	public JsonResultResponse<GenePhenotypeAnnotationDocument> getPhenotypeAnnotations(String id, Integer limit, Integer page, String sortBy, String geneticEntity, String geneticEntityType, String phenotype, String reference, String dataProvider, String asc) {
+	public JsonResultResponse<GenePhenotypeAnnotationDocument> getPhenotypeAnnotations(String id, Integer limit, Integer page, String sortBy, String geneticEntity, String geneticEntityType, String phenotype, String reference, String dataProvider, String asc, String referenceCitation) {
 		long startTime = System.currentTimeMillis();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
 		pagination.addFilterOption("phenotypeStatement", phenotype);
 		pagination.addFilterOption("pubmedPublications.referencedCurie", reference);
+		pagination.addFilterOption("references.shortCitation", referenceCitation);
 		pagination.addFilterOption("primaryAnnotations.dataProvider.abbreviation", dataProvider);
 		try {
 			JsonResultResponse<GenePhenotypeAnnotationDocument> phenotypes = phenotypeESService.getGenePhenotypeAnnotations(id, pagination, false);
@@ -341,9 +342,9 @@ public class GeneController implements GeneRESTInterface {
 	}
 
 	@Override
-	public Response getPhenotypeAnnotationsDownloadFile(String id, String sortBy, String geneticEntity, String geneticEntityType, String phenotype, String reference, String dataProvider, String asc) {
+	public Response getPhenotypeAnnotationsDownloadFile(String id, String sortBy, String geneticEntity, String geneticEntityType, String phenotype, String reference, String dataProvider, String asc, String referenceCitation) {
 		// retrieve all records
-		JsonResultResponse<GenePhenotypeAnnotationDocument> response = getPhenotypeAnnotations(id, 250000, 1, sortBy, geneticEntity, geneticEntityType, phenotype, reference, dataProvider, asc);
+		JsonResultResponse<GenePhenotypeAnnotationDocument> response = getPhenotypeAnnotations(id, 250000, 1, sortBy, geneticEntity, geneticEntityType, phenotype, reference, dataProvider, asc, referenceCitation);
 		Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRows(response.getResults()));
 		APIServiceHelper.setDownloadHeader(id, EntityType.GENE, EntityType.PHENOTYPE, responseBuilder);
 		return responseBuilder.build();

@@ -20,6 +20,9 @@ public class PhenotypeFileGenerator extends FileGenerator {
 
 	private static final String LINKML_README_URL = "https://alliance-genome.github.io/agr_curation_schema/PhenotypeAnnotation/";
 
+	// Only has_condition and induced_by describe the setup the phenotype was observed under. The remaining relation types (ameliorated_by, exacerbated_by, ...) qualify the phenotype rather than establishing it, so their conditions are not reported as the experimental condition.
+	private static final Set<String> EXPERIMENTAL_CONDITION_RELATIONS = Set.of("has_condition", "induced_by");
+
 	private final Set<String> seenUniqueIds = ConcurrentHashMap.newKeySet();
 
 	public PhenotypeFileGenerator(FileGeneratorConfig config) {
@@ -84,38 +87,24 @@ public class PhenotypeFileGenerator extends FileGenerator {
 			row.put("_phenotypeStatement", JsonPath.resolveString(pa, "phenotypeAnnotationObject"));
 			row.put("_phenotypeTerms", joinPhenotypeTerms(pa));
 
-			row.put("_geneticEntityId", JsonPath.resolveString(pa, "phenotypeAnnotationSubject.primaryExternalId"));
-
-			String subjectType = JsonPath.resolveString(pa, "phenotypeAnnotationSubject.type");
-			String entityName;
-			if ("Gene".equals(subjectType)) {
-				entityName = JsonPath.resolveString(pa, "phenotypeAnnotationSubject.geneSymbol.displayText");
-			} else if ("Allele".equals(subjectType)) {
-				entityName = JsonPath.resolveString(pa, "phenotypeAnnotationSubject.alleleSymbol.displayText");
-			} else if ("AffectedGenomicModel".equals(subjectType)) {
-				entityName = JsonPath.resolveString(pa, "phenotypeAnnotationSubject.agmFullName.displayText");
-				if (entityName.isEmpty()) {
-					entityName = JsonPath.resolveString(pa, "phenotypeAnnotationSubject.name");
-				}
-			} else {
-				entityName = JsonPath.resolveString(pa, "phenotypeAnnotationSubject.name");
-			}
-			row.put("_geneticEntityName", entityName);
-
+			// PhenotypeAnnotation declares no generic subject field, so the Jackson type discriminator is the only way to tell whether phenotypeAnnotationSubject is a gene, an allele or a model.
 			String paType = JsonPath.resolveString(pa, "type");
-			String entityType;
-			if ("GenePhenotypeAnnotation".equals(paType)) {
-				entityType = "gene";
-			} else if ("AllelePhenotypeAnnotation".equals(paType)) {
-				entityType = "allele";
-			} else if ("AGMPhenotypeAnnotation".equals(paType)) {
-				entityType = "affected_genomic_model";
-			} else {
-				entityType = paType.replace("PhenotypeAnnotation", "").toLowerCase();
-			}
-			row.put("_geneticEntityType", entityType);
 
-			// Experimental conditions live at conditionRelations[].conditions[].conditionSummary — both are arrays, so flatten and bar-separate the human-readable summaries. Empty when the annotation carries no conditions.
+			// Only an AGM annotation names a model at all — a gene or allele annotation has none, so its model columns stay blank instead of repeating the subject under the wrong heading.
+			boolean subjectIsModel = "AGMPhenotypeAnnotation".equals(paType);
+			row.put("_modelId", subjectIsModel ? JsonPath.resolveString(pa, "phenotypeAnnotationSubject.primaryExternalId") : "");
+			row.put("_modelSymbol", subjectIsModel ? JsonPath.resolveString(pa, "phenotypeAnnotationSubject.agmFullName.displayText") : "");
+			row.put("_modelType", subjectIsModel ? JsonPath.resolveString(pa, "phenotypeAnnotationSubject.subtype.name") : "");
+
+			boolean subjectIsAllele = "AllelePhenotypeAnnotation".equals(paType);
+			row.put("_alleleId", resolveEntityField(pa, subjectIsAllele, "inferredAllele", "assertedAlleles", "primaryExternalId"));
+			row.put("_alleleSymbol", resolveEntityField(pa, subjectIsAllele, "inferredAllele", "assertedAlleles", "alleleSymbol.displayText"));
+
+			boolean subjectIsGene = "GenePhenotypeAnnotation".equals(paType);
+			row.put("_geneId", resolveEntityField(pa, subjectIsGene, "inferredGene", "assertedGenes", "primaryExternalId"));
+			row.put("_geneSymbol", resolveEntityField(pa, subjectIsGene, "inferredGene", "assertedGenes", "geneSymbol.displayText"));
+
+			// Experimental conditions live at conditionRelations[].conditions[].conditionSummary — both are arrays, so flatten and bar-separate the human-readable summaries. Empty when the annotation carries no conditions under an experimental relation.
 			row.put("_experimentalCondition", joinConditionSummaries(pa));
 
 			row.put("_source", JsonPath.resolveString(pa, "dataProvider.abbreviation"));
@@ -129,6 +118,30 @@ public class PhenotypeFileGenerator extends FileGenerator {
 			rows.add(row);
 		}
 		return rows;
+	}
+
+	/**
+	 * Resolves one field of the allele or gene column pair. The annotation's own subject wins when the annotation is of that entity's type — a GenePhenotypeAnnotation names its gene directly — then the curated inferred entity, then the asserted entities pipe-joined. Which of the three sources wins is decided on primaryExternalId alone, so the ID and the symbol always describe the same entity.
+	 */
+	private static String resolveEntityField(JsonNode pa, boolean subjectIsEntity, String inferredPath, String assertedPath, String field) {
+		if (subjectIsEntity) {
+			return JsonPath.resolveString(pa, "phenotypeAnnotationSubject." + field);
+		}
+		if (!JsonPath.resolveString(pa, inferredPath + ".primaryExternalId").isEmpty()) {
+			return JsonPath.resolveString(pa, inferredPath + "." + field);
+		}
+		JsonNode asserted = pa.path(assertedPath);
+		if (!asserted.isArray()) {
+			return "";
+		}
+		LinkedHashSet<String> values = new LinkedHashSet<>();
+		for (JsonNode entity : asserted) {
+			String value = JsonPath.resolveString(entity, field);
+			if (!value.isEmpty()) {
+				values.add(value);
+			}
+		}
+		return String.join("|", values);
 	}
 
 	private static String joinPhenotypeTerms(JsonNode pa) {
@@ -159,6 +172,9 @@ public class PhenotypeFileGenerator extends FileGenerator {
 		}
 		LinkedHashSet<String> summaries = new LinkedHashSet<>();
 		for (JsonNode relation : relations) {
+			if (!EXPERIMENTAL_CONDITION_RELATIONS.contains(relation.path("conditionRelationType").path("name").asText(""))) {
+				continue;
+			}
 			JsonNode conditions = relation.path("conditions");
 			if (!conditions.isArray()) {
 				continue;
