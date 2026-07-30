@@ -86,6 +86,11 @@ public class AlleleSummaryCurationIndexer extends Indexer {
 
 				// Strip fields only needed by derived documents before indexing to ES
 				response.getResults().forEach(AlleleSummaryDocument::removeTransportFields);
+				response.getResults().forEach(doc -> {
+					if (doc.getAllele() != null) {
+						stripInternalNotes(doc.getAllele().getRelatedNotes());
+					}
+				});
 
 				// Index all document types
 				indexDocuments(response.getResults());
