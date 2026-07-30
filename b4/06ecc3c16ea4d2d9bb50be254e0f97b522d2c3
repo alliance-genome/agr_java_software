@@ -1,0 +1,19 @@
+.gitignore
+  s_4f7f1bb8b24ff6::t_94740a6dca1aa4 19-21
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "b406ecc3c16ea4d2d9bb50be254e0f97b522d2c3",
+  "prompts": {},
+  "sessions": {
+    "s_4f7f1bb8b24ff6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "28d89ecc-2339-4855-b8af-d559c65cd91a",
+        "model": "unknown"
+      },
+      "human_author": "Ketaki Kindre <kkindre@caltech.edu>"
+    }
+  }
+}
