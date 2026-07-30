@@ -120,11 +120,13 @@ public class AlleleController implements AlleleRESTInterface {
 		String phenotype,
 		String source,
 		String reference,
-		String sortBy) {
+		String sortBy,
+		String referenceCitation) {
 		long startTime = System.currentTimeMillis();
 		Pagination pagination = new Pagination(page, limit, sortBy, null);
 		pagination.addFilterOption("phenotypeStatement", phenotype);
 		pagination.addFilterOption("pubmedPublications.referencedCurie", reference);
+		pagination.addFilterOption("references.shortCitation", referenceCitation);
 		pagination.addFilterOption("primaryAnnotations.dataProvider.abbreviation", source);
 		try {
 			JsonResultResponse<AllelePhenotypeAnnotationDocument> phenotypes = phenotypeESService.getAllelePhenotypeAnnotations(id, pagination, false);
@@ -140,7 +142,7 @@ public class AlleleController implements AlleleRESTInterface {
 	}
 
 	@Override
-	public Response getPhenotypesPerAlleleDownload(String id, String phenotype, String source, String reference, String sortBy) {
+	public Response getPhenotypesPerAlleleDownload(String id, String phenotype, String source, String reference, String sortBy, String referenceCitation) {
 		// retrieve all records
 		JsonResultResponse<AllelePhenotypeAnnotationDocument> response =
 			getPhenotypePerAllele(id,
@@ -149,7 +151,8 @@ public class AlleleController implements AlleleRESTInterface {
 				phenotype,
 				source,
 				reference,
-				sortBy);
+				sortBy,
+				referenceCitation);
 		Response.ResponseBuilder responseBuilder = Response.ok(phenotypeTranslator.getAllRows(response.getResults()));
 		String alleleSymbol = getAllele(id).getAllele().getAlleleSymbol().getFormatText();
 		APIServiceHelper.setDownloadHeaderByName(id, alleleSymbol, EntityType.ALLELE, EntityType.PHENOTYPE, responseBuilder);
@@ -172,7 +175,7 @@ public class AlleleController implements AlleleRESTInterface {
 		Integer limit,
 		Integer page,
 		String sortBy,
-		String asc) {
+		String asc, String referenceCitation) {
 
 		LocalDateTime startDate = LocalDateTime.now();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
@@ -182,6 +185,7 @@ public class AlleleController implements AlleleRESTInterface {
 		pagination.addFilterOption("generatedRelationString.keyword", associationType);
 		pagination.addFilterOption("diseaseQualifiers.keyword", diseaseQualifier);
 		pagination.addFilterOption("pubmedPublications.referencedCurie", filterReference);
+		pagination.addFilterOption("references.shortCitation", referenceCitation);
 		pagination.addFilterOption("primaryAnnotations.dataProvider.sourceOrganization.abbreviation", filterSource);
 
 
@@ -219,7 +223,7 @@ public class AlleleController implements AlleleRESTInterface {
 												Integer limit,
 												Integer page,
 												String sortBy,
-												String asc) {
+												String asc, String referenceCitation) {
 		JsonResultResponse<AlleleDiseaseAnnotationDocument> response = getDiseasePerAllele(alleleID,
 			filterOptions,
 			filterReference,
@@ -234,7 +238,7 @@ public class AlleleController implements AlleleRESTInterface {
 			150000,
 			page,
 			sortBy,
-			asc);
+			asc, referenceCitation);
 		Response.ResponseBuilder responseBuilder = Response.ok(diseaseToTdfTranslator.getAllRowsForAlleleDiseaseAnnotations(response.getResults()));
 		String alleleSymbol = getAllele(alleleID).getAllele().getAlleleSymbol().getFormatText();
 		APIServiceHelper.setDownloadHeaderByName(alleleID, alleleSymbol, EntityType.ALLELE, EntityType.DISEASE, responseBuilder);

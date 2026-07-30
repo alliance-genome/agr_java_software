@@ -1,8 +1,10 @@
 package org.alliancegenome.filegenerator.generators;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.alliancegenome.filegenerator.config.FileGeneratorConfig;
@@ -53,10 +55,18 @@ public class ExpressionFileGenerator extends FileGenerator {
 	}
 
 	/**
-	 * The consolidation in agr_curation's GeneExpressionDocumentBuilder pads crossReferences and referenceId so entry i of
-	 * each describes the same underlying annotation. Emit one row per pair so a SourceURL is never reported against a
-	 * publication it did not come from, and so no cross reference beyond the first is dropped. referenceId is the aligned
-	 * list; referenceXrefs is a deduplicated set in a different order and cannot be paired positionally.
+	 * The consolidation in agr_curation's GeneExpressionDocumentBuilder pads crossReferences and referenceId so
+	 * entry i of each describes the same underlying annotation, and one annotation is one publication. Group the
+	 * cross references by the reference they are aligned to and emit one row per distinct reference, so the row
+	 * count matches the annotation count while no SourceURL is reported against a publication it did not come
+	 * from and no cross reference is dropped.
+	 *
+	 * referenceId is the aligned list; referenceXrefs is a deduplicated set in a different order and cannot be
+	 * paired positionally.
+	 *
+	 * MGI and WB take their cross references from the expression experiment rather than the annotation, so a
+	 * single publication commonly carries many assay URLs; those share one row with the URLs pipe-joined rather
+	 * than fanning out into rows that would each claim a specific assay.
 	 */
 	@Override
 	protected List<JsonNode> customizeRows(JsonNode customizedHit) {
@@ -70,24 +80,32 @@ public class ExpressionFileGenerator extends FileGenerator {
 		int xrefSize = xrefs != null && xrefs.isArray() ? xrefs.size() : 0;
 		int refSize = refIds != null && refIds.isArray() ? refIds.size() : 0;
 
-		// A doc carrying neither list still emits its single row — the location / stage / assay columns stand on their own.
-		int rowCount = Math.max(1, Math.max(xrefSize, refSize));
-		List<JsonNode> rows = new ArrayList<>(rowCount);
-		// Scoped to this document: the same figure + publication pair recurs legitimately under other locations and stages, so only exact repeats within one gene + location + stage + assay group are dropped.
-		Set<String> seenPairs = new LinkedHashSet<>();
+		// A doc with neither list still emits one row — location / stage / assay stand on their own.
+		int pairCount = Math.max(1, Math.max(xrefSize, refSize));
+		// Insertion-ordered so rows follow the document's reference order; the URL sets drop exact repeats.
+		Map<String, Set<String>> urlsByReference = new LinkedHashMap<>();
 
-		for (int i = 0; i < rowCount; i++) {
-			String sourceUrl = buildSourceUrl(i < xrefSize ? xrefs.get(i) : null);
-			// Fewer references than cross references means one publication documented in several places; every row keeps that single reference.
+		for (int i = 0; i < pairCount; i++) {
+			/*
+			 * Cross references past the end of the reference list belong to the first publication — the
+			 * group.size() == 1 short-circuit upstream skips the padding, so the lists are not always equal
+			 * length.
+			 */
 			String reference = refSize == 0 ? "" : (i < refSize ? refIds.get(i) : refIds.get(0)).asText("");
-			if (!seenPairs.add(sourceUrl + "\t" + reference)) {
-				continue;
+			String sourceUrl = buildSourceUrl(i < xrefSize ? xrefs.get(i) : null);
+			Set<String> urls = urlsByReference.computeIfAbsent(reference, r -> new LinkedHashSet<>());
+			if (!sourceUrl.isEmpty()) {
+				urls.add(sourceUrl);
 			}
+		}
+
+		List<JsonNode> rows = new ArrayList<>(urlsByReference.size());
+		for (Map.Entry<String, Set<String>> entry : urlsByReference.entrySet()) {
 			ObjectNode row = JsonNodeFactory.instance.objectNode();
-			// Shallow copy: the doc-level fields are shared by reference and never mutated, only the two per-pair fields differ.
+			// Shallow copy: doc-level fields are shared by reference and never mutated, only the two below differ.
 			row.setAll(obj);
-			row.put("_sourceUrl", sourceUrl);
-			row.put("_reference", reference);
+			row.put("_sourceUrl", String.join(QUALIFIER_DELIMITER, entry.getValue()));
+			row.put("_reference", entry.getKey());
 			rows.add(row);
 		}
 		return rows;
