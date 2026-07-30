@@ -47,6 +47,8 @@ public class AutoCompleteService {
 		multi.field("name.autocomplete");
 		multi.field("synonyms.keyword", 2.0F);
 		multi.field("synonyms.autocomplete");
+		multi.field("curie", 10.0F);
+		multi.field("secondaryIds", 6.0F);
 
 		bool.must(multi);
 
