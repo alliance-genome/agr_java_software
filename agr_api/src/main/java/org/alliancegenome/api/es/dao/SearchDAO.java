@@ -56,10 +56,16 @@ public class SearchDAO extends ESDAO {
 
 	public SearchResponse performQuery(QueryBuilder query, List<AggregationBuilder> aggBuilders, QueryRescorerBuilder rescorerBuilder, List<String> responseFields, int limit, int offset, HighlightBuilder highlighter, LinkedHashMap<String, SortOrder> sorts, Map<String, Boolean> fieldSorter,
 		Boolean debug) {
+		return performQuery(query, aggBuilders, rescorerBuilder, responseFields, limit, offset, highlighter, sorts, fieldSorter, null, debug);
+	}
+
+	public SearchResponse performQuery(QueryBuilder query, List<AggregationBuilder> aggBuilders, QueryRescorerBuilder rescorerBuilder, List<String> responseFields, int limit, int offset, HighlightBuilder highlighter, LinkedHashMap<String, SortOrder> sorts, Map<String, Boolean> fieldSorter,
+		List<String> sourceExcludes, Boolean debug) {
 
 		SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
 
-		searchSourceBuilder.fetchSource(responseFields.toArray(new String[responseFields.size()]), null);
+		String[] excludes = (sourceExcludes == null || sourceExcludes.isEmpty()) ? null : sourceExcludes.toArray(new String[0]);
+		searchSourceBuilder.fetchSource(responseFields.toArray(new String[responseFields.size()]), excludes);
 
 		if (debug != null && debug) {
 			searchSourceBuilder.explain(true);

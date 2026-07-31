@@ -258,22 +258,30 @@ public enum FileGeneratorConfig {
 	}
 
 	/**
-	 * Phenotype field map. Source: gene_phenotype_annotation in site_index — these
-	 * docs are consolidated and carry primaryAnnotations[].
+	 * Phenotype field map. Source: {gene,allele,agm}_phenotype_annotation in
+	 * site_index — these docs are consolidated and carry primaryAnnotations[].
 	 * PhenotypeFileGenerator.customizeRows() expands each ES hit into N flattened
 	 * rows (one per primaryAnnotations element) for TSV; JSON_RAW writes the
 	 * consolidated doc verbatim. Every column is synthetic (`_*`) and populated
-	 * per-row from primaryAnnotations[i].
+	 * per-row from primaryAnnotations[i]. The model, allele and gene columns each
+	 * name their own level of the annotation: the level matching the annotation's
+	 * type comes from its subject, the other levels from the inferred entity or
+	 * the asserted entities, and any level the annotation does not carry is left
+	 * blank.
 	 */
 	private static Map<String, String> phenotypeFieldMap() {
 		Map<String, String> m = new LinkedHashMap<>();
 		m.put("Taxon", "_taxon");
 		m.put("SpeciesName", "_speciesName");
+		m.put("Model ID", "_modelId");
+		m.put("Model Symbol", "_modelSymbol");
+		m.put("Model Type", "_modelType");
+		m.put("Allele ID", "_alleleId");
+		m.put("Allele Symbol", "_alleleSymbol");
+		m.put("Gene ID", "_geneId");
+		m.put("Gene Symbol", "_geneSymbol");
 		m.put("Phenotype Statement", "_phenotypeStatement");
-		m.put("Phenotype Terms", "_phenotypeTerms");
-		m.put("Genetic Entity ID", "_geneticEntityId");
-		m.put("Genetic Entity Name", "_geneticEntityName");
-		m.put("Genetic Entity Type", "_geneticEntityType");
+		m.put("Phenotype Statement Terms", "_phenotypeTerms");
 		m.put("Experimental Condition", "_experimentalCondition");
 		m.put("Source", "_source");
 		m.put("Reference", "_reference");
@@ -286,8 +294,8 @@ public enum FileGeneratorConfig {
 	 * are pipe-joined inside ExpressionFileGenerator.customizeRow() into synthetic
 	 * fields. These docs are consolidated by gene + location + stage + assay, so
 	 * ExpressionFileGenerator.customizeRows() then expands each ES hit into one TSV
-	 * row per crossReferences[i] / referenceId[i] pair; JSON_RAW writes the
-	 * consolidated doc verbatim.
+	 * row per distinct referenceId — one row per underlying annotation; JSON_RAW
+	 * writes the consolidated doc verbatim.
 	 */
 	private static Map<String, String> expressionFieldMap() {
 		Map<String, String> m = new LinkedHashMap<>();
@@ -312,9 +320,10 @@ public enum FileGeneratorConfig {
 		m.put("AnatomyTermQualifierIDs", "_anatomyQualifierIds");
 		m.put("AnatomyTermQualifierTermNames", "_anatomyQualifierNames");
 		// SourceURL and Reference are populated per row by
-		// ExpressionFileGenerator.customizeRows() from the crossReference and the
-		// referenceId sharing an index, so each URL is reported against the one
-		// publication it came from; these paths resolve the synthetic fields.
+		// ExpressionFileGenerator.customizeRows(), which groups the crossReferences
+		// by the referenceId sharing their index; every URL is reported against the
+		// one publication it came from, pipe-joined when a publication carries
+		// several. These paths resolve the synthetic fields.
 		m.put("SourceURL", "_sourceUrl");
 		m.put("Source", "geneExpressionAnnotation.dataProvider.abbreviation");
 		m.put("Reference", "_reference");
