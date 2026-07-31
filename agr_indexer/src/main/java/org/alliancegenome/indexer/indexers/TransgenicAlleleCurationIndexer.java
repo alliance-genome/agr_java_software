@@ -104,7 +104,7 @@ public class TransgenicAlleleCurationIndexer extends Indexer {
 					continue;
 				}
 				TransgenicAlleleSummaryDocument document = documentMap.computeIfAbsent(da.getAllele(), allele -> {
-					stripInternalNotes(allele.getRelatedNotes());
+					stripInternalOrObsoleteNotes(allele.getRelatedNotes());
 					TransgenicAlleleSummaryDocument doc = new TransgenicAlleleSummaryDocument();
 					doc.setAllele(allele);
 					doc.setPhylogeneticSortingIndex(allele.getTaxon().getSpecies().getPhylogeneticOrder());

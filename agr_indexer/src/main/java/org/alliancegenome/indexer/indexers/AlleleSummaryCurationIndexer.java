@@ -88,7 +88,7 @@ public class AlleleSummaryCurationIndexer extends Indexer {
 				response.getResults().forEach(AlleleSummaryDocument::removeTransportFields);
 				response.getResults().forEach(doc -> {
 					if (doc.getAllele() != null) {
-						stripInternalNotes(doc.getAllele().getRelatedNotes());
+						stripInternalOrObsoleteNotes(doc.getAllele().getRelatedNotes());
 					}
 				});
 

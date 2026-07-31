@@ -173,8 +173,8 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 		} else if (da.getEvidenceItem() instanceof ExternalDatabaseReference externalReference) {
 			dad.addPubmedPublication(buildExternalDatabaseReferenceXref(externalReference));
 		}
-		stripInternalNotes(da.getRelatedNotes());
-		stripInternalNotes(biologicalEntity.getRelatedNotes());
+		stripInternalOrObsoleteNotes(da.getRelatedNotes());
+		stripInternalOrObsoleteNotes(biologicalEntity.getRelatedNotes());
 		dad.addPrimaryAnnotation(da);
 	}
 

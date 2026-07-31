@@ -280,14 +280,15 @@ public abstract class Indexer extends Thread {
 	}
 
 	/**
-	 * Removes notes marked internal=true from a relatedNotes list before it's embedded in a
-	 * public ES document. Curation entities carry internal notes (e.g. private_comment) alongside
-	 * public ones with no server-side view filtering applied during indexing, so this must run on
-	 * every entity's relatedNotes before it reaches indexDocument(s) — see SCRUM-6327.
+	 * Removes notes marked internal=true or obsolete=true from a relatedNotes list before it's
+	 * embedded in a public ES document. Curation entities carry internal/obsolete notes (e.g.
+	 * private_comment) alongside public ones with no server-side view filtering applied during
+	 * indexing, so this must run on every entity's relatedNotes before it reaches
+	 * indexDocument(s) — see SCRUM-6327.
 	 */
-	protected static void stripInternalNotes(List<Note> notes) {
+	protected static void stripInternalOrObsoleteNotes(List<Note> notes) {
 		if (CollectionUtils.isNotEmpty(notes)) {
-			notes.removeIf(note -> Boolean.TRUE.equals(note.getInternal()));
+			notes.removeIf(note -> !note.isNotInternalOrObsolete());
 		}
 	}
 

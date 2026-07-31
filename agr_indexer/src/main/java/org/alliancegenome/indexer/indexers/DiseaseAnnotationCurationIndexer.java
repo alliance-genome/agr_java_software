@@ -177,7 +177,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 							// create distinct list of basedOn Genes
 							Set<Gene> basedOnGenes = diseaseAnnotations1.stream().map(DiseaseAnnotation::getWith).flatMap(Collection::stream).collect(Collectors.toSet());
 							//List<String> ids = basedOnGenes.stream().map(SubmittedObject::getIdentifier).toList();
-							basedOnGenes.forEach(gene1 -> stripInternalNotes(gene1.getRelatedNotes()));
+							basedOnGenes.forEach(gene1 -> stripInternalOrObsoleteNotes(gene1.getRelatedNotes()));
 							gdad.setBasedOnGenes(new ArrayList<>(basedOnGenes));
 							Reference evidenceItem = (Reference) diseaseAnnotation.getEvidenceItem();
 							gdad.addReference(evidenceItem);
@@ -189,8 +189,8 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 								gdad.setPhylogeneticSortingIndex(10000);
 							}
 							gdad.setSpeciesOrder(buildSpeciesOrder(gene.getTaxon().getCurie()));
-							stripInternalNotes(diseaseAnnotation.getRelatedNotes());
-							stripInternalNotes(gene.getRelatedNotes());
+							stripInternalOrObsoleteNotes(diseaseAnnotation.getRelatedNotes());
+							stripInternalOrObsoleteNotes(gene.getRelatedNotes());
 							gdad.addPrimaryAnnotation(diseaseAnnotation);
 							returnList.add(gdad);
 						});
@@ -252,7 +252,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 				}
 				populateBaseDiseaseAnnotationDocument(gene, da, gdad);
 				if (CollectionUtils.isNotEmpty(da.getWith())) {
-					da.getWith().forEach(basedOnGene -> stripInternalNotes(basedOnGene.getRelatedNotes()));
+					da.getWith().forEach(basedOnGene -> stripInternalOrObsoleteNotes(basedOnGene.getRelatedNotes()));
 				}
 				gdad.addBasedOnGenes(da.getWith());
 			}
@@ -413,8 +413,8 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		dad.addReference(evidenceItem);
 		dad.addPubmedPublication(getPubmedPubModXref(evidenceItem));
 		dad.addPubModPublication(getPubModXref(evidenceItem));
-		stripInternalNotes(da.getRelatedNotes());
-		stripInternalNotes(biologicalEntity.getRelatedNotes());
+		stripInternalOrObsoleteNotes(da.getRelatedNotes());
+		stripInternalOrObsoleteNotes(biologicalEntity.getRelatedNotes());
 		dad.addPrimaryAnnotation(da);
 		if (biologicalEntity.getTaxon().getSpecies() != null) {
 			dad.setPhylogeneticSortingIndex(biologicalEntity.getTaxon().getSpecies().getPhylogeneticOrder());
@@ -494,7 +494,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 			if (CollectionUtils.isNotEmpty(da.getDiseaseGeneticModifierAgms())) {
 				geneticModifiers.addAll(da.getDiseaseGeneticModifierAgms().stream().filter(Objects::nonNull).toList());
 			}
-			geneticModifiers.forEach(entity -> stripInternalNotes(entity.getRelatedNotes()));
+			geneticModifiers.forEach(entity -> stripInternalOrObsoleteNotes(entity.getRelatedNotes()));
 			adad.setGeneticModifierList(geneticModifiers);
 			List<String> geneticModifierComponents = new ArrayList<>();
 			geneticModifierComponents.add(da.getDiseaseGeneticModifierRelation().getName());

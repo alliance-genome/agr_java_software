@@ -71,7 +71,7 @@ public class GeneSummaryCurationIndexer extends Indexer {
 
 				response.getResults().forEach(doc -> {
 					if (doc.getGene() != null) {
-						stripInternalNotes(doc.getGene().getRelatedNotes());
+						stripInternalOrObsoleteNotes(doc.getGene().getRelatedNotes());
 					}
 				});
 
