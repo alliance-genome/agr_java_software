@@ -1,0 +1,29 @@
+agr_indexer/src/main/java/org/alliancegenome/indexer/indexers/AlleleSummaryCurationIndexer.java
+  s_4f7f1bb8b24ff6::t_4d7d24d8013bb4 91
+agr_indexer/src/main/java/org/alliancegenome/indexer/indexers/DiseaseAnnotationCurationIndexer.java
+  s_4f7f1bb8b24ff6::t_c16a55f528fee6 180,192-193,255,416-417,497
+agr_indexer/src/main/java/org/alliancegenome/indexer/indexers/GeneSummaryCurationIndexer.java
+  s_4f7f1bb8b24ff6::t_897dd48e4d074b 74
+agr_indexer/src/main/java/org/alliancegenome/indexer/indexers/PhenotypeAnnotationCurationIndexer.java
+  s_4f7f1bb8b24ff6::t_7a35ee63956c0d 176-177
+agr_indexer/src/main/java/org/alliancegenome/indexer/indexers/TransgenicAlleleCurationIndexer.java
+  s_4f7f1bb8b24ff6::t_b907f4a719c4dd 107
+agr_indexer/src/main/java/org/alliancegenome/indexer/indexers/Indexer.java
+  s_4f7f1bb8b24ff6::t_6ccfedd49ed5d4 283-287,289,291
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "6eb5a3328a2cc40deb4881e37d4eddf45953d51e",
+  "prompts": {},
+  "sessions": {
+    "s_4f7f1bb8b24ff6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "28d89ecc-2339-4855-b8af-d559c65cd91a",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Ketaki Kindre <kkindre@caltech.edu>"
+    }
+  }
+}
