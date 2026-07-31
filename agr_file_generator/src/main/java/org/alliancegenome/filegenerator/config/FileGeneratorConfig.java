@@ -230,30 +230,52 @@ public enum FileGeneratorConfig {
 	 * DiseaseFileGenerator.customizeRows() expands each ES hit into N flattened
 	 * rows (one per primaryAnnotations element) for TSV; JSON_RAW writes the
 	 * consolidated doc verbatim. Every column is synthetic (`_*`) and populated
-	 * per-row from primaryAnnotations[i]. Columns whose ES source is not currently
-	 * indexed map to "_unavailable" (rendered as an empty cell).
+	 * per-row from primaryAnnotations[i]. The model, allele and gene columns each
+	 * name their own level of the annotation: the level matching the annotation's
+	 * type comes from its subject, the other levels from the inferred entity or the
+	 * asserted entities, and any level the annotation does not carry is left blank.
+	 * The three association columns follow the same rule, so exactly one of them is
+	 * populated per row — the level the annotation was curated at. UniqueID is not
+	 * part of the published layout; it is retained for curator verification and
+	 * comes out before the public release (SCRUM-1953).
 	 */
 	private static Map<String, String> diseaseFieldMap() {
 		Map<String, String> m = new LinkedHashMap<>();
 		m.put("UniqueID", "_uniqueId");
-		m.put("Taxon", "_taxon");
-		m.put("SpeciesName", "_speciesName");
-		m.put("DBobjectType", "_dbObjectType");
-		m.put("DBObjectID", "_dbObjectId");
-		m.put("DBObjectSymbol", "_dbObjectSymbol");
-		m.put("AssociationType", "_associationType");
-		m.put("DOID", "_doId");
-		m.put("DOtermName", "_doTermName");
-		m.put("WithOrtholog", "_withOrtholog");
-		m.put("InferredFromID", "_unavailable");
-		m.put("InferredFromSymbol", "_inferredFromSymbol");
-		m.put("ExperimentalCondition", "_unavailable");
-		m.put("Modifier", "_unavailable");
-		m.put("EvidenceCode", "_evidenceCode");
-		m.put("EvidenceCodeName", "_evidenceCodeName");
+		m.put("Taxon ID", "_taxon");
+		m.put("Species Name", "_speciesName");
+		m.put("Model ID", "_modelId");
+		m.put("Model Symbol", "_modelSymbol");
+		m.put("Model Type", "_modelType");
+		m.put("Model Association", "_modelAssociation");
+		m.put("Allele IDs", "_alleleIds");
+		m.put("Allele Symbols", "_alleleSymbols");
+		m.put("Allele Association", "_alleleAssociation");
+		m.put("Gene IDs", "_geneIds");
+		m.put("Gene Symbols", "_geneSymbols");
+		m.put("Gene Association", "_geneAssociation");
+		m.put("Disease Qualifier", "_diseaseQualifier");
+		m.put("Disease ID", "_doId");
+		m.put("Disease Name", "_doTermName");
+		m.put("Evidence Code", "_evidenceCode");
+		m.put("Evidence Code Abbreviation", "_evidenceCodeAbbreviation");
+		m.put("Evidence Code Name", "_evidenceCodeName");
+		m.put("Experimental Conditions", "_experimentalConditions");
+		m.put("Condition Modifiers", "_conditionModifiers");
+		m.put("Genetic Modifier Relation", "_geneticModifierRelation");
+		m.put("Genetic Modifier IDs", "_geneticModifierIds");
+		m.put("Genetic Modifier Names", "_geneticModifierNames");
+		m.put("Strain Background ID", "_strainBackgroundId");
+		m.put("Strain Background Name", "_strainBackgroundName");
+		m.put("Genetic Sex", "_geneticSex");
+		m.put("Notes", "_notes");
+		m.put("Annotation Type", "_annotationType");
+		m.put("Based On ID", "_basedOnId");
+		m.put("Based On Symbol", "_basedOnSymbol");
+		m.put("Source", "_source");
+		m.put("Source URL", "_sourceUrl");
 		m.put("Reference", "_reference");
 		m.put("Date", "_date");
-		m.put("Source", "_source");
 		return m;
 	}
 
