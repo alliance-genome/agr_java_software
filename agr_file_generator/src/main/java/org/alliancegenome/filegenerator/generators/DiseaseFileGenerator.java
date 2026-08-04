@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -25,6 +26,17 @@ public class DiseaseFileGenerator extends FileGenerator {
 			LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE); // YYYYMMDD
 
 	private static final String LINKML_README_URL = "https://alliance-genome.github.io/agr_curation_schema/DiseaseAnnotation/";
+
+	// has_condition and induced_by establish the setup the disease phenotype was observed under; ameliorated_by and exacerbated_by qualify an already-established annotation. The two sets are reported in separate columns per Chris Grove's SCRUM-6274 spec, and any other relation type is reported in neither.
+	private static final Set<String> EXPERIMENTAL_CONDITION_RELATIONS = Set.of("has_condition", "induced_by");
+
+	private static final Set<String> CONDITION_MODIFIER_RELATIONS = Set.of("ameliorated_by", "exacerbated_by");
+
+	// MGI, SGD and OMIM url templates already carry the prefix (e.g. ".../allele/MGI:[%s]") while their referencedCurie is prefixed too, so the template's copy is dropped before substitution to avoid doubling it. Mirrors DiseaseAnnotationToTdfTranslator, which builds the same Source URL column for the gene-page disease download.
+	private static final Set<String> URL_PREFIX_IN_TEMPLATE = Set.of("MGI", "SGD", "OMIM");
+
+	// Note types the download reports, each with the label the curators expect in the Notes column. Any other note type is omitted rather than emitted unlabelled.
+	private static final Map<String, String> NOTE_TYPE_LABELS = Map.of("disease_note", "Note: ", "disease_summary", "Summary: ");
 
 	// Same primaryAnnotation appears across many consolidated docs (gene/allele/agm rollups + via_orthology fan-out). Dedup by the canonical Annotation.uniqueId so each annotation is emitted once per run. dispatch() runs from the parallel scroll pool, so this must be a concurrent set.
 	private final Set<String> seenUniqueIds = ConcurrentHashMap.newKeySet();
@@ -97,73 +109,77 @@ public class DiseaseFileGenerator extends FileGenerator {
 
 			row.put("_uniqueId", uniqueId);
 
+			// Exactly one of the three association columns is populated per row — the one naming the level the annotation was actually curated at. The other two levels are only ever reached by inference (inferred/asserted entities), so asserting a relation for them would invent an annotation that is not in the persistent store.
+			String associationType = resolveAssociationType(pa);
+
 			if (isViaOrthology) {
 				// A via_orthology annotation lives inside the ortholog GENE's consolidated doc, but its diseaseAnnotationSubject still points at the source entity (allele/AGM/source gene). The row must be keyed on the enclosing doc's gene subject, so source every subject column from the top-level subject.
+				// Per SCRUM-6274 these predicted annotations exist at the gene level only, so the model and allele columns stay blank.
 				row.put("_taxon", JsonPath.resolveString(customizedHit, "subject.taxon.curie"));
 				row.put("_speciesName", JsonPath.resolveString(customizedHit, "subject.taxon.species.fullName"));
-				row.put("_dbObjectType", "gene");
-				row.put("_dbObjectId", JsonPath.resolveString(customizedHit, "subject.primaryExternalId"));
-				row.put("_dbObjectSymbol", JsonPath.resolveString(customizedHit, "subject.geneSymbol.displayText"));
+
+				row.put("_modelId", "");
+				row.put("_modelSymbol", "");
+				row.put("_modelType", "");
+				row.put("_modelAssociation", "");
+
+				row.put("_alleleIds", "");
+				row.put("_alleleSymbols", "");
+				row.put("_alleleAssociation", "");
+
+				row.put("_geneIds", JsonPath.resolveString(customizedHit, "subject.primaryExternalId"));
+				row.put("_geneSymbols", JsonPath.resolveString(customizedHit, "subject.geneSymbol.displayText"));
+				row.put("_geneAssociation", associationType);
 			} else {
 				row.put("_taxon", JsonPath.resolveString(pa, "diseaseAnnotationSubject.taxon.curie"));
 				row.put("_speciesName", JsonPath.resolveString(pa, "diseaseAnnotationSubject.taxon.species.fullName"));
 
+				// DiseaseAnnotation declares no generic subject field, so the Jackson type discriminator is the only way to tell whether diseaseAnnotationSubject is a gene, an allele or a model.
 				String paType = JsonPath.resolveString(pa, "type");
-				String dbObjectType;
-				if ("GeneDiseaseAnnotation".equals(paType)) {
-					dbObjectType = "gene";
-				} else if ("AlleleDiseaseAnnotation".equals(paType)) {
-					dbObjectType = "allele";
-				} else if ("AGMDiseaseAnnotation".equals(paType)) {
-					dbObjectType = "affected_genomic_model";
-				} else {
-					dbObjectType = paType.replace("DiseaseAnnotation", "").toLowerCase();
-				}
-				row.put("_dbObjectType", dbObjectType);
 
-				row.put("_dbObjectId", JsonPath.resolveString(pa, "diseaseAnnotationSubject.primaryExternalId"));
+				// Only an AGM annotation names a model at all — there is no inferred or asserted AGM to fall back on — so a gene or allele annotation leaves the model columns blank instead of repeating the subject under the wrong heading.
+				boolean subjectIsModel = "AGMDiseaseAnnotation".equals(paType);
+				row.put("_modelId", subjectIsModel ? JsonPath.resolveString(pa, "diseaseAnnotationSubject.primaryExternalId") : "");
+				row.put("_modelSymbol", subjectIsModel ? resolveAgmSymbol(pa, "diseaseAnnotationSubject") : "");
+				row.put("_modelType", subjectIsModel ? JsonPath.resolveString(pa, "diseaseAnnotationSubject.subtype.name") : "");
+				row.put("_modelAssociation", subjectIsModel ? associationType : "");
 
-				String subjectType = JsonPath.resolveString(pa, "diseaseAnnotationSubject.type");
-				String symbol;
-				if ("Gene".equals(subjectType)) {
-					symbol = JsonPath.resolveString(pa, "diseaseAnnotationSubject.geneSymbol.displayText");
-				} else if ("Allele".equals(subjectType)) {
-					symbol = JsonPath.resolveString(pa, "diseaseAnnotationSubject.alleleSymbol.displayText");
-				} else if ("AffectedGenomicModel".equals(subjectType)) {
-					symbol = JsonPath.resolveString(pa, "diseaseAnnotationSubject.agmFullName.displayText");
-					if (symbol.isEmpty()) {
-						symbol = JsonPath.resolveString(pa, "diseaseAnnotationSubject.name");
-					}
-				} else {
-					symbol = JsonPath.resolveString(pa, "diseaseAnnotationSubject.name");
-				}
-				row.put("_dbObjectSymbol", symbol);
+				boolean subjectIsAllele = "AlleleDiseaseAnnotation".equals(paType);
+				row.put("_alleleIds", resolveEntityField(pa, subjectIsAllele, "inferredAllele", "assertedAlleles", "primaryExternalId"));
+				row.put("_alleleSymbols", resolveEntityField(pa, subjectIsAllele, "inferredAllele", "assertedAlleles", "alleleSymbol.displayText"));
+				row.put("_alleleAssociation", subjectIsAllele ? associationType : "");
+
+				boolean subjectIsGene = "GeneDiseaseAnnotation".equals(paType);
+				row.put("_geneIds", resolveEntityField(pa, subjectIsGene, "inferredGene", "assertedGenes", "primaryExternalId"));
+				row.put("_geneSymbols", resolveEntityField(pa, subjectIsGene, "inferredGene", "assertedGenes", "geneSymbol.displayText"));
+				row.put("_geneAssociation", subjectIsGene ? associationType : "");
 			}
 
-			row.put("_associationType", resolveAssociationType(pa));
+			row.put("_diseaseQualifier", joinDiseaseQualifiers(pa));
 			row.put("_doId", JsonPath.resolveString(pa, "diseaseAnnotationObject.curie"));
 			row.put("_doTermName", JsonPath.resolveString(pa, "diseaseAnnotationObject.name"));
 
-			row.put("_withOrtholog", joinWithOrthologs(pa));
-			row.put("_inferredFromSymbol", joinBasedOnSymbols(pa));
+			row.put("_evidenceCode", joinEvidenceCodes(pa, "curie"));
+			row.put("_evidenceCodeAbbreviation", joinEvidenceCodes(pa, "abbreviation"));
+			row.put("_evidenceCodeName", joinEvidenceCodes(pa, "name"));
 
-			JsonNode evCodes = pa.path("evidenceCodes");
-			List<String> curies = new ArrayList<>();
-			List<String> names = new ArrayList<>();
-			if (evCodes.isArray()) {
-				for (JsonNode ec : evCodes) {
-					String c = ec.path("curie").asText("");
-					String n = ec.path("name").asText("");
-					if (!c.isEmpty()) {
-						curies.add(c);
-					}
-					if (!n.isEmpty()) {
-						names.add(n);
-					}
-				}
-			}
-			row.put("_evidenceCode", String.join("|", curies));
-			row.put("_evidenceCodeName", String.join("|", names));
+			row.put("_experimentalConditions", joinConditionSummaries(pa, EXPERIMENTAL_CONDITION_RELATIONS));
+			row.put("_conditionModifiers", joinConditionSummaries(pa, CONDITION_MODIFIER_RELATIONS));
+
+			row.put("_geneticModifierRelation", JsonPath.resolveString(pa, "diseaseGeneticModifierRelation.name"));
+			row.put("_geneticModifierIds", joinGeneticModifiers(pa, false));
+			row.put("_geneticModifierNames", joinGeneticModifiers(pa, true));
+
+			// sgdStrainBackground is declared on GeneDiseaseAnnotation only, so allele and AGM rows leave these columns blank.
+			row.put("_strainBackgroundId", JsonPath.resolveString(pa, "sgdStrainBackground.primaryExternalId"));
+			row.put("_strainBackgroundName", resolveAgmSymbol(pa, "sgdStrainBackground"));
+
+			row.put("_geneticSex", JsonPath.resolveString(pa, "geneticSex.name"));
+			row.put("_notes", joinNotes(pa));
+			row.put("_annotationType", JsonPath.resolveString(pa, "annotationType.name"));
+
+			row.put("_basedOnId", joinBasedOnIds(pa));
+			row.put("_basedOnSymbol", joinBasedOnSymbols(pa));
 
 			// Per-annotation reference is a single evidenceItem (not a references[] array). Prefer the PMID-style referenceID over the AGRKB curie, matching how the parent-rooted code used to choose references[0].referenceID first.
 			String reference = JsonPath.resolveString(pa, "evidenceItem.referenceID");
@@ -191,6 +207,7 @@ public class DiseaseFileGenerator extends FileGenerator {
 			} else {
 				row.put("_source", JsonPath.resolveString(pa, "diseaseAnnotationSubject.taxon.species.displayName"));
 			}
+			row.put("_sourceUrl", buildSourceUrl(pa));
 
 			rows.add(row);
 		}
@@ -208,7 +225,163 @@ public class DiseaseFileGenerator extends FileGenerator {
 		return relationName.replaceFirst("_", "_not_");
 	}
 
-	private static String joinWithOrthologs(JsonNode pa) {
+	/**
+	 * Resolves one field of the allele or gene column pair. The annotation's own subject wins when the annotation is of that entity's type — a GeneDiseaseAnnotation names its gene directly — then the curated inferred entity, then the asserted entities pipe-joined.
+	 * Which of the three sources wins is decided on primaryExternalId alone, so the IDs and the symbols always describe the same entities in the same order.
+	 */
+	private static String resolveEntityField(JsonNode pa, boolean subjectIsEntity, String inferredPath, String assertedPath, String field) {
+		if (subjectIsEntity) {
+			return JsonPath.resolveString(pa, "diseaseAnnotationSubject." + field);
+		}
+		if (!JsonPath.resolveString(pa, inferredPath + ".primaryExternalId").isEmpty()) {
+			return JsonPath.resolveString(pa, inferredPath + "." + field);
+		}
+		JsonNode asserted = pa.path(assertedPath);
+		if (!asserted.isArray()) {
+			return "";
+		}
+		LinkedHashSet<String> values = new LinkedHashSet<>();
+		for (JsonNode entity : asserted) {
+			String value = JsonPath.resolveString(entity, field);
+			if (!value.isEmpty()) {
+				values.add(value);
+			}
+		}
+		return String.join("|", values);
+	}
+
+	/** agmFullName is an optional slot, so fall back to the model's name before giving up and leaving the cell blank. */
+	private static String resolveAgmSymbol(JsonNode pa, String agmPath) {
+		String symbol = JsonPath.resolveString(pa, agmPath + ".agmFullName.displayText");
+		if (symbol.isEmpty()) {
+			symbol = JsonPath.resolveString(pa, agmPath + ".name");
+		}
+		return symbol;
+	}
+
+	private static String joinDiseaseQualifiers(JsonNode pa) {
+		JsonNode qualifiers = pa.path("diseaseQualifiers");
+		if (!qualifiers.isArray()) {
+			return "";
+		}
+		LinkedHashSet<String> names = new LinkedHashSet<>();
+		for (JsonNode qualifier : qualifiers) {
+			String name = qualifier.path("name").asText("");
+			if (!name.isEmpty()) {
+				names.add(name.replace("_", " "));
+			}
+		}
+		return String.join("|", names);
+	}
+
+	private static String joinEvidenceCodes(JsonNode pa, String field) {
+		JsonNode evidenceCodes = pa.path("evidenceCodes");
+		if (!evidenceCodes.isArray()) {
+			return "";
+		}
+		List<String> values = new ArrayList<>();
+		for (JsonNode ec : evidenceCodes) {
+			String value = ec.path(field).asText("");
+			if (!value.isEmpty()) {
+				values.add(value);
+			}
+		}
+		return String.join("|", values);
+	}
+
+	private static String joinConditionSummaries(JsonNode pa, Set<String> relationTypes) {
+		JsonNode relations = pa.path("conditionRelations");
+		if (!relations.isArray()) {
+			return "";
+		}
+		LinkedHashSet<String> summaries = new LinkedHashSet<>();
+		for (JsonNode relation : relations) {
+			if (!relationTypes.contains(relation.path("conditionRelationType").path("name").asText(""))) {
+				continue;
+			}
+			JsonNode conditions = relation.path("conditions");
+			if (!conditions.isArray()) {
+				continue;
+			}
+			for (JsonNode condition : conditions) {
+				String summary = condition.path("conditionSummary").asText("");
+				if (!summary.isEmpty()) {
+					summaries.add(summary);
+				}
+			}
+		}
+		return String.join("|", summaries);
+	}
+
+	/**
+	 * Genetic modifiers are split across three typed arrays in the annotation. They are walked alleles-then-genes-then-AGMs so the IDs and the names line up position for position, matching the order DiseaseAnnotationToTdfTranslator uses for the same two columns on the gene page download.
+	 */
+	private static String joinGeneticModifiers(JsonNode pa, boolean wantName) {
+		List<String> values = new ArrayList<>();
+		for (String arrayPath : List.of("diseaseGeneticModifierAlleles", "diseaseGeneticModifierGenes", "diseaseGeneticModifierAgms")) {
+			JsonNode modifiers = pa.path(arrayPath);
+			if (!modifiers.isArray()) {
+				continue;
+			}
+			for (JsonNode modifier : modifiers) {
+				String value = wantName ? resolveEntityName(modifier) : modifier.path("primaryExternalId").asText("");
+				if (!value.isEmpty()) {
+					values.add(value);
+				}
+			}
+		}
+		return String.join("|", values);
+	}
+
+	/** Names a modifier entity by whichever symbol slot its type carries — the modifier arrays hold alleles, genes and models side by side. */
+	private static String resolveEntityName(JsonNode entity) {
+		String name = JsonPath.resolveString(entity, "alleleSymbol.displayText");
+		if (name.isEmpty()) {
+			name = JsonPath.resolveString(entity, "geneSymbol.displayText");
+		}
+		if (name.isEmpty()) {
+			name = JsonPath.resolveString(entity, "agmFullName.displayText");
+		}
+		if (name.isEmpty()) {
+			name = JsonPath.resolveString(entity, "name");
+		}
+		return name;
+	}
+
+	private static String joinNotes(JsonNode pa) {
+		JsonNode notes = pa.path("relatedNotes");
+		if (!notes.isArray()) {
+			return "";
+		}
+		LinkedHashSet<String> rendered = new LinkedHashSet<>();
+		for (JsonNode note : notes) {
+			String label = NOTE_TYPE_LABELS.get(note.path("noteType").path("name").asText(""));
+			String freeText = note.path("freeText").asText("");
+			if (label == null || freeText.isEmpty()) {
+				continue;
+			}
+			rendered.add(label + freeText);
+		}
+		return String.join("|", rendered);
+	}
+
+	/**
+	 * The source MOD's own page for this annotation, built from the annotation's data-provider cross reference. Blank when the annotation carries no cross reference (every via_orthology annotation, whose provider is the Alliance itself).
+	 */
+	private static String buildSourceUrl(JsonNode pa) {
+		String curie = JsonPath.resolveString(pa, "dataProviderCrossReference.referencedCurie");
+		String urlTemplate = JsonPath.resolveString(pa, "dataProviderCrossReference.resourceDescriptorPage.urlTemplate");
+		if (curie.isEmpty() || urlTemplate.isEmpty()) {
+			return "";
+		}
+		String provider = JsonPath.resolveString(pa, "dataProvider.abbreviation");
+		if (URL_PREFIX_IN_TEMPLATE.contains(provider)) {
+			urlTemplate = urlTemplate.replace(provider + ":", "");
+		}
+		return urlTemplate.replace("[%s]", curie);
+	}
+
+	private static String joinBasedOnIds(JsonNode pa) {
 		JsonNode with = pa.path("with");
 		if (!with.isArray()) {
 			return "";
