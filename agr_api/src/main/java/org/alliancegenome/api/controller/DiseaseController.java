@@ -535,6 +535,12 @@ public class DiseaseController implements DiseaseRESTInterface {
 	}
 
 	@Override
+	public Long getAnnotatedDiseaseCount() {
+		// count distinct diseases that have any gene, allele, or model annotation
+		return diseaseESService.countDiseasesWithAnnotations();
+	}
+
+	@Override
 	public List<DOTerm> getDiseaseAncestors(String diseaseID) {
 		return diseaseESService.getAncestors(diseaseID);
 	}
