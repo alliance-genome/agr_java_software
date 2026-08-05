@@ -143,6 +143,12 @@ public interface DiseaseRESTInterface {
 		@Parameter(in = ParameterIn.QUERY, name = "ids", description = "Comma-separated disease IDs", required = true, schema = @Schema(type = SchemaType.STRING)) @QueryParam("ids") String ids);
 
 	@GET
+	@Path("/annotated-count")
+	@Operation(summary = "Count of unique diseases that have any gene, allele, or model annotation")
+	@APIResponses(value = { @APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
+	Long getAnnotatedDiseaseCount();
+
+	@GET
 	@Path("/{id}/ancestors")
 	@Operation(summary = "Retrieve the ancestor chain for a given disease id (root-first)")
 	@APIResponses(value = { @APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
