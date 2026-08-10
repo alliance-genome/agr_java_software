@@ -88,6 +88,7 @@ public class DiseaseESService extends ESService {
 	private static final String ALLELE_CATEGORY = "allele_disease_annotation";
 	private static final String MODEL_CATEGORY = "agm_disease_annotation";
 	private static final String DISTINCT_SUBJECT_AGG = "distinct_subjects";
+	private static final String DISTINCT_DISEASE_AGG = "distinct_diseases";
 	// ES cardinality is exact below this threshold; disease-portal counts stay well under it.
 	private static final int SUBJECT_COUNT_PRECISION_THRESHOLD = 40000;
 
@@ -585,6 +586,24 @@ public class DiseaseESService extends ESService {
 		return result;
 	}
 
+
+	// distinct DO terms that have any gene, allele, or model disease annotation
+	public long countDiseasesWithAnnotations() {
+		BoolQueryBuilder bool = boolQuery()
+			.filter(new TermsQueryBuilder("category", GENE_CATEGORY, ALLELE_CATEGORY, MODEL_CATEGORY));
+
+		AggregationBuilder agg = AggregationBuilders
+			.cardinality(DISTINCT_DISEASE_AGG)
+			.field("object.curie.keyword")
+			.precisionThreshold(SUBJECT_COUNT_PRECISION_THRESHOLD);
+
+		SearchResponse response = SEARCH_DAO.performQuery(
+			(QueryBuilder) bool, java.util.List.of(agg), null, java.util.List.of(),
+			0, 0, new HighlightBuilder(), null, false);
+
+		ParsedCardinality distinct = response.getAggregations().get(DISTINCT_DISEASE_AGG);
+		return distinct.getValue();
+	}
 
 	public java.util.Map<String, java.util.Map<String, Long>> getBatchCounts(java.util.List<String> diseaseIds) {
 		java.util.Map<String, java.util.Map<String, Long>> result = new java.util.LinkedHashMap<>();

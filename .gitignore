@@ -16,5 +16,8 @@ target/
 .factorypath
 .claude
 
+# macOS
+.DS_Store
+
 # Local indexer dumps (curation API responses cached during development)
 *.json.gz

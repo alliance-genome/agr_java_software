@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.curation_api.model.document.es.ESDocument;
+import org.alliancegenome.curation_api.model.entities.Note;
 import org.alliancegenome.curation_api.model.entities.Species;
 import org.alliancegenome.curation_api.model.entities.base.AuditedObject;
 import org.alliancegenome.core.config.RestConfig;
@@ -23,6 +24,7 @@ import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.document.AuditedObjectIndexerMixin;
 import org.alliancegenome.indexer.interfaces.SpeciesInterface;
 import org.alliancegenome.indexer.util.StatsCollector;
+import org.apache.commons.collections4.CollectionUtils;
 import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.bulk.BackoffPolicy;
 import org.elasticsearch.action.bulk.BulkProcessor;
@@ -275,6 +277,19 @@ public abstract class Indexer extends Thread {
 		}
 		order.put(subjectTaxonIdPart, 0);
 		return order;
+	}
+
+	/**
+	 * Removes notes marked internal=true or obsolete=true from a relatedNotes list before it's
+	 * embedded in a public ES document. Curation entities carry internal/obsolete notes (e.g.
+	 * private_comment) alongside public ones with no server-side view filtering applied during
+	 * indexing, so this must run on every entity's relatedNotes before it reaches
+	 * indexDocument(s) — see SCRUM-6327.
+	 */
+	protected static void stripInternalOrObsoleteNotes(List<Note> notes) {
+		if (CollectionUtils.isNotEmpty(notes)) {
+			notes.removeIf(note -> !note.isNotInternalOrObsolete());
+		}
 	}
 
 	protected abstract void index(ProcessDisplayHelper display);

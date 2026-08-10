@@ -69,6 +69,12 @@ public class GeneSummaryCurationIndexer extends Indexer {
 					continue;
 				}
 
+				response.getResults().forEach(doc -> {
+					if (doc.getGene() != null) {
+						stripInternalOrObsoleteNotes(doc.getGene().getRelatedNotes());
+					}
+				});
+
 				indexDocuments(response.getResults());
 			} catch (Exception e) {
 				log.error("Error while indexing...", e);
