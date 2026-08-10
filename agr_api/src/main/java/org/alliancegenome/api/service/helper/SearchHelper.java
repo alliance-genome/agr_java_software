@@ -2,13 +2,15 @@ package org.alliancegenome.api.service.helper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-import javax.ws.rs.core.UriInfo;
-
-import org.alliancegenome.es.model.search.AggResult;
+import org.alliancegenome.api.es.search.AggResult;
+import org.alliancegenome.api.es.search.Category;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -20,21 +22,18 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 
+import jakarta.ws.rs.core.UriInfo;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@SuppressWarnings("serial")
 public class SearchHelper {
 
-	private static String[] SUFFIX_LIST = { ".htmlSmoosh", ".keywordAutocomplete", ".keyword", ".smoosh",
-											".synonyms", ".symbols", ".text", ".classicText", ".standardText",
-											".letterText", ".bigrams", ".standardBigrams" };
+	private static final String[] SUFFIX_LIST = {".htmlSmoosh", ".keywordAutocomplete", ".keyword", ".autocomplete", ".smoosh", ".synonyms", ".symbols", ".text", ".classicText", ".standardText", ".letterText", ".bigrams", ".standardBigrams"};
 
-	
-	private HashMap<String, List<String>> category_filters = new HashMap<String, List<String>>() {
+	private HashMap<String, List<String>> categoryFilters = new HashMap<>() {
 		{
-			put("gene", new ArrayList<String>() {
+			put(Category.GENE.getName(), new ArrayList<>() {
 				{
 					add("species");
 					add("biotypes");
@@ -42,35 +41,35 @@ public class SearchHelper {
 					add("biologicalProcessAgrSlim");
 					add("molecularFunctionAgrSlim");
 					add("cellularComponentAgrSlim");
-					add("anatomicalExpression");
+					add("anatomicalExpressionSlim");
 					add("subcellularExpressionAgrSlim");
 				}
 			});
-			put("go", new ArrayList<String>() {
+			put(Category.GO.getName(), new ArrayList<>() {
 				{
 					add("branch");
 					add("associatedSpecies");
 					add("genes");
 				}
 			});
-			put("dataset", new ArrayList<String>() {
+			put(Category.DATASET.getName(), new ArrayList<String>() {
 				{
 					add("species");
 					add("tags");
 					add("assays");
-					add("anatomicalExpression");
+					add("anatomicalExpressionSlim");
 					add("sex");
 //					  add("stage"); will be implemented in the future
 				}
 			});
-			put("disease", new ArrayList<String>() {
+			put(Category.DISEASE.getName(), new ArrayList<>() {
 				{
 					add("diseaseGroup");
 					add("genes");
 					add("associatedSpecies");
 				}
 			});
-			put("allele", new ArrayList<String>() {
+			put(Category.ALLELE.getName(), new ArrayList<>() {
 				{
 					add("species");
 					add("alterationType");
@@ -83,7 +82,7 @@ public class SearchHelper {
 					add("constructRegulatoryRegion");
 				}
 			});
-			put("model", new ArrayList<String>() {
+			put(Category.MODEL.getName(), new ArrayList<>() {
 				{
 					add("species");
 					add("diseasesAgrSlim");
@@ -91,46 +90,65 @@ public class SearchHelper {
 					add("alleles");
 				}
 			});
+			put(Category.VARIANT.getName(), new ArrayList<>() {
+				{
+					add("species");
+					add("alterationType");
+					add("variantType");
+					add("molecularConsequence");
+					add("diseasesAgrSlim");
+					add("genes");
+				}
+			});
 		}
 	};
 
 	public Map<String, String> highlightCollapseMap = new HashMap<>() {
 		{
-			put("anatomicalExpression","expression");
-			put("anatomicalExpressionWithParents","expression");
-			put("cellularComponentExpression","expression");
-			put("cellularComponentExpressionWithParents","expression");
-			put("cellularComponentExpressionAgrSlim","expression");
-			put("expressionStages","expression");
-			put("whereExpressed","expression");
+			put("anatomicalExpressionSlim", "expression");
+			put("anatomicalExpressionWithParents", "expression");
+			put("cellularComponentExpression", "expression");
+			put("cellularComponentExpressionWithParents", "expression");
+			put("cellularComponentExpressionAgrSlim", "expression");
+			put("expressionStages", "expression");
+			put("whereExpressed", "expression");
 		}
 	};
 
-	public Map<String, Float> getBoostMap() { return boostMap; }
-	private Map<String, Float> boostMap = new HashMap<String, Float>() {
+	public Map<String, Float> getBoostMap() {
+		return boostMap;
+	}
+
+	private Map<String, Float> boostMap = new HashMap<>() {
 		{
-			put("symbol",5.0F);
-			put("symbol.autocomplete",2.0F);
-			put("name.autocomplete",0.1F);
-			put("synonyms.keyword",2.0F);
-			put("synonyms",2.0F);
-			put("genes",0.5F);
+			put("symbol", 5.0F);
+			put("symbol.autocomplete", 2.0F);
+			put("name.autocomplete", 0.1F);
+			put("synonyms.keyword", 2.0F);
+			put("synonyms", 2.0F);
+			put("crossReferences", 2.0F);
+			put("genes", 0.5F);
+			put("geneCrossReferences", 0.1F);
+			put("geneSynonyms", 0.5F);
 		}
 	};
 
-	public List<String> getSearchFields() { return searchFields; }
-	private List<String> searchFields = new ArrayList<String>() {
+	public List<String> getSearchFields() {
+		return searchFields;
+	}
+
+	private List<String> searchFields = new ArrayList<>() {
 		{
 			add("alleles");
 			add("alleles.text");
 			add("alleles.autocomplete");
-			add("anatomicalExpression");
-			add("anatomicalExpression.keyword");
+			add("anatomicalExpressionSlim");
+			add("anatomicalExpressionSlim.keyword");
 			add("anatomicalExpressionWithParents");
 			add("anatomicalExpressionWithParents.keyword");
 			add("associatedSpecies");
 			add("associatedSpecies.synonyms");
-			add("automatedGeneSynopsis");
+			add("automatedGeneDescription");
 			add("biotypes");
 			add("biologicalProcessWithParents");
 			add("cellularComponentWithParents");
@@ -168,21 +186,23 @@ public class SearchHelper {
 			add("genes.keyword");
 			add("genes.autocomplete");
 			add("genes.keywordAutocomplete");
-			add("geneSynopsis");
+			add("geneDescription");
 			add("geneSynonyms");
 			add("geneCrossReferences");
+			add("systematicName");
 			add("globalId");
 			add("subtype");
 			add("go_genes");
 			add("go_synonyms");
+			add("curie");
 			add("id");
 			add("localId");
-			add("name_key");
-			add("name_key.autocomplete");
-			add("name_key.htmlSmoosh");
-			add("name_key.keyword");
-			add("name_key.standardBigrams");
-			add("name_key.keywordAutocomplete");
+			add("nameKey");
+			add("nameKey.autocomplete");
+			add("nameKey.htmlSmoosh");
+			add("nameKey.keyword");
+			add("nameKey.standardBigrams");
+			add("nameKey.keywordAutocomplete");
 			add("name");
 			add("name.autocomplete");
 			add("name.htmlSmoosh");
@@ -219,7 +239,7 @@ public class SearchHelper {
 			add("synonyms.standardBigrams");
 			add("species");
 			add("species.synonyms");
-			add("secondaryIds");	
+			add("secondaryIds");
 			add("soTermName");
 			add("soTermName.letterText");
 			add("strictOrthologySymbols.autocomplete");
@@ -232,7 +252,7 @@ public class SearchHelper {
 	};
 
 	@Getter
-	private final List<String> responseFields = new ArrayList<String>() {
+	private final List<String> responseFields = new ArrayList<>() {
 		{
 			add("alterationType");
 			add("biologicalProcess");
@@ -241,9 +261,15 @@ public class SearchHelper {
 			add("cellularComponent");
 			add("crossReferences");
 			add("crossReferenceLinks");
+			add("geneCrossReferences");
+			add("geneSynonyms");
+			add("systematicName");
+			add("curie");
 			add("dataProvider");
 			add("definition");
 			add("description");
+			add("geneDescription");
+			add("automatedGeneDescription");
 			add("diseases");
 			add("variantType");
 			add("external_ids");
@@ -256,7 +282,8 @@ public class SearchHelper {
 			add("molecularConsequence");
 			add("molecularFunction");
 			add("name");
-			add("name_key");
+			add("nameKey");
+			add("nameKey");
 			add("primaryKey");
 			add("soTermName");
 			add("species");
@@ -266,28 +293,27 @@ public class SearchHelper {
 			add("tags");
 			add("variants");
 			add("variantName");
+			add("relatedData");
 		}
 	};
 
-
-	private List<String> highlight_blacklist_fields = new ArrayList<String>() {
+	private List<String> highlightBlacklistFields = new ArrayList<>() {
 		{
-			add("go_genes"); add("name.autocomplete");
+			add("go_genes");
+			add("name.autocomplete");
 		}
 	};
-
-
 
 	public List<AggregationBuilder> createAggBuilder(String category, Boolean expandBiotypes) {
 		List<AggregationBuilder> ret = new ArrayList<>();
 
-		if(category == null || !category_filters.containsKey(category)) {
+		if (category == null || !categoryFilters.containsKey(category)) {
 			TermsAggregationBuilder term = AggregationBuilders.terms("categories");
 			term.field("category");
 			term.size(50);
 			ret.add(term);
 		} else {
-			for(String item: category_filters.get(category)) {
+			for (String item : categoryFilters.get(category)) {
 				if (item.equals("biotypes")) {
 					if (expandBiotypes) {
 						ret.add(getBiotypeAggQuery());
@@ -309,23 +335,22 @@ public class SearchHelper {
 	}
 
 	public TermsAggregationBuilder getBiotypeAggQuery() {
-		TermsAggregationBuilder biotype0 = AggregationBuilders.terms("biotypes").field("biotype0.keyword")
-				.subAggregation(AggregationBuilders.terms("biotype1").field("biotype1.keyword")
-						.subAggregation(AggregationBuilders.terms("biotype2").field("biotype2.keyword"))
-				);
+		TermsAggregationBuilder biotype0 = AggregationBuilders.terms("biotypes").field("biotype0.keyword").subAggregation(AggregationBuilders.terms("biotype1").field("biotype1.keyword").subAggregation(AggregationBuilders.terms("biotype2").field("biotype2.keyword")));
 		return biotype0;
 	}
 
 	public ArrayList<AggResult> formatAggResults(String category, SearchResponse res) {
 		ArrayList<AggResult> ret = new ArrayList<>();
 
-		if(category == null) {
+		if (category == null) {
 			Terms aggs = res.getAggregations().get("categories");
-			AggResult ares = new AggResult("category", aggs, category_filters.keySet());
+			Set<String> acceptableKeys = new HashSet<>(categoryFilters.keySet());
+			AggResult ares = new AggResult("category", aggs, acceptableKeys);
+			orderCategoryBuckets(ares);
 			ret.add(ares);
 		} else {
-			if(category_filters.containsKey(category)) {
-				for(String item: category_filters.get(category)) {
+			if (categoryFilters.containsKey(category)) {
+				for (String item : categoryFilters.get(category)) {
 					Terms aggs = res.getAggregations().get(item);
 					AggResult ares = new AggResult(item, aggs, null);
 					ret.add(ares);
@@ -336,27 +361,33 @@ public class SearchHelper {
 		return ret;
 	}
 
+	private void orderCategoryBuckets(AggResult aggResult) {
+		aggResult.getValues().sort((a, b) -> Long.compare(b.getTotal(), a.getTotal()));
+	}
 
 	public boolean filterIsValid(String category, String fieldName) {
 		String newFieldName = fieldName;
-		if(this.isExcluded(fieldName)){
+		if (this.isExcluded(fieldName)) {
 			newFieldName = fieldName.substring(1);
 		}
-		if (searchFields.contains(newFieldName)) { return true; }
+		if (searchFields.contains(newFieldName)) {
+			return true;
+		}
 
-		if (!category_filters.containsKey(category)) { return false; }
+		if (!categoryFilters.containsKey(category)) {
+			return false;
+		}
 
-		List<String> fields = category_filters.get(category);
+		List<String> fields = categoryFilters.get(category);
 
 		return fields.contains(newFieldName);
 	}
 
-
-	public void applyFilters(BoolQueryBuilder bool, String category, UriInfo uriInfo ) {
-		if(category_filters.containsKey(category)) {
-			for(String item: category_filters.get(category)) {
-				if(uriInfo.getQueryParameters().containsKey(item)) {
-					for(String param: uriInfo.getQueryParameters().get(item)) {
+	public void applyFilters(BoolQueryBuilder bool, String category, UriInfo uriInfo) {
+		if (categoryFilters.containsKey(category)) {
+			for (String item : categoryFilters.get(category)) {
+				if (uriInfo.getQueryParameters().containsKey(item)) {
+					for (String param : uriInfo.getQueryParameters().get(item)) {
 						bool.filter(new TermQueryBuilder(item + ".keyword", param));
 					}
 				}
@@ -364,72 +395,132 @@ public class SearchHelper {
 		}
 	}
 
-
 	public ArrayList<Map<String, Object>> formatResults(SearchResponse res, List<String> searchedTerms) {
 		log.debug("Formatting Results: ");
 		ArrayList<Map<String, Object>> ret = new ArrayList<>();
 
-		for(SearchHit hit: res.getHits()) {
+		// SCRUM-6096: build a result-set-wide "matched" set so an ID-shaped token that
+		// matched some other hit on the page isn't flagged as missing on this hit.
+		// (Per-hit "missing" remains correct for non-ID free-text tokens — those don't
+		// equal a doc's curie/primaryKey/globalId/crossReference so they won't be added
+		// here unless ES itself reports them as matched.)
+		Set<String> globallyMatched = new HashSet<>();
+		if (searchedTerms != null && !searchedTerms.isEmpty()) {
+			for (SearchHit hit : res.getHits()) {
+				if (hit.getMatchedQueries() != null) {
+					for (String n : hit.getMatchedQueries()) {
+						globallyMatched.add(n);
+					}
+				}
+				Set<String> docIds = new HashSet<>();
+				collectStringField(hit.getSourceAsMap(), "curie", docIds);
+				collectStringField(hit.getSourceAsMap(), "primaryKey", docIds);
+				collectStringField(hit.getSourceAsMap(), "globalId", docIds);
+				Object xrefs = hit.getSourceAsMap().get("crossReferences");
+				if (xrefs instanceof Collection) {
+					for (Object x : (Collection<?>) xrefs) {
+						if (x instanceof String) {
+							docIds.add((String) x);
+						}
+					}
+				}
+				for (String t : searchedTerms) {
+					if (docIds.contains(t)) {
+						globallyMatched.add(t);
+					}
+				}
+			}
+		}
+
+		for (SearchHit hit : res.getHits()) {
 			Map<String, List<String>> map = new HashMap<>();
-			for(String key: hit.getHighlightFields().keySet()) {
+			for (String key : hit.getHighlightFields().keySet()) {
 
 				ArrayList<String> list = new ArrayList<>();
-				for(Text t: hit.getHighlightFields().get(key).getFragments()) {
+				for (Text t : hit.getHighlightFields().get(key).getFragments()) {
 					list.add(t.string());
 				}
 
 				String name = hit.getHighlightFields().get(key).getName();
-				
-				for (int i = 0 ; i < SUFFIX_LIST.length ; i++ ) {
-					name = name.replace(SUFFIX_LIST[i],"");
+
+				for (int i = 0; i < SUFFIX_LIST.length; i++) {
+					name = name.replace(SUFFIX_LIST[i], "");
 				}
 
 				name = highlightCollapseMap.getOrDefault(name, name);
 
 				if (map.containsKey(name)) {
-					map.get(name).addAll(list);
+					Set<String> existingRaw = new HashSet<>();
+					for (String existing : map.get(name)) {
+						existingRaw.add(existing.replaceAll("</?em>", ""));
+					}
+					for (String item : list) {
+						if (!existingRaw.contains(item.replaceAll("</?em>", ""))) {
+							map.get(name).add(item);
+						}
+					}
 				} else {
 					map.put(name, list);
 				}
 
 			}
 			hit.getSourceAsMap().put("highlights", map);
-			hit.getSourceAsMap().put("id", hit.getSourceAsMap().get("primaryKey"));
+			Object id = hit.getSourceAsMap().get("primaryKey");
+			if (id == null) {
+				id = hit.getSourceAsMap().get("curie");
+			}
+			hit.getSourceAsMap().put("id", id);
 			hit.getSourceAsMap().put("score", hit.getScore());
 			if (hit.getExplanation() != null) {
 				hit.getSourceAsMap().put("explanation", hit.getExplanation());
 			}
 
-			hit.getSourceAsMap().put("missingTerms", findMissingTerms(Arrays.asList(hit.getMatchedQueries()),
-																 searchedTerms));
+			hit.getSourceAsMap().put("missingTerms", findMissingTerms(Arrays.asList(hit.getMatchedQueries()), searchedTerms, globallyMatched));
 			ret.add(hit.getSourceAsMap());
 		}
 		log.debug("Finished Formatting Results: ");
 		return ret;
 	}
 
-	private List<String> findMissingTerms(List<String> matchedTerms, List<String> searchedTerms) {
+	private List<String> findMissingTerms(List<String> matchedTerms, List<String> searchedTerms, Set<String> globallyMatched) {
 
 		List<String> terms = new ArrayList<>();
 
-		//if only one term was searched, just assume it matched
-		//(not for efficiency, avoids false negatives - if the document came back, the single term matched)
+		// if only one term was searched, just assume it matched
+		// (not for efficiency, avoids false negatives - if the document came back, the
+		// single term matched)
 		if (matchedTerms == null || searchedTerms == null || searchedTerms.size() == 1) {
-			return terms; //just give up and return an empty list
+			return terms; // just give up and return an empty list
 		}
 
 		terms.addAll(searchedTerms);
 		terms.removeAll(matchedTerms);
 
+		// SCRUM-6096: suppress tokens that matched any hit in the result set. Avoids
+		// labelling RGD:628748 as missing on the RGD:1306828 hit (and vice versa) when
+		// the user searched for both IDs at once. Also covers the ES quirk where a
+		// shared _name between a function_score filter and a main-query clause drops
+		// the name from matched_queries.
+		if (globallyMatched != null) {
+			terms.removeAll(globallyMatched);
+		}
+
 		return terms;
+	}
+
+	private static void collectStringField(Map<String, Object> source, String key, Set<String> sink) {
+		Object v = source.get(key);
+		if (v instanceof String) {
+			sink.add((String) v);
+		}
 	}
 
 	public HighlightBuilder buildHighlights() {
 
 		HighlightBuilder hlb = new HighlightBuilder();
 
-		for(String field: searchFields) {
-			if(!highlight_blacklist_fields.contains(field)) {
+		for (String field : searchFields) {
+			if (!highlightBlacklistFields.contains(field)) {
 				hlb.field(field);
 			}
 		}
@@ -437,9 +528,8 @@ public class SearchHelper {
 		return hlb;
 	}
 
-
-	public Boolean isExcluded(String value){
+	public Boolean isExcluded(String value) {
 		return value.charAt(0) == '-';
-	};
+	}
 
 }

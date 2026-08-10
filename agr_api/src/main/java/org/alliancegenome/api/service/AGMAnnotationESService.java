@@ -1,0 +1,56 @@
+package org.alliancegenome.api.service;
+
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+
+import org.alliancegenome.api.response.JsonResultResponse;
+import org.alliancegenome.curation_api.model.document.es.AGMAnnotationDocument;
+import org.alliancegenome.core.es.schema.Mapping;
+import org.alliancegenome.api.es.query.Pagination;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.search.sort.SortOrder;
+
+import jakarta.enterprise.context.RequestScoped;
+
+
+@RequestScoped
+public class AGMAnnotationESService extends ESService {
+
+	public JsonResultResponse<AGMAnnotationDocument> getGeneAGMAnnotationDocuments(
+		String geneId,
+		Pagination pagination,
+		boolean debug) {
+
+		// unfiltered query
+		BoolQueryBuilder query = getBaseModelQuery(List.of(geneId), false, "affected_genomic_model_annotation");
+
+		JsonResultResponse<AGMAnnotationDocument> ret = new JsonResultResponse<>();
+
+		// add table filter
+		addTableFilter(pagination, query);
+		LinkedHashMap<String, SortOrder> sortingMap = new LinkedHashMap<>();
+		sortingMap.put(Mapping.AffectedGenomicModel.HAS_DISEASE_AND_PHENOTYPE_ANNOTATIONS.getSortedFieldName(), SortOrder.DESC);
+		sortingMap.put(Mapping.AffectedGenomicModel.HAS_DISEASE_ANNOTATIONS.getSortedFieldName(), SortOrder.DESC);
+		sortingMap.put(Mapping.AffectedGenomicModel.HAS_PHENOTYPE_ANNOTATIONS.getSortedFieldName(), SortOrder.DESC);
+		sortingMap.put("model.agmFullName.formatText.sort", SortOrder.ASC);
+
+		SearchResponse searchResponse = getSearchResponse(query, pagination, sortingMap, null, debug);
+		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
+
+		List<AGMAnnotationDocument> list = Arrays.stream(searchResponse.getHits().getHits())
+			.map(searchHit -> {
+				try {
+					AGMAnnotationDocument object = mapper.readValue(searchHit.getSourceAsString(), AGMAnnotationDocument.class);
+					return object;
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				return null;
+			}).toList();
+		ret.setResults(list);
+		return ret;
+	}
+
+}

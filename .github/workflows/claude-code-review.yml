@@ -1,0 +1,33 @@
+name: Claude Code Review
+
+# IMPORTANT: This workflow automatically runs ONLY when a PR is first opened.
+# To request another review after making changes, comment "@claude Please review my changes."
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  issue_comment:
+    types: [created]
+
+jobs:
+  claude-review:
+    # Only run on pull requests and PR comments (not issue comments)
+    if: |
+      (github.event_name == 'pull_request' && github.event.action == 'opened') || 
+      (github.event_name == 'issue_comment' && github.event.issue.pull_request)
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+      # REQUIRED: Must grant id-token permission to the reusable workflow
+      id-token: write
+      # REQUIRED: Allow reusable workflow to read CI results and auto-retry via run rerun
+      actions: write
+    uses: alliance-genome/.github/.github/workflows/claude-code-review.yml@main
+    with:
+      # Java backend-specific focus for Spring Boot application
+      review_focus: "critical bugs, database performance issues, and security vulnerabilities in the Java Spring Boot backend. Focus on: SQL injection, N+1 queries, missing indexes, transaction management errors, memory leaks, thread safety issues, and API security flaws"
+      trigger_phrase: "@claude"
+      # Use centralized threshold from .github repo (skip_threshold: 3)
+    secrets:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}

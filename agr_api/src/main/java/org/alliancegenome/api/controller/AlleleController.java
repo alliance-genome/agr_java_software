@@ -1,56 +1,86 @@
 package org.alliancegenome.api.controller;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.ws.rs.core.Response;
+import java.time.LocalDateTime;
 
+import org.alliancegenome.core.document.AlleleDiseaseAnnotationDocument;
+import org.alliancegenome.core.document.AllelePhenotypeAnnotationDocument;
+import org.alliancegenome.core.document.TransgenicAlleleSummaryDocument;
 import org.alliancegenome.api.rest.interfaces.AlleleRESTInterface;
-import org.alliancegenome.api.service.AlleleService;
+import org.alliancegenome.api.service.AlleleESService;
+import org.alliancegenome.api.service.DiseaseESService;
 import org.alliancegenome.api.service.EntityType;
-import org.alliancegenome.api.service.VariantService;
+import org.alliancegenome.api.service.PhenotypeESService;
 import org.alliancegenome.api.service.helper.APIServiceHelper;
 import org.alliancegenome.api.translators.tdf.DiseaseAnnotationToTdfTranslator;
-import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.core.exceptions.RestErrorException;
-import org.alliancegenome.core.exceptions.RestErrorMessage;
-import org.alliancegenome.core.translators.tdf.AlleleToTdfTranslator;
-import org.alliancegenome.core.translators.tdf.PhenotypeAnnotationToTdfTranslator;
-import org.alliancegenome.es.model.query.FieldFilter;
-import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
-import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
-import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.Variant;
+import org.alliancegenome.api.translators.tdf.PhenotypeAnnotationToTdfTranslator;
+import org.alliancegenome.api.response.JsonResultResponse;
+import org.alliancegenome.api.exceptions.RestErrorException;
+import org.alliancegenome.api.exceptions.RestErrorMessage;
+import org.alliancegenome.api.translators.tdf.AlleleToTdfTranslator;
+import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
+import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
+import org.alliancegenome.api.es.query.FieldFilter;
+import org.alliancegenome.api.es.query.Pagination;
+import org.apache.commons.collections4.CollectionUtils;
 
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RequestScoped
 public class AlleleController implements AlleleRESTInterface {
 
-	@Inject AlleleService alleleService;
-	
-	@Inject VariantService variantService;
+	@Inject
+	AlleleESService alleleEsService;
 
+	@Inject
+	DiseaseESService diseaseESService;
+
+	@Inject
+	AlleleESService alleleESService;
+
+	@Inject
+	PhenotypeESService phenotypeESService;
 	//@Inject
 	//private HttpRequest request;
 
 	private AlleleToTdfTranslator translator = new AlleleToTdfTranslator();
-	private final PhenotypeAnnotationToTdfTranslator phenotypeAnnotationToTdfTranslator = new PhenotypeAnnotationToTdfTranslator();
+	private PhenotypeAnnotationToTdfTranslator phenotypeTranslator = new PhenotypeAnnotationToTdfTranslator();
 	private final DiseaseAnnotationToTdfTranslator diseaseToTdfTranslator = new DiseaseAnnotationToTdfTranslator();
 
 	@Override
-	public Allele getAllele(String id) {
-		return alleleService.getById(id);
+	public AlleleSummaryDocument getAllele(String id) {
+		AlleleSummaryDocument alleleSummary = alleleESService.getById(id);
+		if (alleleSummary == null) {
+			RestErrorMessage error = new RestErrorMessage("No allele found with ID: " + id);
+			throw new RestErrorException(error);
+		} else {
+			return alleleSummary;
+		}
 	}
 
 	@Override
-	public JsonResultResponse<Variant> getVariantsPerAllele(String id,
-															Integer limit,
-															Integer page,
-															String sortBy,
-															String variantType,
-															String molecularConsequence) {
+	public TransgenicAlleleSummaryDocument getAlleleConstructs(String alleleId) {
+		JsonResultResponse<TransgenicAlleleSummaryDocument> transgenicAlleles = alleleEsService.getTransgenicAlleles(alleleId);
+		if (transgenicAlleles == null) {
+			return null;
+		}
+		if (CollectionUtils.isEmpty(transgenicAlleles.getResults())) {
+			return null;
+		}
+		return transgenicAlleles.getResults().get(0);
+	}
+
+
+	@Override
+	public JsonResultResponse<VariantSummaryDocument> getVariantsPerAllele(String id,
+																		Integer limit,
+																		Integer page,
+																		String sortBy,
+																		String variantType,
+																		String molecularConsequence) {
 		long startTime = System.currentTimeMillis();
 		Pagination pagination = new Pagination(page, limit, sortBy, null);
 		pagination.addFieldFilter(FieldFilter.VARIANT_TYPE, variantType);
@@ -62,7 +92,7 @@ public class AlleleController implements AlleleRESTInterface {
 		}
 
 		try {
-			JsonResultResponse<Variant> alleles = variantService.getVariants(id, pagination);
+			JsonResultResponse<VariantSummaryDocument> alleles = alleleEsService.getVariantSummary(id, pagination);
 			alleles.setHttpServletRequest(null);
 			alleles.calculateRequestDuration(startTime);
 			return alleles;
@@ -75,109 +105,102 @@ public class AlleleController implements AlleleRESTInterface {
 	}
 
 	@Override
-	public Response getVariantsPerAlleleDownload(String id,
-												 String sortBy,
-												 String variantType,
-												 String consequence) {
-		JsonResultResponse<Variant> response = getVariantsPerAllele(id,
-				Integer.MAX_VALUE,
-				1,
-				sortBy,
-				variantType,
-				consequence);
+	public Response getVariantsPerAlleleDownload(String id, String sortBy, String variantType, String consequence) {
+		JsonResultResponse<VariantSummaryDocument> response = getVariantsPerAllele(id, 100000, 1, sortBy, variantType, consequence);
 		Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllVariantsRows(response.getResults()));
 		APIServiceHelper.setDownloadHeader(id, EntityType.ALLELE, EntityType.VARIANT, responseBuilder);
 		return responseBuilder.build();
 	}
 
 	@Override
-	public JsonResultResponse<Allele> getAllelesPerSpecies(String species, Integer limit, Integer page, String sortBy, String asc) {
+	public JsonResultResponse<AllelePhenotypeAnnotationDocument> getPhenotypePerAllele(
+		String id,
+		Integer limit,
+		Integer page,
+		String phenotype,
+		String source,
+		String reference,
+		String sortBy,
+		String referenceCitation) {
 		long startTime = System.currentTimeMillis();
-		Pagination pagination = new Pagination(page, limit, sortBy, asc);
-		JsonResultResponse<Allele> response = alleleService.getAllelesBySpecies(species, pagination);
-		response.setHttpServletRequest(null);
-		Long duration = (System.currentTimeMillis() - startTime) / 1000;
-		response.setRequestDuration(duration.toString());
-		return response;
+		Pagination pagination = new Pagination(page, limit, sortBy, null);
+		pagination.addFilterOption("phenotypeStatement", phenotype);
+		pagination.addFilterOption("pubmedPublications.referencedCurie", reference);
+		pagination.addFilterOption("references.shortCitation", referenceCitation);
+		pagination.addFilterOption("primaryAnnotations.dataProvider.abbreviation", source);
+		try {
+			JsonResultResponse<AllelePhenotypeAnnotationDocument> phenotypes = phenotypeESService.getAllelePhenotypeAnnotations(id, pagination, false);
+			phenotypes.setHttpServletRequest(null);
+			phenotypes.calculateRequestDuration(startTime);
+			return phenotypes;
+		} catch (Exception e) {
+			log.error("Error while retrieving phenotypes", e);
+			RestErrorMessage error = new RestErrorMessage();
+			error.addErrorMessage(e.getMessage());
+			throw new RestErrorException(error);
+		}
 	}
 
 	@Override
-	public JsonResultResponse<PhenotypeAnnotation> getPhenotypePerAllele(String id,
-																		 Integer limit,
-																		 Integer page,
-																		 String phenotype,
-																		 String source,
-																		 String reference,
-																		 String sortBy) {
-		long startTime = System.currentTimeMillis();
-		Pagination pagination = new Pagination(page, limit, sortBy, null);
-		pagination.addFieldFilter(FieldFilter.PHENOTYPE, phenotype);
-		pagination.addFieldFilter(FieldFilter.SOURCE, source);
-		pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
-		if (pagination.hasErrors()) {
-			RestErrorMessage message = new RestErrorMessage();
-			message.setErrors(pagination.getErrors());
-			throw new RestErrorException(message);
-		}
-
-		try {
-			JsonResultResponse<PhenotypeAnnotation> phenotypeAnnotation = alleleService.getPhenotype(id, pagination);
-			phenotypeAnnotation.setHttpServletRequest(null);
-			phenotypeAnnotation.calculateRequestDuration(startTime);
-			return phenotypeAnnotation;
-		} catch (Exception e) {
-			log.error("Error while retrieving phenotype info", e);
-			RestErrorMessage error = new RestErrorMessage();
-			error.addErrorMessage(e.getMessage());
-			throw new RestErrorException(error);
-		}
-	}
-
-   @Override
-	public Response getPhenotypesPerAlleleDownload(String id,
-												   String phenotype,
-												   String source,
-												   String reference,
-												   String sortBy) {
-		JsonResultResponse<PhenotypeAnnotation> response = getPhenotypePerAllele( id,
-				Integer.MAX_VALUE,
+	public Response getPhenotypesPerAlleleDownload(String id, String phenotype, String source, String reference, String sortBy, String referenceCitation) {
+		// retrieve all records
+		JsonResultResponse<AllelePhenotypeAnnotationDocument> response =
+			getPhenotypePerAllele(id,
+				250000,
 				1,
-		 phenotype,
-		 source,
-		 reference,
-		 sortBy);
-		Response.ResponseBuilder responseBuilder = Response.ok(phenotypeAnnotationToTdfTranslator.getAllRowsForAlleles(response.getResults()));
-		APIServiceHelper.setDownloadHeader(id, EntityType.ALLELE, EntityType.PHENOTYPE, responseBuilder);
+				phenotype,
+				source,
+				reference,
+				sortBy,
+				referenceCitation);
+		Response.ResponseBuilder responseBuilder = Response.ok(phenotypeTranslator.getAllRows(response.getResults()));
+		String alleleSymbol = getAllele(id).getAllele().getAlleleSymbol().getFormatText();
+		APIServiceHelper.setDownloadHeaderByName(id, alleleSymbol, EntityType.ALLELE, EntityType.PHENOTYPE, responseBuilder);
 		return responseBuilder.build();
 	}
 
-	public JsonResultResponse<DiseaseAnnotation> getDiseasePerAllele(String id,
-																	 Integer limit,
-																	 Integer page,
-																	 String disease,
-																	 String source,
-																	 String reference,
-																	 String associationType,
-																	 String sortBy) {
-		long startTime = System.currentTimeMillis();
-		Pagination pagination = new Pagination(page, limit, sortBy, null);
-		pagination.addFieldFilter(FieldFilter.DISEASE, disease);
-		pagination.addFieldFilter(FieldFilter.SOURCE, source);
-		pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
-		pagination.addFieldFilter(FieldFilter.ASSOCIATION_TYPE, associationType);
+	@Override
+	public JsonResultResponse<AlleleDiseaseAnnotationDocument> getDiseasePerAllele(
+		String alleleID,
+		String filterOptions,
+		String filterReference,
+		String diseaseTerm,
+		String filterSource,
+		String geneticEntity,
+		String geneticEntityType,
+		String associationType,
+		String diseaseQualifier,
+		String evidenceCode,
+		Boolean debug,
+		Integer limit,
+		Integer page,
+		String sortBy,
+		String asc, String referenceCitation) {
+
+		LocalDateTime startDate = LocalDateTime.now();
+		Pagination pagination = new Pagination(page, limit, sortBy, asc);
+		pagination.addFilterOptions(filterOptions);
+		pagination.addFilterOption("object.name", diseaseTerm);
+		pagination.addFilterOption("evidenceCodes.abbreviation", evidenceCode);
+		pagination.addFilterOption("generatedRelationString.keyword", associationType);
+		pagination.addFilterOption("diseaseQualifiers.keyword", diseaseQualifier);
+		pagination.addFilterOption("pubmedPublications.referencedCurie", filterReference);
+		pagination.addFilterOption("references.shortCitation", referenceCitation);
+		pagination.addFilterOption("primaryAnnotations.dataProvider.sourceOrganization.abbreviation", filterSource);
+
+
 		if (pagination.hasErrors()) {
 			RestErrorMessage message = new RestErrorMessage();
 			message.setErrors(pagination.getErrors());
 			throw new RestErrorException(message);
 		}
-
 		try {
-			JsonResultResponse<DiseaseAnnotation> alleles = alleleService.getDisease(id, pagination);
-			alleles.setHttpServletRequest(null);
-			alleles.calculateRequestDuration(startTime);
-			return alleles;
+			JsonResultResponse<AlleleDiseaseAnnotationDocument> response = diseaseESService.getDiseaseAnnotations(alleleID, pagination, false, debug);
+			response.setHttpServletRequest(null);
+			response.calculateRequestDuration(startDate);
+			return response;
 		} catch (Exception e) {
-			log.error("Error while retrieving disease info", e);
+			log.error("Error while retrieving disease annotations", e);
 			RestErrorMessage error = new RestErrorMessage();
 			error.addErrorMessage(e.getMessage());
 			throw new RestErrorException(error);
@@ -185,23 +208,40 @@ public class AlleleController implements AlleleRESTInterface {
 	}
 
 
-   @Override
-	public Response getDiseasePerAlleleDownload(String id,
-												   String disease,
-												   String source,
-												   String reference,
-												   String associationType,
-												   String sortBy) {
-		JsonResultResponse<DiseaseAnnotation> response = getDiseasePerAllele( id,
-				Integer.MAX_VALUE,
-				1,
-				disease,
-				source,
-				reference,
-				associationType,
-				sortBy);
-		Response.ResponseBuilder responseBuilder = Response.ok(diseaseToTdfTranslator.getAllRowsForAllele(response.getResults()));
-		APIServiceHelper.setDownloadHeader(id, EntityType.ALLELE, EntityType.DISEASE, responseBuilder);
+	@Override
+	public Response getDiseasePerAlleleDownload(String alleleID,
+												String filterOptions,
+												String filterReference,
+												String diseaseTerm,
+												String filterSource,
+												String geneticEntity,
+												String geneticEntityType,
+												String associationType,
+												String diseaseQualifier,
+												String evidenceCode,
+												Boolean debug,
+												Integer limit,
+												Integer page,
+												String sortBy,
+												String asc, String referenceCitation) {
+		JsonResultResponse<AlleleDiseaseAnnotationDocument> response = getDiseasePerAllele(alleleID,
+			filterOptions,
+			filterReference,
+			diseaseTerm,
+			filterSource,
+			geneticEntity,
+			geneticEntityType,
+			associationType,
+			diseaseQualifier,
+			evidenceCode,
+			debug,
+			150000,
+			page,
+			sortBy,
+			asc, referenceCitation);
+		Response.ResponseBuilder responseBuilder = Response.ok(diseaseToTdfTranslator.getAllRowsForAlleleDiseaseAnnotations(response.getResults()));
+		String alleleSymbol = getAllele(alleleID).getAllele().getAlleleSymbol().getFormatText();
+		APIServiceHelper.setDownloadHeaderByName(alleleID, alleleSymbol, EntityType.ALLELE, EntityType.DISEASE, responseBuilder);
 		return responseBuilder.build();
 	}
 

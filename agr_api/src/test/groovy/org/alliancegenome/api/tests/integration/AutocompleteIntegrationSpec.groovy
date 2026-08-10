@@ -39,7 +39,7 @@ class AutocompleteIntegrationSpec extends Specification {
         categories == [category]
 
         where:
-        category << ["gene", "disease", "go"]
+        category << ["gene_search_result", "disease", "go"]
 
     }
 
@@ -58,9 +58,9 @@ class AutocompleteIntegrationSpec extends Specification {
 
         where:
         category | query
-        "gene"   | "pax"
-        "gene"   | "fgf"
-        "gene"   | "bmp"
+        "gene_search_result"   | "pax"
+        "gene_search_result"   | "fgf"
+        "gene_search_result"   | "bmp"
     }
 
 }

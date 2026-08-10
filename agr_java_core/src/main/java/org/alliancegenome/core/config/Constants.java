@@ -2,6 +2,8 @@ package org.alliancegenome.core.config;
 
 public class Constants {
 
+	private Constants() {
+	}
 
 	// Config Helper Constants
 	public static final String THREADED = "THREADED";
@@ -12,6 +14,7 @@ public class Constants {
 	public static final String ES_INDEX_SUFFIX = "ES_INDEX_SUFFIX";
 	public static final String ES_HOST = "ES_HOST";
 	public static final String ES_PORT = "ES_PORT";
+	public static final String ES_SHARD_COUNT = "ES_SHARD_COUNT";
 
 	public static final String ES_BULK_ACTION_SIZE = "ES_BULK_ACTION_SIZE";
 	public static final String ES_BULK_REQUEST_SIZE = "ES_BULK_REQUEST_SIZE";
@@ -27,13 +30,17 @@ public class Constants {
 
 	public static final String API_SECURE = "API_SECURE";
 
-	public static final String CACHE_HOST = "CACHE_HOST";
-	public static final String CACHE_PORT = "CACHE_PORT";
-
 	public static final String NEO4J_HOST = "NEO4J_HOST";
 	public static final String NEO4J_PORT = "NEO4J_PORT";
 
 	public static final String AWS_BUCKET_NAME = "AWS_BUCKET_NAME";
+	public static final String AWS_PROFILE = "AWS_PROFILE";
+	public static final String AWS_ACCESS_KEY = "AWS_ACCESS_KEY";
+	public static final String AWS_SECRET_KEY = "AWS_SECRET_KEY";
+
+	// File Generator
+	public static final String GENERATED_FILES_FOLDER = "GENERATED_FILES_FOLDER";
+	public static final String SKIP_S3_UPLOAD = "SKIP_S3_UPLOAD";
 
 	public static final String AO_TERM_LIST = "AO_TERM_LIST";
 	public static final String GO_TERM_LIST = "GO_TERM_LIST";
@@ -43,12 +50,8 @@ public class Constants {
 	public static final String POPULARITY_FILE_NAME = "POPULARITY_FILE_NAME";
 	public static final String EXTRACTOR_OUTPUTDIR = "EXTRACTOR_OUTPUTDIR";
 
-	// Other Constants
-	public static final String SEARCHABLE_ITEM = "searchable_item";
-
 	// Variant Indexer Related ENV param constants
-	public static final String VARIANT_MOD_DOWNLOAD_SET_FILE = "VARIANT_MOD_DOWNLOAD_SET_FILE";
-	public static final String VARIANT_HUMAN_DOWNLOAD_SET_FILE = "VARIANT_HUMAN_DOWNLOAD_SET_FILE";
+	public static final String VARIANT_DOWNLOAD_SET_FILE = "VARIANT_DOWNLOAD_SET_FILE";
 
 	public static final String VARIANTS_TO_INDEX = "VARIANTS_TO_INDEX";
 
@@ -56,6 +59,7 @@ public class Constants {
 	public static final String VARIANT_CONFIG_DOWNLOAD = "VARIANT_CONFIG_DOWNLOAD";
 	public static final String VARIANT_CONFIG_CREATING = "VARIANT_CONFIG_CREATING";
 	public static final String VARIANT_CONFIG_INDEXING = "VARIANT_CONFIG_INDEXING";
+	public static final String VARIANT_CONFIG_INDEX_CURATION_DOCUMENTS = "VARIANT_CONFIG_INDEX_CURATION_DOCUMENTS";
 	public static final String VARIANT_CONFIG_GATHERSTATS = "VARIANT_CONFIG_GATHERSTATS";
 	public static final String FMS_URL = "FMS_URL";
 	public static final String ALLIANCE_RELEASE = "ALLIANCE_RELEASE";
@@ -77,9 +81,13 @@ public class Constants {
 	public static final String VARIANT_TRANSFORMER_THREADS = "VARIANT_TRANSFORMER_THREADS";
 	public static final String VARIANT_PRODUCER_THREADS = "VARIANT_PRODUCER_THREADS";
 
-	// Variant Indexer 
+	// Variant Indexer
 	public static final String VARIANT_INDEXER_SHARDS = "VARIANT_INDEXER_SHARDS";
 	public static final String VARIANT_INDEXER_BULK_PROCESSOR_THREADS = "VARIANT_INDEXER_BULK_PROCESSOR_THREADS";
 	public static final String VARIANT_BULK_PROCESSOR_SETTINGS = "VARIANT_BULK_PROCESSOR_SETTINGS";
+	public static final String VARIANT_SOURCE_DOCUMENT_CREATOR_JSON_QUEUE_BUCKET_SIZE = "VARIANT_SOURCE_DOCUMENT_CREATOR_JSON_QUEUE_BUCKET_SIZE";
 
+	// literature Indexer
+	public static final String BLUETEAM_ES_URL = "BLUETEAM_ES_URL";
+	public static final String BLUETEAM_ES_INDEX = "BLUETEAM_ES_INDEX";
 }

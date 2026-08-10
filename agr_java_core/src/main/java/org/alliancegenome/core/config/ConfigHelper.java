@@ -5,9 +5,12 @@ import static org.alliancegenome.core.config.Constants.AO_TERM_LIST;
 import static org.alliancegenome.core.config.Constants.API_HOST;
 import static org.alliancegenome.core.config.Constants.API_PORT;
 import static org.alliancegenome.core.config.Constants.API_SECURE;
+import static org.alliancegenome.core.config.Constants.AWS_ACCESS_KEY;
 import static org.alliancegenome.core.config.Constants.AWS_BUCKET_NAME;
-import static org.alliancegenome.core.config.Constants.CACHE_HOST;
-import static org.alliancegenome.core.config.Constants.CACHE_PORT;
+import static org.alliancegenome.core.config.Constants.AWS_PROFILE;
+import static org.alliancegenome.core.config.Constants.AWS_SECRET_KEY;
+import static org.alliancegenome.core.config.Constants.BLUETEAM_ES_INDEX;
+import static org.alliancegenome.core.config.Constants.BLUETEAM_ES_URL;
 import static org.alliancegenome.core.config.Constants.CURATION_API_TOKEN;
 import static org.alliancegenome.core.config.Constants.CURATION_API_URL;
 import static org.alliancegenome.core.config.Constants.DEBUG;
@@ -19,8 +22,10 @@ import static org.alliancegenome.core.config.Constants.ES_INDEX;
 import static org.alliancegenome.core.config.Constants.ES_INDEX_PREFIX;
 import static org.alliancegenome.core.config.Constants.ES_INDEX_SUFFIX;
 import static org.alliancegenome.core.config.Constants.ES_PORT;
+import static org.alliancegenome.core.config.Constants.ES_SHARD_COUNT;
 import static org.alliancegenome.core.config.Constants.EXTRACTOR_OUTPUTDIR;
 import static org.alliancegenome.core.config.Constants.FMS_URL;
+import static org.alliancegenome.core.config.Constants.GENERATED_FILES_FOLDER;
 import static org.alliancegenome.core.config.Constants.GO_TERM_LIST;
 import static org.alliancegenome.core.config.Constants.INDEX_VARIANTS;
 import static org.alliancegenome.core.config.Constants.NEO4J_HOST;
@@ -28,6 +33,7 @@ import static org.alliancegenome.core.config.Constants.NEO4J_PORT;
 import static org.alliancegenome.core.config.Constants.POPULARITY_DOWNLOAD_URL;
 import static org.alliancegenome.core.config.Constants.POPULARITY_FILE_NAME;
 import static org.alliancegenome.core.config.Constants.RIBBON_TERM_SPECIES_APPLICABILITY;
+import static org.alliancegenome.core.config.Constants.SKIP_S3_UPLOAD;
 import static org.alliancegenome.core.config.Constants.THREADED;
 import static org.alliancegenome.core.config.Constants.VARIANT_CACHER_CONFIG_FILE;
 import static org.alliancegenome.core.config.Constants.VARIANT_DOWNLOAD_PATH;
@@ -47,17 +53,17 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ConfigHelper {
 
+	private ConfigHelper() { }
+	
 	private static Date appStart = new Date();
 	private static Properties configProperties = new Properties();
 
 	private static HashMap<String, String> defaults = new HashMap<>();
 	private static HashMap<String, String> config = new HashMap<>();
 	private static Set<String> allKeys;
-	private static boolean init = false;
+	private static boolean init;
 
-	public ConfigHelper() {
-		init();
-	}
+	{ init(); }
 
 	public static void init() {
 		/* The purpose of the default values is that these are the values required by the application to run
@@ -80,11 +86,12 @@ public class ConfigHelper {
 		// If both are used then the resulting index name is: {ES_INDEX_PREFIX}_{ES_INDEX}_{ES_INDEX_SUFFIX}_{TIMESTAMP}"
 		defaults.put(ES_HOST, "localhost");
 		defaults.put(ES_PORT, "9200");
+		defaults.put(ES_SHARD_COUNT, "4");
 
 		// ES Bulk Processing defaults
 		defaults.put(ES_BULK_ACTION_SIZE, "400");
-		defaults.put(ES_BULK_REQUEST_SIZE, "4");
-		defaults.put(ES_BULK_CONCURRENT_REQUESTS, "4");
+		defaults.put(ES_BULK_REQUEST_SIZE, "20");
+		defaults.put(ES_BULK_CONCURRENT_REQUESTS, "1");
 
 		defaults.put(INDEX_VARIANTS, "false");
 
@@ -94,15 +101,16 @@ public class ConfigHelper {
 		defaults.put(API_PORT, "8080");
 		defaults.put(API_SECURE, "false");
 
-		defaults.put(CACHE_HOST, "localhost");
-		defaults.put(CACHE_PORT, "11222");
-
 		defaults.put(EXTRACTOR_OUTPUTDIR, "data");
 
 		defaults.put(NEO4J_HOST, "localhost");
 		defaults.put(NEO4J_PORT, "7687");
 
 		defaults.put(AWS_BUCKET_NAME, "mod-datadumps-dev"); // This needs to always be a dev bucket unless running in production
+
+		// File Generator
+		defaults.put(GENERATED_FILES_FOLDER, "data");
+		defaults.put(SKIP_S3_UPLOAD, "false");
 
 		defaults.put(AO_TERM_LIST, "anatomy-term-order.csv");
 		defaults.put(GO_TERM_LIST, "go-term-order.csv");
@@ -115,6 +123,10 @@ public class ConfigHelper {
 
 		defaults.put(ALLIANCE_RELEASE, "0.0.0");
 		defaults.put(FMS_URL, "https://fms.alliancegenome.org/api");
+		
+		//literature indexer
+		defaults.put(BLUETEAM_ES_URL, "localhost");
+		defaults.put(BLUETEAM_ES_INDEX, "public_references_index");
 
 		// This next item needs to be set in order to prevent the
 		// Caused by: java.lang.IllegalStateException: availableProcessors is already set to [16], rejecting [16]
@@ -130,13 +142,21 @@ public class ConfigHelper {
 
 		for (String key : allKeys) {
 			// First checks the -D params and sets config[key] = value otherwise it will be null.
-			if (config.get(key) == null) config.put(key, loadSystemProperty(key));
+			if (config.get(key) == null) {
+				config.put(key, loadSystemProperty(key));
+			}
 			// Second checks the config.properties file built into the application otherwise it will be null.
-			if (config.get(key) == null) config.put(key, loadConfigProperty(key));
+			if (config.get(key) == null) {
+				config.put(key, loadConfigProperty(key));
+			}
 			// Third checks the environment for a NAME = value otherwise leaves it null.
-			if (config.get(key) == null) config.put(key, loadSystemENVProperty(key));
+			if (config.get(key) == null) {
+				config.put(key, loadSystemENVProperty(key));
+			}
 			// Lastly loads the default value for NAME = value and loadDefaultProperty ensures it won't be null.
-			if (config.get(key) == null) config.put(key, loadDefaultProperty(key));
+			if (config.get(key) == null) {
+				config.put(key, loadDefaultProperty(key));
+			}
 		}
 		printProperties();
 		init = true;
@@ -144,44 +164,40 @@ public class ConfigHelper {
 
 	private static String loadSystemProperty(String key) {
 		String ret = System.getProperty(key);
-		if (ret != null) log.debug("Found: -D " + key + "=" + ret);
+		if (ret != null) {
+			log.debug("Found: -D " + key + "=" + ret);
+		}
 		return ret;
 	}
 
 	private static String loadConfigProperty(String key) {
 		String ret = configProperties.getProperty(key);
-		if (ret != null) log.debug("Config File Property: " + key + "=" + ret);
+		if (ret != null) {
+			log.debug("Config File Property: " + key + "=" + ret);
+		}
 		return ret;
 	}
 
 	public static String loadSystemENVProperty(String key) {
 		String ret = System.getenv(key);
-		if (ret != null) log.debug("Found Enviroment ENV[" + key + "]=" + ret);
+		if (ret != null) {
+			log.debug("Found Enviroment ENV[" + key + "]=" + ret);
+		}
 		return ret;
 	}
 
 	private static String loadDefaultProperty(String key) {
 		String ret = defaults.get(key);
-		if (ret != null) log.debug("Setting default: " + key + "=" + ret);
+		if (ret != null) {
+			log.debug("Setting default: " + key + "=" + ret);
+		}
 		return ret;
 	}
 
-	public static String getCacheHost() {
-		if (!init) init();
-		return config.get(CACHE_HOST);
-	}
-
-	public static int getCachePort() {
-		if (!init) init();
-		try {
-			return Integer.parseInt(config.get(CACHE_PORT));
-		} catch (NumberFormatException e) {
-			return 11222;
-		}
-	}
-
 	public static int getEsBulkActionSize() {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		try {
 			return Integer.parseInt(config.get(ES_BULK_ACTION_SIZE));
 		} catch (NumberFormatException e) {
@@ -190,7 +206,9 @@ public class ConfigHelper {
 	}
 
 	public static long getEsBulkSizeMB() {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		try {
 			return Long.parseLong(config.get(ES_BULK_REQUEST_SIZE));
 		} catch (NumberFormatException e) {
@@ -199,7 +217,9 @@ public class ConfigHelper {
 	}
 
 	public static int getEsBulkConcurrentRequests() {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		try {
 			return Integer.parseInt(config.get(ES_BULK_CONCURRENT_REQUESTS));
 		} catch (NumberFormatException e) {
@@ -208,8 +228,21 @@ public class ConfigHelper {
 	}
 
 	public static String getEsHost() {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		return config.get(ES_HOST);
+	}
+	
+	public static int getEsShardCount() {
+		if (!init) {
+			init();
+		}
+		try {
+			return Integer.parseInt(config.get(ES_SHARD_COUNT));
+		} catch (NumberFormatException e) {
+			return 0;
+		}
 	}
 
 	public static Multimap<String, Integer> getEsHostMap() {
@@ -239,7 +272,9 @@ public class ConfigHelper {
 	}
 
 	public static int getEsPort() {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		try {
 			return Integer.parseInt(config.get(ES_PORT));
 		} catch (NumberFormatException e) {
@@ -248,17 +283,23 @@ public class ConfigHelper {
 	}
 
 	public static String getApiHost() {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		return config.get(API_HOST);
 	}
 
 	public static String getCurationApiUrl() {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		return config.get(CURATION_API_URL);
 	}
 
 	public static int getApiPort() {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		try {
 			return Integer.parseInt(config.get(API_PORT));
 		} catch (NumberFormatException e) {
@@ -267,7 +308,9 @@ public class ConfigHelper {
 	}
 
 	public static Boolean isApiSecure() {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		return Boolean.parseBoolean(config.get(API_SECURE));
 	}
 
@@ -292,12 +335,16 @@ public class ConfigHelper {
 	}
 
 	public static String getNeo4jHost() {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		return config.get(NEO4J_HOST);
 	}
 
 	public static int getNeo4jPort() {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		try {
 			return Integer.parseInt(config.get(NEO4J_PORT));
 		} catch (NumberFormatException e) {
@@ -306,112 +353,191 @@ public class ConfigHelper {
 	}
 
 	public static boolean isThreaded() {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		return Boolean.parseBoolean(config.get(THREADED));
 	}
 
 	public static String getEsIndexPrefix() {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		return config.get(ES_INDEX_PREFIX);
 	}
 
 	public static String getEsIndexSuffix() {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		return config.get(ES_INDEX_SUFFIX);
 	}
 
 	public static String getDataExtractorDirectory() {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		return config.get(EXTRACTOR_OUTPUTDIR);
 	}
 
 	public static String getEsIndex() {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		return config.get(ES_INDEX);
 	}
 
 	public static Date getAppStart() {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		return appStart;
 	}
 
 	public static boolean getDebug() {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		return Boolean.parseBoolean(config.get(DEBUG));
 	}
 
 	public static String getAWSBucketName() {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		return config.get(AWS_BUCKET_NAME);
 	}
 
+	public static String getAwsProfile() {
+		if (!init) {
+			init();
+		}
+		return config.get(AWS_PROFILE);
+	}
+
+	public static String getAwsAccessKey() {
+		if (!init) {
+			init();
+		}
+		return config.get(AWS_ACCESS_KEY);
+	}
+
+	public static String getAwsSecretKey() {
+		if (!init) {
+			init();
+		}
+		return config.get(AWS_SECRET_KEY);
+	}
+
+	public static String getGeneratedFilesFolder() {
+		if (!init) {
+			init();
+		}
+		return config.get(GENERATED_FILES_FOLDER);
+	}
+
+	public static boolean getSkipS3Upload() {
+		if (!init) {
+			init();
+		}
+		return Boolean.parseBoolean(config.get(SKIP_S3_UPLOAD));
+	}
+
 	public static String getVariantDownloadPath() {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		return config.get(VARIANT_DOWNLOAD_PATH);
 	}
 
 	public static boolean getIndexVariants() {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		return Boolean.parseBoolean(config.get(INDEX_VARIANTS));
 	}
 
 	public static String getJavaLineSeparator() {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		return System.getProperty("line.separator");
 	}
 
 	public static String getJavaTmpDir() {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		return System.getProperty("java.io.tmpdir");
 	}
 
 	public static String getValidationSoftwarePath() {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		return getJavaTmpDir();
 	}
 
 	public static boolean hasEsIndexPrefix() {
-		if (!init) init();
-		return (ConfigHelper.getEsIndexPrefix() != null && !ConfigHelper.getEsIndexPrefix().equals("") && ConfigHelper.getEsIndexPrefix().length() > 0);
+		if (!init) {
+			init();
+		}
+		return ConfigHelper.getEsIndexPrefix() != null && !ConfigHelper.getEsIndexPrefix().equals("") && ConfigHelper.getEsIndexPrefix().length() > 0;
 	}
 
 	public static boolean hasEsIndexSuffix() {
-		if (!init) init();
-		return (ConfigHelper.getEsIndexSuffix() != null && !ConfigHelper.getEsIndexSuffix().equals("") && ConfigHelper.getEsIndexSuffix().length() > 0);
+		if (!init) {
+			init();
+		}
+		return ConfigHelper.getEsIndexSuffix() != null && !ConfigHelper.getEsIndexSuffix().equals("") && ConfigHelper.getEsIndexSuffix().length() > 0;
 	}
 
 	public static String getAOTermListFilePath() {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		return config.get(AO_TERM_LIST);
 	}
 
 	public static String getGOTermListFilePath() {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		return config.get(GO_TERM_LIST);
 	}
 
 	public static String getRibbonTermSpeciesApplicabilityPath() {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		return config.get(RIBBON_TERM_SPECIES_APPLICABILITY);
 	}
 
 	public static String getPopularityDownloadUrl() {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		return config.get(POPULARITY_DOWNLOAD_URL);
 	}
 
 	public static String getPopularityFileName() {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		return config.get(POPULARITY_FILE_NAME);
 	}
 
 	public static String getFMSUrl() {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		return config.get(FMS_URL);
 	}
 
 	public static String getAllianceRelease() {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		return config.get(ALLIANCE_RELEASE);
 	}
 
@@ -427,7 +553,9 @@ public class ConfigHelper {
 	}
 
 	public static String getStringParam(String configParam) {
-		if (!init) init();
+		if (!init) {
+			init();
+		}
 		return config.get(configParam);
 	}
 
@@ -436,9 +564,26 @@ public class ConfigHelper {
 	}
 
 	public static String getCurationApiToken() {
-		if (!init) init();
-		if (config.get(CURATION_API_TOKEN) != null)
-			return "Bearer " + config.get(CURATION_API_TOKEN);
+		if (!init) {
+			init();
+		}
+		if (config.get(CURATION_API_TOKEN) != null) {
+			return "APIToken " + config.get(CURATION_API_TOKEN);
+		}
 		return null;
+	}
+	
+	public static String getBlueTeamESUrl() {
+		if (!init) {
+			init();
+		}
+		return config.get(BLUETEAM_ES_URL);
+	}
+	
+	public static String getBlueTeamESIndex() {
+		if (!init) {
+			init();
+		}
+		return config.get(BLUETEAM_ES_INDEX);
 	}
 }

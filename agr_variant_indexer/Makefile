@@ -13,9 +13,6 @@ endif
 all: 
 	mvn -q clean package
 
-run:
-	java -jar -Xmn6g -Xms6g target/agr_cacher-jar-with-dependencies.jar
-
 test:
 	mvn test
 
@@ -25,27 +22,8 @@ docker-build: pull
 pull: registry-docker-login
 	docker pull ${REG}/agr_base_linux_env:develop
 
-startes:
-	docker-compose up -d agr_infinispan
-
-stopes:
-	docker-compose stop agr_infinispan
-
 removees:
 	docker-compose down -v
-
-
-
-reload: stopes removees
-	docker-compose up agr_infinispan
-	sleep 10
-	docker-compose up agr_cacher
-
-docker-pull-es: registry-docker-login
-	docker pull ${REG}/agr_infinispan_env
-
-docker-run-es: docker-pull-es
-	docker run -p 9200:9200 -p 9300:9300 ${REG}/agr_infinispan_env
 
 docker-pull-neo: registry-docker-login
 	docker pull ${REG}/agr_neo4j_data_image:build

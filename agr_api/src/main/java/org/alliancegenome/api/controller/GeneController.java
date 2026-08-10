@@ -1,91 +1,88 @@
 package org.alliancegenome.api.controller;
 
-
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-
-import org.alliancegenome.api.dto.ExpressionSummary;
-import org.alliancegenome.api.dto.JoinTypeValue;
-import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
+import org.alliancegenome.core.document.GeneGeneticInteractionDocument;
+import org.alliancegenome.core.document.GeneMolecularInteractionDocument;
+import org.alliancegenome.core.document.GenePhenotypeAnnotationDocument;
+import org.alliancegenome.core.document.GeneToGeneOrthologyDocument;
+import org.alliancegenome.core.document.GeneToGeneParalogyDocument;
+import org.alliancegenome.core.document.GeneTransgenicAlleleSummaryDocument;
 import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
-import org.alliancegenome.api.service.AlleleService;
+import org.alliancegenome.api.service.AGMAnnotationESService;
+import org.alliancegenome.api.service.AlleleESService;
 import org.alliancegenome.api.service.DiseaseESService;
 import org.alliancegenome.api.service.EntityType;
-import org.alliancegenome.api.service.ExpressionService;
+import org.alliancegenome.api.service.GeneESService;
 import org.alliancegenome.api.service.GeneService;
+import org.alliancegenome.api.service.GeneToGeneParalogyESService;
+import org.alliancegenome.api.service.OrthologyESService;
+import org.alliancegenome.api.service.PhenotypeESService;
+import org.alliancegenome.api.service.TransgenicAlleleESService;
 import org.alliancegenome.api.service.helper.APIServiceHelper;
-import org.alliancegenome.api.translators.tdf.DiseaseAnnotationToTdfTranslator;
-import org.alliancegenome.cache.repository.ExpressionCacheRepository;
-import org.alliancegenome.cache.repository.OrthologyCacheRepository;
-import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.core.api.service.DiseaseService;
-import org.alliancegenome.core.api.service.InteractionColumnFieldMapping;
-import org.alliancegenome.core.exceptions.RestErrorException;
-import org.alliancegenome.core.exceptions.RestErrorMessage;
-import org.alliancegenome.core.translators.tdf.AlleleToTdfTranslator;
-import org.alliancegenome.core.translators.tdf.InteractionToTdfTranslator;
-import org.alliancegenome.core.translators.tdf.PhenotypeAnnotationToTdfTranslator;
-import org.alliancegenome.es.model.query.FieldFilter;
-import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
-import org.alliancegenome.neo4j.entity.DiseaseSummary;
-import org.alliancegenome.neo4j.entity.EntitySummary;
-import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
-import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
-import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
-import org.alliancegenome.neo4j.view.OrthologView;
-import org.alliancegenome.neo4j.view.OrthologyFilter;
+import org.alliancegenome.api.translators.tdf.PhenotypeAnnotationToTdfTranslator;
+import org.alliancegenome.api.response.JsonResultResponse;
+import org.alliancegenome.api.exceptions.RestErrorException;
+import org.alliancegenome.api.exceptions.RestErrorMessage;
+import org.alliancegenome.api.translators.tdf.AlleleToTdfTranslator;
+import org.alliancegenome.api.translators.tdf.GeneGeneticInteractionToTdfTranslator;
+import org.alliancegenome.api.translators.tdf.GeneMolecularInteractionToTdfTranslator;
+import org.alliancegenome.curation_api.model.document.es.AGMAnnotationDocument;
+import org.alliancegenome.curation_api.model.document.es.ESDocument;
+import org.alliancegenome.curation_api.model.document.es.GeneSummaryDocument;
+import org.alliancegenome.curation_api.model.document.es.SequenceSummaryDocument;
+import org.alliancegenome.api.es.query.FieldFilter;
+import org.alliancegenome.api.es.query.Pagination;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriInfo;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RequestScoped
 public class GeneController implements GeneRESTInterface {
 
-	@Inject GeneService geneService;
+	@Inject
+	GeneService geneService;
 
-	@Inject AlleleService alleleService;
+	@Inject
+	GeneESService geneESService;
 
-	@Inject OrthologyCacheRepository orthologyService;
+	@Inject
+	AlleleESService alleleESService;
 
-	@Inject ExpressionCacheRepository expressionCacheRepository;
-
-	@Inject DiseaseService diseaseService;
-
-	@Inject OrthologyCacheRepository orthologyCacheService;
-
-	//@Inject
-	//private HttpRequest request;
-
-	@Inject ExpressionService service;
+	@Inject
+	OrthologyESService orthologyESService;
 
 	@Inject
 	DiseaseESService diseaseESService;
 
+	@Inject
+	GeneToGeneParalogyESService geneToGeneParalogyESService;
+	@Inject
+	PhenotypeESService phenotypeESService;
+	@Inject
+	AGMAnnotationESService agmESService;
+
+	@Inject
+	TransgenicAlleleESService transgenicAlleleESService;
+
 	private static final PhenotypeAnnotationToTdfTranslator translator = new PhenotypeAnnotationToTdfTranslator();
-	private static final AlleleToTdfTranslator alleleTanslator = new AlleleToTdfTranslator();
-	private static final InteractionToTdfTranslator interactionTanslator = new InteractionToTdfTranslator();
-	private static final DiseaseAnnotationToTdfTranslator diseaseTranslator = new DiseaseAnnotationToTdfTranslator();
+	private static final AlleleToTdfTranslator alleleTranslator = new AlleleToTdfTranslator();
+	private static final GeneGeneticInteractionToTdfTranslator geneticInteractionTranslator = new GeneGeneticInteractionToTdfTranslator();
+	private static final GeneMolecularInteractionToTdfTranslator molecularInteractionTranslator = new GeneMolecularInteractionToTdfTranslator();
 
 	@Override
-	public Gene getGene(String id) {
-		Gene gene = geneService.getById(id);
+	public GeneSummaryDocument getGene(String id) {
+		GeneSummaryDocument gene = geneESService.getById(id);
 		if (gene == null) {
 			RestErrorMessage error = new RestErrorMessage("No gene found with ID: " + id);
 			throw new RestErrorException(error);
@@ -95,27 +92,19 @@ public class GeneController implements GeneRESTInterface {
 	}
 
 	@Override
-	public JsonResultResponse<Allele> getAllelesPerGene(String id,
-														Integer limit,
-														Integer page,
-														String sortBy,
-														String asc,
-														String symbol,
-														String synonym,
-														String variantType,
-														String molecularConsequence,
-														String hasDisease,
-														String hasPhenotype,
-														String category) {
+	public JsonResultResponse<ESDocument> getAllelesPerGene(String id, Integer limit, Integer page, String sortBy, String asc, String symbol, String synonym, String variant, String variantType, String molecularConsequence, String hasDisease, String hasPhenotype, String category) {
+
 		long startTime = System.currentTimeMillis();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
-		pagination.addFieldFilter(FieldFilter.SYMBOL, symbol);
-		pagination.addFieldFilter(FieldFilter.SYNONYMS, synonym);
-		pagination.addFieldFilter(FieldFilter.ALLELE_CATEGORY, category);
-		pagination.addFieldFilter(FieldFilter.VARIANT_TYPE, variantType);
-		pagination.addFieldFilter(FieldFilter.HAS_DISEASE, hasDisease);
-		pagination.addFieldFilter(FieldFilter.HAS_PHENOTYPE, hasPhenotype);
-		pagination.addFieldFilter(FieldFilter.MOLECULAR_CONSEQUENCE, molecularConsequence);
+		pagination.addFilterOption("symbol", symbol);
+		pagination.addFilterOption("allele.alleleSynonyms.displayText", synonym);
+		pagination.addFilterOption("variantList.curatedVariantGenomicLocations.hgvs", variant);
+		pagination.addFilterOption("alterationType.keyword", category);
+		pagination.addFilterOption("variantList.variantType.name.keyword", variantType);
+		pagination.addFilterOption("hasDisease", hasDisease);
+		pagination.addFilterOption("hasPhenotype", hasPhenotype);
+		pagination.addFilterOption("variantList.curatedVariantGenomicLocations.predictedVariantConsequences.vepConsequences.name.keyword", molecularConsequence);
+
 		if (pagination.hasErrors()) {
 			RestErrorMessage message = new RestErrorMessage();
 			message.setErrors(pagination.getErrors());
@@ -123,7 +112,7 @@ public class GeneController implements GeneRESTInterface {
 		}
 
 		try {
-			JsonResultResponse<Allele> alleles = geneService.getAlleles(id, pagination);
+			JsonResultResponse<ESDocument> alleles = alleleESService.getAllelesByGene(id, pagination);
 			alleles.setHttpServletRequest(null);
 			alleles.calculateRequestDuration(startTime);
 			return alleles;
@@ -140,26 +129,8 @@ public class GeneController implements GeneRESTInterface {
 	}
 
 	@Override
-	public JsonResultResponse<AlleleVariantSequence> getAllelesVariantPerGene(String id,
-																			  Integer limit,
-																			  Integer page,
-																			  String sortBy,
-																			  String asc,
-																			  String symbol,
-																			  String associatedGeneSymbol,
-																			  String synonyms,
-																			  String hgvsgName,
-																			  String variantType,
-																			  String molecularConsequence,
-																			  String impact,
-																			  String sequenceFeatureType,
-																			  String sequenceFeature,
-																			  String variantPolyphen,
-																			  String variantSift,
-																			  String hasDisease,
-																			  String hasPhenotype,
-																			  String category,
-																			  String location) {
+	public JsonResultResponse<SequenceSummaryDocument> getAllelesVariantPerGene(String id, Integer limit, Integer page, String sortBy, String asc, String symbol, String associatedGeneSymbol, String synonyms, String hgvsgName, String variantType, String molecularConsequence, String impact,
+		String sequenceFeatureType, String sequenceFeature, String variantPolyphen, String variantSift, String hasDisease, String hasPhenotype, String category, String location) {
 		long startTime = System.currentTimeMillis();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
 		pagination.addFieldFilter(FieldFilter.SYMBOL, symbol);
@@ -175,6 +146,7 @@ public class GeneController implements GeneRESTInterface {
 		pagination.addFieldFilter(FieldFilter.SEQUENCE_FEATURE_TYPE, sequenceFeatureType);
 		pagination.addFieldFilter(FieldFilter.SEQUENCE_FEATURE, sequenceFeature);
 		pagination.addFieldFilter(FieldFilter.ASSOCIATED_GENE, associatedGeneSymbol);
+		pagination.addFieldFilter(FieldFilter.VARIANT_HGVS_G, hgvsgName);
 		pagination.addFieldFilter(FieldFilter.VARIANT_LOCATION, location);
 		if (pagination.hasErrors()) {
 			RestErrorMessage message = new RestErrorMessage();
@@ -183,7 +155,7 @@ public class GeneController implements GeneRESTInterface {
 		}
 
 		try {
-			JsonResultResponse<AlleleVariantSequence> alleles = geneService.getAllelesAndVariantInfo(id, pagination);
+			JsonResultResponse<SequenceSummaryDocument> alleles = geneService.getAllelesAndVariantInfo(id, pagination);
 			alleles.setHttpServletRequest(null);
 			alleles.calculateRequestDuration(startTime);
 			return alleles;
@@ -200,124 +172,63 @@ public class GeneController implements GeneRESTInterface {
 	}
 
 	@Override
-	public Response getAllelesVariantPerGeneDownload(String id,
-													 String symbol,
-													 String associatedGeneSymbol,
-													 String synonyms,
-													 String hgvsgName,
-													 String variantType,
-													 String molecularConsequence,
-													 String impact,
-													 String sequenceFeatureType,
-													 String sequenceFeature,
-													 String variantPolyphen,
-													 String variantSift,
-													 String hasDisease,
-													 String hasPhenotype,
-													 String category,
-													 String location) {
-		JsonResultResponse<AlleleVariantSequence> alleles = getAllelesVariantPerGene(id,
-				Integer.MAX_VALUE,
-				1,
-				null,
-				null,
-				symbol,
-				associatedGeneSymbol,
-				synonyms,
-				hgvsgName,
-				variantType,
-				molecularConsequence,
-				impact,
-				sequenceFeatureType,
-				sequenceFeature,
-				variantPolyphen,
-				variantSift,
-				hasDisease,
-				hasPhenotype,
-				category,
-				location);
+	public Response getAllelesVariantPerGeneDownload(String id, String symbol, String associatedGeneSymbol, String synonyms, String hgvsgName, String variantType, String molecularConsequence, String impact, String sequenceFeatureType, String sequenceFeature, String variantPolyphen,
+		String variantSift, String hasDisease, String hasPhenotype, String category, String location) {
+		int pageSize = 10000;
+		int page = 1;
+		List<SequenceSummaryDocument> allResults = new ArrayList<>();
+		long total;
+		do {
+			JsonResultResponse<SequenceSummaryDocument> batch = getAllelesVariantPerGene(id, pageSize, page, null, null, symbol, associatedGeneSymbol, synonyms, hgvsgName, variantType, molecularConsequence, impact, sequenceFeatureType, sequenceFeature, variantPolyphen, variantSift, hasDisease,
+				hasPhenotype, category, location);
+			allResults.addAll(batch.getResults());
+			total = batch.getTotal();
+			page++;
+		} while (allResults.size() < total);
 
-		Response.ResponseBuilder responseBuilder = Response.ok(alleleTanslator.getAllAlleleVariantDetailRows(alleles.getResults()));
+		Response.ResponseBuilder responseBuilder = Response.ok(alleleTranslator.getAllSequenceSummaryDetailRows(allResults));
 		APIServiceHelper.setDownloadHeader(id, EntityType.GENE, EntityType.ALLELESANDVARIANT, responseBuilder);
 		return responseBuilder.build();
 	}
 
 	@Override
-	public Response getAllelesPerGeneDownload(String id,
-											  String sortBy,
-											  String asc,
-											  String symbol,
-											  String synonym,
-											  String variantType,
-											  String molecularConsequence,
-											  String phenotype,
-											  String source,
-											  String disease) {
-		Pagination pagination = new Pagination(1, Integer.MAX_VALUE, sortBy, asc);
-		pagination.addFieldFilter(FieldFilter.SYMBOL, symbol);
-		pagination.addFieldFilter(FieldFilter.SYNONYMS, synonym);
-		pagination.addFieldFilter(FieldFilter.SOURCE, source);
-		pagination.addFieldFilter(FieldFilter.DISEASE, disease);
-		pagination.addFieldFilter(FieldFilter.VARIANT_TYPE, variantType);
-		pagination.addFieldFilter(FieldFilter.PHENOTYPE, phenotype);
-		pagination.addFieldFilter(FieldFilter.MOLECULAR_CONSEQUENCE, molecularConsequence);
-		if (pagination.hasErrors()) {
-			RestErrorMessage message = new RestErrorMessage();
-			message.setErrors(pagination.getErrors());
-			throw new RestErrorException(message);
-		}
+	public Response getAllelesPerGeneDownload(String id, String sortBy, String asc, String symbol, String synonym, String variant, String variantType, String molecularConsequence, String disease, String phenotype, String category) {
 
-		JsonResultResponse<Allele> alleles = geneService.getAlleles(id, pagination);
+		JsonResultResponse<ESDocument> alleles = getAllelesPerGene(id, 150000, 1, sortBy, asc, symbol, synonym, variant, variantType, molecularConsequence, disease, phenotype, category);
 
-		Response.ResponseBuilder responseBuilder = Response.ok(alleleTanslator.getAllRows(alleles.getResults()));
+		Response.ResponseBuilder responseBuilder = Response.ok(alleleTranslator.getAllRows(alleles.getResults()));
 		APIServiceHelper.setDownloadHeader(id, EntityType.GENE, EntityType.ALLELE, responseBuilder);
 		return responseBuilder.build();
 	}
 
-
 	@Override
-	public JsonResultResponse<InteractionGeneJoin> getInteractions(String id, Integer limit, Integer page, String sortBy, String asc,
-																   String moleculeType,
-																   JoinTypeValue joinType,
-																   String interactorGeneSymbol,
-																   String interactorSpecies,
-																   String interactorMoleculeType,
-																   String detectionMethod,
-																   String source,
-																   String reference,
-																   String role,
-																   String geneticPerturbation,
-																   String interacotorRole,
-																   String interactorGeneticPerturbation,
-																   String phenotypes,
-																   String interactionType,
-																   @Context UriInfo info) {
+	public JsonResultResponse<GeneGeneticInteractionDocument> getGeneticInteractions(String id, Integer limit, Integer page, String sortBy, String asc, String interactorGeneSymbol, String interactorSpecies, String source, String reference, String role, String geneticPerturbation,
+		String interactorRole, String interactorGeneticPerturbation, String phenotypes, String interactionType, @Context UriInfo info) {
 		long startTime = System.currentTimeMillis();
-		Pagination pagination = new Pagination(page, limit, sortBy, asc, new InteractionColumnFieldMapping());
-		pagination.addFieldFilter(FieldFilter.MOLECULE_TYPE, moleculeType);
-		pagination.addFieldFilter(FieldFilter.JOIN_TYPE, joinType.getName());
-		pagination.addFieldFilter(FieldFilter.INTERACTOR_GENE_SYMBOL, interactorGeneSymbol);
-		pagination.addFieldFilter(FieldFilter.INTERACTOR_SPECIES, interactorSpecies);
-		pagination.addFieldFilter(FieldFilter.INTERACTOR_MOLECULE_TYPE, interactorMoleculeType);
-		pagination.addFieldFilter(FieldFilter.DETECTION_METHOD, detectionMethod);
-		pagination.addFieldFilter(FieldFilter.SOURCE, source);
-		pagination.addFieldFilter(FieldFilter.INTERACTOR_REFERENCE, reference);
-		//for genetic interaction
-		pagination.addFieldFilter(FieldFilter.ROLE, role);
-		pagination.addFieldFilter(FieldFilter.GENETIC_PERTURBATION, geneticPerturbation);
-		pagination.addFieldFilter(FieldFilter.INTERACTOR_ROLE, interacotorRole);
-		pagination.addFieldFilter(FieldFilter.INTERACTOR_GENETIC_PERTURBATION, interactorGeneticPerturbation);
-		pagination.addFieldFilter(FieldFilter.PHENOTYPES, phenotypes);
-		pagination.addFieldFilter(FieldFilter.INTERACTION_TYPE, interactionType);
+
+		if (StringUtils.isEmpty(sortBy)) {
+			sortBy = "geneGeneticInteraction.geneGeneAssociationObject.geneSymbol.displayText.sort";
+		}
+		Pagination pagination = new Pagination(page, limit, sortBy, asc);
+		pagination.addFilterOption("geneGeneticInteraction.geneGeneAssociationObject.geneSymbol.displayText", interactorGeneSymbol);
+		pagination.addFilterOption("geneGeneticInteraction.interactionIdORgeneGeneticInteraction.crossReferences.displayName", source);
+		pagination.addFilterOption("geneGeneticInteraction.evidence.referenceID", reference);
+		pagination.addFilterOption("geneGeneticInteraction.interactorARole.name.keyword", role);
+		pagination.addFilterOption("geneGeneticInteraction.interactorAGeneticPerturbation.alleleSymbol.displayText", geneticPerturbation);
+		pagination.addFilterOption("geneGeneticInteraction.interactorBRole.name.keyword", interactorRole);
+		pagination.addFilterOption("geneGeneticInteraction.interactorBGeneticPerturbation.alleleSymbol.displayText", interactorGeneticPerturbation);
+		pagination.addFilterOption("geneGeneticInteraction.phenotypesOrTraits", phenotypes);
+		pagination.addFilterOption("geneGeneticInteraction.interactionType.name.keyword", interactionType);
+		pagination.addFilterOption("geneGeneticInteraction.geneGeneAssociationObject.taxon.species.fullName.keyword", interactorSpecies);
 		// Todo: needs to be made generic
-		//pagination.validateFilterValues(info.getQueryParameters());
+		// pagination.validateFilterValues(info.getQueryParameters());
 		if (pagination.hasErrors()) {
 			RestErrorMessage message = new RestErrorMessage();
 			message.setErrors(pagination.getErrors());
 			throw new RestErrorException(message);
 		}
 		try {
-			JsonResultResponse<InteractionGeneJoin> interactions = geneService.getInteractions(id, pagination, joinType.getName());
+			JsonResultResponse<GeneGeneticInteractionDocument> interactions = geneService.getGeneticInteractions(id, pagination);
 			interactions.setHttpServletRequest(null);
 			interactions.calculateRequestDuration(startTime);
 			return interactions;
@@ -330,55 +241,95 @@ public class GeneController implements GeneRESTInterface {
 	}
 
 	@Override
-	public Response getInteractionsDownload(String id, String sortBy, String asc,
-											String moleculeType,
-											JoinTypeValue joinType,
-											String interactorGeneSymbol,
-											String interactorSpecies,
-											String interactorMoleculeType,
-											String detectionMethod,
-											String source,
-											String reference,
-											String role,
-											String geneticPerturbation,
-											String interacotorRole,
-											String interactorGeneticPerturbation,
-											String phenotypes,
-											String interactionType
-	) {
-		Pagination pagination = new Pagination(1, Integer.MAX_VALUE, sortBy, asc);
-		pagination.addFieldFilter(FieldFilter.MOLECULE_TYPE, moleculeType);
-		pagination.addFieldFilter(FieldFilter.JOIN_TYPE, joinType.getName());
-		pagination.addFieldFilter(FieldFilter.INTERACTOR_GENE_SYMBOL, interactorGeneSymbol);
-		pagination.addFieldFilter(FieldFilter.INTERACTOR_SPECIES, interactorSpecies);
-		pagination.addFieldFilter(FieldFilter.INTERACTOR_MOLECULE_TYPE, interactorMoleculeType);
-		pagination.addFieldFilter(FieldFilter.DETECTION_METHOD, detectionMethod);
-		pagination.addFieldFilter(FieldFilter.SOURCE, source);
-		pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
-		//for genetic interaction
-		pagination.addFieldFilter(FieldFilter.ROLE, role);
-		pagination.addFieldFilter(FieldFilter.GENETIC_PERTURBATION, geneticPerturbation);
-		pagination.addFieldFilter(FieldFilter.INTERACTOR_ROLE, interacotorRole);
-		pagination.addFieldFilter(FieldFilter.INTERACTOR_GENETIC_PERTURBATION, interactorGeneticPerturbation);
-		pagination.addFieldFilter(FieldFilter.PHENOTYPES, phenotypes);
-		pagination.addFieldFilter(FieldFilter.INTERACTION_TYPE, interactionType);
-		JsonResultResponse<InteractionGeneJoin> interactions = geneService.getInteractions(id, pagination);
+	public Response getGeneticInteractionsDownload(String id, String sortBy, String asc, String interactorGeneSymbol, String interactorSpecies, String source, String reference, String role, String geneticPerturbation, String interactorRole, String interactorGeneticPerturbation, String phenotypes,
+		String interactionType) {
+		if (StringUtils.isEmpty(sortBy)) {
+			sortBy = "geneGeneticInteraction.geneGeneAssociationObject.geneSymbol.displayText.sort";
+		}
+		Pagination pagination = new Pagination(1, 150000, sortBy, asc);
+		pagination.addFilterOption("geneGeneticInteraction.geneGeneAssociationObject.geneSymbol.displayText", interactorGeneSymbol);
+		pagination.addFilterOption("geneGeneticInteraction.interactionIdORgeneGeneticInteraction.crossReferences.displayName", source);
+		pagination.addFilterOption("geneGeneticInteraction.evidence.referenceID", reference);
+		pagination.addFilterOption("geneGeneticInteraction.interactorARole.name.keyword", role);
+		pagination.addFilterOption("geneGeneticInteraction.interactorAGeneticPerturbation.alleleSymbol.displayText", geneticPerturbation);
+		pagination.addFilterOption("geneGeneticInteraction.interactorBRole.name.keyword", interactorRole);
+		pagination.addFilterOption("geneGeneticInteraction.interactorBGeneticPerturbation.alleleSymbol.displayText", interactorGeneticPerturbation);
+		pagination.addFilterOption("geneGeneticInteraction.phenotypesOrTraits", phenotypes);
+		pagination.addFilterOption("geneGeneticInteraction.interactionType.name.keyword", interactionType);
+		pagination.addFilterOption("geneGeneticInteraction.geneGeneAssociationObject.taxon.species.fullName.keyword", interactorSpecies);
 
-		Response.ResponseBuilder responseBuilder = Response.ok(interactionTanslator.getAllRows(interactions.getResults()));
-		APIServiceHelper.setDownloadHeader(id, EntityType.GENE, EntityType.INTERACTION, joinType.getName(), responseBuilder);
+		JsonResultResponse<GeneGeneticInteractionDocument> interactions = geneService.getGeneticInteractions(id, pagination);
+
+		Response.ResponseBuilder responseBuilder = Response.ok(geneticInteractionTranslator.getAllRows(interactions.getResults()));
+		APIServiceHelper.setDownloadHeader(id, EntityType.GENE, EntityType.INTERACTION, "genetic_interaction", responseBuilder);
 		return responseBuilder.build();
 	}
 
 	@Override
-	public JsonResultResponse<PhenotypeAnnotation> getPhenotypeAnnotations(String id, Integer limit, Integer page, String sortBy,
-																		   String geneticEntity,
-																		   String geneticEntityType,
-																		   String phenotype,
-																		   String reference,
-																		   String asc) {
+	public JsonResultResponse<GeneMolecularInteractionDocument> getMolecularInteractions(String id, Integer limit, Integer page, String sortBy, String asc, String moleculeType, String interactorGeneSymbol, String interactorSpecies, String interactorMoleculeType, String detectionMethod,
+		String source, String reference, @Context UriInfo info) {
 		long startTime = System.currentTimeMillis();
+		if (StringUtils.isEmpty(sortBy)) {
+			sortBy = "geneMolecularInteraction.geneGeneAssociationObject.geneSymbol.displayText.sort";
+		}
+		Pagination pagination = new Pagination(page, limit, sortBy, asc);
+		pagination.addFilterOption("geneMolecularInteraction.interactorAType.name.keyword", moleculeType);
+		pagination.addFilterOption("geneMolecularInteraction.geneGeneAssociationObject.geneSymbol.displayText", interactorGeneSymbol);
+		pagination.addFilterOption("geneMolecularInteraction.interactionIdORgeneMolecularInteraction.aggregationDatabase.nameORgeneMolecularInteraction.interactionSource.nameORgeneMolecularInteraction.crossReferences.displayName", source);
+		pagination.addFilterOption("geneMolecularInteraction.evidence.referenceID", reference);
+		pagination.addFilterOption("geneMolecularInteraction.interactorBType.name.keyword", interactorMoleculeType);
+		pagination.addFilterOption("geneMolecularInteraction.detectionMethod.name.keyword", detectionMethod);
+		pagination.addFilterOption("geneMolecularInteraction.geneGeneAssociationObject.taxon.species.fullName.keyword", interactorSpecies);
+		// Todo: needs to be made generic
+		// pagination.validateFilterValues(info.getQueryParameters());
+		if (pagination.hasErrors()) {
+			RestErrorMessage message = new RestErrorMessage();
+			message.setErrors(pagination.getErrors());
+			throw new RestErrorException(message);
+		}
 		try {
-			JsonResultResponse<PhenotypeAnnotation> phenotypes = getPhenotypeAnnotationDocumentJsonResultResponse(id, limit, page, sortBy, geneticEntity, geneticEntityType, phenotype, reference, asc);
+			JsonResultResponse<GeneMolecularInteractionDocument> interactions = geneService.getMolecularInteractions(id, pagination);
+			interactions.setHttpServletRequest(null);
+			interactions.calculateRequestDuration(startTime);
+			return interactions;
+		} catch (Exception e) {
+			log.error("Error while retrieving interaction data", e);
+			RestErrorMessage error = new RestErrorMessage();
+			error.addErrorMessage(e.getMessage());
+			throw new RestErrorException(error);
+		}
+	}
+
+	@Override
+	public Response getMolecularInteractionsDownload(String id, String sortBy, String asc, String moleculeType, String interactorGeneSymbol, String interactorSpecies, String interactorMoleculeType, String detectionMethod, String source, String reference) {
+		if (StringUtils.isEmpty(sortBy)) {
+			sortBy = "geneMolecularInteraction.geneGeneAssociationObject.geneSymbol.displayText.sort";
+		}
+		Pagination pagination = new Pagination(1, 150000, sortBy, asc);
+		pagination.addFilterOption("geneMolecularInteraction.interactorAType.name.keyword", moleculeType);
+		pagination.addFilterOption("geneMolecularInteraction.geneGeneAssociationObject.geneSymbol.displayText", interactorGeneSymbol);
+		pagination.addFilterOption("geneMolecularInteraction.interactionIdORgeneMolecularInteraction.aggregationDatabase.nameORgeneMolecularInteraction.interactionSource.nameORgeneMolecularInteraction.crossReferences.displayName", source);
+		pagination.addFilterOption("geneMolecularInteraction.evidence.referenceID", reference);
+		pagination.addFilterOption("geneMolecularInteraction.interactorBType.name.keyword", interactorMoleculeType);
+		pagination.addFilterOption("geneMolecularInteraction.detectionMethod.name.keyword", detectionMethod);
+		pagination.addFilterOption("geneMolecularInteraction.geneGeneAssociationObject.taxon.species.fullName.keyword", interactorSpecies);
+		JsonResultResponse<GeneMolecularInteractionDocument> interactions = geneService.getMolecularInteractions(id, pagination);
+
+		Response.ResponseBuilder responseBuilder = Response.ok(molecularInteractionTranslator.getAllRows(interactions.getResults()));
+		APIServiceHelper.setDownloadHeader(id, EntityType.GENE, EntityType.INTERACTION, "molecular_interaction", responseBuilder);
+		return responseBuilder.build();
+	}
+
+	@Override
+	public JsonResultResponse<GenePhenotypeAnnotationDocument> getPhenotypeAnnotations(String id, Integer limit, Integer page, String sortBy, String geneticEntity, String geneticEntityType, String phenotype, String reference, String dataProvider, String asc, String referenceCitation) {
+		long startTime = System.currentTimeMillis();
+		Pagination pagination = new Pagination(page, limit, sortBy, asc);
+		pagination.addFilterOption("phenotypeStatement", phenotype);
+		pagination.addFilterOption("pubmedPublications.referencedCurie", reference);
+		pagination.addFilterOption("references.shortCitation", referenceCitation);
+		pagination.addFilterOption("primaryAnnotations.dataProvider.abbreviation", dataProvider);
+		try {
+			JsonResultResponse<GenePhenotypeAnnotationDocument> phenotypes = phenotypeESService.getGenePhenotypeAnnotations(id, pagination, false);
 			phenotypes.setHttpServletRequest(null);
 			phenotypes.calculateRequestDuration(startTime);
 			return phenotypes;
@@ -391,97 +342,31 @@ public class GeneController implements GeneRESTInterface {
 	}
 
 	@Override
-	public Response getPhenotypeAnnotationsDownloadFile(
-			String id,
-			String sortBy,
-			String geneticEntity,
-			String geneticEntityType,
-			String phenotype,
-			String reference,
-			String asc) {
+	public Response getPhenotypeAnnotationsDownloadFile(String id, String sortBy, String geneticEntity, String geneticEntityType, String phenotype, String reference, String dataProvider, String asc, String referenceCitation) {
 		// retrieve all records
-		JsonResultResponse<PhenotypeAnnotation> response =
-				getPhenotypeAnnotationDocumentJsonResultResponse(id, Integer.MAX_VALUE, 1, sortBy,
-						geneticEntity,
-						geneticEntityType,
-						phenotype,
-						reference,
-						asc);
+		JsonResultResponse<GenePhenotypeAnnotationDocument> response = getPhenotypeAnnotations(id, 250000, 1, sortBy, geneticEntity, geneticEntityType, phenotype, reference, dataProvider, asc, referenceCitation);
 		Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRows(response.getResults()));
 		APIServiceHelper.setDownloadHeader(id, EntityType.GENE, EntityType.PHENOTYPE, responseBuilder);
 		return responseBuilder.build();
 	}
 
-
 	@Override
-	public JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotations(String id, Integer limit, Integer page, String sortBy,
-																	   String geneticEntity,
-																	   String geneticEntityType,
-																	   String disease,
-																	   String reference,
-																	   String asc) {
-		long startTime = System.currentTimeMillis();
-		try {
-			JsonResultResponse<DiseaseAnnotation> diseases = getDiseaseAnnotationDocumentJsonResultResponse(id, limit, page, sortBy, geneticEntity, geneticEntityType, disease, reference, asc);
-			diseases.setHttpServletRequest(null);
-			diseases.calculateRequestDuration(startTime);
-			return diseases;
-		} catch (Exception e) {
-			log.error("Error while retrieving disease", e);
-			RestErrorMessage error = new RestErrorMessage();
-			error.addErrorMessage(e.getMessage());
-			throw new RestErrorException(error);
-		}
-	}
-
-	@Override
-	public Response getDiseaseAnnotationsDownloadFile(
-			String id,
-			String sortBy,
-			String geneticEntity,
-			String geneticEntityType,
-			String disease,
-			String reference,
-			String asc) {
-		// retrieve all records
-		JsonResultResponse<DiseaseAnnotation> response =
-				getDiseaseAnnotationDocumentJsonResultResponse(id, Integer.MAX_VALUE, 1, sortBy,
-						geneticEntity,
-						geneticEntityType,
-						disease,
-						reference,
-						asc);
-		Response.ResponseBuilder responseBuilder = Response.ok(diseaseTranslator.getAllRowsForGenes(response.getResults()));
-		APIServiceHelper.setDownloadHeader(id, EntityType.GENE, EntityType.DISEASE, responseBuilder);
-		return responseBuilder.build();
-	}
-
-
-	@Override
-	public JsonResultResponse<PrimaryAnnotatedEntity> getPrimaryAnnotatedEntityForModel(String id,
-																						Integer limit,
-																						Integer page,
-																						String sortBy,
-																						String modelName,
-																						String species,
-																						String disease,
-																						String phenotype,
-																						String source,
-																						String asc) {
+	public JsonResultResponse<AGMAnnotationDocument> getPrimaryAnnotatedEntityForModel(String id, Integer limit, Integer page, String sortBy, String modelName, String species, String experimentalCondition, String disease, String phenotype, String source, String asc) {
 		long startTime = System.currentTimeMillis();
 		Pagination pagination = new Pagination(page, limit, sortBy, asc);
-		pagination.addFieldFilter(FieldFilter.SPECIES, species);
-		pagination.addFieldFilter(FieldFilter.DISEASE, disease);
-		pagination.addFieldFilter(FieldFilter.PHENOTYPE, phenotype);
-		pagination.addFieldFilter(FieldFilter.SOURCE, source);
-		pagination.addFieldFilter(FieldFilter.MODEL_NAME, modelName);
 		if (pagination.hasErrors()) {
 			RestErrorMessage message = new RestErrorMessage();
 			message.setErrors(pagination.getErrors());
 			throw new RestErrorException(message);
 		}
+		pagination.addFilterOption("model.agmFullName.formatText", modelName);
+		pagination.addFilterOption("diseaseModels.disease.name", disease);
+		pagination.addFilterOption("conditionRelations.conditions.conditionSummary", experimentalCondition);
+		pagination.addFilterOption("associatedPhenotype", phenotype);
+		pagination.addFilterOption("dataProvider", source);
+
 		try {
-			JsonResultResponse<PrimaryAnnotatedEntity> response = diseaseService.getDiseaseAnnotationsWithGeneAndAGM(id, pagination);
+			JsonResultResponse<AGMAnnotationDocument> response = agmESService.getGeneAGMAnnotationDocuments(id, pagination, false);
 			response.setHttpServletRequest(null);
 			response.calculateRequestDuration(startTime);
 			return response;
@@ -493,71 +378,8 @@ public class GeneController implements GeneRESTInterface {
 		}
 	}
 
-	private JsonResultResponse<PhenotypeAnnotation> getPhenotypeAnnotationDocumentJsonResultResponse(String id, Integer limit, Integer page, String sortBy, String geneticEntity, String geneticEntityType, String phenotype, String reference, String asc) {
-		if (sortBy.isEmpty())
-			sortBy = FieldFilter.PHENOTYPE.getName();
-		Pagination pagination = new Pagination(page, limit, sortBy, asc);
-		pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY, geneticEntity);
-		pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY_TYPE, geneticEntityType);
-		pagination.addFieldFilter(FieldFilter.PHENOTYPE, phenotype);
-		pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
-		JsonResultResponse<PhenotypeAnnotation> phenotypeAnnotations = geneService.getPhenotypeAnnotations(id, pagination);
-		phenotypeAnnotations.addAnnotationSummarySupplementalData(getPhenotypeSummary(id));
-		return phenotypeAnnotations;
-	}
-
-	private JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotationDocumentJsonResultResponse(String id, Integer limit, Integer page, String sortBy, String geneticEntity, String geneticEntityType, String disease, String reference, String asc) {
-		if (sortBy.isEmpty())
-			sortBy = FieldFilter.DISEASE.getName();
-		Pagination pagination = new Pagination(page, limit, sortBy, asc);
-		pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY, geneticEntity);
-		pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY_TYPE, geneticEntityType);
-		pagination.addFieldFilter(FieldFilter.DISEASE, disease);
-		pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
-		JsonResultResponse<DiseaseAnnotation> diseaseAnnotations = diseaseService.getDiseaseAnnotations(id, pagination);
-
-		return diseaseAnnotations;
-	}
-
-	private JsonResultResponse<DiseaseAnnotation> getEmpiricalDiseaseAnnotation(String id,
-																				Integer limit,
-																				Integer page,
-																				String sortBy,
-																				String geneticEntity,
-																				String geneticEntityType,
-																				String disease,
-																				String associationType,
-																				String evidenceCode,
-																				String source,
-																				String reference,
-																				String asc,
-																				UriInfo ui) {
-		Pagination pagination = new Pagination(page, limit, sortBy, asc);
-		pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY, geneticEntity);
-		pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY_TYPE, geneticEntityType);
-		pagination.addFieldFilter(FieldFilter.ASSOCIATION_TYPE, associationType);
-		pagination.addFieldFilter(FieldFilter.EVIDENCE_CODE, evidenceCode);
-		pagination.addFieldFilter(FieldFilter.SOURCE, source);
-		pagination.addFieldFilter(FieldFilter.DISEASE, disease);
-		pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
-		MultivaluedMap<String, String> parameterMap = ui.getQueryParameters();
-		List<String> invalidFilterNames = parameterMap.entrySet().stream()
-				.filter(entry -> FieldFilter.hasFieldFilterPrefix(entry.getKey()) && !FieldFilter.isFieldFilterValue(entry.getKey()))
-				.map(Map.Entry::getKey)
-				.collect(Collectors.toList());
-		pagination.setInvalidFilterList(invalidFilterNames);
-		return diseaseService.getDiseaseAnnotations(id, pagination);
-	}
-
 	@Override
-	public JsonResultResponse<OrthologView> getGeneOrthology(String id,
-															 List<String> geneIDs,
-															 String geneLister,
-															 String stringencyFilter,
-															 String taxonID,
-															 String method,
-															 Integer limit,
-															 Integer page) {
+	public JsonResultResponse<GeneToGeneOrthologyDocument> getGeneOrthology(String id, List<String> geneIDs, String geneLister, String stringencyFilter, String taxonID, Integer limit, Integer page) {
 
 		List<String> geneList = new ArrayList<>();
 		if (id != null) {
@@ -572,55 +394,47 @@ public class GeneController implements GeneRESTInterface {
 		}
 		Pagination pagination = new Pagination(page, limit, null, null);
 		pagination.addFieldFilter(FieldFilter.STRINGENCY, stringencyFilter);
-		pagination.addFieldFilter(FieldFilter.ORTHOLOGY_METHOD, method);
 		pagination.addFieldFilter(FieldFilter.ORTHOLOGY_TAXON, taxonID);
-		final JsonResultResponse<OrthologView> response = orthologyService.getOrthologyMultiGeneJson(geneList, pagination);
+		final JsonResultResponse<GeneToGeneOrthologyDocument> response = orthologyESService.getOrthologyList(id, pagination);
 		response.setHttpServletRequest(null);
 		return response;
 	}
 
 	@Override
-	public JsonResultResponse<OrthologView> getGeneOrthologyWithExpression(String id,
-																		   String stringencyFilter) {
+	public JsonResultResponse<GeneToGeneParalogyDocument> getGeneParalogy(String id, List<String> geneIDs, String geneLister, String stringencyFilter, String taxonID, Integer limit, Integer page) {
 
-		long startTime = System.currentTimeMillis();
 		List<String> geneList = new ArrayList<>();
 		if (id != null) {
 			geneList.add(id);
 		}
-
-		OrthologyFilter orthologyFilter = new OrthologyFilter(stringencyFilter, null, null);
-		orthologyFilter.setStart(1);
-		JsonResultResponse<OrthologView> orthologs = orthologyCacheService.getOrthologyGenes(geneList, orthologyFilter);
-		List<OrthologView> filteredList = orthologs.getResults().stream()
-				.filter(orthologView -> expressionCacheRepository.hasExpression(orthologView.getHomologGene().getPrimaryKey()))
-				.sorted(Comparator.comparing(orthologView -> orthologView.getHomologGene().getSymbol().toLowerCase()))
-				.collect(Collectors.toList());
-		orthologs.setResults(filteredList);
-		orthologs.setTotal(filteredList.size());
-		orthologs.setHttpServletRequest(null);
-		orthologs.calculateRequestDuration(startTime);
-		return orthologs;
-	}
-
-	@Override
-	public ExpressionSummary getExpressionSummary(String id) {
-		return service.getExpressionSummary(id);
+		if (geneLister != null) {
+			List<String> ids = Arrays.asList(geneLister.split(","));
+			geneList.addAll(ids);
+		}
+		if (CollectionUtils.isNotEmpty(geneIDs)) {
+			geneList.addAll(geneIDs);
+		}
+		Pagination pagination = new Pagination(page, limit, null, null);
+		pagination.addFieldFilter(FieldFilter.STRINGENCY, stringencyFilter);
+		pagination.addFieldFilter(FieldFilter.ORTHOLOGY_TAXON, taxonID);
+		final JsonResultResponse<GeneToGeneParalogyDocument> response = geneToGeneParalogyESService.getParalogyMultiGeneJson(geneList, pagination);
+		response.setHttpServletRequest(null);
+		return response;
 	}
 
 	@Override
 	// the List passed in here is unmodifiable
-	public DiseaseRibbonSummary getDiseaseRibbonSummary(String id,
-														List<String> geneIDs,
-														Boolean includeNegation) {
+	public DiseaseRibbonSummary getDiseaseRibbonSummary(String id, Boolean includeNegation, Boolean debug, List<String> geneIDs) {
 		List<String> ids = new ArrayList<>();
-		if (geneIDs != null)
+		if (geneIDs != null) {
 			ids.addAll(geneIDs);
-		if (!id.equals("*"))
+		}
+		if (!id.equals("*")) {
 			ids.add(id);
+		}
 
 		try {
-			return diseaseESService.getDiseaseRibbonSummary(ids, includeNegation);
+			return diseaseESService.getDiseaseRibbonSummary(ids, includeNegation, debug);
 		} catch (Exception e) {
 			log.error("Error while creating disease ribbon summary", e);
 			RestErrorMessage error = new RestErrorMessage();
@@ -630,113 +444,27 @@ public class GeneController implements GeneRESTInterface {
 	}
 
 	@Override
-	public EntitySummary getInteractionSummary(String geneID) {
-		return geneService.getInteractionSummary(geneID);
-	}
-
-	@Override
-	public JsonResultResponse<DiseaseAnnotation> getDiseaseByExperiment(String id,
-																		Integer limit,
-																		Integer page,
-																		String sortBy,
-																		String geneticEntity,
-																		String geneticEntityType,
-																		String disease,
-																		String associationType,
-																		String evidenceCode,
-																		String source,
-																		String reference,
-																		String asc,
-																		UriInfo ui) {
-		return getEmpiricalDiseaseAnnotation(id,
-				limit,
-				page,
-				sortBy,
-				geneticEntity,
-				geneticEntityType,
-				disease,
-				associationType,
-				evidenceCode,
-				source,
-				reference,
-				asc,
-				ui);
-	}
-
-	@Override
-	public Response getDiseaseByExperimentDownload(String id,
-												   String sortBy,
-												   String geneticEntity,
-												   String geneticEntityType,
-												   String disease,
-												   String associationType,
-												   String evidenceCode,
-												   String source,
-												   String reference,
-												   String asc,
-												   UriInfo ui) {
-		JsonResultResponse<DiseaseAnnotation> response = getEmpiricalDiseaseAnnotation(id,
-				Integer.MAX_VALUE,
-				null,
-				sortBy,
-				geneticEntity,
-				geneticEntityType,
-				disease,
-				associationType,
-				evidenceCode,
-				source,
-				reference,
-				asc,
-				ui);
-		Response.ResponseBuilder responseBuilder = Response.ok(diseaseTranslator.getEmpiricalDiseaseByGene(response.getResults()));
-		responseBuilder.type(MediaType.TEXT_PLAIN_TYPE);
-		responseBuilder.header("Content-Disposition", "attachment; filename=\"DiseaseAssociationsViaEmpiricalData-" + id.replace(":", "-") + ".tsv\"");
-		return responseBuilder.build();
-	}
-
-	@Override
-	public DiseaseSummary getDiseaseSummary(String id, String type) {
-		DiseaseSummary.Type diseaseType = DiseaseSummary.Type.getType(type);
-		return diseaseService.getDiseaseSummary(id, diseaseType);
-	}
-
-	@Override
-	public EntitySummary getPhenotypeSummary(String id) {
-		return geneService.getPhenotypeSummary(id);
-	}
-
-	@Override
-	public JsonResultResponse<Allele> getTransgenicAlleles(String geneID,
-														   Integer limit,
-														   Integer page,
-														   String sortBy,
-														   String alleleSymbol,
-														   String constructSymbol,
-														   String constructRegulatedGene,
-														   String constructTargetedGene,
-														   String constructExpressedGene,
-														   String species,
-														   String hasPhenotype,
-														   String hasDisease,
-														   UriInfo ui) {
-		if (sortBy != null && sortBy.isBlank())
+	public JsonResultResponse<GeneTransgenicAlleleSummaryDocument> getTransgenicAlleles(String geneID, Integer limit, Integer page, String sortBy, String alleleSymbol, String constructSymbol, String constructRegulatedGene, String constructTargetedGene, String constructExpressedGene, String species,
+		String hasPhenotype, String hasDisease, UriInfo ui) {
+		if (sortBy != null && sortBy.isBlank()) {
 			sortBy = "transgenicAllele";
+		}
 		Pagination pagination = new Pagination(page, limit, sortBy, null);
-		pagination.addFieldFilter(FieldFilter.SYMBOL, alleleSymbol);
-		pagination.addFieldFilter(FieldFilter.SPECIES, species);
-		pagination.addFieldFilter(FieldFilter.TRANSGENE_HAS_PHENOTYPE, hasPhenotype);
-		pagination.addFieldFilter(FieldFilter.TRANSGENE_HAS_DISEASE, hasDisease);
-		pagination.addFieldFilter(FieldFilter.CONSTRUCT_SYMBOL, constructSymbol);
-		pagination.addFieldFilter(FieldFilter.CONSTRUCT_TARGETED_GENE, constructTargetedGene);
-		pagination.addFieldFilter(FieldFilter.CONSTRUCT_REGULATED_GENE, constructRegulatedGene);
-		pagination.addFieldFilter(FieldFilter.CONSTRUCT_EXPRESSED_GENE, constructExpressedGene);
+		pagination.addFilterOption("alleleDocument.allele.taxon.species.fullName.keyword", species);
+		pagination.addFilterOption("alleleDocument.allele.alleleSymbol.formatText", alleleSymbol);
+		pagination.addFilterOption("alleleDocument.transgenicAlleleConstructs.construct.constructSymbol.formatText", constructSymbol);
+		pagination.addFilterOption("alleleDocument.transgenicAlleleConstructs.regulatoryGenes.geneSymbol.formatText", constructRegulatedGene);
+		pagination.addFilterOption("alleleDocument.transgenicAlleleConstructs.expressedGenes.geneSymbol.formatText", constructExpressedGene);
+		pagination.addFilterOption("alleleDocument.transgenicAlleleConstructs.targetedGenes.geneSymbol.formatText", constructTargetedGene);
+		pagination.addFilterOption("alleleDocument.hasDiseaseAnnotations", hasDisease);
+		pagination.addFilterOption("alleleDocument.hasPhenotypeAnnotations", hasPhenotype);
 		if (pagination.hasErrors()) {
 			RestErrorMessage message = new RestErrorMessage();
 			message.setErrors(pagination.getErrors());
 			throw new RestErrorException(message);
 		}
 		try {
-			JsonResultResponse<Allele> response = alleleService.getTransgenicAlleles(geneID, pagination);
+			JsonResultResponse<GeneTransgenicAlleleSummaryDocument> response = transgenicAlleleESService.getTransgenicAlleles(geneID, pagination, false);
 			response.setHttpServletRequest(null);
 			return response;
 		} catch (Exception e) {
@@ -747,36 +475,14 @@ public class GeneController implements GeneRESTInterface {
 		}
 	}
 
-
 	@Override
-	public Response getTransgenicAllelesPerGeneDownload(String geneId,
-														String sortBy,
-														String alleleSymbol,
-														String constructSymbol,
-														String constructRegulatedGene,
-														String constructTargetedGene,
-														String constructExpressedGene,
-														String species,
-														String hasPhenotype,
-														String hasDisease,
-														UriInfo ui) {
-		JsonResultResponse<Allele> alleles = getTransgenicAlleles(geneId,
-				Integer.MAX_VALUE,
-				1,
-				sortBy,
-				alleleSymbol,
-				constructSymbol,
-				constructRegulatedGene,
-				constructTargetedGene,
-				constructExpressedGene,
-				species,
-				hasPhenotype,
-				hasDisease,
-				ui);
+	public Response getTransgenicAllelesPerGeneDownload(String geneId, String sortBy, String alleleSymbol, String constructSymbol, String constructRegulatedGene, String constructTargetedGene, String constructExpressedGene, String species, String hasPhenotype, String hasDisease, UriInfo ui) {
+		JsonResultResponse<GeneTransgenicAlleleSummaryDocument> alleles = getTransgenicAlleles(geneId, 20_000, 1, sortBy, alleleSymbol, constructSymbol, constructRegulatedGene, constructTargetedGene, constructExpressedGene, species, hasPhenotype, hasDisease, ui);
 
-		Response.ResponseBuilder responseBuilder = Response.ok(alleleTanslator.getAllTransgenicAlleleRows(alleles.getResults()));
+		Response.ResponseBuilder responseBuilder = Response.ok(alleleTranslator.getAllTransgenicAlleleRows(alleles.getResults()));
 		APIServiceHelper.setDownloadHeader(geneId, EntityType.GENE, EntityType.TRANSGENICALLELE, responseBuilder);
 		return responseBuilder.build();
 	}
+
 
 }

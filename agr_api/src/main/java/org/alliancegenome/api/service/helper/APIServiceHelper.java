@@ -1,26 +1,44 @@
 package org.alliancegenome.api.service.helper;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.alliancegenome.api.service.EntityType;
-import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.DOTerm;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.repository.AlleleRepository;
-import org.alliancegenome.neo4j.repository.DiseaseRepository;
-import org.alliancegenome.neo4j.repository.GeneRepository;
+import org.alliancegenome.core.helper.DiseaseAnnotationHelper;
+import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.BiologicalEntity;
+import org.alliancegenome.curation_api.model.entities.CrossReference;
+import org.alliancegenome.curation_api.model.entities.DiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.GeneDiseaseAnnotation;
+import org.alliancegenome.curation_api.model.entities.Organization;
+import org.alliancegenome.api.es.dao.SearchDAO;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.TermQueryBuilder;
+import org.elasticsearch.search.SearchHit;
+
+import io.quarkus.logging.Log;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 public class APIServiceHelper {
 
-	private static GeneRepository repository = new GeneRepository();
-	private static DiseaseRepository diseaseRepository = new DiseaseRepository();
-	private static AlleleRepository alleleRepository = new AlleleRepository();
+	private static final SearchDAO searchDAO = new SearchDAO();
 	
-	private APIServiceHelper() {} // All Static Methods
+	private APIServiceHelper() { } // All Static Methods
 	
 	public static String getFileName(String title, String id, EntityType collectionType, String extra) {
 		String fileName = title;
@@ -30,7 +48,7 @@ public class APIServiceHelper {
 		// make the entity name plural
 		fileName += collectionType.toString().toLowerCase() + "s";
 		fileName += "-";
-		if(extra != null && extra.length() > 0) {
+		if (extra != null && extra.length() > 0) {
 			fileName += extra;
 			fileName += "-";
 		}
@@ -51,32 +69,283 @@ public class APIServiceHelper {
 		responseBuilder.type(MediaType.TEXT_PLAIN_TYPE);
 	}
 
+	public static void setDownloadHeaderByName(String entityID, String entityName, EntityType type, EntityType collectionType, Response.ResponseBuilder responseBuilder) {
+		String fileName = APIServiceHelper.getFileName(entityName, entityID, collectionType, null);
+		responseBuilder.header("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
+		responseBuilder.type(MediaType.TEXT_PLAIN_TYPE);
+	}
+
 	/**
-	 * Retrieve the name / symbol of an entity given by an ID
+	 * Retrieve the name / symbol of an entity given by an ID. Looks up the matching *_summary document in ES and returns only the name field.
 	 *
 	 * @param id id of entity
 	 * @return name of entity
 	 */
 	public static String getEntityName(String id, EntityType type) {
-		String entityName = "NotFound";
+		String category;
+		String idField;
+		String nameField;
 		switch (type) {
 			case GENE:
-				Gene gene = repository.getShallowGene(id);
-				if (gene != null)
-					entityName = gene.getSymbol();
+				category = "gene_summary";
+				idField = "gene.primaryExternalId.keyword";
+				nameField = "gene.geneSymbol.displayText";
 				break;
 			case DISEASE:
-				DOTerm disease = diseaseRepository.getDiseaseTerm(id);
-				if (disease != null)
-					entityName = disease.getName();
+				category = "disease_summary";
+				idField = "doTerm.curie.keyword";
+				nameField = "doTerm.name";
 				break;
 			case ALLELE:
-				Allele allele = alleleRepository.getAllele(id);
-				if (allele != null)
-					entityName = allele.getSymbol();
+				category = "allele_summary";
+				idField = "allele.primaryExternalId.keyword";
+				nameField = "allele.alleleSymbol.displayText";
 				break;
 			default:
+				return "NotFound";
 		}
-		return entityName;
+
+		BoolQueryBuilder bool = boolQuery()
+			.filter(new TermQueryBuilder("category", category))
+			.filter(new TermQueryBuilder(idField, id));
+
+		try {
+			SearchResponse response = searchDAO.performQuery(bool, new ArrayList<>(), null, List.of(nameField), 1, 0, null, null, false);
+			SearchHit[] hits = response.getHits().getHits();
+			if (hits.length == 0) {
+				return "NotFound";
+			}
+			Object value = extractNestedField(hits[0].getSourceAsMap(), nameField);
+			return value != null ? value.toString() : "NotFound";
+		} catch (Exception e) {
+			Log.error(e);
+			return "NotFound";
+		}
+	}
+
+	private static Object extractNestedField(Map<String, Object> source, String path) {
+		Object current = source;
+		for (String part : path.split("\\.")) {
+			if (!(current instanceof Map)) {
+				return null;
+			}
+			current = ((Map<?, ?>) current).get(part);
+			if (current == null) {
+				return null;
+			}
+		}
+		return current;
+	}
+	
+	//copied from natural sort used in the frontend
+
+	/**
+	 * implements a natural sort
+	 * 
+	 * @param <T> the type of objects being compared
+	 * @param accessor a function that extracts the string value to sort by from objects of type T
+	 * @return a Comparator that performs natural sorting
+	 * @see <a href="https://wikipedia.org/wiki/Natural_sort_order">Natural sort order</a>
+	 */
+	public static <T> Comparator<T> smartAlphaSort(Function<T, String> accessor) {
+		return (a, b) -> {
+			String ax = accessor.apply(a).toLowerCase();
+			String bx = accessor.apply(b).toLowerCase();
+			
+			// Split strings into chunks of strings and numbers
+			Pattern splitRegex = Pattern.compile("([0-9]+|[^0-9]+)");
+			List<String> aChunksArray = extractChunks(ax, splitRegex);
+			List<String> bChunksArray = extractChunks(bx, splitRegex);
+			
+			int len = Math.min(aChunksArray.size(), bChunksArray.size());
+			
+			for (int i = 0; i < len; i++) {
+				String aChunk = aChunksArray.get(i);
+				String bChunk = bChunksArray.get(i);
+				
+				// If both parts are numeric, compare as numbers
+				if (isNumeric(aChunk) && isNumeric(bChunk)) {
+					int diff = Integer.parseInt(aChunk) - Integer.parseInt(bChunk);
+					if (diff != 0) {
+						return diff;
+					}
+				} else {
+					int diff = aChunk.compareToIgnoreCase(bChunk);
+					if (diff != 0) {
+						return diff;
+					}
+				}
+			}
+			
+			// If all parts are equal up to the length of the shorter string,
+			// the shorter string comes first
+			return aChunksArray.size() - bChunksArray.size();
+		};
+	}
+	
+	private static List<String> extractChunks(String input, Pattern pattern) {
+		List<String> chunks = new ArrayList<>();
+		Matcher matcher = pattern.matcher(input);
+		while (matcher.find()) {
+			chunks.add(matcher.group());
+		}
+		return chunks;
+	}
+	
+	private static boolean isNumeric(String str) {
+		if (str == null || str.isEmpty()) {
+			return false;
+		}
+		try {
+			Integer.parseInt(str);
+			return true;
+		} catch (NumberFormatException e) {
+			return false;
+		}
+	}
+	
+	/**
+	 * Takes a list of disease annotations and returns the list naturally sorted 
+	 * by the annotation subject symbol/name.
+	 * 
+	 * @param annotations the list of annotations to sort
+	 * @return a new list with annotations sorted naturally by subject text
+	 */
+	public static List<DiseaseAnnotation> naturalSortByAnnotationSubject(List<DiseaseAnnotation> annotations) {
+		return annotations.stream()
+			.sorted(smartAlphaSort(APIServiceHelper::getAnnotationSubjectText))
+			.collect(Collectors.toList());
+	}
+	
+	private static String getAnnotationSubjectText(DiseaseAnnotation annotation) {
+		if (annotation == null) {
+			return "";
+		}
+		
+		//can't get subject from DiseaseAnnotation directly, so check the specific types
+		try {
+			BiologicalEntity subject = null;
+			if (annotation instanceof GeneDiseaseAnnotation gda) {
+				subject = gda.getDiseaseAnnotationSubject();
+			} else if (annotation instanceof AlleleDiseaseAnnotation ada) {
+				subject = ada.getDiseaseAnnotationSubject();
+			} else if (annotation instanceof AGMDiseaseAnnotation agmda) {
+				subject = agmda.getDiseaseAnnotationSubject();
+			}
+			
+			return subject != null ? DiseaseAnnotationHelper.getEntityName(subject) : "";
+		} catch (Exception e) {
+			Log.error(e);
+			return "";
+		}
+	}
+
+
+
+	//-----------------data provider logic moved from the frontend to the backend---------------------------------
+
+
+	// Constants for MOD prefix exceptions
+	private static final List<String> MOD_PREFIX_EXCEPTIONS = Arrays.asList("OMIM", "SGD", "MGI");
+
+	private static Map<String, Map<String, String>> buildProviderWithUrl(DiseaseAnnotation annotation) {
+		if (annotation == null) {
+			return null;
+		}
+
+		Map<String, Map<String, String>> result = new HashMap<>();
+
+		if (annotation.getDataProvider() != null) {
+			Map<String, String> dataProviderMap = buildProviderMap(annotation.getDataProvider(),
+					annotation.getDataProviderCrossReference());
+			result.put("dataProvider", dataProviderMap);
+		}
+
+		if (annotation.getSecondaryDataProvider() != null) {
+			Map<String, String> secondaryProviderMap = buildProviderMap(annotation.getSecondaryDataProvider(),
+					annotation.getSecondaryDataProviderCrossReference());
+			result.put("secondaryDataProvider", secondaryProviderMap);
+		}
+
+		return result;
+	}
+
+	private static Map<String, String> buildProviderMap(Organization organization, CrossReference crossReference) {
+		Map<String, String> providerMap = new HashMap<>();
+		providerMap.put("abbreviation", organization.getAbbreviation());
+
+		String url = buildUrlFromCrossReference(organization, crossReference);
+		if (url != null) {
+			providerMap.put("url", url);
+		}
+
+		return providerMap;
+	}
+
+	private static String buildUrlFromCrossReference(Organization organization, CrossReference crossReference) {
+		if (crossReference == null || crossReference.getResourceDescriptorPage() == null) {
+			// Fall back to organization homepage if no cross reference
+			if (organization != null && organization.getHomepageResourceDescriptorPage() != null) {
+				return organization.getHomepageResourceDescriptorPage().getUrlTemplate().replace("[%s]", "");
+			}
+			return null;
+		}
+
+		String urlTemplate = crossReference.getResourceDescriptorPage().getUrlTemplate();
+		String referencedCurie = crossReference.getReferencedCurie();
+
+		if (urlTemplate == null || referencedCurie == null) {
+			return null;
+		}
+
+		// Handle MOD prefix exceptions for URL building
+		String urlValue = referencedCurie;
+		if (organization != null && MOD_PREFIX_EXCEPTIONS.contains(organization.getAbbreviation())) {
+			String[] parts = referencedCurie.split(":");
+			urlValue = parts.length > 1 ? parts[1] : referencedCurie;
+		}
+
+		return urlTemplate.replace("[%s]", urlValue);
+	}
+
+	/**
+	 * Builds providers with URLs from multiple annotations
+	 */
+	public static List<Map<String, Map<String, String>>> buildProvidersWithUrl(List<DiseaseAnnotation> annotations) {
+		if (annotations == null) {
+			return null;
+		}
+
+		List<Map<String, Map<String, String>>> providerMaps = annotations.stream()
+				.map(APIServiceHelper::buildProviderWithUrl)
+				.collect(Collectors.toList());
+
+		return removeDuplicateProviders(providerMaps);
+	}
+
+	/**
+	 * Removes duplicate provider maps based on dataProvider abbreviation.
+	 */
+	public static List<Map<String, Map<String, String>>> removeDuplicateProviders(
+			List<Map<String, Map<String, String>>> providerMaps) {
+		if (providerMaps == null) {
+			return null;
+		}
+
+		return providerMaps.stream()
+				.collect(Collectors.toMap(
+						// takes each provider map and extracts the abbreviation field to use as the key
+						// in the resulting Map
+						providerMap -> {
+							Map<String, String> dataProvider = providerMap.get("dataProvider");
+							return dataProvider != null ? dataProvider.get("abbreviation") : null;
+						},
+						// use the original object as the value in the map
+						Function.identity(),
+						// if a duplicate key is found, keep the existing value
+						(existing, replacement) -> existing))
+				.values()
+				.stream()
+				.collect(Collectors.toList());
 	}
 }
