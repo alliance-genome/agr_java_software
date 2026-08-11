@@ -234,8 +234,11 @@ public enum FileGeneratorConfig {
 	 * name their own level of the annotation: the level matching the annotation's
 	 * type comes from its subject, the other levels from the inferred entity or the
 	 * asserted entities, and any level the annotation does not carry is left blank.
-	 * The three association columns follow the same rule, so exactly one of them is
-	 * populated per row — the level the annotation was curated at. UniqueID is not
+	 * Each association column qualifies whatever its level named: the curated level
+	 * reports the annotation's own relation, while an allele or gene reached by
+	 * inference reports is_implicated_in (SCRUM-6274), so a populated entity column
+	 * is never left unqualified. Only the model level has no inferred form, so it is
+	 * blank unless the model is the subject. UniqueID is not
 	 * part of the published layout; it is retained for curator verification and
 	 * comes out before the public release (SCRUM-1953).
 	 */

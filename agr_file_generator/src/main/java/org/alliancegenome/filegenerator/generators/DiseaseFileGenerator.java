@@ -109,7 +109,7 @@ public class DiseaseFileGenerator extends FileGenerator {
 
 			row.put("_uniqueId", uniqueId);
 
-			// Exactly one of the three association columns is populated per row — the one naming the level the annotation was actually curated at. The other two levels are only ever reached by inference (inferred/asserted entities), so asserting a relation for them would invent an annotation that is not in the persistent store.
+			// The level the annotation was curated at reports the annotation's own relation. The allele and gene levels are also reachable by inference, and those inherited entities report is_implicated_in instead (see resolveInheritedAssociationType). Only the model level has no inferred form, so it stays blank unless the model is the subject.
 			String associationType = resolveAssociationType(pa);
 
 			if (isViaOrthology) {
@@ -145,14 +145,16 @@ public class DiseaseFileGenerator extends FileGenerator {
 				row.put("_modelAssociation", subjectIsModel ? associationType : "");
 
 				boolean subjectIsAllele = "AlleleDiseaseAnnotation".equals(paType);
-				row.put("_alleleIds", resolveEntityField(pa, subjectIsAllele, "inferredAllele", "assertedAlleles", "primaryExternalId"));
+				String alleleIds = resolveEntityField(pa, subjectIsAllele, "inferredAllele", "assertedAlleles", "primaryExternalId");
+				row.put("_alleleIds", alleleIds);
 				row.put("_alleleSymbols", resolveEntityField(pa, subjectIsAllele, "inferredAllele", "assertedAlleles", "alleleSymbol.displayText"));
-				row.put("_alleleAssociation", subjectIsAllele ? associationType : "");
+				row.put("_alleleAssociation", subjectIsAllele ? associationType : resolveInheritedAssociationType(pa, alleleIds));
 
 				boolean subjectIsGene = "GeneDiseaseAnnotation".equals(paType);
-				row.put("_geneIds", resolveEntityField(pa, subjectIsGene, "inferredGene", "assertedGenes", "primaryExternalId"));
+				String geneIds = resolveEntityField(pa, subjectIsGene, "inferredGene", "assertedGenes", "primaryExternalId");
+				row.put("_geneIds", geneIds);
 				row.put("_geneSymbols", resolveEntityField(pa, subjectIsGene, "inferredGene", "assertedGenes", "geneSymbol.displayText"));
-				row.put("_geneAssociation", subjectIsGene ? associationType : "");
+				row.put("_geneAssociation", subjectIsGene ? associationType : resolveInheritedAssociationType(pa, geneIds));
 			}
 
 			row.put("_diseaseQualifier", joinDiseaseQualifiers(pa));
@@ -215,7 +217,20 @@ public class DiseaseFileGenerator extends FileGenerator {
 	}
 
 	private static String resolveAssociationType(JsonNode pa) {
-		String relationName = JsonPath.resolveString(pa, "relation.name");
+		return negateIfNeeded(JsonPath.resolveString(pa, "relation.name"), pa);
+	}
+
+	/**
+	 * Inferred and asserted entities are bare Gene/Allele references carrying no relation of their own, so the level they were inherited to reports is_implicated_in — the same default {@code DiseaseAnnotationCurationIndexer} applies when rolling an AGM or allele annotation up to the gene level. Blank when the row named no inherited entity.
+	 */
+	private static String resolveInheritedAssociationType(JsonNode pa, String entityIds) {
+		if (entityIds.isEmpty()) {
+			return "";
+		}
+		return negateIfNeeded("is_implicated_in", pa);
+	}
+
+	private static String negateIfNeeded(String relationName, JsonNode pa) {
 		if (relationName.isEmpty() || !pa.path("negated").asBoolean(false)) {
 			return relationName;
 		}
@@ -289,6 +304,9 @@ public class DiseaseFileGenerator extends FileGenerator {
 		return String.join("|", values);
 	}
 
+	/**
+	 * Each condition is prefixed with its own relation ("induced_by: UV irradiation") rather than the column carrying it implicitly, because both columns admit two relations — has_condition vs induced_by, ameliorated_by vs exacerbated_by — and the distinction is lost otherwise. Prefixing per condition keeps every pipe-separated entry independently readable.
+	 */
 	private static String joinConditionSummaries(JsonNode pa, Set<String> relationTypes) {
 		JsonNode relations = pa.path("conditionRelations");
 		if (!relations.isArray()) {
@@ -296,7 +314,8 @@ public class DiseaseFileGenerator extends FileGenerator {
 		}
 		LinkedHashSet<String> summaries = new LinkedHashSet<>();
 		for (JsonNode relation : relations) {
-			if (!relationTypes.contains(relation.path("conditionRelationType").path("name").asText(""))) {
+			String relationType = relation.path("conditionRelationType").path("name").asText("");
+			if (!relationTypes.contains(relationType)) {
 				continue;
 			}
 			JsonNode conditions = relation.path("conditions");
@@ -306,7 +325,7 @@ public class DiseaseFileGenerator extends FileGenerator {
 			for (JsonNode condition : conditions) {
 				String summary = condition.path("conditionSummary").asText("");
 				if (!summary.isEmpty()) {
-					summaries.add(summary);
+					summaries.add(relationType + ": " + summary);
 				}
 			}
 		}
