@@ -73,9 +73,13 @@ Implemented per Chris's spec:
   `assertedAlleles[]` pipe-joined.
 * **Gene(s)** — subject of a Gene Disease annotation, else `inferredGene`, else `assertedGenes[]`
   pipe-joined.
-* **Associations** — exactly one of the three association columns is populated per row: the level the
-  annotation was actually curated at. The other two levels are only reached by inference, so
-  asserting a relation for them would invent an annotation that is not in the persistent store.
+* **Associations** — every populated entity column is qualified. The level the annotation was curated
+  at reports the annotation's own relation; an allele or gene reached by inference reports
+  `is_implicated_in`, negated to `is_not_implicated_in` when the annotation is negated. This is the
+  same default `DiseaseAnnotationCurationIndexer` applies when it rolls an AGM or allele annotation up
+  to the gene level (`:212`/`:219`, `:335`/`:342`). The model level has no inferred form, so it stays
+  blank unless the model is the subject. Revised per Chris's 2026-08-11 review, which resolved open
+  question 4 below.
 * **via_orthology** — gene level only, keyed on the enclosing doc's gene subject (SCRUM-1953
   behaviour retained). Model and allele columns blank, Gene Association carries the
   `is_*_via_orthology` relation.
@@ -99,9 +103,13 @@ Two deliberate departures:
    `conditionModifierAggregated` rollups. Those are aggregates across every annotation in the
    consolidated doc, which would smear conditions across unrelated rows now that each row is one
    annotation. The generator reads `conditionRelations[]` off the annotation itself and splits it by
-   relation type per the ticket.
-2. **Association is set only at the annotation's own level** (see above). The translator populates both
-   a doc-level and a per-annotation association column because the gene page is anchored to one gene.
+   relation type per the ticket, and prefixes each condition with its own relation
+   (`induced_by: experimental conditions:UV irradiation`) so the distinction survives inside a column
+   that admits two relations.
+2. **Association is repeated on every level the row names**, not just the annotation's own level. The
+   translator populates both a doc-level and a per-annotation association column because the gene page
+   is anchored to one gene; here the inferred levels supply the `is_implicated_in` constant instead
+   (see the Associations rule above).
 
 ## Files changed
 
@@ -110,6 +118,13 @@ Two deliberate departures:
   helpers `resolveEntityField`, `resolveAgmSymbol`, `joinDiseaseQualifiers`, `joinEvidenceCodes`,
   `joinConditionSummaries`, `joinGeneticModifiers`, `resolveEntityName`, `joinNotes`,
   `buildSourceUrl`; `joinWithOrthologs` renamed `joinBasedOnIds`.
+
+2026-08-11 follow-up for Chris's review comments, same files:
+
+* `joinConditionSummaries` prefixes each condition with its relation type.
+* `resolveInheritedAssociationType` supplies `is_implicated_in` for inferred/asserted alleles and
+  genes; `resolveAssociationType`'s negation logic extracted to `negateIfNeeded` so the constant is
+  negated the same way.
 
 No framework changes. `computeSourceIncludes()` still returns null for this generator (JSON_RAW forces
 full `_source`), so no `additionalSourceIncludes()` entries are needed for the new fields.
@@ -149,6 +164,11 @@ Run 2026-07-31 against stage ES (`site_index`, 489,486 docs), 19m08s, 484,442 TS
 
 ### Column fill rates (COMBINED)
 
+Measured on the 2026-07 run, **before** the 2026-08-11 association and condition fixes. Allele
+Association and Gene Association below are the pre-fix figures and are now expected to match their
+ID/Symbol rows (32,647 and 472,743); the Experimental Conditions and Condition Modifiers counts are
+unchanged by the prefix change, but their cell format changed. Re-run to confirm.
+
 | Column | Filled | % |
 |---|---|---|
 | UniqueID / Taxon ID / Species Name | 484,442 | 100% |
@@ -172,8 +192,11 @@ Run 2026-07-31 against stage ES (`site_index`, 489,486 docs), 19m08s, 484,442 TS
 | Source URL | 95,578 | 19.7% |
 | Date | 461,918 | 95.4% |
 
-The Allele ID (32,647) vs Allele Association (5,663) gap is expected: most allele cells come from an
-AGM annotation's inferred/asserted alleles, which carry no allele-level relation. Based On 80.5% and
+The Allele ID (32,647) vs Allele Association (5,663) gap was the defect Chris reported on 2026-08-11:
+most allele cells come from an AGM annotation's inferred/asserted alleles, which carry no allele-level
+relation of their own, and the column was left blank rather than supplying the inherited
+`is_implicated_in`. Same cause for the Gene ID (472,743) vs Gene Association (445,755) gap. Both are
+fixed; the two gaps should close. Based On 80.5% and
 Source URL 19.7% are complements — via-orthology rows have a `with[]` but no data-provider cross
 reference, experimental rows the reverse.
 
@@ -256,9 +279,9 @@ URLs because RGD provides them. Same behaviour as the gene-page download.
    than the annotation, so that is what the column contains (see above). If an annotation-level URL is
    wanted, the cross reference would have to change upstream in curation.
 3. **UniqueID** is still the first column per the 2026-07-15 request; drop it before the public release.
-4. **Association placement** — confirm that putting the relation only at the annotation's own level
-   (exactly one of the three columns per row) is what you intended, rather than repeating it on every
-   level the row names.
+4. ~~**Association placement**~~ — **answered 2026-08-11.** Chris wants the relation repeated on every
+   level the row names; inferred and asserted alleles and genes take `is_implicated_in`. Implemented,
+   see the Associations rule above.
 
 ## Not addressed here
 
