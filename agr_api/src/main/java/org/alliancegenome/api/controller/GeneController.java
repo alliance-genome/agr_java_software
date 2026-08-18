@@ -203,7 +203,8 @@ public class GeneController implements GeneRESTInterface {
 
 	@Override
 	public JsonResultResponse<GeneGeneticInteractionDocument> getGeneticInteractions(String id, Integer limit, Integer page, String sortBy, String asc, String interactorGeneSymbol, String interactorSpecies, String source, String reference, String role, String geneticPerturbation,
-		String interactorRole, String interactorGeneticPerturbation, String phenotypes, String interactionType, @Context UriInfo info) {
+		String interactorRole, String interactorGeneticPerturbation, String phenotypes, String interactionType, String referenceCitation,
+		@Context UriInfo info) {
 		long startTime = System.currentTimeMillis();
 
 		if (StringUtils.isEmpty(sortBy)) {
@@ -213,6 +214,7 @@ public class GeneController implements GeneRESTInterface {
 		pagination.addFilterOption("geneGeneticInteraction.geneGeneAssociationObject.geneSymbol.displayText", interactorGeneSymbol);
 		pagination.addFilterOption("geneGeneticInteraction.interactionIdORgeneGeneticInteraction.crossReferences.displayName", source);
 		pagination.addFilterOption("geneGeneticInteraction.evidence.referenceID", reference);
+		pagination.addFilterOption("geneGeneticInteraction.evidence.shortCitation", referenceCitation);
 		pagination.addFilterOption("geneGeneticInteraction.interactorARole.name.keyword", role);
 		pagination.addFilterOption("geneGeneticInteraction.interactorAGeneticPerturbation.alleleSymbol.displayText", geneticPerturbation);
 		pagination.addFilterOption("geneGeneticInteraction.interactorBRole.name.keyword", interactorRole);
@@ -242,7 +244,7 @@ public class GeneController implements GeneRESTInterface {
 
 	@Override
 	public Response getGeneticInteractionsDownload(String id, String sortBy, String asc, String interactorGeneSymbol, String interactorSpecies, String source, String reference, String role, String geneticPerturbation, String interactorRole, String interactorGeneticPerturbation, String phenotypes,
-		String interactionType) {
+		String interactionType, String referenceCitation) {
 		if (StringUtils.isEmpty(sortBy)) {
 			sortBy = "geneGeneticInteraction.geneGeneAssociationObject.geneSymbol.displayText.sort";
 		}
@@ -250,6 +252,7 @@ public class GeneController implements GeneRESTInterface {
 		pagination.addFilterOption("geneGeneticInteraction.geneGeneAssociationObject.geneSymbol.displayText", interactorGeneSymbol);
 		pagination.addFilterOption("geneGeneticInteraction.interactionIdORgeneGeneticInteraction.crossReferences.displayName", source);
 		pagination.addFilterOption("geneGeneticInteraction.evidence.referenceID", reference);
+		pagination.addFilterOption("geneGeneticInteraction.evidence.shortCitation", referenceCitation);
 		pagination.addFilterOption("geneGeneticInteraction.interactorARole.name.keyword", role);
 		pagination.addFilterOption("geneGeneticInteraction.interactorAGeneticPerturbation.alleleSymbol.displayText", geneticPerturbation);
 		pagination.addFilterOption("geneGeneticInteraction.interactorBRole.name.keyword", interactorRole);
@@ -267,7 +270,7 @@ public class GeneController implements GeneRESTInterface {
 
 	@Override
 	public JsonResultResponse<GeneMolecularInteractionDocument> getMolecularInteractions(String id, Integer limit, Integer page, String sortBy, String asc, String moleculeType, String interactorGeneSymbol, String interactorSpecies, String interactorMoleculeType, String detectionMethod,
-		String source, String reference, @Context UriInfo info) {
+		String source, String reference, String referenceCitation, @Context UriInfo info) {
 		long startTime = System.currentTimeMillis();
 		if (StringUtils.isEmpty(sortBy)) {
 			sortBy = "geneMolecularInteraction.geneGeneAssociationObject.geneSymbol.displayText.sort";
@@ -277,6 +280,7 @@ public class GeneController implements GeneRESTInterface {
 		pagination.addFilterOption("geneMolecularInteraction.geneGeneAssociationObject.geneSymbol.displayText", interactorGeneSymbol);
 		pagination.addFilterOption("geneMolecularInteraction.interactionIdORgeneMolecularInteraction.aggregationDatabase.nameORgeneMolecularInteraction.interactionSource.nameORgeneMolecularInteraction.crossReferences.displayName", source);
 		pagination.addFilterOption("geneMolecularInteraction.evidence.referenceID", reference);
+		pagination.addFilterOption("geneMolecularInteraction.evidence.shortCitation", referenceCitation);
 		pagination.addFilterOption("geneMolecularInteraction.interactorBType.name.keyword", interactorMoleculeType);
 		pagination.addFilterOption("geneMolecularInteraction.detectionMethod.name.keyword", detectionMethod);
 		pagination.addFilterOption("geneMolecularInteraction.geneGeneAssociationObject.taxon.species.fullName.keyword", interactorSpecies);
@@ -301,7 +305,7 @@ public class GeneController implements GeneRESTInterface {
 	}
 
 	@Override
-	public Response getMolecularInteractionsDownload(String id, String sortBy, String asc, String moleculeType, String interactorGeneSymbol, String interactorSpecies, String interactorMoleculeType, String detectionMethod, String source, String reference) {
+	public Response getMolecularInteractionsDownload(String id, String sortBy, String asc, String moleculeType, String interactorGeneSymbol, String interactorSpecies, String interactorMoleculeType, String detectionMethod, String source, String reference, String referenceCitation) {
 		if (StringUtils.isEmpty(sortBy)) {
 			sortBy = "geneMolecularInteraction.geneGeneAssociationObject.geneSymbol.displayText.sort";
 		}
@@ -310,6 +314,7 @@ public class GeneController implements GeneRESTInterface {
 		pagination.addFilterOption("geneMolecularInteraction.geneGeneAssociationObject.geneSymbol.displayText", interactorGeneSymbol);
 		pagination.addFilterOption("geneMolecularInteraction.interactionIdORgeneMolecularInteraction.aggregationDatabase.nameORgeneMolecularInteraction.interactionSource.nameORgeneMolecularInteraction.crossReferences.displayName", source);
 		pagination.addFilterOption("geneMolecularInteraction.evidence.referenceID", reference);
+		pagination.addFilterOption("geneMolecularInteraction.evidence.shortCitation", referenceCitation);
 		pagination.addFilterOption("geneMolecularInteraction.interactorBType.name.keyword", interactorMoleculeType);
 		pagination.addFilterOption("geneMolecularInteraction.detectionMethod.name.keyword", detectionMethod);
 		pagination.addFilterOption("geneMolecularInteraction.geneGeneAssociationObject.taxon.species.fullName.keyword", interactorSpecies);

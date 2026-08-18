@@ -205,6 +205,7 @@ public class Mapping extends Builder {
 		new FieldBuilder(builder, "geneMolecularInteraction.interactorBType.name", "text").keyword().sortSmartAlpha().build();
 		new FieldBuilder(builder, "geneMolecularInteraction.detectionMethod.name", "text").keyword().sortSmartAlpha().build();
 		new FieldBuilder(builder, "geneMolecularInteraction.evidence.referenceID", "text").keyword().build();
+		new FieldBuilder(builder, "geneMolecularInteraction.evidence.shortCitation", "text").keyword().build();
 		new FieldBuilder(builder, "geneMolecularInteraction.interactionId", "text").keyword().build();
 		new FieldBuilder(builder, "geneMolecularInteraction.aggregationDatabase.name", "text").keyword().build();
 		new FieldBuilder(builder, "geneMolecularInteraction.interactionSource.name", "text").keyword().build();
@@ -227,6 +228,7 @@ public class Mapping extends Builder {
 		new FieldBuilder(builder, "geneGeneticInteraction.interactorBGeneticPerturbation.alleleSymbol.displayText", "text").keyword().build();
 		new FieldBuilder(builder, "geneGeneticInteraction.phenotypesOrTraits", "text").keyword().build();
 		new FieldBuilder(builder, "geneGeneticInteraction.evidence.referenceID", "text").keyword().build();
+		new FieldBuilder(builder, "geneGeneticInteraction.evidence.shortCitation", "text").keyword().build();
 		new FieldBuilder(builder, "geneGeneticInteraction.interactionId", "text").keyword().build();
 		new FieldBuilder(builder, "geneGeneticInteraction.crossReferences.displayName", "text").keyword().build();
 
