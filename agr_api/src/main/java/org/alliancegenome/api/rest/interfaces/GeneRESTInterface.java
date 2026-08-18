@@ -428,6 +428,7 @@ public interface GeneRESTInterface {
 		@QueryParam("filter.phenotypes") String phenotypes,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.interactionType", description = "Interaction Type")
 		@QueryParam("filter.interactionType") String interactionType,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.referenceCitation", description = "filter by reference citation") @QueryParam("filter.referenceCitation") String referenceCitation,
 		@Context UriInfo info) throws IOException;
 
 	@GET
@@ -463,7 +464,8 @@ public interface GeneRESTInterface {
 		@Parameter(in = ParameterIn.QUERY, name = "filter.phenotypes", description = "Phenotypes")
 		@QueryParam("filter.phenotypes") String phenotypes,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.interactionType", description = "Interaction Type")
-		@QueryParam("filter.interactionType") String interactionType
+		@QueryParam("filter.interactionType") String interactionType,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.referenceCitation", description = "filter by reference citation") @QueryParam("filter.referenceCitation") String referenceCitation
 	);
 
 	@GET
@@ -509,6 +511,7 @@ public interface GeneRESTInterface {
 		@QueryParam("filter.source") String source,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.reference", description = "References")
 		@QueryParam("filter.reference") String reference,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.referenceCitation", description = "filter by reference citation") @QueryParam("filter.referenceCitation") String referenceCitation,
 		@Context UriInfo info) throws IOException;
 
 	@GET
@@ -538,7 +541,8 @@ public interface GeneRESTInterface {
 		@Parameter(in = ParameterIn.QUERY, name = "filter.source", description = "database")
 		@QueryParam("filter.source") String source,
 		@Parameter(in = ParameterIn.QUERY, name = "filter.reference", description = "References")
-		@QueryParam("filter.reference") String reference
+		@QueryParam("filter.reference") String reference,
+		@Parameter(in = ParameterIn.QUERY, name = "filter.referenceCitation", description = "filter by reference citation") @QueryParam("filter.referenceCitation") String referenceCitation
 	);
 
 	@POST
