@@ -61,7 +61,7 @@ public class ESService {
 		HighlightBuilder hlb = new HighlightBuilder();
 
 		return searchDAO.performQuery(
-			bool, aggBuilders, null, getResponseFields(pagination),
+			bool, aggBuilders, null, getDiseaseSearchResponseFields(pagination),
 			pagination.getLimit(), pagination.getOffset(), hlb, focusTaxonId, null, pagination.getSourceExcludes(), debug);
 	}
 
@@ -70,11 +70,11 @@ public class ESService {
 		HighlightBuilder hlb = new HighlightBuilder();
 
 		return searchDAO.performQuery(
-			bool, aggBuilders, null, getResponseFields(pagination),
+			bool, aggBuilders, null, getDiseaseSearchResponseFields(pagination),
 			pagination.getLimit(), pagination.getOffset(), hlb, focusTaxonId, missingFieldLast, pagination.getSourceExcludes(), debug);
 	}
 
-	protected List<String> getResponseFields(Pagination pagination) {
+	protected List<String> getDiseaseSearchResponseFields(Pagination pagination) {
 		if (CollectionUtils.isNotEmpty(pagination.getSourceIncludes())) {
 			return pagination.getSourceIncludes();
 		}

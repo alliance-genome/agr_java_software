@@ -27,7 +27,7 @@ public class ESServiceSourceProjectionTest {
 
 	private static class TestESService extends ESService {
 		private List<String> responseFields(Pagination pagination) {
-			return getResponseFields(pagination);
+			return getDiseaseSearchResponseFields(pagination);
 		}
 	}
 }
