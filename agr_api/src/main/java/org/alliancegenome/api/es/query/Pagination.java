@@ -45,7 +45,7 @@ public class Pagination {
 		if (this.page < 1) {
 			errorList.add("'page' request parameter invalid: Found [" + page + "]. It has to be an integer number greater than 0");
 		}
-		if (this.limit < 1) {
+		if (this.limit < 0) {
 			errorList.add("'limit' request parameter invalid: Found [" + limit + "].  It has to be an integer number greater than 0");
 		}
 		init(asc);
@@ -117,7 +117,14 @@ public class Pagination {
 	}
 
 	public int getStart() {
-		return calculateOffset();
+		if (page == null || limit == null) {
+			return 0;
+		}
+		return (page - 1) * limit;
+	}
+
+	public int getEnd() {
+		return page * limit;
 	}
 
 	public List<FieldFilter> getSortByList() {
@@ -133,6 +140,10 @@ public class Pagination {
 	public boolean hasInvalidElements() {
 		return invalidFilterList == null || !invalidFilterList.isEmpty();
 
+	}
+
+	public void setLimitToAll() {
+		limit = Integer.MAX_VALUE;
 	}
 
 	public void addFilterOptions(String filterOptions) {
@@ -190,14 +201,10 @@ public class Pagination {
 	}
 
 	public int getOffset() {
-		return calculateOffset();
+		return (page - 1) * limit;
 	}
 
-	private int calculateOffset() {
-		if (page == null || limit == null) {
-			return 0;
-		}
-		long offset = Math.multiplyExact((long) page - 1, (long) limit);
-		return Math.toIntExact(offset);
+	public static Pagination getDownloadPagination() {
+		return new Pagination(1, Integer.MAX_VALUE, null, null);
 	}
 }

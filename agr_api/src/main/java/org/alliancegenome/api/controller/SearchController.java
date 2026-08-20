@@ -16,7 +16,7 @@ public class SearchController implements SearchRESTInterface {
 
 	@Override
 	public SearchApiResponse search(String q, String category, Integer limit, Integer offset, String sortBy, Boolean debug, UriInfo uriInfo) {
-		if (limit == null) {
+		if (limit == null || limit == 0) {
 			limit = 10;
 		}
 		if (offset == null) {

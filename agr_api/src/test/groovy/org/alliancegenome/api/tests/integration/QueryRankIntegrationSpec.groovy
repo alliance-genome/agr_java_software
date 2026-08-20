@@ -13,13 +13,13 @@ class QueryRankIntegrationSpec extends Specification {
         when:
         def encodedQuery = URLEncoder.encode(query, "UTF-8")
         //todo: need to set the base search url in a nicer way
-        def results = ApiTester.getApiResults("/api/search?limit=1000&offset=0&q=$encodedQuery$filter")
+        def results = ApiTester.getApiResults("/api/search?limit=5000&offset=0&q=$encodedQuery$filter")
 
         def betterResult = results.find { it.id == betterResultId }
         def worseResult = results.find { it.id == worseResultId }
         def betterResultPosition = results.findIndexValues() { it.id == betterResultId }?.first()
         def worseResultPosition = Integer.MAX_VALUE
-        //if the "worse" result falls off the end of the bounded results, for this test, that's also a success
+        //if the "worse" result falls off the end of 5k results, for this test, that's a also a success
         if (worseResult != null) {
             worseResultPosition = results.findIndexValues() { it.id == worseResultId }?.first()
         }

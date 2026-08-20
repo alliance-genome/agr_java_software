@@ -5,7 +5,6 @@ import java.io.IOException;
 import org.alliancegenome.core.es.schema.Settings;
 
 public class SiteIndexSettings extends Settings {
-	public static final int MAX_RESULT_WINDOW = 250000;
 
 	private Integer shardCount;
 	
@@ -19,7 +18,7 @@ public class SiteIndexSettings extends Settings {
 	public void buildSettings() throws IOException {
 		builder.startObject();
 			builder.startObject("index")
-				.field("max_result_window", MAX_RESULT_WINDOW)
+				.field("max_result_window", "250000")
 				.field("mapping.total_fields.limit", "25000")
 				.field("number_of_replicas", "0")
 				.field("number_of_shards", shardCount);
