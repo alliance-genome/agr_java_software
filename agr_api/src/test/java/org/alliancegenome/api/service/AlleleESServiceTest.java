@@ -57,9 +57,15 @@ public class AlleleESServiceTest {
 		assertEquals(List.of("MGI:1", "FB:2"), result.getResults());
 		assertEquals(2, result.getReturnedRecords());
 		assertEquals(5, result.getTotal());
-		assertEquals(AlleleESService.VIEWER_SOURCE_INCLUDES, service.capturedPagination.getSourceIncludes());
-		assertEquals(2, service.capturedPagination.getLimit().intValue());
-		assertEquals(2, service.capturedPagination.getPage().intValue());
+		Pagination identifierPagination = service.capturedPaginations.get(0);
+		assertEquals(AlleleESService.VIEWER_SOURCE_INCLUDES, identifierPagination.getSourceIncludes());
+		assertEquals(2, identifierPagination.getLimit().intValue());
+		assertEquals(2, identifierPagination.getPage().intValue());
+
+		Pagination standaloneProbePagination = service.capturedPaginations.get(1);
+		assertEquals(List.of("category"), standaloneProbePagination.getSourceIncludes());
+		assertEquals(1, standaloneProbePagination.getLimit().intValue());
+		assertEquals(1, standaloneProbePagination.getPage().intValue());
 		assertEquals(true, result.getSupplementalData().get("hasStandaloneVariants"));
 	}
 
@@ -184,7 +190,7 @@ public class AlleleESServiceTest {
 	private static class CapturingAlleleESService extends AlleleESService {
 		private final SearchResponse[] responses;
 		private int responseIndex;
-		private Pagination capturedPagination;
+		private final List<Pagination> capturedPaginations = new ArrayList<>();
 		private final List<BoolQueryBuilder> capturedQueries = new ArrayList<>();
 
 		private CapturingAlleleESService(SearchResponse... responses) {
@@ -195,9 +201,7 @@ public class AlleleESServiceTest {
 		protected SearchResponse getSearchResponse(BoolQueryBuilder query, Pagination pagination,
 			LinkedHashMap<String, SortOrder> sorts, boolean debug) {
 			capturedQueries.add(query);
-			if (responseIndex == 0) {
-				capturedPagination = pagination;
-			}
+			capturedPaginations.add(pagination);
 			return responses[responseIndex++];
 		}
 	}
