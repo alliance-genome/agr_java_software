@@ -114,7 +114,7 @@ public interface GeneRESTInterface {
 		value = {
 			@APIResponse(
 				responseCode = "200",
-				description = "A bounded page of server-resolved visible allele identifiers.",
+				description = "A bounded page of server-resolved visible allele identifiers. Supplemental data reports whether filtered standalone variants exist so the UI can preserve the sequence viewer without loading their full records.",
 				content = @Content(mediaType = "application/json",
 					schema = @Schema(implementation = JsonResultResponse.class)))})
 	JsonResultResponse<String> getAlleleViewerIds(

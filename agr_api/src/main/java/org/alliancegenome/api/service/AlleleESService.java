@@ -237,7 +237,22 @@ public class AlleleESService extends ESService {
 		JsonResultResponse<String> response = new JsonResultResponse<>();
 		response.setResults(identifiers);
 		response.setTotal(searchResponse.getHits().getTotalHits().value);
+		response.addSupplementalData("hasStandaloneVariants", hasStandaloneVariants(geneId, pagination));
 		return response;
+	}
+
+	private boolean hasStandaloneVariants(String geneId, Pagination filters) {
+		BoolQueryBuilder queryBuilder = new BoolQueryBuilder();
+		queryBuilder.must(QueryBuilders.termQuery("geneIds", geneId));
+		queryBuilder.filter(QueryBuilders.termQuery("category.keyword", "variant_summary"));
+		queryBuilder.mustNot(QueryBuilders.existsQuery("allele"));
+		queryBuilder.filter(QueryBuilders.existsQuery("variantList.curatedVariantGenomicLocations.hgvs"));
+		addTableFilter(filters, queryBuilder);
+
+		Pagination countPagination = new Pagination(1, 1, null, null);
+		countPagination.setSourceIncludes(List.of("category"));
+		SearchResponse searchResponse = getSearchResponse(queryBuilder, countPagination, null, false);
+		return searchResponse.getHits().getTotalHits().value > 0;
 	}
 
 	static String resolveAlleleIdentifier(Map<String, Object> source) {

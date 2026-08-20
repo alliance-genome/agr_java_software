@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,9 +45,11 @@ public class AlleleESServiceTest {
 
 	@Test
 	public void returnsOnlyProjectedIdentifiersAndPreservesCompleteTotal() {
-		CapturingAlleleESService service = new CapturingAlleleESService(response(5,
-			hit(1, "{\"allele\":{\"primaryExternalId\":\"MGI:1\"}}"),
-			hit(2, "{\"allele\":{\"curie\":\"FB:2\"}}")));
+		CapturingAlleleESService service = new CapturingAlleleESService(
+			response(5,
+				hit(1, "{\"allele\":{\"primaryExternalId\":\"MGI:1\"}}"),
+				hit(2, "{\"allele\":{\"curie\":\"FB:2\"}}")),
+			response(3));
 		Pagination pagination = new Pagination(2, 2, null, null);
 
 		JsonResultResponse<String> result = service.getVisibleAlleleIdsByGene("MGI:gene", pagination);
@@ -54,30 +57,44 @@ public class AlleleESServiceTest {
 		assertEquals(List.of("MGI:1", "FB:2"), result.getResults());
 		assertEquals(2, result.getReturnedRecords());
 		assertEquals(5, result.getTotal());
-		assertEquals(AlleleESService.VIEWER_SOURCE_INCLUDES, service.capturedPagination.getSourceIncludes());
-		assertEquals(2, service.capturedPagination.getLimit().intValue());
-		assertEquals(2, service.capturedPagination.getPage().intValue());
+		Pagination identifierPagination = service.capturedPaginations.get(0);
+		assertEquals(AlleleESService.VIEWER_SOURCE_INCLUDES, identifierPagination.getSourceIncludes());
+		assertEquals(2, identifierPagination.getLimit().intValue());
+		assertEquals(2, identifierPagination.getPage().intValue());
+
+		Pagination standaloneProbePagination = service.capturedPaginations.get(1);
+		assertEquals(List.of("category"), standaloneProbePagination.getSourceIncludes());
+		assertEquals(1, standaloneProbePagination.getLimit().intValue());
+		assertEquals(1, standaloneProbePagination.getPage().intValue());
+		assertEquals(true, result.getSupplementalData().get("hasStandaloneVariants"));
 	}
 
 	@Test
-	public void appliesVisibleCategoriesAndSupportedTableFilters() {
-		CapturingAlleleESService service = new CapturingAlleleESService(response(0));
+	public void appliesVisibleCategoriesAndSupportedTableFiltersToBothQueries() {
+		CapturingAlleleESService service = new CapturingAlleleESService(response(0), response(0));
 		Pagination pagination = new Pagination(1, 1000, null, null);
 		pagination.addFilterOption("symbol", "abc");
 		pagination.addFilterOption("hasDisease", "true");
 		pagination.addFilterOption("alterationType.keyword", "allele with one variant|allele");
 
-		service.getVisibleAlleleIdsByGene("ZFIN:gene", pagination);
+		JsonResultResponse<String> result = service.getVisibleAlleleIdsByGene("ZFIN:gene", pagination);
 
-		String query = service.capturedQuery.toString();
-		assertTrue(query.contains("allele_summary"));
-		assertTrue(query.contains("allele with one variant"));
-		assertTrue(query.contains("allele with multiple variants"));
-		assertTrue(query.contains("*abc*"));
-		assertTrue(query.contains("hasDisease"));
-		assertTrue(query.contains("true"));
-		assertTrue(query.contains("allele"));
-		assertFalse(query.contains("variant_summary"));
+		String identifierQuery = service.capturedQueries.get(0).toString();
+		assertTrue(identifierQuery.contains("allele_summary"));
+		assertTrue(identifierQuery.contains("allele with one variant"));
+		assertTrue(identifierQuery.contains("allele with multiple variants"));
+		assertTrue(identifierQuery.contains("*abc*"));
+		assertTrue(identifierQuery.contains("hasDisease"));
+		assertTrue(identifierQuery.contains("true"));
+		assertTrue(identifierQuery.contains("allele"));
+		assertFalse(identifierQuery.contains("variant_summary"));
+
+		String standaloneVariantQuery = service.capturedQueries.get(1).toString();
+		assertTrue(standaloneVariantQuery.contains("variant_summary"));
+		assertTrue(standaloneVariantQuery.contains("variantList.curatedVariantGenomicLocations.hgvs"));
+		assertTrue(standaloneVariantQuery.contains("*abc*"));
+		assertTrue(standaloneVariantQuery.contains("hasDisease"));
+		assertEquals(false, result.getSupplementalData().get("hasStandaloneVariants"));
 	}
 
 	@Test
@@ -171,20 +188,21 @@ public class AlleleESServiceTest {
 	}
 
 	private static class CapturingAlleleESService extends AlleleESService {
-		private final SearchResponse response;
-		private BoolQueryBuilder capturedQuery;
-		private Pagination capturedPagination;
+		private final SearchResponse[] responses;
+		private int responseIndex;
+		private final List<Pagination> capturedPaginations = new ArrayList<>();
+		private final List<BoolQueryBuilder> capturedQueries = new ArrayList<>();
 
-		private CapturingAlleleESService(SearchResponse response) {
-			this.response = response;
+		private CapturingAlleleESService(SearchResponse... responses) {
+			this.responses = responses;
 		}
 
 		@Override
 		protected SearchResponse getSearchResponse(BoolQueryBuilder query, Pagination pagination,
 			LinkedHashMap<String, SortOrder> sorts, boolean debug) {
-			capturedQuery = query;
-			capturedPagination = pagination;
-			return response;
+			capturedQueries.add(query);
+			capturedPaginations.add(pagination);
+			return responses[responseIndex++];
 		}
 	}
 }
