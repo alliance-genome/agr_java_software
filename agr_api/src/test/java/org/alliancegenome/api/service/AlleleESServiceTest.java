@@ -116,28 +116,16 @@ public class AlleleESServiceTest {
 
 	@Test
 	public void projectedVariantStillDeserializesAndExportsMolecularConsequence() throws Exception {
-		String projectedSource = """
-			{
-			  "category": "variant_summary",
-			  "alterationType": "variant",
-			  "hasDisease": false,
-			  "hasPhenotype": true,
-			  "allele": {"type": "Allele", "curie": "rs250716330"},
-			  "variantList": [{
-			    "type": "Variant",
-			    "variantType": {"name": "SNP"},
-			    "curatedVariantGenomicLocations": [{
-			      "hgvs": "NC_000077.7:g.69478052C>T",
-			      "start": 69478052,
-			      "end": 69478052,
-			      "variantGenomicLocationAssociationObject": {"type": "AssemblyComponent", "name": "11"},
-			      "predictedVariantConsequences": [{
-			        "vepConsequences": [{"name": "intron_variant"}]
-			      }]
-			    }]
-			  }]
-			}
-			""";
+		String projectedSource = "{"
+			+ "\"category\":\"variant_summary\","
+			+ "\"alterationType\":\"variant\","
+			+ "\"hasDisease\":false,\"hasPhenotype\":true,"
+			+ "\"allele\":{\"type\":\"Allele\",\"curie\":\"rs250716330\"},"
+			+ "\"variantList\":[{\"type\":\"Variant\",\"variantType\":{\"name\":\"SNP\"},"
+			+ "\"curatedVariantGenomicLocations\":[{\"hgvs\":\"NC_000077.7:g.69478052C>T\","
+			+ "\"start\":69478052,\"end\":69478052,"
+			+ "\"variantGenomicLocationAssociationObject\":{\"type\":\"AssemblyComponent\",\"name\":\"11\"},"
+			+ "\"predictedVariantConsequences\":[{\"vepConsequences\":[{\"name\":\"intron_variant\"}]}]}]}]}";
 
 		VariantSummaryDocument document = new ObjectMapper().readValue(projectedSource, VariantSummaryDocument.class);
 		String download = new AlleleToTdfTranslator().getAllRows(List.<ESDocument>of(document));
@@ -151,20 +139,12 @@ public class AlleleESServiceTest {
 
 	@Test
 	public void projectedAlleleStillDeserializesAndExportsSymbolAndIdentifier() throws Exception {
-		String projectedSource = """
-			{
-			  "category": "allele_summary",
-			  "alterationType": "allele",
-			  "hasDisease": false,
-			  "hasPhenotype": false,
-			  "allele": {
-			    "type": "Allele",
-			    "primaryExternalId": "MGI:5246506",
-			    "alleleSymbol": {"displayText": "Trp53<sup>Gt(IST14609B5)Tigm</sup>"},
-			    "alleleSynonyms": [{"displayText": "Trp53 test synonym"}]
-			  }
-			}
-			""";
+		String projectedSource = "{"
+			+ "\"category\":\"allele_summary\",\"alterationType\":\"allele\","
+			+ "\"hasDisease\":false,\"hasPhenotype\":false,"
+			+ "\"allele\":{\"type\":\"Allele\",\"primaryExternalId\":\"MGI:5246506\","
+			+ "\"alleleSymbol\":{\"displayText\":\"Trp53<sup>Gt(IST14609B5)Tigm</sup>\"},"
+			+ "\"alleleSynonyms\":[{\"displayText\":\"Trp53 test synonym\"}]}}";
 
 		AlleleSummaryDocument document = new ObjectMapper().readValue(projectedSource, AlleleSummaryDocument.class);
 		String download = new AlleleToTdfTranslator().getAllRows(List.<ESDocument>of(document));
