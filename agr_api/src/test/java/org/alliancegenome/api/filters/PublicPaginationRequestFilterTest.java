@@ -28,8 +28,10 @@ public class PublicPaginationRequestFilterTest {
 		PublicPaginationRequestFilter.validatePaginationParameters(null, null);
 		PublicPaginationRequestFilter.validatePaginationParameters(List.of("1"), List.of("1"));
 		PublicPaginationRequestFilter.validatePaginationParameters(List.of("1000"), List.of("1"));
-		PublicPaginationRequestFilter.validatePaginationParameters(List.of("1"), List.of("2147483647"));
+		PublicPaginationRequestFilter.validatePaginationParameters(List.of("1000"), List.of("150"));
 		PublicPaginationRequestFilter.validatePaginationParameters(List.of("10", "20"), List.of("2"));
+		PublicPaginationRequestFilter.validateOffsetParameters(null, List.of("0"));
+		PublicPaginationRequestFilter.validateOffsetParameters(List.of("1000"), List.of("149000"));
 	}
 
 	@Test
@@ -42,12 +44,20 @@ public class PublicPaginationRequestFilterTest {
 
 	@Test
 	public void rejectsInvalidPagesAndOffsets() {
-		for (String page : List.of("", "0", "-1", "not-a-number", "2147483648", "107374184")) {
+		for (String page : List.of("", "0", "-1", "not-a-number", "2147483648", "7501")) {
 			assertThrows(RuntimeException.class, () ->
 				PublicPaginationRequestFilter.validatePaginationParameters(null, List.of(page)));
 		}
 		assertThrows(RuntimeException.class, () ->
 			PublicPaginationRequestFilter.validatePaginationParameters(List.of("2"), List.of("2147483647")));
+	}
+
+	@Test
+	public void rejectsInvalidOffsetsAndResultWindows() {
+		for (String offset : List.of("", "-1", "not-a-number", "2147483648", "150000")) {
+			assertThrows(RuntimeException.class, () ->
+				PublicPaginationRequestFilter.validateOffsetParameters(List.of("1000"), List.of(offset)));
+		}
 	}
 
 	@Test

@@ -11,6 +11,7 @@ import org.alliancegenome.api.controller.DiseaseController;
 import org.alliancegenome.api.controller.ExpressionController;
 import org.alliancegenome.api.controller.GeneController;
 import org.alliancegenome.api.controller.LiteratureController;
+import org.alliancegenome.api.controller.SearchController;
 import org.jboss.resteasy.mock.MockDispatcherFactory;
 import org.jboss.resteasy.mock.MockHttpRequest;
 import org.jboss.resteasy.mock.MockHttpResponse;
@@ -31,6 +32,21 @@ public class PublicPaginationEndpointTest {
 		dispatcher.getRegistry().addPerRequestResource(AlleleController.class);
 		dispatcher.getRegistry().addPerRequestResource(ExpressionController.class);
 		dispatcher.getRegistry().addPerRequestResource(LiteratureController.class);
+		dispatcher.getRegistry().addPerRequestResource(SearchController.class);
+	}
+
+	@Test
+	public void rejectsUnsupportedPageAndOffsetWindowsBeforeElasticsearch() throws Exception {
+		List<String> paths = List.of(
+			"/gene/MGI:1/alleles?limit=1000&page=151",
+			"/search?q=gene&limit=1000&offset=150000"
+		);
+
+		for (String path : paths) {
+			MockHttpResponse response = invoke(path);
+			assertEquals(path, 400, response.getStatus());
+			assertFalse(path, response.getContentAsString().contains("max_result_window"));
+		}
 	}
 
 	@Test
