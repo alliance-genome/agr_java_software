@@ -29,6 +29,8 @@ public class Pagination {
 	private HashMap<String, String> filterOptionMap = new HashMap<>();
 	// ES _source fields to exclude from the fetch. Empty = fetch full source (default behavior).
 	private List<String> sourceExcludes = new ArrayList<>();
+	// ES _source fields to include. Empty = use the service's default response fields.
+	private List<String> sourceIncludes = new ArrayList<>();
 
 
 	public Pagination(Integer page, Integer limit, String sortBy, String asc) {
