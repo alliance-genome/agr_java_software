@@ -29,6 +29,8 @@ public class Pagination {
 	private HashMap<String, String> filterOptionMap = new HashMap<>();
 	// ES _source fields to exclude from the fetch. Empty = fetch full source (default behavior).
 	private List<String> sourceExcludes = new ArrayList<>();
+	// ES _source fields to include. Empty = use the service's default response fields.
+	private List<String> sourceIncludes = new ArrayList<>();
 
 
 	public Pagination(Integer page, Integer limit, String sortBy, String asc) {
@@ -43,7 +45,7 @@ public class Pagination {
 		if (this.page < 1) {
 			errorList.add("'page' request parameter invalid: Found [" + page + "]. It has to be an integer number greater than 0");
 		}
-		if (this.limit < 0) {
+		if (this.limit < 1) {
 			errorList.add("'limit' request parameter invalid: Found [" + limit + "].  It has to be an integer number greater than 0");
 		}
 		init(asc);
@@ -115,14 +117,7 @@ public class Pagination {
 	}
 
 	public int getStart() {
-		if (page == null || limit == null) {
-			return 0;
-		}
-		return (page - 1) * limit;
-	}
-
-	public int getEnd() {
-		return page * limit;
+		return calculateOffset();
 	}
 
 	public List<FieldFilter> getSortByList() {
@@ -138,10 +133,6 @@ public class Pagination {
 	public boolean hasInvalidElements() {
 		return invalidFilterList == null || !invalidFilterList.isEmpty();
 
-	}
-
-	public void setLimitToAll() {
-		limit = Integer.MAX_VALUE;
 	}
 
 	public void addFilterOptions(String filterOptions) {
@@ -199,10 +190,14 @@ public class Pagination {
 	}
 
 	public int getOffset() {
-		return (page - 1) * limit;
+		return calculateOffset();
 	}
 
-	public static Pagination getDownloadPagination() {
-		return new Pagination(1, Integer.MAX_VALUE, null, null);
+	private int calculateOffset() {
+		if (page == null || limit == null) {
+			return 0;
+		}
+		long offset = Math.multiplyExact((long) page - 1, (long) limit);
+		return Math.toIntExact(offset);
 	}
 }

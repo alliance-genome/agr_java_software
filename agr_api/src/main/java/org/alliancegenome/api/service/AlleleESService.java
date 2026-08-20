@@ -25,9 +25,45 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.SortOrder;
 
 import jakarta.enterprise.context.RequestScoped;
+import lombok.extern.slf4j.Slf4j;
 
 @RequestScoped
+@Slf4j
 public class AlleleESService extends ESService {
+
+	static final List<String> VIEWER_SOURCE_INCLUDES = List.of(
+		"allele.curie",
+		"allele.primaryExternalId",
+		"allele.modInternalId"
+	);
+
+	static final List<String> TABLE_SOURCE_INCLUDES = List.of(
+		"category",
+		"alterationType",
+		"allele.type",
+		"allele.curie",
+		"allele.primaryExternalId",
+		"allele.modInternalId",
+		"allele.alleleSymbol.type",
+		"allele.alleleSymbol.displayText",
+		"allele.alleleSynonyms.type",
+		"allele.alleleSynonyms.displayText",
+		"variantList.type",
+		"variantList.variantType.name",
+		"variantList.curatedVariantGenomicLocations.hgvs",
+		"variantList.curatedVariantGenomicLocations.start",
+		"variantList.curatedVariantGenomicLocations.end",
+		"variantList.curatedVariantGenomicLocations.variantGenomicLocationAssociationObject.type",
+		"variantList.curatedVariantGenomicLocations.variantGenomicLocationAssociationObject.name",
+		"variantList.curatedVariantGenomicLocations.predictedVariantConsequences.vepConsequences.name",
+		"hasDisease",
+		"hasPhenotype"
+	);
+
+	static final List<String> VISIBLE_ALTERATION_TYPES = List.of(
+		"allele with one variant",
+		"allele with multiple variants"
+	);
 
 	LinkedHashMap<String, SortOrder> defaultSortMap = new LinkedHashMap<>() {{
 		put("hasPhenotype", SortOrder.DESC);
@@ -58,6 +94,12 @@ public class AlleleESService extends ESService {
 	LinkedHashMap<String, SortOrder> variantSummaryDefaultSort = new LinkedHashMap<>() {{
 		put("variantList.curatedVariantGenomicLocations.variantGenomicLocationAssociationObject.name.sort", SortOrder.ASC);
 		put("variantList.curatedVariantGenomicLocations.start", SortOrder.ASC);
+	}};
+
+	LinkedHashMap<String, SortOrder> viewerSortMap = new LinkedHashMap<>() {{
+		put("symbol.sort", SortOrder.ASC);
+		put("allele.primaryExternalId.keyword", SortOrder.ASC);
+		put("_doc", SortOrder.ASC);
 	}};
 
 	Map<String, LinkedHashMap<String, SortOrder>> sortMap = new HashMap<>() {{
@@ -150,6 +192,7 @@ public class AlleleESService extends ESService {
 		JsonResultResponse<ESDocument> ret = new JsonResultResponse<>();
 		ret.setSupplementalData(getAlleleSupplementalData(queryBuilder));
 		addTableFilter(pagination, queryBuilder);
+		pagination.setSourceIncludes(TABLE_SOURCE_INCLUDES);
 		SearchResponse searchResponse = getSearchResponse(queryBuilder, pagination, sortMap.get(pagination.getSortBy()), false);
 		List<ESDocument> list = new ArrayList<>();
 		Arrays.stream(searchResponse.getHits().getHits()).forEach(searchHit -> {
@@ -170,6 +213,45 @@ public class AlleleESService extends ESService {
 		ret.setResults(list);
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
 		return ret;
+	}
+
+	public JsonResultResponse<String> getVisibleAlleleIdsByGene(String geneId, Pagination pagination) {
+		BoolQueryBuilder queryBuilder = new BoolQueryBuilder();
+		queryBuilder.must(QueryBuilders.termQuery("geneIds", geneId));
+		queryBuilder.filter(QueryBuilders.termQuery("category.keyword", "allele_summary"));
+		queryBuilder.filter(QueryBuilders.termsQuery("alterationType.keyword", VISIBLE_ALTERATION_TYPES));
+		addTableFilter(pagination, queryBuilder);
+		pagination.setSourceIncludes(VIEWER_SOURCE_INCLUDES);
+
+		SearchResponse searchResponse = getSearchResponse(queryBuilder, pagination, viewerSortMap, false);
+		List<String> identifiers = new ArrayList<>();
+		for (SearchHit searchHit : searchResponse.getHits().getHits()) {
+			String identifier = resolveAlleleIdentifier(searchHit.getSourceAsMap());
+			if (identifier == null) {
+				log.error("Projected viewer record has no supported allele identifier: searchHitId={}", searchHit.getId());
+				throw new IllegalStateException("Projected viewer record has no supported allele identifier");
+			}
+			identifiers.add(identifier);
+		}
+
+		JsonResultResponse<String> response = new JsonResultResponse<>();
+		response.setResults(identifiers);
+		response.setTotal(searchResponse.getHits().getTotalHits().value);
+		return response;
+	}
+
+	static String resolveAlleleIdentifier(Map<String, Object> source) {
+		Object alleleValue = source.get("allele");
+		if (!(alleleValue instanceof Map<?, ?> allele)) {
+			return null;
+		}
+		for (String field : List.of("curie", "primaryExternalId", "modInternalId")) {
+			Object value = allele.get(field);
+			if (value instanceof String identifier && !identifier.isBlank()) {
+				return identifier;
+			}
+		}
+		return null;
 	}
 
 	private Map<String, Object> getAlleleSupplementalData(BoolQueryBuilder unfilteredQuery) {

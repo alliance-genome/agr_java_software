@@ -43,7 +43,7 @@ class QueryTokenizationIntegrationSpec extends Specification {
         when:
         def encodedQuery = URLEncoder.encode(query, "UTF-8")
         //todo: need to set the base search url in a nicer way
-        def results = ApiTester.getApiResults("/api/search?limit=5000&offset=0&q=$encodedQuery$filter")
+        def results = ApiTester.getApiResults("/api/search?limit=1000&offset=0&q=$encodedQuery$filter")
         def result = results.find() { it.id == resultId }
 
         then:

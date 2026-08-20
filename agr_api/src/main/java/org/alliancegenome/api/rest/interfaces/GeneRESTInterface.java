@@ -108,6 +108,33 @@ public interface GeneRESTInterface {
 	);
 
 	@GET
+	@Path("/{id}/allele-viewer-ids")
+	@Operation(summary = "Retrieve the visible allele identifiers used by the gene sequence viewer")
+	@APIResponses(
+		value = {
+			@APIResponse(
+				responseCode = "200",
+				description = "A bounded page of server-resolved visible allele identifiers.",
+				content = @Content(mediaType = "application/json",
+					schema = @Schema(implementation = JsonResultResponse.class)))})
+	JsonResultResponse<String> getAlleleViewerIds(
+		@Parameter(in = ParameterIn.PATH, name = "id", description = "Gene identifier", required = true, schema = @Schema(type = SchemaType.STRING))
+		@PathParam("id") String id,
+		@Parameter(in = ParameterIn.QUERY, name = "limit", description = "Number of identifiers returned; maximum 1000", schema = @Schema(type = SchemaType.INTEGER))
+		@DefaultValue("1000") @QueryParam("limit") Integer limit,
+		@Parameter(in = ParameterIn.QUERY, name = "page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER))
+		@DefaultValue("1") @QueryParam("page") Integer page,
+		@QueryParam("filter.symbol") String symbol,
+		@QueryParam("filter.synonyms") String synonym,
+		@QueryParam("filter.variant") String variant,
+		@QueryParam("filter.variantType") String variantType,
+		@QueryParam("filter.molecularConsequence") String molecularConsequence,
+		@QueryParam("filter.hasDisease") String hasDisease,
+		@QueryParam("filter.hasPhenotype") String hasPhenotype,
+		@QueryParam("filter.alleleCategory") String alleleCategory
+	);
+
+	@GET
 	@Path("/{id}/allele-variant-detail")
 	@Operation(summary = "Retrieve all alleles of a given gene")
 	@JsonView(value = {CurationView.SequenceSummaryDocument.class})

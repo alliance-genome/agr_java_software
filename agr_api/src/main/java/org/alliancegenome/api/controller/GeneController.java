@@ -129,6 +129,35 @@ public class GeneController implements GeneRESTInterface {
 	}
 
 	@Override
+	public JsonResultResponse<String> getAlleleViewerIds(String id, Integer limit, Integer page, String symbol, String synonym, String variant, String variantType, String molecularConsequence, String hasDisease, String hasPhenotype, String category) {
+		long startTime = System.currentTimeMillis();
+		Pagination pagination = new Pagination(page, limit, "alleleSymbol", "true");
+		pagination.addFilterOption("symbol", symbol);
+		pagination.addFilterOption("allele.alleleSynonyms.displayText", synonym);
+		pagination.addFilterOption("variantList.curatedVariantGenomicLocations.hgvs", variant);
+		pagination.addFilterOption("alterationType.keyword", category);
+		pagination.addFilterOption("variantList.variantType.name.keyword", variantType);
+		pagination.addFilterOption("hasDisease", hasDisease);
+		pagination.addFilterOption("hasPhenotype", hasPhenotype);
+		pagination.addFilterOption("variantList.curatedVariantGenomicLocations.predictedVariantConsequences.vepConsequences.name.keyword", molecularConsequence);
+
+		if (pagination.hasErrors()) {
+			RestErrorMessage message = new RestErrorMessage();
+			message.setErrors(pagination.getErrors());
+			throw new RestErrorException(message);
+		}
+
+		try {
+			JsonResultResponse<String> response = alleleESService.getVisibleAlleleIdsByGene(id, pagination);
+			response.calculateRequestDuration(startTime);
+			return response;
+		} catch (Exception exception) {
+			log.error("Error while retrieving allele viewer identifiers", exception);
+			throw new RestErrorException(new RestErrorMessage("Error while retrieving allele viewer identifiers"));
+		}
+	}
+
+	@Override
 	public JsonResultResponse<SequenceSummaryDocument> getAllelesVariantPerGene(String id, Integer limit, Integer page, String sortBy, String asc, String symbol, String associatedGeneSymbol, String synonyms, String hgvsgName, String variantType, String molecularConsequence, String impact,
 		String sequenceFeatureType, String sequenceFeature, String variantPolyphen, String variantSift, String hasDisease, String hasPhenotype, String category, String location) {
 		long startTime = System.currentTimeMillis();

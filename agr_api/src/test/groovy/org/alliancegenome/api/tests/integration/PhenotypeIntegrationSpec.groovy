@@ -27,7 +27,7 @@ class PhenotypeIntegrationSpec extends Specification {
     @Unroll
     def "Gene page - Phenotype Annotation Download for #geneId"() {
         when:
-        def output = ApiTester.getApiResultRaw("/api/gene/$geneId/phenotypes/download?limit=100000")
+        def output = ApiTester.getApiResultRaw("/api/gene/$geneId/phenotypes/download")
         def lines = output.split("\n")
         then:
         lines
