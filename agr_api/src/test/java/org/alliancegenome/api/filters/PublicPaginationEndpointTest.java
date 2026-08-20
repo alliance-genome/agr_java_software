@@ -39,6 +39,7 @@ public class PublicPaginationEndpointTest {
 	public void rejectsUnsupportedPageAndOffsetWindowsBeforeElasticsearch() throws Exception {
 		List<String> paths = List.of(
 			"/gene/MGI:1/alleles?limit=1000&page=151",
+			"/gene/MGI:1/allele-viewer-ids?page=7501",
 			"/search?q=gene&limit=1000&offset=150000"
 		);
 

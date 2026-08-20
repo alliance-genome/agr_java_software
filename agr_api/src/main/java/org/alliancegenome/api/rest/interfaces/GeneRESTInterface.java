@@ -121,7 +121,7 @@ public interface GeneRESTInterface {
 		@Parameter(in = ParameterIn.PATH, name = "id", description = "Gene identifier", required = true, schema = @Schema(type = SchemaType.STRING))
 		@PathParam("id") String id,
 		@Parameter(in = ParameterIn.QUERY, name = "limit", description = "Number of identifiers returned; maximum 1000", schema = @Schema(type = SchemaType.INTEGER))
-		@DefaultValue("1000") @QueryParam("limit") Integer limit,
+		@DefaultValue("20") @QueryParam("limit") Integer limit,
 		@Parameter(in = ParameterIn.QUERY, name = "page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER))
 		@DefaultValue("1") @QueryParam("page") Integer page,
 		@QueryParam("filter.symbol") String symbol,
