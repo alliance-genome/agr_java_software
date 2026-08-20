@@ -1,6 +1,7 @@
 package org.alliancegenome.api.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
@@ -80,6 +81,7 @@ public class AlleleESServiceTest {
 		assertTrue(identifierQuery.contains("hasDisease"));
 		assertTrue(identifierQuery.contains("true"));
 		assertTrue(identifierQuery.contains("allele"));
+		assertFalse(identifierQuery.contains("variant_summary"));
 
 		String standaloneVariantQuery = service.capturedQueries.get(1).toString();
 		assertTrue(standaloneVariantQuery.contains("variant_summary"));
