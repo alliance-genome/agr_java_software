@@ -199,7 +199,7 @@ public class VariantSummaryConverter {
 			AssemblyComponent chromosome = new AssemblyComponent();
 			chromosome.setName(ctx.getContig());
 			GenomeAssembly assembly = new GenomeAssembly();
-			assembly.setPrimaryExternalId(species.getGenomeAssembly().getCurie());
+			assembly.setPrimaryExternalId(species.getGenomeAssembly().getPrimaryExternalId());
 			chromosome.setGenomeAssembly(assembly);
 			cvgla.setVariantGenomicLocationAssociationObject(chromosome);
 			cvgla.setStart(ctx.getStart());
@@ -208,7 +208,7 @@ public class VariantSummaryConverter {
 			// Build variant name
 			StringBuilder variantName = new StringBuilder();
 			if (StringUtils.isNotEmpty(hgvsNomenclature)) {
-				variantName.append('(').append(species.getGenomeAssembly().getCurie()).append(')').append(ctx.getContig()).append(':');
+				variantName.append('(').append(species.getGenomeAssembly().getPrimaryExternalId()).append(')').append(ctx.getContig()).append(':');
 				int colonIdx = hgvsNomenclature.indexOf(':');
 				if (colonIdx >= 0) {
 					variantName.append(hgvsNomenclature, colonIdx + 1, hgvsNomenclature.length());
