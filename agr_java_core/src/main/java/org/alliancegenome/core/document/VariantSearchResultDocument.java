@@ -14,19 +14,18 @@ import lombok.Setter;
 @Setter
 @JsonView({CurationView.VariantSearchResultDocument.class})
 public class VariantSearchResultDocument extends ESDocument {
-
-	public VariantSearchResultDocument() {
+	{
 		category = "variant_search_result";
+		searchable = true;
 	}
 
-	private boolean searchable;
 	private String name;
 	private String nameKey;
 	private String primaryKey;
 	private String species;
 	private Double popularity;
 	private String alterationType;
-	
+
 	private Set<String> alleles;
 	private Set<String> genes;
 	private Set<String> geneSynonyms;

@@ -14,11 +14,9 @@ import lombok.EqualsAndHashCode;
 @JsonPropertyOrder({"subject", "gene", "relation", "object", "primaryAnnotations"})
 @JsonView({PublicView.DiseaseAnnotationAll.class})
 public class GeneDiseaseAnnotationDocument extends DiseaseAnnotationDocument {
-
-	private Gene subject;
-
-	public GeneDiseaseAnnotationDocument() {
-		setCategory("gene_disease_annotation");
+	{
+		category = "gene_disease_annotation";
 	}
 
+	private Gene subject;
 }

@@ -1,4 +1,4 @@
-package org.alliancegenome.core.variant.converter;
+package org.alliancegenome.core.converter.variant;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -7,12 +7,12 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.alliancegenome.core.document.VariantSearchResultDocument;
 import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
 import org.alliancegenome.curation_api.model.entities.PredictedVariantConsequence;
 import org.alliancegenome.curation_api.model.entities.associations.CuratedVariantGenomicLocationAssociation;
 import org.alliancegenome.curation_api.model.entities.associations.TranscriptGeneAssociation;
 import org.alliancegenome.curation_api.model.entities.slotAnnotations.NameSlotAnnotation;
-import org.alliancegenome.core.document.VariantSearchResultDocument;
 
 public class VariantSearchResultConverter {
 
@@ -26,7 +26,6 @@ public class VariantSearchResultConverter {
 			}
 
 			VariantSearchResultDocument vsd = new VariantSearchResultDocument();
-			vsd.setSearchable(true);
 			vsd.setAlterationType("variant");
 			vsd.setPrimaryKey(variantLocation.getHgvs());
 			vsd.setName(variantLocation.getHgvs());

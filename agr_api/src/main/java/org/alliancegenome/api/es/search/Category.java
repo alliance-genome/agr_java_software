@@ -10,7 +10,8 @@ public enum Category {
 	MODEL("model_search_result", true),
 	GENE("gene_search_result", true),
 	GO("go_search_result", true),
-	DATASET("htp_dataset_search_result", true);
+	DATASET("htp_dataset_search_result", true),
+	LITERATURE("literature_search_result", true);
 
 	private String name;
 	private Boolean searchable;

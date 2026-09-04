@@ -7,11 +7,9 @@ import lombok.EqualsAndHashCode;
 
 @Data @EqualsAndHashCode(callSuper = true)
 public class AlleleDiseaseAnnotationDocument extends DiseaseAnnotationDocument {
-	
-	private Allele subject;
-	
-	public AlleleDiseaseAnnotationDocument() {
-		setCategory("allele_disease_annotation");
+	{
+		category = "allele_disease_annotation";
 	}
 
+	private Allele subject;
 }

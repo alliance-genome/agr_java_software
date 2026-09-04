@@ -1,4 +1,4 @@
-package org.alliancegenome.core.variant.converter;
+package org.alliancegenome.core.converter.variant;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;

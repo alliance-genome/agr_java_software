@@ -5,13 +5,13 @@ import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.core.variant.converter.VariantSearchResultConverter;
 import org.alliancegenome.curation_api.interfaces.document.VariantDocumentInterface;
 import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.curation_api.view.CurationView;
 import org.alliancegenome.core.document.VariantSearchResultDocument;
 import org.alliancegenome.core.config.RestConfig;
+import org.alliancegenome.core.converter.variant.VariantSearchResultConverter;
 import org.alliancegenome.core.es.util.ProcessDisplayHelper;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.config.IndexerConfig;

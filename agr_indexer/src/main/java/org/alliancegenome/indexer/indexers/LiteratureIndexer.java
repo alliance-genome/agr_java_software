@@ -7,8 +7,10 @@ import java.util.Map;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.alliancegenome.core.document.LiteratureSummaryDocument;
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.core.converter.literature.LiteratureConverter;
+import org.alliancegenome.core.document.LiteratureSearchResultDocument;
+import org.alliancegenome.core.document.LiteratureSummaryDocument;
 import org.alliancegenome.core.es.util.ElasticSearchInterface;
 import org.alliancegenome.core.es.util.ProcessDisplayHelper;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;
@@ -24,6 +26,7 @@ public class LiteratureIndexer extends Indexer {
 	private ElasticSearchInterface literatureESApi = RestProxyFactory.createProxy(ElasticSearchInterface.class, ConfigHelper.getBlueTeamESUrl());
 	private final ResourceDescriptorService resourceDescriptorService = new ResourceDescriptorService();
 	private final AtomicBoolean emptyXrefsWarned = new AtomicBoolean(false);
+	private LiteratureConverter literatureConverter = new LiteratureConverter();
 
 	public LiteratureIndexer(IndexerConfig indexerConfig) {
 		super(indexerConfig);
@@ -78,7 +81,10 @@ public class LiteratureIndexer extends Indexer {
 					doc.setLiteratureSummary(sourceMap);
 					list.add(doc);
 				}
+				
+				List<LiteratureSearchResultDocument> searchResultlist = literatureConverter.convertToSearchResults(list);
 
+				indexDocuments(searchResultlist);
 				indexDocuments(list);
 
 			} catch (Exception e) {
