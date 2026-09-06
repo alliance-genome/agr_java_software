@@ -13,7 +13,7 @@ public class LiteratureConverter {
 
 	public List<LiteratureSearchResultDocument> convertToSearchResults(List<LiteratureSummaryDocument> summaryList) {
 		ArrayList<LiteratureSearchResultDocument> ret = new ArrayList<LiteratureSearchResultDocument>();
-		for(LiteratureSummaryDocument summaryDoc: summaryList) {
+		for (LiteratureSummaryDocument summaryDoc: summaryList) {
 			ret.add(createDocument(summaryDoc));
 		}
 		return ret;
