@@ -100,6 +100,12 @@ public class SearchHelper {
 					add("genes");
 				}
 			});
+			put(Category.LITERATURE.getName(), new ArrayList<>() {
+				{
+					add("authors");
+					add("publicationYear");
+				}
+			});
 		}
 	};
 
@@ -130,6 +136,13 @@ public class SearchHelper {
 			put("genes", 0.5F);
 			put("geneCrossReferences", 0.1F);
 			put("geneSynonyms", 0.5F);
+			put("authors.keyword", 2.0F);
+			put("authors", 0.5F);
+			put("citation", 0.3F);
+			put("citation.standardText", 0.3F);
+			put("abstractText", 0.2F);
+			put("abstractText.standardText", 0.2F);
+			put("publicationYear", 0.1F);
 		}
 	};
 
@@ -139,6 +152,8 @@ public class SearchHelper {
 
 	private List<String> searchFields = new ArrayList<>() {
 		{
+			add("abstractText");
+			add("abstractText.standardText");
 			add("alleles");
 			add("alleles.text");
 			add("alleles.autocomplete");
@@ -148,6 +163,8 @@ public class SearchHelper {
 			add("anatomicalExpressionWithParents.keyword");
 			add("associatedSpecies");
 			add("associatedSpecies.synonyms");
+			add("authors");
+			add("authors.keyword");
 			add("automatedGeneDescription");
 			add("biotypes");
 			add("biologicalProcessWithParents");
@@ -159,6 +176,8 @@ public class SearchHelper {
 			add("cellularComponentExpressionAgrSlim");
 			add("cellularComponentExpressionAgrSlim.keyword");
 			add("chromosomes");
+			add("citation");
+			add("citation.standardText");
 			add("consequences.hgvsc");
 			add("consequences.hgvsg");
 			add("consequences.hgvsp");
@@ -217,6 +236,7 @@ public class SearchHelper {
 			add("molecularFunctionWithParents");
 			add("phenotypeStatements");
 			add("primaryKey");
+			add("publicationYear");
 			add("sampleIds");
 			add("variants");
 			add("variants.keyword");
@@ -254,11 +274,14 @@ public class SearchHelper {
 	@Getter
 	private final List<String> responseFields = new ArrayList<>() {
 		{
+			add("abstractText");
 			add("alterationType");
+			add("authors");
 			add("biologicalProcess");
 			add("branch");
 			add("category");
 			add("cellularComponent");
+			add("citation");
 			add("crossReferences");
 			add("crossReferenceLinks");
 			add("geneCrossReferences");
@@ -285,6 +308,8 @@ public class SearchHelper {
 			add("nameKey");
 			add("nameKey");
 			add("primaryKey");
+			add("publicationYear");
+			add("shortCitation");
 			add("soTermName");
 			add("species");
 			add("summary");
@@ -299,6 +324,7 @@ public class SearchHelper {
 
 	private List<String> highlightBlacklistFields = new ArrayList<>() {
 		{
+			add("abstractText.standardText");
 			add("go_genes");
 			add("name.autocomplete");
 		}
@@ -521,7 +547,11 @@ public class SearchHelper {
 
 		for (String field : searchFields) {
 			if (!highlightBlacklistFields.contains(field)) {
-				hlb.field(field);
+				if (field.equals("abstractText")) {
+					hlb.field(new HighlightBuilder.Field(field).numOfFragments(0));
+				} else {
+					hlb.field(field);
+				}
 			}
 		}
 

@@ -132,7 +132,7 @@ public class Mapping extends Builder {
 		new FieldBuilder(builder, "authors", "text").keyword().autocomplete().keywordAutocomplete().build(); // literature
 		new FieldBuilder(builder, "citation", "text").keyword().standardText().build(); // literature
 		new FieldBuilder(builder, "shortCitation", "text").keyword().build(); // literature
-		new FieldBuilder(builder, "publicationYear", "keyword").build(); // literature
+		new FieldBuilder(builder, "publicationYear", "text").keyword().build(); // literature
 
 		new FieldBuilder(builder, "diseases", "text").keyword().build(); // gene, allele, model
 		new FieldBuilder(builder, "diseasesAgrSlim", "text").keyword().build(); // gene, allele, model
