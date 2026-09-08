@@ -1,4 +1,4 @@
-package org.alliancegenome.core.variant.converter;
+package org.alliancegenome.core.converter.variant;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -7,12 +7,12 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.alliancegenome.core.document.AlleleSearchResultDocument;
 import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
 import org.alliancegenome.curation_api.model.entities.Allele;
 import org.alliancegenome.curation_api.model.entities.Species;
 import org.alliancegenome.curation_api.model.entities.ontology.NCBITaxonTerm;
 import org.alliancegenome.curation_api.model.entities.slotAnnotations.NameSlotAnnotation;
-import org.alliancegenome.core.document.AlleleSearchResultDocument;
 import org.apache.commons.collections.CollectionUtils;
 
 public class AlleleSearchResultConverter {
@@ -27,7 +27,6 @@ public class AlleleSearchResultConverter {
 			}
 
 			AlleleSearchResultDocument searchDoc = new AlleleSearchResultDocument();
-			searchDoc.setSearchable(true);
 			searchDoc.setAlterationType(doc.getAlterationType());
 
 			searchDoc.setPrimaryKey(allele.getPrimaryExternalId());

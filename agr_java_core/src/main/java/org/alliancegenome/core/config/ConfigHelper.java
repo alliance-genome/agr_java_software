@@ -28,8 +28,6 @@ import static org.alliancegenome.core.config.Constants.FMS_URL;
 import static org.alliancegenome.core.config.Constants.GENERATED_FILES_FOLDER;
 import static org.alliancegenome.core.config.Constants.GO_TERM_LIST;
 import static org.alliancegenome.core.config.Constants.INDEX_VARIANTS;
-import static org.alliancegenome.core.config.Constants.NEO4J_HOST;
-import static org.alliancegenome.core.config.Constants.NEO4J_PORT;
 import static org.alliancegenome.core.config.Constants.POPULARITY_DOWNLOAD_URL;
 import static org.alliancegenome.core.config.Constants.POPULARITY_FILE_NAME;
 import static org.alliancegenome.core.config.Constants.RIBBON_TERM_SPECIES_APPLICABILITY;
@@ -102,9 +100,6 @@ public class ConfigHelper {
 		defaults.put(API_SECURE, "false");
 
 		defaults.put(EXTRACTOR_OUTPUTDIR, "data");
-
-		defaults.put(NEO4J_HOST, "localhost");
-		defaults.put(NEO4J_PORT, "7687");
 
 		defaults.put(AWS_BUCKET_NAME, "mod-datadumps-dev"); // This needs to always be a dev bucket unless running in production
 
@@ -334,24 +329,6 @@ public class ConfigHelper {
 		return url + "/api";
 	}
 
-	public static String getNeo4jHost() {
-		if (!init) {
-			init();
-		}
-		return config.get(NEO4J_HOST);
-	}
-
-	public static int getNeo4jPort() {
-		if (!init) {
-			init();
-		}
-		try {
-			return Integer.parseInt(config.get(NEO4J_PORT));
-		} catch (NumberFormatException e) {
-			return 7687;
-		}
-	}
-
 	public static boolean isThreaded() {
 		if (!init) {
 			init();
@@ -557,10 +534,6 @@ public class ConfigHelper {
 			init();
 		}
 		return config.get(configParam);
-	}
-
-	public static boolean isProduction() {
-		return getNeo4jHost().contains("production");
 	}
 
 	public static String getCurationApiToken() {

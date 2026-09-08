@@ -10,12 +10,11 @@ import lombok.Setter;
 @Getter
 @Setter
 public class AlleleSearchResultDocument extends ESDocument {
-
-	public AlleleSearchResultDocument() {
+	{
 		category = "allele_search_result";
+		searchable = true;
 	}
 
-	private boolean searchable;
 	private String symbol;
 	private String symbolText;
 	private String name;

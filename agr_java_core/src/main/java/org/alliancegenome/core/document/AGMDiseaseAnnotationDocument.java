@@ -7,11 +7,9 @@ import lombok.EqualsAndHashCode;
 
 @Data @EqualsAndHashCode(callSuper = true)
 public class AGMDiseaseAnnotationDocument extends DiseaseAnnotationDocument {
-	
-	private AffectedGenomicModel subject;
-	
-	public AGMDiseaseAnnotationDocument() {
-		setCategory("agm_disease_annotation");
+	{
+		category = "agm_disease_annotation";
 	}
-	
+
+	private AffectedGenomicModel subject;
 }

@@ -30,9 +30,6 @@ public class Constants {
 
 	public static final String API_SECURE = "API_SECURE";
 
-	public static final String NEO4J_HOST = "NEO4J_HOST";
-	public static final String NEO4J_PORT = "NEO4J_PORT";
-
 	public static final String AWS_BUCKET_NAME = "AWS_BUCKET_NAME";
 	public static final String AWS_PROFILE = "AWS_PROFILE";
 	public static final String AWS_ACCESS_KEY = "AWS_ACCESS_KEY";
