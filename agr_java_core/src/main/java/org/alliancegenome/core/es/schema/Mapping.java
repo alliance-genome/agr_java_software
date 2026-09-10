@@ -142,6 +142,7 @@ public class Mapping extends Builder {
 
 		new FieldBuilder(builder, "object.name", "text").keyword().sortSmartAlpha().build(); // gene_disease_annotation, allele_disease_annotation, agm_disease_annotation
 		new FieldBuilder(builder, "object.curie", "text").keyword().sortSmartAlpha().build(); // gene_disease_annotation, allele_disease_annotation, agm_disease_annotation
+		new FieldBuilder(builder, "subject.curie", "text").keyword().sortSmartAlpha().build(); // gene_disease_annotation, allele_disease_annotation, agm_disease_annotation
 		new FieldBuilder(builder, "subject.primaryExternalId", "text").keyword().sortSmartAlpha().build(); // gene_disease_annotation, allele_disease_annotation, agm_disease_annotation
 		new FieldBuilder(builder, "subject.taxon.species.fullName", "text").keyword().sortSmartAlpha().build(); // gene_disease_annotation, allele_disease_annotation, agm_disease_annotation
 
