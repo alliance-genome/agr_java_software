@@ -102,6 +102,7 @@ public class SearchHelper {
 			});
 			put(Category.LITERATURE.getName(), new ArrayList<>() {
 				{
+					add("referenceType");
 					add("authors");
 					add("publicationYear");
 					add("resourceTitle");
@@ -311,6 +312,7 @@ public class SearchHelper {
 			add("primaryKey");
 			add("publicationYear");
 			add("resourceTitle");
+			add("referenceType");
 			add("shortCitation");
 			add("soTermName");
 			add("species");
