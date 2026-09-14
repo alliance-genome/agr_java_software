@@ -22,7 +22,9 @@ public class LiteratureSearchResultDocument extends ESDocument {
 	private String citation;
 	private String shortCitation;
 	private String publicationYear;
+	private String resourceTitle;
 	private String referenceType;
+
 
 	private Set<String> authors;
 
