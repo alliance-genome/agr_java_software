@@ -34,6 +34,7 @@ public class LiteratureConverter {
 		doc.setShortCitation((String) summary.get("short_citation"));
 
 		doc.setPublicationYear(getPublicationYear((String) summary.get("date_published")));
+		doc.setResourceTitle((String) summary.get("resource_title"));
 
 		doc.setAuthors(getAuthors(summary));
 		doc.setCrossReferences(getCrossReferences(summary));

@@ -104,6 +104,7 @@ public class SearchHelper {
 				{
 					add("authors");
 					add("publicationYear");
+					add("resourceTitle");
 				}
 			});
 		}
@@ -309,6 +310,7 @@ public class SearchHelper {
 			add("nameKey");
 			add("primaryKey");
 			add("publicationYear");
+			add("resourceTitle");
 			add("shortCitation");
 			add("soTermName");
 			add("species");
