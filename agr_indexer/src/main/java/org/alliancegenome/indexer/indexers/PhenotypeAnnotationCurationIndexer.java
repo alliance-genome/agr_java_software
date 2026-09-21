@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.LinkedBlockingDeque;
 
+import org.alliancegenome.core.document.AGMPhenotypeAnnotationDocument;
 import org.alliancegenome.core.document.AllelePhenotypeAnnotationDocument;
 import org.alliancegenome.core.document.GenePhenotypeAnnotationDocument;
 import org.alliancegenome.core.document.PhenotypeAnnotationDocument;
@@ -83,6 +84,10 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 		List<AllelePhenotypeAnnotationDocument> alleleList = createAllelePhenotypeAnnotationDocuments();
 		log.info("Indexing " + alleleList.size() + " allele documents");
 		indexDocuments(alleleList);
+
+		List<AGMPhenotypeAnnotationDocument> agmList = createAGMPhenotypeAnnotationDocuments();
+		log.info("Indexing " + agmList.size() + " agm documents");
+		indexDocuments(agmList);
 
 		log.info("Finished Indexing Phenotype Annotations");
 	}
@@ -297,5 +302,33 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 		return ret;
 	}
 
+	private List<AGMPhenotypeAnnotationDocument> createAGMPhenotypeAnnotationDocuments() {
+
+		List<AGMPhenotypeAnnotationDocument> ret = new ArrayList<>();
+
+		ProcessDisplayHelper ph = new ProcessDisplayHelper(10000);
+		ph.startProcess("Creating AGM Phenotype Annotations", agmMap.size());
+
+		for (Entry<String, Pair<AffectedGenomicModel, ArrayList<PhenotypeAnnotation>>> pairMap : agmMap.entrySet()) {
+			HashMap<String, AGMPhenotypeAnnotationDocument> lookup = new HashMap<>();
+			AffectedGenomicModel model = pairMap.getValue().getKey();
+
+			for (PhenotypeAnnotation pa : pairMap.getValue().getValue()) {
+				String key = getConsolidationKey(pa);
+				AGMPhenotypeAnnotationDocument apad = lookup.computeIfAbsent(key, k -> new AGMPhenotypeAnnotationDocument());
+				if (apad.getSubject() == null) {
+					apad.setSubject(model);
+					apad.setRelation(pa.getRelation());
+					apad.setPhenotypeStatement(pa.getPhenotypeAnnotationObject());
+				}
+				populateBasePhenotypeAnnotationDocument(model, pa, apad);
+			}
+			ph.progressProcess();
+			ret.addAll(lookup.values());
+			lookup.clear();
+		}
+		ph.finishProcess();
+		return ret;
+	}
 
 }
