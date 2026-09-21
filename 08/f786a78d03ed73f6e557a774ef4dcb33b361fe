@@ -1,0 +1,21 @@
+agr_indexer/src/main/java/org/alliancegenome/indexer/indexers/PhenotypeAnnotationCurationIndexer.java
+  s_0ad341ea1d75c0::t_b4867806e74697 10,88-91,305-332
+agr_java_core/src/main/java/org/alliancegenome/core/document/AGMPhenotypeAnnotationDocument.java
+  s_0ad341ea1d75c0::t_b73d4ecac2d06b 1-15
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "08f786a78d03ed73f6e557a774ef4dcb33b361fe",
+  "prompts": {},
+  "sessions": {
+    "s_0ad341ea1d75c0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "s_0ad341ea1d75c0",
+        "model": "unknown"
+      },
+      "human_author": "Ketaki Kindre <kkindre@caltech.edu>"
+    }
+  }
+}
