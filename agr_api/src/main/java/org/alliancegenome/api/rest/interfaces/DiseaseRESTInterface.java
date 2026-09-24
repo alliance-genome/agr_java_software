@@ -109,6 +109,18 @@ public interface DiseaseRESTInterface {
 	Long getCountsOfDiseaseAnnotationsByGene(@Parameter(in = ParameterIn.PATH, name = "id", description = "Search for a disease by ID", required = true, schema = @Schema(type = SchemaType.STRING)) @DefaultValue("DOID:10652") @PathParam("id") String id);
 
 	@GET
+	@Path("/{id}/human_genes_counts")
+	@Operation(summary = "Count of unique human genes with a positive association with a given disease id")
+	@APIResponses(value = { @APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
+	Long getCountsOfDiseaseAnnotationsByHumanGene(@Parameter(in = ParameterIn.PATH, name = "id", description = "Search for a disease by ID", required = true, schema = @Schema(type = SchemaType.STRING)) @DefaultValue("DOID:10652") @PathParam("id") String id);
+
+	@GET
+	@Path("/{id}/model_genes_counts")
+	@Operation(summary = "Count of unique model organism genes with a positive association with a given disease id")
+	@APIResponses(value = { @APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
+	Long getCountsOfDiseaseAnnotationsByModelGene(@Parameter(in = ParameterIn.PATH, name = "id", description = "Search for a disease by ID", required = true, schema = @Schema(type = SchemaType.STRING)) @DefaultValue("DOID:10652") @PathParam("id") String id);
+
+	@GET
 	@Path("/{id}/genes")
 	@Operation(summary = "Retrieve all DiseaseAnnotation records for a given disease id")
 	@APIResponses(value = { @APIResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Null.class))) })
