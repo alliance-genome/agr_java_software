@@ -89,6 +89,7 @@ public class DiseaseESService extends ESService {
 	private static final String MODEL_CATEGORY = "agm_disease_annotation";
 	private static final String DISTINCT_SUBJECT_AGG = "distinct_subjects";
 	private static final String DISTINCT_DISEASE_AGG = "distinct_diseases";
+	private static final String HUMAN_TAXON = "NCBITaxon:9606";
 	// ES cardinality is exact below this threshold; disease-portal counts stay well under it.
 	private static final int SUBJECT_COUNT_PRECISION_THRESHOLD = 40000;
 
@@ -642,6 +643,40 @@ public class DiseaseESService extends ESService {
 
 	public long countDistinctPositiveModels(String diseaseID) {
 		return countDistinctPositiveSubjects(MODEL_CATEGORY, diseaseID);
+	}
+
+	public long countDistinctPositiveHumanGenes(String diseaseID) {
+		return countDistinctPositiveGenesBySpeciesGroup(diseaseID, true);
+	}
+
+	public long countDistinctPositiveModelOrganismGenes(String diseaseID) {
+		return countDistinctPositiveGenesBySpeciesGroup(diseaseID, false);
+	}
+
+	// distinct human (or model-organism) genes positively associated with a disease
+	private long countDistinctPositiveGenesBySpeciesGroup(String diseaseID, boolean human) {
+		BoolQueryBuilder bool = boolQuery()
+			.filter(new TermQueryBuilder("category", GENE_CATEGORY))
+			.filter(new TermQueryBuilder("parentSlimIDs.keyword", diseaseID));
+		bool.must(matchQuery("primaryAnnotations.negated", false));
+		TermQueryBuilder humanTaxon = new TermQueryBuilder("subject.taxon.curie.keyword", HUMAN_TAXON);
+		if (human) {
+			bool.filter(humanTaxon);
+		} else {
+			bool.mustNot(humanTaxon);
+		}
+
+		AggregationBuilder agg = AggregationBuilders
+			.cardinality(DISTINCT_SUBJECT_AGG)
+			.field("subject.primaryExternalId.keyword")
+			.precisionThreshold(SUBJECT_COUNT_PRECISION_THRESHOLD);
+
+		SearchResponse response = SEARCH_DAO.performQuery(
+			(QueryBuilder) bool, java.util.List.of(agg), null, java.util.List.of("subject"),
+			0, 0, new HighlightBuilder(), null, false);
+
+		ParsedCardinality distinct = response.getAggregations().get(DISTINCT_SUBJECT_AGG);
+		return distinct.getValue();
 	}
 
 	// distinct subjects positively associated with a disease, excluding negated annotations

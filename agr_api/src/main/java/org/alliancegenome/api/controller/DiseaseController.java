@@ -588,4 +588,16 @@ public class DiseaseController implements DiseaseRESTInterface {
 		return diseaseESService.countDistinctPositiveGenes(diseaseID);
 	}
 
+	@Override
+	public Long getCountsOfDiseaseAnnotationsByHumanGene(String diseaseID) {
+		// count distinct human genes with a positive association
+		return diseaseESService.countDistinctPositiveHumanGenes(diseaseID);
+	}
+
+	@Override
+	public Long getCountsOfDiseaseAnnotationsByModelGene(String diseaseID) {
+		// count distinct model organism (non-human) genes with a positive association
+		return diseaseESService.countDistinctPositiveModelOrganismGenes(diseaseID);
+	}
+
 }
