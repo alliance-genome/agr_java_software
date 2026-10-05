@@ -3,7 +3,6 @@ package org.alliancegenome.api.service;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -14,10 +13,32 @@ import java.util.Map;
 import org.alliancegenome.api.es.dao.SearchDAO;
 import org.alliancegenome.api.es.search.Category;
 import org.alliancegenome.api.es.search.RelatedDataLink;
+import org.alliancegenome.api.es.search.SearchApiResponse;
+import org.apache.lucene.search.TotalHits;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.search.SearchResponse.Clusters;
+import org.elasticsearch.action.search.SearchResponseSections;
+import org.elasticsearch.action.search.ShardSearchFailure;
+import org.elasticsearch.common.bytes.BytesArray;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.TermQueryBuilder;
+import org.elasticsearch.search.DocValueFormat;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.aggregations.AggregationBuilder;
+import org.elasticsearch.search.aggregations.BucketOrder;
+import org.elasticsearch.search.aggregations.InternalAggregation;
+import org.elasticsearch.search.aggregations.InternalAggregations;
+import org.elasticsearch.search.aggregations.bucket.terms.StringTerms;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
+import org.elasticsearch.search.rescore.QueryRescorerBuilder;
+import org.elasticsearch.search.sort.SortOrder;
 import org.junit.Test;
+
+import jakarta.ws.rs.core.MultivaluedHashMap;
+import jakarta.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.core.UriInfo;
 
 public class SearchServiceRelatedDataTest {
 
@@ -151,14 +172,41 @@ public class SearchServiceRelatedDataTest {
 	}
 
 	@Test
-	public void failedCountsDoNotPartiallyEnrichTheResultPage() {
+	public void failedCountsOmitCalculatedLinksAndPreserveStoredMetadata() {
 		CountingDAO dao = new CountingDAO();
 		dao.fail = true;
-		List<Map<String, Object>> results = List.of(result(Category.GENE, "gene"), result(Category.MODEL, "model"));
+		Map<String, Object> stored = result(Category.GENE, "stored");
+		List<Map<String, Object>> existing = List.of(Map.of("category", "existing", "count", 9));
+		stored.put("relatedData", existing);
+		List<Map<String, Object>> results = List.of(result(Category.GENE, "gene"), result(Category.MODEL, "model"), stored);
 
-		assertThrows(IllegalStateException.class, () -> new SearchService(dao).addRelatedDataLinks(results));
+		new SearchService(dao).addRelatedDataLinks(results);
 
-		assertTrue(results.stream().noneMatch(result -> result.containsKey("relatedData")));
+		assertTrue(links(results.getFirst()).isEmpty());
+		assertTrue(links(results.get(1)).isEmpty());
+		assertEquals("gene", results.getFirst().get("nameKey"));
+		assertSame(existing, stored.get("relatedData"));
+	}
+
+	@Test
+	public void searchStillReturnsMainResultsTotalsAndFacetsWhenCountEnrichmentFails() {
+		CountingDAO dao = new CountingDAO();
+		dao.fail = true;
+		SearchService service = new SearchService(dao) {
+			@Override
+			public MultivaluedMap<String, String> getFilters(String category, UriInfo uriInfo) {
+				return new MultivaluedHashMap<>();
+			}
+		};
+
+		SearchApiResponse response = service.query(null, Category.GENE.getName(), 50, 0, null, false, null);
+
+		assertEquals(502, response.getTotal());
+		assertEquals(1, response.getResults().size());
+		assertEquals("GENE:1", response.getResults().getFirst().get("id"));
+		assertTrue(links(response.getResults().getFirst()).isEmpty());
+		assertTrue(response.getAggregations().stream().anyMatch(facet -> "species".equals(facet.getKey())));
+		assertEquals(1, dao.batchedCalls);
 	}
 
 	private static Map<String, Object> result(Category category, String name) {
@@ -176,6 +224,17 @@ public class SearchServiceRelatedDataTest {
 		private int batchedCalls;
 		private String zeroCategory = "";
 		private boolean fail;
+
+		@Override
+		public SearchResponse performQuery(QueryBuilder query, List<AggregationBuilder> aggBuilders, QueryRescorerBuilder rescorerBuilder, List<String> responseFields, int limit, int offset, HighlightBuilder highlighter, LinkedHashMap<String, SortOrder> sorts, Boolean debug) {
+			SearchHit hit = new SearchHit(1, "gene", null, Map.of(), Map.of());
+			hit.sourceRef(new BytesArray("{\"category\":\"" + Category.GENE.getName() + "\",\"nameKey\":\"gene\",\"primaryKey\":\"GENE:1\"}"));
+			SearchHits hits = new SearchHits(new SearchHit[] { hit }, new TotalHits(502, TotalHits.Relation.EQUAL_TO), 1.0f);
+			InternalAggregations aggregations = InternalAggregations.from(aggBuilders.stream().<InternalAggregation>map(aggregation -> new StringTerms(aggregation.getName(), BucketOrder.key(true), BucketOrder.key(true),
+				10, 1, Map.of(), DocValueFormat.RAW, 10, false, 0, List.of(), 0L)).toList());
+			SearchResponseSections sections = new SearchResponseSections(hits, aggregations, null, false, null, null, 1);
+			return new SearchResponse(sections, null, 1, 1, 0, 1L, ShardSearchFailure.EMPTY_ARRAY, Clusters.EMPTY);
+		}
 
 		@Override
 		public List<Long> performCountQueries(List<QueryBuilder> queries) {

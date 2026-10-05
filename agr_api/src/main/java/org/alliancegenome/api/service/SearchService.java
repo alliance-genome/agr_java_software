@@ -40,8 +40,8 @@ import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.rescore.QueryRescorerBuilder;
 import org.elasticsearch.search.sort.SortOrder;
+import org.jboss.logging.Logger;
 
-import io.quarkus.logging.Log;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.ws.rs.core.MultivaluedHashMap;
 import jakarta.ws.rs.core.MultivaluedMap;
@@ -49,6 +49,7 @@ import jakarta.ws.rs.core.UriInfo;
 
 @RequestScoped
 public class SearchService {
+	private static final Logger LOG = Logger.getLogger(SearchService.class);
 
 	// SCRUM-6096: tokens matching <PREFIX>:<localId> are treated as exact-curie candidates
 	// and OR'd into the must clause as plain term queries, bypassing Lucene query_string's
@@ -109,9 +110,9 @@ public class SearchService {
 			}
 
 			if (debug != null && debug) {
-				Log.info("Search Query: " + q);
+				LOG.info("Search Query: " + q);
 			} else {
-				Log.debug("Search Query: " + q);
+				LOG.debug("Search Query: " + q);
 			}
 
 			result.setTotal(searchResponse.getHits().getTotalHits().value);
@@ -130,7 +131,7 @@ public class SearchService {
 			long totalMillis = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - started);
 			if (totalMillis >= 1000 || Boolean.TRUE.equals(debug)) {
 				int countRequests = relatedCountFilters < 0 ? -1 : (relatedCountFilters + SearchDAO.COUNT_QUERY_BATCH_SIZE - 1) / SearchDAO.COUNT_QUERY_BATCH_SIZE;
-				Log.infof("Search timing: total_ms=%d main_es_ms=%d related_data_ms=%d related_count_filters=%d related_count_requests=%d completed=%s",
+				LOG.infof("Search timing: total_ms=%d main_es_ms=%d related_data_ms=%d related_count_filters=%d related_count_requests=%d completed=%s",
 					totalMillis, mainSearchMillis, relatedDataMillis, relatedCountFilters, countRequests, completed);
 			}
 		}
@@ -393,9 +394,20 @@ public class SearchService {
 				queries.computeIfAbsent(key, ignored -> buildRelatedDataQuery(link.getCategory(), link.getTargetField(), link.getSourceName()));
 			}
 		}
-		List<Long> counts = searchDAO.performCountQueries(new ArrayList<>(queries.values()));
-		if (counts.size() != queries.size()) {
-			throw new IllegalStateException("Related-data counts do not match requested filters");
+		List<Long> counts;
+		try {
+			counts = searchDAO.performCountQueries(new ArrayList<>(queries.values()));
+			if (counts.size() != queries.size()) {
+				throw new IllegalStateException("Related-data counts do not match requested filters");
+			}
+		} catch (RuntimeException e) {
+			// Count badges are optional: preserve the successful main search, while
+			// never presenting partial counts as exact or overwriting stored links.
+			LOG.warn("Related-data count enrichment failed; returning results without calculated links", e);
+			for (PendingRelatedData item : pending) {
+				item.result().put("relatedData", new ArrayList<>());
+			}
+			return -1;
 		}
 		Map<RelatedDataKey, Long> countsByLink = new LinkedHashMap<>();
 		int index = 0;
