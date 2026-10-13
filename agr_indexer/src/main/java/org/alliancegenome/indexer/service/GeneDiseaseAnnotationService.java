@@ -116,8 +116,11 @@ public class GeneDiseaseAnnotationService extends BaseDiseaseAnnotationService {
 		geneIDs.add("MGI:94891");
 */
 		for (String geneID : geneIDs) {
-			List<DiseaseAnnotation> focusDiseaseAnnotations = geneMap.get(geneID).getRight();
-			params.put("subjectGene.primaryExternalId", geneID);
+			Pair<Gene, ArrayList<DiseaseAnnotation>> focusGenePair = geneMap.get(geneID);
+			List<DiseaseAnnotation> focusDiseaseAnnotations = focusGenePair.getRight();
+			// map key is Gene.getIdentifier(), which returns the AGRKB curie once one is minted;
+			// the orthology lookup must use the MOD primaryExternalId
+			params.put("subjectGene.primaryExternalId", focusGenePair.getLeft().getPrimaryExternalId());
 			SearchResponse<GeneToGeneOrthologyGenerated> response = orthologyApi.findForPublic(0, 500, params);
 			for (GeneToGeneOrthologyGenerated geneGeneOrthology : response.getResults()) {
 				Gene orthologousGene = geneGeneOrthology.getObjectGene();
