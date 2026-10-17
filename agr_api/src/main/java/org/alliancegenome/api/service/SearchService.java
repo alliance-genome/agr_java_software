@@ -13,6 +13,8 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -38,8 +40,8 @@ import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.rescore.QueryRescorerBuilder;
 import org.elasticsearch.search.sort.SortOrder;
+import org.jboss.logging.Logger;
 
-import io.quarkus.logging.Log;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.ws.rs.core.MultivaluedHashMap;
 import jakarta.ws.rs.core.MultivaluedMap;
@@ -47,6 +49,7 @@ import jakarta.ws.rs.core.UriInfo;
 
 @RequestScoped
 public class SearchService {
+	private static final Logger LOG = Logger.getLogger(SearchService.class);
 
 	// SCRUM-6096: tokens matching <PREFIX>:<localId> are treated as exact-curie candidates
 	// and OR'd into the must clause as plain term queries, bypassing Lucene query_string's
@@ -54,51 +57,84 @@ public class SearchService {
 	// keyword fields (e.g. RGD genes whose primary curie sits only on `curie`).
 	private static final Pattern CURIE_TOKEN_PATTERN = Pattern.compile("^[A-Za-z]+:[A-Za-z0-9_.\\-]+$");
 
-	private static SearchDAO searchDAO = new SearchDAO();
+	private final SearchDAO searchDAO;
 
 	private SearchHelper searchHelper = new SearchHelper();
 
 	private static QueryManipulationService queryManipulationService = new QueryManipulationService();
 
+	public SearchService() {
+		this(new SearchDAO());
+	}
+
+	SearchService(SearchDAO searchDAO) {
+		this.searchDAO = Objects.requireNonNull(searchDAO);
+	}
+
 	public SearchApiResponse query(String q, String category, int limit, int offset, String sortBy, Boolean debug, UriInfo uriInfo) {
 
-		SearchApiResponse result = new SearchApiResponse();
+		long started = System.nanoTime();
+		long mainSearchMillis = -1;
+		long relatedDataMillis = -1;
+		int relatedCountFilters = -1;
+		boolean completed = false;
+		try {
+			SearchApiResponse result = new SearchApiResponse();
 
-		if (StringUtils.isNotEmpty(q) && q.startsWith("debug")) {
-			debug = true;
-			q = q.replaceFirst("debug", "").trim();
+			if (StringUtils.isNotEmpty(q) && q.startsWith("debug")) {
+				debug = true;
+				q = q.replaceFirst("debug", "").trim();
+			}
+
+			MultivaluedMap filterMap = getFilters(category, uriInfo);
+
+			QueryBuilder query = buildFunctionQuery(q, category, filterMap);
+
+			QueryRescorerBuilder rescorerBuilder = buildRescorer(q);
+
+			List<AggregationBuilder> aggBuilders = searchHelper.createAggBuilder(category, biotypeSelected(filterMap));
+
+			HighlightBuilder hlb = searchHelper.buildHighlights();
+
+			LinkedHashMap<String, SortOrder> sorts = new LinkedHashMap<>();
+			if (sortBy != null && sortBy.length() > 0) {
+				sorts.put(sortBy, SortOrder.ASC);
+			}
+
+			SearchResponse searchResponse;
+			long mainSearchStarted = System.nanoTime();
+			try {
+				searchResponse = searchDAO.performQuery(query, aggBuilders, rescorerBuilder, searchHelper.getResponseFields(), limit, offset, hlb, sorts, debug);
+			} finally {
+				mainSearchMillis = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - mainSearchStarted);
+			}
+
+			if (debug != null && debug) {
+				LOG.info("Search Query: " + q);
+			} else {
+				LOG.debug("Search Query: " + q);
+			}
+
+			result.setTotal(searchResponse.getHits().getTotalHits().value);
+			result.setResults(searchHelper.formatResults(searchResponse, tokenizeQuery(q)));
+			long relatedDataStarted = System.nanoTime();
+			try {
+				relatedCountFilters = populateRelatedDataLinks(result.getResults());
+			} finally {
+				relatedDataMillis = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - relatedDataStarted);
+			}
+			result.setAggregations(searchHelper.formatAggResults(category, searchResponse));
+
+			completed = true;
+			return result;
+		} finally {
+			long totalMillis = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - started);
+			if (totalMillis >= 1000 || Boolean.TRUE.equals(debug)) {
+				int countRequests = relatedCountFilters < 0 ? -1 : (relatedCountFilters + SearchDAO.COUNT_QUERY_BATCH_SIZE - 1) / SearchDAO.COUNT_QUERY_BATCH_SIZE;
+				LOG.infof("Search timing: total_ms=%d main_es_ms=%d related_data_ms=%d related_count_filters=%d related_count_requests=%d completed=%s",
+					totalMillis, mainSearchMillis, relatedDataMillis, relatedCountFilters, countRequests, completed);
+			}
 		}
-
-		MultivaluedMap filterMap = getFilters(category, uriInfo);
-
-		QueryBuilder query = buildFunctionQuery(q, category, filterMap);
-
-		QueryRescorerBuilder rescorerBuilder = buildRescorer(q);
-
-		List<AggregationBuilder> aggBuilders = searchHelper.createAggBuilder(category, biotypeSelected(filterMap));
-
-		HighlightBuilder hlb = searchHelper.buildHighlights();
-
-		LinkedHashMap<String, SortOrder> sorts = new LinkedHashMap<>();
-		if (sortBy != null && sortBy.length() > 0) {
-			sorts.put(sortBy, SortOrder.ASC);
-		}
-
-		SearchResponse searchResponse = searchDAO.performQuery(query, aggBuilders, rescorerBuilder, searchHelper.getResponseFields(), limit, offset, hlb, sorts, debug);
-
-		if (debug != null && debug) {
-			Log.info("Search Query: " + q);
-		} else {
-			Log.debug("Search Query: " + q);
-		}
-
-		result.setTotal(searchResponse.getHits().getTotalHits().value);
-		result.setResults(searchHelper.formatResults(searchResponse, tokenizeQuery(q)));
-		// still too slow to leave on
-		addRelatedDataLinks(result.getResults());
-		result.setAggregations(searchHelper.formatAggResults(category, searchResponse));
-
-		return result;
 	}
 
 	public QueryRescorerBuilder buildRescorer(String q) {
@@ -340,14 +376,58 @@ public class SearchService {
 	}
 
 	public void addRelatedDataLinks(List<Map<String, Object>> results) {
-		results.stream().forEach(x -> addRelatedDataLinks(x));
+		populateRelatedDataLinks(results);
+	}
+
+	private int populateRelatedDataLinks(List<Map<String, Object>> results) {
+		List<PendingRelatedData> pending = new ArrayList<>();
+		Map<RelatedDataKey, QueryBuilder> queries = new LinkedHashMap<>();
+		for (Map<String, Object> result : results) {
+			// Preserve precomputed data, including empty lists, exactly as before.
+			if (result.containsKey("relatedData")) {
+				continue;
+			}
+			List<RelatedDataLink> links = buildRelatedDataLinks(result);
+			pending.add(new PendingRelatedData(result, links));
+			for (RelatedDataLink link : links) {
+				RelatedDataKey key = relatedDataKey(link);
+				queries.computeIfAbsent(key, ignored -> buildRelatedDataQuery(link.getCategory(), link.getTargetField(), link.getSourceName()));
+			}
+		}
+		List<Long> counts;
+		try {
+			counts = searchDAO.performCountQueries(new ArrayList<>(queries.values()));
+			if (counts.size() != queries.size()) {
+				throw new IllegalStateException("Related-data counts do not match requested filters");
+			}
+		} catch (RuntimeException e) {
+			// Count badges are optional: preserve the successful main search, while
+			// never presenting partial counts as exact or overwriting stored links.
+			LOG.warn("Related-data count enrichment failed; returning results without calculated links", e);
+			for (PendingRelatedData item : pending) {
+				item.result().put("relatedData", new ArrayList<>());
+			}
+			return -1;
+		}
+		Map<RelatedDataKey, Long> countsByLink = new LinkedHashMap<>();
+		int index = 0;
+		for (RelatedDataKey key : queries.keySet()) {
+			countsByLink.put(key, counts.get(index++));
+		}
+		for (PendingRelatedData item : pending) {
+			for (RelatedDataLink link : item.links()) {
+				link.setCount(countsByLink.get(relatedDataKey(link)));
+			}
+			item.result().put("relatedData", item.links().stream().filter(link -> link.getCount() > 0).collect(Collectors.toList()));
+		}
+		return queries.size();
 	}
 
 	public void addRelatedDataLinks(Map<String, Object> result) {
-		// Skip if relatedData was already set at index time
-		if (result.containsKey("relatedData")) {
-			return;
-		}
+		addRelatedDataLinks(List.of(result));
+	}
+
+	private List<RelatedDataLink> buildRelatedDataLinks(Map<String, Object> result) {
 		String nameKey = (String) result.get("nameKey");
 		// String name = (String) result.get("name");
 		String category = (String) result.get("category");
@@ -355,37 +435,36 @@ public class SearchService {
 		List<RelatedDataLink> links = new ArrayList<>();
 
 		if (StringUtils.equals(category, Category.GENE.getName())) {
-			links.add(getRelatedDataLink(Category.DISEASE.getName(), "genes", nameKey));
-			links.add(getRelatedDataLink(Category.ALLELE.getName(), "genes", nameKey));
-			links.add(getRelatedDataLink(Category.VARIANT.getName(), "genes", nameKey));
-			links.add(getRelatedDataLink(Category.GO.getName(), "genes", nameKey));
-			links.add(getRelatedDataLink(Category.MODEL.getName(), "genes", nameKey));
+			links.add(createRelatedDataLink(Category.DISEASE.getName(), "genes", nameKey));
+			links.add(createRelatedDataLink(Category.ALLELE.getName(), "genes", nameKey));
+			links.add(createRelatedDataLink(Category.VARIANT.getName(), "genes", nameKey));
+			links.add(createRelatedDataLink(Category.GO.getName(), "genes", nameKey));
+			links.add(createRelatedDataLink(Category.MODEL.getName(), "genes", nameKey));
 		} else if (StringUtils.equals(category, Category.DISEASE.getName())) {
-			links.add(getRelatedDataLink(Category.GENE.getName(), "diseasesWithParents", nameKey));
-			links.add(getRelatedDataLink(Category.ALLELE.getName(), "diseasesWithParents", nameKey));
-			links.add(getRelatedDataLink(Category.MODEL.getName(), "diseasesWithParents", nameKey));
+			links.add(createRelatedDataLink(Category.GENE.getName(), "diseasesWithParents", nameKey));
+			links.add(createRelatedDataLink(Category.ALLELE.getName(), "diseasesWithParents", nameKey));
+			links.add(createRelatedDataLink(Category.MODEL.getName(), "diseasesWithParents", nameKey));
 		} else if (StringUtils.equals(category, Category.ALLELE.getName())) {
-			links.add(getRelatedDataLink(Category.DISEASE.getName(), "alleles", nameKey));
-			links.add(getRelatedDataLink(Category.GENE.getName(), "alleles", nameKey));
-			links.add(getRelatedDataLink(Category.MODEL.getName(), "alleles", nameKey));
+			links.add(createRelatedDataLink(Category.DISEASE.getName(), "alleles", nameKey));
+			links.add(createRelatedDataLink(Category.GENE.getName(), "alleles", nameKey));
+			links.add(createRelatedDataLink(Category.MODEL.getName(), "alleles", nameKey));
 		} else if (StringUtils.equals(category, Category.MODEL.getName())) {
-			links.add(getRelatedDataLink(Category.GENE.getName(), "models", nameKey));
-			links.add(getRelatedDataLink(Category.ALLELE.getName(), "models", nameKey));
-			links.add(getRelatedDataLink(Category.DISEASE.getName(), "models", nameKey));
+			links.add(createRelatedDataLink(Category.GENE.getName(), "models", nameKey));
+			links.add(createRelatedDataLink(Category.ALLELE.getName(), "models", nameKey));
+			links.add(createRelatedDataLink(Category.DISEASE.getName(), "models", nameKey));
 		} else if (StringUtils.equals(category, Category.GO.getName())) {
 			String goType = (String) result.get("branch");
 			if (StringUtils.equals(goType, "biological_process")) {
-				links.add(getRelatedDataLink(Category.GENE.getName(), "biologicalProcessWithParents", nameKey, "Genes Annotated with this GO Term"));
+				links.add(createRelatedDataLink(Category.GENE.getName(), "biologicalProcessWithParents", nameKey, "Genes Annotated with this GO Term"));
 			} else if (StringUtils.equals(goType, "molecular_function")) {
-				links.add(getRelatedDataLink(Category.GENE.getName(), "molecularFunctionWithParents", nameKey, "Genes Annotated with this GO Term"));
+				links.add(createRelatedDataLink(Category.GENE.getName(), "molecularFunctionWithParents", nameKey, "Genes Annotated with this GO Term"));
 			} else if (StringUtils.equals(goType, "cellular_component")) {
-				links.add(getRelatedDataLink(Category.GENE.getName(), "cellularComponentWithParents", nameKey, "Genes Annotated with this GO Term"));
-				links.add(getRelatedDataLink(Category.GENE.getName(), "cellularComponentExpressionWithParents", nameKey, "Genes Expressed in this Structure"));
+				links.add(createRelatedDataLink(Category.GENE.getName(), "cellularComponentWithParents", nameKey, "Genes Annotated with this GO Term"));
+				links.add(createRelatedDataLink(Category.GENE.getName(), "cellularComponentExpressionWithParents", nameKey, "Genes Expressed in this Structure"));
 			}
 		}
 
-		// only keep the non-zero links
-		result.put("relatedData", links.stream().filter(r -> r.getCount() > 0).collect(Collectors.toList()));
+		return links;
 	}
 
 	public RelatedDataLink getRelatedDataLink(String targetCategory, String targetField, String sourceName) {
@@ -393,23 +472,37 @@ public class SearchService {
 	}
 
 	public RelatedDataLink getRelatedDataLink(String targetCategory, String targetField, String sourceName, String label) {
+		RelatedDataLink link = createRelatedDataLink(targetCategory, targetField, sourceName, label);
+		link.setCount(searchDAO.performCountQueries(List.of(buildRelatedDataQuery(targetCategory, targetField, sourceName))).getFirst());
+		return link;
+	}
 
+	private QueryBuilder buildRelatedDataQuery(String targetCategory, String targetField, String sourceName) {
 		MultivaluedMap<String, String> filters = new MultivaluedHashMap<>();
-
 		filters.add(targetField, sourceName);
+		return buildQuery(null, targetCategory, filters);
+	}
 
-		Long count = searchDAO.performCountQuery(buildQuery(null, targetCategory, filters));
+	private RelatedDataLink createRelatedDataLink(String targetCategory, String targetField, String sourceName) {
+		return createRelatedDataLink(targetCategory, targetField, sourceName, null);
+	}
 
+	private RelatedDataLink createRelatedDataLink(String targetCategory, String targetField, String sourceName, String label) {
 		RelatedDataLink relatedDataLink = new RelatedDataLink();
 		relatedDataLink.setCategory(targetCategory);
 		relatedDataLink.setTargetField(targetField);
 		relatedDataLink.setSourceName(sourceName);
-		relatedDataLink.setCount(count);
-
 		relatedDataLink.setLabel(label);
-
 		return relatedDataLink;
 	}
+
+	private RelatedDataKey relatedDataKey(RelatedDataLink link) {
+		return new RelatedDataKey(link.getCategory(), link.getTargetField(), link.getSourceName());
+	}
+
+	private record RelatedDataKey(String targetCategory, String targetField, String sourceName) { }
+
+	private record PendingRelatedData(Map<String, Object> result, List<RelatedDataLink> links) { }
 
 	private Boolean biotypeSelected(MultivaluedMap<String, String> filterMap) {
 		if (filterMap.containsKey("biotypes")) {

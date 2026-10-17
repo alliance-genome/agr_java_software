@@ -1,6 +1,7 @@
 package org.alliancegenome.api.es.dao;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,7 +13,12 @@ import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.bucket.filter.Filters;
+import org.elasticsearch.search.aggregations.bucket.filter.FiltersAggregator.KeyedFilter;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.rescore.QueryRescorerBuilder;
@@ -23,6 +29,63 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class SearchDAO extends ESDAO {
+
+	public static final int COUNT_QUERY_BATCH_SIZE = 50;
+	private static final String RELATED_COUNTS_AGGREGATION = "related_counts";
+
+	/** Exact counts in input order, with one bounded search in flight at a time. */
+	public List<Long> performCountQueries(List<QueryBuilder> queries) {
+		List<Long> counts = new ArrayList<>(queries.size());
+		for (int start = 0; start < queries.size(); start += COUNT_QUERY_BATCH_SIZE) {
+			List<QueryBuilder> batch = queries.subList(start, Math.min(start + COUNT_QUERY_BATCH_SIZE, queries.size()));
+			SearchRequest request = new SearchRequest(ConfigHelper.getEsIndex());
+			request.allowPartialSearchResults(false);
+			request.source(buildCountSearchSource(batch));
+			SearchResponse response;
+			try {
+				response = executeCountSearch(request);
+			} catch (IOException e) {
+				throw new IllegalStateException("Unable to calculate related-data counts", e);
+			}
+			if (response == null || response.isTimedOut() || response.getFailedShards() > 0 || Boolean.TRUE.equals(response.isTerminatedEarly()) || response.getAggregations() == null) {
+				throw new IllegalStateException("Incomplete related-data count response");
+			}
+			Filters filters = response.getAggregations().get(RELATED_COUNTS_AGGREGATION);
+			if (filters == null) {
+				throw new IllegalStateException("Missing related-data count aggregation");
+			}
+			for (int index = 0; index < batch.size(); index++) {
+				Filters.Bucket bucket = filters.getBucketByKey(Integer.toString(index));
+				if (bucket == null) {
+					throw new IllegalStateException("Missing related-data count bucket");
+				}
+				counts.add(bucket.getDocCount());
+			}
+		}
+		return counts;
+	}
+
+	protected SearchSourceBuilder buildCountSearchSource(List<QueryBuilder> queries) {
+		if (queries.isEmpty() || queries.size() > COUNT_QUERY_BATCH_SIZE) {
+			throw new IllegalArgumentException("Related-data count batch must contain 1 to " + COUNT_QUERY_BATCH_SIZE + " filters");
+		}
+		KeyedFilter[] filters = new KeyedFilter[queries.size()];
+		BoolQueryBuilder matchingDocuments = QueryBuilders.boolQuery().minimumShouldMatch(1);
+		for (int index = 0; index < queries.size(); index++) {
+			QueryBuilder query = queries.get(index);
+			filters[index] = new KeyedFilter(Integer.toString(index), query);
+			matchingDocuments.should(query);
+		}
+		// Restrict collection to the union of the original predicates. Named filters
+		// retain exact document counts, including documents matching multiple links.
+		return new SearchSourceBuilder().size(0).trackTotalHits(false)
+			.query(QueryBuilders.boolQuery().filter(matchingDocuments))
+			.aggregation(AggregationBuilders.filters(RELATED_COUNTS_AGGREGATION, filters));
+	}
+
+	protected SearchResponse executeCountSearch(SearchRequest request) throws IOException {
+		return EsClientFactory.getDefaultEsClient().search(request, RequestOptions.DEFAULT);
+	}
 
 	public Long performCountQuery(QueryBuilder query) {
 		SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
