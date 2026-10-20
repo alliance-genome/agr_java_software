@@ -107,8 +107,6 @@ public class DiseaseFileGenerator extends FileGenerator {
 
 			ObjectNode row = JsonNodeFactory.instance.objectNode();
 
-			row.put("_uniqueId", uniqueId);
-
 			// The level the annotation was curated at reports the annotation's own relation. The allele and gene levels are also reachable by inference, and those inherited entities report is_implicated_in instead (see resolveInheritedAssociationType). Only the model level has no inferred form, so it stays blank unless the model is the subject.
 			String associationType = resolveAssociationType(pa);
 

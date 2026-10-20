@@ -244,13 +244,10 @@ public enum FileGeneratorConfig {
 	 * reports the annotation's own relation, while an allele or gene reached by
 	 * inference reports is_implicated_in (SCRUM-6274), so a populated entity column
 	 * is never left unqualified. Only the model level has no inferred form, so it is
-	 * blank unless the model is the subject. UniqueID is not
-	 * part of the published layout; it is retained for curator verification and
-	 * comes out before the public release (SCRUM-1953).
+	 * blank unless the model is the subject.
 	 */
 	private static Map<String, String> diseaseFieldMap() {
 		Map<String, String> m = new LinkedHashMap<>();
-		m.put("UniqueID", "_uniqueId");
 		m.put("Taxon ID", "_taxon");
 		m.put("Species Name", "_speciesName");
 		m.put("Model ID", "_modelId");
