@@ -18,6 +18,7 @@ import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.BucketOrder;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
@@ -102,10 +103,10 @@ public class SearchHelper {
 			});
 			put(Category.LITERATURE.getName(), new ArrayList<>() {
 				{
-					add("referenceType");
-					add("authors");
 					add("publicationYear");
 					add("resourceTitle");
+					add("authors");
+					add("referenceType");
 				}
 			});
 		}
@@ -356,6 +357,9 @@ public class SearchHelper {
 					TermsAggregationBuilder term = AggregationBuilders.terms(item);
 					term.field(item + ".keyword");
 					term.size(999);
+					if (item.equals("publicationYear")) {
+						term.order(BucketOrder.key(false));
+					}
 					ret.add(term);
 				}
 			}
