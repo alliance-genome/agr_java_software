@@ -105,7 +105,7 @@ public class SearchHelper {
 				{
 					add("publicationYear");
 					add("resourceTitle");
-					add("authors");
+//					add("authors"); hidden until facet search works for curators (SCRUM-6682)
 					add("referenceType");
 				}
 			});
