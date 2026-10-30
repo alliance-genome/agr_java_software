@@ -1,6 +1,7 @@
 package org.alliancegenome.agr_elasticsearch_util.commands.index;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.TreeMap;
 
 import org.alliancegenome.agr_elasticsearch_util.commands.Command;
@@ -91,11 +92,15 @@ public class SnapShotCommand extends Command implements CommandInterface {
 					System.out.println("Please `repo create logs` first before doing a backup");
 				}
 			} else if (command.equals("create")) {
-				if (args.size() > 2) {
+				if (args.size() == 2) {
 					String repo = args.remove(0);
-					String snapShotName = args.remove(0);
-					String indexName = args.remove(0);
-					im.createSnapShot(repo, snapShotName, indexName);
+					String snapshotType = args.remove(0);
+					List<String> indexes = im.getIndexList();
+					for(String index: indexes) {
+						if(index.startsWith(snapshotType)) {
+							im.createSnapShot(repo, index, index);
+						}
+					}
 				} else {
 					printHelp();
 				}
