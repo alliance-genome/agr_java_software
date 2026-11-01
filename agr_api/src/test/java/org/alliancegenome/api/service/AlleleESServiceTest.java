@@ -33,13 +33,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class AlleleESServiceTest {
 
 	@Test
-	public void resolvesIdentifiersInTheDocumentedFallbackOrder() {
-		assertEquals("CURIE:1", AlleleESService.resolveAlleleIdentifier(source(
-			Map.of("curie", "CURIE:1", "primaryExternalId", "PRIMARY:1", "modInternalId", "MOD:1"))));
+	public void resolvesModIdentifiersBeforeTheCurie() {
 		assertEquals("PRIMARY:1", AlleleESService.resolveAlleleIdentifier(source(
-			Map.of("primaryExternalId", "PRIMARY:1", "modInternalId", "MOD:1"))));
+			Map.of("curie", "CURIE:1", "primaryExternalId", "PRIMARY:1", "modInternalId", "MOD:1"))));
 		assertEquals("MOD:1", AlleleESService.resolveAlleleIdentifier(source(
-			Map.of("modInternalId", "MOD:1"))));
+			Map.of("curie", "CURIE:1", "modInternalId", "MOD:1"))));
+		assertEquals("CURIE:1", AlleleESService.resolveAlleleIdentifier(source(
+			Map.of("curie", "CURIE:1"))));
 		assertEquals(null, AlleleESService.resolveAlleleIdentifier(Map.of()));
 	}
 
