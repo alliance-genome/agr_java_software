@@ -255,12 +255,13 @@ public class AlleleESService extends ESService {
 		return searchResponse.getHits().getTotalHits().value > 0;
 	}
 
+	// The gene page viewer matches these IDs against the VCF allele_ids, which are MOD IDs, so the AGRKB curie comes last
 	static String resolveAlleleIdentifier(Map<String, Object> source) {
 		Object alleleValue = source.get("allele");
 		if (!(alleleValue instanceof Map<?, ?> allele)) {
 			return null;
 		}
-		for (String field : List.of("curie", "primaryExternalId", "modInternalId")) {
+		for (String field : List.of("primaryExternalId", "modInternalId", "curie")) {
 			Object value = allele.get(field);
 			if (value instanceof String identifier && !identifier.isBlank()) {
 				return identifier;
