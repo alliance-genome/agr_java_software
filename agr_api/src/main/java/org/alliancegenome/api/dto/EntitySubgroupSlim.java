@@ -1,6 +1,6 @@
 package org.alliancegenome.api.dto;
 
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.core.view.PublicView;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -13,19 +13,18 @@ import lombok.Setter;
 public class EntitySubgroupSlim {
 
 	private String id;
-	@JsonView({View.DiseaseAnnotation.class, View.Expression.class})
-	@JsonProperty("nb_classes")
-	private int numberOfClasses;
-	@JsonView({View.DiseaseAnnotation.class, View.Expression.class})
-	@JsonProperty("nb_annotations")
-	private int numberOfAnnotations;
+	@JsonView({ PublicView.DiseaseAnnotation.class, PublicView.Expression.class })
+	@JsonProperty("nb_classes") private int numberOfClasses;
+	@JsonView({ PublicView.DiseaseAnnotation.class, PublicView.Expression.class })
+	@JsonProperty("nb_annotations") private int numberOfAnnotations;
 
 	private Boolean available;
 
 	public void setAvailable(Boolean available) {
 		// only set this variable if it is false.
 		// if it is true it is covered by the default behavior in the ribbon code
-		if (available != null && !available)
+		if (available != null && !available) {
 			this.available = available;
+		}
 	}
 }

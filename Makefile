@@ -11,9 +11,6 @@ all:
 %:
 	mvn $(OPTS) -pl agr_$@ -am
 
-cacherrun:
-	java -jar agr_cacher/target/agr_cacher-jar-with-dependencies.jar
-
 apirun:
 	mvn compile quarkus:dev -pl agr_api -am
 
@@ -23,6 +20,8 @@ apitesterrun:
 apidebug:
 	make -C agr_api debug
 
+checkstyle:
+	mvn checkstyle:check
 
 searchtest:
 	mvn -T 4 -Dit.test="AutocompteIntegrationSpec,QueryMatchIntegrationSpec,QueryRankIntegrationSpec,QueryTokenizationIntegrationSpec,RelatedDataServiceIntegrationSpec" -DfailIfNoTests=false verify

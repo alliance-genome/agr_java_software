@@ -12,14 +12,14 @@ import org.alliancegenome.agr_elasticsearch_util.commands.CommandType;
 public class CommandProcessor {
 
 	public CommandProcessor(String[] args) throws Exception {
-		if(args.length > 0) {
+		if (args.length > 0) {
 			List<String> argList = new ArrayList<String>(Arrays.asList(args));
 			processArgs(argList);
 			Command.close();
 		} else {
 			Scanner scanner = new Scanner(System.in);
 			System.out.print("> ");
-			while(scanner.hasNextLine()) {
+			while (scanner.hasNextLine()) {
 				String line = scanner.nextLine();
 
 				List<String> argList = new ArrayList<String>(Arrays.asList(line.split(" ")));
@@ -34,11 +34,11 @@ public class CommandProcessor {
 		String initialCommand = argList.remove(0);
 		try {
 			CommandType commandType = CommandType.valueOf(initialCommand);
-			CommandInterface command = (CommandInterface)commandType.getImplClass().getDeclaredConstructor(ArrayList.class).newInstance(argList);
+			CommandInterface command = (CommandInterface) commandType.getImplClass().getDeclaredConstructor(ArrayList.class).newInstance(argList);
 			command.execute();
 		} catch (IllegalArgumentException e) {
-			for(CommandType ct: CommandType.values()) {
-				CommandInterface command = (CommandInterface)ct.getImplClass().getDeclaredConstructor(ArrayList.class).newInstance(argList);
+			for (CommandType ct : CommandType.values()) {
+				CommandInterface command = (CommandInterface) ct.getImplClass().getDeclaredConstructor(ArrayList.class).newInstance(argList);
 				command.printHelp();
 			}
 		}

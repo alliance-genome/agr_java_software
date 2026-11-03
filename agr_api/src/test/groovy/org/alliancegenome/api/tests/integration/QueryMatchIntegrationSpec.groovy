@@ -19,12 +19,12 @@ class QueryMatchIntegrationSpec extends Specification {
 
         where:
         filter             | query                    | issue
-        "&category=gene"   | "FBgn0086442"            | "AGR-525"
-        "&category=gene"   | "FB:FBgn0086442"         | "AGR-525"
-        "&category=gene"   | "ZDB-GENE-001120-2"      | "AGR-525"
-        "&category=gene"   | "ZFIN:ZDB-GENE-001120-2" | "AGR-525"
-        "&category=gene"   | "WBGene00000244"         | "AGR-525"
-        "&category=gene"   | "WB:WBGene00000244"      | "AGR-525"
+        "&category=gene_search_result"   | "FBgn0086442"            | "AGR-525"
+        "&category=gene_search_result"   | "FB:FBgn0086442"         | "AGR-525"
+        "&category=gene_search_result"   | "ZDB-GENE-001120-2"      | "AGR-525"
+        "&category=gene_search_result"   | "ZFIN:ZDB-GENE-001120-2" | "AGR-525"
+        "&category=gene_search_result"   | "WBGene00000244"         | "AGR-525"
+        "&category=gene_search_result"   | "WB:WBGene00000244"      | "AGR-525"
         "&category=allele" | "MGI:5752578"            | "AGR-525"
 
     }
@@ -113,7 +113,7 @@ class QueryMatchIntegrationSpec extends Specification {
         "AGR-2072" | "MGI:1856689"          | "8:g.11226343C>A"
         "AGR-2072" | "MGI:1856689"          | "RefSeq:XM_017312555.2:c.1879G>T"
         "AGR-2072" | "MGI:1856689"          | "RefSeq:XP_017168044.1:p.Gly627Trp"
-        "AGR-1893" | "RGD:11568041"         | "(Rnor_6.0)X:154703661_154703782del"
+        "AGR-1893" | "RGD:11568041"         | "(mRatBN7.2)X:154703661_154703782del"
         "AGR-1893" | "ZFIN:ZDB-ALT-000412-8" | "(GRCz11)7:30341642C>T"
         "AGR-1893" | "ZFIN:ZDB-ALT-000621-2" | "(GRCz11)20:43717424A>G"
         "AGR-1893" | "WB:WBVar00089581"      | "(WBcel235)I:152331C>T"

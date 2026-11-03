@@ -1,114 +1,126 @@
 package org.alliancegenome.api.controller;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.ws.rs.core.UriInfo;
 
 import org.alliancegenome.api.model.xml.SiteMap;
 import org.alliancegenome.api.model.xml.SiteMapIndex;
 import org.alliancegenome.api.model.xml.XMLURL;
 import org.alliancegenome.api.model.xml.XMLURLSet;
 import org.alliancegenome.api.rest.interfaces.SiteMapRESTInterface;
-import org.alliancegenome.cache.repository.SiteMapCacheManager;
+import org.alliancegenome.api.service.SiteMapService;
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.api.es.search.Category;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.search.SearchHit;
 
-import lombok.extern.slf4j.Slf4j;
+import io.quarkus.logging.Log;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.Status;
 
-@Slf4j
 @RequestScoped
 public class SiteMapController implements SiteMapRESTInterface {
 
-	@Inject SiteMapCacheManager manager;
+	@Inject
+	SiteMapService siteMapService;
 
 	@Override
-	public SiteMapIndex getSiteMap(UriInfo uriInfo) {
-		
+	public SiteMapIndex getSiteMap() {
+		Log.info("Serving SiteMap.xml");
+		SearchResponse resp = siteMapService.getFullSiteMap();
 		List<SiteMap> list = new ArrayList<SiteMap>();
-		
-		List<String> geneKeys = manager.getGenesKeys();
-		log.info("Gene Keys: "	+ geneKeys.size());
-		for(String s: geneKeys) {
-			list.add(new SiteMap(buildUrl(uriInfo, "api/sitemap/gene-sitemap-" + s + ".xml"), ConfigHelper.getAppStart()));
+		for (SearchHit searchHit : resp.getHits().getHits()) {
+			String siteMapId = searchHit.getSourceAsMap().get("siteMapId").toString();
+			list.add(new SiteMap(buildUrl("api/sitemap/" + siteMapId + ".xml"), ConfigHelper.getAppStart()));
 		}
-		
-		List<String> diseaseKeys = manager.getDiseaseKeys();
-		log.info("Disease Keys: "  + diseaseKeys.size());
-		for(String s: diseaseKeys) {
-			list.add(new SiteMap(buildUrl(uriInfo, "api/sitemap/disease-sitemap-" + s + ".xml"), ConfigHelper.getAppStart()));
-		}
-		
-		List<String> alleleKeys = manager.getAlleleKeys();
-		log.info("Disease Keys: "  + alleleKeys.size());
-		for(String s: alleleKeys) {
-			list.add(new SiteMap(buildUrl(uriInfo, "api/sitemap/allele-sitemap-" + s + ".xml"), ConfigHelper.getAppStart()));
-		}
-		
 		SiteMapIndex index = new SiteMapIndex();
 		index.setSitemap(list);
 		return index;
 	}
 
 	@Override
-	public XMLURLSet getCategorySiteMap(String category, Integer page, UriInfo uriInfo) {
-		return buildSiteMapByCategory(category, page, uriInfo);
+	public XMLURLSet getSiteMap(String siteMapId) {
+		Log.info("Serving " + siteMapId + ".xml");
+		SearchResponse resp = siteMapService.getSiteMap(siteMapId);
+		List<XMLURL> urls = new ArrayList<XMLURL>();
+
+		for (SearchHit searchHit : resp.getHits().getHits()) {
+			String siteMapType = (String) searchHit.getSourceAsMap().get("siteMapType");
+			List<String> siteMapIds = (ArrayList<String>) searchHit.getSourceAsMap().get("siteMapIds");
+			for (String localSiteMapId : siteMapIds) {
+				urls.add(new XMLURL(siteMapType + "/" + localSiteMapId, ConfigHelper.getAppStart(), "monthly", "0.6"));
+			}
+		}
+
+		XMLURLSet set = new XMLURLSet();
+		set.setUrl(urls);
+		for (XMLURL url : urls) {
+			url.setLoc(buildUrl(url.getLoc()));
+		}
+
+		return set;
 	}
 
+	private String buildUrl(String inUrl) {
+		StringBuilder url = new StringBuilder();
+		url.append("https://www.alliancegenome.org");
 
-	private XMLURLSet buildSiteMapByCategory(String category, Integer page, UriInfo uriInfo) {
-
-		if(category.equals("gene")) {
-			List<XMLURL> list = manager.getGenes(page.toString());
-			XMLURLSet set = new XMLURLSet();
-			set.setUrl(list);
-			for(XMLURL url: list) {
-				url.setLoc(buildUrl(uriInfo, url.getLoc()));
-			}
-			return set;
-		}
-		
-		if(category.equals("disease")) {
-			List<XMLURL> list = manager.getDiseases(page.toString());
-			XMLURLSet set = new XMLURLSet();
-			set.setUrl(list);
-			for(XMLURL url: list) {
-				url.setLoc(buildUrl(uriInfo, url.getLoc()));
-			}
-			return set;
-		}
-		
-		if(category.equals("allele")) {
-			List<XMLURL> list = manager.getDiseases(page.toString());
-			XMLURLSet set = new XMLURLSet();
-			set.setUrl(list);
-			for(XMLURL url: list) {
-				url.setLoc(buildUrl(uriInfo, url.getLoc()));
-			}
-			return set;
-		}
-
-		return null;
-	}
-
-	private String buildUrl(UriInfo uriInfo, String inUrl) {
-		final URI uri = uriInfo.getAbsolutePath();
-		final StringBuilder url = new StringBuilder();
-		url.append("https://");
-		url.append(uri.getHost());
-
-		final int port = uri.getPort();
-		if (port != -1) {
-			url.append(":");
-			url.append(uri.getPort());
-		}
-		if(inUrl != null) {
+		if (inUrl != null) {
 			url.append("/");
 			url.append(inUrl);
 		}
 		return url.toString();
+	}
+
+	@Override
+	public Response getAccessionURL(String id) {
+
+		Log.info("Id Lookup: " + id);
+
+		// Each entry: [urlPath, esCategory, keyField]
+		String[][] lookups = {
+			{"gene", Category.GENE.getName(), "curie"},
+			{"allele", "allele", "primaryKey"},
+			{"variant", "variant", "primaryKey"},
+			{"disease", Category.DISEASE.getName(), "primaryKey"},
+		};
+
+		for (String[] lookup : lookups) {
+			String urlPath = lookup[0];
+			String esCategory = lookup[1];
+			String keyField = lookup[2];
+			SearchResponse response = siteMapService.getAccession(esCategory, keyField, id);
+
+			if (response == null || response.getHits() == null || response.getHits().getHits() == null || response.getHits().getHits().length == 0) {
+				continue;
+			} else {
+				Log.info(urlPath + " " + id);
+
+				String url = "https://www.alliancegenome.org/" + urlPath + "/" + id;
+
+				try {
+					URI uri = new URI(url);
+					Response resp = Response.temporaryRedirect(uri).status(Status.PERMANENT_REDIRECT).build();
+					return resp;
+				} catch (URISyntaxException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+		try {
+			URI uri = new URI("https://www.alliancegenome.org/" + id);
+			Response resp = Response.temporaryRedirect(uri).status(Status.PERMANENT_REDIRECT).build();
+			return resp;
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
+
+		return null;
 	}
 
 }

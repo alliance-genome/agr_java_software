@@ -13,20 +13,20 @@ public class AliasCommand extends Command implements CommandInterface {
 
 	@Override
 	public void printHelp() {
-		
+
 	}
 
 	@Override
 	public void execute() {
-		if(args.size() > 0) {
+		if (args.size() > 0) {
 			String command = args.remove(0);
-			if(command.equals("create")) {
+			if (command.equals("create")) {
 				String alias = args.remove(0);
 				String index = args.remove(0);
 				im.createAlias(alias, index);
-			} else if(command.equals("remove")) {
+			} else if (command.equals("remove")) {
 				String alias = args.remove(0);
-				//im.removeAlias(alias);
+				// im.removeAlias(alias);
 			} else {
 				printHelp();
 			}

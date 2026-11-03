@@ -54,12 +54,12 @@ class QueryTokenizationIntegrationSpec extends Specification {
 
         where:
         filter             | query                                   | resultId                  | missing
-        "&category=gene"   | "fgf8a pax2a"                           | "ZFIN:ZDB-GENE-990415-72" | ["pax2a"]
-        "&category=gene"   | "fgf8a pax2a"                           | "ZFIN:ZDB-GENE-990415-8"  | ["fgf8a"]
-        "&category=gene"   | "fgf8a ZFIN:ZDB-GENE-990415-72"         | "ZFIN:ZDB-GENE-990415-72" | []
-        "&category=gene"   | "alzheimer's disease psen1"             | "HGNC:9508"               | []
-        "&category=gene"   | "ZDB-GENE-001103-1 watermellon"         | "ZFIN:ZDB-GENE-001103-1"  | ["watermellon"]
-        "&category=gene"   | "Two pore calcium channel protein 1"    | "HGNC:18182"              | []
+        "&category=gene_search_result"   | "fgf8a pax2a"                           | "ZFIN:ZDB-GENE-990415-72" | ["pax2a"]
+        "&category=gene_search_result"   | "fgf8a pax2a"                           | "ZFIN:ZDB-GENE-990415-8"  | ["fgf8a"]
+        "&category=gene_search_result"   | "fgf8a ZFIN:ZDB-GENE-990415-72"         | "ZFIN:ZDB-GENE-990415-72" | []
+        "&category=gene_search_result"   | "alzheimer's disease psen1"             | "HGNC:9508"               | []
+        "&category=gene_search_result"   | "ZDB-GENE-001103-1 watermellon"         | "ZFIN:ZDB-GENE-001103-1"  | ["watermellon"]
+        "&category=gene_search_result"   | "Two pore calcium channel protein 1"    | "HGNC:18182"              | []
         "&category=allele" | "NC_000083.6:g.75273979T>A MGI:5316784" | "MGI:5316784"             | []
 
     }

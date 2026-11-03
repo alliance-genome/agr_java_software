@@ -23,9 +23,9 @@ class RelatedDataServiceIntegrationSpec extends Specification {
         where:
         nameKey                 | category  | targetField                    | min    | max
         "fgf8a (Dre)"           | "disease" | "genes"                        | 1      | Integer.MAX_VALUE
-        "sa2545 (Dre)"          | "gene"    | "alleles"                      | 1      | 1
-        "cancer"                | "gene"    | "diseasesWithParents"          | 1000   | Integer.MAX_VALUE
-        "extracellular space"   | "gene"    | "cellularComponentWithParents" | 8000   | Integer.MAX_VALUE
+        "sa2545 (Dre)"          | "gene_search_result"    | "alleles"                      | 1      | 1
+        "cancer"                | "gene_search_result"    | "diseasesWithParents"          | 1000   | Integer.MAX_VALUE
+        "extracellular space"   | "gene_search_result"    | "cellularComponentWithParents" | 8000   | Integer.MAX_VALUE
     }
 
 

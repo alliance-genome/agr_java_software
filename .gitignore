@@ -9,6 +9,15 @@ audit.log
 .metadata/
 bin
 agr_indexer/alliance_popularity.tsv
+target/
 
 # vscode
 .vscode/
+.factorypath
+.claude
+
+# macOS
+.DS_Store
+
+# Local indexer dumps (curation API responses cached during development)
+*.json.gz
