@@ -215,7 +215,7 @@ public class SourceDocumentCreation extends Thread {
 		@Override
 		public void run() {
 			List<ESDocument> workBucket = new ArrayList<>();
-			while (!(Thread.currentThread().isInterrupted())) {
+			while (!Thread.currentThread().isInterrupted()) {
 				try {
 					List<VariantContext> ctxList = vcQueue.take();
 
@@ -294,7 +294,7 @@ public class SourceDocumentCreation extends Thread {
 			List<byte[]> workBucket = new ArrayList<>();
 			long workBucketBytes = 0;
 
-			while (!(Thread.currentThread().isInterrupted())) {
+			while (!Thread.currentThread().isInterrupted()) {
 				try {
 					List<ESDocument> docList = objectQueue.take();
 
