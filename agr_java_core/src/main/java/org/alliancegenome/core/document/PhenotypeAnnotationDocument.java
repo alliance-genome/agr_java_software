@@ -10,7 +10,6 @@ import org.alliancegenome.curation_api.model.document.es.ESDocument;
 import org.alliancegenome.curation_api.model.entities.BiologicalEntity;
 import org.alliancegenome.curation_api.model.entities.ConditionRelation;
 import org.alliancegenome.curation_api.model.entities.CrossReference;
-import org.alliancegenome.curation_api.model.entities.InformationContentEntity;
 import org.alliancegenome.curation_api.model.entities.PhenotypeAnnotation;
 import org.alliancegenome.curation_api.model.entities.Reference;
 import org.alliancegenome.curation_api.model.entities.VocabularyTerm;
@@ -28,7 +27,7 @@ public class PhenotypeAnnotationDocument extends ESDocument {
 	private String phenotypeStatement;
 	private List<ECOTerm> evidenceCodes;
 	private Reference singleReference;
-	private Set<InformationContentEntity> references;
+	private Set<Reference> references;
 
 	private String generatedRelationString;
 	private Set<String> diseaseQualifiers;
@@ -48,7 +47,7 @@ public class PhenotypeAnnotationDocument extends ESDocument {
 		primaryAnnotations = new ArrayList<>();
 	}
 
-	public void addReference(InformationContentEntity singleReference) {
+	public void addReference(Reference singleReference) {
 		if (references == null) {
 			references = new HashSet<>();
 		}
