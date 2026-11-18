@@ -13,7 +13,7 @@ import org.alliancegenome.curation_api.model.entities.GenePhenotypeAnnotation;
 import org.alliancegenome.curation_api.model.entities.PhenotypeAnnotation;
 import org.apache.commons.collections.CollectionUtils;
 
-public class PhenotypeAnnotationToTdfTranslator extends BaseToTdfTranslator {
+public class PhenotypeAnnotationToTdfTranslator {
 
 	public String getAllRows(List<? extends PhenotypeAnnotationDocument> annotations) {
 		// convert collection of PhenotypeAnnotation records to PhenotypeDownloadRow records
@@ -91,7 +91,7 @@ public class PhenotypeAnnotationToTdfTranslator extends BaseToTdfTranslator {
 	private PhenotypeDownloadRow getBaseDownloadRow(PhenotypeAnnotation annotation) {
 		PhenotypeDownloadRow row = new PhenotypeDownloadRow();
 		row.setPhenotype(annotation.getPhenotypeAnnotationObject());
-		row.setReference(getReferenceString(annotation.getEvidenceItem()));
+		row.setReference(annotation.getEvidenceItem().getCurie());
 		if (annotation.getDataProviderString() != null) {
 			row.setSource(annotation.getDataProviderString());
 		} else {

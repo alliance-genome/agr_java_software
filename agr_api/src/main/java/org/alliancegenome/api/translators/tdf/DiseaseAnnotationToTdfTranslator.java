@@ -25,7 +25,7 @@ import org.alliancegenome.curation_api.model.entities.base.SubmittedObject;
 import org.alliancegenome.curation_api.model.entities.ontology.ECOTerm;
 import org.apache.commons.collections.CollectionUtils;
 
-public class DiseaseAnnotationToTdfTranslator extends BaseToTdfTranslator {
+public class DiseaseAnnotationToTdfTranslator {
 
 	public String getAllRowsForGeneDiseaseAnnotations(List<GeneDiseaseAnnotationDocument> diseaseAnnotations) {
 
@@ -199,7 +199,7 @@ public class DiseaseAnnotationToTdfTranslator extends BaseToTdfTranslator {
 		if (annotation.getConditionModifierAggregated() != null) {
 			row.setConditionModifier(annotation.getConditionModifierAggregated());
 		}
-		row.setReference(getReferenceString(primaryAnnotation.getEvidenceItem()));
+		row.setReference(primaryAnnotation.getEvidenceItem().getCurie());
 		row.setSource(primaryAnnotation.getDataProviderString());
 		List<String> urlExceptionHandler = List.of("MGI", "SGD", "OMIM");
 		Organization organization = primaryAnnotation.getDataProvider();

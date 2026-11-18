@@ -7,10 +7,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.LinkedBlockingDeque;
 
+import org.alliancegenome.core.config.RestConfig;
 import org.alliancegenome.core.document.AGMPhenotypeAnnotationDocument;
 import org.alliancegenome.core.document.AllelePhenotypeAnnotationDocument;
 import org.alliancegenome.core.document.GenePhenotypeAnnotationDocument;
 import org.alliancegenome.core.document.PhenotypeAnnotationDocument;
+import org.alliancegenome.core.es.util.ProcessDisplayHelper;
 import org.alliancegenome.curation_api.constants.ReferenceConstants;
 import org.alliancegenome.curation_api.model.entities.AGMPhenotypeAnnotation;
 import org.alliancegenome.curation_api.model.entities.AffectedGenomicModel;
@@ -18,14 +20,11 @@ import org.alliancegenome.curation_api.model.entities.Allele;
 import org.alliancegenome.curation_api.model.entities.AllelePhenotypeAnnotation;
 import org.alliancegenome.curation_api.model.entities.BiologicalEntity;
 import org.alliancegenome.curation_api.model.entities.CrossReference;
-import org.alliancegenome.curation_api.model.entities.ExternalDatabaseReference;
 import org.alliancegenome.curation_api.model.entities.Gene;
 import org.alliancegenome.curation_api.model.entities.GenePhenotypeAnnotation;
 import org.alliancegenome.curation_api.model.entities.PhenotypeAnnotation;
 import org.alliancegenome.curation_api.model.entities.Reference;
 import org.alliancegenome.curation_api.model.entities.VocabularyTerm;
-import org.alliancegenome.core.config.RestConfig;
-import org.alliancegenome.core.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.service.AGMPhenotypeAnnotationService;
 import org.alliancegenome.indexer.service.AllelePhenotypeAnnotationService;
@@ -159,24 +158,11 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 		return fallback;
 	}
 
-	private CrossReference buildExternalDatabaseReferenceXref(ExternalDatabaseReference externalReference) {
-		if (externalReference == null || externalReference.getCurie() == null) {
-			return null;
-		}
-		CrossReference xref = new CrossReference();
-		xref.setReferencedCurie(externalReference.getCurie());
-		xref.setDisplayName(externalReference.getCurie());
-		xref.setResourceDescriptorPage(externalReference.getResourceDescriptorPage());
-		return xref;
-	}
-
 	private void populateBasePhenotypeAnnotationDocument(BiologicalEntity biologicalEntity, PhenotypeAnnotation da, PhenotypeAnnotationDocument dad) {
 		dad.addReference(da.getEvidenceItem());
 		if (da.getEvidenceItem() instanceof Reference) {
-			CrossReference xref = getPubmedPubModXref((Reference) da.getEvidenceItem());
+			CrossReference xref = getPubmedPubModXref(da.getEvidenceItem());
 			dad.addPubmedPublication(xref);
-		} else if (da.getEvidenceItem() instanceof ExternalDatabaseReference externalReference) {
-			dad.addPubmedPublication(buildExternalDatabaseReferenceXref(externalReference));
 		}
 		stripInternalOrObsoleteNotes(da.getRelatedNotes());
 		stripInternalOrObsoleteNotes(biologicalEntity.getRelatedNotes());
