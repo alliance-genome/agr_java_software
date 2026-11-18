@@ -3,9 +3,8 @@ package org.alliancegenome.api.translators.tdf;
 import java.util.List;
 import java.util.StringJoiner;
 
-import org.alliancegenome.core.document.GeneMolecularInteractionDocument;
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.curation_api.model.entities.InformationContentEntity;
+import org.alliancegenome.core.document.GeneMolecularInteractionDocument;
 import org.alliancegenome.curation_api.model.entities.Reference;
 import org.apache.commons.collections.CollectionUtils;
 
@@ -102,8 +101,7 @@ public class GeneMolecularInteractionToTdfTranslator {
 			String referenceCuries = "";
 			if (CollectionUtils.isNotEmpty(interaction.getGeneMolecularInteraction().getEvidence())) {
 				StringJoiner referenceJoiner = new StringJoiner(",");
-				for (InformationContentEntity ice : interaction.getGeneMolecularInteraction().getEvidence()) {
-					Reference reference = (Reference) ice;
+				for (Reference reference : interaction.getGeneMolecularInteraction().getEvidence()) {
 					referenceJoiner.add(reference.getReferenceID());
 				}
 				referenceCuries = referenceJoiner.toString();
