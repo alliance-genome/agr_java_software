@@ -96,8 +96,8 @@ public class SnapShotCommand extends Command implements CommandInterface {
 					String repo = args.remove(0);
 					String snapshotType = args.remove(0);
 					List<String> indexes = im.getIndexList();
-					for(String index: indexes) {
-						if(index.startsWith(snapshotType)) {
+					for (String index : indexes) {
+						if (index.startsWith(snapshotType)) {
 							im.createSnapShot(repo, index, index);
 						}
 					}
