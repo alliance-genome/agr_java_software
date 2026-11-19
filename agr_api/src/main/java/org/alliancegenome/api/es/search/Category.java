@@ -2,30 +2,25 @@ package org.alliancegenome.api.es.search;
 
 public enum Category {
 
-	ALLELE_SUMMARY("allele_summary", false),
-	ALLELE("allele_search_result", true),
-	VARIANT("variant_search_result", true),
-	SEQUENCE_SUMMARY("sequence_summary", false),
-	DISEASE("disease_search_result", true),
-	MODEL("model_search_result", true),
-	GENE("gene_search_result", true),
-	GO("go_search_result", true),
-	DATASET("htp_dataset_search_result", true),
-	LITERATURE("literature_search_result", true);
+	ALLELE_SUMMARY("allele_summary"),
+	ALLELE("allele_search_result"),
+	VARIANT("variant_search_result"),
+	SEQUENCE_SUMMARY("sequence_summary"),
+	DISEASE("disease_search_result"),
+	MODEL("model_search_result"),
+	GENE("gene_search_result"),
+	GO("go_search_result"),
+	DATASET("htp_dataset_search_result"),
+	LITERATURE("literature_search_result");
 
 	private String name;
-	private Boolean searchable;
 
-	private Category(String name, Boolean searchable) {
+	private Category(String name) {
 		this.name = name;
-		this.searchable = searchable;
 	}
 
 	public String getName() {
 		return name;
 	}
 
-	public Boolean isSearchable() {
-		return searchable;
-	}
 }

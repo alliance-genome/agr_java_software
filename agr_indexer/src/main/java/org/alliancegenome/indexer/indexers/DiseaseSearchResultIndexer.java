@@ -3,11 +3,11 @@ package org.alliancegenome.indexer.indexers;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.core.config.RestConfig;
+import org.alliancegenome.core.es.util.ProcessDisplayHelper;
 import org.alliancegenome.curation_api.interfaces.document.DiseaseDocumentInterface;
 import org.alliancegenome.curation_api.model.document.es.DiseaseSearchResultDocument;
 import org.alliancegenome.curation_api.response.SearchResponse;
-import org.alliancegenome.core.config.RestConfig;
-import org.alliancegenome.core.es.util.ProcessDisplayHelper;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.config.IndexerConfig;
 
@@ -17,11 +17,11 @@ import lombok.extern.slf4j.Slf4j;
 import si.mazi.rescu.RestProxyFactory;
 
 @Slf4j
-public class DiseaseSearchResultCurationIndexer extends Indexer {
+public class DiseaseSearchResultIndexer extends Indexer {
 
 	private final DiseaseDocumentInterface diseaseApi = RestProxyFactory.createProxy(DiseaseDocumentInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 
-	public DiseaseSearchResultCurationIndexer(IndexerConfig indexerConfig) {
+	public DiseaseSearchResultIndexer(IndexerConfig indexerConfig) {
 		super(indexerConfig);
 	}
 
@@ -32,7 +32,7 @@ public class DiseaseSearchResultCurationIndexer extends Indexer {
 			SearchResponse<DiseaseSearchResultDocument> response = diseaseApi.findAll();
 			log.info("Fetched {} disease search result documents", response.getResults().size());
 			display.startProcess(response.getResults().size());
-			indexDocuments(response.getResults());
+			indexDocuments(indexerConfig.getDefaultIndexName(), response.getResults());
 		} catch (Exception e) {
 			log.error("Error while indexing...", e);
 			ExceptionCatcher.report(e);

@@ -11,8 +11,9 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.alliancegenome.core.config.VariantConfigHelper;
 import org.alliancegenome.core.es.util.EsClientFactory;
-import org.alliancegenome.indexer.variant.config.VariantConfigHelper;
+import org.alliancegenome.core.es.util.IndexName;
 import org.elasticsearch.client.RestHighLevelClient;
 
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +26,6 @@ public class RetryWorker extends Thread {
 	private final BlockingQueue<RetryItem> queue;
 	private final Deque<RetryItem> internal = new ArrayDeque<>();
 	private final AtomicBoolean draining = new AtomicBoolean(false);
-	private final String indexName;
 	private final String label = "RetryWorker";
 
 	private RestHighLevelClient client;
@@ -33,14 +33,13 @@ public class RetryWorker extends Thread {
 	private long totalRetries;
 	private long totalFailedDocs;
 
-	public RetryWorker(int capacity, String indexName) {
+	public RetryWorker(int capacity) {
 		this.queue = new LinkedBlockingQueue<>(capacity);
-		this.indexName = indexName;
 		setName("variant-retry-worker");
 	}
 
-	public void submit(List<byte[]> docs) throws InterruptedException {
-		queue.put(new RetryItem(docs));
+	public void submit(IndexName indexName, List<byte[]> docs) throws InterruptedException {
+		queue.put(new RetryItem(indexName, docs));
 	}
 
 	public void shutdown() {
@@ -93,7 +92,7 @@ public class RetryWorker extends Thread {
 		}
 
 		String routing = Integer.toString(ThreadLocalRandom.current().nextInt(Integer.MAX_VALUE));
-		BulkSubmitResult result = BulkSubmitter.submitOnce(item.getDocs(), client, routing, indexName);
+		BulkSubmitResult result = BulkSubmitter.submitOnce(item.getDocs(), client, routing, item.getIndexName().getIndexName());
 
 		switch (result.getStatus()) {
 			case SUCCESS:
@@ -103,14 +102,14 @@ public class RetryWorker extends Thread {
 				item.setDocs(result.getFailedDocs());
 				item.setRetryCount(item.getRetryCount() + 1);
 				item.setLastFailureReason(result.getReason());
-				log.warn(label + " " + item.getDocs().size() + " failed items (retryCount=" + item.getRetryCount() + ", splitDepth=" + item.getSplitDepth() + "): " + item.getLastFailureReason());
+				log.warn(label + " " + item.getIndexName() + " " + item.getDocs().size() + " failed items (retryCount=" + item.getRetryCount() + ", splitDepth=" + item.getSplitDepth() + "): " + item.getLastFailureReason());
 				splitAndRequeue(item);
 				return;
 			case FULL_FAILURE:
 				totalRetries++;
 				item.setRetryCount(item.getRetryCount() + 1);
 				item.setLastFailureReason(result.getReason());
-				log.warn(label + " Bulk request failed (retryCount=" + item.getRetryCount() + ", splitDepth=" + item.getSplitDepth() + ", size=" + item.getDocs().size() + "): " + item.getLastFailureReason());
+				log.warn(label + " " + item.getIndexName() + " Bulk request failed (retryCount=" + item.getRetryCount() + ", splitDepth=" + item.getSplitDepth() + ", size=" + item.getDocs().size() + "): " + item.getLastFailureReason());
 				if (result.isSleepNeeded()) {
 					try {
 						Thread.sleep(1000 + ThreadLocalRandom.current().nextInt(2000));
@@ -129,7 +128,7 @@ public class RetryWorker extends Thread {
 	private void splitAndRequeue(RetryItem item) {
 		if (item.getDocs().size() == 1) {
 			totalFailedDocs++;
-			log.error(label + " Single document cannot be retried further (retryCount=" + item.getRetryCount() + ", splitDepth=" + item.getSplitDepth() + "): " + item.getLastFailureReason() + ", exiting");
+			log.error(label + " " + item.getIndexName() + " Single document cannot be retried further (retryCount=" + item.getRetryCount() + ", splitDepth=" + item.getSplitDepth() + "): " + item.getLastFailureReason() + ", exiting");
 			//System.exit(-1);
 			return;
 		}
@@ -137,7 +136,7 @@ public class RetryWorker extends Thread {
 		int newDepth = item.getSplitDepth() + 1;
 		if (newDepth > MAX_SPLIT_DEPTH) {
 			totalFailedDocs += item.getDocs().size();
-			log.error(label + " MAX_SPLIT_DEPTH (" + MAX_SPLIT_DEPTH + ") exceeded at size=" + item.getDocs().size() + " (retryCount=" + item.getRetryCount() + "): " + item.getLastFailureReason() + ", exiting");
+			log.error(label + " " + item.getIndexName() + " MAX_SPLIT_DEPTH (" + MAX_SPLIT_DEPTH + ") exceeded at size=" + item.getDocs().size() + " (retryCount=" + item.getRetryCount() + "): " + item.getLastFailureReason() + ", exiting");
 			//System.exit(-1);
 			return;
 		}
@@ -148,7 +147,7 @@ public class RetryWorker extends Thread {
 		item.setDocs(firstHalf);
 		item.setSplitDepth(newDepth);
 		internal.push(item);
-		internal.push(new RetryItem(secondHalf, newDepth));
+		internal.push(new RetryItem(item.getIndexName(), secondHalf, newDepth));
 	}
 
 	private void reconnectClient() {

@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.StringJoiner;
-import java.util.stream.Collectors;
 
 import org.alliancegenome.api.view.BaseFilter;
 import org.apache.commons.lang3.StringUtils;
@@ -19,19 +18,19 @@ public class Pagination {
 	private Integer page = 1;
 	private Integer limit = 20;
 	private String sortBy;
-	private FieldFilter sortByField;
+	//private FieldFilter sortByField;
 	private Boolean asc;
 	private BaseFilter fieldFilterValueMap = new BaseFilter();
 	private List<String> errorList = new ArrayList<>();
 	private List<String> invalidFilterList = new ArrayList<>();
 	private long totalHits;
-	private boolean isCount;
 	private HashMap<String, String> filterOptionMap = new HashMap<>();
 	// ES _source fields to exclude from the fetch. Empty = fetch full source (default behavior).
 	private List<String> sourceExcludes = new ArrayList<>();
 	// ES _source fields to include. Empty = use the service's default response fields.
 	private List<String> sourceIncludes = new ArrayList<>();
 
+	public Pagination() { }
 
 	public Pagination(Integer page, Integer limit, String sortBy, String asc) {
 		if (page != null) {
@@ -41,7 +40,6 @@ public class Pagination {
 			this.limit = limit;
 		}
 		this.sortBy = sortBy;
-		sortByField = FieldFilter.getFieldFilterByName(sortBy);
 		if (this.page < 1) {
 			errorList.add("'page' request parameter invalid: Found [" + page + "]. It has to be an integer number greater than 0");
 		}
@@ -49,14 +47,6 @@ public class Pagination {
 			errorList.add("'limit' request parameter invalid: Found [" + limit + "].  It has to be an integer number greater than 0");
 		}
 		init(asc);
-	}
-
-	public Pagination() {
-		isCount = true;
-	}
-
-	public boolean isCountPagination() {
-		return isCount;
 	}
 
 	private void init(String asc) {
@@ -77,32 +67,13 @@ public class Pagination {
 			fieldFilterValueMap.put(fieldFilter, value);
 		}
 	}
-
-	public void makeSingleFieldFilter(FieldFilter fieldFilter, String value) {
-		fieldFilterValueMap.clear();
-		fieldFilterValueMap.put(fieldFilter, value);
-	}
-
-	public void removeFieldFilter(FieldFilter fieldFilter) {
-		fieldFilterValueMap.remove(fieldFilter);
-	}
-
+	
 	public boolean hasErrors() {
 		return !errorList.isEmpty();
 	}
 
 	public List<String> getErrors() {
 		return errorList;
-	}
-
-	public boolean sortByDefault() {
-		if (StringUtils.isEmpty(sortBy)) {
-			return true;
-		}
-		if (sortBy.equalsIgnoreCase("default")) {
-			return true;
-		}
-		return false;
 	}
 
 	public String getSortBy() {
@@ -112,38 +83,11 @@ public class Pagination {
 		return sortBy;
 	}
 
-	public String getAscending() {
-		return asc ? "ASC" : "DESC";
-	}
-
 	public int getStart() {
 		if (page == null || limit == null) {
 			return 0;
 		}
 		return (page - 1) * limit;
-	}
-
-	public int getEnd() {
-		return page * limit;
-	}
-
-	public List<FieldFilter> getSortByList() {
-		if (StringUtils.isEmpty(sortBy)) {
-			return null;
-		}
-		String[] sortingTokens = sortBy.split(SORTING_DELIMITER);
-		return Arrays.stream(sortingTokens)
-			.map(FieldFilter::getFieldFilterByName)
-			.collect(Collectors.toList());
-	}
-
-	public boolean hasInvalidElements() {
-		return invalidFilterList == null || !invalidFilterList.isEmpty();
-
-	}
-
-	public void setLimitToAll() {
-		limit = Integer.MAX_VALUE;
 	}
 
 	public void addFilterOptions(String filterOptions) {
@@ -202,9 +146,5 @@ public class Pagination {
 
 	public int getOffset() {
 		return (page - 1) * limit;
-	}
-
-	public static Pagination getDownloadPagination() {
-		return new Pagination(1, Integer.MAX_VALUE, null, null);
 	}
 }

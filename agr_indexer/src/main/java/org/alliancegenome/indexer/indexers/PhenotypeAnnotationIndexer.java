@@ -39,7 +39,7 @@ import lombok.extern.slf4j.Slf4j;
 
 
 @Slf4j
-public class PhenotypeAnnotationCurationIndexer extends Indexer {
+public class PhenotypeAnnotationIndexer extends Indexer {
 
 	private GenePhenotypeAnnotationService geneService;
 	private AllelePhenotypeAnnotationService alleleService;
@@ -50,7 +50,7 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 	private Map<String, Pair<Allele, ArrayList<PhenotypeAnnotation>>> alleleMap = new HashMap<>();
 	private Map<String, Pair<AffectedGenomicModel, ArrayList<PhenotypeAnnotation>>> agmMap = new HashMap<>();
 
-	public PhenotypeAnnotationCurationIndexer(IndexerConfig indexerConfig) {
+	public PhenotypeAnnotationIndexer(IndexerConfig indexerConfig) {
 		super(indexerConfig);
 	}
 
@@ -78,15 +78,15 @@ public class PhenotypeAnnotationCurationIndexer extends Indexer {
 
 		List<GenePhenotypeAnnotationDocument> geneList = createGenePhenotypeAnnotationDocuments();
 		log.info("Indexing " + String.format("%,d", geneList.size()) + " Gene PA documents");
-		indexDocuments(geneList);
+		indexDocuments(indexerConfig.getDefaultIndexName(), geneList);
 
 		List<AllelePhenotypeAnnotationDocument> alleleList = createAllelePhenotypeAnnotationDocuments();
 		log.info("Indexing " + alleleList.size() + " allele documents");
-		indexDocuments(alleleList);
+		indexDocuments(indexerConfig.getDefaultIndexName(), alleleList);
 
 		List<AGMPhenotypeAnnotationDocument> agmList = createAGMPhenotypeAnnotationDocuments();
 		log.info("Indexing " + agmList.size() + " agm documents");
-		indexDocuments(agmList);
+		indexDocuments(indexerConfig.getDefaultIndexName(), agmList);
 
 		log.info("Finished Indexing Phenotype Annotations");
 	}

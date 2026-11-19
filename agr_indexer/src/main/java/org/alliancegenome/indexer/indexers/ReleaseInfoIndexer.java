@@ -5,8 +5,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 
-import org.alliancegenome.core.document.ReleaseInfoDocument;
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.core.document.ReleaseInfoDocument;
 import org.alliancegenome.core.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.config.IndexerConfig;
 
@@ -23,7 +23,7 @@ public class ReleaseInfoIndexer extends Indexer {
 		releaseInfoDocument.setReleaseVersion(ConfigHelper.getAllianceRelease());
 		List<ReleaseInfoDocument> releaseInfoDocumentList = new ArrayList<>();
 		releaseInfoDocumentList.add(releaseInfoDocument);
-		indexDocuments(releaseInfoDocumentList);
+		indexDocuments(indexerConfig.getDefaultIndexName(), releaseInfoDocumentList);
 	}
 
 	@Override

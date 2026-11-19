@@ -12,6 +12,7 @@ import org.alliancegenome.core.converter.literature.LiteratureConverter;
 import org.alliancegenome.core.document.LiteratureSearchResultDocument;
 import org.alliancegenome.core.document.LiteratureSummaryDocument;
 import org.alliancegenome.core.es.util.ElasticSearchInterface;
+import org.alliancegenome.core.es.util.IndexName;
 import org.alliancegenome.core.es.util.ProcessDisplayHelper;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.config.IndexerConfig;
@@ -84,8 +85,8 @@ public class LiteratureIndexer extends Indexer {
 				
 				List<LiteratureSearchResultDocument> searchResultlist = literatureConverter.convertToSearchResults(list);
 
-				indexDocuments(searchResultlist);
-				indexDocuments(list);
+				indexDocuments(IndexName.SEARCH_RESULT, searchResultlist);
+				indexDocuments(indexerConfig.getDefaultIndexName(), list);
 
 			} catch (Exception e) {
 				ExceptionCatcher.report(e);

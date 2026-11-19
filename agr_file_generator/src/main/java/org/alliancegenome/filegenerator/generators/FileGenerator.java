@@ -103,7 +103,7 @@ public abstract class FileGenerator extends Thread {
 		}
 
 		try {
-			EsParallelFetcher fetcher = new EsParallelFetcher(esIndex(), config.getEsCategories());
+			EsParallelFetcher fetcher = new EsParallelFetcher(config.getIndexName().getIndexName(), config.getEsCategories());
 			// Run a _count up front so the progress display can render against a known total.
 			long total = fetcher.count();
 			log.info("{}: ES _count for {} = {}", getClass().getSimpleName(), config.getEsCategories(), total);
@@ -238,16 +238,6 @@ public abstract class FileGenerator extends Thread {
 	 */
 	protected boolean shouldEmit(JsonNode hit) {
 		return true;
-	}
-
-	/**
-	 * The ES index (or wildcard pattern) this generator scrolls. Default is whatever
-	 * {@link ConfigHelper#getEsIndex()} returns (the {@code site_index} alias). VCF overrides
-	 * to {@code site_index_stage_*} so the wildcard excludes the HTP {@code variant_index_*}
-	 * that's also aliased as {@code site_index}.
-	 */
-	protected String esIndex() {
-		return ConfigHelper.getEsIndex();
 	}
 
 	protected String resolveTaxonCurie(JsonNode hit) {

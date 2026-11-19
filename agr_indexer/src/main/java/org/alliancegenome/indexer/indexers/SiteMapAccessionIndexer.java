@@ -5,22 +5,22 @@ import java.util.Map;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.core.config.RestConfig;
+import org.alliancegenome.core.es.util.ProcessDisplayHelper;
 import org.alliancegenome.core.util.ListUtils;
 import org.alliancegenome.curation_api.interfaces.document.AccessionDocumentInterface;
 import org.alliancegenome.curation_api.model.document.es.AccessionSummaryDocument;
-import org.alliancegenome.core.config.RestConfig;
-import org.alliancegenome.core.es.util.ProcessDisplayHelper;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.document.SiteMapIdDocument;
 
 import si.mazi.rescu.RestProxyFactory;
 
-public class SiteMapAccessionCurationIndexer extends Indexer {
+public class SiteMapAccessionIndexer extends Indexer {
 
 	private final AccessionDocumentInterface accessionApi = RestProxyFactory.createProxy(AccessionDocumentInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 
-	public SiteMapAccessionCurationIndexer(IndexerConfig indexerConfig) {
+	public SiteMapAccessionIndexer(IndexerConfig indexerConfig) {
 		super(indexerConfig);
 	}
 
@@ -41,7 +41,7 @@ public class SiteMapAccessionCurationIndexer extends Indexer {
 				doc.setSiteMapId(siteMapId);
 				doc.setSiteMapType("allele");
 				doc.setSiteMapIds(alleleIdLists.get(i));
-				indexDocument(doc);
+				indexDocument(indexerConfig.getDefaultIndexName(), doc);
 			}
 
 			List<List<String>> geneIdLists = ListUtils.partition(map.get("gene"), 15000);
@@ -53,7 +53,7 @@ public class SiteMapAccessionCurationIndexer extends Indexer {
 				doc.setSiteMapId(siteMapId);
 				doc.setSiteMapType("gene");
 				doc.setSiteMapIds(geneIdLists.get(i));
-				indexDocument(doc);
+				indexDocument(indexerConfig.getDefaultIndexName(), doc);
 			}
 
 			List<List<String>> variantIdLists = ListUtils.partition(map.get("variant"), 15000);
@@ -65,7 +65,7 @@ public class SiteMapAccessionCurationIndexer extends Indexer {
 				doc.setSiteMapType("variant");
 				doc.setSiteMapId(siteMapId);
 				doc.setSiteMapIds(variantIdLists.get(i));
-				indexDocument(doc);
+				indexDocument(indexerConfig.getDefaultIndexName(), doc);
 			}
 
 			List<List<String>> diseaseIdLists = ListUtils.partition(map.get("disease"), 15000);
@@ -77,7 +77,7 @@ public class SiteMapAccessionCurationIndexer extends Indexer {
 				doc.setSiteMapId(siteMapId);
 				doc.setSiteMapType("disease");
 				doc.setSiteMapIds(diseaseIdLists.get(i));
-				indexDocument(doc);
+				indexDocument(indexerConfig.getDefaultIndexName(), doc);
 			}
 
 		} catch (Exception e) {

@@ -4,12 +4,12 @@ import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.core.config.RestConfig;
+import org.alliancegenome.core.es.util.ProcessDisplayHelper;
 import org.alliancegenome.core.util.ListUtils;
 import org.alliancegenome.curation_api.interfaces.document.HTPDatasetDocumentInterface;
 import org.alliancegenome.curation_api.model.document.es.HTPDatasetSearchResultDocument;
 import org.alliancegenome.curation_api.response.SearchResponse;
-import org.alliancegenome.core.config.RestConfig;
-import org.alliancegenome.core.es.util.ProcessDisplayHelper;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.apache.commons.collections.CollectionUtils;
@@ -20,13 +20,13 @@ import lombok.extern.slf4j.Slf4j;
 import si.mazi.rescu.RestProxyFactory;
 
 @Slf4j
-public class HTPDatasetSearchResultCurationIndexer extends Indexer {
+public class HTPDatasetSearchResultIndexer extends Indexer {
 
 	private final HTPDatasetDocumentInterface htpApi = RestProxyFactory.createProxy(HTPDatasetDocumentInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 
 	private List<List<Long>> idBatches;
 
-	public HTPDatasetSearchResultCurationIndexer(IndexerConfig indexerConfig) {
+	public HTPDatasetSearchResultIndexer(IndexerConfig indexerConfig) {
 		super(indexerConfig);
 	}
 
@@ -69,7 +69,7 @@ public class HTPDatasetSearchResultCurationIndexer extends Indexer {
 					continue;
 				}
 
-				indexDocuments(response.getResults());
+				indexDocuments(indexerConfig.getDefaultIndexName(), response.getResults());
 			} catch (Exception e) {
 				log.error("Error while indexing...", e);
 				ExceptionCatcher.report(e);

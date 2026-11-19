@@ -2,22 +2,15 @@ package org.alliancegenome.api.service.helper;
 
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
 
 import org.alliancegenome.api.es.dao.SearchDAO;
 import org.alliancegenome.api.es.query.Pagination;
 import org.apache.commons.collections.MapUtils;
 import org.apache.lucene.queryparser.classic.QueryParser;
-import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.aggregations.AggregationBuilder;
-import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
-import org.elasticsearch.search.sort.SortOrder;
 
 public class ElasticSearchHelper {
 
@@ -79,12 +72,4 @@ public class ElasticSearchHelper {
 		return value;
 	}
 
-	public SearchResponse getSearchResponse(BoolQueryBuilder bool, Pagination pagination, LinkedHashMap<String, SortOrder> focusTaxonId, boolean debug) {
-		List<AggregationBuilder> aggBuilders = new ArrayList<>();
-		HighlightBuilder hlb = new HighlightBuilder();
-
-		return searchDAO.performQuery(
-			bool, aggBuilders, null, List.of("*"),
-			pagination.getLimit(), pagination.getOffset(), hlb, focusTaxonId, debug);
-	}
 }

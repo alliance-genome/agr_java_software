@@ -75,7 +75,7 @@ public class VariantVcfFileGenerator extends FileGenerator {
 	 * One ES `_search` per MOD (size=0, multi_terms agg over chrom+assembly+species). Empty buckets yield empty contigLines for that MOD so the placeholder line collapses cleanly.
 	 */
 	private void precomputeContigLines() {
-		EsParallelFetcher fetcher = new EsParallelFetcher(esIndex(), config.getEsCategories());
+		EsParallelFetcher fetcher = new EsParallelFetcher(config.getIndexName().getIndexName(), config.getEsCategories());
 		for (String mod : config.getMods()) {
 			String prefix = mod + ":";
 			Map<String, Object> body = buildContigAggBody(prefix);
@@ -173,18 +173,6 @@ public class VariantVcfFileGenerator extends FileGenerator {
 	@Override
 	protected String taxonPath() {
 		return "allele.taxon.curie";
-	}
-
-	/**
-	 * The {@code site_index} alias resolves to BOTH the LTP {@code site_index_*} and the
-	 * HTP {@code variant_index_*}. We want LTP-only — match the LTP index by wildcard so
-	 * we get its ~65K {@code variant_summary} docs, not the 50M HTP variants. The
-	 * {@code site_index_*} pattern is environment-agnostic (matches stage, prod, etc.)
-	 * while still cleanly excluding {@code variant_index_*}.
-	 */
-	@Override
-	protected String esIndex() {
-		return "site_index_*";
 	}
 
 	/**

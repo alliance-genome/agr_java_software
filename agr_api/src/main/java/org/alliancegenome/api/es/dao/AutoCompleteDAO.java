@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.es.util.EsClientFactory;
+import org.alliancegenome.core.es.util.IndexName;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
@@ -23,7 +23,7 @@ public class AutoCompleteDAO extends ESDAO {
 		SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
 		searchSourceBuilder.query(query);
 
-		SearchRequest searchRequest = new SearchRequest(ConfigHelper.getEsIndex());
+		SearchRequest searchRequest = new SearchRequest(IndexName.SEARCH_RESULT.getIndexName());
 		searchRequest.source(searchSourceBuilder);
 
 		searchSourceBuilder.fetchSource(responseFields.toArray(new String[responseFields.size()]), null);

@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.es.util.EsClientFactory;
+import org.alliancegenome.core.es.util.IndexName;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
@@ -31,7 +31,7 @@ public class SearchDAO extends ESDAO {
 		searchSourceBuilder.size(0);
 		searchSourceBuilder.trackTotalHits(true);
 
-		SearchRequest searchRequest = new SearchRequest(ConfigHelper.getEsIndex());
+		SearchRequest searchRequest = new SearchRequest(IndexName.SITE_INDEX.getIndexName());
 		searchRequest.source(searchSourceBuilder);
 
 		SearchResponse response = null;
@@ -106,7 +106,7 @@ public class SearchDAO extends ESDAO {
 			log.debug("searchSourceBuilder: " + searchSourceBuilder);
 		}
 
-		SearchRequest searchRequest = new SearchRequest(ConfigHelper.getEsIndex());
+		SearchRequest searchRequest = new SearchRequest(IndexName.SITE_INDEX.getIndexName());
 		searchRequest.source(searchSourceBuilder);
 
 		if (debug != null && debug) {

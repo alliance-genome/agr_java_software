@@ -15,10 +15,12 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import org.alliancegenome.core.config.RestConfig;
 import org.alliancegenome.core.document.AGMDiseaseAnnotationDocument;
 import org.alliancegenome.core.document.AlleleDiseaseAnnotationDocument;
 import org.alliancegenome.core.document.DiseaseAnnotationDocument;
 import org.alliancegenome.core.document.GeneDiseaseAnnotationDocument;
+import org.alliancegenome.core.es.util.ProcessDisplayHelper;
 import org.alliancegenome.core.helper.DiseaseAnnotationHelper;
 import org.alliancegenome.curation_api.constants.ReferenceConstants;
 import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
@@ -38,8 +40,6 @@ import org.alliancegenome.curation_api.model.entities.base.SubmittedObject;
 import org.alliancegenome.curation_api.model.entities.ontology.DOTerm;
 import org.alliancegenome.curation_api.model.entities.ontology.ECOTerm;
 import org.alliancegenome.curation_api.model.entities.ontology.OntologyTerm;
-import org.alliancegenome.core.config.RestConfig;
-import org.alliancegenome.core.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.service.AGMDiseaseAnnotationService;
 import org.alliancegenome.indexer.service.AlleleDiseaseAnnotationService;
@@ -54,7 +54,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class DiseaseAnnotationCurationIndexer extends Indexer {
+public class DiseaseAnnotationIndexer extends Indexer {
 
 	private GeneDiseaseAnnotationService geneService;
 	private AlleleDiseaseAnnotationService alleleService;
@@ -72,7 +72,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 
 	private AtomicInteger uniqueAnnotationCounter = new AtomicInteger(1);
 
-	public DiseaseAnnotationCurationIndexer(IndexerConfig indexerConfig) {
+	public DiseaseAnnotationIndexer(IndexerConfig indexerConfig) {
 		super(indexerConfig);
 	}
 
@@ -103,15 +103,15 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 		List<GeneDiseaseAnnotationDocument> viaOrthologyList = createGeneDiseaseAnnotationViaOrthologyDocuments();
 		list.addAll(viaOrthologyList);
 		log.info("Indexing " + list.size() + " gene documents");
-		indexDocuments(list);
+		indexDocuments(indexerConfig.getDefaultIndexName(), list);
 
 		List<AlleleDiseaseAnnotationDocument> alleleList = createAlleleDiseaseAnnotationDocuments();
 		log.info("Indexing " + alleleList.size() + " allele documents");
-		indexDocuments(alleleList);
+		indexDocuments(indexerConfig.getDefaultIndexName(), alleleList);
 
 		List<AGMDiseaseAnnotationDocument> agmList = createAGMDiseaseAnnotationDocuments();
 		log.info("Indexing " + agmList.size() + " agm documents");
-		indexDocuments(agmList);
+		indexDocuments(indexerConfig.getDefaultIndexName(), agmList);
 		log.info("Finished Indexing Disease Annotations");
 	}
 
@@ -179,7 +179,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 							//List<String> ids = basedOnGenes.stream().map(SubmittedObject::getIdentifier).toList();
 							basedOnGenes.forEach(gene1 -> stripInternalOrObsoleteNotes(gene1.getRelatedNotes()));
 							gdad.setBasedOnGenes(new ArrayList<>(basedOnGenes));
-							Reference evidenceItem = (Reference) diseaseAnnotation.getEvidenceItem();
+							Reference evidenceItem = diseaseAnnotation.getEvidenceItem();
 							gdad.addReference(evidenceItem);
 							gdad.addPubmedPublication(getPubmedPubModXref(evidenceItem));
 							gdad.addPubModPublication(getPubModXref(evidenceItem));
@@ -409,7 +409,7 @@ public class DiseaseAnnotationCurationIndexer extends Indexer {
 
 		dad.setParentSlimIDs(closureMap.get(da.getDiseaseAnnotationObject().getCurie()));
 		// gdad.setDataProvider(da.getDataProvider());
-		Reference evidenceItem = (Reference) da.getEvidenceItem();
+		Reference evidenceItem = da.getEvidenceItem();
 		dad.addReference(evidenceItem);
 		dad.addPubmedPublication(getPubmedPubModXref(evidenceItem));
 		dad.addPubModPublication(getPubModXref(evidenceItem));

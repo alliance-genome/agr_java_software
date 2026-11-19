@@ -18,7 +18,6 @@ import static org.alliancegenome.core.config.Constants.ES_BULK_ACTION_SIZE;
 import static org.alliancegenome.core.config.Constants.ES_BULK_CONCURRENT_REQUESTS;
 import static org.alliancegenome.core.config.Constants.ES_BULK_REQUEST_SIZE;
 import static org.alliancegenome.core.config.Constants.ES_HOST;
-import static org.alliancegenome.core.config.Constants.ES_INDEX;
 import static org.alliancegenome.core.config.Constants.ES_INDEX_PREFIX;
 import static org.alliancegenome.core.config.Constants.ES_INDEX_SUFFIX;
 import static org.alliancegenome.core.config.Constants.ES_PORT;
@@ -78,7 +77,6 @@ public class ConfigHelper {
 
 		defaults.put(DEBUG, "false");
 
-		defaults.put(ES_INDEX, "site_index"); // Can be over written
 		defaults.put(ES_INDEX_PREFIX, ""); // This can be used to prefix "{ES_INDEX_PREFIX}_{ES_INDEX}" Example mod and human variant indexer
 		defaults.put(ES_INDEX_SUFFIX, ""); // This can be used to suffix "{ES_INDEX}_{ES_INDEX_SUFFIX}" Example Prod, Dev, Stage, etc
 		// If both are used then the resulting index name is: {ES_INDEX_PREFIX}_{ES_INDEX}_{ES_INDEX_SUFFIX}_{TIMESTAMP}"
@@ -355,13 +353,6 @@ public class ConfigHelper {
 			init();
 		}
 		return config.get(EXTRACTOR_OUTPUTDIR);
-	}
-
-	public static String getEsIndex() {
-		if (!init) {
-			init();
-		}
-		return config.get(ES_INDEX);
 	}
 
 	public static Date getAppStart() {

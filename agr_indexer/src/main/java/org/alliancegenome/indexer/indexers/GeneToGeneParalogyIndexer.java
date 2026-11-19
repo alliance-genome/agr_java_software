@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 
+import org.alliancegenome.core.config.RestConfig;
 import org.alliancegenome.core.document.GeneToGeneParalogyDocument;
+import org.alliancegenome.core.es.util.ProcessDisplayHelper;
 import org.alliancegenome.curation_api.model.entities.GeneToGeneParalogy;
 import org.alliancegenome.curation_api.response.SearchResponse;
-import org.alliancegenome.core.config.RestConfig;
-import org.alliancegenome.core.es.util.ProcessDisplayHelper;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.service.GeneToGeneParalogyService;
@@ -69,7 +69,7 @@ public class GeneToGeneParalogyIndexer extends Indexer {
 				// log.info(queue.size() + " pages to process " +
 				// Thread.currentThread().getName() + " starting page: " + page);
 				SearchResponse<GeneToGeneParalogy> resp = service.getGeneToGeneParalogy(Integer.valueOf(page), indexerConfig.getBufferSize());
-				indexDocuments(generateDocuments(resp.getResults()));
+				indexDocuments(indexerConfig.getDefaultIndexName(), generateDocuments(resp.getResults()));
 			} catch (Exception e) {
 				log.error("Error while indexing...", e);
 				ExceptionCatcher.report(e);

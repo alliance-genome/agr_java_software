@@ -1,4 +1,4 @@
-package org.alliancegenome.indexer.variant.config;
+package org.alliancegenome.core.config;
 
 import static org.alliancegenome.core.config.Constants.VARIANTS_TO_INDEX;
 import static org.alliancegenome.core.config.Constants.VARIANT_BULK_PROCESSOR_SETTINGS;
@@ -88,7 +88,7 @@ public class VariantConfigHelper {
 		defaults.put(VARIANT_PRODUCER_THREADS, "32");
 		defaults.put(VARIANT_TRANSFORMER_THREADS, "12");
 		
-		defaults.put(VARIANT_INDEXER_SHARDS, "16");
+		defaults.put(VARIANT_INDEXER_SHARDS, "8");
 		defaults.put(VARIANT_INDEXER_BULK_PROCESSOR_THREADS, "1");
 		
 		// BulkActions;ConcurrentRequests;BulkSize;JsonQueueSize;QueueCutOffSize

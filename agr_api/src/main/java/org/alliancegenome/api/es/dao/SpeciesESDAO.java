@@ -11,9 +11,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.document.SpeciesSummaryDocument;
 import org.alliancegenome.core.es.util.EsClientFactory;
+import org.alliancegenome.core.es.util.IndexName;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
@@ -32,7 +32,6 @@ import lombok.extern.slf4j.Slf4j;
 @ApplicationScoped
 public class SpeciesESDAO extends ESDAO {
 
-	private static final String SITE_INDEX = ConfigHelper.getEsIndex();
 	private static final String CATEGORY = "species_summary";
 	private static final int FETCH_SIZE = 1000;
 
@@ -42,11 +41,6 @@ public class SpeciesESDAO extends ESDAO {
 
 	@Inject
 	ObjectMapper mapper;
-
-	public List<SpeciesSummaryDocument> getAll() {
-		ensureLoaded();
-		return allSpecies;
-	}
 
 	public SpeciesSummaryDocument byTaxonID(String taxonID) {
 		ensureLoaded();
@@ -84,7 +78,7 @@ public class SpeciesESDAO extends ESDAO {
 			}
 			List<SpeciesSummaryDocument> fetched = fetchAll();
 			if (fetched.isEmpty()) {
-				log.warn("No {} documents found in {}; will retry on next call", CATEGORY, SITE_INDEX);
+				log.warn("No {} documents found in {}; will retry on next call", CATEGORY, IndexName.SITE_INDEX.getIndexName());
 				return;
 			}
 			Map<String, SpeciesSummaryDocument> tx = new LinkedHashMap<>();
@@ -112,7 +106,7 @@ public class SpeciesESDAO extends ESDAO {
 		ssb.size(FETCH_SIZE);
 		ssb.trackTotalHits(true);
 
-		SearchRequest searchRequest = new SearchRequest(SITE_INDEX);
+		SearchRequest searchRequest = new SearchRequest(IndexName.SITE_INDEX.getIndexName());
 		searchRequest.source(ssb);
 
 		List<SpeciesSummaryDocument> result = new ArrayList<>();
@@ -132,7 +126,7 @@ public class SpeciesESDAO extends ESDAO {
 				SpeciesSummaryDocument::getPhylogeneticOrder,
 				Comparator.nullsLast(Comparator.naturalOrder())));
 		} catch (IOException e) {
-			log.error("Failed to load {} documents from {}", CATEGORY, SITE_INDEX, e);
+			log.error("Failed to load {} documents from {}", CATEGORY, IndexName.SITE_INDEX.getIndexName(), e);
 		}
 		return result;
 	}

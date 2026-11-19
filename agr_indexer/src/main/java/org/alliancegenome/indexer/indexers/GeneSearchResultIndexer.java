@@ -4,12 +4,12 @@ import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.core.util.ListUtils;
-import org.alliancegenome.curation_api.interfaces.document.GeneDocumentInterface;
-import org.alliancegenome.curation_api.model.document.es.GeneSummaryDocument;
-import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.core.config.RestConfig;
 import org.alliancegenome.core.es.util.ProcessDisplayHelper;
+import org.alliancegenome.core.util.ListUtils;
+import org.alliancegenome.curation_api.interfaces.document.GeneDocumentInterface;
+import org.alliancegenome.curation_api.model.document.es.GeneSearchResultDocument;
+import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.apache.commons.collections.CollectionUtils;
@@ -20,13 +20,13 @@ import lombok.extern.slf4j.Slf4j;
 import si.mazi.rescu.RestProxyFactory;
 
 @Slf4j
-public class GeneSummaryCurationIndexer extends Indexer {
+public class GeneSearchResultIndexer extends Indexer {
 
 	private final GeneDocumentInterface geneApi = RestProxyFactory.createProxy(GeneDocumentInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 
 	private List<List<Long>> idBatches;
 
-	public GeneSummaryCurationIndexer(IndexerConfig indexerConfig) {
+	public GeneSearchResultIndexer(IndexerConfig indexerConfig) {
 		super(indexerConfig);
 	}
 
@@ -64,18 +64,12 @@ public class GeneSummaryCurationIndexer extends Indexer {
 				String batchIndex = queue.takeFirst();
 				List<Long> batchIds = idBatches.get(Integer.parseInt(batchIndex));
 
-				SearchResponse<GeneSummaryDocument> response = geneApi.findByIds(batchIds);
+				SearchResponse<GeneSearchResultDocument> response = geneApi.findSearchResultByIds(batchIds);
 				if (response == null || CollectionUtils.isEmpty(response.getResults())) {
 					continue;
 				}
 
-				response.getResults().forEach(doc -> {
-					if (doc.getGene() != null) {
-						stripInternalOrObsoleteNotes(doc.getGene().getRelatedNotes());
-					}
-				});
-
-				indexDocuments(response.getResults());
+				indexDocuments(indexerConfig.getDefaultIndexName(), response.getResults());
 			} catch (Exception e) {
 				log.error("Error while indexing...", e);
 				ExceptionCatcher.report(e);

@@ -9,7 +9,6 @@ public class Constants {
 	public static final String THREADED = "THREADED";
 	public static final String DEBUG = "DEBUG";
 
-	public static final String ES_INDEX = "ES_INDEX";
 	public static final String ES_INDEX_PREFIX = "ES_INDEX_PREFIX";
 	public static final String ES_INDEX_SUFFIX = "ES_INDEX_SUFFIX";
 	public static final String ES_HOST = "ES_HOST";
