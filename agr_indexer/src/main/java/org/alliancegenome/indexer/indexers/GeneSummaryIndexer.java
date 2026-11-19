@@ -1,20 +1,17 @@
 package org.alliancegenome.indexer.indexers;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 
-import org.alliancegenome.core.document.GeneMolecularInteractionDocument;
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.core.util.ListUtils;
-import org.alliancegenome.curation_api.interfaces.document.GeneMolecularInteractionDocumentInterface;
-import org.alliancegenome.curation_api.model.entities.GeneMolecularInteraction;
-import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.core.config.RestConfig;
 import org.alliancegenome.core.es.util.ProcessDisplayHelper;
+import org.alliancegenome.core.util.ListUtils;
+import org.alliancegenome.curation_api.interfaces.document.GeneDocumentInterface;
+import org.alliancegenome.curation_api.model.document.es.GeneSummaryDocument;
+import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.config.IndexerConfig;
-import org.alliancegenome.indexer.service.GeneMolecularInteractionService;
 import org.apache.commons.collections.CollectionUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,25 +20,23 @@ import lombok.extern.slf4j.Slf4j;
 import si.mazi.rescu.RestProxyFactory;
 
 @Slf4j
-public class GeneMolecularInteractionCurationIndexer extends Indexer {
+public class GeneSummaryIndexer extends Indexer {
 
-	private final GeneMolecularInteractionDocumentInterface geneMolecularInteractionApi = RestProxyFactory.createProxy(GeneMolecularInteractionDocumentInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
+	private final GeneDocumentInterface geneApi = RestProxyFactory.createProxy(GeneDocumentInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 
-	private GeneMolecularInteractionService geneMolecularInteractionService;
 	private List<List<Long>> idBatches;
 
-	public GeneMolecularInteractionCurationIndexer(IndexerConfig config) {
-		super(config);
+	public GeneSummaryIndexer(IndexerConfig indexerConfig) {
+		super(indexerConfig);
 	}
 
 	@Override
 	protected void index(ProcessDisplayHelper display) {
-		geneMolecularInteractionService = new GeneMolecularInteractionService();
 		try {
-			log.info("Fetching all GeneMolecularInteraction IDs...");
-			SearchResponse<Long> idsResponse = geneMolecularInteractionApi.getAllIds();
+			log.info("Fetching all gene IDs...");
+			SearchResponse<Long> idsResponse = geneApi.getAllIds();
 			List<Long> allIds = idsResponse.getResults();
-			log.info("Fetched {} GeneMolecularInteraction IDs", allIds.size());
+			log.info("Fetched {} gene IDs", allIds.size());
 			display.startProcess(allIds.size());
 			idBatches = ListUtils.partition(allIds, indexerConfig.getBufferSize());
 			log.info("Partitioned into {} batches of up to {}", idBatches.size(), indexerConfig.getBufferSize());
@@ -59,7 +54,6 @@ public class GeneMolecularInteractionCurationIndexer extends Indexer {
 		}
 	}
 
-
 	@Override
 	protected void startSingleThread(LinkedBlockingDeque<String> queue) {
 		while (true) {
@@ -67,25 +61,21 @@ public class GeneMolecularInteractionCurationIndexer extends Indexer {
 				if (queue.isEmpty()) {
 					return;
 				}
-
 				String batchIndex = queue.takeFirst();
 				List<Long> batchIds = idBatches.get(Integer.parseInt(batchIndex));
 
-				SearchResponse<GeneMolecularInteraction> response = geneMolecularInteractionApi.findByIds(batchIds);
+				SearchResponse<GeneSummaryDocument> response = geneApi.findByIds(batchIds);
 				if (response == null || CollectionUtils.isEmpty(response.getResults())) {
 					continue;
 				}
 
-				List<GeneMolecularInteractionDocument> documentsToIndex = new ArrayList<>();
-				List<GeneMolecularInteraction> interactions = geneMolecularInteractionService.getFilteredAndReversedInteractions(response.getResults());
+				response.getResults().forEach(doc -> {
+					if (doc.getGene() != null) {
+						stripInternalOrObsoleteNotes(doc.getGene().getRelatedNotes());
+					}
+				});
 
-				for (GeneMolecularInteraction interaction : interactions) {
-					GeneMolecularInteractionDocument document = new GeneMolecularInteractionDocument();
-					document.setGeneMolecularInteraction(interaction);
-					documentsToIndex.add(document);
-				}
-
-				indexDocuments(documentsToIndex);
+				indexDocuments(indexerConfig.getDefaultIndexName(), response.getResults());
 			} catch (Exception e) {
 				log.error("Error while indexing...", e);
 				ExceptionCatcher.report(e);
@@ -99,4 +89,5 @@ public class GeneMolecularInteractionCurationIndexer extends Indexer {
 	protected ObjectMapper customizeObjectMapper(ObjectMapper objectMapper) {
 		return RestConfig.config.getJacksonObjectMapperFactory().createObjectMapper();
 	}
+
 }

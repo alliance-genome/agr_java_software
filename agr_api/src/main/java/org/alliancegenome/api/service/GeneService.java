@@ -3,7 +3,6 @@ package org.alliancegenome.api.service;
 import static org.alliancegenome.api.response.JsonResultResponse.DISTINCT_FIELD_VALUES;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -12,14 +11,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.alliancegenome.core.document.GeneGeneticInteractionDocument;
-import org.alliancegenome.core.document.GeneMolecularInteractionDocument;
-import org.alliancegenome.core.document.GenePhenotypeAnnotationDocument;
-import org.alliancegenome.api.service.helper.ElasticSearchHelper;
-import org.alliancegenome.api.response.JsonResultResponse;
-import org.alliancegenome.curation_api.model.document.es.SequenceSummaryDocument;
 import org.alliancegenome.api.es.dao.SearchDAO;
 import org.alliancegenome.api.es.query.Pagination;
+import org.alliancegenome.api.response.JsonResultResponse;
+import org.alliancegenome.api.service.helper.ElasticSearchHelper;
+import org.alliancegenome.core.document.GeneGeneticInteractionDocument;
+import org.alliancegenome.core.document.GeneMolecularInteractionDocument;
+import org.alliancegenome.curation_api.model.document.es.SequenceSummaryDocument;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -182,13 +180,6 @@ public class GeneService {
 			distinctFieldValueMap.put(colName, values);
 		});
 		return distinctFieldValueMap;
-	}
-
-	public JsonResultResponse<GenePhenotypeAnnotationDocument> getPhenotypeAnnotations(String geneID, Pagination pagination) {
-		LocalDateTime startDate = LocalDateTime.now();
-		JsonResultResponse<GenePhenotypeAnnotationDocument> response = phenotypeESService.getGenePhenotypeAnnotations(geneID, pagination, false);
-		response.calculateRequestDuration(startDate);
-		return response;
 	}
 
 }

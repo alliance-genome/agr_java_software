@@ -7,14 +7,14 @@ import java.util.Set;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.core.config.RestConfig;
+import org.alliancegenome.core.es.util.ProcessDisplayHelper;
 import org.alliancegenome.core.util.ListUtils;
 import org.alliancegenome.curation_api.interfaces.crud.GeneDiseaseAnnotationCrudInterface;
 import org.alliancegenome.curation_api.interfaces.crud.GeneExpressionAnnotationCrudInterface;
 import org.alliancegenome.curation_api.interfaces.document.GeneToGeneOrthologyDocumentInterface;
 import org.alliancegenome.curation_api.model.document.es.GeneToGeneOrthologyDocument;
 import org.alliancegenome.curation_api.response.SearchResponse;
-import org.alliancegenome.core.config.RestConfig;
-import org.alliancegenome.core.es.util.ProcessDisplayHelper;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.apache.commons.collections4.CollectionUtils;
@@ -94,7 +94,7 @@ public class GeneToGeneOrthologyIndexer extends Indexer {
 					}
 				}
 
-				indexDocuments(results);
+				indexDocuments(indexerConfig.getDefaultIndexName(), results);
 			} catch (Exception e) {
 				log.error("Error while indexing...", e);
 				ExceptionCatcher.report(e);

@@ -9,6 +9,7 @@ import java.util.concurrent.Executors;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.es.util.IndexManager;
+import org.alliancegenome.core.es.util.IndexName;
 import org.alliancegenome.core.es.util.ProcessDisplayHelper;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.config.IndexerConfig;
@@ -33,7 +34,7 @@ public class Main {
 
 		IndexManager im = new IndexManager("site");
 
-		Indexer.indexName = im.startSiteIndex();
+		im.startIndexes(IndexName.getSiteIndexSet());
 
 		Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
 			log.error("Thread: " + t.threadId() + " has uncaught exceptions");
@@ -132,7 +133,7 @@ public class Main {
 			log.info("Indexer: " + entry.getKey() + " Elapsed time: " + elapsed);
 		}
 
-		im.finishIndex();
+		im.finishIndex(IndexName.getSiteIndexSet());
 
 		ph.finishProcess();
 

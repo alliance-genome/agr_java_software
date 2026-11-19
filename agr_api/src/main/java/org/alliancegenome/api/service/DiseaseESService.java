@@ -14,35 +14,34 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.alliancegenome.core.document.AGMDiseaseAnnotationDocument;
-import org.alliancegenome.core.document.AlleleDiseaseAnnotationDocument;
-import org.alliancegenome.core.document.DiseaseAnnotationDocument;
 import org.alliancegenome.api.entity.DiseaseEntitySubgroupSlim;
 import org.alliancegenome.api.entity.DiseaseRibbonEntity;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
-import org.alliancegenome.core.document.GeneDiseaseAnnotationDocument;
-import org.alliancegenome.curation_api.model.entities.ontology.DOTerm;
+import org.alliancegenome.api.es.dao.DiseaseESDAO;
+import org.alliancegenome.api.es.dao.GeneESDAO;
 import org.alliancegenome.api.es.dao.SearchDAO;
-import org.alliancegenome.api.service.helper.APIServiceHelper;
+import org.alliancegenome.api.es.query.Pagination;
 import org.alliancegenome.api.response.JsonResultResponse;
+import org.alliancegenome.api.service.helper.APIServiceHelper;
+import org.alliancegenome.core.document.AGMDiseaseAnnotationDocument;
+import org.alliancegenome.core.document.AlleleDiseaseAnnotationDocument;
+import org.alliancegenome.core.document.DiseaseAnnotationDocument;
+import org.alliancegenome.core.document.GeneDiseaseAnnotationDocument;
 import org.alliancegenome.curation_api.model.document.es.DiseaseSummaryDocument;
 import org.alliancegenome.curation_api.model.document.es.GeneSummaryDocument;
 import org.alliancegenome.curation_api.model.entities.DiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.Gene;
-import org.alliancegenome.api.es.dao.DiseaseESDAO;
-import org.alliancegenome.api.es.dao.GeneESDAO;
-import org.alliancegenome.api.es.query.Pagination;
+import org.alliancegenome.curation_api.model.entities.ontology.DOTerm;
 import org.apache.commons.collections4.CollectionUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.index.query.TermsQueryBuilder;
-import org.elasticsearch.search.aggregations.bucket.terms.IncludeExclude;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.bucket.terms.IncludeExclude;
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.ParsedCardinality;
@@ -92,11 +91,6 @@ public class DiseaseESService extends ESService {
 	private static final String HUMAN_TAXON = "NCBITaxon:9606";
 	// ES cardinality is exact below this threshold; disease-portal counts stay well under it.
 	private static final int SUBJECT_COUNT_PRECISION_THRESHOLD = 40000;
-
-	// termID may be used in the future when converting disease page to new ES stack.
-	public JsonResultResponse<GeneDiseaseAnnotationDocument> getRibbonDiseaseAnnotations(String focusTaxonId, List<String> geneIDs, String termID, Pagination pagination, boolean excludeNegated, boolean debug) {
-		return getRibbonDiseaseAnnotations(focusTaxonId, geneIDs, termID, pagination, excludeNegated, debug, false);
-	}
 
 	public JsonResultResponse<GeneDiseaseAnnotationDocument> getRibbonDiseaseAnnotations(String focusTaxonId, List<String> geneIDs, String termID, Pagination pagination, boolean excludeNegated, boolean debug, boolean includePrimaryAnnotations) {
 		// unfiltered query
@@ -508,22 +502,6 @@ public class DiseaseESService extends ESService {
 		return ret;
 	}
 
-	public String getAT(String category, String diseaseID) {
-		String result = "";
-
-		BoolQueryBuilder bool = boolQuery();
-		BoolQueryBuilder bool2 = boolQuery();
-		bool.must(bool2);
-
-		bool.filter(new TermQueryBuilder("category", category));
-		bool2.should(new MatchQueryBuilder("parentSlimIDs.keyword", diseaseID));
-
-		Map<String, Object> supData = getSupplementalData(null, false, false, bool);
-		List<String> assoList = (List<String>) ((Map<String, Map<String, Object>>) supData.get("distinctFieldValues")).get("associationType");
-		result = formatAT(assoList);
-		return result;
-	}
-
 	// Disease Ontology is a DAG, so a term can have multiple parents. We walk a single
 	// path by picking the lexicographically-smallest parent at each step, which gives a
 	// stable breadcrumb across requests. This makes N sequential ES queries (one per
@@ -570,7 +548,7 @@ public class DiseaseESService extends ESService {
 			.filter(new TermsQueryBuilder("doTerm.curie.keyword", diseaseIds));
 
 		SearchResponse response = SEARCH_DAO.performQuery(
-			(QueryBuilder) bool, java.util.List.of(), null, java.util.List.of(),
+			bool, java.util.List.of(), null, java.util.List.of(),
 			diseaseIds.size(), 0, new HighlightBuilder(), null, false);
 
 		for (SearchHit hit : response.getHits().getHits()) {
@@ -599,7 +577,7 @@ public class DiseaseESService extends ESService {
 			.precisionThreshold(SUBJECT_COUNT_PRECISION_THRESHOLD);
 
 		SearchResponse response = SEARCH_DAO.performQuery(
-			(QueryBuilder) bool, java.util.List.of(agg), null, java.util.List.of(),
+			bool, java.util.List.of(agg), null, java.util.List.of(),
 			0, 0, new HighlightBuilder(), null, false);
 
 		ParsedCardinality distinct = response.getAggregations().get(DISTINCT_DISEASE_AGG);
@@ -672,7 +650,7 @@ public class DiseaseESService extends ESService {
 			.precisionThreshold(SUBJECT_COUNT_PRECISION_THRESHOLD);
 
 		SearchResponse response = SEARCH_DAO.performQuery(
-			(QueryBuilder) bool, java.util.List.of(agg), null, java.util.List.of("subject"),
+			bool, java.util.List.of(agg), null, java.util.List.of("subject"),
 			0, 0, new HighlightBuilder(), null, false);
 
 		ParsedCardinality distinct = response.getAggregations().get(DISTINCT_SUBJECT_AGG);
@@ -692,7 +670,7 @@ public class DiseaseESService extends ESService {
 			.precisionThreshold(SUBJECT_COUNT_PRECISION_THRESHOLD);
 
 		SearchResponse response = SEARCH_DAO.performQuery(
-			(QueryBuilder) bool, java.util.List.of(agg), null, java.util.List.of("subject"),
+			bool, java.util.List.of(agg), null, java.util.List.of("subject"),
 			0, 0, new HighlightBuilder(), null, false);
 
 		ParsedCardinality distinct = response.getAggregations().get(DISTINCT_SUBJECT_AGG);
@@ -717,7 +695,7 @@ public class DiseaseESService extends ESService {
 				.precisionThreshold(SUBJECT_COUNT_PRECISION_THRESHOLD));
 
 		SearchResponse response = SEARCH_DAO.performQuery(
-			(QueryBuilder) bool, java.util.List.of(agg), null, java.util.List.of("subject"),
+			bool, java.util.List.of(agg), null, java.util.List.of("subject"),
 			0, 0, new HighlightBuilder(), null, false);
 
 		java.util.Map<String, Long> counts = new java.util.HashMap<>();
@@ -729,17 +707,4 @@ public class DiseaseESService extends ESService {
 		return counts;
 	}
 
-
-	private String formatAT(List<String> list) {
-		if (list.size() == 0) {
-			return "";
-		}
-		if (list.size() == 1) {
-			return list.get(0);
-		}
-
-		List<String> store = new ArrayList<>();
-		store = list.stream().filter(each -> each.indexOf("not") == -1).toList();
-		return String.join("|", store);
-	}
 }

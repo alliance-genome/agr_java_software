@@ -55,7 +55,7 @@ public class ResourceDescriptorIndexer extends Indexer {
 				.map(ResourceDescriptorIndexer::toDocument)
 				.collect(Collectors.toList());
 			log.info("Indexing {} resource_descriptor documents", docs.size());
-			indexDocuments(docs);
+			indexDocuments(indexerConfig.getDefaultIndexName(), docs);
 		} catch (Exception e) {
 			log.error("Error while indexing resource descriptors", e);
 			ExceptionCatcher.report(e);

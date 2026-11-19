@@ -4,9 +4,9 @@ import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 
 import java.io.IOException;
 
-import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.curation_api.model.document.es.GeneSummaryDocument;
 import org.alliancegenome.core.es.util.EsClientFactory;
+import org.alliancegenome.core.es.util.IndexName;
+import org.alliancegenome.curation_api.model.document.es.GeneSummaryDocument;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
@@ -24,8 +24,6 @@ import lombok.extern.slf4j.Slf4j;
 @ApplicationScoped
 public class GeneESDAO extends ESDAO {
 
-	public static final String SITE_INDEX = ConfigHelper.getEsIndex();
-
 	@Inject
 	ObjectMapper mapper;
 
@@ -38,7 +36,7 @@ public class GeneESDAO extends ESDAO {
 		ssb.query(bool);
 		ssb.size(1);
 
-		SearchRequest searchRequest = new SearchRequest(SITE_INDEX);
+		SearchRequest searchRequest = new SearchRequest(IndexName.SITE_INDEX.getIndexName());
 		searchRequest.source(ssb);
 
 		try {

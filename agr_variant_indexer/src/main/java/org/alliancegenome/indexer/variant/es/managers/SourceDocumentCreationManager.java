@@ -14,10 +14,10 @@ import org.alliancegenome.curation_api.interfaces.document.VariantDocumentInterf
 import org.alliancegenome.curation_api.model.entities.Gene;
 import org.alliancegenome.curation_api.model.entities.Species;
 import org.alliancegenome.core.config.RestConfig;
+import org.alliancegenome.core.config.VariantConfigHelper;
 import org.alliancegenome.core.es.util.ElasticSearchInterface;
 import org.alliancegenome.core.es.util.ProcessDisplayHelper;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;
-import org.alliancegenome.indexer.variant.config.VariantConfigHelper;
 import org.alliancegenome.indexer.variant.filedownload.model.DownloadFileSet;
 import org.alliancegenome.indexer.variant.filedownload.model.DownloadSource;
 import org.alliancegenome.indexer.variant.interfaces.SpeciesInterface;
@@ -80,7 +80,7 @@ public class SourceDocumentCreationManager extends Thread {
 
 			// Count active species and create shared jsonQueue
 			long activeCount = downloadSet.getDownloadFileSources().stream().filter(DownloadSource::getActive).count();
-			LinkedBlockingDeque<List<byte[]>> jsonQueue = new LinkedBlockingDeque<>((int) (250 * activeCount));
+			LinkedBlockingDeque<IndexBatch> jsonQueue = new LinkedBlockingDeque<>((int) (250 * activeCount));
 
 			// Query cluster CPU count and create shared bulk indexer pool
 			int totalCpus = getClusterCpuCount();
@@ -90,7 +90,7 @@ public class SourceDocumentCreationManager extends Thread {
 			// Start single-threaded retry worker with bounded queue (backpressure on producers)
 			int retryQueueCapacity = 100;
 			log.info("Starting RetryWorker with queue capacity: {}", retryQueueCapacity);
-			RetryWorker retryWorker = new RetryWorker(retryQueueCapacity, SourceDocumentCreation.indexName);
+			RetryWorker retryWorker = new RetryWorker(retryQueueCapacity);
 			retryWorker.start();
 
 			// Start shared RoutedBulkIndexer pool
@@ -98,7 +98,7 @@ public class SourceDocumentCreationManager extends Thread {
 			phPool.startProcess("SharedRoutedBulkIndexers");
 			ArrayList<RoutedBulkIndexer> indexers = new ArrayList<>();
 			for (int i = 0; i < poolSize; i++) {
-				RoutedBulkIndexer indexer = new RoutedBulkIndexer(jsonQueue, SourceDocumentCreation.indexName, "SharedBP(" + (i + 1) + ")", phPool, retryWorker);
+				RoutedBulkIndexer indexer = new RoutedBulkIndexer(jsonQueue, "SharedBP(" + (i + 1) + ")", phPool, retryWorker);
 				indexer.start();
 				indexers.add(indexer);
 			}

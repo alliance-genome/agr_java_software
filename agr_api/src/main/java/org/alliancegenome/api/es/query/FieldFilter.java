@@ -1,8 +1,5 @@
 package org.alliancegenome.api.es.query;
 
-import java.util.Arrays;
-import java.util.StringJoiner;
-
 public enum FieldFilter {
 	GENE_NAME("geneName"),
 	TERM_NAME("filter.term"),
@@ -68,6 +65,7 @@ public enum FieldFilter {
 	STRINGENCY("filter.stringency"),
 	ORTHOLOGY_TAXON("taxon"),
 	INDEX_NAME("indexName");
+	
 	public static final String FILTER_PREFIX = "filter.";
 	private String name;
 
@@ -75,43 +73,5 @@ public enum FieldFilter {
 		this.name = name;
 	}
 
-	public static FieldFilter getFieldFilterByName(String name) {
-		if (name == null) {
-			return null;
-		}
-		for (FieldFilter sort : values()) {
-			if (sort.name.equals(name)) {
-				return sort;
-			}
-		}
-		return null;
-	}
-
-	public static String getAllValues() {
-		StringJoiner values = new StringJoiner(",");
-		for (FieldFilter sorting : values()) {
-			values.add(sorting.name);
-		}
-		return values.toString();
-	}
-
-	public static boolean isFieldFilterValue(String value) {
-		return Arrays.stream(values()).anyMatch(fieldFilter -> fieldFilter.getFullName().equalsIgnoreCase(value));
-	}
-
-	public static boolean hasFieldFilterPrefix(String value) {
-		if (value == null) {
-			return false;
-		}
-		return value.toLowerCase().startsWith(FILTER_PREFIX);
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public String getFullName() {
-		return FILTER_PREFIX + name;
-	}
 
 }

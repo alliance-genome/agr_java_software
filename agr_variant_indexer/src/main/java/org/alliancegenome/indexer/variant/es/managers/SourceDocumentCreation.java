@@ -2,26 +2,28 @@ package org.alliancegenome.indexer.variant.es.managers;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
+import org.alliancegenome.core.config.RestConfig;
+import org.alliancegenome.core.config.VariantConfigHelper;
+import org.alliancegenome.core.converter.variant.SequenceSummaryConverter;
+import org.alliancegenome.core.converter.variant.VariantSearchResultConverter;
+import org.alliancegenome.core.converter.variant.VariantSummaryConverter;
+import org.alliancegenome.core.document.VariantSearchResultDocument;
+import org.alliancegenome.core.es.util.IndexName;
+import org.alliancegenome.core.es.util.ProcessDisplayHelper;
 import org.alliancegenome.curation_api.model.document.es.ESDocument;
 import org.alliancegenome.curation_api.model.document.es.SequenceSummaryDocument;
 import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
 import org.alliancegenome.curation_api.model.entities.Gene;
 import org.alliancegenome.curation_api.model.entities.Species;
 import org.alliancegenome.curation_api.view.CurationView;
-import org.alliancegenome.core.document.VariantSearchResultDocument;
-import org.alliancegenome.core.config.RestConfig;
-import org.alliancegenome.core.converter.variant.SequenceSummaryConverter;
-import org.alliancegenome.core.converter.variant.VariantSearchResultConverter;
-import org.alliancegenome.core.converter.variant.VariantSummaryConverter;
-import org.alliancegenome.core.es.util.ProcessDisplayHelper;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;
-import org.alliancegenome.indexer.variant.config.VariantConfigHelper;
 import org.alliancegenome.indexer.variant.filedownload.model.DownloadSource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -44,12 +46,11 @@ public class SourceDocumentCreation extends Thread {
 	private DownloadSource source;
 	private Species species;
 	private String[] header;
-	public static String indexName;
 
 	private LinkedBlockingDeque<List<VariantContext>> vcQueue;
 	private LinkedBlockingDeque<List<ESDocument>> objectQueue;
 
-	private LinkedBlockingDeque<List<byte[]>> jsonQueue;
+	private LinkedBlockingDeque<IndexBatch> jsonQueue;
 
 	private ProcessDisplayHelper ph1 = new ProcessDisplayHelper(VariantConfigHelper.getDisplayInterval());
 	private ProcessDisplayHelper ph2 = new ProcessDisplayHelper(VariantConfigHelper.getDisplayInterval());
@@ -61,7 +62,7 @@ public class SourceDocumentCreation extends Thread {
 
 	private String messageHeader = "";
 
-	public SourceDocumentCreation(String downloadPath, DownloadSource source, Species species, Map<String, Gene> geneCache, HashSet<String> variantsCache, Map<String, Integer> severityRanking, LinkedBlockingDeque<List<byte[]>> jsonQueue) {
+	public SourceDocumentCreation(String downloadPath, DownloadSource source, Species species, Map<String, Gene> geneCache, HashSet<String> variantsCache, Map<String, Integer> severityRanking, LinkedBlockingDeque<IndexBatch> jsonQueue) {
 		this.downloadPath = downloadPath;
 		this.source = source;
 		this.species = species;
@@ -291,8 +292,7 @@ public class SourceDocumentCreation extends Thread {
 			cachedWriter = mapper.writerWithView(CurationView.VariantSummaryDocument.class);
 			sequenceWriter = mapper.writerWithView(CurationView.SequenceSummaryDocument.class);
 
-			List<byte[]> workBucket = new ArrayList<>();
-			long workBucketBytes = 0;
+			Map<IndexName, IndexBatch> workBuckets = new EnumMap<>(IndexName.class);
 
 			while (!Thread.currentThread().isInterrupted()) {
 				try {
@@ -302,24 +302,27 @@ public class SourceDocumentCreation extends Thread {
 						for (ESDocument doc : docList) {
 							try {
 								byte[] smileDoc = null;
+								IndexName indexName = null;
 								if (doc instanceof SequenceSummaryDocument ssd) {
 									smileDoc = sequenceWriter.writeValueAsBytes(ssd);
+									indexName = IndexName.SEQUENCE_SUMMARY;
 								} else if (doc instanceof VariantSummaryDocument vsd) {
 									smileDoc = cachedWriter.writeValueAsBytes(vsd);
+									indexName = IndexName.VARIANT_SUMMARY;
 								} else if (doc instanceof VariantSearchResultDocument vsrd) {
 									smileDoc = searchWriter.writeValueAsBytes(vsrd);
+									indexName = IndexName.SEARCH_RESULT;
 								} else {
 									log.error("Unexpected ESDocument type: " + doc.getClass().getName());
 									continue;
 								}
 
+								IndexBatch workBucket = workBuckets.computeIfAbsent(indexName, IndexBatch::new);
 								workBucket.add(smileDoc);
-								workBucketBytes += smileDoc.length;
 
-								if (workBucketBytes >= workBucketMaxBytes) {
+								if (workBucket.getBytes() >= workBucketMaxBytes) {
 									jsonQueue.put(workBucket);
-									workBucket = new ArrayList<>();
-									workBucketBytes = 0;
+									workBuckets.remove(indexName);
 								}
 
 								ph3.progressProcess();
@@ -335,9 +338,12 @@ public class SourceDocumentCreation extends Thread {
 				}
 			}
 
+			// Clear interrupt flag so the remaining buckets can be queued
+			Thread.interrupted();
+
 			// Flush remaining docs
 			try {
-				if (!workBucket.isEmpty()) {
+				for (IndexBatch workBucket : workBuckets.values()) {
 					jsonQueue.put(workBucket);
 				}
 			} catch (InterruptedException e) {

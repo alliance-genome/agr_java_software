@@ -4,15 +4,15 @@ import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.core.util.ListUtils;
-import org.alliancegenome.curation_api.interfaces.document.AGMAnnotationDocumentInterface;
-import org.alliancegenome.curation_api.model.document.es.AGMAnnotationDocument;
-import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.core.config.RestConfig;
 import org.alliancegenome.core.es.util.ProcessDisplayHelper;
+import org.alliancegenome.core.util.ListUtils;
+import org.alliancegenome.curation_api.interfaces.document.GODocumentInterface;
+import org.alliancegenome.curation_api.model.document.es.GOSearchResultDocument;
+import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.config.IndexerConfig;
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections.CollectionUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -20,23 +20,23 @@ import lombok.extern.slf4j.Slf4j;
 import si.mazi.rescu.RestProxyFactory;
 
 @Slf4j
-public class AGMAnnotationCurationIndexer extends Indexer {
+public class GOSearchResultIndexer extends Indexer {
 
-	private final AGMAnnotationDocumentInterface agmAnnotationDocumentApi = RestProxyFactory.createProxy(AGMAnnotationDocumentInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
+	private final GODocumentInterface goApi = RestProxyFactory.createProxy(GODocumentInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 
 	private List<List<Long>> idBatches;
 
-	public AGMAnnotationCurationIndexer(IndexerConfig config) {
-		super(config);
+	public GOSearchResultIndexer(IndexerConfig indexerConfig) {
+		super(indexerConfig);
 	}
 
 	@Override
 	protected void index(ProcessDisplayHelper display) {
 		try {
-			log.info("Fetching all AGM Annotation IDs...");
-			SearchResponse<Long> idsResponse = agmAnnotationDocumentApi.getAllIds();
+			log.info("Fetching all GO search result IDs...");
+			SearchResponse<Long> idsResponse = goApi.getAllIds();
 			List<Long> allIds = idsResponse.getResults();
-			log.info("Fetched {} AGM IDs", allIds.size());
+			log.info("Fetched {} GO search result IDs", allIds.size());
 			display.startProcess(allIds.size());
 			idBatches = ListUtils.partition(allIds, indexerConfig.getBufferSize());
 			log.info("Partitioned into {} batches of up to {}", idBatches.size(), indexerConfig.getBufferSize());
@@ -64,12 +64,12 @@ public class AGMAnnotationCurationIndexer extends Indexer {
 				String batchIndex = queue.takeFirst();
 				List<Long> batchIds = idBatches.get(Integer.parseInt(batchIndex));
 
-				SearchResponse<AGMAnnotationDocument> response = agmAnnotationDocumentApi.findByIds(batchIds);
+				SearchResponse<GOSearchResultDocument> response = goApi.findByIds(batchIds);
 				if (response == null || CollectionUtils.isEmpty(response.getResults())) {
 					continue;
 				}
 
-				indexDocuments(response.getResults());
+				indexDocuments(indexerConfig.getDefaultIndexName(), response.getResults());
 			} catch (Exception e) {
 				log.error("Error while indexing...", e);
 				ExceptionCatcher.report(e);

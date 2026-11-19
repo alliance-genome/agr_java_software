@@ -4,12 +4,12 @@ import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.core.config.RestConfig;
+import org.alliancegenome.core.es.util.ProcessDisplayHelper;
 import org.alliancegenome.core.util.ListUtils;
 import org.alliancegenome.curation_api.interfaces.document.GeneExpressionDocumentInterface;
 import org.alliancegenome.curation_api.model.document.es.GeneExpressionDocument;
 import org.alliancegenome.curation_api.response.SearchResponse;
-import org.alliancegenome.core.config.RestConfig;
-import org.alliancegenome.core.es.util.ProcessDisplayHelper;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.apache.commons.collections.CollectionUtils;
@@ -75,7 +75,7 @@ public class GeneExpressionAnnotationIndexer extends Indexer {
 					}
 				}
 
-				indexDocuments(response.getResults());
+				indexDocuments(indexerConfig.getDefaultIndexName(), response.getResults());
 			} catch (Exception e) {
 				log.error("Error while indexing...", e);
 				ExceptionCatcher.report(e);

@@ -8,12 +8,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.alliancegenome.api.response.JsonResultResponse;
-import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.curation_api.model.document.es.SequenceSummaryDocument;
 import org.alliancegenome.api.es.query.FieldFilter;
 import org.alliancegenome.api.es.query.Pagination;
+import org.alliancegenome.api.response.JsonResultResponse;
 import org.alliancegenome.core.es.util.EsClientFactory;
+import org.alliancegenome.core.es.util.IndexName;
+import org.alliancegenome.curation_api.model.document.es.SequenceSummaryDocument;
 import org.apache.lucene.search.SortField;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
@@ -54,7 +54,7 @@ public class AlleleVariantIndexService {
 			srb.size(pagination.getLimit());
 			srb.trackTotalHits(true);
 
-			SearchRequest searchRequest = new SearchRequest(ConfigHelper.getEsIndex());
+			SearchRequest searchRequest = new SearchRequest(IndexName.SEQUENCE_SUMMARY.getIndexName());
 
 			searchRequest.source(srb);
 			Log.info("Search Request: " + searchRequest);
@@ -118,7 +118,7 @@ public class AlleleVariantIndexService {
 	}
 
 	public Map<String, List<String>> getAggregations(String geneId) {
-		SearchRequest searchRequest = new SearchRequest(ConfigHelper.getEsIndex());
+		SearchRequest searchRequest = new SearchRequest(IndexName.SEQUENCE_SUMMARY.getIndexName());
 		SearchResponse searchResponse = null;
 
 		SearchSourceBuilder srb = new SearchSourceBuilder();

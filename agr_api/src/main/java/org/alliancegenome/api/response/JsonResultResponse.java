@@ -10,8 +10,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.alliancegenome.curation_api.view.CurationView;
 import org.alliancegenome.core.view.PublicView;
+import org.alliancegenome.curation_api.view.CurationView;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
@@ -37,11 +37,6 @@ public class JsonResultResponse<T> {
 
 	public JsonResultResponse() {
 		requestDate = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(Calendar.getInstance().getTime());
-	}
-
-	public static <T> JsonResultResponse getEmptyInstance() {
-		JsonResultResponse<T> response = new JsonResultResponse<>();
-		return response;
 	}
 
 	public void calculateRequestDuration(LocalDateTime startTime) {
@@ -80,26 +75,11 @@ public class JsonResultResponse<T> {
 
 	}
 
-	public void addAnnotationSummarySupplementalData(Object object) {
-		if (supplementalData == null) {
-			supplementalData = new LinkedHashMap<>();
-		}
-		supplementalData.put("annotationSummary", object);
-
-	}
-
 	public void addDistinctFieldValueSupplementalData(Map object) {
 		if (supplementalData == null) {
 			supplementalData = new LinkedHashMap<>();
 		}
 		supplementalData.put(DISTINCT_FIELD_VALUES, object);
-	}
-
-	public Map<String, List<String>> retrieveDistinctFieldValues() {
-		if (supplementalData == null) {
-			return null;
-		}
-		return (Map<String, List<String>>) supplementalData.get(DISTINCT_FIELD_VALUES);
 	}
 
 	public void calculateRequestDuration(long startTime) {

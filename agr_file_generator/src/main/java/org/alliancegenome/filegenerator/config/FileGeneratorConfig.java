@@ -4,6 +4,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.alliancegenome.core.es.util.IndexName;
 import org.alliancegenome.filegenerator.generators.DiseaseFileGenerator;
 import org.alliancegenome.filegenerator.generators.ExpressionFileGenerator;
 import org.alliancegenome.filegenerator.generators.FileGenerator;
@@ -21,34 +22,35 @@ public enum FileGeneratorConfig {
 	// pages over ~8MB become G1 humongous allocations and the run OOMs. Mean _source bytes/doc on
 	// stage: orthology 1.3K, allele_summary 2.3K, expression 2.6K, gene 3.2K, variant 7.9K,
 	// disease 20K, phenotype 27K. These are deliberately different -- do not normalize them.
-	Gene("Gene", "GENE", List.of("gene_summary"), List.of(new OutputSpec(Format.TSV, SplitMode.TAXON), new OutputSpec(Format.TSV, SplitMode.COMBINED), new OutputSpec(Format.JSON_RAW, SplitMode.TAXON), new OutputSpec(Format.JSON_RAW, SplitMode.COMBINED)),
+	Gene("Gene", "GENE", IndexName.SITE_INDEX, List.of("gene_summary"), List.of(new OutputSpec(Format.TSV, SplitMode.TAXON), new OutputSpec(Format.TSV, SplitMode.COMBINED), new OutputSpec(Format.JSON_RAW, SplitMode.TAXON), new OutputSpec(Format.JSON_RAW, SplitMode.COMBINED)),
 		List.of("FB", "HUMAN", "MGI", "RGD", "SGD", "WB", "XBXL", "XBXT", "ZFIN"), geneFieldMap(), "readmes/gene.txt", GeneFileGenerator.class, 1000, 8),
 
-	Disease("Disease", "DISEASE-ALLIANCE", List.of("gene_disease_annotation", "allele_disease_annotation", "agm_disease_annotation"),
+	Disease("Disease", "DISEASE-ALLIANCE", IndexName.SITE_INDEX, List.of("gene_disease_annotation", "allele_disease_annotation", "agm_disease_annotation"),
 		List.of(new OutputSpec(Format.TSV, SplitMode.TAXON), new OutputSpec(Format.TSV, SplitMode.COMBINED), new OutputSpec(Format.JSON_RAW, SplitMode.TAXON), new OutputSpec(Format.JSON_RAW, SplitMode.COMBINED)), List.of("FB", "HUMAN", "MGI", "RGD", "SGD", "WB", "XBXL", "XBXT", "ZFIN"),
 		diseaseFieldMap(), "readmes/disease.txt", DiseaseFileGenerator.class, 200, 8),
 
-	Expression("Expression", "EXPRESSION-ALLIANCE", List.of("gene_expression_annotation"), List.of(new OutputSpec(Format.TSV, SplitMode.TAXON), new OutputSpec(Format.TSV, SplitMode.COMBINED), new OutputSpec(Format.JSON_RAW, SplitMode.TAXON), new OutputSpec(Format.JSON_RAW, SplitMode.COMBINED)),
+	Expression("Expression", "EXPRESSION-ALLIANCE", IndexName.SITE_INDEX, List.of("gene_expression_annotation"), List.of(new OutputSpec(Format.TSV, SplitMode.TAXON), new OutputSpec(Format.TSV, SplitMode.COMBINED), new OutputSpec(Format.JSON_RAW, SplitMode.TAXON), new OutputSpec(Format.JSON_RAW, SplitMode.COMBINED)),
 		List.of("FB", "MGI", "RGD", "SGD", "WB", "XBXL", "XBXT", "ZFIN"), expressionFieldMap(), "readmes/expression.txt", ExpressionFileGenerator.class, 1000, 8),
 
-	Orthology("Orthology", "ORTHOLOGY-ALLIANCE", List.of("gene_to_gene_orthology"), List.of(new OutputSpec(Format.TSV, SplitMode.COMBINED), new OutputSpec(Format.JSON_RAW, SplitMode.COMBINED)), List.of("FB", "HUMAN", "MGI", "RGD", "SGD", "WB", "XBXL", "XBXT", "ZFIN"), orthologyFieldMap(),
+	Orthology("Orthology", "ORTHOLOGY-ALLIANCE", IndexName.SITE_INDEX, List.of("gene_to_gene_orthology"), List.of(new OutputSpec(Format.TSV, SplitMode.COMBINED), new OutputSpec(Format.JSON_RAW, SplitMode.COMBINED)), List.of("FB", "HUMAN", "MGI", "RGD", "SGD", "WB", "XBXL", "XBXT", "ZFIN"), orthologyFieldMap(),
 		"readmes/orthology.txt", OrthologyFileGenerator.class, 2000, 8),
 
-	VariantsVcf("Variants", "VARIANT-CONSEQUENCE", List.of("variant_summary"), List.of(new OutputSpec(Format.VCF, SplitMode.TAXON)), // Filename split is by MOD (consistent with every other generator). The genome
+	VariantsVcf("Variants", "VARIANT-CONSEQUENCE", IndexName.VARIANT_SUMMARY, List.of("variant_summary"), List.of(new OutputSpec(Format.VCF, SplitMode.TAXON)), // Filename split is by MOD (consistent with every other generator). The genome
 																																												// assembly
 		// goes inside the file content (## headers / per-record fields), not in the
 		// filename.
 		List.of("FB", "MGI", "RGD", "WB", "ZFIN"), vcfFieldMap(), "readmes/variants_vcf.txt", VariantVcfFileGenerator.class, 500, 8),
 
-	Phenotype("Phenotype", "PHENOTYPE-ALLIANCE", List.of("gene_phenotype_annotation", "allele_phenotype_annotation", "agm_phenotype_annotation"),
+	Phenotype("Phenotype", "PHENOTYPE-ALLIANCE", IndexName.SITE_INDEX, List.of("gene_phenotype_annotation", "allele_phenotype_annotation", "agm_phenotype_annotation"),
 		List.of(new OutputSpec(Format.TSV, SplitMode.TAXON), new OutputSpec(Format.TSV, SplitMode.COMBINED), new OutputSpec(Format.JSON_RAW, SplitMode.TAXON), new OutputSpec(Format.JSON_RAW, SplitMode.COMBINED)),
 		List.of("FB", "HUMAN", "MGI", "RGD", "SGD", "WB", "XBXL", "XBXT", "ZFIN"), phenotypeFieldMap(), "readmes/phenotype.txt", PhenotypeFileGenerator.class, 150, 8),
 
-	VariantsAlleles("Variant/Allele", "VARIANT-ALLELE", List.of("allele_summary"), List.of(new OutputSpec(Format.TSV, SplitMode.TAXON), new OutputSpec(Format.JSON_RAW, SplitMode.TAXON)), List.of("FB", "MGI", "RGD", "SGD", "WB", "ZFIN"), variantAlleleFieldMap(), "readmes/variants_alleles.txt",
+	VariantsAlleles("Variant/Allele", "VARIANT-ALLELE", IndexName.SITE_INDEX, List.of("allele_summary"), List.of(new OutputSpec(Format.TSV, SplitMode.TAXON), new OutputSpec(Format.JSON_RAW, SplitMode.TAXON)), List.of("FB", "MGI", "RGD", "SGD", "WB", "ZFIN"), variantAlleleFieldMap(), "readmes/variants_alleles.txt",
 		VariantAlleleFileGenerator.class, 1000, 8),;
 
 	private final String filetypeLabel;
 	private final String type;
+	private final IndexName indexName;
 	private final List<String> esCategories;
 	private final List<OutputSpec> outputs;
 	private final List<String> mods;
@@ -58,9 +60,10 @@ public enum FileGeneratorConfig {
 	private final int bufferSize;
 	private final int threadCount;
 
-	FileGeneratorConfig(String filetypeLabel, String type, List<String> esCategories, List<OutputSpec> outputs, List<String> mods, Map<String, String> fieldMap, String readmeResourcePath, Class<? extends FileGenerator> generatorClazz, int bufferSize, int threadCount) {
+	FileGeneratorConfig(String filetypeLabel, String type, IndexName indexName, List<String> esCategories, List<OutputSpec> outputs, List<String> mods, Map<String, String> fieldMap, String readmeResourcePath, Class<? extends FileGenerator> generatorClazz, int bufferSize, int threadCount) {
 		this.filetypeLabel = filetypeLabel;
 		this.type = type;
+		this.indexName = indexName;
 		this.esCategories = esCategories;
 		this.outputs = outputs;
 		this.mods = mods;
@@ -77,6 +80,10 @@ public enum FileGeneratorConfig {
 
 	public String getType() {
 		return type;
+	}
+	
+	public IndexName getIndexName() {
+		return indexName;
 	}
 
 	public List<String> getEsCategories() {

@@ -48,7 +48,7 @@ public class SpeciesIndexer extends Indexer {
 				.map(SpeciesIndexer::toDocument)
 				.collect(Collectors.toList());
 			log.info("Indexing {} species_summary documents", docs.size());
-			indexDocuments(docs);
+			indexDocuments(indexerConfig.getDefaultIndexName(), docs);
 		} catch (Exception e) {
 			log.error("Error while indexing species", e);
 			ExceptionCatcher.report(e);

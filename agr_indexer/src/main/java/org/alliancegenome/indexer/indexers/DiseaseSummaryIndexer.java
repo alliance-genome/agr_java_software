@@ -1,15 +1,14 @@
 package org.alliancegenome.indexer.indexers;
 
-import java.util.List;
+import java.util.HashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.core.util.ListUtils;
-import org.alliancegenome.curation_api.interfaces.document.GODocumentInterface;
-import org.alliancegenome.curation_api.model.document.es.GOSearchResultDocument;
-import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.core.config.RestConfig;
 import org.alliancegenome.core.es.util.ProcessDisplayHelper;
+import org.alliancegenome.curation_api.interfaces.document.DiseaseDocumentInterface;
+import org.alliancegenome.curation_api.model.document.es.DiseaseSummaryDocument;
+import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.apache.commons.collections.CollectionUtils;
@@ -20,37 +19,33 @@ import lombok.extern.slf4j.Slf4j;
 import si.mazi.rescu.RestProxyFactory;
 
 @Slf4j
-public class GOSearchResultCurationIndexer extends Indexer {
+public class DiseaseSummaryIndexer extends Indexer {
 
-	private final GODocumentInterface goApi = RestProxyFactory.createProxy(GODocumentInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
+	private final DiseaseDocumentInterface diseaseApi = RestProxyFactory.createProxy(DiseaseDocumentInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
+	
+	private HashMap<String, Object> params = new HashMap<>() {{
+		put("internal", false);
+		put("obsolete", false);
+	}};
 
-	private List<List<Long>> idBatches;
-
-	public GOSearchResultCurationIndexer(IndexerConfig indexerConfig) {
+	public DiseaseSummaryIndexer(IndexerConfig indexerConfig) {
 		super(indexerConfig);
 	}
 
 	@Override
 	protected void index(ProcessDisplayHelper display) {
 		try {
-			log.info("Fetching all GO search result IDs...");
-			SearchResponse<Long> idsResponse = goApi.getAllIds();
-			List<Long> allIds = idsResponse.getResults();
-			log.info("Fetched {} GO search result IDs", allIds.size());
-			display.startProcess(allIds.size());
-			idBatches = ListUtils.partition(allIds, indexerConfig.getBufferSize());
-			log.info("Partitioned into {} batches of up to {}", idBatches.size(), indexerConfig.getBufferSize());
-
+			SearchResponse<DiseaseSummaryDocument> diseaseSummaryResponse = diseaseApi.findSummary(0, 0, params);
+			display.startProcess(diseaseSummaryResponse.getTotalResults());
+			int totalPages = (int) (diseaseSummaryResponse.getTotalResults() / indexerConfig.getBufferSize());
 			LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
-			for (int i = 0; i < idBatches.size(); i++) {
+			for (int i = 0; i <= totalPages; i++) {
 				queue.add(String.valueOf(i));
 			}
-
 			initiateThreading(queue);
 		} catch (Exception e) {
-			log.error("Error while indexing...", e);
 			ExceptionCatcher.report(e);
-			System.exit(-1);
+			e.printStackTrace();
 		}
 	}
 
@@ -61,15 +56,13 @@ public class GOSearchResultCurationIndexer extends Indexer {
 				if (queue.isEmpty()) {
 					return;
 				}
-				String batchIndex = queue.takeFirst();
-				List<Long> batchIds = idBatches.get(Integer.parseInt(batchIndex));
-
-				SearchResponse<GOSearchResultDocument> response = goApi.findByIds(batchIds);
+				String page = queue.takeFirst();
+				SearchResponse<DiseaseSummaryDocument> response = diseaseApi.findSummary(Integer.valueOf(page), indexerConfig.getBufferSize(), params);
 				if (response == null || CollectionUtils.isEmpty(response.getResults())) {
-					continue;
+					return;
 				}
 
-				indexDocuments(response.getResults());
+				indexDocuments(indexerConfig.getDefaultIndexName(), response.getResults());
 			} catch (Exception e) {
 				log.error("Error while indexing...", e);
 				ExceptionCatcher.report(e);
@@ -83,4 +76,5 @@ public class GOSearchResultCurationIndexer extends Indexer {
 	protected ObjectMapper customizeObjectMapper(ObjectMapper objectMapper) {
 		return RestConfig.config.getJacksonObjectMapperFactory().createObjectMapper();
 	}
+	
 }

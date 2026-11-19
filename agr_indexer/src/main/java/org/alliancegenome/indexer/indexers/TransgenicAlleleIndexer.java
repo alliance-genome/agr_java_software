@@ -10,9 +10,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingDeque;
 
+import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.core.config.RestConfig;
 import org.alliancegenome.core.document.GeneTransgenicAlleleSummaryDocument;
 import org.alliancegenome.core.document.TransgenicAlleleSummaryDocument;
-import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.core.es.util.ProcessDisplayHelper;
 import org.alliancegenome.curation_api.interfaces.document.AlleleDocumentInterface;
 import org.alliancegenome.curation_api.model.document.es.TransgenicAlleleDocument;
 import org.alliancegenome.curation_api.model.entities.Allele;
@@ -23,8 +25,6 @@ import org.alliancegenome.curation_api.model.entities.TransgenicAlleleConstruct;
 import org.alliancegenome.curation_api.model.entities.slotAnnotations.ConstructComponentSlotAnnotation;
 import org.alliancegenome.curation_api.model.entities.slotAnnotations.GeneSymbolSlotAnnotation;
 import org.alliancegenome.curation_api.response.SearchResponse;
-import org.alliancegenome.core.config.RestConfig;
-import org.alliancegenome.core.es.util.ProcessDisplayHelper;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -35,7 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 import si.mazi.rescu.RestProxyFactory;
 
 @Slf4j
-public class TransgenicAlleleCurationIndexer extends Indexer {
+public class TransgenicAlleleIndexer extends Indexer {
 
 	private final AlleleDocumentInterface alleleApi = RestProxyFactory.createProxy(AlleleDocumentInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 
@@ -44,7 +44,7 @@ public class TransgenicAlleleCurationIndexer extends Indexer {
 		put("obsolete", false);
 	}};
 
-	public TransgenicAlleleCurationIndexer(IndexerConfig config) {
+	public TransgenicAlleleIndexer(IndexerConfig config) {
 		super(config);
 
 	}
@@ -73,7 +73,7 @@ public class TransgenicAlleleCurationIndexer extends Indexer {
 			});
 		});
 		List<GeneTransgenicAlleleSummaryDocument> lists = geneMap.values().stream().flatMap(Collection::stream).toList();
-		indexDocuments(lists);
+		indexDocuments(indexerConfig.getDefaultIndexName(), lists);
 	}
 
 	private void addGenesToMap(List<Gene> genes, Map<Gene, Set<GeneTransgenicAlleleSummaryDocument>> geneMap, TransgenicAlleleSummaryDocument transgenicAlleleSummaryDocument) {
@@ -139,7 +139,7 @@ public class TransgenicAlleleCurationIndexer extends Indexer {
 		}
 		display.finishProcess();
 		Collection<TransgenicAlleleSummaryDocument> values = documentMap.values();
-		indexDocuments(new ArrayList<>(new HashSet<>(values)));
+		indexDocuments(indexerConfig.getDefaultIndexName(), new ArrayList<>(new HashSet<>(values)));
 		return new ArrayList<>(values);
 	}
 

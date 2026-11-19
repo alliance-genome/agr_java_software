@@ -4,8 +4,8 @@ import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 
 import java.io.IOException;
 
-import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.es.util.EsClientFactory;
+import org.alliancegenome.core.es.util.IndexName;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
@@ -26,7 +26,7 @@ public class SiteMapService {
 		SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
 		searchSourceBuilder.query(bool);
 
-		SearchRequest searchRequest = new SearchRequest(ConfigHelper.getEsIndex());
+		SearchRequest searchRequest = new SearchRequest(IndexName.SITE_INDEX.getIndexName());
 		searchRequest.source(searchSourceBuilder);
 
 		try {
@@ -48,7 +48,7 @@ public class SiteMapService {
 		searchSourceBuilder.query(bool);
 		searchSourceBuilder.size(1000);
 
-		SearchRequest searchRequest = new SearchRequest(ConfigHelper.getEsIndex());
+		SearchRequest searchRequest = new SearchRequest(IndexName.SITE_INDEX.getIndexName());
 		searchRequest.source(searchSourceBuilder);
 
 		try {
@@ -68,7 +68,7 @@ public class SiteMapService {
 		searchSourceBuilder.query(bool);
 		searchSourceBuilder.size(1000);
 
-		SearchRequest searchRequest = new SearchRequest(ConfigHelper.getEsIndex());
+		SearchRequest searchRequest = new SearchRequest(IndexName.SITE_INDEX.getIndexName());
 		searchRequest.source(searchSourceBuilder);
 
 		try {

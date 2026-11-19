@@ -12,13 +12,14 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.core.config.RestConfig;
+import org.alliancegenome.core.es.util.EsClientFactory;
+import org.alliancegenome.core.es.util.IndexName;
+import org.alliancegenome.core.es.util.ProcessDisplayHelper;
 import org.alliancegenome.curation_api.model.document.es.ESDocument;
 import org.alliancegenome.curation_api.model.entities.Note;
 import org.alliancegenome.curation_api.model.entities.Species;
 import org.alliancegenome.curation_api.model.entities.base.AuditedObject;
-import org.alliancegenome.core.config.RestConfig;
-import org.alliancegenome.core.es.util.EsClientFactory;
-import org.alliancegenome.core.es.util.ProcessDisplayHelper;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.document.AuditedObjectIndexerMixin;
@@ -49,7 +50,6 @@ import si.mazi.rescu.RestProxyFactory;
 @Slf4j
 public abstract class Indexer extends Thread {
 
-	public static String indexName;
 	protected IndexerConfig indexerConfig;
 	private RestHighLevelClient searchClient;
 
@@ -62,8 +62,6 @@ public abstract class Indexer extends Thread {
 
 	private ProcessDisplayHelper display = new ProcessDisplayHelper();
 	private StatsCollector stats = new StatsCollector();
-
-	protected Map<String, Double> popularityScore = new HashMap<>();
 
 	@Getter
 	private Duration duration = Duration.ZERO;
@@ -173,21 +171,21 @@ public abstract class Indexer extends Thread {
 		}
 	}
 
-	public <D extends ESDocument> void indexDocuments(Iterable<D> docs) {
-		indexDocuments(docs, null);
+	public <D extends ESDocument> void indexDocuments(IndexName indexName, Iterable<D> docs) {
+		indexDocuments(indexName, docs, null);
 	}
 
-	public <D extends ESDocument> void indexDocuments(Iterable<D> docs, Class<?> view) {
+	public <D extends ESDocument> void indexDocuments(IndexName indexName, Iterable<D> docs, Class<?> view) {
 		for (D doc : docs) {
-			indexDocument(doc, view);
+			indexDocument(indexName, doc, view);
 		}
 	}
 
-	public <D extends ESDocument> void indexDocument(D doc) {
-		indexDocument(doc, null);
+	public <D extends ESDocument> void indexDocument(IndexName indexName, D doc) {
+		indexDocument(indexName, doc, null);
 	}
 
-	public <D extends ESDocument> void indexDocument(D doc, Class<?> view) {
+	public <D extends ESDocument> void indexDocument(IndexName indexName, D doc, Class<?> view) {
 		try {
 			String json = "";
 			if (view != null) {
@@ -200,7 +198,7 @@ public abstract class Indexer extends Thread {
 				return;
 			}
 			stats.addDocument(json);
-			bulkProcessor.add(new IndexRequest(indexName).source(json, XContentType.JSON));
+			bulkProcessor.add(new IndexRequest(indexName.getIndexName()).source(json, XContentType.JSON));
 			display.progressProcess();
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();

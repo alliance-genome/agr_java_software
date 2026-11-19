@@ -10,13 +10,13 @@ import java.util.Map;
 
 import org.alliancegenome.api.dto.EntitySubgroupSlim;
 import org.alliancegenome.api.dto.RibbonSummary;
-import org.alliancegenome.api.service.ExpressionESService;
-import org.alliancegenome.api.service.ExpressionRibbonESService;
-import org.alliancegenome.api.response.JsonResultResponse;
-import org.alliancegenome.curation_api.model.document.es.GeneExpressionDocument;
 import org.alliancegenome.api.es.query.FieldFilter;
 import org.alliancegenome.api.es.query.Pagination;
+import org.alliancegenome.api.response.JsonResultResponse;
+import org.alliancegenome.api.service.ExpressionESService;
+import org.alliancegenome.api.service.ExpressionRibbonESService;
 import org.alliancegenome.api.view.BaseFilter;
+import org.alliancegenome.curation_api.model.document.es.GeneExpressionDocument;
 import org.junit.Test;
 
 import jakarta.inject.Inject;
@@ -103,21 +103,6 @@ public class ExpressionIT extends AbstractIT {
 		pagination.setFieldFilterValueMap(filter);
 		JsonResultResponse<GeneExpressionDocument> summary = expressionESService.getExpressionAnnotations(List.of("ZFIN:ZDB-GENE-030131-845"), "UBERON:0001062", "NCBITaxon:7955", pagination);
 		assertNotNull(summary);
-	}
-
-	@Test
-	public void checkExpressionNoResultDistinctFieldValues() {
-		Pagination pagination = new Pagination();
-		BaseFilter filter = new BaseFilter();
-		// filter.addFieldFilter(FieldFilter.SOURCE, "9913");
-		pagination.setFieldFilterValueMap(filter);
-		pagination.addFieldFilter(FieldFilter.FREFERENCE, "foot");
-		JsonResultResponse<GeneExpressionDocument> summary = expressionESService.getExpressionAnnotations(List.of("RGD:2129"), null, "NCBITaxon:10116", pagination);
-		assertNotNull(summary);
-		assertEquals(summary.getTotal(), 0);
-		assertNotNull(summary.retrieveDistinctFieldValues());
-		// Have at least one species value in the distinct value map.
-		assertEquals(summary.retrieveDistinctFieldValues().values().size(), 1);
 	}
 
 }

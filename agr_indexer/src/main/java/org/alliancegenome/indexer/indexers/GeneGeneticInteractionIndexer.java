@@ -4,14 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 
-import org.alliancegenome.core.document.GeneGeneticInteractionDocument;
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.core.config.RestConfig;
+import org.alliancegenome.core.document.GeneGeneticInteractionDocument;
+import org.alliancegenome.core.es.util.ProcessDisplayHelper;
 import org.alliancegenome.core.util.ListUtils;
 import org.alliancegenome.curation_api.interfaces.document.GeneGeneticInteractionDocumentInterface;
 import org.alliancegenome.curation_api.model.entities.GeneGeneticInteraction;
 import org.alliancegenome.curation_api.response.SearchResponse;
-import org.alliancegenome.core.config.RestConfig;
-import org.alliancegenome.core.es.util.ProcessDisplayHelper;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.service.GeneGeneticInteractionService;
@@ -23,14 +23,14 @@ import lombok.extern.slf4j.Slf4j;
 import si.mazi.rescu.RestProxyFactory;
 
 @Slf4j
-public class GeneGeneticInteractionCurationIndexer extends Indexer {
+public class GeneGeneticInteractionIndexer extends Indexer {
 
 	private final GeneGeneticInteractionDocumentInterface geneGeneticInteractionApi = RestProxyFactory.createProxy(GeneGeneticInteractionDocumentInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 
 	private GeneGeneticInteractionService geneGeneticInteractionService;
 	private List<List<Long>> idBatches;
 
-	public GeneGeneticInteractionCurationIndexer(IndexerConfig config) {
+	public GeneGeneticInteractionIndexer(IndexerConfig config) {
 		super(config);
 	}
 
@@ -89,7 +89,7 @@ public class GeneGeneticInteractionCurationIndexer extends Indexer {
 					documentsToIndex.add(document);
 				}
 
-				indexDocuments(documentsToIndex);
+				indexDocuments(indexerConfig.getDefaultIndexName(), documentsToIndex);
 			} catch (Exception e) {
 				log.error("Error while indexing...", e);
 				ExceptionCatcher.report(e);

@@ -1,15 +1,17 @@
 package org.alliancegenome.indexer.variant.es.managers;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.core.config.VariantConfigHelper;
 import org.alliancegenome.core.es.util.EsClientFactory;
+import org.alliancegenome.core.es.util.IndexName;
 import org.alliancegenome.core.es.util.ProcessDisplayHelper;
-import org.alliancegenome.indexer.variant.config.VariantConfigHelper;
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 import org.elasticsearch.client.RestHighLevelClient;
 
@@ -18,8 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class RoutedBulkIndexer extends Thread {
 
-	private final LinkedBlockingDeque<List<byte[]>> jsonQueue;
-	private final String indexName;
+	private final LinkedBlockingDeque<IndexBatch> jsonQueue;
 	private final long maxBulkSizeBytes;
 	private final String label;
 	private final RetryWorker retryWorker;
@@ -39,14 +40,12 @@ public class RoutedBulkIndexer extends Thread {
 	private long totalFailedDocs;
 
 	public RoutedBulkIndexer(
-		LinkedBlockingDeque<List<byte[]>> jsonQueue,
-		String indexName,
+		LinkedBlockingDeque<IndexBatch> jsonQueue,
 		String label,
 		ProcessDisplayHelper phGlobal,
 		RetryWorker retryWorker
 	) {
 		this.jsonQueue = jsonQueue;
-		this.indexName = indexName;
 		this.maxBulkSizeBytes = ConfigHelper.getEsBulkSizeMB() * 1024 * 1024;
 		this.label = label;
 		this.phGlobal = phGlobal;
@@ -66,32 +65,32 @@ public class RoutedBulkIndexer extends Thread {
 		}
 
 		try {
-			List<byte[]> pendingDocs = new ArrayList<>();
-			long pendingBytes = 0;
+			Map<IndexName, IndexBatch> pending = new EnumMap<>(IndexName.class);
 
 			while (!Thread.currentThread().isInterrupted()) {
 				try {
-					List<byte[]> docs = jsonQueue.take();
+					IndexBatch batch = jsonQueue.take();
+					IndexName indexName = batch.getIndexName();
+					IndexBatch pendingBatch = pending.computeIfAbsent(indexName, IndexBatch::new);
 
 					if (gatherStats) {
-						queueStats.addValue(docs.size());
+						queueStats.addValue(batch.getDocs().size());
 					}
 
-					for (byte[] smileDoc : docs) {
+					for (byte[] smileDoc : batch.getDocs()) {
 						int docBytes = smileDoc.length;
 
 						if (gatherStats) {
 							docStats.addValue(docBytes);
 						}
 
-						if (pendingBytes + docBytes > maxBulkSizeBytes && !pendingDocs.isEmpty()) {
-							submitBatch(pendingDocs);
-							pendingDocs = new ArrayList<>();
-							pendingBytes = 0;
+						if (pendingBatch.getBytes() + docBytes > maxBulkSizeBytes && !pendingBatch.getDocs().isEmpty()) {
+							submitBatch(pendingBatch);
+							pendingBatch = new IndexBatch(indexName);
+							pending.put(indexName, pendingBatch);
 						}
 
-						pendingDocs.add(smileDoc);
-						pendingBytes += docBytes;
+						pendingBatch.add(smileDoc);
 						if (gatherStats) {
 							totalBytes += docBytes;
 							ph.progressProcess(
@@ -113,8 +112,10 @@ public class RoutedBulkIndexer extends Thread {
 			Thread.interrupted();
 
 			// Flush remaining
-			if (!pendingDocs.isEmpty()) {
-				submitBatch(pendingDocs);
+			for (IndexBatch pendingBatch : pending.values()) {
+				if (!pendingBatch.getDocs().isEmpty()) {
+					submitBatch(pendingBatch);
+				}
 			}
 
 		} catch (Exception e) {
@@ -138,27 +139,29 @@ public class RoutedBulkIndexer extends Thread {
 		}
 	}
 
-	private void submitBatch(List<byte[]> docs) {
+	private void submitBatch(IndexBatch batch) {
 		if (!VariantConfigHelper.isIndexing()) {
 			return;
 		}
+		IndexName indexName = batch.getIndexName();
+		List<byte[]> docs = batch.getDocs();
 		if (gatherStats) {
 			esBatchRequestStats.addValue(docs.size());
 		}
 		String routing = Integer.toString(ThreadLocalRandom.current().nextInt(Integer.MAX_VALUE));
-		BulkSubmitResult result = BulkSubmitter.submitOnce(docs, client, routing, indexName);
+		BulkSubmitResult result = BulkSubmitter.submitOnce(docs, client, routing, indexName.getIndexName());
 
 		switch (result.getStatus()) {
 			case SUCCESS:
 				return;
 			case PARTIAL_FAILURE:
 				totalRetries++;
-				log.warn(label + " " + result.getFailedDocs().size() + " failed items, handing to retry worker");
-				handOff(result.getFailedDocs());
+				log.warn(label + " " + indexName + " " + result.getFailedDocs().size() + " failed items, handing to retry worker");
+				handOff(indexName, result.getFailedDocs());
 				return;
 			case FULL_FAILURE:
 				totalRetries++;
-				log.warn(label + " Bulk request failed (" + result.getReason() + "), size=" + docs.size() + (result.isReconnectNeeded() ? ", reconnecting" : "") + (result.isSleepNeeded() ? ", sleeping" : "") + ", handing to retry worker");
+				log.warn(label + " " + indexName + " Bulk request failed (" + result.getReason() + "), size=" + docs.size() + (result.isReconnectNeeded() ? ", reconnecting" : "") + (result.isSleepNeeded() ? ", sleeping" : "") + ", handing to retry worker");
 				if (result.isSleepNeeded()) {
 					try {
 						Thread.sleep(1000 + ThreadLocalRandom.current().nextInt(2000));
@@ -169,14 +172,14 @@ public class RoutedBulkIndexer extends Thread {
 				if (result.isReconnectNeeded()) {
 					reconnectClient();
 				}
-				handOff(docs);
+				handOff(indexName, docs);
 				return;
 		}
 	}
 
-	private void handOff(List<byte[]> docs) {
+	private void handOff(IndexName indexName, List<byte[]> docs) {
 		try {
-			retryWorker.submit(docs);
+			retryWorker.submit(indexName, docs);
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 		}

@@ -4,7 +4,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.indexer.variant.config.VariantConfigHelper;
+import org.alliancegenome.core.config.VariantConfigHelper;
 import org.alliancegenome.indexer.variant.filedownload.FileDownload;
 import org.alliancegenome.indexer.variant.filedownload.model.DownloadFileSet;
 import org.alliancegenome.indexer.variant.filedownload.model.DownloadSource;

@@ -4,6 +4,13 @@ import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.core.config.RestConfig;
+import org.alliancegenome.core.converter.variant.AlleleSearchResultConverter;
+import org.alliancegenome.core.converter.variant.AlleleSequenceSummaryConverter;
+import org.alliancegenome.core.converter.variant.AlleleToVariantSummaryConverter;
+import org.alliancegenome.core.document.AlleleSearchResultDocument;
+import org.alliancegenome.core.es.util.IndexName;
+import org.alliancegenome.core.es.util.ProcessDisplayHelper;
 import org.alliancegenome.core.util.ListUtils;
 import org.alliancegenome.curation_api.interfaces.document.AlleleDocumentInterface;
 import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
@@ -11,12 +18,6 @@ import org.alliancegenome.curation_api.model.document.es.SequenceSummaryDocument
 import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
 import org.alliancegenome.curation_api.response.SearchResponse;
 import org.alliancegenome.curation_api.view.CurationView;
-import org.alliancegenome.core.document.AlleleSearchResultDocument;
-import org.alliancegenome.core.config.RestConfig;
-import org.alliancegenome.core.converter.variant.AlleleSearchResultConverter;
-import org.alliancegenome.core.converter.variant.AlleleSequenceSummaryConverter;
-import org.alliancegenome.core.converter.variant.AlleleToVariantSummaryConverter;
-import org.alliancegenome.core.es.util.ProcessDisplayHelper;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.apache.commons.collections.CollectionUtils;
@@ -27,7 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 import si.mazi.rescu.RestProxyFactory;
 
 @Slf4j
-public class AlleleSummaryCurationIndexer extends Indexer {
+public class AlleleSummaryIndexer extends Indexer {
 
 	private final AlleleDocumentInterface alleleApi = RestProxyFactory.createProxy(AlleleDocumentInterface.class, ConfigHelper.getCurationApiUrl(), RestConfig.config);
 	private final AlleleSequenceSummaryConverter sequenceSummaryConverter = new AlleleSequenceSummaryConverter();
@@ -36,7 +37,7 @@ public class AlleleSummaryCurationIndexer extends Indexer {
 
 	private List<List<Long>> idBatches;
 
-	public AlleleSummaryCurationIndexer(IndexerConfig indexerConfig) {
+	public AlleleSummaryIndexer(IndexerConfig indexerConfig) {
 		super(indexerConfig);
 	}
 
@@ -93,10 +94,10 @@ public class AlleleSummaryCurationIndexer extends Indexer {
 				});
 
 				// Index all document types
-				indexDocuments(response.getResults());
-				indexDocuments(sequenceDocs, CurationView.SequenceSummaryDocument.class);
-				indexDocuments(searchDocs);
-				indexDocuments(variantDocs, CurationView.VariantSummaryDocument.class);
+				indexDocuments(indexerConfig.getDefaultIndexName(), response.getResults());
+				indexDocuments(IndexName.SEQUENCE_SUMMARY, sequenceDocs, CurationView.SequenceSummaryDocument.class);
+				indexDocuments(IndexName.SEARCH_RESULT, searchDocs);
+				indexDocuments(IndexName.VARIANT_SUMMARY, variantDocs, CurationView.VariantSummaryDocument.class);
 			} catch (Exception e) {
 				log.error("Error while indexing...", e);
 				ExceptionCatcher.report(e);

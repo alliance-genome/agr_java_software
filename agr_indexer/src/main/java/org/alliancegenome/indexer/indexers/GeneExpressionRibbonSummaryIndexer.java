@@ -3,10 +3,10 @@ package org.alliancegenome.indexer.indexers;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.curation_api.interfaces.document.GeneExpressionRibbonDocumentInterface;
-import org.alliancegenome.curation_api.model.document.es.GeneExpressionRibbonSummaryDocument;
 import org.alliancegenome.core.config.RestConfig;
 import org.alliancegenome.core.es.util.ProcessDisplayHelper;
+import org.alliancegenome.curation_api.interfaces.document.GeneExpressionRibbonDocumentInterface;
+import org.alliancegenome.curation_api.model.document.es.GeneExpressionRibbonSummaryDocument;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;
 import org.alliancegenome.indexer.config.IndexerConfig;
 
@@ -30,7 +30,7 @@ public class GeneExpressionRibbonSummaryIndexer extends Indexer {
 			if (response == null) {
 				return;
 			}
-			indexDocument(response);
+			indexDocument(indexerConfig.getDefaultIndexName(), response);
 		} catch (Exception e) {
 			log.error("Error while indexing...", e);
 			ExceptionCatcher.report(e);

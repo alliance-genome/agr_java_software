@@ -1,12 +1,10 @@
 package org.alliancegenome.indexer.variant;
 
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.core.es.schema.VariantMapping;
-import org.alliancegenome.core.es.schema.settings.VariantIndexSettings;
+import org.alliancegenome.core.config.VariantConfigHelper;
 import org.alliancegenome.core.es.util.IndexManager;
+import org.alliancegenome.core.es.util.IndexName;
 import org.alliancegenome.exceptional.client.ExceptionCatcher;
-import org.alliancegenome.indexer.variant.config.VariantConfigHelper;
-import org.alliancegenome.indexer.variant.es.managers.SourceDocumentCreation;
 import org.alliancegenome.indexer.variant.es.managers.SourceDocumentCreationManager;
 import org.alliancegenome.indexer.variant.filedownload.model.DownloadFileSet;
 import org.alliancegenome.indexer.variant.filedownload.process.FileDownloadManager;
@@ -41,11 +39,10 @@ public class Main {
 			}
 
 			if (creating) {
-				IndexManager im = new IndexManager(new VariantIndexSettings(true, VariantConfigHelper.getIndexerShards()), new VariantMapping(true), "variant");
+				IndexManager im = new IndexManager("variant");
 
 				if (indexing) {
-					String newIndexName = im.startSiteIndex();
-					SourceDocumentCreation.indexName = newIndexName;
+					im.startIndexes(IndexName.getVariantIndexSet());
 				}
 
 				SourceDocumentCreationManager vdm = new SourceDocumentCreationManager(downloadSet);
@@ -53,7 +50,7 @@ public class Main {
 				vdm.join();
 
 				if (indexing) {
-					im.finishIndex();
+					im.finishIndex(IndexName.getVariantIndexSet());
 				}
 			}
 
