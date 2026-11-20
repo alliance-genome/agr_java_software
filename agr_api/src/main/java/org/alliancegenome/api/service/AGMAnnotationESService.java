@@ -4,10 +4,11 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import org.alliancegenome.api.response.JsonResultResponse;
-import org.alliancegenome.curation_api.model.document.es.AGMAnnotationDocument;
-import org.alliancegenome.core.es.schema.Mapping;
 import org.alliancegenome.api.es.query.Pagination;
+import org.alliancegenome.api.response.JsonResultResponse;
+import org.alliancegenome.core.es.schema.Mapping;
+import org.alliancegenome.core.es.util.IndexName;
+import org.alliancegenome.curation_api.model.document.es.AGMAnnotationDocument;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.search.sort.SortOrder;
@@ -36,7 +37,7 @@ public class AGMAnnotationESService extends ESService {
 		sortingMap.put(Mapping.AffectedGenomicModel.HAS_PHENOTYPE_ANNOTATIONS.getSortedFieldName(), SortOrder.DESC);
 		sortingMap.put("model.agmFullName.formatText.sort", SortOrder.ASC);
 
-		SearchResponse searchResponse = getSearchResponse(query, pagination, sortingMap, null, debug);
+		SearchResponse searchResponse = getSearchResponse(IndexName.SITE_INDEX, query, pagination, sortingMap, null, debug);
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
 
 		List<AGMAnnotationDocument> list = Arrays.stream(searchResponse.getHits().getHits())

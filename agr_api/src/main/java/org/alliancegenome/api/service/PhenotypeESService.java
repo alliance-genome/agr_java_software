@@ -6,10 +6,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.alliancegenome.api.es.query.Pagination;
+import org.alliancegenome.api.response.JsonResultResponse;
 import org.alliancegenome.core.document.AllelePhenotypeAnnotationDocument;
 import org.alliancegenome.core.document.GenePhenotypeAnnotationDocument;
-import org.alliancegenome.api.response.JsonResultResponse;
-import org.alliancegenome.api.es.query.Pagination;
+import org.alliancegenome.core.es.util.IndexName;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.search.sort.SortOrder;
@@ -44,7 +45,7 @@ public class PhenotypeESService extends ESService {
 		}
 		sortFields.forEach(sortField -> sortingMap.put(sortField, SortOrder.ASC));
 
-		SearchResponse searchResponse = getSearchResponse(query, pagination, sortingMap, debug);
+		SearchResponse searchResponse = getSearchResponse(IndexName.SITE_INDEX, query, pagination, sortingMap, debug);
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
 
 		List<GenePhenotypeAnnotationDocument> list = Arrays.stream(searchResponse.getHits().getHits())
@@ -85,7 +86,7 @@ public class PhenotypeESService extends ESService {
 		}
 		sortFields.forEach(sortField -> sortingMap.put(sortField, SortOrder.ASC));
 
-		SearchResponse searchResponse = getSearchResponse(query, pagination, sortingMap, debug);
+		SearchResponse searchResponse = getSearchResponse(IndexName.SITE_INDEX, query, pagination, sortingMap, debug);
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
 
 		List<AllelePhenotypeAnnotationDocument> list = Arrays.stream(searchResponse.getHits().getHits())

@@ -6,9 +6,10 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import org.alliancegenome.core.document.ReleaseInfoDocument;
-import org.alliancegenome.curation_api.model.input.Pagination;
 import org.alliancegenome.api.es.dao.SearchDAO;
+import org.alliancegenome.core.document.ReleaseInfoDocument;
+import org.alliancegenome.core.es.util.IndexName;
+import org.alliancegenome.curation_api.model.input.Pagination;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
@@ -34,7 +35,7 @@ public class ReleaseInfoService {
 		Pagination pagination = new Pagination();
 		BoolQueryBuilder bool = boolQuery();
 		bool.must(new MatchQueryBuilder("category", "release_info"));
-		SearchResponse resp = searchDAO.performQuery(
+		SearchResponse resp = searchDAO.performQuery(IndexName.SITE_INDEX,
 			bool, aggBuilders, null, List.of("*"),
 			pagination.getLimit(), pagination.getPage() * pagination.getLimit(), hlb, sorts, false);
 

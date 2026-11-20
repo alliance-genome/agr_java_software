@@ -27,6 +27,7 @@ import org.alliancegenome.core.document.AGMDiseaseAnnotationDocument;
 import org.alliancegenome.core.document.AlleleDiseaseAnnotationDocument;
 import org.alliancegenome.core.document.DiseaseAnnotationDocument;
 import org.alliancegenome.core.document.GeneDiseaseAnnotationDocument;
+import org.alliancegenome.core.es.util.IndexName;
 import org.alliancegenome.curation_api.model.document.es.DiseaseSummaryDocument;
 import org.alliancegenome.curation_api.model.document.es.GeneSummaryDocument;
 import org.alliancegenome.curation_api.model.entities.DiseaseAnnotation;
@@ -101,7 +102,7 @@ public class DiseaseESService extends ESService {
 
 		// add table filter
 		addTableFilter(pagination, query);
-		SearchResponse searchResponse = getSearchResponse(query, pagination, getAnnotationSorts(focusTaxonId, debug), false);
+		SearchResponse searchResponse = getSearchResponse(IndexName.SITE_INDEX, query, pagination, getAnnotationSorts(focusTaxonId, debug), false);
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
 
 		List<GeneDiseaseAnnotationDocument> list = Arrays.stream(searchResponse.getHits().getHits())
@@ -131,7 +132,7 @@ public class DiseaseESService extends ESService {
 		bool.must(new MatchQueryBuilder("doTerm.curie", diseaseId));
 		bool.filter(new TermQueryBuilder("category", "disease_summary"));
 		Pagination pagination = new Pagination();
-		SearchResponse searchResponse = getSearchResponse(bool, pagination, null, false);
+		SearchResponse searchResponse = getSearchResponse(IndexName.SITE_INDEX, bool, pagination, null, false);
 		try {
 			if (searchResponse.getHits().getTotalHits().value >= 1) {
 				return mapper.readValue(searchResponse.getHits().getHits()[0].getSourceAsString(), DiseaseSummaryDocument.class);
@@ -151,7 +152,7 @@ public class DiseaseESService extends ESService {
 		}
 		aggregationFields.put("generatedRelationString.keyword", "associationType");
 		aggregationFields.put("diseaseQualifiers.keyword", "diseaseQualifiers");
-		return getSupplementalData(focusTaxonId, useSpeciesAggregation, debug, unfilteredQuery, aggregationFields);
+		return getSupplementalData(IndexName.SITE_INDEX, focusTaxonId, useSpeciesAggregation, debug, unfilteredQuery, aggregationFields);
 	}
 
 	public JsonResultResponse<AlleleDiseaseAnnotationDocument> getDiseaseAnnotations(String alleleID, Pagination pagination, boolean excludeNegated, boolean debug) {
@@ -163,7 +164,7 @@ public class DiseaseESService extends ESService {
 
 		// add table filter
 		addTableFilter(pagination, query);
-		SearchResponse searchResponse = getSearchResponse(query, pagination, getAnnotationSorts(null, debug), false);
+		SearchResponse searchResponse = getSearchResponse(IndexName.SITE_INDEX, query, pagination, getAnnotationSorts(null, debug), false);
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
 
 		List<AlleleDiseaseAnnotationDocument> list = Arrays.stream(searchResponse.getHits().getHits())
@@ -281,7 +282,7 @@ public class DiseaseESService extends ESService {
 
 		addTableFilter(pagination, bool);
 
-		SearchResponse searchResponse = getSearchResponse(bool, pagination, null, debug);
+		SearchResponse searchResponse = getSearchResponse(IndexName.SITE_INDEX, bool, pagination, null, debug);
 
 		JsonResultResponse<GeneDiseaseAnnotationDocument> ret = new JsonResultResponse<>();
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
@@ -330,7 +331,7 @@ public class DiseaseESService extends ESService {
 		}
 		sortFields.forEach(sortField -> sortingMap.put(sortField, SortOrder.ASC));
 
-		SearchResponse searchResponse = getSearchResponse(bool, pagination, sortingMap, debug);
+		SearchResponse searchResponse = getSearchResponse(IndexName.SITE_INDEX, bool, pagination, sortingMap, debug);
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
 
 		List<GeneDiseaseAnnotationDocument> list = new ArrayList<>();
@@ -383,7 +384,7 @@ public class DiseaseESService extends ESService {
 		}
 		sortFields.forEach(sortField -> sortingMap.put(sortField, SortOrder.ASC));
 
-		SearchResponse searchResponse = getSearchResponse(bool, pagination, sortingMap, debug);
+		SearchResponse searchResponse = getSearchResponse(IndexName.SITE_INDEX, bool, pagination, sortingMap, debug);
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
 
 		List<AGMDiseaseAnnotationDocument> list = new ArrayList<>();
@@ -431,7 +432,7 @@ public class DiseaseESService extends ESService {
 		}
 		sortFields.forEach(sortField -> sortingMap.put(sortField, SortOrder.ASC));
 
-		SearchResponse searchResponse = getSearchResponse(bool, pagination, sortingMap, false);
+		SearchResponse searchResponse = getSearchResponse(IndexName.SITE_INDEX, bool, pagination, sortingMap, false);
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
 		List<AlleleDiseaseAnnotationDocument> list = new ArrayList<>();
 
@@ -458,7 +459,7 @@ public class DiseaseESService extends ESService {
 		// Not paginating the query here, just getting the document
 		Pagination tempPagination = new Pagination();
 		tempPagination.setLimit(1);
-		SearchResponse response = getSearchResponse(bool, tempPagination, null, false);
+		SearchResponse response = getSearchResponse(IndexName.SITE_INDEX, bool, tempPagination, null, false);
 
 		if (response.getHits().getTotalHits().value == 0) {
 			ret.setTotal(0);
@@ -547,7 +548,7 @@ public class DiseaseESService extends ESService {
 			.filter(new TermQueryBuilder("category", "disease_summary"))
 			.filter(new TermsQueryBuilder("doTerm.curie.keyword", diseaseIds));
 
-		SearchResponse response = SEARCH_DAO.performQuery(
+		SearchResponse response = SEARCH_DAO.performQuery(IndexName.SITE_INDEX,
 			bool, java.util.List.of(), null, java.util.List.of(),
 			diseaseIds.size(), 0, new HighlightBuilder(), null, false);
 
@@ -576,7 +577,7 @@ public class DiseaseESService extends ESService {
 			.field("object.curie.keyword")
 			.precisionThreshold(SUBJECT_COUNT_PRECISION_THRESHOLD);
 
-		SearchResponse response = SEARCH_DAO.performQuery(
+		SearchResponse response = SEARCH_DAO.performQuery(IndexName.SITE_INDEX,
 			bool, java.util.List.of(agg), null, java.util.List.of(),
 			0, 0, new HighlightBuilder(), null, false);
 
@@ -649,7 +650,7 @@ public class DiseaseESService extends ESService {
 			.field("subject.primaryExternalId.keyword")
 			.precisionThreshold(SUBJECT_COUNT_PRECISION_THRESHOLD);
 
-		SearchResponse response = SEARCH_DAO.performQuery(
+		SearchResponse response = SEARCH_DAO.performQuery(IndexName.SITE_INDEX,
 			bool, java.util.List.of(agg), null, java.util.List.of("subject"),
 			0, 0, new HighlightBuilder(), null, false);
 
@@ -669,7 +670,7 @@ public class DiseaseESService extends ESService {
 			.field("subject.primaryExternalId.keyword")
 			.precisionThreshold(SUBJECT_COUNT_PRECISION_THRESHOLD);
 
-		SearchResponse response = SEARCH_DAO.performQuery(
+		SearchResponse response = SEARCH_DAO.performQuery(IndexName.SITE_INDEX,
 			bool, java.util.List.of(agg), null, java.util.List.of("subject"),
 			0, 0, new HighlightBuilder(), null, false);
 
@@ -694,7 +695,7 @@ public class DiseaseESService extends ESService {
 				.field("subject.primaryExternalId.keyword")
 				.precisionThreshold(SUBJECT_COUNT_PRECISION_THRESHOLD));
 
-		SearchResponse response = SEARCH_DAO.performQuery(
+		SearchResponse response = SEARCH_DAO.performQuery(IndexName.SITE_INDEX,
 			bool, java.util.List.of(agg), null, java.util.List.of("subject"),
 			0, 0, new HighlightBuilder(), null, false);
 

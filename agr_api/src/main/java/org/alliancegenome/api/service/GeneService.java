@@ -17,6 +17,7 @@ import org.alliancegenome.api.response.JsonResultResponse;
 import org.alliancegenome.api.service.helper.ElasticSearchHelper;
 import org.alliancegenome.core.document.GeneGeneticInteractionDocument;
 import org.alliancegenome.core.document.GeneMolecularInteractionDocument;
+import org.alliancegenome.core.es.util.IndexName;
 import org.alliancegenome.curation_api.model.document.es.SequenceSummaryDocument;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
@@ -77,7 +78,7 @@ public class GeneService {
 
 		List<AggregationBuilder> aggBuilders = new ArrayList<>();
 		HighlightBuilder hlb = new HighlightBuilder();
-		SearchResponse searchResponse = searchDAO.performQuery(query, aggBuilders, null, List.of("*"), pagination.getLimit(), pagination.getOffset(), hlb, sorts, false);
+		SearchResponse searchResponse = searchDAO.performQuery(IndexName.SITE_INDEX, query, aggBuilders, null, List.of("*"), pagination.getLimit(), pagination.getOffset(), hlb, sorts, false);
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
 
 		List<GeneGeneticInteractionDocument> list = Arrays.stream(searchResponse.getHits().getHits()).map(searchHit -> {
@@ -118,7 +119,7 @@ public class GeneService {
 
 		List<AggregationBuilder> aggBuilders = new ArrayList<>();
 		HighlightBuilder hlb = new HighlightBuilder();
-		SearchResponse searchResponse = searchDAO.performQuery(query, aggBuilders, null, List.of("*"), pagination.getLimit(), pagination.getOffset(), hlb, sorts, false);
+		SearchResponse searchResponse = searchDAO.performQuery(IndexName.SITE_INDEX, query, aggBuilders, null, List.of("*"), pagination.getLimit(), pagination.getOffset(), hlb, sorts, false);
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
 
 		List<GeneMolecularInteractionDocument> list = Arrays.stream(searchResponse.getHits().getHits()).map(searchHit -> {
@@ -171,7 +172,7 @@ public class GeneService {
 			aggBuilders.add(aggregationBuilder);
 		});
 
-		SearchResponse searchResponseHistogram = searchDAO.performQuery(bool, aggBuilders, null, List.of("*"), 0, 0, new HighlightBuilder(), null, false);
+		SearchResponse searchResponseHistogram = searchDAO.performQuery(IndexName.SITE_INDEX, bool, aggBuilders, null, List.of("*"), 0, 0, new HighlightBuilder(), null, false);
 
 		Map<String, List<String>> distinctFieldValueMap = new HashMap<>();
 		aggregationFields.forEach((field, colName) -> {

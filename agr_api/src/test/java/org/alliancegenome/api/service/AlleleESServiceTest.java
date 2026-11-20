@@ -13,6 +13,7 @@ import java.util.Map;
 import org.alliancegenome.api.es.query.Pagination;
 import org.alliancegenome.api.response.JsonResultResponse;
 import org.alliancegenome.api.translators.tdf.AlleleToTdfTranslator;
+import org.alliancegenome.core.es.util.IndexName;
 import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
 import org.alliancegenome.curation_api.model.document.es.ESDocument;
 import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
@@ -198,7 +199,7 @@ public class AlleleESServiceTest {
 		}
 
 		@Override
-		protected SearchResponse getSearchResponse(BoolQueryBuilder query, Pagination pagination,
+		protected SearchResponse getSearchResponse(IndexName indexName, BoolQueryBuilder query, Pagination pagination,
 			LinkedHashMap<String, SortOrder> sorts, boolean debug) {
 			capturedQueries.add(query);
 			capturedPaginations.add(pagination);
