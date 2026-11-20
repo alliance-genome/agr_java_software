@@ -15,11 +15,12 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
-import org.alliancegenome.api.service.helper.GeneDiseaseSearchHelper;
 import org.alliancegenome.api.es.dao.SearchDAO;
 import org.alliancegenome.api.es.dao.SpeciesESDAO;
 import org.alliancegenome.api.es.query.Pagination;
+import org.alliancegenome.api.service.helper.GeneDiseaseSearchHelper;
 import org.alliancegenome.core.document.SpeciesSummaryDocument;
+import org.alliancegenome.core.es.util.IndexName;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.lucene.queryparser.classic.QueryParser;
@@ -56,20 +57,24 @@ public class ESService {
 	private static final GeneDiseaseSearchHelper geneDiseaseSearchHelper = new GeneDiseaseSearchHelper();
 
 
-	protected SearchResponse getSearchResponse(BoolQueryBuilder bool, Pagination pagination, LinkedHashMap<String, SortOrder> focusTaxonId, boolean debug) {
+	protected SearchResponse getSearchResponse(IndexName indexName, BoolQueryBuilder bool, Pagination pagination, LinkedHashMap<String, SortOrder> focusTaxonId, boolean debug) {
+		return getSearchResponse(List.of(indexName), bool, pagination, focusTaxonId, debug);
+	}
+
+	protected SearchResponse getSearchResponse(List<IndexName> indexNames, BoolQueryBuilder bool, Pagination pagination, LinkedHashMap<String, SortOrder> focusTaxonId, boolean debug) {
 		List<AggregationBuilder> aggBuilders = new ArrayList<>();
 		HighlightBuilder hlb = new HighlightBuilder();
 
-		return searchDAO.performQuery(
+		return searchDAO.performQuery(indexNames,
 			bool, aggBuilders, null, getDiseaseSearchResponseFields(pagination),
 			pagination.getLimit(), pagination.getOffset(), hlb, focusTaxonId, null, pagination.getSourceExcludes(), debug);
 	}
 
-	protected SearchResponse getSearchResponse(BoolQueryBuilder bool, Pagination pagination, LinkedHashMap<String, SortOrder> focusTaxonId, Map<String, Boolean> missingFieldLast, boolean debug) {
+	protected SearchResponse getSearchResponse(IndexName indexName, BoolQueryBuilder bool, Pagination pagination, LinkedHashMap<String, SortOrder> focusTaxonId, Map<String, Boolean> missingFieldLast, boolean debug) {
 		List<AggregationBuilder> aggBuilders = new ArrayList<>();
 		HighlightBuilder hlb = new HighlightBuilder();
 
-		return searchDAO.performQuery(
+		return searchDAO.performQuery(indexName,
 			bool, aggBuilders, null, getDiseaseSearchResponseFields(pagination),
 			pagination.getLimit(), pagination.getOffset(), hlb, focusTaxonId, missingFieldLast, pagination.getSourceExcludes(), debug);
 	}
@@ -199,7 +204,11 @@ public class ESService {
 		return value;
 	}
 
-	protected Map<String, List<String>> getAggregations(BoolQueryBuilder bool, Map<String, String> aggregationFields, String focusTaxonId, boolean useSpeciesAggregation, boolean debug) {
+	protected Map<String, List<String>> getAggregations(IndexName indexName, BoolQueryBuilder bool, Map<String, String> aggregationFields, String focusTaxonId, boolean useSpeciesAggregation, boolean debug) {
+		return getAggregations(List.of(indexName), bool, aggregationFields, focusTaxonId, useSpeciesAggregation, debug);
+	}
+
+	protected Map<String, List<String>> getAggregations(List<IndexName> indexNames, BoolQueryBuilder bool, Map<String, String> aggregationFields, String focusTaxonId, boolean useSpeciesAggregation, boolean debug) {
 		List<AggregationBuilder> aggBuilders = new ArrayList<>();
 		aggregationFields.forEach((field, colName) -> {
 			String fieldNameAgg = field + "_agg";
@@ -210,9 +219,9 @@ public class ESService {
 			aggBuilders.add(aggregationBuilder);
 		});
 
-		SearchResponse searchResponseHistogram = searchDAO.performQuery(
+		SearchResponse searchResponseHistogram = searchDAO.performQuery(indexNames,
 			bool, aggBuilders, null, geneDiseaseSearchHelper.getResponseFields(),
-			0, 0, new HighlightBuilder(), useSpeciesAggregation ? getAnnotationSorts(focusTaxonId, debug) : null, debug);
+			0, 0, new HighlightBuilder(), useSpeciesAggregation ? getAnnotationSorts(focusTaxonId, debug) : null, null, null, debug);
 
 		Map<String, List<String>> distinctFieldValueMap = new HashMap<>();
 		aggregationFields.forEach((field, colName) -> {
@@ -224,8 +233,8 @@ public class ESService {
 		return distinctFieldValueMap;
 	}
 
-	protected Map<String, Object> getSupplementalData(String focusTaxonId, boolean useSpeciesAggregation, boolean debug, BoolQueryBuilder unfilteredQuery, Map<String, String> aggregationFields) {
-		Map<String, List<String>> distinctFieldValueMap = getAggregations(unfilteredQuery, aggregationFields, focusTaxonId, useSpeciesAggregation, debug);
+	protected Map<String, Object> getSupplementalData(IndexName indexName, String focusTaxonId, boolean useSpeciesAggregation, boolean debug, BoolQueryBuilder unfilteredQuery, Map<String, String> aggregationFields) {
+		Map<String, List<String>> distinctFieldValueMap = getAggregations(indexName, unfilteredQuery, aggregationFields, focusTaxonId, useSpeciesAggregation, debug);
 		Map<String, Object> supplementalData = new LinkedHashMap<>();
 		supplementalData.put(DISTINCT_FIELD_VALUES, distinctFieldValueMap);
 		return supplementalData;

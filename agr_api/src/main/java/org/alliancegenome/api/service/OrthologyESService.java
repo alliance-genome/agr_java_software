@@ -7,10 +7,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.alliancegenome.core.document.GeneToGeneOrthologyDocument;
-import org.alliancegenome.api.response.JsonResultResponse;
 import org.alliancegenome.api.es.query.FieldFilter;
 import org.alliancegenome.api.es.query.Pagination;
+import org.alliancegenome.api.response.JsonResultResponse;
+import org.alliancegenome.core.document.GeneToGeneOrthologyDocument;
+import org.alliancegenome.core.es.util.IndexName;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.TermQueryBuilder;
@@ -30,7 +31,7 @@ public class OrthologyESService extends ESService {
 			bool.filter(new TermQueryBuilder("stringencyFilter.keyword", stringency.toLowerCase()));
 		}
 
-		SearchResponse searchResponse = getSearchResponse(bool, pagination, null, false);
+		SearchResponse searchResponse = getSearchResponse(IndexName.SITE_INDEX, bool, pagination, null, false);
 
 		JsonResultResponse<GeneToGeneOrthologyDocument> response = new JsonResultResponse<>();
 		response.setTotal((int) searchResponse.getHits().getTotalHits().value);

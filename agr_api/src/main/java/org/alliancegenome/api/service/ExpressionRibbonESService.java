@@ -15,15 +15,16 @@ import org.alliancegenome.api.dto.RibbonEntity;
 import org.alliancegenome.api.dto.RibbonSection;
 import org.alliancegenome.api.dto.RibbonSummary;
 import org.alliancegenome.api.entity.SectionSlim;
+import org.alliancegenome.api.es.query.Pagination;
+import org.alliancegenome.api.es.search.Category;
 import org.alliancegenome.api.response.JsonResultResponse;
+import org.alliancegenome.core.document.SpeciesSummaryDocument;
+import org.alliancegenome.core.es.util.IndexName;
 import org.alliancegenome.core.util.FileHelper;
 import org.alliancegenome.curation_api.model.document.es.GeneExpressionDocument;
 import org.alliancegenome.curation_api.model.document.es.GeneExpressionRibbonSummaryDocument;
 import org.alliancegenome.curation_api.model.entities.Gene;
 import org.alliancegenome.curation_api.model.entities.GeneExpressionAnnotation;
-import org.alliancegenome.api.es.query.Pagination;
-import org.alliancegenome.api.es.search.Category;
-import org.alliancegenome.core.document.SpeciesSummaryDocument;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
@@ -100,7 +101,7 @@ public class ExpressionRibbonESService extends ESService {
 		LinkedHashMap<String, SortOrder> sorts = new LinkedHashMap<>();
 		Pagination pagination = new Pagination();
 
-		SearchResponse searchResponse = getSearchResponse(boolQuery, pagination, sorts, false);
+		SearchResponse searchResponse = getSearchResponse(IndexName.SITE_INDEX, boolQuery, pagination, sorts, false);
 		if (searchResponse.getHits().getHits().length > 0) {
 			try {
 				return mapper.readValue(searchResponse.getHits().getHits()[0].getSourceAsString(), GeneExpressionRibbonSummaryDocument.class);
@@ -117,7 +118,7 @@ public class ExpressionRibbonESService extends ESService {
 		boolQuery.filter(new TermQueryBuilder("curie", geneID));
 		LinkedHashMap<String, SortOrder> sorts = new LinkedHashMap<>();
 		Pagination pagination = new Pagination();
-		SearchResponse searchResponse = getSearchResponse(boolQuery, pagination, sorts, false);
+		SearchResponse searchResponse = getSearchResponse(IndexName.SEARCH_RESULT, boolQuery, pagination, sorts, false);
 		if (searchResponse.getHits().getHits().length > 0) {
 			try {
 				Map<String, Object> map = mapper.readValue(searchResponse.getHits().getHits()[0].getSourceAsString(), new TypeReference<Map<String, Object>>() {

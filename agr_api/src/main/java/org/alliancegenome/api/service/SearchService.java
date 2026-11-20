@@ -17,11 +17,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.alliancegenome.api.service.helper.SearchHelper;
 import org.alliancegenome.api.es.dao.SearchDAO;
 import org.alliancegenome.api.es.search.Category;
 import org.alliancegenome.api.es.search.RelatedDataLink;
 import org.alliancegenome.api.es.search.SearchApiResponse;
+import org.alliancegenome.api.service.helper.SearchHelper;
+import org.alliancegenome.core.es.util.IndexName;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.lucene.search.function.FieldValueFactorFunction;
@@ -60,7 +61,7 @@ public class SearchService {
 
 	private static QueryManipulationService queryManipulationService = new QueryManipulationService();
 
-	public SearchApiResponse query(String q, String category, int limit, int offset, String sortBy, Boolean debug, UriInfo uriInfo) {
+	public SearchApiResponse query(IndexName indexName, String q, String category, int limit, int offset, String sortBy, Boolean debug, UriInfo uriInfo) {
 
 		SearchApiResponse result = new SearchApiResponse();
 
@@ -84,7 +85,7 @@ public class SearchService {
 			sorts.put(sortBy, SortOrder.ASC);
 		}
 
-		SearchResponse searchResponse = searchDAO.performQuery(query, aggBuilders, rescorerBuilder, searchHelper.getResponseFields(), limit, offset, hlb, sorts, debug);
+		SearchResponse searchResponse = searchDAO.performQuery(indexName, query, aggBuilders, rescorerBuilder, searchHelper.getResponseFields(), limit, offset, hlb, sorts, debug);
 
 		if (debug != null && debug) {
 			Log.info("Search Query: " + q);
@@ -398,7 +399,7 @@ public class SearchService {
 
 		filters.add(targetField, sourceName);
 
-		Long count = searchDAO.performCountQuery(buildQuery(null, targetCategory, filters));
+		Long count = searchDAO.performCountQuery(IndexName.SITE_INDEX, buildQuery(null, targetCategory, filters));
 
 		RelatedDataLink relatedDataLink = new RelatedDataLink();
 		relatedDataLink.setCategory(targetCategory);

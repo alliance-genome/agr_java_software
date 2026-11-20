@@ -7,10 +7,11 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import org.alliancegenome.core.document.GeneToGeneParalogyDocument;
-import org.alliancegenome.api.response.JsonResultResponse;
 import org.alliancegenome.api.es.dao.SearchDAO;
 import org.alliancegenome.api.es.query.Pagination;
+import org.alliancegenome.api.response.JsonResultResponse;
+import org.alliancegenome.core.document.GeneToGeneParalogyDocument;
+import org.alliancegenome.core.es.util.IndexName;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
@@ -34,7 +35,7 @@ public class GeneToGeneParalogyESService {
 		List<AggregationBuilder> aggBuilders = new ArrayList<>();
 		HighlightBuilder hlb = new HighlightBuilder();
 
-		return searchDAO.performQuery(
+		return searchDAO.performQuery(IndexName.SITE_INDEX,
 			bool, aggBuilders, null, List.of("*"),
 			pagination.getLimit(), pagination.getOffset(), hlb, sorts, false);
 

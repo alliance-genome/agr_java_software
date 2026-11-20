@@ -10,12 +10,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.alliancegenome.core.document.TransgenicAlleleSummaryDocument;
+import org.alliancegenome.api.es.query.Pagination;
 import org.alliancegenome.api.response.JsonResultResponse;
+import org.alliancegenome.core.document.TransgenicAlleleSummaryDocument;
+import org.alliancegenome.core.es.util.IndexName;
 import org.alliancegenome.curation_api.model.document.es.AlleleSummaryDocument;
 import org.alliancegenome.curation_api.model.document.es.ESDocument;
 import org.alliancegenome.curation_api.model.document.es.VariantSummaryDocument;
-import org.alliancegenome.api.es.query.Pagination;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
@@ -30,6 +31,9 @@ import lombok.extern.slf4j.Slf4j;
 @RequestScoped
 @Slf4j
 public class AlleleESService extends ESService {
+
+	// The gene page alleles table lists allele_summary (site_index) together with variants that have no allele (variant_summary)
+	private static final List<IndexName> ALLELE_AND_VARIANT_INDEXES = List.of(IndexName.SITE_INDEX, IndexName.VARIANT_SUMMARY);
 
 	static final List<String> VIEWER_SOURCE_INCLUDES = List.of(
 		"allele.curie",
@@ -122,7 +126,7 @@ public class AlleleESService extends ESService {
 
 		JsonResultResponse<TransgenicAlleleSummaryDocument> ret = new JsonResultResponse<>();
 
-		SearchResponse searchResponse = getSearchResponse(bool, new Pagination(), null, false);
+		SearchResponse searchResponse = getSearchResponse(IndexName.SITE_INDEX, bool, new Pagination(), null, false);
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
 		List<TransgenicAlleleSummaryDocument> list = new ArrayList<>();
 		Arrays.stream(searchResponse.getHits().getHits()).forEach(searchHit -> {
@@ -143,7 +147,7 @@ public class AlleleESService extends ESService {
 		bool.must(new MatchQueryBuilder("allele.primaryExternalId", alleleId));
 		bool.filter(new TermQueryBuilder("category", "allele_summary"));
 		Pagination pagination = new Pagination();
-		SearchResponse searchResponse = getSearchResponse(bool, pagination, null, false);
+		SearchResponse searchResponse = getSearchResponse(IndexName.SITE_INDEX, bool, pagination, null, false);
 		try {
 			if (searchResponse.getHits().getTotalHits().value >= 1) {
 				return mapper.readValue(searchResponse.getHits().getHits()[0].getSourceAsString(), AlleleSummaryDocument.class);
@@ -161,7 +165,7 @@ public class AlleleESService extends ESService {
 		BoolQueryBuilder bool = boolQuery();
 		bool.must(new MatchQueryBuilder("allele.primaryExternalId", alleleId));
 		bool.filter(new TermQueryBuilder("category", "variant_summary"));
-		SearchResponse searchResponse = getSearchResponse(bool, pagination, variantSummaryDefaultSort, false);
+		SearchResponse searchResponse = getSearchResponse(IndexName.VARIANT_SUMMARY, bool, pagination, variantSummaryDefaultSort, false);
 		List<VariantSummaryDocument> list = new ArrayList<>();
 		for (SearchHit hit : searchResponse.getHits().getHits()) {
 			try {
@@ -193,7 +197,7 @@ public class AlleleESService extends ESService {
 		ret.setSupplementalData(getAlleleSupplementalData(queryBuilder));
 		addTableFilter(pagination, queryBuilder);
 		pagination.setSourceIncludes(TABLE_SOURCE_INCLUDES);
-		SearchResponse searchResponse = getSearchResponse(queryBuilder, pagination, sortMap.get(pagination.getSortBy()), false);
+		SearchResponse searchResponse = getSearchResponse(ALLELE_AND_VARIANT_INDEXES, queryBuilder, pagination, sortMap.get(pagination.getSortBy()), false);
 		List<ESDocument> list = new ArrayList<>();
 		Arrays.stream(searchResponse.getHits().getHits()).forEach(searchHit -> {
 			try {
@@ -223,7 +227,7 @@ public class AlleleESService extends ESService {
 		addTableFilter(pagination, queryBuilder);
 		pagination.setSourceIncludes(VIEWER_SOURCE_INCLUDES);
 
-		SearchResponse searchResponse = getSearchResponse(queryBuilder, pagination, viewerSortMap, false);
+		SearchResponse searchResponse = getSearchResponse(IndexName.SITE_INDEX, queryBuilder, pagination, viewerSortMap, false);
 		List<String> identifiers = new ArrayList<>();
 		for (SearchHit searchHit : searchResponse.getHits().getHits()) {
 			String identifier = resolveAlleleIdentifier(searchHit.getSourceAsMap());
@@ -251,7 +255,7 @@ public class AlleleESService extends ESService {
 
 		Pagination countPagination = new Pagination(1, 1, null, null);
 		countPagination.setSourceIncludes(List.of("category"));
-		SearchResponse searchResponse = getSearchResponse(queryBuilder, countPagination, null, false);
+		SearchResponse searchResponse = getSearchResponse(IndexName.VARIANT_SUMMARY, queryBuilder, countPagination, null, false);
 		return searchResponse.getHits().getTotalHits().value > 0;
 	}
 
@@ -277,7 +281,7 @@ public class AlleleESService extends ESService {
 		aggregationFields.put("variantList.variantType.name.keyword", "variantType");
 		aggregationFields.put("variantList.curatedVariantGenomicLocations.predictedVariantConsequences.vepConsequences.name.keyword", "molecularConsequence");
 
-		Map<String, List<String>> distinctFieldValueMap = getAggregations(unfilteredQuery, aggregationFields, null, false, false);
+		Map<String, List<String>> distinctFieldValueMap = getAggregations(ALLELE_AND_VARIANT_INDEXES, unfilteredQuery, aggregationFields, null, false, false);
 		distinctFieldValueMap.values().forEach(v -> v.sort(String.CASE_INSENSITIVE_ORDER));
 		Map<String, Object> supplementalData = new LinkedHashMap<>();
 		supplementalData.put(DISTINCT_FIELD_VALUES, distinctFieldValueMap);

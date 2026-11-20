@@ -5,9 +5,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.alliancegenome.core.document.GeneTransgenicAlleleSummaryDocument;
-import org.alliancegenome.api.response.JsonResultResponse;
 import org.alliancegenome.api.es.query.Pagination;
+import org.alliancegenome.api.response.JsonResultResponse;
+import org.alliancegenome.core.document.GeneTransgenicAlleleSummaryDocument;
+import org.alliancegenome.core.es.util.IndexName;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.search.sort.SortOrder;
@@ -28,7 +29,7 @@ public class TransgenicAlleleESService extends ESService {
 
 		JsonResultResponse<GeneTransgenicAlleleSummaryDocument> ret = new JsonResultResponse<>();
 		Map<String, String> aggregationFields = Map.of("alleleDocument.allele.taxon.species.fullName.keyword", "species");
-		ret.setSupplementalData(getSupplementalData(null, true, debug, query, aggregationFields));
+		ret.setSupplementalData(getSupplementalData(IndexName.SITE_INDEX, null, true, debug, query, aggregationFields));
 
 		// add table filter
 		addTableFilter(pagination, query);
@@ -36,7 +37,7 @@ public class TransgenicAlleleESService extends ESService {
 		sortingMap.put("alleleDocument.phylogeneticSortingIndex", SortOrder.ASC);
 		sortingMap.put("alleleDocument.allele.alleleSymbol.formatText.sort", SortOrder.ASC);
 
-		SearchResponse searchResponse = getSearchResponse(query, pagination, sortingMap, null, debug);
+		SearchResponse searchResponse = getSearchResponse(IndexName.SITE_INDEX, query, pagination, sortingMap, null, debug);
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
 
 		List<GeneTransgenicAlleleSummaryDocument> list = Arrays.stream(searchResponse.getHits().getHits())

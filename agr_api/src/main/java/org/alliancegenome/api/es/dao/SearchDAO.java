@@ -24,14 +24,14 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SearchDAO extends ESDAO {
 
-	public Long performCountQuery(QueryBuilder query) {
+	public Long performCountQuery(IndexName indexName, QueryBuilder query) {
 		SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
 
 		searchSourceBuilder.query(query);
 		searchSourceBuilder.size(0);
 		searchSourceBuilder.trackTotalHits(true);
 
-		SearchRequest searchRequest = new SearchRequest(IndexName.SITE_INDEX.getIndexName());
+		SearchRequest searchRequest = new SearchRequest(indexName.getIndexName());
 		searchRequest.source(searchSourceBuilder);
 
 		SearchResponse response = null;
@@ -50,16 +50,21 @@ public class SearchDAO extends ESDAO {
 
 	}
 
-	public SearchResponse performQuery(QueryBuilder query, List<AggregationBuilder> aggBuilders, QueryRescorerBuilder rescorerBuilder, List<String> responseFields, int limit, int offset, HighlightBuilder highlighter, LinkedHashMap<String, SortOrder> sorts, Boolean debug) {
-		return performQuery(query, aggBuilders, rescorerBuilder, responseFields, limit, offset, highlighter, sorts, null, debug);
+	public SearchResponse performQuery(IndexName indexName, QueryBuilder query, List<AggregationBuilder> aggBuilders, QueryRescorerBuilder rescorerBuilder, List<String> responseFields, int limit, int offset, HighlightBuilder highlighter, LinkedHashMap<String, SortOrder> sorts, Boolean debug) {
+		return performQuery(indexName, query, aggBuilders, rescorerBuilder, responseFields, limit, offset, highlighter, sorts, null, debug);
 	}
 
-	public SearchResponse performQuery(QueryBuilder query, List<AggregationBuilder> aggBuilders, QueryRescorerBuilder rescorerBuilder, List<String> responseFields, int limit, int offset, HighlightBuilder highlighter, LinkedHashMap<String, SortOrder> sorts, Map<String, Boolean> fieldSorter,
+	public SearchResponse performQuery(IndexName indexName, QueryBuilder query, List<AggregationBuilder> aggBuilders, QueryRescorerBuilder rescorerBuilder, List<String> responseFields, int limit, int offset, HighlightBuilder highlighter, LinkedHashMap<String, SortOrder> sorts, Map<String, Boolean> fieldSorter,
 		Boolean debug) {
-		return performQuery(query, aggBuilders, rescorerBuilder, responseFields, limit, offset, highlighter, sorts, fieldSorter, null, debug);
+		return performQuery(indexName, query, aggBuilders, rescorerBuilder, responseFields, limit, offset, highlighter, sorts, fieldSorter, null, debug);
 	}
 
-	public SearchResponse performQuery(QueryBuilder query, List<AggregationBuilder> aggBuilders, QueryRescorerBuilder rescorerBuilder, List<String> responseFields, int limit, int offset, HighlightBuilder highlighter, LinkedHashMap<String, SortOrder> sorts, Map<String, Boolean> fieldSorter,
+	public SearchResponse performQuery(IndexName indexName, QueryBuilder query, List<AggregationBuilder> aggBuilders, QueryRescorerBuilder rescorerBuilder, List<String> responseFields, int limit, int offset, HighlightBuilder highlighter, LinkedHashMap<String, SortOrder> sorts, Map<String, Boolean> fieldSorter,
+		List<String> sourceExcludes, Boolean debug) {
+		return performQuery(List.of(indexName), query, aggBuilders, rescorerBuilder, responseFields, limit, offset, highlighter, sorts, fieldSorter, sourceExcludes, debug);
+	}
+
+	public SearchResponse performQuery(List<IndexName> indexNames, QueryBuilder query, List<AggregationBuilder> aggBuilders, QueryRescorerBuilder rescorerBuilder, List<String> responseFields, int limit, int offset, HighlightBuilder highlighter, LinkedHashMap<String, SortOrder> sorts, Map<String, Boolean> fieldSorter,
 		List<String> sourceExcludes, Boolean debug) {
 
 		SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
@@ -106,7 +111,7 @@ public class SearchDAO extends ESDAO {
 			log.debug("searchSourceBuilder: " + searchSourceBuilder);
 		}
 
-		SearchRequest searchRequest = new SearchRequest(IndexName.SITE_INDEX.getIndexName());
+		SearchRequest searchRequest = new SearchRequest(indexNames.stream().map(IndexName::getIndexName).toArray(String[]::new));
 		searchRequest.source(searchSourceBuilder);
 
 		if (debug != null && debug) {

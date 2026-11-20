@@ -1,8 +1,9 @@
 package org.alliancegenome.api.controller;
 
+import org.alliancegenome.api.es.search.SearchApiResponse;
 import org.alliancegenome.api.rest.interfaces.SearchRESTInterface;
 import org.alliancegenome.api.service.SearchService;
-import org.alliancegenome.api.es.search.SearchApiResponse;
+import org.alliancegenome.core.es.util.IndexName;
 
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.RequestScoped;
@@ -33,7 +34,7 @@ public class SearchController implements SearchRESTInterface {
 		} else {
 			Log.debug("This is the Search query: " + q);
 		}
-		return searchService.query(q, category, limit, offset, sortBy, debug, uriInfo);
+		return searchService.query(IndexName.SEARCH_RESULT, q, category, limit, offset, sortBy, debug, uriInfo);
 	}
 
 }

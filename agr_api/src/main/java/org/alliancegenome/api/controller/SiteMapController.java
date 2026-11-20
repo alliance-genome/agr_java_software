@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.alliancegenome.api.es.search.Category;
 import org.alliancegenome.api.model.xml.SiteMap;
 import org.alliancegenome.api.model.xml.SiteMapIndex;
 import org.alliancegenome.api.model.xml.XMLURL;
@@ -12,7 +13,6 @@ import org.alliancegenome.api.model.xml.XMLURLSet;
 import org.alliancegenome.api.rest.interfaces.SiteMapRESTInterface;
 import org.alliancegenome.api.service.SiteMapService;
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.api.es.search.Category;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
 
@@ -84,8 +84,8 @@ public class SiteMapController implements SiteMapRESTInterface {
 		// Each entry: [urlPath, esCategory, keyField]
 		String[][] lookups = {
 			{"gene", Category.GENE.getName(), "curie"},
-			{"allele", "allele", "primaryKey"},
-			{"variant", "variant", "primaryKey"},
+			{"allele", Category.ALLELE.getName(), "primaryKey"},
+			{"variant", Category.VARIANT.getName(), "primaryKey"},
 			{"disease", Category.DISEASE.getName(), "primaryKey"},
 		};
 

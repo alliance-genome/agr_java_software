@@ -29,11 +29,11 @@ import org.alliancegenome.core.document.GeneMolecularInteractionDocument;
 import org.alliancegenome.core.document.GenePhenotypeAnnotationDocument;
 import org.alliancegenome.core.document.LiteratureSummaryDocument;
 import org.alliancegenome.core.document.PhenotypeAnnotationDocument;
+import org.alliancegenome.core.es.util.IndexName;
 import org.alliancegenome.curation_api.model.document.es.GeneExpressionDocument;
 import org.apache.commons.collections4.CollectionUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
@@ -150,8 +150,8 @@ public class ReferenceDataESService extends ESService {
 	// continue with the truncated set rather than failing the request so page 1 still
 	// renders (the count is then a best-effort lower bound).
 	private List<SearchHit> fetchDedupeHits(BoolQueryBuilder query) {
-		SearchResponse resp = SEARCH_DAO.performQuery(
-			(QueryBuilder) query, List.of(), null, DEDUPE_SOURCE_FIELDS,
+		SearchResponse resp = SEARCH_DAO.performQuery(IndexName.SITE_INDEX,
+			query, List.of(), null, DEDUPE_SOURCE_FIELDS,
 			MAX_DEDUPE_HITS, 0,
 			new org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder(), null, false);
 		long total = resp.getHits().getTotalHits().value;
@@ -171,8 +171,8 @@ public class ReferenceDataESService extends ESService {
 			ids[i] = pageHits.get(i).getId();
 		}
 		BoolQueryBuilder byIds = boolQuery().must(QueryBuilders.idsQuery().addIds(ids));
-		SearchResponse resp = SEARCH_DAO.performQuery(
-			(QueryBuilder) byIds, List.of(), null, List.of(),
+		SearchResponse resp = SEARCH_DAO.performQuery(IndexName.SITE_INDEX,
+			byIds, List.of(), null, List.of(),
 			ids.length, 0,
 			new org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder(), null, false);
 		Map<String, SearchHit> byId = new HashMap<>();
@@ -335,7 +335,7 @@ public class ReferenceDataESService extends ESService {
 
 	private <T> JsonResultResponse<T> runTypedQuery(BoolQueryBuilder query, Pagination pagination, Class<T> type) {
 		addTableFilter(pagination, query);
-		SearchResponse searchResponse = getSearchResponse(query, pagination, null, false);
+		SearchResponse searchResponse = getSearchResponse(IndexName.SITE_INDEX, query, pagination, null, false);
 
 		JsonResultResponse<T> ret = new JsonResultResponse<>();
 		ret.setTotal((int) searchResponse.getHits().getTotalHits().value);
@@ -385,8 +385,8 @@ public class ReferenceDataESService extends ESService {
 			.filter(termQuery("category", "gene_summary"))
 			.filter(termsQuery("gene.primaryExternalId.keyword", geneIds));
 
-		SearchResponse resp = SEARCH_DAO.performQuery(
-			(QueryBuilder) query, List.of(), null,
+		SearchResponse resp = SEARCH_DAO.performQuery(IndexName.SITE_INDEX,
+			query, List.of(), null,
 			List.of("gene"),
 			geneIds.size() * 2, 0,
 			new org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder(), null, false);
@@ -440,8 +440,8 @@ public class ReferenceDataESService extends ESService {
 				.size(MAX_MODEL_SAMPLES_PER_AGM)
 				.fetchSource(new String[]{"subject", "object", "generatedRelationString", "phenotypeStatement", "category"}, null));
 
-		SearchResponse searchResponse = SEARCH_DAO.performQuery(
-			(QueryBuilder) query, List.of(agg), null, List.of(), 0, 0,
+		SearchResponse searchResponse = SEARCH_DAO.performQuery(IndexName.SITE_INDEX,
+			query, List.of(agg), null, List.of(), 0, 0,
 			new org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder(), null, false);
 
 		Map<String, Map<String, Object>> rowsByAgm = new LinkedHashMap<>();
@@ -523,8 +523,8 @@ public class ReferenceDataESService extends ESService {
 			.filter(termsQuery("category", PHENOTYPE_CATEGORIES))
 			.must(termQuery("references.curie.keyword", referenceCurie));
 
-		SearchResponse resp = SEARCH_DAO.performQuery(
-			(QueryBuilder) query, List.of(), null,
+		SearchResponse resp = SEARCH_DAO.performQuery(IndexName.SITE_INDEX,
+			query, List.of(), null,
 			List.of("phenotypeStatement", "primaryAnnotations"),
 			MAX_AGM_PHENOTYPE_HITS, 0,
 			new org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder(), null, false);
@@ -599,8 +599,8 @@ public class ReferenceDataESService extends ESService {
 			.subAggregation(AggregationBuilders.topHits("sample").size(1)
 				.fetchSource(new String[]{"subject"}, null));
 
-		SearchResponse searchResponse = SEARCH_DAO.performQuery(
-			(QueryBuilder) query, List.of(agg), null, List.of("subject"), 0, 0,
+		SearchResponse searchResponse = SEARCH_DAO.performQuery(IndexName.SITE_INDEX,
+			query, List.of(agg), null, List.of("subject"), 0, 0,
 			new org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder(), null, false);
 
 		JsonResultResponse<Map<String, Object>> ret = new JsonResultResponse<>();
@@ -640,8 +640,8 @@ public class ReferenceDataESService extends ESService {
 			.subAggregation(AggregationBuilders.topHits("latest").size(latest)
 				.sort("literatureSummary.date_published.keyword", SortOrder.DESC));
 
-		SearchResponse searchResponse = SEARCH_DAO.performQuery(
-			(QueryBuilder) query, List.of(agg), null, List.of(), 0, 0,
+		SearchResponse searchResponse = SEARCH_DAO.performQuery(IndexName.SITE_INDEX,
+			query, List.of(agg), null, List.of(), 0, 0,
 			new org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder(), null, false);
 
 		JsonResultResponse<LiteratureSummaryDocument> ret = new JsonResultResponse<>();

@@ -43,6 +43,8 @@ public class VariantMapping extends Mapping {
 			builder.startObject("properties");
 			new FieldBuilder(builder, "variantType.name", "text").keyword().sortLowercase().build();
 			new FieldBuilder(builder, "curatedVariantGenomicLocations.predictedVariantConsequences.vepConsequences.name", "text").keyword().sortLowercase().build();
+			new FieldBuilder(builder, "curatedVariantGenomicLocations.variantGenomicLocationAssociationObject.name", "text").keyword().sortSmartAlpha().build();
+			new FieldBuilder(builder, "curatedVariantGenomicLocations.start", "integer").build();
 			new FieldBuilder(builder, "curatedVariantGenomicLocations.hgvs", "text").keyword().sortSmartAlpha().build();
 
 			builder.endObject();

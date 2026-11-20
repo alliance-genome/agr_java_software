@@ -26,7 +26,7 @@ public class SiteMapService {
 		SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
 		searchSourceBuilder.query(bool);
 
-		SearchRequest searchRequest = new SearchRequest(IndexName.SITE_INDEX.getIndexName());
+		SearchRequest searchRequest = new SearchRequest(IndexName.SEARCH_RESULT.getIndexName());
 		searchRequest.source(searchSourceBuilder);
 
 		try {

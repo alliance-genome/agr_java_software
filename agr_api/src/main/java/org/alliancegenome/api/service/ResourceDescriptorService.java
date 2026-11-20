@@ -7,8 +7,9 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import org.alliancegenome.core.document.ResourceDescriptorDocument;
 import org.alliancegenome.api.es.dao.SearchDAO;
+import org.alliancegenome.core.document.ResourceDescriptorDocument;
+import org.alliancegenome.core.es.util.IndexName;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
@@ -21,7 +22,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
-
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -40,7 +40,7 @@ public class ResourceDescriptorService {
 		LinkedHashMap<String, SortOrder> sorts = new LinkedHashMap<>();
 		BoolQueryBuilder bool = boolQuery();
 		bool.must(new MatchQueryBuilder("category", "resource_descriptor"));
-		SearchResponse resp = searchDAO.performQuery(
+		SearchResponse resp = searchDAO.performQuery(IndexName.SITE_INDEX,
 			bool, aggBuilders, null, List.of("*"),
 			FETCH_LIMIT, 0, hlb, sorts, false);
 

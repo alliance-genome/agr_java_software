@@ -15,7 +15,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.alliancegenome.api.es.dao.SearchDAO;
 import org.alliancegenome.api.service.EntityType;
+import org.alliancegenome.core.es.util.IndexName;
 import org.alliancegenome.core.helper.DiseaseAnnotationHelper;
 import org.alliancegenome.curation_api.model.entities.AGMDiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.AlleleDiseaseAnnotation;
@@ -24,7 +26,6 @@ import org.alliancegenome.curation_api.model.entities.CrossReference;
 import org.alliancegenome.curation_api.model.entities.DiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.GeneDiseaseAnnotation;
 import org.alliancegenome.curation_api.model.entities.Organization;
-import org.alliancegenome.api.es.dao.SearchDAO;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.TermQueryBuilder;
@@ -110,7 +111,7 @@ public class APIServiceHelper {
 			.filter(new TermQueryBuilder(idField, id));
 
 		try {
-			SearchResponse response = searchDAO.performQuery(bool, new ArrayList<>(), null, List.of(nameField), 1, 0, null, null, false);
+			SearchResponse response = searchDAO.performQuery(IndexName.SITE_INDEX, bool, new ArrayList<>(), null, List.of(nameField), 1, 0, null, null, false);
 			SearchHit[] hits = response.getHits().getHits();
 			if (hits.length == 0) {
 				return "NotFound";

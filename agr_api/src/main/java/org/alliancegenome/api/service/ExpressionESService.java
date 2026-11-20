@@ -9,10 +9,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.alliancegenome.api.response.JsonResultResponse;
-import org.alliancegenome.curation_api.model.document.es.GeneExpressionDocument;
 import org.alliancegenome.api.es.query.Pagination;
+import org.alliancegenome.api.response.JsonResultResponse;
 import org.alliancegenome.core.document.SpeciesSummaryDocument;
+import org.alliancegenome.core.es.util.IndexName;
+import org.alliancegenome.curation_api.model.document.es.GeneExpressionDocument;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
@@ -49,7 +50,7 @@ public class ExpressionESService extends ESService {
 		addTableFilter(pagination, boolQuery);
 		
 		LinkedHashMap<String, SortOrder> sortOrders = getExpressionSortOrders(pagination, focusTaxonId);
-		SearchResponse searchResponse = getSearchResponse(boolQuery, pagination, sortOrders, false);
+		SearchResponse searchResponse = getSearchResponse(IndexName.SITE_INDEX, boolQuery, pagination, sortOrders, false);
 
 
 		List<GeneExpressionDocument> list = new ArrayList<>();
@@ -138,7 +139,7 @@ public class ExpressionESService extends ESService {
 		aggregationFields.put("geneExpressionAnnotation.whenExpressedStageName.keyword", "stage");
 		aggregationFields.put("geneExpressionAnnotation.expressionAssayUsed.name.keyword", "assay");
 
-		Map<String, List<String>> distinctFieldValueMap = getAggregations(unfilteredQuery, aggregationFields, null, false, false);
+		Map<String, List<String>> distinctFieldValueMap = getAggregations(IndexName.SITE_INDEX, unfilteredQuery, aggregationFields, null, false, false);
 		Map<String, Object> supplementalData = new LinkedHashMap<>();
 		supplementalData.put(DISTINCT_FIELD_VALUES, distinctFieldValueMap);
 		return supplementalData;
