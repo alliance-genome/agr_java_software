@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.es.schema.Mapping;
+import org.alliancegenome.core.es.schema.SequenceSummaryMapping;
 import org.alliancegenome.core.es.schema.Settings;
 import org.alliancegenome.core.es.schema.VariantMapping;
 import org.alliancegenome.core.es.schema.settings.SiteIndexSettings;
@@ -15,7 +16,7 @@ public enum IndexName {
 	SITE_INDEX("site_index", new SiteIndexSettings(true, ConfigHelper.getEsShardCount()), new Mapping(true)),
 	SEARCH_RESULT("search_result", new SiteIndexSettings(true, ConfigHelper.getEsShardCount()), new Mapping(true)),
 	VARIANT_SUMMARY("variant_summary", new VariantIndexSettings(true, ConfigHelper.getEsShardCount()), new VariantMapping(true)),
-	SEQUENCE_SUMMARY("sequence_summary", new VariantIndexSettings(true, ConfigHelper.getEsShardCount()), new VariantMapping(true)),
+	SEQUENCE_SUMMARY("sequence_summary", new VariantIndexSettings(true, ConfigHelper.getEsShardCount()), new SequenceSummaryMapping(true)),
 	;
 	
 	private String indexName;
