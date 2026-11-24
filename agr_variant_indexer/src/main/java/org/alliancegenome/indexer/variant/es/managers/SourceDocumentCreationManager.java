@@ -122,16 +122,12 @@ public class SourceDocumentCreationManager extends Thread {
 				creator.join();
 			}
 
-			// Wait for shared jsonQueue to drain
-			log.info("All species threads finished, waiting for jsonQueue to drain");
-			while (!jsonQueue.isEmpty()) {
-				Thread.sleep(1000);
+			// One end marker per indexer, queued behind the last real batch, so every indexer drains, flushes and stops in parallel
+			log.info("All species threads finished, shutting down shared RoutedBulkIndexer pool");
+			for (int i = 0; i < indexers.size(); i++) {
+				jsonQueue.put(IndexBatch.END);
 			}
-
-			// Shut down shared bulk indexer pool
-			log.info("Shutting down shared RoutedBulkIndexer pool");
 			for (RoutedBulkIndexer indexer : indexers) {
-				indexer.interrupt();
 				indexer.join();
 			}
 			phPool.finishProcess();

@@ -10,6 +10,9 @@ import lombok.Getter;
 @Getter
 public class IndexBatch {
 
+	// Queued once per RoutedBulkIndexer behind the last real batch: flush, close the client and stop
+	public static final IndexBatch END = new IndexBatch(null);
+
 	private final IndexName indexName;
 	private final List<byte[]> docs = new ArrayList<>();
 	private long bytes;

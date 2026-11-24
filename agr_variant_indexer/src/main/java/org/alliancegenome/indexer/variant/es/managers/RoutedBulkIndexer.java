@@ -67,9 +67,12 @@ public class RoutedBulkIndexer extends Thread {
 		try {
 			Map<IndexName, IndexBatch> pending = new EnumMap<>(IndexName.class);
 
-			while (!Thread.currentThread().isInterrupted()) {
+			while (true) {
 				try {
 					IndexBatch batch = jsonQueue.take();
+					if (batch == IndexBatch.END) {
+						break;
+					}
 					IndexName indexName = batch.getIndexName();
 					IndexBatch pendingBatch = pending.computeIfAbsent(indexName, IndexBatch::new);
 
@@ -104,12 +107,10 @@ public class RoutedBulkIndexer extends Thread {
 						phGlobal.progressProcess();
 					}
 				} catch (InterruptedException e) {
-					Thread.currentThread().interrupt();
+					log.warn(label + " interrupted before its end marker, flushing and stopping");
+					break;
 				}
 			}
-
-			// Clear interrupt flag so the final bulk request can complete
-			Thread.interrupted();
 
 			// Flush remaining
 			for (IndexBatch pendingBatch : pending.values()) {

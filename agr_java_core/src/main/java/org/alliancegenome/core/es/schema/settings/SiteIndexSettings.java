@@ -30,10 +30,13 @@ public class SiteIndexSettings extends Settings {
 	// Used for taking snapshots
 	public void buildRepositorySettings(String bucketName, String basePath) throws IOException {
 		builder.startObject().field("bucket", bucketName);
-		if (basePath != null && !basePath.isEmpty()) {
-			builder.field("base_path", basePath);
-		}
-		builder.field("compress", true).endObject();
+			if (basePath != null && !basePath.isEmpty()) {
+				builder.field("base_path", basePath);
+			}
+			builder.field("compress", true);
+			// "0" removes the ES 7 default snapshot throttle of 40mb/s per node
+			builder.field("max_snapshot_bytes_per_sec", "0");
+		builder.endObject();
 	}
 
 }

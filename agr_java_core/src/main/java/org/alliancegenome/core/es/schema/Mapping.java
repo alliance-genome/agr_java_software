@@ -375,6 +375,7 @@ public class Mapping extends Builder {
 		boolean standardText;
 		boolean symbol;
 		boolean synonym;
+		Integer ignoreAbove;
 
 		public FieldBuilder(XContentBuilder builder, String name, String type) {
 			this.builder = builder;
@@ -453,6 +454,12 @@ public class Mapping extends Builder {
 			return this;
 		}
 
+		// Applies to keyword fields and keyword sub-fields; 8191 chars stays under Lucene's 32766-byte term limit
+		public FieldBuilder ignoreAbove(int ignoreAbove) {
+			this.ignoreAbove = ignoreAbove;
+			return this;
+		}
+
 		protected void buildProperty(String name, String type) throws IOException {
 			buildProperty(name, type, null, null, null);
 		}
@@ -475,6 +482,9 @@ public class Mapping extends Builder {
 			if (normalizer != null) {
 				builder.field("normalizer", normalizer);
 			}
+			if (ignoreAbove != null && "keyword".equals(type)) {
+				builder.field("ignore_above", ignoreAbove);
+			}
 			builder.endObject();
 		}
 
@@ -485,6 +495,9 @@ public class Mapping extends Builder {
 			}
 			if (!index) {
 				builder.field("index", false);
+			}
+			if (ignoreAbove != null && "keyword".equals(type)) {
+				builder.field("ignore_above", ignoreAbove);
 			}
 			if (analyzer != null) {
 				builder.field("analyzer", analyzer);

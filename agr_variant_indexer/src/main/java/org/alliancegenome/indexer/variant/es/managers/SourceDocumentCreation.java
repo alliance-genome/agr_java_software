@@ -39,6 +39,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SourceDocumentCreation extends Thread {
 
+	// End markers, queued once per transformer/producer behind the last real bucket
+	private static final List<VariantContext> VC_END = new ArrayList<>();
+	private static final List<ESDocument> OBJECT_END = new ArrayList<>();
+
 	private final Map<String, Gene> geneCache;
 	private final HashSet<String> variantsCache;
 	private final Map<String, Integer> severityRanking;
@@ -121,31 +125,21 @@ public class SourceDocumentCreation extends Thread {
 			}
 			ph1.finishProcess();
 
-			log.info(messageHeader + "Waiting for VC Queue to empty");
-			while (!vcQueue.isEmpty()) {
-				Thread.sleep(15000);
-			}
-			TimeUnit.MILLISECONDS.sleep(15000);
-			log.info(messageHeader + "VC Queue Empty shutting down transformers");
-
 			log.info(messageHeader + "Shutting down transformers");
+			for (int i = 0; i < transformers.size(); i++) {
+				vcQueue.put(VC_END);
+			}
 			for (DocumentTransformer t : transformers) {
-				t.interrupt();
 				t.join();
 			}
 			log.info(messageHeader + "Transformers shutdown");
 			ph2.finishProcess();
 
-			log.info(messageHeader + "Waiting for Object Queue to empty");
-			while (!objectQueue.isEmpty()) {
-				Thread.sleep(15000);
-			}
-			TimeUnit.MILLISECONDS.sleep(15000);
-			log.info(messageHeader + "Object Empty shuting down producers");
-
 			log.info(messageHeader + "Shutting down producers");
+			for (int i = 0; i < producers.size(); i++) {
+				objectQueue.put(OBJECT_END);
+			}
 			for (JSONProducer p : producers) {
-				p.interrupt();
 				p.join();
 			}
 			log.info(messageHeader + "JSONProducers shutdown");
@@ -216,9 +210,12 @@ public class SourceDocumentCreation extends Thread {
 		@Override
 		public void run() {
 			List<ESDocument> workBucket = new ArrayList<>();
-			while (!Thread.currentThread().isInterrupted()) {
+			while (true) {
 				try {
 					List<VariantContext> ctxList = vcQueue.take();
+					if (ctxList == VC_END) {
+						break;
+					}
 
 					for (VariantContext ctx : ctxList) {
 						try {
@@ -262,7 +259,8 @@ public class SourceDocumentCreation extends Thread {
 						workBucket = new ArrayList<>();
 					}
 				} catch (InterruptedException e) {
-					Thread.currentThread().interrupt();
+					log.warn(messageHeader + "Transformer interrupted before its end marker, flushing and stopping");
+					break;
 				}
 			}
 
@@ -294,9 +292,12 @@ public class SourceDocumentCreation extends Thread {
 
 			Map<IndexName, IndexBatch> workBuckets = new EnumMap<>(IndexName.class);
 
-			while (!Thread.currentThread().isInterrupted()) {
+			while (true) {
 				try {
 					List<ESDocument> docList = objectQueue.take();
+					if (docList == OBJECT_END) {
+						break;
+					}
 
 					if (!docList.isEmpty()) {
 						for (ESDocument doc : docList) {
@@ -334,12 +335,10 @@ public class SourceDocumentCreation extends Thread {
 						}
 					}
 				} catch (InterruptedException e) {
-					Thread.currentThread().interrupt();
+					log.warn(messageHeader + "Producer interrupted before its end marker, flushing and stopping");
+					break;
 				}
 			}
-
-			// Clear interrupt flag so the remaining buckets can be queued
-			Thread.interrupted();
 
 			// Flush remaining docs
 			try {

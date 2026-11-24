@@ -22,7 +22,7 @@ public class VariantIndexSettings extends Settings {
 				.field("max_result_window", "150000")
 				.field("refresh_interval", "-1")
 				.field("number_of_shards", "" + shardCount)
-				.field("merge.scheduler.max_thread_count", "1")
+				.field("merge.scheduler.max_thread_count", "4")
 				.field("merge.policy.segments_per_tier", "50")
 				.field("merge.policy.floor_segment", "200mb")
 				.field("translog.sync_interval", "60s")

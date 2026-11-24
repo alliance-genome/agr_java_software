@@ -21,7 +21,7 @@ import si.mazi.rescu.RestProxyFactory;
 public class GeneCacheService {
 
 	private static final int BATCH_SIZE = 1000;
-	private static final int THREAD_COUNT = 8;
+	private static final int THREAD_COUNT = 24;
 
 	public Map<String, Gene> loadGeneCache() {
 		log.info("Fetching gene IDs from curation API...");
