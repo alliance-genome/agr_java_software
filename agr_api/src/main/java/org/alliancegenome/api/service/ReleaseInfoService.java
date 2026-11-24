@@ -27,7 +27,7 @@ public class ReleaseInfoService {
 	private static ReleaseInfoDocument releaseInfoDocument;
 
 	public ReleaseInfoDocument getReleaseInfo() {
-		if(releaseInfoDocument != null) {
+		if (releaseInfoDocument != null) {
 			return releaseInfoDocument;
 		}
 
